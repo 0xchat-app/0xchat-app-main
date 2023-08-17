@@ -1,9 +1,9 @@
 [submodule "packages/base_framework"]
 	path = packages/base_framework
-	url = git@github.com:0xchat-app/0xchat-base.git
+	url = git@github.com:0xchat-app/0xchat-app-base.git
 [submodule "packages/business_modules"]
 	path = packages/business_modules
-	url = git@github.com:0xchat-app/0xchat-business.git
+	url = git@github.com:0xchat-app/0xchat-app-business.git
 [submodule "packages/0xchat-core"]
 	path = packages/0xchat-core
 	url = git@github.com:0xchat-app/0xchat-core.git
