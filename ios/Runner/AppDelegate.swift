@@ -1,0 +1,90 @@
+import UIKit
+import Flutter
+import ox_push
+
+
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+    override func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        
+        if let navController = self.window.rootViewController as? UINavigationController,
+           let flutterController = navController.viewControllers.first as? FlutterViewController {
+            GeneratedPluginRegistrant.register(with: flutterController)
+            OXCNavigator.register(with: flutterController.engine)
+        }
+        
+        registeNotification()
+        
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    func registeNotification() -> Void {
+        if #available(iOS 10.0, *) {
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.delegate = self
+            notificationCenter.requestAuthorization(options:[.sound, .alert, .badge]) { (granted, error) in
+                if (granted) {
+                    DispatchQueue.main.async {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                    
+                }
+            }
+        }
+        else {
+            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings.init(types: [.sound, .alert, .badge], categories: nil))
+        }
+    }
+    
+    @available(iOS 10.0, *)
+    override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.sound, .alert, .badge])
+    }
+    
+    @available(iOS 10.0, *)
+    override func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    
+    override func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {
+        DispatchQueue.main.async {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+    }
+    
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        completionHandler(.newData)
+    }
+
+    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let deviceTokenStr = deviceToken.map { String(format: "%02.2hhx", arguments: [$0]) }.joined()
+        print(deviceTokenStr)
+        OXPushPlugin.channel()?.invokeMethod("savePushToken", arguments: deviceTokenStr)
+    }
+    
+    override func applicationDidBecomeActive(_ application: UIApplication) {
+        signal(SIGPIPE, SIG_IGN)
+        UIApplication.shared.applicationIconBadgeNumber = 0
+    }
+    
+    override func applicationWillEnterForeground(_ application: UIApplication) {
+        signal(SIGPIPE, SIG_IGN)
+    }
+    
+    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        let urlStr = url.absoluteString
+        let prefix = "oxChat";
+        if (urlStr .hasPrefix("\(prefix)://?")) {
+            let url = urlStr.replacingOccurrences(of: "\(prefix)://?", with: "")
+            let userDefault = UserDefaults.standard
+            userDefault .setValue(url, forKey: "\(prefix).openurl")
+            userDefault.synchronize()
+
+        }
+        return  true
+    }
+}

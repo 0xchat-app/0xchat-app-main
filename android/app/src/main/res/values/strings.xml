@@ -1,0 +1,4 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="main_app_name">0xChat</string>
+    <string name="default_notification_channel_id">10000</string>
+</resources>

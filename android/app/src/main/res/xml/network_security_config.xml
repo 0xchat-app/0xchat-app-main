@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--fix Request "getWorldIp"：CLEARTEXT communication to " + host + " not permitted by network security policy-->
+    <base-config cleartextTrafficPermitted="true" /> <!-- Google Play 要求不使用明文 -->
+</network-security-config>

@@ -1,0 +1,20 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by lips on 2021/7/17.
+  
+*/
+
+NSMotionUsageDescription="0xchat requires access to your motion sensor";
+NSSpeechRecognitionUsageDescription="0xchat requires access to your speech recognition rights";
+kTCCServiceMediaLibrary="0xchat requires access to your music";
+NSAppleMusicUsageDescription="0xchat requires access to your multimedia rights";
+NSCalendarsUsageDescription="0xchat requires access to your calendar";
+NSContactsUsageDescription="0xchat requires access to your address book";
+NSMicrophoneUsageDescription="0xchat requires access to your microphone, to send voice messages for customer service.";
+NSPhotoLibraryAddUsageDescription="0xchat needs access to your album permission, to set avatar in the user center, and send pictures or video messages through the customer service function.";
+NSPhotoLibraryUsageDescription="0xchat needs access to your album permission, to set avatar in the user center, and send pictures or video messages through the customer service function.";
+NSCameraUsageDescription="0xchat requires access to your camera, for scanning the QR code in the user center, taking photos or shooting videos for customer service functions. ";
+NSFaceIDUsageDescription="0xchat requires access to your face information for face unlock";
+NSLocationWhenInUseUsageDescription="Please grant 0xchat location permission so that you can access account opening service based on your location.";

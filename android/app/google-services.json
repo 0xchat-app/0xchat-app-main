@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "871799832562",
+    "project_id": "oxchat-1219",
+    "storage_bucket": "oxchat-1219.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:871799832562:android:96245ce3873a35f171756b",
+        "android_client_info": {
+          "package_name": "com.oxchat.global"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "871799832562-m4uf7mqc6n667es999chdo370er8bi6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oxchat.global",
+            "certificate_hash": "4e292bcf0e3ce99427f5efa5802d625643fcfa24"
+          }
+        },
+        {
+          "client_id": "871799832562-b1ne8m2scmhob29re0c664uvl565ntrs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwziy9K2A0gie61WzXWBmbAUb-Oot0Aek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "871799832562-b1ne8m2scmhob29re0c664uvl565ntrs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

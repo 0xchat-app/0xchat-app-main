@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="custom_attr_theme_color" format="color|reference"/>
+
+</resources>
