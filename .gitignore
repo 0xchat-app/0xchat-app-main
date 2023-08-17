@@ -96,7 +96,5 @@ build/
 .idea/0xchat-main.iml
 .idea/libraries/Dart_SDK.xml
 .idea/workspace.xml
-packages/base_framework
-packages/business_modules
 pubspec.lock
 Podfile.lock
