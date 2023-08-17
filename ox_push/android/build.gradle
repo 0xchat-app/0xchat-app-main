@@ -1,0 +1,38 @@
+group 'com.ox.ox_push'
+version '1.0'
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        jcenter()
+        google()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 24
+
+        resConfigs "en", "zh-rCN"
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.meizu.flyme.internet:push-internal:4.1.4'
+}

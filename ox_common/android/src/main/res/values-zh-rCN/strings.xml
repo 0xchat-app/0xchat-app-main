@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="str_picker_image_sdcar_error">您的SD卡可能存在问题，请重新插拨后再试！</string>
+</resources>
