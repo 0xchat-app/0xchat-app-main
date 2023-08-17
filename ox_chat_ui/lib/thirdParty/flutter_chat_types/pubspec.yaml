@@ -1,0 +1,23 @@
+name: flutter_chat_types
+description: >
+  Utility library for the flutter_chat_ui and flutter_firebase_chat_core libraries
+  which contains shared type declarations.
+version: 0.0.1
+homepage: https://flyer.chat
+repository: https://github.com/flyerhq/flutter_chat_types
+
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+  flutter: ">=2.0.0"
+
+dependencies:
+  equatable: ^2.0.5
+  json_annotation: ^4.7.0
+  meta: ^1.8.0
+  chatcore:
+    path: ../../../../../0xchat-core
+
+dev_dependencies:
+  build_runner: ^2.3.2
+  flutter_lints: ^2.0.1
+  json_serializable: ^6.5.4

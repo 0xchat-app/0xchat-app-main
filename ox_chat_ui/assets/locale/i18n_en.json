@@ -1,0 +1,10 @@
+{
+  "record_hint": "Hold to record, release to send after ${durationInSeconds} second",
+  "input_more_album": "Album",
+  "input_more_camera": "Camera",
+  "input_more_video": "Video",
+  "input_more_call": "Call",
+  "channel_join": "Join Channel",
+  "channel_badge_requirements": "Sending messages in this channel has Badge requirements",
+  "friend_requirements": "Unable to message, as they're no longer a friend"
+}

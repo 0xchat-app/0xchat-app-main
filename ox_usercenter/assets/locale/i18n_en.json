@@ -1,0 +1,17 @@
+{
+  "copy":"copy",
+  "my_qr_code": "QR code",
+  "More" : "More",
+  "Done": "Done",
+  "Profile picture": "Profile picture",
+  "DESCRIPTION": "DESCRIPTION",
+  "ABOUT_THE_CREATOR": "About the creator",
+  "Logout": "Logout",
+  "delete_relay_hint": "Are you sure you want to delete it? After deletion, you can connect it with the link again.",
+  "in_app_purchases_no_available": "This phone does not currently support in-app purchases",
+  "buy_not_leave": "Buying, please do not leave...",
+  "unfinished_order_sos": "You have an unfinished order, do you need to complete it now?",
+  "purchase_success": "Purchase success",
+  "purchase_successful": "Purchase successful, please check the newly acquired badge later",
+  "cancel_purchase": "Cancel purchase"
+}
