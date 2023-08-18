@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
-import 'package:ox_chat/page/contacts/contact_friend_request.dart';
+import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';

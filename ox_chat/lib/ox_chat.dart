@@ -22,8 +22,8 @@ class OXChat extends OXFlutterModule {
     super.setup();
     OXModuleService.registerFlutterModule(moduleName, this);
     OXUserInfoManager.sharedInstance.initDataActions.add(() {
-      OXChatBinding.sharedInstance.initLocalFriendReq();
       OXChatBinding.sharedInstance.initLocalSession();
+      OXChatBinding.sharedInstance.initLocalStrangerSession();
       ChatDataCache.shared.setup();
     });
   }

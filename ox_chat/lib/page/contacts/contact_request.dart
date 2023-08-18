@@ -47,7 +47,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
       setState(() {});
       return;
     }
-    if (OXChatBinding.sharedInstance.friendRequestMap.length == 0) {
+    if (OXChatBinding.sharedInstance.strangerSessionMap.length == 0) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     }
     OXChatBinding.sharedInstance.historyList.sort((a, b) => b.requestTime.compareTo(a.requestTime));
