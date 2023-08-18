@@ -18,8 +18,7 @@ abstract class OXRelayObserver {
 class OXRelayManager {
   static final OXRelayManager sharedInstance = OXRelayManager._internal();
 
-  List<String> relayAddressList = [];
-  List<RelayModel> relayModelList = [];
+  Map<String, RelayModel> relayMap = {};
   int connectedCount = 0;
 
   OXRelayManager._internal();
@@ -34,14 +33,17 @@ class OXRelayManager {
 
   bool removeObserver(OXRelayObserver observer) => _observers.remove(observer);
 
+  List<String> get relayAddressList => relayMap.keys.toList();
+  List<RelayModel> get relayModelList => relayMap.values.toList();
+
   void loadConnectRelay() async {
-    relayModelList = await getRelayList();
-    List<String> tempRelayAddressList = [];
-    if (relayModelList.length > 0) {
-      for (RelayModel model in relayModelList) {
-        tempRelayAddressList.add(model.relayName);
+    List<RelayModel> list = await getRelayList();
+    relayMap = {};
+    if (list.length > 0) {
+      for (RelayModel model in list) {
+        relayMap[model.relayName] = model;
       }
-      Connect.sharedInstance.connectRelays(tempRelayAddressList);
+      Connect.sharedInstance.connectRelays(relayAddressList);
     } else {
       RelayModel tempRelayModel = RelayModel(
         relayName: CommonConstant.oxChatRelay,
@@ -50,12 +52,10 @@ class OXRelayManager {
         isSelected: true,
         createTime: DateTime.now().millisecondsSinceEpoch,
       );
-      relayModelList.add(tempRelayModel);
+      relayMap[CommonConstant.oxChatRelay] = tempRelayModel;
       Connect.sharedInstance.connectRelays([CommonConstant.oxChatRelay]);
-      tempRelayAddressList.add(CommonConstant.oxChatRelay);
       await saveRelayList(relayModelList);
     }
-    OXRelayManager.sharedInstance.relayAddressList = tempRelayAddressList;
     connectedCount = relayAddressList.where((item) => Connect.sharedInstance.connectStatus[item] != null && Connect.sharedInstance.connectStatus[item] == RelayConnectStatus.open ).length;
     connectStatusUpdate();
   }
@@ -74,12 +74,11 @@ class OXRelayManager {
   }
 
   Future<void> addRelaySuccess(RelayModel relayModel) async {
-    relayModelList.add(relayModel);
-    relayAddressList.add(relayModel.relayName);
+    relayMap[relayModel.relayName] = relayModel;
     await saveRelayList(relayModelList);
     Connect.sharedInstance.connect(relayModel.relayName);
     if (OXUserInfoManager.sharedInstance.currentUserInfo != null && OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey != null) {
-      Account.updateRelaysMetadata(OXRelayManager.sharedInstance.relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!);
+      Account.updateRelaysMetadata(relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!);
     }
     for (OXRelayObserver observer in _observers) {
       observer.didAddRelay(relayModel);
@@ -87,6 +86,7 @@ class OXRelayManager {
   }
 
   Future<void> addRelaysSuccess(List<String> relays) async {
+
     for (String relay in relays) {
       RelayModel relayModel = RelayModel(
         relayName: relay,
@@ -94,8 +94,7 @@ class OXRelayManager {
         connectStatus: 0,
         createTime: DateTime.now().millisecondsSinceEpoch,
       );
-      relayModelList.add(relayModel);
-      relayAddressList.add(relayModel.relayName);
+      relayMap[relay] = relayModel;
       for (OXRelayObserver observer in _observers) {
         observer.didAddRelay(relayModel);
       }
@@ -105,12 +104,11 @@ class OXRelayManager {
   }
 
   Future<void> deleteRelay(RelayModel relayModel) async {
-    relayModelList.removeWhere((element) => element.relayName == relayModel.relayName);
-    relayAddressList.remove(relayModel.relayName);
+    relayMap.remove(relayModel.relayName);
     await saveRelayList(relayModelList);
     Connect.sharedInstance.closeConnect(relayModel.relayName);
     if (OXUserInfoManager.sharedInstance.currentUserInfo != null && OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey != null) {
-      Account.updateRelaysMetadata(OXRelayManager.sharedInstance.relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!);
+      Account.updateRelaysMetadata(relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!);
     }
     for (OXRelayObserver observer in _observers) {
       observer.didDeleteRelay(relayModel);
