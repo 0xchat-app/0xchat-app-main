@@ -209,7 +209,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   void _updateChatStatus() {
     final userId = receiverPubkey;
-    final user = Contacts.sharedInstance.friends[userId];
+    final user = Contacts.sharedInstance.allContacts[userId];
     if (user == null) {
       chatStatus = ChatStatus.NotFriend;
     } else {

@@ -130,7 +130,7 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
       return;
     }
     await OXLoading.show();
-    final OKEvent okEvent = await Friends.sharedInstance.updateFriendNickName(pubKey, remarkValue);
+    final OKEvent okEvent = await Contacts.sharedInstance.updateContactNickName(pubKey, remarkValue);
     await OXLoading.dismiss();
     if (okEvent.status) {
       widget.userDB.nickName = remarkValue;

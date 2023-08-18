@@ -648,7 +648,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
 
   ///Determine if it's a friend
   bool isFriend(String pubkey) {
-    UserDB? user = Contacts.sharedInstance.friends[pubkey];
+    UserDB? user = Contacts.sharedInstance.allContacts[pubkey];
     LogUtil.e("user?.aliasPubkey ${user?.aliasPubkey}");
     return user?.aliasPubkey?.isNotEmpty ?? false;
   }
@@ -698,7 +698,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Friends.sharedInstance.friends[friendDB.pubKey];
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
     LogUtil.e('Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;
