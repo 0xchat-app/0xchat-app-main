@@ -212,6 +212,7 @@ class BaseAppBarState extends State<CommonAppBar> {
             highlightColor: Colors.transparent,
             icon: CommonImage(
               iconName: "title_close.png",
+              color: Colors.white,
               width: Adapt.px(24),
               height: Adapt.px(24),
               useTheme: false,

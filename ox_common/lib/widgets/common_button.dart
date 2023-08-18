@@ -46,6 +46,27 @@ class CommonButton extends StatefulWidget {
 
   @override
   _CommonButtonState createState() => _CommonButtonState();
+
+  static Widget themeButton(String text) =>
+      Container(
+        alignment: Alignment.center,
+        height: Adapt.px(48),
+        decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            )),
+        child: Text(
+          text,
+          style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0),
+        ),
+      );
 }
 
 class _CommonButtonState extends State<CommonButton> {
@@ -122,8 +143,8 @@ class OXButton extends MaterialButton {
     textColor,
     disabledTextColor,
     color,
-    disabledColor,
-    highlightColor,
+    disabledColor = Colors.transparent,
+    highlightColor = Colors.transparent,
     splashColor,
     colorBrightness,
     elevation,
