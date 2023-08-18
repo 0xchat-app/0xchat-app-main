@@ -191,7 +191,7 @@ class OXChatBinding {
       }
       sessionModel.chatId = chatId;
       sessionModel.chatType = ChatType.chatSingle;
-      final UserDB? friendUserDB = Contacts.sharedInstance.friends[chatId];
+      final UserDB? friendUserDB = Contacts.sharedInstance.allContacts[chatId];
       if (friendUserDB != null) {
         sessionModel.chatName = friendUserDB.nickName != null && friendUserDB.nickName!.isNotEmpty ? friendUserDB.nickName! : (friendUserDB.name ?? '');
         sessionModel.avatar = friendUserDB.picture;
@@ -342,7 +342,7 @@ class OXChatBinding {
       user = UserDB(pubKey: alias.toPubkey);
     }
     user.aliasPubkey = alias.toAliasPubkey;
-    UserDB? friendUserDB = Contacts.sharedInstance.friends[user.pubKey];
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[user.pubKey];
     FriendRequestHistoryModel? friendRequestHistoryModel = friendRequestMap[user.pubKey];
     if (friendRequestHistoryModel == null) {
       friendRequestHistoryModel = FriendRequestHistoryModel(

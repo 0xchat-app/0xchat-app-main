@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
-import 'package:chatcore/src/chat/friends.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
@@ -77,7 +76,7 @@ class OXUserInfoManager {
   Future<void> loginSuccess(UserDB userDB) async {
     OXUserInfoManager.sharedInstance.currentUserInfo = userDB;
     OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', currentUserInfo!.encodedPrivkey);
-    LogUtil.e('Michael: data loginSuccess friends =${Friends.sharedInstance.friends.values.toList().toString()}');
+    LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -85,24 +84,33 @@ class OXUserInfoManager {
   }
 
   void addChatCallBack() async {
-    Contacts.sharedInstance.friendRequestCallBack = (Alias alias) async {
-      OXChatBinding.sharedInstance.friendRequestCallBack(alias);
+    Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDB alias) async {
+      // OXChatBinding.sharedInstance.friendRequestCallBack(alias);
     };
-    Contacts.sharedInstance.friendMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
       LogUtil.e("Michael: init friendMessageCallBack message.id =${message.messageId}");
-      OXChatBinding.sharedInstance.friendMessageCallBack(message);
+      // OXChatBinding.sharedInstance.friendMessageCallBack(message);
+    };
+    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
+      LogUtil.e("Michael: init friendMessageCallBack message.id =${message.messageId}");
+      // OXChatBinding.sharedInstance.friendMessageCallBack(message);
     };
 
-    Contacts.sharedInstance.friendAcceptCallBack = (Alias alias) {
+    Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB alias) {
       LogUtil.e("Michael: init friendAcceptCallBack alias.toPubkey =${alias.toPubkey}");
-      OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
+      // OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
     };
 
-    Contacts.sharedInstance.friendRemoveCallBack = (Alias alias) {
-      LogUtil.e("Michael: init friendRemoveCallBack");
-      OXChatBinding.sharedInstance.friendRemoveCallBack(alias);
+    Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB alias) {
+      LogUtil.e("Michael: init secretChatRejectCallBack alias.toPubkey =${alias.toPubkey}");
+      // OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
     };
-    Contacts.sharedInstance.friendUpdatedCallBack = () {
+
+    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB alias) {
+      LogUtil.e("Michael: init friendRemoveCallBack");
+      // OXChatBinding.sharedInstance.friendRemoveCallBack(alias);
+    };
+    Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.e("Michael: init friendUpdatedCallBack");
       OXChatBinding.sharedInstance.friendUpdatedCallBack();
       _initFriendsCompleted = true;
@@ -138,7 +146,7 @@ class OXUserInfoManager {
       return;
     }
     await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
-    LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.friends.values.toList().toString()}');
+    LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
     OXUserInfoManager.sharedInstance.currentUserInfo = null;
     _initFriendsCompleted = false;
@@ -196,14 +204,14 @@ class OXUserInfoManager {
     addChatCallBack();
     initDataActions.forEach((fn) { fn(); });
     Relays.sharedInstance.init().then((value) {
-      Contacts.sharedInstance.initWithPrikey(currentUserInfo!.privkey!, callBack: Contacts.sharedInstance.friendUpdatedCallBack);
+      Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!, callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
     });
     Account.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value){
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
-    LogUtil.e('Michael: data await Friends Channels init friends =${Friends.sharedInstance.friends.values.toList().toString()}');
+    LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
   }
 
   void _initMessage() {
