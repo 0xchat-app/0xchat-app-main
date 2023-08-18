@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:flutter/widgets.dart";
+import 'package:ox_common/navigator/dialog_router.dart';
 import 'package:ox_common/navigator/page_router.dart';
 
 enum OXStackPageOption {
@@ -128,15 +129,28 @@ class OXNavigator extends Navigator {
   static Future<T?> presentPage<T extends Object?>(BuildContext context, Widget Function(BuildContext? context) builder,
       {String? pageName, Object? pageId, bool fullscreenDialog = false}) {
     pageName ??= builder(null).runtimeType.toString();
-    return OXNavigator.push(
-      context,
-      generalPageRouter<T>(
-        builder: builder,
-        pageName: pageName,
-        pageId: pageId,
-        fullscreenDialog: true,
-      ),
-    );
+    if (fullscreenDialog) {
+      return OXNavigator.push(
+        context,
+        generalPageRouter<T>(
+          builder: builder,
+          pageName: pageName,
+          pageId: pageId,
+          fullscreenDialog: true,
+        ),
+      );
+    } else {
+      return showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) =>
+            Container(
+              height: MediaQuery.of(context).size.height * 0.9,
+              child: builder(context),
+            ),
+      );
+    }
   }
 
   static PageRoute<T> generalPageRouter<T>({
