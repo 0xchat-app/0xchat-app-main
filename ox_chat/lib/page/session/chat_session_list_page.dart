@@ -931,7 +931,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
-    UserDB? friendUserDB = Friends.sharedInstance.friends[announceListItem.chatId];
+    UserDB? friendUserDB = Contacts.sharedInstance.friends[announceListItem.chatId];
     LogUtil.e('Michael: _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;

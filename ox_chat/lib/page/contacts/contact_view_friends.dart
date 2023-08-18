@@ -68,7 +68,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   void _loadData() {
-    Iterable<UserDB> tempList =  Friends.sharedInstance.friends.values;
+    Iterable<UserDB> tempList =  Contacts.sharedInstance.friends.values;
     userList.clear();
     tempList.forEach (( value) {
       LogUtil.e("Michael: friendsList :${value.pubKey}, ${value.name}， ${value.aliasPubkey}");

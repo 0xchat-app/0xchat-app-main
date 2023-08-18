@@ -19,7 +19,7 @@ class _ChatUserChoosePageState extends State<ChatUserChoosePage> {
   void initState() {
     super.initState();
     // Initialize the SelectableUser list
-    final friends = Friends.sharedInstance.friends;
+    final friends = Contacts.sharedInstance.friends;
     _selectableUsers = friends.values.map((user) => SelectableUser(user: user)).toList();
   }
 

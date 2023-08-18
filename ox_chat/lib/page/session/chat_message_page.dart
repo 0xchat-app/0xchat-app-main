@@ -209,7 +209,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
   void _updateChatStatus() {
     final userId = receiverPubkey;
-    final user = Friends.sharedInstance.friends[userId];
+    final user = Contacts.sharedInstance.friends[userId];
     if (user == null) {
       chatStatus = ChatStatus.NotFriend;
     } else {
@@ -444,7 +444,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
 
-    final event = Friends.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+    final event = Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return ;
@@ -461,7 +461,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       funcName: '_sendMessage',
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
-    Friends.sharedInstance.sendMessage(
+    Contacts.sharedInstance.sendMessage(
       receiverPubkey,
       '',
       type,

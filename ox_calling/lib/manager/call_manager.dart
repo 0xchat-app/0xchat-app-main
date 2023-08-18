@@ -78,7 +78,7 @@ class CallManager {
           }
 
           ///lack of speech type
-          UserDB? userDB = Friends.sharedInstance.friends[session.pid];
+          UserDB? userDB = Contacts.sharedInstance.allContacts[session.pid];
           if (userDB == null) {
             break;
           } else {

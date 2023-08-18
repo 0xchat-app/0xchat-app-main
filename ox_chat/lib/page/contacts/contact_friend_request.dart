@@ -267,7 +267,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
 
   void _confirmOnTap(FriendRequestHistoryModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Friends.sharedInstance.acceptFriend(item.pubKey!, item.aliasPubkey!);
+    final OKEvent okEvent = await Contacts.sharedInstance.acceptFriend(item.pubKey!, item.aliasPubkey!);
     await OXLoading.dismiss();
     if (okEvent.status) {
       item.status = 1;
@@ -284,7 +284,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
 
   void _rejectOnTap(FriendRequestHistoryModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Friends.sharedInstance.rejectFriend(item.pubKey!, item.aliasPubkey!);
+    final OKEvent okEvent = await Contacts.sharedInstance.rejectFriend(item.pubKey!, item.aliasPubkey!);
     await OXLoading.dismiss();
     if (okEvent.status) {
       item.status = 2;

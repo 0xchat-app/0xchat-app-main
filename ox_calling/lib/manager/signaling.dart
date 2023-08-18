@@ -42,7 +42,7 @@ class Session {
 class SignalingManager {
   SignalingManager(this._host, this._context);
 
-  String _selfId = Friends.sharedInstance.pubkey;
+  String _selfId = Contacts.sharedInstance.pubkey;
   BuildContext? _context;
   var _host = '0.0.0.0';
   var _port = 8086;
@@ -146,7 +146,7 @@ class SignalingManager {
     var sess = _sessions[sessionId];
     if (sess != null) {
       Map map = {'session_id': sessionId};
-      Friends.sharedInstance.sendDisconnect(sess.pid, jsonEncode(map));
+      Contacts.sharedInstance.sendDisconnect(sess.pid, jsonEncode(map));
       _closeSession(sess);
     }
   }
@@ -296,7 +296,7 @@ class SignalingManager {
       } catch (e) {}
     }
 
-    Friends.sharedInstance.onCallStateChange =
+    Contacts.sharedInstance.onCallStateChange =
         (String friend, SignalingState state, String data) {
       _onMessage(friend, state, data);
     };
@@ -437,7 +437,7 @@ class SignalingManager {
       // and should be thoroughly tested in your own environment.
       await Future.delayed(
           const Duration(seconds: 1),
-          () => Friends.sharedInstance.sendCandidate(
+          () => Contacts.sharedInstance.sendCandidate(
               peerId,
               jsonEncode({
                 'candidate': {
@@ -500,7 +500,7 @@ class SignalingManager {
       };
       String jsonOfOfferContent = jsonEncode(map);
       print('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
-      await Friends.sharedInstance.sendOffer(session.pid, jsonOfOfferContent);
+      await Contacts.sharedInstance.sendOffer(session.pid, jsonOfOfferContent);
     } catch (e) {
       print(e.toString());
     }
@@ -522,7 +522,7 @@ class SignalingManager {
         'description': {'sdp': s.sdp, 'type': s.type},
         'session_id': session.sid
       };
-      Friends.sharedInstance.sendAnswer(session.pid, jsonEncode(map));
+      Contacts.sharedInstance.sendAnswer(session.pid, jsonEncode(map));
     } catch (e) {
       print(e.toString());
     }

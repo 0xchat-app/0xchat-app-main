@@ -19,7 +19,7 @@ class ChatUserCache {
     if (pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
       userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     } else {
-      userDB = Friends.sharedInstance.friends[pubKey];
+      userDB = Contacts.sharedInstance.friends[pubKey];
     }
 
     if(userDB == null) {

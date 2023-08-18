@@ -380,7 +380,7 @@ class _ContractListItemState extends State<ContractListItem> {
 
   void _onItemClick() async {
     if (widget.item.pubKey != null && widget.item.pubKey!.isNotEmpty) {
-      UserDB? userDB = Friends.sharedInstance.friends[widget.item.pubKey] as UserDB;
+      UserDB? userDB = Contacts.sharedInstance.friends[widget.item.pubKey] as UserDB;
       OXNavigator.pushPage(context, (context) => ContactFriendUserInfoPage(userDB: userDB));
     }
   }
@@ -466,7 +466,7 @@ class _ContractListItemState extends State<ContractListItem> {
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Friends.sharedInstance.friends[friendDB.pubKey];
+    UserDB? friendUserDB = Contacts.sharedInstance.friends[friendDB.pubKey];
     if (friendUserDB == null) {
       return null;
     }

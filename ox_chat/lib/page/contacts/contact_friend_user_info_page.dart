@@ -100,7 +100,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
 
   @override
   void didFriendAcceptCallBack(Alias? alias) {
-    //Friends.sharedInstance.friends will update
+    //Contacts.sharedInstance.friends will update
     if (this.mounted) {
       setState(() {});
     }
@@ -571,7 +571,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     if (isFriend(widget.userDB.pubKey ?? '') == false) {
       await OXLoading.show();
       LogUtil.e('Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
-      final OKEvent okEvent = await Friends.sharedInstance
+      final OKEvent okEvent = await Contacts.sharedInstance
           .requestFriend(widget.userDB.pubKey!, "hello, friends request, ${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey}");
       await OXLoading.dismiss();
       if (okEvent.status) {
@@ -610,7 +610,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Friends.sharedInstance.removeFriend(widget.userDB.pubKey ?? '');
+                final OKEvent okEvent = await Contacts.sharedInstance.removeFriend(widget.userDB.pubKey ?? '');
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {
@@ -648,7 +648,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
 
   ///Determine if it's a friend
   bool isFriend(String pubkey) {
-    UserDB? user = Friends.sharedInstance.friends[pubkey];
+    UserDB? user = Contacts.sharedInstance.friends[pubkey];
     LogUtil.e("user?.aliasPubkey ${user?.aliasPubkey}");
     return user?.aliasPubkey?.isNotEmpty ?? false;
   }
@@ -656,9 +656,9 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
   void _onChangedMute(bool value) async {
     await OXLoading.show();
     if (value) {
-      await Friends.sharedInstance.muteFriend(widget.userDB.pubKey!);
+      await Contacts.sharedInstance.muteFriend(widget.userDB.pubKey!);
     } else {
-      await Friends.sharedInstance.unMuteFriend(widget.userDB.pubKey!);
+      await Contacts.sharedInstance.unMuteFriend(widget.userDB.pubKey!);
     }
     final bool result = await OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
