@@ -144,7 +144,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
 
   Widget _body() {
     return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -256,7 +256,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             _addOnTap(upcomingRelay: relayModel.relayName);
           }),
         ],
-      ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24))),
+      ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
     );
   }
 
