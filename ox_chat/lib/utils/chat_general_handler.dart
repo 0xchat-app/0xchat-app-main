@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/page/session/zaps_sending_page.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
@@ -336,6 +337,10 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
         'media': 'video',
       },
     );
+  }
+
+  Future zapsPressHandler(BuildContext context, UserDB user) async {
+    OXNavigator.presentPage(context, (context) => ZapsSendingPage());
   }
 
   Future<void> _goToPhoto(int type) async {

@@ -118,9 +118,7 @@ class ReportDialogState extends State<ReportDialog> {
       }
     });
     return OXButton(
-      highlightColor: Colors.transparent,
       color: Colors.transparent,
-      disabledColor: Colors.transparent,
       minWidth: Adapt.px(44),
       height: Adapt.px(44),
       child: CommonImage(
