@@ -1,13 +1,13 @@
 import 'package:chatcore/chat-core.dart';
 
-///Title: chat_session_model
+///Title: stranger_session_model
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
 ///@author Michael
-///CreateTime: 2023/5/18 10:01
+///CreateTime: 2023/8/18 17:26
 
 @reflector
-class ChatSessionModel extends DBObject {
+class StrangerSessionModel extends DBObject {
   String? chatId;
   String? chatName;
 
@@ -35,7 +35,7 @@ class ChatSessionModel extends DBObject {
 
   bool alwaysTop;
 
-  ChatSessionModel({
+  StrangerSessionModel({
     this.chatId,
     this.chatName,
     this.sender,
@@ -56,16 +56,16 @@ class ChatSessionModel extends DBObject {
 
   @override
   Map<String, Object?> toMap() {
-    return _chatSessionModelToMap(this);
+    return _strangerSessionModelToMap(this);
   }
 
-  static ChatSessionModel fromMap(Map<String, Object?> map) {
-    return _chatSessionModelFromMap(map);
+  static StrangerSessionModel fromMap(Map<String, Object?> map) {
+    return _strangerSessionModelFromMap(map);
   }
 }
 
-ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
-  return ChatSessionModel(
+StrangerSessionModel _strangerSessionModelFromMap(Map<String, dynamic> map) {
+  return StrangerSessionModel(
     chatId: map['chatId'],
     chatName: map['chatName'],
     sender: map['sender'],
@@ -81,7 +81,7 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
   );
 }
 
-Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <String, dynamic>{
+Map<String, dynamic> _strangerSessionModelToMap(StrangerSessionModel instance) => <String, dynamic>{
       'chatId': instance.chatId,
       'chatName': instance.chatName,
       'sender': instance.sender,

@@ -6,6 +6,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/friend_request_history_model.dart';
+import 'package:ox_common/model/stranger_session_model.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'dart:convert';
 
@@ -24,7 +25,7 @@ abstract class OXChatObserver {
 
   void didFriendRemoveCallBack(Alias alias) {}
 
-  void didFriendUpdatedCallBack() {}
+  void didContactUpdatedCallBack() {}
 
   void didCreateChannel(ChannelDB? channelDB) {}
 
@@ -42,10 +43,9 @@ class OXChatBinding {
 
   OXChatBinding._internal();
 
-  LinkedHashMap<String, ChatSessionModel> sessionMap = LinkedHashMap<String, ChatSessionModel>();
-  LinkedHashMap<String, FriendRequestHistoryModel> friendRequestMap = LinkedHashMap();
-  List<FriendRequestHistoryModel> historyList = [];
-  int unReadFriendRequestCount = 0;
+  HashMap<String, ChatSessionModel> sessionMap = HashMap();
+  HashMap<String, StrangerSessionModel> strangerSessionMap = HashMap();
+  int unReadStrangerSessionCount = 0;
 
   factory OXChatBinding() {
     return sharedInstance;
@@ -65,16 +65,14 @@ class OXChatBinding {
     sessionUpdate();
   }
 
-  Future<void> initLocalFriendReq() async {
-    historyList = await DB.sharedInstance.objects<FriendRequestHistoryModel>();
-    historyList.forEach((element) {
-      if(friendRequestMap[element.pubKey!] == null || (friendRequestMap[element.pubKey!] != null && friendRequestMap[element.pubKey!]!.requestTime < element.requestTime)) {
-        friendRequestMap[element.pubKey!] = element;
+  Future<void> initLocalStrangerSession() async {
+    List<StrangerSessionModel> strangerSessionList = await DB.sharedInstance.objects<StrangerSessionModel>(orderBy: "createTime desc",);
+ 
+    strangerSessionList.forEach((e) {
+      if(strangerSessionMap[e.chatId!] == null || (strangerSessionMap[e.chatId!] != null && (strangerSessionMap[e.chatId!]!.createTime ?? 0) < (e.createTime ?? 0))) {
+        strangerSessionMap[e.chatId!] = e;
       }
-      if(element.isRead == 0){
-        unReadFriendRequestCount++;
-      }
-      LogUtil.e('Michael: initLocalFriendReq :  friendRequestMap[element.pubKey!].status = ${friendRequestMap[element.pubKey!]!.status ?? 'status null'}');
+      LogUtil.e('Michael: initLocalStrangerSession :  strangerSessionList[element.pubKey!].unreadCount = ${strangerSessionMap[e.chatId!]!.unreadCount}');
     });
     noticeFriendRequest();
   }
@@ -84,10 +82,9 @@ class OXChatBinding {
     LogUtil.e('Michael: logout clearSession');
   }
 
-  void clearFriendRequestCache() {
-    friendRequestMap.clear();
-    historyList.clear();
-    unReadFriendRequestCount = 0;
+  void clearStrangerSessionCache() {
+    strangerSessionMap.clear();
+    unReadStrangerSessionCount = 0;
     LogUtil.e('Michael: logout clearSession');
   }
 
@@ -310,9 +307,9 @@ class OXChatBinding {
     }
   }
 
-  void friendUpdatedCallBack() {
+  void contactUpdatedCallBack() {
     for (OXChatObserver observer in _observers) {
-      observer.didFriendUpdatedCallBack();
+      observer.didContactUpdatedCallBack();
     }
   }
 
@@ -335,7 +332,7 @@ class OXChatBinding {
     }
   }
 
-  void friendRequestCallBack(Alias alias) async {
+  void secretChatRequestCallBack(SecretSessionDB alias) async {
     Map usersMap = await Account.syncProfilesFromRelay([alias.toPubkey]);
     UserDB? user = usersMap[alias.toPubkey];
     if (user == null) {
@@ -343,7 +340,7 @@ class OXChatBinding {
     }
     user.aliasPubkey = alias.toAliasPubkey;
     UserDB? friendUserDB = Contacts.sharedInstance.allContacts[user.pubKey];
-    FriendRequestHistoryModel? friendRequestHistoryModel = friendRequestMap[user.pubKey];
+    FriendRequestHistoryModel? friendRequestHistoryModel = strangerSessionMap[user.pubKey];
     if (friendRequestHistoryModel == null) {
       friendRequestHistoryModel = FriendRequestHistoryModel(
         pubKey: user.pubKey,
@@ -356,7 +353,7 @@ class OXChatBinding {
         aliasPubkey: user.aliasPubkey,
       );
     } else {
-      if(friendRequestMap[user.pubKey!]!.requestTime > alias.createTime * 1000){
+      if(strangerSessionMap[user.pubKey!]!.requestTime > alias.createTime * 1000){
         //Don't update if new callback time is less than original request time.
         return;
       }
@@ -368,8 +365,8 @@ class OXChatBinding {
       friendRequestHistoryModel.requestTime = alias.createTime * 1000;
       friendRequestHistoryModel.aliasPubkey = user.aliasPubkey;
     }
-    friendRequestMap[user.pubKey!] = friendRequestHistoryModel;
-    historyList = friendRequestMap.values.toList();
+    strangerSessionMap[user.pubKey!] = friendRequestHistoryModel;
+    historyList = strangerSessionMap.values.toList();
     unReadFriendRequestCount = historyList.where((item) => item.isRead == 0 ).length;
 
     final int count = await FriendRequestHistoryModel.saveFriendRequestToDB(friendRequestHistoryModel);
