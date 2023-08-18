@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -438,13 +439,13 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     _sendMessage(textMessage);
   }
 
-  void _sendMessage(types.Message message) {
+  void _sendMessage(types.Message message) async {
     // send message
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
 
-    final event = Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+    final event = await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return ;
@@ -461,7 +462,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       funcName: '_sendMessage',
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
-    Contacts.sharedInstance.sendMessage(
+    Contacts.sharedInstance.sendPrivateMessage(
       receiverPubkey,
       '',
       type,

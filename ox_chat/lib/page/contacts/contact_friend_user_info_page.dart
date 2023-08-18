@@ -610,7 +610,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Contacts.sharedInstance.removeFriend(widget.userDB.pubKey ?? '');
+                final OKEvent okEvent = await Contacts.sharedInstance.removeContact(widget.userDB.pubKey ?? '');
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {

@@ -188,7 +188,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
 
   @override
   void didFriendUpdatedCallBack() {
-    LogUtil.e('Michael: contact_view_friends didFriendUpdatedCallBack friends.length=${Contacts.sharedInstance.friends.length}');
+    LogUtil.e('Michael: contact_view_friends didFriendUpdatedCallBack friends.length=${Contacts.sharedInstance.allContacts.length}');
     _loadData();
   }
 }

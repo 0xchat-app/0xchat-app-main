@@ -171,14 +171,27 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
   Widget _buildNotAddStatus(FriendRequestHistoryModel item) {
     return Row(
       children: [
+        Expanded(
+          child: _buildOperateButton(
+            "ox_chat.add_contact_block",
+            width: Adapt.px(131),
+            height: Adapt.px(30),
+            onTap: () {
+              _blockOnTap(item);
+            },
+          ),
+        ),
+        SizedBox(
+          width: Adapt.px(12),
+        ),
         _buildOperateButton(
-          "ox_chat.add_friend_confirm",
+          "ox_chat.add_contact_confirm",
           width: Adapt.px(131),
           height: Adapt.px(30),
           linearGradient: LinearGradient(
             colors: [
-              ThemeColor.gradientMainEnd,
-              ThemeColor.gradientMainStart,
+              ThemeColor.gradientMainEnd.withOpacity(0.24),
+              ThemeColor.gradientMainStart.withOpacity(0.24),
             ],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -186,19 +199,6 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
           onTap: () {
             _confirmOnTap(item);
           },
-        ),
-        SizedBox(
-          width: Adapt.px(12),
-        ),
-        Expanded(
-          child: _buildOperateButton(
-            "ox_chat.add_friend_reject",
-            width: Adapt.px(131),
-            height: Adapt.px(30),
-            onTap: () {
-              _rejectOnTap(item);
-            },
-          ),
         ),
       ],
     );
@@ -267,7 +267,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
 
   void _confirmOnTap(FriendRequestHistoryModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.acceptFriend(item.pubKey!, item.aliasPubkey!);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.pubKey!]);
     await OXLoading.dismiss();
     if (okEvent.status) {
       item.status = 1;
@@ -282,9 +282,9 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     }
   }
 
-  void _rejectOnTap(FriendRequestHistoryModel item) async {
+  void _blockOnTap(FriendRequestHistoryModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.rejectFriend(item.pubKey!, item.aliasPubkey!);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.pubKey!);
     await OXLoading.dismiss();
     if (okEvent.status) {
       item.status = 2;
