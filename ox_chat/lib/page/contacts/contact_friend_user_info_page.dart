@@ -572,7 +572,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
       await OXLoading.show();
       LogUtil.e('Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
       final OKEvent okEvent = await Contacts.sharedInstance
-          .requestFriend(widget.userDB.pubKey!, "hello, friends request, ${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey}");
+          .request(widget.userDB.pubKey!, "hello, friends request, ${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey}");
       await OXLoading.dismiss();
       if (okEvent.status) {
         CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
