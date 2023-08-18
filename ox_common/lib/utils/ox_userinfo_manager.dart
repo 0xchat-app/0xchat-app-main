@@ -85,24 +85,24 @@ class OXUserInfoManager {
   }
 
   void addChatCallBack() async {
-    Friends.sharedInstance.friendRequestCallBack = (Alias alias) async {
+    Contacts.sharedInstance.friendRequestCallBack = (Alias alias) async {
       OXChatBinding.sharedInstance.friendRequestCallBack(alias);
     };
-    Friends.sharedInstance.friendMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.friendMessageCallBack = (MessageDB message) {
       LogUtil.e("Michael: init friendMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.friendMessageCallBack(message);
     };
 
-    Friends.sharedInstance.friendAcceptCallBack = (Alias alias) {
+    Contacts.sharedInstance.friendAcceptCallBack = (Alias alias) {
       LogUtil.e("Michael: init friendAcceptCallBack alias.toPubkey =${alias.toPubkey}");
       OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
     };
 
-    Friends.sharedInstance.friendRemoveCallBack = (Alias alias) {
+    Contacts.sharedInstance.friendRemoveCallBack = (Alias alias) {
       LogUtil.e("Michael: init friendRemoveCallBack");
       OXChatBinding.sharedInstance.friendRemoveCallBack(alias);
     };
-    Friends.sharedInstance.friendUpdatedCallBack = () {
+    Contacts.sharedInstance.friendUpdatedCallBack = () {
       LogUtil.e("Michael: init friendUpdatedCallBack");
       OXChatBinding.sharedInstance.friendUpdatedCallBack();
       _initFriendsCompleted = true;
@@ -138,7 +138,7 @@ class OXUserInfoManager {
       return;
     }
     await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
-    LogUtil.e('Michael: data logout friends =${Friends.sharedInstance.friends.values.toList().toString()}');
+    LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.friends.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
     OXUserInfoManager.sharedInstance.currentUserInfo = null;
     _initFriendsCompleted = false;
@@ -196,7 +196,7 @@ class OXUserInfoManager {
     addChatCallBack();
     initDataActions.forEach((fn) { fn(); });
     Relays.sharedInstance.init().then((value) {
-      Friends.sharedInstance.initWithPrikey(currentUserInfo!.privkey!, callBack: Friends.sharedInstance.friendUpdatedCallBack);
+      Contacts.sharedInstance.initWithPrikey(currentUserInfo!.privkey!, callBack: Contacts.sharedInstance.friendUpdatedCallBack);
       Channels.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!, callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
     });
     Account.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value){

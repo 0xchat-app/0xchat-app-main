@@ -12,7 +12,7 @@ class AesEncryptUtils{
 
   static void encryptFile(File sourceFile, File encryptedFile, String pubkey) {
     final sourceBytes = sourceFile.readAsBytesSync();
-    Uint8List? uint8list = Friends.sharedInstance.getFriendSharedSecret(pubkey);
+    Uint8List? uint8list = Contacts.sharedInstance.getFriendSharedSecret(pubkey);
     final encrypter = Encrypter(AES(Key(uint8list!)));
     final iv = IV.fromLength(16);
     final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
@@ -21,7 +21,7 @@ class AesEncryptUtils{
 
   static void decryptFile(File encryptedFile, File decryptedFile, String pubkey) {
     final encryptedBytes = encryptedFile.readAsBytesSync();
-    Uint8List? uint8list = Friends.sharedInstance.getFriendSharedSecret(pubkey);
+    Uint8List? uint8list = Contacts.sharedInstance.getFriendSharedSecret(pubkey);
     final decrypter = Encrypter(AES(Key(uint8list!)));
     final encrypted = Encrypted(encryptedBytes);
     final iv = IV.fromLength(16);
