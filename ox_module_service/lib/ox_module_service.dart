@@ -139,15 +139,15 @@ class OXModuleService {
   }
 
   /// Invoke module interface
-  static invoke(
+  static T? invoke<T>(
       String moduleName, String methodName, List<dynamic> positionalArguments,
       [Map<Symbol, dynamic>? namedArguments]) {
     final module = _modules[moduleName];
-    if (module == null) return;
+    if (module == null) return null;
     final func = module._allInterfaces[methodName];
     if (func != null) {
       try {
-        return Function.apply(func, positionalArguments, namedArguments);
+        return Function.apply(func, positionalArguments, namedArguments) as T?;
       } catch (e) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
           ErrorSummary('OXModuleService.invoke Error.'),
