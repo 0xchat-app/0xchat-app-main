@@ -1,7 +1,9 @@
 
+import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_chat/model/message_content_model.dart';
+import 'package:ox_chat/utils/custom_message_utils.dart';
 
 abstract class MessageFactory {
   types.Message? createMessage({
@@ -133,6 +135,76 @@ class VideoMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+    );
+  }
+}
+
+class CustomMessageFactory implements MessageFactory {
+  types.Message? createMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String remoteId,
+    required MessageContentModel contentModel,
+    required Status status,
+    EncryptionType fileEncryptionType = EncryptionType.none,
+  }) {
+    final contentString = contentModel.content;
+    if (contentString == null) return null;
+
+    try {
+      final contentMap = json.decode(contentString);
+      if (contentMap is! Map) return null;
+
+      final type = CustomMessageTypeEx.fromValue(contentMap['type']);
+      if (type == null) return null;
+
+      switch (type) {
+        case CustomMessageType.zaps:
+          final invoice = contentMap['invoice'];
+          final amount = contentMap['amount'];
+          final description = contentMap['description'];
+          return createZapsMessage(
+            author: author,
+            timestamp: timestamp,
+            id: remoteId,
+            roomId: roomId,
+            remoteId: remoteId,
+            invoice: invoice,
+            amount: amount,
+            description: description,
+          );
+        default :
+          return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  types.CustomMessage createZapsMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    required String invoice,
+    required String amount,
+    required String description,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: {
+        'invoice': invoice,
+        'amount': amount,
+        'description': description,
+        'type': CustomMessageType.zaps.value,
+      },
+      type: types.MessageType.custom,
     );
   }
 }

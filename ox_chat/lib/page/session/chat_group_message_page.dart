@@ -135,7 +135,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
       body: Chat(
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
-        onMessageTap: _handleMessageTap,
+        onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
         avatarBuilder: (message) => OXUserAvatar(
@@ -179,7 +179,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-        imageGalleryOptions: chatGeneralHandler.imageGalleryOptions(),
+        imageGalleryOptions: pageConfig.imageGalleryOptions(),
         // customBottomWidget: const ChatInput(),
         // customBottomWidget: customBottomWidget(),
       ),
@@ -386,46 +386,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
 
   void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
     chatGeneralHandler.menuItemPressHandler(context, message, type);
-  }
-
-  void _handleMessageTap(BuildContext _, types.Message message) async {
-    LogUtil.e("_handleMessageTap : ${message}");
-    if (message is types.FileMessage) {
-      var localPath = message.uri;
-
-      if (message.uri.startsWith('http')) {
-        try {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: true,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-
-          final client = http.Client();
-          final request = await client.get(Uri.parse(message.uri));
-          final bytes = request.bodyBytes;
-          final documentsDir = (await getApplicationDocumentsDirectory()).path;
-          localPath = '$documentsDir/${message.name}';
-
-          // if (!File(localPath).existsSync()) {
-          //   final file = File(localPath);
-          //   await file.writeAsBytes(bytes);
-          // }
-        } finally {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: null,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-        }
-      }
-    } else if (message is types.VideoMessage) {
-      LogUtil.e("_handleMessageTap : VideoMessage");
-      final index = _messages.indexWhere((element) => element.id == message.id);
-      types.VideoMessage videoMessage = _messages[index] as types.VideoMessage;
-      LogUtil.e(videoMessage.metadata);
-      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: videoMessage.metadata!["videoUrl"] ?? ''));
-    }
   }
 
   void _handlePreviewDataFetched(

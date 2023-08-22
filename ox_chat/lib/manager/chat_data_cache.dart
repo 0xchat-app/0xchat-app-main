@@ -33,7 +33,6 @@ class ChatDataCache with OXChatObserver {
   Map<String, List<types.Message>> unknownMessageMap = {};
   List<String> unknownUserPubkeyCache = [];
 
-
   setup() async {
     messageIdCache.clear();
     unknownUserPubkeyCache.clear();

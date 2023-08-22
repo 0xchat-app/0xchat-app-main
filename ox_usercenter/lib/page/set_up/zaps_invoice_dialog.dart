@@ -21,8 +21,9 @@ import 'package:ox_common/launch/launch_third_party_app.dart';
 class ZapsInvoiceDialog extends StatefulWidget {
 
   final String invoice;
+  final Future<bool> Function(WalletModel wallet)? walletOnPress;
 
-  const ZapsInvoiceDialog({super.key, required this.invoice});
+  const ZapsInvoiceDialog({super.key, required this.invoice, this.walletOnPress});
 
   @override
   State<StatefulWidget> createState() {
@@ -211,6 +212,16 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
   }
 
   void _onTap(WalletModel walletModel) async {
+
+    final walletOnPress = widget.walletOnPress;
+
+    bool canOpen = true;
+    if (walletOnPress != null) {
+      canOpen = await walletOnPress(walletModel);
+    }
+
+    if (!canOpen) return ;
+
     String url = '${walletModel.scheme}${widget.invoice}';
     if (Platform.isIOS) {
 

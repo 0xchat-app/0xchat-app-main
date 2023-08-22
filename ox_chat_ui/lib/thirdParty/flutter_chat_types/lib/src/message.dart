@@ -20,7 +20,7 @@ enum MessageType {
   system,
   text,
   unsupported,
-  video
+  video,
 }
 
 /// All possible statuses message can have.
