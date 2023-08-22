@@ -90,27 +90,27 @@ class OXUserInfoManager {
     };
     Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatAcceptCallBack ssDB.toPubkey =${ssDB.toPubkey}");
-      // OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
+      OXChatBinding.sharedInstance.secretChatAcceptCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatRejectCallBack ssDB.toPubkey =${ssDB.toPubkey}");
-      // OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
+      // OXChatBinding.sharedInstance.secretChatRejectCallBack(alias);
     };
     Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatUpdateCallBack ssDB.toPubkey =${ssDB.toPubkey}");
-      // OXChatBinding.sharedInstance.friendAcceptCallBack(alias);
+      // OXChatBinding.sharedInstance.secretChatUpdateCallBack(alias);
     };
-    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB alias) {
+    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatCloseCallBack");
-      // OXChatBinding.sharedInstance.friendRemoveCallBack(alias);
+      OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
-      LogUtil.e("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
-      // OXChatBinding.sharedInstance.friendMessageCallBack(message);
+    Contacts.sharedInstance.secretChatMessageCallBack = (String secretSessionId, MessageDB message) {
+      LogUtil.e("Michael: init secretChatMessageCallBack secretSessionId =${secretSessionId}; message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.secretChatMessageCallBack(message, secretSessionId: secretSessionId);
     };
     Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
-      LogUtil.e("Michael: init friendMessageCallBack message.id =${message.messageId}");
-      // OXChatBinding.sharedInstance.friendMessageCallBack(message);
+      LogUtil.e("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.e("Michael: init contactUpdatedCallBack");
@@ -155,7 +155,6 @@ class OXUserInfoManager {
     _initChannelsCompleted = false;
     _initAllCompleted = false;
     OXChatBinding.sharedInstance.clearSession();
-    OXChatBinding.sharedInstance.clearStrangerSessionCache();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLogout();
     }
