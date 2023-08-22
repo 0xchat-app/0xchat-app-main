@@ -13,4 +13,14 @@ class ChatType {
 
   ///2 Channel Chat
   static const int chatChannel = 2;
+
+  ///3 Secret Chat
+  static const int chatSecret = 3;
+
+  ///4 Stranger Chat
+  static const int chatStranger = 4;
+
+  ///5 Stranger secret Chat
+  static const int chatSecretStranger = 5;
+
 }
