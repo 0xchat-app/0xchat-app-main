@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/model/friend_request_history_model.dart';
+import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -27,11 +27,13 @@ class ContactFriendRequest extends StatefulWidget {
 }
 
 class _ContactFriendRequestState extends State<ContactFriendRequest> with CommonStateViewMixin, OXChatObserver {
+  late List<ChatSessionModel> _strangerSessionModelList;
+
   @override
   void initState() {
     super.initState();
     OXChatBinding.sharedInstance.addObserver(this);
-    _getFriendRequest();
+    _initData();
   }
 
   @override
@@ -40,7 +42,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     super.dispose();
   }
 
-  void _getFriendRequest() async {
+  void _initData() async {
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (isLogin == false) {
       updateStateView(CommonStateView.CommonStateView_NotLogin);
@@ -50,9 +52,21 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     if (OXChatBinding.sharedInstance.strangerSessionMap.length == 0) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     }
-    OXChatBinding.sharedInstance.historyList.sort((a, b) => b.requestTime.compareTo(a.requestTime));
+    _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionMap.values.toList();
+    _strangerSessionModelList.sort((session1, session2) {
+      var session2CreatedTime = session2.createTime;
+      var session1CreatedTime = session1.createTime;
+      if (session2CreatedTime == null && session1CreatedTime == null) {
+        return 0;
+      } else if (session1CreatedTime == null) {
+        return 1;
+      } else if (session2CreatedTime == null) {
+        return -1;
+      } else {
+        return session2CreatedTime.compareTo(session1CreatedTime);
+      }
+    });
     setState(() {});
-    OXChatBinding.sharedInstance.setAllFriendRequestAsRead();
   }
 
   @override
@@ -98,10 +112,10 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
             slivers: [
               SliverFixedExtentList(
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    if (OXChatBinding.sharedInstance.historyList.length < 1) {
+                    if (_strangerSessionModelList.length < 1) {
                       return Container();
                     }
-                    FriendRequestHistoryModel _reqModel = OXChatBinding.sharedInstance.historyList[index];
+                    ChatSessionModel item = _strangerSessionModelList[index];
                     return Container(
                       height: Adapt.px(98),
                       margin: EdgeInsets.only(
@@ -111,7 +125,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          _buildFriendAvatar(_reqModel),
+                          _buildFriendAvatar(item),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +135,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        _reqModel.name ?? '',
+                                        item.chatName ?? '',
                                         style: TextStyle(
                                           fontSize: Adapt.px(16),
                                           color: ThemeColor.color10,
@@ -132,33 +146,21 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
                                     ),
                                     Text(
                                       OXDateUtils.convertTimeFormatString3(
-                                        _reqModel.requestTime,
+                                        item.createTime ?? 0,
                                       ),
                                       style: TextStyle(
                                           fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
                                     )
                                   ],
                                 ),
-                                // Text(
-                                //   "From Wallet Address",
-                                //   style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color120, fontWeight: FontWeight.w400),
-                                // ),
-                                _reqModel.status == 0
-                                    ? _buildNotAddStatus(_reqModel)
-                                    : _buildOperateButton(
-                                        _reqModel.status == 1 ? "ox_chat.friend_request_added" : "ox_chat.friend_request_rejected",
-                                        height: Adapt.px(30),
-                                        textColor: ThemeColor.color100,
-                                        bgColor: ThemeColor.color190,
-                                        onTap: () {},
-                                      ),
+                                 _buildNotAddStatus(item),
                               ],
                             ),
                           ),
                         ],
                       ),
                     );
-                  }, childCount: OXChatBinding.sharedInstance.historyList.length),
+                  }, childCount: _strangerSessionModelList.length),
                   itemExtent: 98),
             ],
           ),
@@ -168,7 +170,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
   }
 
   //Unadded status
-  Widget _buildNotAddStatus(FriendRequestHistoryModel item) {
+  Widget _buildNotAddStatus(ChatSessionModel item) {
     return Row(
       children: [
         Expanded(
@@ -204,7 +206,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     );
   }
 
-  Widget _buildFriendAvatar(FriendRequestHistoryModel reqModel) {
+  Widget _buildFriendAvatar(ChatSessionModel reqModel) {
     Image _placeholderImage = Image.asset(
       'assets/images/user_image.png',
       fit: BoxFit.cover,
@@ -212,12 +214,11 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
       height: Adapt.px(76),
       package: 'ox_chat',
     );
-
     return InkWell(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Adapt.px(60)),
         child: CachedNetworkImage(
-          imageUrl: reqModel.picture ?? '',
+          imageUrl: reqModel.avatar ?? '',
           fit: BoxFit.cover,
           placeholder: (context, url) => _placeholderImage,
           errorWidget: (context, url, error) => _placeholderImage,
@@ -225,17 +226,16 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
           height: Adapt.px(60),
         ),
       ),
-      onTap: () {
+      onTap: () async {
+        UserDB? userDB = await Account.getUserFromDB(pubkey: reqModel.chatId!);
+        if(userDB == null){
+          CommonToast.instance.show(context, 'Unknown error about the user.');
+          return;
+        }
         OXNavigator.pushPage(
             context,
             (context) => ContactFriendUserInfoPage(
-                    userDB: UserDB(
-                  pubKey: reqModel.pubKey,
-                  name: reqModel.name,
-                  aliasPubkey: reqModel.aliasPubkey,
-                  picture: reqModel.picture,
-                  badges: reqModel.badges,
-                )));
+                    userDB: userDB));
       },
     ).setPadding(
       EdgeInsets.only(
@@ -265,16 +265,14 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     );
   }
 
-  void _confirmOnTap(FriendRequestHistoryModel item) async {
+  void _confirmOnTap(ChatSessionModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.pubKey!]);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.chatId!]);
     await OXLoading.dismiss();
     if (okEvent.status) {
-      item.status = 1;
-      item.isRead = 1;
-      OXChatBinding.sharedInstance.updateFriendRequestHistory(item);
-      ///local accept friend req，notice others page refresh
-      OXChatBinding.sharedInstance.friendAcceptCallBack(null);
+      ///local add contact，notice others page refresh
+      OXChatBinding.sharedInstance.addContact(item);
+      OXChatBinding.sharedInstance.addChatSession(item);
       CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
       setState(() {});
     } else {
@@ -282,14 +280,12 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     }
   }
 
-  void _blockOnTap(FriendRequestHistoryModel item) async {
+  void _blockOnTap(ChatSessionModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.pubKey!);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
     await OXLoading.dismiss();
     if (okEvent.status) {
-      item.status = 2;
-      item.isRead = 1;
-      OXChatBinding.sharedInstance.updateFriendRequestHistory(item);
+      OXChatBinding.sharedInstance.deleteSession(item);
       CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
       setState(() {});
     } else {
@@ -298,8 +294,21 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
   }
 
   @override
-  void didFriendRequestCallBack() {
-    OXChatBinding.sharedInstance.historyList.sort((a, b) => b.requestTime.compareTo(a.requestTime));
+  void didStrangerSessionUpdate() {
+    _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionMap.values.toList();
+    _strangerSessionModelList.sort((session1, session2) {
+      var session2CreatedTime = session2.createTime;
+      var session1CreatedTime = session1.createTime;
+      if (session2CreatedTime == null && session1CreatedTime == null) {
+        return 0;
+      } else if (session1CreatedTime == null) {
+        return 1;
+      } else if (session2CreatedTime == null) {
+        return -1;
+      } else {
+        return session2CreatedTime.compareTo(session1CreatedTime);
+      }
+    });
     setState(() {});
   }
 }

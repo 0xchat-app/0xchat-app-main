@@ -182,7 +182,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                                               style: TextStyle(fontSize: 14, color: ThemeColor.color10, fontWeight: FontWeight.w600),
                                             ),
                                             SizedBox(width: Adapt.px(6)),
-                                            _unReadFriendReq(),
+                                            _unReadCount(),
                                           ],
                                         ),
                                         decoration: BoxDecoration(
@@ -223,9 +223,9 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
     );
   }
 
-  Widget _unReadFriendReq(){
-    int _newFriendRequestCount = OXChatBinding.sharedInstance.unReadFriendRequestCount;
-    if (_newFriendRequestCount > 0 && _newFriendRequestCount < 10) {
+  Widget _unReadCount(){
+    int _unReadStrangerSessionCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
+    if (_unReadStrangerSessionCount > 0 && _unReadStrangerSessionCount < 10) {
       return ClipOval(
         child: Container(
           alignment: Alignment.center,
@@ -233,12 +233,12 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
           width: Adapt.px(17),
           height: Adapt.px(17),
           child: Text(
-            _newFriendRequestCount.toString(),
+            _unReadStrangerSessionCount.toString(),
             style: _Style.read(),
           ),
         ),
       );
-    } else if (_newFriendRequestCount >= 10 && _newFriendRequestCount < 100) {
+    } else if (_unReadStrangerSessionCount >= 10 && _unReadStrangerSessionCount < 100) {
       return Container(
         alignment: Alignment.center,
         width: Adapt.px(22),
@@ -249,11 +249,11 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
         ),
         padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
         child: Text(
-          _newFriendRequestCount.toString(),
+          _unReadStrangerSessionCount.toString(),
           style: _Style.read(),
         ),
       );
-    } else if (_newFriendRequestCount >= 100) {
+    } else if (_unReadStrangerSessionCount >= 100) {
       return Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -347,7 +347,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
   }
 
   @override
-  void didFriendRequestCallBack() {
+  void didSecretChatRequestCallBack() {
     _isShowTools = true;
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {

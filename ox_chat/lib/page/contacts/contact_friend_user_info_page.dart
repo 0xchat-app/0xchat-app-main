@@ -63,7 +63,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
   }
 }
 
-class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> with OXChatObserver {
+class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage>{
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,
@@ -88,22 +88,12 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
   @override
   void initState() {
     super.initState();
-    OXChatBinding.sharedInstance.addObserver(this);
     _initData();
   }
 
   @override
   void dispose() {
-    OXChatBinding.sharedInstance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didFriendAcceptCallBack(Alias? alias) {
-    //Contacts.sharedInstance.friends will update
-    if (this.mounted) {
-      setState(() {});
-    }
   }
 
   void _initData() async {

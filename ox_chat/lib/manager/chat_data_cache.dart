@@ -84,7 +84,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didFriendMessageCallBack(MessageDB message) async {
+  void didPrivateMessageCallBack(MessageDB message) async {
 
     ChatLogUtils.info(
       className: 'ChatDataCache',

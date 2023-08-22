@@ -175,18 +175,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   @override
-  void didFriendAcceptCallBack(Alias? alias) {
-    LogUtil.e('Michael: contact_view_friends didFriendAcceptCallBack alias=${alias??'alias null'}');
-    _loadData();
-  }
-
-  @override
-  void didFriendRemoveCallBack(Alias alias) {
-    LogUtil.e('Michael: contact_view_friends didFriendRemoveCallBack alias.toPubkey=${alias.toPubkey}');
-    _loadData();
-  }
-
-  @override
   void didContactUpdatedCallBack() {
     LogUtil.e('Michael: contact_view_friends didFriendUpdatedCallBack friends.length=${Contacts.sharedInstance.allContacts.length}');
     _loadData();
