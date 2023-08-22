@@ -96,3 +96,4 @@ build/
 0xchat-core/
 nostr-dart/
 Podfile
+ox_common/lib/const/config/
