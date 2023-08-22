@@ -51,11 +51,6 @@ class ChatPageConfig {
   }
 }
 
-// {'itemName' : Localized.text('ox_chat_ui.input_more_album'), 'itemIcon' : 'chat_photo_more.png', 'type':1},
-// {'itemName' : Localized.text('ox_chat_ui.input_more_camera'), 'itemIcon' : 'chat_camera_more.png', 'type':2},
-// {'itemName' : Localized.text('ox_chat_ui.input_more_video'), 'itemIcon' : 'chat_video_icon.png', 'type':3},
-// {'itemName' : Localized.text('ox_chat_ui.input_more_call'), 'itemIcon' : 'chat_call_icon.png', 'type':4},
-
 extension InputMoreItemEx on InputMoreItem {
 
   static album(ChatGeneralHandler handler) =>
@@ -103,4 +98,21 @@ extension InputMoreItemEx on InputMoreItem {
           handler.callPressHandler(context, user);
         },
       );
+
+  static zaps(ChatGeneralHandler handler, UserDB? otherUser) =>
+      InputMoreItem(
+        id: 'zaps',
+        title: () => Localized.text('ox_chat_ui.input_more_zaps'),
+        iconName: 'chat_zaps_icon.png',
+        action: (context) {
+          final user = otherUser;
+          if (user == null) {
+            ChatLogUtils.error(className: 'ChatPageConfig', funcName: 'call', message: 'user is null');
+            CommonToast.instance.show(context, 'User info not found');
+            return ;
+          }
+          handler.zapsPressHandler(context, user);
+        },
+      );
+
 }
