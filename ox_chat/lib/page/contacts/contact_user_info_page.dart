@@ -640,7 +640,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>{
   bool isFriend(String pubkey) {
     UserDB? user = Contacts.sharedInstance.allContacts[pubkey];
     LogUtil.e("user?.aliasPubkey ${user?.aliasPubkey}");
-    return user?.aliasPubkey?.isNotEmpty ?? false;
+    return user != null;
   }
 
   void _onChangedMute(bool value) async {
