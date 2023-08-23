@@ -49,23 +49,36 @@ class OXUserInfoManager {
   }
 
   Future initLocalData() async {
-    ///account auto login
-    final String? localPrivKey = await OXCacheManager.defaultOXCacheManager.getForeverData(
-      'PrivKey',
-    );
-    if (localPrivKey != null) {
-      String? privKey = UserDB.decodePrivkey(localPrivKey!);
+    ///account auto-login
+    final String? localPriv = await OXCacheManager.defaultOXCacheManager.getForeverData('PrivKey');
+    final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData('pubKey');
+    final String? localDefaultPw = await OXCacheManager.defaultOXCacheManager.getForeverData('defaultPw');
+    if (localPriv != null && localPriv.isNotEmpty) {
+      OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
+      OXCacheManager.defaultOXCacheManager.removeData('PrivKey');
+      String? privKey = UserDB.decodePrivkey(localPriv);
       if (privKey == null || privKey.isEmpty) {
-        CommonToast.instance.show(null, 'Auto-login failed, please log in again.');
+        LogUtil.e('Oxchat : Auto-login failed, please log in again.');
         return;
       }
       String pubkey = Account.getPublicKey(privKey);
       await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.getUserFromDB(privkey: privKey);
+      final UserDB? tempUserDB = await Account.loginWithPriKey(privKey);
+      if (tempUserDB != null) {
+        currentUserInfo = tempUserDB;
+        _initDatas();
+        await OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', tempUserDB.pubKey);
+        await OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', tempUserDB.defaultPassword);
+      }
+    } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
+      await initDB(localPubKey);
+      final UserDB? tempUserDB = await Account.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
       }
+    } else {
+      return;
     }
   }
 
@@ -75,7 +88,8 @@ class OXUserInfoManager {
 
   Future<void> loginSuccess(UserDB userDB) async {
     OXUserInfoManager.sharedInstance.currentUserInfo = userDB;
-    OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', currentUserInfo!.encodedPrivkey);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', userDB.pubKey);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', userDB.defaultPassword);
     LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
@@ -94,11 +108,11 @@ class OXUserInfoManager {
     };
     Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatRejectCallBack ssDB.toPubkey =${ssDB.toPubkey}");
-      // OXChatBinding.sharedInstance.secretChatRejectCallBack(alias);
+      OXChatBinding.sharedInstance.secretChatRejectCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatUpdateCallBack ssDB.toPubkey =${ssDB.toPubkey}");
-      // OXChatBinding.sharedInstance.secretChatUpdateCallBack(alias);
+      OXChatBinding.sharedInstance.secretChatUpdateCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatCloseCallBack");
@@ -149,7 +163,8 @@ class OXUserInfoManager {
     }
     await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
-    OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
     OXUserInfoManager.sharedInstance.currentUserInfo = null;
     _initFriendsCompleted = false;
     _initChannelsCompleted = false;
