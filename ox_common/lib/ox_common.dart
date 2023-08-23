@@ -24,6 +24,10 @@ class OXCommon extends OXFlutterModule {
   // TODO: implement dbSchemes
   List<Type> get dbSchemes => [
     UserDB,
+    ZapsDB,
+    BadgeAwardDB,
+    BadgeDB,
+    RelayDB,
   ];
 
   @override
