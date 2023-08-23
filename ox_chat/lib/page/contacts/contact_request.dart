@@ -148,14 +148,29 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                     Expanded(
                       child: Row(
                         children: [
-                          // CommonImage(iconName: ),
-                          Text(
-                            item.chatName ?? '',
-                            style: TextStyle(
-                              fontSize: Adapt.px(16),
-                              color: ThemeColor.color0,
-                              letterSpacing: Adapt.px(0.4),
-                              fontWeight: FontWeight.w600,
+                          CommonImage(
+                            iconName: 'icon_lock_secret.png',
+                            width: Adapt.px(16),
+                            height: Adapt.px(16),
+                            package: 'ox_chat',
+                          ),
+                          ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                colors: [
+                                  ThemeColor.gradientMainEnd,
+                                  ThemeColor.gradientMainStart,
+                                ],
+                              ).createShader(Offset.zero & bounds.size);
+                            },
+                            child: Text(
+                              item.chatName ?? '',
+                              style: TextStyle(
+                                fontSize: Adapt.px(16),
+                                color: ThemeColor.color0,
+                                letterSpacing: Adapt.px(0.4),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -177,6 +192,8 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                     Expanded(
                       child: Text(
                         item.content ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: Adapt.px(14),
                           color: ThemeColor.color120,
