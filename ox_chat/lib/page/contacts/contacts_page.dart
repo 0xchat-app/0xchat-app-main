@@ -18,6 +18,8 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import 'contact_add_follows.dart';
+
 class ContractsPage extends StatefulWidget {
   const ContractsPage({Key? key}) : super(key: key);
 
@@ -166,7 +168,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                                 padding: EdgeInsets.only(left: Adapt.px(24)),
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 1,
+                                itemCount: 2,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
                                     return InkWell(
@@ -197,6 +199,41 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                                       },
                                     );
                                   }
+                                  return InkWell(
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          top: Adapt.px(14),
+                                          bottom: Adapt.px(14)),
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: Adapt.px(24)),
+                                      height: Adapt.px(40),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Requests',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: ThemeColor.color10,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          SizedBox(width: Adapt.px(6)),
+                                        ],
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: ThemeColor.color180,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(Adapt.px(20))),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      OXNavigator.presentPage(
+                                        context,
+                                        (context) => ContactAddFollows(),
+                                        fullscreenDialog:true
+                                      );
+                                    },
+                                  );
                                   return Container();
                                 }),
                           ))

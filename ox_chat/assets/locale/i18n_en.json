@@ -8,7 +8,7 @@
   "no_related_users_were_found": "No relevant user was found",
   "my_card": "My Card",
   "details": "Details",
-  "add_friend": "Add Friend",
+  "add_friend": "Add Contact",
   "send_message": "Message",
   "delete": "Delete",
   "search": "Search",
@@ -50,5 +50,9 @@
   "pin_to_top": "Pinned",
   "unpin_from_top": "Unpinned",
   "mark_as_read": "Read",
-  "mark_as_unread": "Unread"
+  "mark_as_unread": "Unread",
+  "not_friends_send_message_prompts": "Sorry, you can only send messages to mutual contacts at the moment.",
+  "remove_contacts": "Remove Contacts",
+  "import_follows": "Import Follows",
+  "import_follows_tips": "Import follows from the blockchain and add them as Contacts："
 }
