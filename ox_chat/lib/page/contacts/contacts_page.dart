@@ -1,4 +1,3 @@
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
@@ -18,6 +17,8 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import 'contact_add_follows.dart';
+
 class ContractsPage extends StatefulWidget {
   const ContractsPage({Key? key}) : super(key: key);
 
@@ -25,7 +26,12 @@ class ContractsPage extends StatefulWidget {
   State<ContractsPage> createState() => _ContractsPageState();
 }
 
-class _ContractsPageState extends State<ContractsPage> with SingleTickerProviderStateMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver {
+class _ContractsPageState extends State<ContractsPage>
+    with
+        SingleTickerProviderStateMixin,
+        OXUserInfoObserver,
+        WidgetsBindingObserver,
+        OXChatObserver {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   bool _isShowTools = true;
@@ -47,9 +53,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
     super.dispose();
   }
 
-  void _loadData() {
-
-  }
+  void _loadData() {}
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +81,10 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
           padding: EdgeInsets.only(left: 24.0),
           child: CommonCategoryTitleView(
             bgColor: Colors.transparent,
-            selectedGradientColors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd],
+            selectedGradientColors: [
+              ThemeColor.gradientMainStart,
+              ThemeColor.gradientMainEnd
+            ],
             unselectedGradientColors: [Colors.white, Colors.white],
             selectedFontSize: Adapt.px(20),
             unSelectedFontSize: Adapt.px(20),
@@ -131,7 +138,8 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                 backgroundColor: ThemeColor.color200,
                 pinned: true,
                 floating: true,
-                expandedHeight: _isShowTools ? Adapt.px(126) : Adapt.px(126 - 66),
+                expandedHeight:
+                    _isShowTools ? Adapt.px(126) : Adapt.px(126 - 66),
                 elevation: 0,
                 flexibleSpace: _isShowTools
                     ? FlexibleSpaceBar(
@@ -157,29 +165,33 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                           child: Theme(
                             data: ThemeData(
                               backgroundColor: Colors.transparent,
-
                               highlightColor: Colors.transparent,
-
                               splashColor: Colors.transparent,
                             ),
                             child: ListView.builder(
                                 padding: EdgeInsets.only(left: Adapt.px(24)),
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 1,
+                                itemCount: 2,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
                                     return InkWell(
                                       child: Container(
-                                        margin: EdgeInsets.only(top: Adapt.px(14), bottom: Adapt.px(14)),
+                                        margin: EdgeInsets.only(
+                                            top: Adapt.px(14),
+                                            bottom: Adapt.px(14)),
                                         alignment: Alignment.center,
-                                        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: Adapt.px(24)),
                                         height: Adapt.px(40),
                                         child: Row(
                                           children: [
                                             Text(
                                               'Requests',
-                                              style: TextStyle(fontSize: 14, color: ThemeColor.color10, fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: ThemeColor.color10,
+                                                  fontWeight: FontWeight.w600),
                                             ),
                                             SizedBox(width: Adapt.px(6)),
                                             _unReadFriendReq(),
@@ -187,16 +199,54 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                                         ),
                                         decoration: BoxDecoration(
                                           color: ThemeColor.color180,
-                                          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(20))),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(Adapt.px(20))),
                                         ),
                                       ),
                                       onTap: () {
                                         OXNavigator.pushPage(
                                             context,
-                                            (context) => ContactFriendRequest());
+                                            (context) =>
+                                                ContactFriendRequest());
                                       },
                                     );
                                   }
+                                  return InkWell(
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          top: Adapt.px(14),
+                                          bottom: Adapt.px(14)),
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: Adapt.px(24)),
+                                      height: Adapt.px(40),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Requests',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: ThemeColor.color10,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          SizedBox(width: Adapt.px(6)),
+                                          _unReadFriendReq(),
+                                        ],
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: ThemeColor.color180,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(Adapt.px(20))),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      OXNavigator.presentPage(
+                                        context,
+                                        (context) => ContactAddFollows(),
+                                        fullscreenDialog:true
+                                      );
+                                    },
+                                  );
                                   return Container();
                                 }),
                           ))
@@ -223,8 +273,9 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
     );
   }
 
-  Widget _unReadFriendReq(){
-    int _newFriendRequestCount = OXChatBinding.sharedInstance.unReadFriendRequestCount;
+  Widget _unReadFriendReq() {
+    int _newFriendRequestCount =
+        OXChatBinding.sharedInstance.unReadFriendRequestCount;
     if (_newFriendRequestCount > 0 && _newFriendRequestCount < 10) {
       return ClipOval(
         child: Container(
@@ -247,7 +298,8 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
           color: ThemeColor.red1,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
         ),
-        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        padding: EdgeInsets.symmetric(
+            vertical: Adapt.px(3), horizontal: Adapt.px(3)),
         child: Text(
           _newFriendRequestCount.toString(),
           style: _Style.read(),
@@ -260,7 +312,8 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
           color: ThemeColor.red1,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
         ),
-        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        padding: EdgeInsets.symmetric(
+            vertical: Adapt.px(3), horizontal: Adapt.px(3)),
         child: Text(
           '99+',
           style: _Style.read(),
@@ -312,7 +365,9 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
               width: Adapt.px(8),
             ),
             MyText(
-              'search'.localized() + ' your ' + (_selectedIndex == 0 ? 'friend' : 'channel'),
+              'search'.localized() +
+                  ' your ' +
+                  (_selectedIndex == 0 ? 'friend' : 'channel'),
               15,
               ThemeColor.color150,
               fontWeight: FontWeight.w400,
@@ -338,8 +393,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
   }
 
   @override
-  void didLogout() {
-  }
+  void didLogout() {}
 
   @override
   void didSwitchUser(UserDB? userInfo) {
@@ -366,4 +420,3 @@ class _Style {
     );
   }
 }
-
