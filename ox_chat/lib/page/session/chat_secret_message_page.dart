@@ -38,10 +38,10 @@ class ChatSecretMessagePage extends StatefulWidget {
   const ChatSecretMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
 
   @override
-  State<ChatSecretMessagePage> createState() => _ChatMessagePageState();
+  State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatMessagePageState extends State<ChatSecretMessagePage> {
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   List<types.Message> _messages = [];
   late types.User _user;
   bool isMore = false;
@@ -212,7 +212,7 @@ class _ChatMessagePageState extends State<ChatSecretMessagePage> {
     final userId = receiverPubkey;
     final user = Contacts.sharedInstance.allContacts[userId];
     if (user == null) {
-      chatStatus = ChatStatus.NotFriend;
+      chatStatus = ChatStatus.NotContact;
     } else {
       chatStatus = ChatStatus.Normal;
     }

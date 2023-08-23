@@ -193,7 +193,7 @@ class _ContractsPageState extends State<ContractsPage> with SingleTickerProvider
                                       onTap: () {
                                         OXNavigator.pushPage(
                                             context,
-                                            (context) => ContactFriendRequest());
+                                            (context) => ContactRequest());
                                       },
                                     );
                                   }

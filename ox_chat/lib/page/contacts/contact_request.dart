@@ -1,10 +1,11 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -19,14 +20,14 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-class ContactFriendRequest extends StatefulWidget {
-  ContactFriendRequest({Key? key}) : super(key: key);
+class ContactRequest extends StatefulWidget {
+  ContactRequest({Key? key}) : super(key: key);
 
   @override
-  _ContactFriendRequestState createState() => _ContactFriendRequestState();
+  _ContactRequestState createState() => _ContactRequestState();
 }
 
-class _ContactFriendRequestState extends State<ContactFriendRequest> with CommonStateViewMixin, OXChatObserver {
+class _ContactRequestState extends State<ContactRequest> with CommonStateViewMixin, OXChatObserver {
   late List<ChatSessionModel> _strangerSessionModelList;
 
   @override
@@ -116,55 +117,90 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
                       return Container();
                     }
                     ChatSessionModel item = _strangerSessionModelList[index];
-                    return Container(
-                      height: Adapt.px(98),
-                      margin: EdgeInsets.only(
-                        left: Adapt.px(20),
-                        right: Adapt.px(20),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildFriendAvatar(item),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        item.chatName ?? '',
-                                        style: TextStyle(
-                                          fontSize: Adapt.px(16),
-                                          color: ThemeColor.color10,
-                                          letterSpacing: Adapt.px(0.4),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      OXDateUtils.convertTimeFormatString3(
-                                        item.createTime ?? 0,
-                                      ),
-                                      style: TextStyle(
-                                          fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
-                                    )
-                                  ],
-                                ),
-                                 _buildNotAddStatus(item),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                    return _buildItemView(item);
                   }, childCount: _strangerSessionModelList.length),
                   itemExtent: 98),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildItemView(ChatSessionModel item) {
+    return Container(
+      height: Adapt.px(98),
+      margin: EdgeInsets.only(
+        left: Adapt.px(20),
+        right: Adapt.px(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildAvatar(item),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          // CommonImage(iconName: ),
+                          Text(
+                            item.chatName ?? '',
+                            style: TextStyle(
+                              fontSize: Adapt.px(16),
+                              color: ThemeColor.color0,
+                              letterSpacing: Adapt.px(0.4),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    FutureBuilder<bool>(
+                      builder: (context, snapshot) {
+                        return _buildReadWidget(item, snapshot.data ?? false);
+                      },
+                      future: _getChatSessionMute(item),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: Adapt.px(2),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.content ?? '',
+                        style: TextStyle(
+                          fontSize: Adapt.px(14),
+                          color: ThemeColor.color120,
+                          letterSpacing: Adapt.px(0.4),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      OXDateUtils.convertTimeFormatString3(
+                        (item.createTime ?? 0) * 1000,
+                      ),
+                      style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: Adapt.px(6),
+                ),
+                _buildNotAddStatus(item),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -206,7 +242,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     );
   }
 
-  Widget _buildFriendAvatar(ChatSessionModel reqModel) {
+  Widget _buildAvatar(ChatSessionModel reqModel) {
     Image _placeholderImage = Image.asset(
       'assets/images/user_image.png',
       fit: BoxFit.cover,
@@ -228,20 +264,90 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
       ),
       onTap: () async {
         UserDB? userDB = await Account.getUserFromDB(pubkey: reqModel.chatId!);
-        if(userDB == null){
+        if (userDB == null) {
           CommonToast.instance.show(context, 'Unknown error about the user.');
           return;
         }
-        OXNavigator.pushPage(
-            context,
-            (context) => ContactFriendUserInfoPage(
-                    userDB: userDB));
+        OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
       },
     ).setPadding(
       EdgeInsets.only(
         right: Adapt.px(16),
       ),
     );
+  }
+
+  Future<bool> _getChatSessionMute(ChatSessionModel csModel) async {
+    bool isMute = false;
+    if (csModel.chatType == ChatType.chatStranger || csModel.chatType == ChatType.chatSecretStranger) {
+      UserDB? tempUserDB = await Account.getUserFromDB(pubkey: csModel.chatId!);
+      if (tempUserDB != null) {
+        isMute = tempUserDB.mute ?? false;
+      }
+    } else if (csModel.chatType == ChatType.chatChannel) {
+      ChannelDB? channelDB = Channels.sharedInstance.channels[csModel.chatId!];
+      if (channelDB != null) {
+        isMute = channelDB.mute ?? false;
+      }
+    }
+    return isMute;
+  }
+
+  Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
+    if (isMute) {
+      return ClipOval(
+        child: Container(
+          alignment: Alignment.center,
+          color: ThemeColor.red1,
+          width: Adapt.px(12),
+          height: Adapt.px(12),
+        ),
+      );
+    }
+    int read = announceItem.unreadCount;
+    if (read > 0 && read < 10) {
+      return ClipOval(
+        child: Container(
+          alignment: Alignment.center,
+          color: ThemeColor.red1,
+          width: Adapt.px(17),
+          height: Adapt.px(17),
+          child: Text(
+            read.toString(),
+            style: _Style.read(),
+          ),
+        ),
+      );
+    } else if (read >= 10 && read < 100) {
+      return Container(
+        alignment: Alignment.center,
+        width: Adapt.px(22),
+        height: Adapt.px(20),
+        decoration: BoxDecoration(
+          color: ThemeColor.red1,
+          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
+        ),
+        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        child: Text(
+          read.toString(),
+          style: _Style.read(),
+        ),
+      );
+    } else if (read >= 100) {
+      return Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: ThemeColor.red1,
+          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
+        ),
+        padding: EdgeInsets.symmetric(vertical: Adapt.px(3), horizontal: Adapt.px(3)),
+        child: Text(
+          '99+',
+          style: _Style.read(),
+        ),
+      );
+    }
+    return Container();
   }
 
   Widget _buildOperateButton(String title,
@@ -271,7 +377,7 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
     await OXLoading.dismiss();
     if (okEvent.status) {
       ///local add contact，notice others page refresh
-      OXChatBinding.sharedInstance.addContact(item);
+      OXChatBinding.sharedInstance.contactUpdatedCallBack();
       OXChatBinding.sharedInstance.addChatSession(item);
       CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
       setState(() {});
@@ -310,5 +416,15 @@ class _ContactFriendRequestState extends State<ContactFriendRequest> with Common
       }
     });
     setState(() {});
+  }
+}
+
+class _Style {
+  static TextStyle read() {
+    return new TextStyle(
+      fontSize: Adapt.px(12),
+      fontWeight: FontWeight.w400,
+      color: Colors.white,
+    );
   }
 }

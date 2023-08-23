@@ -212,7 +212,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     final userId = receiverPubkey;
     final user = Contacts.sharedInstance.allContacts[userId];
     if (user == null) {
-      chatStatus = ChatStatus.NotFriend;
+      chatStatus = ChatStatus.NotContact;
     } else {
       chatStatus = ChatStatus.Normal;
     }

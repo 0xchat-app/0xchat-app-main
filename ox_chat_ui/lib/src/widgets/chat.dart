@@ -36,7 +36,7 @@ import 'dart:io';
 enum ChatStatus {
   Unknown,
   NotJoined,
-  NotFriend,
+  NotContact,
   InsufficientBadge,
   Normal,
 }
@@ -52,6 +52,8 @@ class Chat extends StatefulWidget {
     this.anchorMsgId,
     this.bubbleBuilder,
     this.bubbleRtlAlignment = BubbleRtlAlignment.right,
+    this.customTopWidget,
+    this.customCenterWidget,
     this.customBottomWidget,
     this.customDateHeaderText,
     this.customMessageBuilder,
@@ -138,6 +140,10 @@ class Chat extends StatefulWidget {
 
   /// See [Message.bubbleRtlAlignment].
   final BubbleRtlAlignment? bubbleRtlAlignment;
+
+  final Widget? customTopWidget;
+
+  final Widget? customCenterWidget;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view. If you're looking for the bottom widget added to the chat
@@ -454,6 +460,12 @@ class ChatState extends State<Chat> {
                 color: ThemeColor.color200,
                 child: Column(
                   children: [
+                    widget.chatStatus == ChatStatus.NotContact ? SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),),
+                        child: widget.customTopWidget ?? SizedBox(),
+                      ),
+                    ) :  SizedBox(),
                     Flexible(
                       child: widget.messages.isEmpty
                           ? SizedBox.expand(
@@ -511,7 +523,11 @@ class ChatState extends State<Chat> {
                 ),
               ),
               // if (_isImageViewVisible)
-
+              widget.customCenterWidget != null ? SafeArea(
+                child: Center(
+                  child: widget.customCenterWidget,
+                ),
+              ) :  SizedBox(),
             ],
           ),
         ),
@@ -545,7 +561,7 @@ class ChatState extends State<Chat> {
             widget.onJoinChannelTap?.call();
           },
         );
-      } else if (chatStatus == ChatStatus.InsufficientBadge || chatStatus == ChatStatus.NotFriend) {
+      } else if (chatStatus == ChatStatus.InsufficientBadge) {
         final text = chatStatus == ChatStatus.InsufficientBadge ?
         Localized.text('ox_chat_ui.channel_badge_requirements') :
         Localized.text('ox_chat_ui.friend_requirements');

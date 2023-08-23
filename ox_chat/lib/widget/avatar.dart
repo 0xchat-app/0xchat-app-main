@@ -4,7 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
-import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -107,7 +107,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
           CommonToast.instance.show(context, 'User not found');
           return ;
         }
-        await OXNavigator.pushPage(context, (context) => ContactFriendUserInfoPage(userDB: user));
+        await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: user));
         final onReturnFromNextPage = widget.onReturnFromNextPage;
         if (onReturnFromNextPage != null) onReturnFromNextPage();
       },

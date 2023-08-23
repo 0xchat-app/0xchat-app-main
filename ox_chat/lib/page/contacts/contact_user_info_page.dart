@@ -29,13 +29,13 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-class ContactFriendUserInfoPage extends StatefulWidget {
-  UserDB userDB;
+class ContactUserInfoPage extends StatefulWidget {
+  final UserDB userDB;
 
-  ContactFriendUserInfoPage({Key? key, required this.userDB}) : super(key: key);
+  ContactUserInfoPage({Key? key, required this.userDB}) : super(key: key);
 
   @override
-  State<ContactFriendUserInfoPage> createState() => _ContactFriendUserInfoPageState();
+  State<ContactUserInfoPage> createState() => _ContactUserInfoPageState();
 }
 
 enum OtherInfoItemType {
@@ -63,7 +63,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
   }
 }
 
-class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage>{
+class _ContactUserInfoPageState extends State<ContactUserInfoPage>{
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,

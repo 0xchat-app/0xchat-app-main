@@ -5,7 +5,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
 import 'package:ox_chat/widget/avatar.dart';
@@ -381,7 +381,7 @@ class _ContractListItemState extends State<ContractListItem> {
   void _onItemClick() async {
     if (widget.item.pubKey != null && widget.item.pubKey!.isNotEmpty) {
       UserDB? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDB;
-      OXNavigator.pushPage(context, (context) => ContactFriendUserInfoPage(userDB: userDB));
+      OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
     }
   }
 

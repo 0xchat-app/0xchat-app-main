@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
@@ -61,7 +61,7 @@ class OXChat extends OXFlutterModule {
       case 'ContactFriendUserInfoPage':
         return OXNavigator.pushPage(
           context,
-              (context) => ContactFriendUserInfoPage(
+              (context) => ContactUserInfoPage(
             userDB: params?['userDB'],
           ),
         );
