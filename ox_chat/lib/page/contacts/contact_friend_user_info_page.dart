@@ -35,7 +35,8 @@ class ContactFriendUserInfoPage extends StatefulWidget {
   ContactFriendUserInfoPage({Key? key, required this.userDB}) : super(key: key);
 
   @override
-  State<ContactFriendUserInfoPage> createState() => _ContactFriendUserInfoPageState();
+  State<ContactFriendUserInfoPage> createState() =>
+      _ContactFriendUserInfoPageState();
 }
 
 enum OtherInfoItemType {
@@ -63,7 +64,8 @@ extension OtherInfoItemStr on OtherInfoItemType {
   }
 }
 
-class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> with OXChatObserver {
+class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage>
+    with OXChatObserver {
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,
@@ -110,7 +112,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     _isMute = widget.userDB.mute ?? false;
     if (widget.userDB.badges != null && widget.userDB.badges!.isNotEmpty) {
       List<String> badgeIds = jsonDecode(widget.userDB.badges ?? '');
-      List<BadgeDB?> dbGetList = await BadgesHelper.getBadgeInfosFromDB(badgeIds);
+      List<BadgeDB?> dbGetList =
+      await BadgesHelper.getBadgeInfosFromDB(badgeIds);
       if (dbGetList.length > 0) {
         dbGetList.forEach((element) {
           if (element != null) {
@@ -119,7 +122,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
         });
         setState(() {});
       } else {
-        List<BadgeDB> badgeDB = await BadgesHelper.getBadgesInfoFromRelay(badgeIds);
+        List<BadgeDB> badgeDB =
+        await BadgesHelper.getBadgesInfoFromRelay(badgeIds);
         if (badgeDB.length > 0) {
           _badgeDBList = badgeDB;
           if (mounted) {
@@ -129,13 +133,15 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
       }
     }
     if (widget.userDB.pubKey != null) {
-      Map usersMap = await Account.syncProfilesFromRelay([widget.userDB.pubKey!]);
+      Map usersMap =
+      await Account.syncProfilesFromRelay([widget.userDB.pubKey!]);
       UserDB? user = usersMap[widget.userDB.pubKey!];
       if (user != null) {
         widget.userDB.updateWith(user);
         setState(() {});
         ChatUserCache.shared.updateUserInfo(widget.userDB);
-        OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey!, chatName: widget.userDB.name, pic: widget.userDB.picture);
+        OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey!,
+            chatName: widget.userDB.name, pic: widget.userDB.picture);
       }
     }
   }
@@ -164,10 +170,15 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
             SizedBox(
               height: Adapt.px(24),
             ),
+            _tabContainerView(),
             _contentList(),
-            widget.userDB.about == null || widget.userDB.about!.isEmpty || widget.userDB.about == 'null'
+            widget.userDB.about == null ||
+                widget.userDB.about!.isEmpty ||
+                widget.userDB.about == 'null'
                 ? SizedBox()
-                : _bioOrPubKeyWidget(OtherInfoItemType.Bio, widget.userDB.about ?? '').setPadding(
+                : _bioOrPubKeyWidget(
+                OtherInfoItemType.Bio, widget.userDB.about ?? '')
+                .setPadding(
               EdgeInsets.only(
                 top: Adapt.px(24),
               ),
@@ -175,39 +186,12 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
             SizedBox(
               height: Adapt.px(24),
             ),
-            _bioOrPubKeyWidget(OtherInfoItemType.Pubkey, widget.userDB.encodedPubkey),
+            _bioOrPubKeyWidget(
+                OtherInfoItemType.Pubkey, widget.userDB.encodedPubkey),
             SizedBox(
               height: Adapt.px(24),
             ),
-            GestureDetector(
-              child: Container(
-                width: double.infinity,
-                height: Adapt.px(48),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: ThemeColor.color180,
-                  gradient: LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd.withOpacity(0.24),
-                      ThemeColor.gradientMainStart.withOpacity(0.24),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  isFriend(widget.userDB.pubKey ?? '') == false ? Localized.text('ox_chat.add_friend') : Localized.text('ox_chat.send_message'),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: Adapt.px(16),
-                  ),
-                ),
-              ),
-              onTap: () {
-                _addFriendOrSendMsg();
-              },
-            ),
+            _delOrAddFriendBtnView(),
             GestureDetector(
               child: Container(
                 margin: EdgeInsets.only(
@@ -232,38 +216,112 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
                 _reportUser();
               },
             ),
-            isFriend(widget.userDB.pubKey ?? '') == true
-                ? GestureDetector(
-              child: Container(
-                margin: EdgeInsets.only(
-                  top: Adapt.px(16),
-                ),
-                width: double.infinity,
-                height: Adapt.px(48),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: ThemeColor.color180,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  Localized.text('ox_chat.delete_friend'),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: Adapt.px(16),
-                  ),
-                ),
-              ),
-              onTap: () {
-                _removeFriend();
-              },
-            )
-                : Container(),
+            // isFriend(widget.userDB.pubKey ?? '') == true
+            //     ? GestureDetector(
+            //         child: Container(
+            //           margin: EdgeInsets.only(
+            //             top: Adapt.px(16),
+            //           ),
+            //           width: double.infinity,
+            //           height: Adapt.px(48),
+            //           decoration: BoxDecoration(
+            //             borderRadius: BorderRadius.circular(8),
+            //             color: ThemeColor.color180,
+            //           ),
+            //           alignment: Alignment.center,
+            //           child: Text(
+            //             Localized.text('ox_chat.delete_friend'),
+            //             style: TextStyle(
+            //               color: Colors.white,
+            //               fontSize: Adapt.px(16),
+            //             ),
+            //           ),
+            //         ),
+            //         onTap: _removeFriend,
+            //       )
+            //     : Container(),
             SizedBox(
               height: Adapt.px(44),
             ),
           ],
         ),
-      ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16))),
+      ).setPadding(EdgeInsets.only(
+          left: Adapt.px(24), right: Adapt.px(24), top: Adapt.px(16))),
+    );
+  }
+
+  Widget _tabContainerView() {
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: Adapt.px(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _tabWidget(
+            onTap: _sendMsg,
+            iconName: 'icon_message.png',
+            content: 'Message',
+          ),
+          _tabWidget(
+            onTap: () => {},
+            iconName: 'icon_secret.png',
+            content: 'Secret Chat',
+          ),
+          _tabWidget(
+            onTap: () => {},
+            iconName: 'icon_lightning.png',
+            content: 'Zaps',
+          ),
+          _tabWidget(
+            onTap: () => _onChangedMute(!_isMute),
+            iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
+            content: _isMute ? 'Unmute' : 'Mute',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabWidget(
+      {required onTap, required String iconName, required String content}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: Adapt.px(76.5),
+        padding: EdgeInsets.symmetric(
+          vertical: Adapt.px(14),
+        ),
+        decoration: BoxDecoration(
+          color: ThemeColor.color180,
+          borderRadius: BorderRadius.all(
+            Radius.circular(
+              Adapt.px(16),
+            ),
+          ),
+        ),
+        child: Column(
+          children: [
+            CommonImage(
+              iconName: iconName,
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              package: 'ox_chat',
+            ),
+            SizedBox(
+              height: Adapt.px(2),
+            ),
+            Text(
+              content,
+              style: TextStyle(
+                color: ThemeColor.color80,
+                fontSize: Adapt.px(10),
+                fontWeight: FontWeight.w400,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -294,33 +352,35 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
             iconPackage: 'ox_usercenter',
             type: OtherInfoItemType.Badges,
           ),
-          isFriend(widget.userDB.pubKey ?? '')
-              ? Divider(
-            height: Adapt.px(0.5),
-            color: ThemeColor.color160,
-          )
-              : Container(),
-          isFriend(widget.userDB.pubKey ?? '')
-              ? _itemView(
-            iconName: 'icon_mute.png',
-            iconPackage: 'ox_common',
-            type: OtherInfoItemType.Mute,
-          )
-              : Container(),
+          // isFriend(widget.userDB.pubKey ?? '')
+          //     ? Divider(
+          //         height: Adapt.px(0.5),
+          //         color: ThemeColor.color160,
+          //       )
+          //     : Container(),
+          // isFriend(widget.userDB.pubKey ?? '')
+          //     ? _itemView(
+          //         iconName: 'icon_mute.png',
+          //         iconPackage: 'ox_common',
+          //         type: OtherInfoItemType.Mute,
+          //       )
+          //     : Container(),
         ],
       ),
     );
   }
 
   Widget _bioOrPubKeyWidget(OtherInfoItemType type, String content) {
-    String copyStatusIcon = _publicKeyCopied ? 'icon_copyied_success.png' : 'icon_copy.png';
+    String copyStatusIcon =
+    _publicKeyCopied ? 'icon_copyied_success.png' : 'icon_copy.png';
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color190,
       ),
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(16), vertical: Adapt.px(12)),
+      padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(16), vertical: Adapt.px(12)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -344,7 +404,10 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
               Expanded(
                 child: Text(
                   content,
-                  style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color0, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                      fontSize: Adapt.px(14),
+                      color: ThemeColor.color0,
+                      fontWeight: FontWeight.w400),
                   maxLines: null,
                 ),
               ),
@@ -371,13 +434,51 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     );
   }
 
+  Widget _delOrAddFriendBtnView() {
+    bool friendsStatus = isFriend(widget.userDB.pubKey ?? '');
+
+    return GestureDetector(
+      child: Container(
+        width: double.infinity,
+        height: Adapt.px(48),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: ThemeColor.color180,
+          gradient: friendsStatus
+              ? null
+              : LinearGradient(
+            colors: [
+              ThemeColor.gradientMainEnd.withOpacity(0.24),
+              ThemeColor.gradientMainStart.withOpacity(0.24),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          isFriend(widget.userDB.pubKey ?? '') == false
+              ? Localized.text('ox_chat.add_friend')
+              : Localized.text('ox_chat.remove_contacts'),
+          style: TextStyle(
+            color: friendsStatus ? ThemeColor.red : Colors.white,
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      onTap: friendsStatus ? _removeFriend : _addFriends,
+    );
+  }
+
   Future<void> _clickKey(String keyContent) async {
     await Clipboard.setData(
       ClipboardData(
         text: keyContent,
       ),
     );
-    await CommonToast.instance.show(context, 'copied_to_clipboard'.commonLocalized());
+    await CommonToast.instance
+        .show(context, 'copied_to_clipboard'.commonLocalized());
     _publicKeyCopied = true;
     setState(() {});
   }
@@ -422,14 +523,17 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
             child: ListView.separated(
                 itemCount: _badgeDBList.length,
                 scrollDirection: Axis.horizontal,
-                separatorBuilder: (context, index) => Divider(height: 1),
+                separatorBuilder: (context, index) =>
+                    Divider(height: 1),
                 itemBuilder: (context, index) {
                   BadgeDB tempItem = _badgeDBList[index];
                   return CachedNetworkImage(
                     imageUrl: tempItem.thumb ?? '',
                     fit: BoxFit.contain,
-                    placeholder: (context, url) => _badgePlaceholderImage,
-                    errorWidget: (context, url, error) => _badgePlaceholderImage,
+                    placeholder: (context, url) =>
+                    _badgePlaceholderImage,
+                    errorWidget: (context, url, error) =>
+                    _badgePlaceholderImage,
                     width: Adapt.px(32),
                     height: Adapt.px(32),
                   );
@@ -512,7 +616,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
                   return (snapshot.data != null && snapshot.data!.thumb != null)
                       ? CachedNetworkImage(
                     imageUrl: snapshot.data?.thumb ?? '',
-                    errorWidget: (context, url, error) => badgePlaceholderImage,
+                    errorWidget: (context, url, error) =>
+                    badgePlaceholderImage,
                     width: Adapt.px(24),
                     height: Adapt.px(24),
                     fit: BoxFit.cover,
@@ -529,7 +634,10 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
   }
 
   Widget _buildHeadName() {
-    String showName = widget.userDB.nickName != null && widget.userDB.nickName!.isNotEmpty ? widget.userDB.nickName! : (widget.userDB.name ?? '');
+    String showName =
+    widget.userDB.nickName != null && widget.userDB.nickName!.isNotEmpty
+        ? widget.userDB.nickName!
+        : (widget.userDB.name ?? '');
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -553,7 +661,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
           Text(
             widget.userDB.dns ?? '',
             maxLines: 1,
-            style: TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
+            style:
+            TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
             // overflow: TextOverflow.ellipsis,
           ),
           SizedBox(
@@ -564,35 +673,46 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     );
   }
 
-  void _addFriendOrSendMsg() async {
+  void _addFriends() async {
     if (widget.userDB.pubKey == null) {
       return;
     }
     if (isFriend(widget.userDB.pubKey ?? '') == false) {
       await OXLoading.show();
-      LogUtil.e('Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
-      final OKEvent okEvent = await Friends.sharedInstance
-          .requestFriend(widget.userDB.pubKey!, "hello, friends request, ${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey}");
+      LogUtil.e(
+          'Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
+      final OKEvent okEvent = await Friends.sharedInstance.requestFriend(
+          widget.userDB.pubKey!,
+          "hello, friends request, ${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey}");
       await OXLoading.dismiss();
       if (okEvent.status) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+        CommonToast.instance
+            .show(context, Localized.text('ox_chat.sent_successfully'));
       } else {
         CommonToast.instance.show(context, okEvent.message);
       }
-    } else {
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.userDB.pubKey,
-            chatName: widget.userDB.name,
-            sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-            receiver: widget.userDB.pubKey,
-            chatType: ChatType.chatSingle,
-          ),
-        ),
-      );
     }
+  }
+
+  //
+  void _sendMsg() {
+    if (!isFriend(widget.userDB.pubKey ?? '')) {
+      CommonToast.instance.show(
+          context, Localized.text('ox_chat.not_friends_send_message_prompts'));
+      return;
+    }
+    OXNavigator.pushPage(
+      context,
+          (context) => ChatMessagePage(
+        communityItem: ChatSessionModel(
+          chatId: widget.userDB.pubKey,
+          chatName: widget.userDB.name,
+          sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+          receiver: widget.userDB.pubKey,
+          chatType: ChatType.chatSingle,
+        ),
+      ),
+    );
   }
 
   void _removeFriend() async {
@@ -601,7 +721,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     }
     OXCommonHintDialog.show(context,
         title: 'Delete Contact',
-        content: 'Are you sure you want to delete the contact ${widget.userDB.name}?',
+        content:
+        'Are you sure you want to delete the contact ${widget.userDB.name}?',
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -610,7 +731,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Friends.sharedInstance.removeFriend(widget.userDB.pubKey ?? '');
+                final OKEvent okEvent = await Friends.sharedInstance
+                    .removeFriend(widget.userDB.pubKey ?? '');
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {
@@ -628,7 +750,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     if (widget.userDB.pubKey == null) {
       return;
     }
-    final result = await ReportDialog.show(context, target: UserReportTarget(pubKey: widget.userDB.pubKey ?? ''));
+    final result = await ReportDialog.show(context,
+        target: UserReportTarget(pubKey: widget.userDB.pubKey ?? ''));
     if (result != null) {
       CommonToast.instance.show(context, 'Report Success');
     }
@@ -636,12 +759,14 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     return;
     OXCommonHintDialog.show(context,
         title: 'Report User',
-        content: 'Are you sure you want to report this user ${widget.userDB.name}?',
+        content:
+        'Are you sure you want to report this user ${widget.userDB.name}?',
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: Localized.text('ox_common.confirm'), onTap: () async {}),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'), onTap: () async {}),
         ],
         isRowAction: true);
   }
@@ -660,7 +785,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
     } else {
       await Friends.sharedInstance.unMuteFriend(widget.userDB.pubKey!);
     }
-    final bool result = await OXUserInfoManager.sharedInstance.setNotification();
+    final bool result =
+    await OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
     if (result) {
       OXChatBinding.sharedInstance.sessionUpdate();
@@ -669,7 +795,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
         widget.userDB.mute = value;
       });
     } else {
-      CommonToast.instance.show(context, 'Change failed, please try again later.');
+      CommonToast.instance
+          .show(context, 'Change failed, please try again later.');
     }
   }
 
@@ -683,7 +810,7 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
         ),
       );
       if (result != null) {
-        setState(() { });
+        setState(() {});
       }
     } else if (type == OtherInfoItemType.Badges) {
       OXModuleService.pushPage(
@@ -699,7 +826,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
     UserDB? friendUserDB = Friends.sharedInstance.friends[friendDB.pubKey];
-    LogUtil.e('Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
+    LogUtil.e(
+        'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;
     }
@@ -709,7 +837,8 @@ class _ContactFriendUserInfoPageState extends State<ContactFriendUserInfoPage> w
       List<String> badgeList = badgeListDynamic.cast();
       BadgeDB? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDB?> badgeDBList =
+        await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
