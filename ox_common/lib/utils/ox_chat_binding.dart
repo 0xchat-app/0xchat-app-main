@@ -209,7 +209,9 @@ class OXChatBinding {
       sessionModel.chatId = chatId;
       UserDB? userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
       if (userDB == null) {
-        userDB = await Account.getUserFromDB(pubkey: chatId);
+        if (otherUserPubkey != null) {
+          userDB = await Account.getUserFromDB(pubkey: otherUserPubkey);
+        }
         if (secretSessionId == null) {
           sessionModel.chatType = ChatType.chatStranger;
         } else {
