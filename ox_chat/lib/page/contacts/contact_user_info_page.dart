@@ -288,19 +288,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage>{
             iconPackage: 'ox_usercenter',
             type: OtherInfoItemType.Badges,
           ),
-          isFriend(widget.userDB.pubKey ?? '')
-              ? Divider(
-            height: Adapt.px(0.5),
-            color: ThemeColor.color160,
-          )
-              : Container(),
-          // isFriend(widget.userDB.pubKey ?? '')
-          //     ? _itemView(
-          //   iconName: 'icon_mute.png',
-          //   iconPackage: 'ox_common',
-          //   type: OtherInfoItemType.Mute,
-          // )
-          //     : Container(),
         ],
       ),
     );
