@@ -63,7 +63,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
           : widget.communityItem.sender) ??
       '';
 
-  final chatGeneralHandler = ChatGeneralHandler();
+  late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
 
   @override
@@ -88,6 +88,11 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   }
 
   void setupChatGeneralHandler() {
+    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
+      setState(() {
+        _messages = messages;
+      });
+    });
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
@@ -198,7 +203,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-        imageGalleryOptions: chatGeneralHandler.imageGalleryOptions(decryptionKey: receiverPubkey),
+        imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customTopWidget: NotContactTopWidget(chatSessionModel: widget.communityItem),
         customCenterWidget: _messages.length > 0 ? SizedBox() : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status ==2 ) ? SizedBox() : customBottomWidget(),
