@@ -170,7 +170,7 @@ class OXChatBinding {
     return changeCount;
   }
 
-  Future<void> syncChatSessionTable(MessageDB messageDB, {String? secretSessionId}) async {
+  Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB, {String? secretSessionId}) async {
     int changeCount = 0;
     LogUtil.e('Michael: messageDB.read =${messageDB.read}');
     ChatSessionModel sessionModel = ChatSessionModel(
@@ -325,6 +325,7 @@ class OXChatBinding {
         strangerSessionUpdate();
       }
     }
+    return sessionModel;
   }
 
   Future<int> deleteSession(ChatSessionModel sessionModel, {bool isStranger = false}) async {
@@ -372,6 +373,24 @@ class OXChatBinding {
     }
   }
 
+  Future<ChatSessionModel?> localCreateSecretChat(SecretSessionDB ssDB) async {
+    if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return null;
+    UserDB? userDB = Contacts.sharedInstance.allContacts[ssDB.toPubkey!];
+    if (userDB == null) {
+      userDB = await Account.getUserFromDB(pubkey: ssDB.toPubkey!);
+    }
+    final ChatSessionModel chatSessionModel = await syncChatSessionTable(
+      MessageDB(
+        decryptContent: 'You invited ${userDB?.name ??''} to join a secret chat',
+        createTime: ssDB.lastUpdateTime,
+        sender: ssDB.toPubkey,
+        receiver: ssDB.myPubkey,
+      ),
+      secretSessionId: ssDB.sessionId,
+    );
+    return chatSessionModel;
+  }
+
   void secretChatRequestCallBack(SecretSessionDB ssDB) async {
     if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return;
     Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
@@ -379,7 +398,6 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey);
     }
-    user.aliasPubkey = ssDB.toAliasPubkey;
     syncChatSessionTable(MessageDB(
       decryptContent: 'You have received a secret chat request',
       createTime: ssDB.lastUpdateTime,
@@ -425,14 +443,14 @@ class OXChatBinding {
   }
 
   void privateChatMessageCallBack(MessageDB message, {String? secretSessionId}) async {
-    OXChatBinding.sharedInstance.syncChatSessionTable(message, secretSessionId: secretSessionId);
+    syncChatSessionTable(message, secretSessionId: secretSessionId);
     for (OXChatObserver observer in _observers) {
       observer.didPrivateMessageCallBack(message);
     }
   }
 
   void secretChatMessageCallBack(MessageDB message, {String? secretSessionId}) async {
-    OXChatBinding.sharedInstance.syncChatSessionTable(message, secretSessionId: secretSessionId);
+    syncChatSessionTable(message, secretSessionId: secretSessionId);
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatMessageCallBack(message);
     }
