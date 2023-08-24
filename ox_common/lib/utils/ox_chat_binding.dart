@@ -403,7 +403,7 @@ class OXChatBinding {
       createTime: ssDB.lastUpdateTime,
       sender: ssDB.toPubkey,
       receiver: ssDB.myPubkey,
-    ));
+    ), secretSessionId: ssDB.sessionId);
   }
 
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
