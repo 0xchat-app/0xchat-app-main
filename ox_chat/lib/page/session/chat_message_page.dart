@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -20,15 +20,11 @@ import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/widget/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
 class ChatMessagePage extends StatefulWidget {
@@ -43,7 +39,9 @@ class ChatMessagePage extends StatefulWidget {
 }
 
 class _ChatMessagePageState extends State<ChatMessagePage> {
+
   List<types.Message> _messages = [];
+
   late types.User _user;
   bool isMore = false;
   late double keyboardHeight = 0;
@@ -52,7 +50,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   UserDB? otherUser;
   String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.chatId ?? '';
 
-  final chatGeneralHandler = ChatGeneralHandler();
+  late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
   
   @override
@@ -66,6 +64,11 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   }
 
   void setupChatGeneralHandler() {
+    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
+      setState(() {
+        _messages = messages;
+      });
+    });
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
@@ -90,16 +93,14 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   }
 
   void prepareData() {
-    _loadMessages();
+    _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }
 
   void addListener() {
     ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      setState(() {
-        _messages = value;
-      });
+      chatGeneralHandler.refreshMessage(_messages, value);
     });
   }
 
@@ -137,6 +138,10 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       body: Chat(
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
+        isLastPage: !chatGeneralHandler.hasMoreMessage,
+        onEndReached: () async {
+          await _loadMoreMessages();
+        },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
@@ -171,46 +176,9 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
-        // customBottomWidget: const ChatInput(),
-        // customBottomWidget: customBottomWidget(),
       ),
     );
   }
-
-  Widget _buildGroupDefaultImage() =>
-      Image.asset(
-        'assets/images/icon_user_default.png',
-        fit: BoxFit.contain,
-        width: Adapt.px(36),
-        height: Adapt.px(36),
-        package: 'ox_chat',
-      );
-
-  Widget _buildDetailIcon() =>
-      GestureDetector(
-        onTap: () {
-          var userId = receiverPubkey;
-          if (userId.isNotEmpty) {
-            chatGeneralHandler.avatarPressHandler(context, userId: userId);
-          }
-        },
-        child: Container(
-          width: Adapt.px(36),
-          height: Adapt.px(36),
-          alignment: Alignment.center,
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(36.0)),
-            child: CachedNetworkImage(
-              imageUrl: widget.communityItem.avatar ?? '',
-              fit: BoxFit.cover,
-              width: Adapt.px(36),
-              height: Adapt.px(36),
-              placeholder: (context, url) => _buildGroupDefaultImage(),
-              errorWidget: (context, url, error) => _buildGroupDefaultImage(),
-            ),
-          ),
-        ),
-      );
 
   void _updateChatStatus() {
     final userId = receiverPubkey;
@@ -230,7 +198,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
-
 
   void _resendMessage(types.Message message) async {
     final resendMsg = message.copyWith(
@@ -491,10 +458,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     });
   }
 
-  Future<void> _loadMessages() async {
-    List<types.Message> messageList = await ChatDataCache.shared.getSessionMessage(widget.communityItem);
-    setState(() {
-      _messages = messageList;
-    });
+  Future<void> _loadMoreMessages() async {
+    await chatGeneralHandler.loadMoreMessage(_messages);
   }
 }

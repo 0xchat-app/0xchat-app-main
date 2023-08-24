@@ -1,8 +1,11 @@
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/zaps_sending_page.dart';
 import 'package:ox_chat/utils/message_factory.dart';
@@ -12,6 +15,7 @@ import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
+import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
@@ -32,6 +36,14 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'custom_message_utils.dart';
 
 class ChatGeneralHandler {
+
+  ChatGeneralHandler(this.session, this.refreshMessageUI);
+
+  final ChatSessionModel session;
+
+  bool hasMoreMessage = false;
+
+  ValueChanged<List<types.Message>> refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
 
@@ -176,6 +188,36 @@ class ChatGeneralHandler {
     );
 
     OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
+  }
+
+  Future loadMoreMessage(
+      List<types.Message> originMessage, {
+        List<types.Message>? allMessage,
+        int increasedCount = ChatPageConfig.messagesPerPage,
+      }) async {
+    final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
+    var end = 0;
+    if (originMessage.isEmpty) {
+      end = increasedCount;
+    } else {
+      // Find the index of the last message in all the messages.
+      var index = -1;
+      for (int i = originMessage.length - 1; i >= 0; i--) {
+        final msg = originMessage[i];
+        final result = allMsg.indexOf(msg);
+        if (result >= 0) {
+          index = result;
+          break ;
+        }
+      }
+      end = index + 1 + increasedCount;
+    }
+    hasMoreMessage = end < allMsg.length;
+    refreshMessageUI(allMsg.sublist(0, min(allMsg.length, end)));
+  }
+
+  void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
+    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: 0);
   }
 }
 

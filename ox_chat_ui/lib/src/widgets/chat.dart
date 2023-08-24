@@ -403,7 +403,7 @@ class ChatState extends State<Chat> {
         timeFormat: widget.timeFormat,
       );
 
-      _chatMessages = result[0] as List<Object>;
+      _chatMessages = (result[0] as List<Object>).reversed.toList();
       _gallery = result[1] as List<PreviewImage>;
 
       _refreshAutoScrollMapping();

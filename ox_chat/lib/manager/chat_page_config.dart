@@ -12,6 +12,8 @@ import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 
 class ChatPageConfig {
 
+  static const messagesPerPage = 15;
+
   /// Menu item by message long pressed
   List<ItemModel> longPressMenuItemsCreator(BuildContext context, types.Message message) {
 

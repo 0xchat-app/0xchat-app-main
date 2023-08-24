@@ -1,6 +1,7 @@
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../ox_chat_ui.dart';
 import '../models/bubble_rtl_alignment.dart';
@@ -88,9 +89,12 @@ class _ChatListState extends State<ChatList>
     curve: Curves.easeOutQuad,
     parent: _controller,
   );
-  late final AnimationController _controller = AnimationController(vsync: this);
+  late final AnimationController _controller = AnimationController(vsync: this)
+    ..duration = Duration.zero
+    ..forward();
 
   bool _indicatorOnScrollStatus = false;
+  bool _isShowNextPageLoading = false;
   bool _isNextPageLoading = false;
   final GlobalKey<PatchedSliverAnimatedListState> _listKey =
       GlobalKey<PatchedSliverAnimatedListState>();
@@ -98,6 +102,8 @@ class _ChatListState extends State<ChatList>
 
   bool _isAtBottom = false;
   bool _isFirstLaunch = true;
+
+  bool _isScrolling = false;
 
   @override
   void initState() {
@@ -124,56 +130,17 @@ class _ChatListState extends State<ChatList>
   Widget build(BuildContext context) =>
       NotificationListener<ScrollNotification>(
         onNotification: (notification) {
-
-          final bottomOffset = 100.0;
-          _isAtBottom = notification.metrics.pixels >= notification.metrics.maxScrollExtent - bottomOffset;
-
-          if (notification.metrics.pixels > 10.0 && !_indicatorOnScrollStatus) {
-            setState(() {
-              _indicatorOnScrollStatus = !_indicatorOnScrollStatus;
-            });
-          } else if (notification.metrics.pixels == 0.0 &&
-              _indicatorOnScrollStatus) {
-            setState(() {
-              _indicatorOnScrollStatus = !_indicatorOnScrollStatus;
-            });
-          }
-
-          if (widget.onEndReached == null || widget.isLastPage == true) {
-            return false;
-          }
-
-
-          if (notification.metrics.pixels >=
-              (notification.metrics.maxScrollExtent *
-                  (widget.onEndReachedThreshold ?? 0.75))) {
-            if (widget.items.isEmpty || _isNextPageLoading) return false;
-
-            _controller.duration = Duration.zero;
-            _controller.forward();
-
-            setState(() {
-              _isNextPageLoading = true;
-            });
-
-            widget.onEndReached!().whenComplete(() {
-
-              _controller.duration = const Duration(milliseconds: 300);
-              _controller.reverse();
-
-              setState(() {
-                _isNextPageLoading = false;
-              });
-            });
-          }
-
+          updateBottomFlag(notification);
+          updateIndicatorStatus(notification);
+          updateScrollingFlag(notification);
+          loadingIfNeeded(notification);
           return false;
         },
         child: CustomScrollView(
           controller: widget.scrollController,
           keyboardDismissBehavior: widget.keyboardDismissBehavior,
           physics: widget.scrollPhysics,
-          reverse: false,
+          reverse: true,
           slivers: [
             if (widget.bottomWidget != null)
               SliverToBoxAdapter(child: widget.bottomWidget),
@@ -212,10 +179,7 @@ class _ChatListState extends State<ChatList>
             ),
             SliverPadding(
               padding: EdgeInsets.only(
-                top: 16 +
-                    (widget.useTopSafeAreaInset
-                        ? MediaQuery.of(context).padding.top
-                        : 0)
+                bottom: 16,
               ),
               sliver: SliverToBoxAdapter(
                 child: SizeTransition(
@@ -229,16 +193,16 @@ class _ChatListState extends State<ChatList>
                       child: SizedBox(
                         height: 16,
                         width: 16,
-                        child: _isNextPageLoading
+                        child: _isShowNextPageLoading
                             ? CircularProgressIndicator(
-                                backgroundColor: Colors.transparent,
-                                strokeWidth: 1.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  InheritedChatTheme.of(context)
-                                      .theme
-                                      .primaryColor,
-                                ),
-                              )
+                          backgroundColor: Colors.transparent,
+                          strokeWidth: 1.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            InheritedChatTheme.of(context)
+                                .theme
+                                .primaryColor,
+                          ),
+                        )
                             : null,
                       ),
                     ),
@@ -320,27 +284,25 @@ class _ChatListState extends State<ChatList>
     if (_isFirstLaunch && scrollToAnchorMsgAction != null) {
       scrollToAnchorMsgAction();
     } else {
-      _scrollToBottom();
+      scrollToBottom();
     }
   }
 
-  void _scrollToBottom() {
+  void scrollToBottom() {
     if (_isFirstLaunch) {
-      if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          widget.scrollController.jumpTo(widget.scrollController.position.maxScrollExtent);
-        });
-      }
+      // if (mounted) {
+      //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+      //     widget.scrollController.jumpTo(0);
+      //   });
+      // }
     } else {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (widget.scrollController.hasClients) {
-          widget.scrollController.animateTo(
-            widget.scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 10),
-            curve: Curves.easeInQuad,
-          );
-        }
-      });
+      if (widget.scrollController.hasClients) {
+        widget.scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 10),
+          curve: Curves.easeInQuad,
+        );
+      }
     }
   }
 
@@ -359,6 +321,65 @@ class _ChatListState extends State<ChatList>
     }
 
     return false;
+  }
+
+  void updateBottomFlag(ScrollNotification notification) {
+    final bottomOffset = 100.0;
+    _isAtBottom = notification.metrics.pixels >= notification.metrics.maxScrollExtent - bottomOffset;
+  }
+
+  void updateIndicatorStatus(ScrollNotification notification) {
+    if (notification.metrics.pixels > 10.0 && !_indicatorOnScrollStatus) {
+      setState(() {
+        _indicatorOnScrollStatus = !_indicatorOnScrollStatus;
+      });
+    } else if (notification.metrics.pixels == 0.0 &&
+        _indicatorOnScrollStatus) {
+      setState(() {
+        _indicatorOnScrollStatus = !_indicatorOnScrollStatus;
+      });
+    }
+  }
+
+  void updateScrollingFlag(ScrollNotification notification) {
+    if (notification is ScrollStartNotification) {
+      _isScrolling = true;
+    } else if (notification is ScrollEndNotification) {
+      _isScrolling = false;
+    }
+  }
+
+  void loadingIfNeeded(ScrollNotification notification) {
+
+    if (widget.items.isEmpty || widget.onEndReached == null || widget.isLastPage == true) return ;
+
+    final loadingOffset = 50;
+    final isTryLoading = notification.metrics.pixels >= notification.metrics.maxScrollExtent - loadingOffset;
+    if (!isTryLoading) return ;
+
+    final tryShowNextPageLoading = () {
+      if (!_isShowNextPageLoading) {
+        setState(() {
+          _isShowNextPageLoading = true;
+        });
+      }
+    };
+
+    final tryDoLoadingAction = () {
+      if (_isScrolling) return ;
+      if (_isNextPageLoading) return ;
+      _isNextPageLoading = true;
+
+      widget.onEndReached!().whenComplete(() {
+        setState(() {
+          _isShowNextPageLoading = false;
+          _isNextPageLoading = false;
+        });
+      });
+    };
+
+    tryShowNextPageLoading();
+    tryDoLoadingAction();
   }
 
   Key? _valueKeyForItem(Object item) =>
