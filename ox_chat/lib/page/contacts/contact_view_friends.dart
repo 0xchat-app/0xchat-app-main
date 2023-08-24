@@ -68,13 +68,10 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   void _loadData() {
-    Iterable<UserDB> tempList =  Friends.sharedInstance.friends.values;
+    Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
     userList.clear();
     tempList.forEach (( value) {
-      LogUtil.e("Michael: friendsList :${value.pubKey}, ${value.name}， ${value.aliasPubkey}");
-      if(value.aliasPubkey?.isNotEmpty == true){
-        userList.add(value);
-      }
+      userList.add(value);
     });
     _showView();
   }
@@ -175,20 +172,8 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   @override
-  void didFriendAcceptCallBack(Alias? alias) {
-    LogUtil.e('Michael: contact_view_friends didFriendAcceptCallBack alias=${alias??'alias null'}');
-    _loadData();
-  }
-
-  @override
-  void didFriendRemoveCallBack(Alias alias) {
-    LogUtil.e('Michael: contact_view_friends didFriendRemoveCallBack alias.toPubkey=${alias.toPubkey}');
-    _loadData();
-  }
-
-  @override
-  void didFriendUpdatedCallBack() {
-    LogUtil.e('Michael: contact_view_friends didFriendUpdatedCallBack friends.length=${Friends.sharedInstance.friends.length}');
+  void didContactUpdatedCallBack() {
+    LogUtil.e('Michael: contact_view_friends didFriendUpdatedCallBack friends.length=${Contacts.sharedInstance.allContacts.length}');
     _loadData();
   }
 }

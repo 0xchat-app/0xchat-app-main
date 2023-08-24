@@ -54,7 +54,8 @@ class ChatDataCache with OXChatObserver {
   }
 
   Future<List<types.Message>> getSessionMessage(ChatSessionModel session) async {
-    if (session.chatType == ChatType.chatSingle) {
+    if (session.chatType == ChatType.chatSingle || session.chatType == ChatType.chatSecret || session.chatType == ChatType.chatStranger
+    || session.chatType == ChatType.chatSecretStranger) {
       return await _getPrivateChatMessage(session);
     } else if (session.chatType == ChatType.chatChannel) {
       return await _getChannelMessage(session);
@@ -84,7 +85,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didFriendMessageCallBack(MessageDB message) async {
+  void didPrivateMessageCallBack(MessageDB message) async {
 
     ChatLogUtils.info(
       className: 'ChatDataCache',

@@ -7,7 +7,10 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-import '../../utils/widget_tool.dart';
+import 'package:chatcore/chat-core.dart';
+
+import 'package:ox_chat/utils/widget_tool.dart';
+
 
 enum FollowsFriendStatus {
   hasFollows,
@@ -33,12 +36,26 @@ class ContactAddFollows extends StatefulWidget {
   _ContactAddFollowsState createState() => new _ContactAddFollowsState();
 }
 
-class _ContactAddFollowsState extends State<ContactAddFollows>
-    with CommonStateViewMixin {
+
+class _ContactAddFollowsState extends State<ContactAddFollows>  {
+
+  @override
+  void initState() {
+    super.initState();
+    _getFollowList();
+  }
+
   @override
   void dispose() {
     super.dispose();
   }
+
+  //
+  void _getFollowList() async{
+    final userMap = await Account.syncFollowListFromRelay(UserDB.decodePubkey('npub10td4yrp6cl9kmjp9x5yd7r8pm96a5j07lk5mtj2kw39qf8frpt8qm9x2wl') ?? '');
+    print('userMap=====>$userMap');
+  }
+  //
 
   @override
   Widget build(BuildContext context) {

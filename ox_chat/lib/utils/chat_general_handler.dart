@@ -7,7 +7,7 @@ import 'package:ox_chat/page/session/zaps_sending_page.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
-import 'package:ox_chat/page/contacts/contact_friend_user_info_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
@@ -211,7 +211,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    await OXNavigator.pushPage(context, (context) => ContactFriendUserInfoPage(userDB: userDB!));
+    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB!));
   }
 
   TextMessageOptions textMessageOptions(BuildContext context) =>

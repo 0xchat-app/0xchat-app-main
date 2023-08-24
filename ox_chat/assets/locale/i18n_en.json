@@ -1,6 +1,6 @@
 {
   "services": "Online Customer Service",
-  "contract_title_msg": "Friends",
+  "contract_title_msg": "Contacts",
   "contract_title_channels": "Channels",
   "no_contacts_added": "No contact added",
   "no_groups_added": "No group added",
@@ -8,7 +8,7 @@
   "no_related_users_were_found": "No relevant user was found",
   "my_card": "My Card",
   "details": "Details",
-  "add_friend": "Add Friend",
+  "add_friend": "Add Contact",
   "send_message": "Message",
   "delete": "Delete",
   "search": "Search",
@@ -19,8 +19,8 @@
   "str_saved_to_album": "Saved to album",
   "str_save_failed": "Save failed",
   "please_enter_user_address": "Please enter npub address or DNS",
-  "add_friend_confirm": "Confirm",
-  "add_friend_reject": "Reject",
+  "add_contact_confirm": "Add Contacts",
+  "add_contact_block": "Block User",
   "friend_request_title": "Friend Request",
   "friend_request_added": "Request Confirmed",
   "friend_request_rejected": "Request removed",
@@ -54,5 +54,10 @@
   "not_friends_send_message_prompts": "Sorry, you can only send messages to mutual contacts at the moment.",
   "remove_contacts": "Remove Contacts",
   "import_follows": "Import Follows",
-  "import_follows_tips": "Import follows from the blockchain and add them as Contacts："
+  "import_follows_tips": "Import follows from the blockchain and add them as Contacts：",
+  "str_secret_center_hint": "· Use end-to-end encryption (Nip 44).\n· Prevent metadata leaks (Nip 59).\n· Ensure forward secrecy.\n· Messages irrecoverable on other devices.\n· Secret chat messages will be sent only to the relay:",
+  "str_other_rejected": "Rejected",
+  "str_waiting_other_join": "Waiting for $username to join a secret chat",
+  "str_reject_secret_chat": "Reject",
+  "str_john_secret_chat": "Join Secret Chat"
 }

@@ -454,10 +454,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Widget _buildListViewItem(context, int index) {
     ChatSessionModel announceItem = msgDatas[index];
     GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
-    ChatLogUtils.info(
-        className: 'ChatSessionListPage',
-        funcName: '_buildListViewItem',
-        message: 'chatID: ${announceItem.chatId}, chatName: ${announceItem.chatName}, createTime: ${announceItem.createTime}');
+    // ChatLogUtils.info(
+    //     className: 'ChatSessionListPage',
+    //     funcName: '_buildListViewItem',
+    //     message: 'chatID: ${announceItem.chatId}, chatName: ${announceItem.chatName}, createTime: ${announceItem.createTime}');
     return GestureDetector(
       onHorizontalDragDown: (details) {
         _dismissSlidable();
@@ -931,7 +931,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
-    UserDB? friendUserDB = Friends.sharedInstance.friends[announceListItem.chatId];
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[announceListItem.chatId];
     LogUtil.e('Michael: _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
-import 'package:ox_chat/page/contacts/contact_friend_request.dart';
+import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -175,78 +175,23 @@ class _ContractsPageState extends State<ContractsPage>
                                 itemCount: 2,
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
-                                    return InkWell(
-                                      child: Container(
-                                        margin: EdgeInsets.only(
-                                            top: Adapt.px(14),
-                                            bottom: Adapt.px(14)),
-                                        alignment: Alignment.center,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: Adapt.px(24)),
-                                        height: Adapt.px(40),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'Requests',
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: ThemeColor.color10,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                            SizedBox(width: Adapt.px(6)),
-                                            _unReadFriendReq(),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: ThemeColor.color180,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(Adapt.px(20))),
-                                        ),
-                                      ),
+                                    return _inkWellWidget(
+                                        content: 'Requests',
+                                        onTap: () {
+                                          OXNavigator.pushPage(
+                                            context,
+                                            (context) => ContactRequest(),
+                                          );
+                                        });
+                                  }
+                                  return _inkWellWidget(
+                                      content: 'Import Follows',
                                       onTap: () {
                                         OXNavigator.pushPage(
-                                            context,
-                                            (context) =>
-                                                ContactFriendRequest());
-                                      },
-                                    );
-                                  }
-                                  return InkWell(
-                                    child: Container(
-                                      margin: EdgeInsets.only(
-                                          top: Adapt.px(14),
-                                          bottom: Adapt.px(14)),
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: Adapt.px(24)),
-                                      height: Adapt.px(40),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            'Requests',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: ThemeColor.color10,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          SizedBox(width: Adapt.px(6)),
-                                          _unReadFriendReq(),
-                                        ],
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: ThemeColor.color180,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(Adapt.px(20))),
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      OXNavigator.presentPage(
-                                        context,
-                                        (context) => ContactAddFollows(),
-                                        fullscreenDialog:true
-                                      );
-                                    },
-                                  );
+                                          context,
+                                          (context) => ContactAddFollows(),
+                                        );
+                                      });
                                   return Container();
                                 }),
                           ))
@@ -273,10 +218,40 @@ class _ContractsPageState extends State<ContractsPage>
     );
   }
 
-  Widget _unReadFriendReq() {
-    int _newFriendRequestCount =
-        OXChatBinding.sharedInstance.unReadFriendRequestCount;
-    if (_newFriendRequestCount > 0 && _newFriendRequestCount < 10) {
+  Widget _inkWellWidget(
+      {required String content, required GestureTapCallback onTap}) {
+    return InkWell(
+      child: Container(
+        margin: EdgeInsets.only(top: Adapt.px(14), bottom: Adapt.px(14),right: Adapt.px(12)),
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+        height: Adapt.px(40),
+        child: Row(
+          children: [
+            Text(
+              content,
+              style: TextStyle(
+                  fontSize: 14,
+                  color: ThemeColor.color10,
+                  fontWeight: FontWeight.w600),
+            ),
+            SizedBox(width: Adapt.px(6)),
+            _unReadCount(),
+          ],
+        ),
+        decoration: BoxDecoration(
+          color: ThemeColor.color180,
+          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(20))),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _unReadCount() {
+    int _unReadStrangerSessionCount =
+        OXChatBinding.sharedInstance.unReadStrangerSessionCount;
+    if (_unReadStrangerSessionCount > 0 && _unReadStrangerSessionCount < 10) {
       return ClipOval(
         child: Container(
           alignment: Alignment.center,
@@ -284,12 +259,13 @@ class _ContractsPageState extends State<ContractsPage>
           width: Adapt.px(17),
           height: Adapt.px(17),
           child: Text(
-            _newFriendRequestCount.toString(),
+            _unReadStrangerSessionCount.toString(),
             style: _Style.read(),
           ),
         ),
       );
-    } else if (_newFriendRequestCount >= 10 && _newFriendRequestCount < 100) {
+    } else if (_unReadStrangerSessionCount >= 10 &&
+        _unReadStrangerSessionCount < 100) {
       return Container(
         alignment: Alignment.center,
         width: Adapt.px(22),
@@ -301,11 +277,11 @@ class _ContractsPageState extends State<ContractsPage>
         padding: EdgeInsets.symmetric(
             vertical: Adapt.px(3), horizontal: Adapt.px(3)),
         child: Text(
-          _newFriendRequestCount.toString(),
+          _unReadStrangerSessionCount.toString(),
           style: _Style.read(),
         ),
       );
-    } else if (_newFriendRequestCount >= 100) {
+    } else if (_unReadStrangerSessionCount >= 100) {
       return Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -401,7 +377,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didFriendRequestCallBack() {
+  void didSecretChatRequestCallBack() {
     _isShowTools = true;
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {

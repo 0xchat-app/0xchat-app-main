@@ -188,23 +188,17 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didFriendAcceptCallBack(Alias? alias) {}
-
-  @override
-  void didFriendRemoveCallBack(Alias alias) {}
-
-  @override
   void didChannalMessageCallBack(MessageDB message) {}
 
   @override
-  void didFriendRequestCallBack() {
+  void didSecretChatRequestCallBack() {
     setState(() {
-      tabBarList[1].unreadMsgCount = OXChatBinding.sharedInstance.unReadFriendRequestCount;
+      tabBarList[1].unreadMsgCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
     });
   }
 
   @override
-  void didFriendMessageCallBack(MessageDB message) {
+  void didPrivateMessageCallBack(MessageDB message) {
     LogUtil.e("MyTabBarPage new friend msg");
     setState(() {
       tabBarList[0].unreadMsgCount += 1;
@@ -245,7 +239,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   fetchUnreadCount() {
-    if (OXChatBinding.sharedInstance.unReadFriendRequestCount > 0) {
+    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
       setState(() {
         tabBarList[1].unreadMsgCount = 1;
       });
@@ -279,7 +273,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       _showLoginPage(context);
       return;
     }
-    if (value == 1 && OXChatBinding.sharedInstance.unReadFriendRequestCount < 1) {
+    if (value == 1 && OXChatBinding.sharedInstance.unReadStrangerSessionCount < 1) {
       tabBarList[1].unreadMsgCount = 0;
     }
     setState(() {

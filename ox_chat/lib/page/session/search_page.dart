@@ -732,7 +732,7 @@ class SearchPageState extends State<SearchPage> {
 
   //Queries the list of Friends to see if each Friend name contains a search character
   List<UserDB>? loadChatFriendsWithSymbol(String symbol) {
-    List<UserDB>? friendList = Friends.sharedInstance.fuzzySearch(symbol);
+    List<UserDB>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
     return friendList;
   }
 
@@ -864,9 +864,9 @@ class SearchPageState extends State<SearchPage> {
               messageInduceMap[chatId] = ChatMessage(
                 chatId,
                 item.messageId ?? '',
-                Friends.sharedInstance.friends[chatId]?.name ?? '',
+                Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
                 subTitle,
-                Friends.sharedInstance.friends[chatId]?.picture ?? '',
+                Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
                 ChatType.chatSingle,
                 1,
               );
@@ -884,9 +884,9 @@ class SearchPageState extends State<SearchPage> {
             chatMessageList.add(ChatMessage(
               chatId,
               element.messageId ?? '',
-              Friends.sharedInstance.friends[chatId]?.name ?? '',
+              Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
               subTitle,
-              Friends.sharedInstance.friends[chatId]?.picture ?? '',
+              Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
               ChatType.chatSingle,
               1,
             ));

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:chatcore/src/chat/friends.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -19,7 +18,7 @@ class _ChatUserChoosePageState extends State<ChatUserChoosePage> {
   void initState() {
     super.initState();
     // Initialize the SelectableUser list
-    final friends = Friends.sharedInstance.friends;
+    final friends = Contacts.sharedInstance.allContacts;
     _selectableUsers = friends.values.map((user) => SelectableUser(user: user)).toList();
   }
 
