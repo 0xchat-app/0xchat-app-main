@@ -8,8 +8,11 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 
 class ChatPageConfig {
+
+  static const messagesPerPage = 15;
 
   /// Menu item by message long pressed
   List<ItemModel> longPressMenuItemsCreator(BuildContext context, types.Message message) {
@@ -49,6 +52,14 @@ class ChatPageConfig {
 
     return menuList;
   }
+
+
+  ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
+      ImageGalleryOptions(
+        maxScale: PhotoViewComputedScale.covered,
+        minScale: PhotoViewComputedScale.contained,
+        decryptionKey: decryptionKey,
+      );
 }
 
 extension InputMoreItemEx on InputMoreItem {

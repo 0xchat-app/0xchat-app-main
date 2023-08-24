@@ -1,3 +1,5 @@
+
+import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
@@ -72,7 +74,13 @@ abstract class CustomMessage extends Message {
       );
 
   @override
-  String get content => '';
+  String get content {
+    try {
+      return json.encode(metadata);
+    } catch (e) {
+      return '';
+    }
+  }
 
   /// Equatable props.
   @override

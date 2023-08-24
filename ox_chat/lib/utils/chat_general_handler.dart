@@ -1,16 +1,21 @@
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_page_config.dart';
+import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/zaps_sending_page.dart';
+import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
+import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
@@ -28,7 +33,17 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import 'custom_message_utils.dart';
+
 class ChatGeneralHandler {
+
+  ChatGeneralHandler(this.session, this.refreshMessageUI);
+
+  final ChatSessionModel session;
+
+  bool hasMoreMessage = false;
+
+  ValueChanged<List<types.Message>> refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
 
@@ -37,6 +52,8 @@ class ChatGeneralHandler {
   Future Function(List<File> images)? imageMessageSendHandler;
 
   Future Function(List<File> images)? videoMessageSendHandler;
+
+  Future Function(String invoice, String amount, String description)? zapsMessageSendHandler;
 
   Future<String> uploadFile({
     required UplodAliyunType fileType,
@@ -172,6 +189,36 @@ class ChatGeneralHandler {
 
     OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
   }
+
+  Future loadMoreMessage(
+      List<types.Message> originMessage, {
+        List<types.Message>? allMessage,
+        int increasedCount = ChatPageConfig.messagesPerPage,
+      }) async {
+    final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
+    var end = 0;
+    if (originMessage.isEmpty) {
+      end = increasedCount;
+    } else {
+      // Find the index of the last message in all the messages.
+      var index = -1;
+      for (int i = originMessage.length - 1; i >= 0; i--) {
+        final msg = originMessage[i];
+        final result = allMsg.indexOf(msg);
+        if (result >= 0) {
+          index = result;
+          break ;
+        }
+      }
+      end = index + 1 + increasedCount;
+    }
+    hasMoreMessage = end < allMsg.length;
+    refreshMessageUI(allMsg.sublist(0, min(allMsg.length, end)));
+  }
+
+  void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
+    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: 0);
+  }
 }
 
 extension ChatGestureHandlerEx on ChatGeneralHandler {
@@ -225,12 +272,23 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     OXNavigator.presentPage(context, (context) => CommonWebView(text));
   }
 
-  ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
-      ImageGalleryOptions(
-        maxScale: PhotoViewComputedScale.covered,
-        minScale: PhotoViewComputedScale.contained,
-        decryptionKey: decryptionKey,
-      );
+  Future messagePressHandler(BuildContext context, types.Message message) async {
+    if (message is types.VideoMessage) {
+      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: message.metadata!["videoUrl"] ?? ''));
+    } else if (message is types.CustomMessage) {
+      switch(message.customType) {
+        case CustomMessageType.zaps:
+          await zapsMessagePressHandler();
+          break ;
+        default:
+          break ;
+      }
+    }
+  }
+
+  Future zapsMessagePressHandler() async {
+
+  }
 }
 
 extension ChatMenuHandlerEx on ChatGeneralHandler {
@@ -340,7 +398,15 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    OXNavigator.presentPage(context, (context) => ZapsSendingPage());
+    final result = await OXNavigator.presentPage<Map<String, String>>(context, (context) => ZapsSendingPage(user));
+    if (result != null) {
+      final invoice = result['invoice'] ?? '';
+      final amount = result['amount'] ?? '';
+      final description = result['description'] ?? '';
+      final zapsMessageSendHandler = this.zapsMessageSendHandler;
+      if (invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty && zapsMessageSendHandler != null)
+        zapsMessageSendHandler(invoice, amount, description);
+    }
   }
 
   Future<void> _goToPhoto(int type) async {

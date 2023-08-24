@@ -15,6 +15,7 @@ import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_usercenter/utils/zaps_helper.dart';
 
 class OXUserCenter extends OXFlutterModule {
 
@@ -39,6 +40,7 @@ class OXUserCenter extends OXFlutterModule {
         'requestVerifyDNS': requestVerifyDNS,
         'userCenterPageWidget': userCenterPageWidget,
         'showZapsInvoiceDialog': _showZapsInvoiceDialog,
+        'getInvoice': _getInvoice,
       };
 
   @override
@@ -56,6 +58,18 @@ class OXUserCenter extends OXFlutterModule {
         UserDB? userDB = params?['userDB'];
         LogUtil.e('Michael: ');
         return OXNavigator.pushPage(context, (context) => AvatarPreviewPage(userDB: userDB),);
+      case 'ZapsInvoiceDialog':
+        final invoice = params?['invoice'];
+        final walletOnPress = params?['walletOnPress'];
+        return showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (BuildContext context) {
+              return ZapsInvoiceDialog(
+                invoice: invoice,
+                walletOnPress: walletOnPress,
+              );
+            });
     }
     return null;
   }
@@ -82,12 +96,16 @@ class OXUserCenter extends OXFlutterModule {
   }
 
 
-  void _showZapsInvoiceDialog(BuildContext context,String invoice) {
+  void _showZapsInvoiceDialog(BuildContext context, String invoice) {
     showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
           return ZapsInvoiceDialog(invoice: invoice);
         });
+  }
+
+  Future<Map<String, String>> _getInvoice({required int sats, required String otherLnurl}) async {
+    return await ZapsHelper.getInvoice(sats: sats, otherLnurl: otherLnurl);
   }
 }

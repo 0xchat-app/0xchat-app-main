@@ -22,6 +22,7 @@ import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/utils/purchase_util.dart';
+import 'package:ox_usercenter/utils/zaps_helper.dart';
 import 'package:ox_usercenter/widget/donate_selected_list.dart';
 import 'package:ox_usercenter/widget/donate_item_widget.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -544,19 +545,15 @@ class _DonatePageState extends State<DonatePage> {
       throw 'The LN Address or LNURL is not set';
     }
 
-    if (lnurl.contains('@')) {
-      try {
-        lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
-      } catch (error) {
-        LogUtil.d('LN Address parse fail');
-        OXLoading.dismiss();
-        CommonToast.instance.show(context, 'LN Address parse fail');
-        throw 'LN Address parse fail';
-      }
-    }
-
     OXLoading.show();
-    _invoice = await Zaps.getInvoice(_relayNameList, sats.toInt(), lnurl, recipient, _mCurrentUserInfo?.privkey ?? '') ?? "";
+    final result = await ZapsHelper.getInvoice(sats: sats.toInt(), otherLnurl: '0xchat@getalby.com');
+    final invoice = result['invoice'] ?? '';
+    final message = result['message'] ?? '';
+    if (invoice.isNotEmpty) {
+      _invoice = invoice;
+    } else {
+      CommonToast.instance.show(context, message);
+    }
     OXLoading.dismiss();
   }
 

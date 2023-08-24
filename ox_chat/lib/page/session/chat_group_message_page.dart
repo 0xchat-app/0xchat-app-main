@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -18,7 +18,6 @@ import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/widget/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/log_util.dart';
@@ -42,16 +41,17 @@ class ChatGroupMessagePage extends StatefulWidget {
 }
 
 class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
+
   List<types.Message> _messages = [];
+  
   late types.User _user;
-  bool isMore = false;
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
   ChannelDB? channel;
   String get channelId => channel?.channelId ?? widget.communityItem.groupId ?? '';
 
-  final chatGeneralHandler = ChatGeneralHandler();
+  late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
 
   @override
@@ -65,6 +65,11 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   }
 
   void setupChatGeneralHandler() {
+    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
+      setState(() {
+        _messages = messages;
+      });
+    });
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
@@ -82,16 +87,14 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   }
 
   void prepareData() {
-    _loadMessages();
+    _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }
 
   void addListener() {
     ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      setState(() {
-        _messages = value;
-      });
+      chatGeneralHandler.refreshMessage(_messages, value);
     });
   }
 
@@ -135,7 +138,11 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
       body: Chat(
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
-        onMessageTap: _handleMessageTap,
+        isLastPage: !chatGeneralHandler.hasMoreMessage,
+        onEndReached: () async {
+          await _loadMoreMessages();
+        },
+        onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
         avatarBuilder: (message) => OXUserAvatar(
@@ -179,9 +186,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-        imageGalleryOptions: chatGeneralHandler.imageGalleryOptions(),
-        // customBottomWidget: const ChatInput(),
-        // customBottomWidget: customBottomWidget(),
+        imageGalleryOptions: pageConfig.imageGalleryOptions(),
       ),
     );
   }
@@ -246,7 +251,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
       status: types.Status.sending,
     );
     ChatDataCache.shared.deleteMessage(widget.communityItem, resendMsg);
-    _sendMessage(resendMsg);
+    _sendMessage(resendMsg, isResend: true);
   }
 
   Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
@@ -358,74 +363,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
     }
   }
 
-  Widget customBottomWidget() {
-    keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-    return Container(
-      height: isMore ? Adapt.px(300) : Adapt.px(90),
-      width: double.infinity,
-      margin: EdgeInsets.only(
-        left: Adapt.px(16),
-        right: Adapt.px(16),
-        bottom: Adapt.px(30),
-      ),
-      color: Colors.red,
-      child: GestureDetector(
-        child: Container(
-          width: 60,
-          height: 40,
-          color: Colors.amber,
-        ),
-        onTap: () {
-          isMore = !isMore;
-          setState(() {});
-        },
-      ),
-    );
-  }
-
   void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
     chatGeneralHandler.menuItemPressHandler(context, message, type);
-  }
-
-  void _handleMessageTap(BuildContext _, types.Message message) async {
-    LogUtil.e("_handleMessageTap : ${message}");
-    if (message is types.FileMessage) {
-      var localPath = message.uri;
-
-      if (message.uri.startsWith('http')) {
-        try {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: true,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-
-          final client = http.Client();
-          final request = await client.get(Uri.parse(message.uri));
-          final bytes = request.bodyBytes;
-          final documentsDir = (await getApplicationDocumentsDirectory()).path;
-          localPath = '$documentsDir/${message.name}';
-
-          // if (!File(localPath).existsSync()) {
-          //   final file = File(localPath);
-          //   await file.writeAsBytes(bytes);
-          // }
-        } finally {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: null,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-        }
-      }
-    } else if (message is types.VideoMessage) {
-      LogUtil.e("_handleMessageTap : VideoMessage");
-      final index = _messages.indexWhere((element) => element.id == message.id);
-      types.VideoMessage videoMessage = _messages[index] as types.VideoMessage;
-      LogUtil.e(videoMessage.metadata);
-      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: videoMessage.metadata!["videoUrl"] ?? ''));
-    }
   }
 
   void _handlePreviewDataFetched(
@@ -455,7 +394,14 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
     _sendMessage(textMessage);
   }
 
-  void _sendMessage(types.Message message) {
+  Future _sendMessage(types.Message message, {bool isResend = false}) async {
+
+    if (!isResend) {
+      final sendMsg = await _tryPrepareSendFileMessage(message);
+      if (sendMsg == null) return ;
+      message = sendMsg;
+    }
+
     // send message
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
@@ -514,10 +460,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
     });
   }
 
-  void _loadMessages() async {
-    List<types.Message> convertedMessages = await ChatDataCache.shared.getSessionMessage(widget.communityItem);
-    setState(() {
-      _messages = convertedMessages;
-    });
+  Future<void> _loadMoreMessages() async {
+    await chatGeneralHandler.loadMoreMessage(_messages);
   }
 }

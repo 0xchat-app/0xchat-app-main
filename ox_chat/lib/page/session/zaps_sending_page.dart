@@ -1,12 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/model/wallet_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/num_utils.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsSendingPage extends StatefulWidget {
+
+  ZapsSendingPage(this.otherUser);
+
+  final UserDB otherUser;
+
   @override
   _ZapsSendingPageState createState() => _ZapsSendingPageState();
 }
@@ -14,10 +30,13 @@ class ZapsSendingPage extends StatefulWidget {
 class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
   final TextEditingController amountController = TextEditingController();
-
   final TextEditingController descriptionController = TextEditingController();
 
   final defaultSatsValue = '0';
+  final defaultDescription = 'Best wishes';
+
+  String get zapsAmount => amountController.text.orDefault(defaultSatsValue);
+  String get zapsDescription => descriptionController.text.orDefault(defaultDescription);
 
   @override
   void dispose() {
@@ -48,13 +67,22 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
                   'Zaps',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow('Amount', '0.00 Sats', amountController)
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow('Description', 'Best wishes', descriptionController)
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                _buildInputRow(
+                  title: 'Amount',
+                  placeholder: defaultSatsValue,
+                  controller: amountController,
+                  suffix: 'Sats',
+                  maxLength: 9,
+                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                _buildInputRow(
+                  title: 'Description',
+                  placeholder: defaultDescription,
+                  controller: descriptionController,
+                  maxLength: 50,
+                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
                 _buildSatsText()
                     .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                CommonButton.themeButton('Send')
+                CommonButton.themeButton(text: 'Send', onTap: _sendButtonOnPressed)
                     .setPadding(EdgeInsets.only(top: Adapt.px(24))),
               ],
             ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
@@ -88,34 +116,58 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
         ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16))),
       );
 
-  Widget _buildInputRow(
-      String title, String placeholder, TextEditingController controller) {
+  Widget _buildInputRow({
+    String title = '',
+    String placeholder = '',
+    required TextEditingController controller,
+    String suffix = '',
+    int? maxLength,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 8),
+        SizedBox(height: Adapt.px(12)),
         Container(
           decoration: BoxDecoration(
+            color: ThemeColor.color180,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey),
           ),
+          height: Adapt.px(48),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: placeholder,
-                isDense: true,
-              ),
-              onChanged: (_) {
-                setState(() {}); // Update UI on input change
-              },
-            ),
+            padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    maxLength: maxLength,
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: placeholder,
+                      isDense: true,
+                      counterText: '',
+                    ),
+                    onChanged: (_) {
+                      setState(() {}); // Update UI on input change
+                    },
+                  ),
+                ),
+                if (suffix.isNotEmpty)
+                  Text(
+                    suffix,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: ThemeColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ],
+            )
           ),
         ),
       ],
@@ -123,16 +175,13 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
   }
 
   Widget _buildSatsText() {
-    var sats = amountController.text;
-    if (sats.isEmpty) {
-      sats = defaultSatsValue;
-    }
+    final text = int.tryParse(zapsAmount)?.formatWithCommas() ?? defaultSatsValue;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '$sats',
+          text,
           style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
         ),
         Text(
@@ -141,5 +190,59 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
         ).setPadding(EdgeInsets.only(top: 7, left: 4)),
       ],
     );
+  }
+
+  Future _sendButtonOnPressed() async {
+    final amount = int.tryParse(zapsAmount) ?? 0;
+    final description = zapsDescription;
+    final lnurl = widget.otherUser.lnurl ?? '';
+    if (amount < 1) {
+      CommonToast.instance.show(context, 'Zaps amount cannot be 0');
+      return ;
+    }
+
+    OXLoading.show();
+
+    final invokeResult = await OXModuleService.invoke<Future<Map<String, String>>>(
+      'ox_usercenter',
+      'getInvoice',
+      [],
+      {
+        #sats: amount,
+        #otherLnurl: lnurl,
+      },);
+    final invoice = invokeResult?['invoice'] ?? '';
+    final message = invokeResult?['message'] ?? '';
+    OXLoading.dismiss();
+
+    if (invoice.isEmpty) {
+      CommonToast.instance.show(context, message);
+      return ;
+    }
+
+    final selectResult = await _jumpToWalletSelectionPage(invoice);
+    if (selectResult) {
+      OXNavigator.pop(context, {
+        'invoice': invoice,
+        'amount': amount.toString(),
+        'description': description,
+      });
+    }
+  }
+
+  Future<bool> _jumpToWalletSelectionPage(String invoice) async {
+    var isConfirm = false;
+    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
+      'invoice': invoice,
+      'walletOnPress': (WalletModel wallet) async {
+        final result = await OXCommonHintDialog.showConfirmDialog(context, title: 'title', content: 'content');
+        if (result) {
+          isConfirm = true;
+          OXNavigator.pop(context);
+        }
+        return result;
+      },
+    });
+    return isConfirm;
   }
 }
