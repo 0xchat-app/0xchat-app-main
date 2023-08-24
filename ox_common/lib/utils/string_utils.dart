@@ -3,7 +3,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 String noDataShow = '--';
 
-extension StringUtil on String{
+extension StringUtil on String {
 
   bool get isNum => num.tryParse(this) != null;
 
@@ -149,6 +149,10 @@ extension StringUtil on String{
       });
     }
     return text;
+  }
+
+  String orDefault(String defaultValue) {
+    return this.isEmpty ? defaultValue : this;
   }
 }
 

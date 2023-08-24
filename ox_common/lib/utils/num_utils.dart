@@ -202,3 +202,26 @@ extension Ex on Decimal {
     }
   }
 }
+
+extension FormattedNumberExtension on int {
+
+  /// Formats an integer as a string with comma-separated thousands.
+  /// e.g. 1234567.formatWithCommas(); // Output: 1,234,567
+  String formatWithCommas() {
+    String result = this.toString();
+    String formattedResult = '';
+
+    int length = result.length;
+    int commaCount = (length - 1) ~/ 3;
+
+    for (int i = 0; i < length; i++) {
+      formattedResult += result[i];
+      if ((length - i - 1) % 3 == 0 && commaCount > 0) {
+        formattedResult += ',';
+        commaCount--;
+      }
+    }
+
+    return formattedResult;
+  }
+}

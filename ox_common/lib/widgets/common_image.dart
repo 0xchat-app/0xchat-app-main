@@ -22,11 +22,13 @@ class CommonImage extends StatelessWidget{
     required this.iconName,
     this.useTheme = false,
     this.color,
-    this.height,
-    this.width,
+    double? height,
+    double? width,
+    double? size,
     this.package = 'ox_common',
     this.fit,
-  });
+  }): this.height = size ?? height,
+      this.width = size ?? width;
 
   @override
   Widget build(BuildContext context) {
