@@ -460,12 +460,14 @@ class ChatState extends State<Chat> {
                 color: ThemeColor.color200,
                 child: Column(
                   children: [
-                    widget.chatStatus == ChatStatus.NotContact ? SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),),
-                        child: widget.customTopWidget ?? SizedBox(),
-                      ),
-                    ) :  SizedBox(),
+                    widget.chatStatus == ChatStatus.NotContact
+                        ? Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Adapt.px(12),
+                            ),
+                            child: widget.customTopWidget ?? SizedBox(),
+                          )
+                        : SizedBox(),
                     Flexible(
                       child: widget.messages.isEmpty
                           ? SizedBox.expand(

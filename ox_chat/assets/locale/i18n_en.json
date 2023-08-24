@@ -54,5 +54,10 @@
   "not_friends_send_message_prompts": "Sorry, you can only send messages to mutual contacts at the moment.",
   "remove_contacts": "Remove Contacts",
   "import_follows": "Import Follows",
-  "import_follows_tips": "Import follows from the blockchain and add them as Contacts："
+  "import_follows_tips": "Import follows from the blockchain and add them as Contacts：",
+  "str_secret_center_hint": "· Use end-to-end encryption (Nip 44).\n· Prevent metadata leaks (Nip 59).\n· Ensure forward secrecy.\n· Messages irrecoverable on other devices.\n· Secret chat messages will be sent only to the relay:",
+  "str_other_rejected": "Rejected",
+  "str_waiting_other_join": "Waiting for $username to join a secret chat",
+  "str_reject_secret_chat": "Reject",
+  "str_john_secret_chat": "Join Secret Chat"
 }

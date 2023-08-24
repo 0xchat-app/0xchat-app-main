@@ -10,22 +10,22 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-///Title: custom_not_contact_top_widget
+///Title: not_contact_top_widget
 ///Description: TODO(Fill in by oneself)
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2023/8/23 14:42
-class CustomNotContactTopWidget extends StatefulWidget{
+class NotContactTopWidget extends StatefulWidget {
   final ChatSessionModel chatSessionModel;
-  const CustomNotContactTopWidget({Key? key, required this.chatSessionModel}) : super(key: key);
+
+  const NotContactTopWidget({Key? key, required this.chatSessionModel}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _CustomNotContactTopWidgetState();
-
+  State<StatefulWidget> createState() => _NotContactTopWidgetState();
 }
 
-class _CustomNotContactTopWidgetState extends State<CustomNotContactTopWidget>{
-  double buttonWidth = (Adapt.screenW() - Adapt.px(16+12+12+16+16))/2;
+class _NotContactTopWidgetState extends State<NotContactTopWidget> {
+  double buttonWidth = (Adapt.screenW() - Adapt.px(16 + 12 + 12 + 16 + 16)) / 2;
 
   @override
   void initState() {
@@ -39,21 +39,17 @@ class _CustomNotContactTopWidgetState extends State<CustomNotContactTopWidget>{
       height: Adapt.px(36),
       child: Row(
         children: [
-          _buildNotAddStatus(widget.chatSessionModel),
+          Expanded(
+            child: _buildNotAddStatus(widget.chatSessionModel),
+          ),
           SizedBox(
             width: Adapt.px(8),
           ),
-          SizedBox(
+          CommonImage(
+            iconName: 'icon_clearbutton.png',
+            fit: BoxFit.fill,
             width: Adapt.px(20),
             height: Adapt.px(20),
-            child: Center(
-              child: CommonImage(
-                iconName: 'icon_clearbutton.png',
-                fit: BoxFit.contain,
-                width: Adapt.px(16),
-                height: Adapt.px(16),
-              ),
-            ),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
@@ -128,98 +129,123 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildItemView(ChatSessionModel item) {
-    return Container(
-      height: Adapt.px(98),
-      margin: EdgeInsets.only(
-        left: Adapt.px(20),
-        right: Adapt.px(20),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildAvatar(item),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          CommonImage(
-                            iconName: 'icon_lock_secret.png',
-                            width: Adapt.px(16),
-                            height: Adapt.px(16),
-                            package: 'ox_chat',
-                          ),
-                          ShaderMask(
-                            shaderCallback: (Rect bounds) {
-                              return LinearGradient(
-                                colors: [
-                                  ThemeColor.gradientMainEnd,
-                                  ThemeColor.gradientMainStart,
-                                ],
-                              ).createShader(Offset.zero & bounds.size);
-                            },
-                            child: Text(
-                              item.chatName ?? '',
-                              style: TextStyle(
-                                fontSize: Adapt.px(16),
-                                color: ThemeColor.color0,
-                                letterSpacing: Adapt.px(0.4),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        OXNavigator.pushPage(
+          context,
+          (context) => ChatSecretMessagePage(
+            communityItem: item,
+          ),
+        );
+      },
+      child: Container(
+        height: Adapt.px(98),
+        margin: EdgeInsets.only(
+          left: Adapt.px(20),
+          right: Adapt.px(20),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildAvatar(item),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildItemName(item),
                       ),
-                    ),
-                    FutureBuilder<bool>(
-                      builder: (context, snapshot) {
-                        return _buildReadWidget(item, snapshot.data ?? false);
-                      },
-                      future: _getChatSessionMute(item),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: Adapt.px(2),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.content ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: Adapt.px(14),
-                          color: ThemeColor.color120,
-                          letterSpacing: Adapt.px(0.4),
-                          fontWeight: FontWeight.w600,
+                      FutureBuilder<bool>(
+                        builder: (context, snapshot) {
+                          return _buildReadWidget(item, snapshot.data ?? false);
+                        },
+                        future: _getChatSessionMute(item),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: Adapt.px(2),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.content ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: Adapt.px(14),
+                            color: ThemeColor.color120,
+                            letterSpacing: Adapt.px(0.4),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      OXDateUtils.convertTimeFormatString3(
-                        (item.createTime ?? 0) * 1000,
+                      Text(
+                        OXDateUtils.convertTimeFormatString3(
+                          (item.createTime ?? 0) * 1000,
+                        ),
+                        style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
                       ),
-                      style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: Adapt.px(6),
-                ),
-                _buildNotAddStatus(item),
-              ],
+                    ],
+                  ),
+                  SizedBox(
+                    height: Adapt.px(6),
+                  ),
+                  _buildNotAddStatus(item),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildItemName(ChatSessionModel item) {
+    return item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
+        ? Row(
+            children: [
+              CommonImage(
+                iconName: 'icon_lock_secret.png',
+                width: Adapt.px(16),
+                height: Adapt.px(16),
+                package: 'ox_chat',
+              ),
+              ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return LinearGradient(
+                    colors: [
+                      ThemeColor.gradientMainEnd,
+                      ThemeColor.gradientMainStart,
+                    ],
+                  ).createShader(Offset.zero & bounds.size);
+                },
+                child: Text(
+                  item.chatName ?? '',
+                  style: TextStyle(
+                    fontSize: Adapt.px(16),
+                    color: ThemeColor.color0,
+                    letterSpacing: Adapt.px(0.4),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : Text(
+            item.chatName ?? '',
+            style: TextStyle(
+              fontSize: Adapt.px(16),
+              color: ThemeColor.color0,
+              letterSpacing: Adapt.px(0.4),
+              fontWeight: FontWeight.w600,
+            ),
+          );
   }
 
   //Unadded status
