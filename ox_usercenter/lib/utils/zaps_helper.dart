@@ -9,6 +9,7 @@ class ZapsHelper {
   static Future<Map<String, String>> getInvoice({required int sats, required String otherLnurl}) async {
 
     final result = {
+      'zapper': '',
       'invoice': '',
       'message': '',
     };
@@ -45,7 +46,25 @@ class ZapsHelper {
         return result;
       }
     }
-    final invoice = await Zaps.getInvoice(relayNameList, sats, otherLnurl, recipient, privkey) ?? '';
+    final resultMap = await Zaps.getInvoice(relayNameList, sats, otherLnurl, recipient, privkey);
+    final invoice = resultMap['invoice'];
+    final zapsDB = resultMap['zapsDB'];
+    if (invoice is! String || invoice.isEmpty) {
+      result['message'] = 'error invoice: $invoice';
+      return result;
+    }
+
+    if (zapsDB is! ZapsDB ) {
+      result['message'] = 'error zaps info: $zapsDB';
+      return result;
+    }
+
+    if (zapsDB.nostrPubkey == null || zapsDB.nostrPubkey!.isEmpty) {
+      result['message'] = 'error nostrPubkey: ${zapsDB.nostrPubkey}';
+      return result;
+    }
+
+    result['zapper'] = zapsDB.nostrPubkey!;
     result['invoice'] = invoice;
     return result;
   }
