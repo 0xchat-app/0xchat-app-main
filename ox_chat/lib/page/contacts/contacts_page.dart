@@ -14,6 +14,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -185,13 +186,21 @@ class _ContractsPageState extends State<ContractsPage>
                                         });
                                   }
                                   return _inkWellWidget(
-                                      content: 'Import Follows',
-                                      onTap: () {
-                                        OXNavigator.pushPage(
+                                    content: 'Import Follows',
+                                    onTap: () async {
+                                      var result = await OXNavigator.pushPage(
+                                        context,
+                                        (context) => ContactAddFollows(),
+                                      );
+                                      if (result == true) {
+                                        OXCommonHintDialog.show(
                                           context,
-                                          (context) => ContactAddFollows(),
+                                          content:
+                                              'Added successfully. Share 0xchat with your Contacts.',
                                         );
-                                      });
+                                      }
+                                    },
+                                  );
 
                                   return Container();
                                 }),
@@ -223,7 +232,8 @@ class _ContractsPageState extends State<ContractsPage>
       {required String content, required GestureTapCallback onTap}) {
     return InkWell(
       child: Container(
-        margin: EdgeInsets.only(top: Adapt.px(14), bottom: Adapt.px(14),right: Adapt.px(12)),
+        margin: EdgeInsets.only(
+            top: Adapt.px(14), bottom: Adapt.px(14), right: Adapt.px(12)),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
         height: Adapt.px(40),
