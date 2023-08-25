@@ -274,11 +274,46 @@ class OXCommonHintDialog extends StatelessWidget {
   }
 
   Widget _buildThemeButton(BuildContext context, OXCommonHintAction action) {
+    if (action.style == OXHintActionStyle.theme) {
+      return GestureDetector(
+        onTap: () {
+          if (action.onTap == null) {
+            OXNavigator.pop(context);
+          } else {
+            action.onTap!();
+          }
+        },
+        child: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: Adapt.px(17)),
+            child: Center(
+              child: Text(
+                action.text(),
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  color: action.style == OXHintActionStyle.red
+                      ? ThemeColor.red1
+                      : null,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return CommonButton(
         content: action.text(),
-        backgroundColor: ThemeColor.main,
-        fontColor: CommonColor.white01,
-        borderSideColor: ThemeColor.main,
+        backgroundColor: Colors.transparent,
+        borderSideColor: Colors.transparent,
         onPressed: () {
           if (action.onTap == null) {
             OXNavigator.pop(context);
@@ -397,7 +432,10 @@ class OXCommonHintDialog extends StatelessWidget {
     AssetImage? bgImage,
     bool isRowAction = false,
   }) {
-    actionList ??= [OXCommonHintAction.sure(text: Localized.text('ox_common.ok'), onTap: sureOnTap)];
+    actionList ??= [
+      OXCommonHintAction.sure(
+          text: Localized.text('ox_common.complete'), onTap: sureOnTap)
+    ];
     if (showCancelButton) {
       actionList.insert(0, OXCommonHintAction.cancel());
     }
