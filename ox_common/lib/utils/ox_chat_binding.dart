@@ -396,7 +396,7 @@ class OXChatBinding {
     Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
     UserDB? user = usersMap[ssDB.toPubkey];
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey);
+      user = UserDB(pubKey: ssDB.toPubkey!);
     }
     syncChatSessionTable(MessageDB(
       decryptContent: 'You have received a secret chat request',
@@ -410,7 +410,7 @@ class OXChatBinding {
     Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
     UserDB? user = usersMap[ssDB.toPubkey];
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey);
+      user = UserDB(pubKey: ssDB.toPubkey!);
     }
     await updateChatSession(ssDB.sessionId!, content: "Prompt: [${user.name}] has accepted your secret chat request.");
     for (OXChatObserver observer in _observers) {
@@ -422,9 +422,9 @@ class OXChatBinding {
     Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
     UserDB? user = usersMap[ssDB.toPubkey];
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey);
+      user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId!, content: "Prompt: [${user.name}] has rejected your secret chat request");
+    await updateChatSession(ssDB.sessionId, content: "Prompt: [${user.name}] has rejected your secret chat request");
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatCloseCallBack(ssDB);
     }

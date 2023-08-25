@@ -66,7 +66,7 @@ class ChannelModel {
 
   ChannelDB toChannelDB() {
     return ChannelDB(
-      channelId: channelId,
+      channelId: channelId!,
       name: channelName,
       picture: picture,
       about: about,
