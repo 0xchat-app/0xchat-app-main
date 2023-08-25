@@ -70,11 +70,8 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
   //
   void _getFollowList() async {
-    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!;
-
-    String decodePubKey = UserDB.decodePubkey(pubKey) ?? '';
-
-    List userMap = await Account.syncFollowListFromRelay(decodePubKey);
+    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+    List userMap = await Account.syncFollowListFromRelay(pubKey);
     List<DiyUserDB> db = [];
 
     userMap.forEach((info) => {db.add(new DiyUserDB(false, info))});
