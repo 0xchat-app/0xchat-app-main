@@ -218,9 +218,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           ),
           _tabWidget(
             onTap: () {
-              OXNavigator.pushPage(
+              OXNavigator.presentPage(
                 context,
                 (context) => ContactCreateSecret(userDB: widget.userDB),
+                fullscreenDialog: true,
               );
             },
             iconName: 'icon_secret.png',
