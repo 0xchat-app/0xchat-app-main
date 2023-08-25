@@ -1,16 +1,19 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
-import 'package:ox_common/mixin/common_state_view_mixin.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
 import 'package:chatcore/chat-core.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-
+import 'package:flutter/services.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'contact_user_info_page.dart';
 
 enum FollowsFriendStatus {
   hasFollows,
@@ -18,9 +21,15 @@ enum FollowsFriendStatus {
   unSelectFollows,
 }
 
-extension GetFollowsFriendStatusPic on FollowsFriendStatus{
+class DiyUserDB {
+  bool isSelect;
+  UserDB db;
+  DiyUserDB(this.isSelect, this.db);
+}
+
+extension GetFollowsFriendStatusPic on FollowsFriendStatus {
   String get picName {
-    switch(this) {
+    switch (this) {
       case FollowsFriendStatus.hasFollows:
         return 'icon_has_follows.png';
       case FollowsFriendStatus.selectFollows:
@@ -36,8 +45,9 @@ class ContactAddFollows extends StatefulWidget {
   _ContactAddFollowsState createState() => new _ContactAddFollowsState();
 }
 
-
-class _ContactAddFollowsState extends State<ContactAddFollows>  {
+class _ContactAddFollowsState extends State<ContactAddFollows> {
+  List<DiyUserDB> userMapList = [];
+  bool isSelectAll = false;
 
   @override
   void initState() {
@@ -50,12 +60,27 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
     super.dispose();
   }
 
-  //
-  void _getFollowList() async{
-    final userMap = await Account.syncFollowListFromRelay(UserDB.decodePubkey('npub10td4yrp6cl9kmjp9x5yd7r8pm96a5j07lk5mtj2kw39qf8frpt8qm9x2wl') ?? '');
-    print('userMap=====>$userMap');
+  List<DiyUserDB> getSelectFollowsNum() {
+    List<DiyUserDB> selectFollowsList = [];
+    userMapList.forEach((DiyUserDB info) => {
+      if (info.isSelect) {selectFollowsList.add(info)}
+    });
+    return selectFollowsList;
   }
+
   //
+  void _getFollowList() async {
+    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!;
+
+    String decodePubKey = UserDB.decodePubkey(pubKey) ?? '';
+
+    List userMap = await Account.syncFollowListFromRelay(decodePubKey);
+    List<DiyUserDB> db = [];
+
+    userMap.forEach((info) => {db.add(new DiyUserDB(false, info))});
+    userMapList = db;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,63 +91,58 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
         centerTitle: true,
         title: Localized.text('ox_chat.import_follows'),
         backgroundColor: ThemeColor.color190,
+        actions: [
+          _appBarActionWidget(),
+          SizedBox(
+            width: Adapt.px(24),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Container(
           height: double.infinity,
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Adapt.px(24),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        child: Text(
-                          Localized.text('ox_chat.import_follows_tips'),
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(14),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      _followsFriendWidget(),
-                      // Expanded(child:  _delOrAddFriendBtnView(),)
-                    ],
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Adapt.px(24),
+                  vertical: Adapt.px(12),
+                ),
+                child: Text(
+                  Localized.text('ox_chat.import_follows_tips'),
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: Adapt.px(14),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: Adapt.px(37),
-                child: _addContactBtnView(),
+              Expanded(
+                child: Stack(
+                  children: [
+                    userMapList.length > 0
+                        ? ListView.builder(
+                      padding: EdgeInsets.only(
+                        left: Adapt.px(24),
+                        right: Adapt.px(24),
+                        bottom: Adapt.px(100),
+                      ),
+                      primary: false,
+                      itemCount: userMapList.length,
+                      itemBuilder: (context, index) {
+                        return _followsFriendWidget(index);
+                      },
+                    )
+                        : _emptyWidget(),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: Adapt.px(37),
+                      child: _addContactBtnView(),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -131,7 +151,41 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
     );
   }
 
-  Widget _followsFriendWidget() {
+  Widget _appBarActionWidget() {
+    if(userMapList.length == 0 ) return Container();
+    return GestureDetector(
+      onTap: () {
+        isSelectAll = !isSelectAll;
+        userMapList.forEach((DiyUserDB useDB) {
+          useDB.isSelect = isSelectAll;
+        });
+        setState(() {});
+      },
+      child: Center(
+        child: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: Text(
+            !isSelectAll ? 'All' : 'none',
+            style: TextStyle(
+              fontSize: Adapt.px(16),
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _followsFriendWidget(int index) {
+    DiyUserDB userInfo = userMapList[index];
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => {},
@@ -146,55 +200,99 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
             Container(
               child: Row(
                 children: [
-                  Container(
-                    child: assetIcon(
-                      'icon_remark.png',
-                      40.0,
-                      40.0,
-                      useTheme: false,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(
-                      left: Adapt.px(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                            child: Text(
-                          'asdfasdfasdfasdfasdf',
-                          style: TextStyle(
-                            color: ThemeColor.color100,
-                            fontSize: Adapt.px(16),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )),
-                        Container(
-                          child: Text(
-                            'asdfasdfasdfasdfasdf',
-                            style: TextStyle(
-                              color: ThemeColor.color120,
-                              fontSize: Adapt.px(14),
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  //
+                  _followsUserPicWidget(userInfo),
+                  _followsUserInfoWidget(userInfo),
                 ],
               ),
             ),
-
-            _followsStatusView(FollowsFriendStatus.hasFollows),
+            _followsStatusView(index),
           ],
         ),
       ),
     );
   }
 
+  Widget _followsUserPicWidget(DiyUserDB userInfo) {
+    UserDB userDB = userInfo.db;
+    Widget picWidget;
+    if ((userDB.picture != null && userDB.picture!.isNotEmpty)) {
+      picWidget = CachedNetworkImage(
+        imageUrl: userInfo.db.picture ?? '',
+        fit: BoxFit.contain,
+        // placeholder: (context, url) => _badgePlaceholderImage,
+        // errorWidget: (context, url, error) => _badgePlaceholderImage,
+        width: Adapt.px(40),
+        height: Adapt.px(40),
+      );
+    } else {
+      picWidget = CommonImage(
+        iconName: 'user_image.png',
+        width: Adapt.px(40),
+        height: Adapt.px(40),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        OXNavigator.pushPage(
+            context, (context) => ContactUserInfoPage(userDB: userDB));
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(
+          Adapt.px(40),
+        ),
+        child: picWidget,
+      ),
+    );
+
+    //
+  }
+
+  Widget _followsUserInfoWidget(DiyUserDB userInfo) {
+    UserDB userDB = userInfo.db;
+    String? nickName = userDB.nickName;
+    String name = (nickName != null && nickName.isNotEmpty)
+        ? nickName
+        : userDB.name ?? '';
+    String encodedPubKey = userDB.encodedPubkey ?? '';
+    int pubKeyLength = encodedPubKey.length;
+    String encodedPubKeyShow =
+        '${encodedPubKey.substring(0, 7)}...${encodedPubKey.substring(pubKeyLength - 4, pubKeyLength)}';
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: Adapt.px(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+              child: Text(
+                name,
+                style: TextStyle(
+                  color: ThemeColor.color100,
+                  fontSize: Adapt.px(16),
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+          Container(
+            child: Text(
+              encodedPubKeyShow,
+              style: TextStyle(
+                color: ThemeColor.color120,
+                fontSize: Adapt.px(14),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _addContactBtnView() {
+    if (userMapList.length == 0) return Container();
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.symmetric(
@@ -229,7 +327,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
             Container(
               padding: EdgeInsets.symmetric(horizontal: Adapt.px(5)),
               child: Text(
-                '5',
+                getSelectFollowsNum().length.toString(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: Adapt.px(14),
@@ -248,16 +346,78 @@ class _ContactAddFollowsState extends State<ContactAddFollows>  {
           ],
         ),
       ),
-      onTap: () => {},
+      onTap: _addContactsFn,
     );
   }
 
-  Widget _followsStatusView(FollowsFriendStatus status){
-    return  assetIcon(
-      status.picName,
-      24.0,
-      24.0,
-      useTheme: false,
+  Widget _followsStatusView(int index) {
+    DiyUserDB userDB = userMapList[index];
+    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
+    String picName = '';
+    bool isContacts = allContacts[userDB.db.pubKey] != null;
+    if (isContacts) {
+      picName = FollowsFriendStatus.hasFollows.picName;
+    } else {
+      picName = userDB.isSelect
+          ? FollowsFriendStatus.selectFollows.picName
+          : FollowsFriendStatus.unSelectFollows.picName;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (isContacts) return;
+        userMapList[index].isSelect = !userDB.isSelect;
+        setState(() {});
+      },
+      child: Container(
+        padding: EdgeInsets.all(Adapt.px(8)),
+        child: assetIcon(
+          picName,
+          24.0,
+          24.0,
+          useTheme: false,
+        ),
+      ),
     );
+  }
+
+  Widget _emptyWidget() {
+    return Container(
+      alignment: Alignment.topCenter,
+      margin: EdgeInsets.only(top: 87.0),
+      child: Column(
+        children: <Widget>[
+          CommonImage(
+            iconName: 'icon_no_login.png',
+            width: Adapt.px(90),
+            height: Adapt.px(90),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 20.0),
+            child: MyText(
+              'No Follows yet',
+              14,
+              ThemeColor.gray02,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addContactsFn() async {
+    await OXLoading.show();
+    List<String> selectFollowPubKey = [];
+    getSelectFollowsNum().forEach((DiyUserDB info) {
+      selectFollowPubKey.add(info.db.pubKey ?? '');
+    });
+    final OKEvent okEvent =
+    await Contacts.sharedInstance.addToContact(selectFollowPubKey);
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      OXNavigator.pop(context, true);
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
+    }
   }
 }

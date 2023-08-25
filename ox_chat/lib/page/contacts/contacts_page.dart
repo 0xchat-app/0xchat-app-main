@@ -14,6 +14,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -139,62 +140,71 @@ class _ContractsPageState extends State<ContractsPage>
                 pinned: true,
                 floating: true,
                 expandedHeight:
-                    _isShowTools ? Adapt.px(126) : Adapt.px(126 - 66),
+                _isShowTools ? Adapt.px(126) : Adapt.px(126 - 66),
                 elevation: 0,
                 flexibleSpace: _isShowTools
                     ? FlexibleSpaceBar(
-                        collapseMode: CollapseMode.pin,
-                        background: Container(
-                          height: double.infinity,
-                          color: ThemeColor.color200,
-                          child: Column(
-                            children: <Widget>[
-                              _topSearch(),
-                            ],
-                          ),
-                        ),
-                      )
+                  collapseMode: CollapseMode.pin,
+                  background: Container(
+                    height: double.infinity,
+                    color: ThemeColor.color200,
+                    child: Column(
+                      children: <Widget>[
+                        _topSearch(),
+                      ],
+                    ),
+                  ),
+                )
                     : Container(),
                 bottom: PreferredSize(
                   preferredSize: Size.fromHeight(Adapt.px(68)),
                   child: _isShowTools
                       ? Container(
-                          alignment: Alignment.centerLeft,
-                          height: Adapt.px(68),
-                          color: ThemeColor.color200,
-                          child: Theme(
-                            data: ThemeData(
-                              backgroundColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
-                            ),
-                            child: ListView.builder(
-                                padding: EdgeInsets.only(left: Adapt.px(24)),
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 2,
-                                itemBuilder: (context, index) {
-                                  if (index == 0) {
-                                    return _inkWellWidget(
-                                        content: 'Requests',
-                                        onTap: () {
-                                          OXNavigator.pushPage(
-                                            context,
+                      alignment: Alignment.centerLeft,
+                      height: Adapt.px(68),
+                      color: ThemeColor.color200,
+                      child: Theme(
+                        data: ThemeData(
+                          backgroundColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                        ),
+                        child: ListView.builder(
+                            padding: EdgeInsets.only(left: Adapt.px(24)),
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 2,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return _inkWellWidget(
+                                    content: 'Requests',
+                                    onTap: () {
+                                      OXNavigator.pushPage(
+                                        context,
                                             (context) => ContactRequest(),
-                                          );
-                                        });
+                                      );
+                                    });
+                              }
+                              return _inkWellWidget(
+                                content: 'Import Follows',
+                                onTap: () async {
+                                  var result = await OXNavigator.pushPage(
+                                    context,
+                                        (context) => ContactAddFollows(),
+                                  );
+                                  if (result == true) {
+                                    OXCommonHintDialog.show(
+                                      context,
+                                      content:
+                                      'Added successfully. Share 0xchat with your Contacts.',
+                                    );
                                   }
-                                  return _inkWellWidget(
-                                      content: 'Import Follows',
-                                      onTap: () {
-                                        OXNavigator.pushPage(
-                                          context,
-                                          (context) => ContactAddFollows(),
-                                        );
-                                      });
-                                  return Container();
-                                }),
-                          ))
+                                },
+                              );
+
+                              return Container();
+                            }),
+                      ))
                       : _topSearch(),
                 ),
               ),
@@ -222,7 +232,8 @@ class _ContractsPageState extends State<ContractsPage>
       {required String content, required GestureTapCallback onTap}) {
     return InkWell(
       child: Container(
-        margin: EdgeInsets.only(top: Adapt.px(14), bottom: Adapt.px(14),right: Adapt.px(12)),
+        margin: EdgeInsets.only(
+            top: Adapt.px(14), bottom: Adapt.px(14), right: Adapt.px(12)),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
         height: Adapt.px(40),
