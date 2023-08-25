@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
@@ -32,18 +33,27 @@ import 'package:images_picker/images_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
 import 'custom_message_utils.dart';
+
+part 'chat_send_message_handler.dart';
 
 class ChatGeneralHandler {
 
-  ChatGeneralHandler(this.session, this.refreshMessageUI);
+  ChatGeneralHandler({
+    required this.author,
+    required this.session,
+    required this.refreshMessageUI,
+    required this.sendMessageHandler
+  });
 
+  final types.User author;
   final ChatSessionModel session;
 
   bool hasMoreMessage = false;
 
-  ValueChanged<List<types.Message>> refreshMessageUI;
+  Function(List<types.Message>) refreshMessageUI;
+
+  Function(types.Message message) sendMessageHandler;
 
   ValueChanged<types.Message>? messageDeleteHandler;
 
@@ -52,108 +62,6 @@ class ChatGeneralHandler {
   Future Function(List<File> images)? imageMessageSendHandler;
 
   Future Function(List<File> images)? videoMessageSendHandler;
-
-  Future Function(String invoice, String amount, String description)? zapsMessageSendHandler;
-
-  Future<String> uploadFile({
-    required UplodAliyunType fileType,
-    required String filePath,
-    required String messageId,
-    String? pubkey,
-  }) async {
-    final file = File(filePath);
-    final ext = path.extension(filePath);
-    final fileName = '$messageId$ext';
-    return await UplodAliyun.uploadFileToAliyun(fileType: fileType, file: file, filename: fileName, pubkey: pubkey);
-  }
-
-  Future<types.Message?> prepareSendImageMessage(
-    BuildContext context,
-    types.ImageMessage message, {
-    String? pubkey,
-  }) async {
-    final filePath = message.uri;
-    final uriIsLocalPath = filePath.isLocalPath;
-
-    if (uriIsLocalPath == null) {
-      ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
-      );
-      return null;
-    }
-
-    if (uriIsLocalPath) {
-      final uri = await uploadFile(fileType: UplodAliyunType.imageType, filePath: filePath, messageId: message.id, pubkey: pubkey);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_image_fail'));
-        return null;
-      }
-      return message.copyWith(uri: uri);
-    }
-    return message;
-  }
-
-  Future<types.Message?> prepareSendAudioMessage(
-    BuildContext context,
-    types.AudioMessage message, {
-    String? pubkey,
-  }) async {
-    final filePath = message.uri;
-    final uriIsLocalPath = filePath.isLocalPath;
-
-    if (uriIsLocalPath == null) {
-      ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
-      );
-      return null;
-    }
-
-    if (uriIsLocalPath) {
-      final uri = await uploadFile(fileType: UplodAliyunType.voiceType, filePath: filePath, messageId: message.id, pubkey: pubkey);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_audio_fail'));
-        return null;
-      }
-      return message.copyWith(uri: uri);
-    }
-    return message;
-  }
-
-  Future<types.Message?> prepareSendVideoMessage(
-    BuildContext context,
-    types.VideoMessage message, {
-    String? pubkey,
-  }) async {
-    final filePath = message.metadata?['videoUrl'] as String ?? '';
-    final uriIsLocalPath = filePath.isLocalPath;
-
-    if (filePath.isEmpty || uriIsLocalPath == null) {
-      ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
-      );
-      return null;
-    }
-
-    if (uriIsLocalPath) {
-      final uri = await uploadFile(fileType: UplodAliyunType.videoType, filePath: filePath, messageId: message.id, pubkey: pubkey);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_video_fail'));
-        return null;
-      }
-      return message.copyWith(
-        metadata: {
-          'videoUrl': uri,
-        },
-      );
-    }
-    return message;
-  }
 
   void syncChatSessionForSendMsg({
     required int createTime,
@@ -287,7 +195,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsMessagePressHandler() async {
-
+    
   }
 }
 
@@ -398,15 +306,23 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    final result = await OXNavigator.presentPage<Map<String, String>>(context, (context) => ZapsSendingPage(user));
-    if (result != null) {
-      final invoice = result['invoice'] ?? '';
-      final amount = result['amount'] ?? '';
-      final description = result['description'] ?? '';
-      final zapsMessageSendHandler = this.zapsMessageSendHandler;
-      if (invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty && zapsMessageSendHandler != null)
-        zapsMessageSendHandler(invoice, amount, description);
-    }
+    await OXNavigator.presentPage<Map<String, String>>(
+      context, (context) => ZapsSendingPage(user, (zapsInfo) {
+        final zapper = zapsInfo['zapper'] ?? '';
+        final invoice = zapsInfo['invoice'] ?? '';
+        final amount = zapsInfo['amount'] ?? '';
+        final description = zapsInfo['description'] ?? '';
+        if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+          sendZapsMessage(zapper, invoice, amount, description);
+        } else {
+          ChatLogUtils.error(
+            className: 'ChatGeneralHandler',
+            funcName: 'zapsPressHandler',
+            message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+          );
+        }
+      }),
+    );
   }
 
   Future<void> _goToPhoto(int type) async {
@@ -417,7 +333,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
     if (messageSendHandler == null) {
       ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
+        className: 'ChatGeneralHandler',
         funcName: 'goToPhoto',
         message: 'messageSendHandler is null',
       );

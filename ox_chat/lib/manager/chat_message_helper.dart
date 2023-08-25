@@ -5,10 +5,10 @@ import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as ChatTypes;
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
-import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
@@ -47,14 +47,6 @@ extension MessageDBToUIEx on MessageDB {
 
     // Msg id
     final messageId = this.messageId;
-    if (messageId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'message.messageId is null',
-      );
-      return null;
-    }
 
     // ContentModel
     final decryptContent = this.decryptContent;
@@ -167,6 +159,9 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.encryptedAudio:
         messageFactory = AudioMessageFactory();
         break ;
+      case MessageType.template:
+        messageFactory = CustomMessageFactory();
+        break ;
       default:
         ChatLogUtils.error(className: 'ChatDataCache', funcName: 'convertMessageDBToUIModel', message: 'unknown message type');
         return null;
@@ -188,6 +183,7 @@ extension MessageDBToUIEx on MessageDB {
       timestamp: messageTimestamp,
       roomId: chatId,
       remoteId: messageId,
+      sourceKey: originEvent,
       contentModel: contentModel,
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
@@ -221,20 +217,16 @@ extension MessageUIToDBEx on ChatTypes.Message {
     Map map = {
       'content': content,
     };
-    if (msg is ChatTypes.TextMessage || msg is ChatTypes.ImageMessage || msg is ChatTypes.AudioMessage || msg is ChatTypes.VideoMessage) {
+    if (msg is ChatTypes.TextMessage ||
+        msg is ChatTypes.ImageMessage ||
+        msg is ChatTypes.AudioMessage ||
+        msg is ChatTypes.VideoMessage
+    ) {
       return content;
+    } else if (msg is ChatTypes.CustomMessage) {
+      return msg.customContentString;
     }
     return jsonEncode(map);
-  }
-
-  String get _contentTypeString {
-    switch (type) {
-      case ChatTypes.MessageType.text: return 'text';
-      case ChatTypes.MessageType.image: return 'image';
-      case ChatTypes.MessageType.audio: return 'audio';
-      case ChatTypes.MessageType.video: return 'video';
-      default: return 'unknown';
-    }
   }
 }
 

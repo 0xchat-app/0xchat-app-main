@@ -1,13 +1,10 @@
 
 import 'dart:io';
-import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
-import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
@@ -58,23 +55,27 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   void initState() {
     super.initState();
 
-    setupChatGeneralHandler();
     setupUser();
+    setupChatGeneralHandler();
     prepareData();
     addListener();
   }
 
   void setupChatGeneralHandler() {
-    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
-      setState(() {
-        _messages = messages;
-      });
-    });
+    chatGeneralHandler = ChatGeneralHandler(
+      author: _user,
+      session: widget.communityItem,
+      refreshMessageUI: (messages) {
+        setState(() {
+          _messages = messages;
+        });
+      },
+      sendMessageHandler: _sendMessage,
+    );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
     chatGeneralHandler.videoMessageSendHandler = _onVideoMessageSend;
-    chatGeneralHandler.zapsMessageSendHandler = _onZapsMessageSend;
   }
 
   void setupUser() {
@@ -313,22 +314,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     }
   }
 
-  Future _onZapsMessageSend(String invoice, String amount, String description) async {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = CustomMessageFactory().createZapsMessage(
-      author: _user,
-      timestamp: tempCreateTime,
-      id: message_id,
-      roomId: receiverPubkey,
-      invoice: invoice,
-      amount: amount,
-      description: description,
-    );
-
-    _sendMessage(message);
-  }
-
   Widget customBottomWidget() {
     keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
@@ -406,6 +391,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
 
     final sendMsg = message.copyWith(
       id: event.id,
+      sourceKey: event,
     );
 
     _addMessage(sendMsg);
@@ -415,6 +401,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       funcName: '_sendMessage',
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
+
+    return ;
     Contacts.sharedInstance.sendPrivateMessage(
       receiverPubkey,
       '',

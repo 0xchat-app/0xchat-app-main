@@ -19,9 +19,10 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsSendingPage extends StatefulWidget {
 
-  ZapsSendingPage(this.otherUser);
+  ZapsSendingPage(this.otherUser, this.zapsInfoCallback);
 
   final UserDB otherUser;
+  final Function(Map result) zapsInfoCallback;
 
   @override
   _ZapsSendingPageState createState() => _ZapsSendingPageState();
@@ -211,33 +212,45 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
         #sats: amount,
         #otherLnurl: lnurl,
       },);
+    final zapper = invokeResult?['zapper'] ?? '';
     final invoice = invokeResult?['invoice'] ?? '';
     final message = invokeResult?['message'] ?? '';
     OXLoading.dismiss();
 
-    if (invoice.isEmpty) {
+    if (invoice.isEmpty || zapper.isEmpty) {
       CommonToast.instance.show(context, message);
       return ;
     }
 
-    final selectResult = await _jumpToWalletSelectionPage(invoice);
-    if (selectResult) {
-      OXNavigator.pop(context, {
-        'invoice': invoice,
-        'amount': amount.toString(),
-        'description': description,
-      });
+    final isTapOnWallet = await _jumpToWalletSelectionPage(
+      zapper: zapper,
+      invoice: invoice,
+      amount: amount,
+      description: description,
+    );
+    if (isTapOnWallet) {
+      OXNavigator.pop(context);
     }
   }
 
-  Future<bool> _jumpToWalletSelectionPage(String invoice) async {
+  Future<bool> _jumpToWalletSelectionPage({
+    required String zapper,
+    required String invoice,
+    required int amount,
+    required String description,
+  }) async {
     var isConfirm = false;
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': invoice,
       'walletOnPress': (WalletModel wallet) async {
         final result = await OXCommonHintDialog.showConfirmDialog(context, title: 'title', content: 'content');
         if (result) {
-          isConfirm = true;
+          widget.zapsInfoCallback({
+            'zapper': zapper,
+            'invoice': invoice,
+            'amount': amount.toString(),
+            'description': description,
+          });
           OXNavigator.pop(context);
         }
         return result;

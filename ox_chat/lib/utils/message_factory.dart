@@ -11,6 +11,7 @@ abstract class MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -23,6 +24,7 @@ class TextMessageFactory implements MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -36,6 +38,7 @@ class TextMessageFactory implements MessageFactory {
       author: author,
       createdAt: timestamp,
       id: remoteId,
+      sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
       text: text,
@@ -50,6 +53,7 @@ class ImageMessageFactory implements MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -66,6 +70,7 @@ class ImageMessageFactory implements MessageFactory {
       author: author,
       createdAt: timestamp,
       id: remoteId,
+      sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
       status: status,
@@ -80,6 +85,7 @@ class AudioMessageFactory implements MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -97,6 +103,7 @@ class AudioMessageFactory implements MessageFactory {
       author: author,
       createdAt: timestamp,
       id: remoteId,
+      sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
       status: status,
@@ -111,6 +118,7 @@ class VideoMessageFactory implements MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -131,6 +139,7 @@ class VideoMessageFactory implements MessageFactory {
       author: author,
       createdAt: timestamp,
       id: remoteId,
+      sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
       status: status,
@@ -145,6 +154,7 @@ class CustomMessageFactory implements MessageFactory {
     required int timestamp,
     required String roomId,
     required String remoteId,
+    required dynamic sourceKey,
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
@@ -157,19 +167,23 @@ class CustomMessageFactory implements MessageFactory {
       if (contentMap is! Map) return null;
 
       final type = CustomMessageTypeEx.fromValue(contentMap['type']);
-      if (type == null) return null;
+      final content = contentMap['content'];
+      if (type == null || content is! Map) return null;
 
       switch (type) {
         case CustomMessageType.zaps:
-          final invoice = contentMap['invoice'];
-          final amount = contentMap['amount'];
-          final description = contentMap['description'];
+          final zapper = content['zapper'];
+          final invoice = content['invoice'];
+          final amount = content['amount'];
+          final description = content['description'];
           return createZapsMessage(
             author: author,
             timestamp: timestamp,
             id: remoteId,
             roomId: roomId,
             remoteId: remoteId,
+            sourceKey: sourceKey,
+            zapper: zapper,
             invoice: invoice,
             amount: amount,
             description: description,
@@ -188,6 +202,8 @@ class CustomMessageFactory implements MessageFactory {
     required String roomId,
     required String id,
     String? remoteId,
+    dynamic sourceKey,
+    required String zapper,
     required String invoice,
     required String amount,
     required String description,
@@ -196,14 +212,15 @@ class CustomMessageFactory implements MessageFactory {
       author: author,
       createdAt: timestamp,
       id: id,
+      sourceKey: sourceKey,
       remoteId: remoteId,
       roomId: roomId,
-      metadata: {
-        'invoice': invoice,
-        'amount': amount,
-        'description': description,
-        'type': CustomMessageType.zaps.value,
-      },
+      metadata: CustomMessageEx.zapsMetaData(
+        zapper: zapper,
+        invoice: invoice,
+        amount: amount,
+        description: description,
+      ),
       type: types.MessageType.custom,
     );
   }

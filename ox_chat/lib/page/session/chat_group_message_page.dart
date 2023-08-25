@@ -58,18 +58,23 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   void initState() {
     super.initState();
 
-    setupChatGeneralHandler();
     setupUser();
+    setupChatGeneralHandler();
     prepareData();
     addListener();
   }
 
   void setupChatGeneralHandler() {
-    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
-      setState(() {
-        _messages = messages;
-      });
-    });
+    chatGeneralHandler = ChatGeneralHandler(
+      author: _user,
+      session: widget.communityItem,
+      refreshMessageUI: (messages) {
+        setState(() {
+          _messages = messages;
+        });
+      },
+      sendMessageHandler: _sendMessage,
+    );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;

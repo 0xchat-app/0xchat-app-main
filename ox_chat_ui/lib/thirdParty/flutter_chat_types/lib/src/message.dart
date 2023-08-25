@@ -40,6 +40,7 @@ abstract class Message extends Equatable {
     required this.author,
     required this.createdAt,
     required this.id,
+    required this.sourceKey,
     this.metadata,
     this.remoteId,
     this.repliedMessage,
@@ -115,6 +116,8 @@ abstract class Message extends Equatable {
   /// The encryption type of the file
   final EncryptionType fileEncryptionType;
 
+  final dynamic sourceKey;
+
   String get content;
 
   /// Creates a copy of the message with an updated data.
@@ -122,6 +125,7 @@ abstract class Message extends Equatable {
     User? author,
     int? createdAt,
     String? id,
+    dynamic sourceKey,
     Map<String, dynamic>? metadata,
     String? remoteId,
     Message? repliedMessage,

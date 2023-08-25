@@ -71,8 +71,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
     super.initState();
     LogUtil.e('Michael: widget.communityItem.chatName =${widget.communityItem.chatName}');
     initSecretData();
-    setupChatGeneralHandler();
     setupUser();
+    setupChatGeneralHandler();
     prepareData();
     addListener();
   }
@@ -88,11 +88,16 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   }
 
   void setupChatGeneralHandler() {
-    chatGeneralHandler = ChatGeneralHandler(widget.communityItem, (messages) {
-      setState(() {
-        _messages = messages;
-      });
-    });
+    chatGeneralHandler = ChatGeneralHandler(
+      author: _user,
+      session: widget.communityItem,
+      refreshMessageUI: (messages) {
+        setState(() {
+          _messages = messages;
+        });
+      },
+      sendMessageHandler: _sendMessage,
+    );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
