@@ -55,7 +55,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             onTap: _createSecretChat,
             child: Center(
               child: CommonImage(
-                iconName: 'title_done.png',
+                iconName: 'icon_done.png',
                 width: Adapt.px(24),
                 height: Adapt.px(24),
                 useTheme: false,
