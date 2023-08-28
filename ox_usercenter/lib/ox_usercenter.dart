@@ -112,10 +112,11 @@ class OXUserCenter extends OXFlutterModule {
 
   Future<Map<String, String>> _getInvoice({
     required int sats,
+    required String recipient,
     required String otherLnurl,
     String? content,
     bool privateZap = false,
   }) async {
-    return await ZapsHelper.getInvoice(sats: sats, otherLnurl: otherLnurl, content: content, privateZap: privateZap);
+    return await ZapsHelper.getInvoice(sats: sats, recipient: recipient, otherLnurl: otherLnurl, content: content, privateZap: privateZap);
   }
 }

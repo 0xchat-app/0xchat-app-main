@@ -8,6 +8,7 @@ class ZapsHelper {
 
   static Future<Map<String, String>> getInvoice({
     required int sats,
+    required String recipient,
     required String otherLnurl,
     String? content,
     bool privateZap = false,
@@ -19,7 +20,6 @@ class ZapsHelper {
       'message': '',
     };
 
-    final recipient = CommonConstant.serverPubkey;
     final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey ?? '';
     final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
 
@@ -72,12 +72,12 @@ class ZapsHelper {
       return result;
     }
 
-    if (zapsDB.nostrPubkey == null || zapsDB.nostrPubkey!.isEmpty) {
+    if (zapsDB.nostrPubkey.isEmpty) {
       result['message'] = 'error nostrPubkey: ${zapsDB.nostrPubkey}';
       return result;
     }
 
-    result['zapper'] = zapsDB.nostrPubkey!;
+    result['zapper'] = zapsDB.nostrPubkey;
     result['invoice'] = invoice;
     return result;
   }

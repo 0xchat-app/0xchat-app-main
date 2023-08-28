@@ -546,7 +546,11 @@ class _DonatePageState extends State<DonatePage> {
     }
 
     OXLoading.show();
-    final result = await ZapsHelper.getInvoice(sats: sats.toInt(), otherLnurl: '0xchat@getalby.com');
+    final result = await ZapsHelper.getInvoice(
+      sats: sats.toInt(),
+      recipient: CommonConstant.serverPubkey,
+      otherLnurl: '0xchat@getalby.com',
+    );
     final invoice = result['invoice'] ?? '';
     final message = result['message'] ?? '';
     if (invoice.isNotEmpty) {

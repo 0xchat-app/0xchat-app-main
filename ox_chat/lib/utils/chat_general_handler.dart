@@ -103,12 +103,12 @@ class ChatGeneralHandler {
   Future loadMoreMessage(
       List<types.Message> originMessage, {
         List<types.Message>? allMessage,
-        int increasedCount = ChatPageConfig.messagesPerPage,
+        int? increasedCount = ChatPageConfig.messagesPerPage,
       }) async {
     final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
     var end = 0;
     if (originMessage.isEmpty) {
-      end = increasedCount;
+      end = increasedCount ?? ChatPageConfig.messagesPerPage;
     } else {
       // Find the index of the last message in all the messages.
       var index = -1;
@@ -120,14 +120,14 @@ class ChatGeneralHandler {
           break ;
         }
       }
-      end = index + 1 + increasedCount;
+      end = index + 1 + (increasedCount ?? 0);
     }
     hasMoreMessage = end < allMsg.length;
     refreshMessageUI(allMsg.sublist(0, min(allMsg.length, end)));
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
-    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: 0);
+    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: null);
   }
 }
 
@@ -188,7 +188,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     } else if (message is types.CustomMessage) {
       switch(message.customType) {
         case CustomMessageType.zaps:
-          await zapsMessagePressHandler(context, message.invoice, message.zapper);
+          await zapsMessagePressHandler(context, message);
           break ;
         default:
           break ;
@@ -196,9 +196,16 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future zapsMessagePressHandler(BuildContext context, String invoice, String zapper) async {
+  Future zapsMessagePressHandler(BuildContext context, types.CustomMessage message) async {
 
     OXLoading.show();
+
+    final senderPubkey = message.author.id;
+    final receiverPubkey = senderPubkey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
+        ? session.chatId ?? '' : senderPubkey;
+    final invoice = message.invoice;
+    final zapper = message.zapper;
+    final description = message.description;
 
     final requestInfo = Zaps.getPaymentRequestInfo(invoice);
 
@@ -214,11 +221,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final zapsDetail = ZapsRecordDetail(
       invoice: invoice,
-      amount: requestInfo.amount.toDouble() * 100000000,
-      fromPubKey: '',
-      toPubKey: zapsReceipt?.recipient,
-      zapsTime: (requestInfo.timestamp.toInt()).toString(),
-      description: zapsReceipt?.content,
+      amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
+      fromPubKey: senderPubkey,
+      toPubKey: receiverPubkey,
+      zapsTime: (requestInfo.timestamp.toInt() * 1000).toString(),
+      description: description,
+      isConfirmed: zapsReceipt != null,
     );
 
     OXUserCenterInterface.jumpToZapsRecordPage(context, zapsDetail);

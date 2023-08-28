@@ -207,6 +207,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
     final invokeResult = await OXUserCenterInterface.getInvoice(
       sats: amount,
+      recipient: widget.otherUser.pubKey,
       otherLnurl: lnurl,
       content: description,
       privateZap: true,
