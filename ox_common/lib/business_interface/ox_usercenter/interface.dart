@@ -16,6 +16,7 @@ class OXUserCenterInterface {
 
   static Future<Map<String, String>> getInvoice({
     required int sats,
+    required String recipient,
     required String otherLnurl,
     String? content,
     bool privateZap = false,
@@ -26,6 +27,7 @@ class OXUserCenterInterface {
       [],
       {
         #sats: sats,
+        #recipient: recipient,
         #otherLnurl: otherLnurl,
         #content: content,
         #privateZap: privateZap,
