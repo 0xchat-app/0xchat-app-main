@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:path/path.dart' as Path;
@@ -70,7 +71,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   @override
   void initState() {
     super.initState();
-    LogUtil.e('Michael: widget.communityItem.chatName =${widget.communityItem.chatName}');
     protectScreen();
     initSecretData();
     setupUser();
@@ -169,7 +169,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    LogUtil.e('Michael: secretSessionDB. _messages.length =${_messages.length}');
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
@@ -178,6 +177,32 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
         useLargeTitle: false,
         centerTitle: true,
         title: otherUser?.getUserShowName() ?? '',
+        titleWidget: Center(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: Adapt.px(2)),
+                child: CommonImage(
+                  iconName: 'icon_lock_secret.png',
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_chat',
+                ),
+              ),
+              SizedBox(width: Adapt.px(4),),
+              Text(
+                otherUser?.getUserShowName() ?? '',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(17),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
         backgroundColor: ThemeColor.color200,
         actions: [
           Container(

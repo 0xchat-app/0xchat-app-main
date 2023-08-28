@@ -122,7 +122,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                     ChatSessionModel item = _strangerSessionModelList[index];
                     return _buildItemView(item);
                   }, childCount: _strangerSessionModelList.length),
-                  itemExtent: 98),
+                  itemExtent: 106),
             ],
           ),
         ),
@@ -143,10 +143,10 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         );
       },
       child: Container(
-        height: Adapt.px(98),
-        margin: EdgeInsets.only(
-          left: Adapt.px(20),
-          right: Adapt.px(20),
+        height: Adapt.px(106),
+        margin: EdgeInsets.symmetric(
+          horizontal: Adapt.px(20),
+          vertical: Adapt.px(12),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -218,6 +218,9 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                 width: Adapt.px(16),
                 height: Adapt.px(16),
                 package: 'ox_chat',
+              ),
+              SizedBox(
+                width: Adapt.px(4),
               ),
               ShaderMask(
                 shaderCallback: (Rect bounds) {

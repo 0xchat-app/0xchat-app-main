@@ -525,10 +525,10 @@ class ChatState extends State<Chat> {
                 ),
               ),
               // if (_isImageViewVisible)
-              widget.customCenterWidget != null ? SafeArea(
-                child: Center(
-                  child: widget.customCenterWidget,
-                ),
+              widget.customCenterWidget != null ? Container(
+                margin: EdgeInsets.only(top: Adapt.screenH()/6),
+                alignment: Alignment.topCenter,
+                child: widget.customCenterWidget,
               ) :  SizedBox(),
             ],
           ),
