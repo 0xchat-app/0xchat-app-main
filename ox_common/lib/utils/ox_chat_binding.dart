@@ -183,17 +183,16 @@ class OXChatBinding {
     );
     if (messageDB.receiver != null && messageDB.receiver!.isNotEmpty) {
       //single chat
-      LogUtil.e('Michael: single chat messageDB.messageId =${messageDB.messageId}');
       String chatId = '';
       String? otherUserPubkey;
       if (secretSessionId == null) {
         if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey! &&
             messageDB.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
-          chatId = messageDB.sender! + messageDB.receiver!;
+          chatId = messageDB.sender!;
           otherUserPubkey = messageDB.sender;
         } else if (messageDB.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey! &&
             messageDB.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
-          chatId = messageDB.receiver! + messageDB.sender!;
+          chatId = messageDB.receiver!;
           otherUserPubkey = messageDB.receiver;
         } else {
           chatId = messageDB.sender!;
@@ -233,9 +232,8 @@ class OXChatBinding {
               sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
             }
           }
-          LogUtil.e('Michael: messageDB.createTime =${messageDB.createTime}');
-          LogUtil.e('Michael: sessionMap[chatId]!.createTime! =${sessionMap[chatId]!.createTime}');
-          if (messageDB.createTime! >= sessionMap[chatId]!.createTime! || messageDB.createTime! >= strangerSessionMap[chatId]!.createTime!) {
+          if ((sessionMap[chatId] != null && messageDB.createTime! >= sessionMap[chatId]!.createTime!)
+              || (strangerSessionMap[chatId] != null && messageDB.createTime! >= strangerSessionMap[chatId]!.createTime!)) {
             if (sessionModel.chatType == ChatType.chatSingle || sessionModel.chatType == ChatType.chatSecret) {
               sessionMap[chatId] = sessionModel;
             } else {
@@ -457,6 +455,7 @@ class OXChatBinding {
   }
 
   void addChatSession(ChatSessionModel strangerSessionModel) async {
+    //strangerSession to chatSession
     ChatSessionModel sessionModel = ChatSessionModel(
       chatId: strangerSessionModel.chatId,
       chatType: strangerSessionModel.chatType == 5 ? 3 : 1,
@@ -470,20 +469,13 @@ class OXChatBinding {
       sender: strangerSessionModel.sender,
       groupId: strangerSessionModel.groupId,
     );
+    strangerSessionMap.remove(sessionModel.chatId);
     sessionMap[strangerSessionModel.chatId!] = sessionModel;
     final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
     if (count > 0) {
+      strangerSessionUpdate();
       sessionUpdate();
     }
-  }
-
-  void setAllFriendRequestAsRead() async {
-    // await Future.forEach(historyList, (element) async {
-    //   element.isRead = 1;
-    //   await FriendRequestHistoryModel.saveFriendRequestToDB(element);
-    // });
-    // unReadFriendRequestCount = historyList.where((item) => item.isRead == 0).length;
-    // noticeFriendRequest();
   }
 
   void noticeFriendRequest() {
