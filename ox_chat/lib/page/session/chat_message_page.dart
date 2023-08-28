@@ -406,7 +406,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
 
-    return ;
     Contacts.sharedInstance.sendPrivateMessage(
       receiverPubkey,
       '',

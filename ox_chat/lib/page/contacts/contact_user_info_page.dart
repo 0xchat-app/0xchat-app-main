@@ -99,9 +99,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   bool _isInBlockList() {
-    var isblock =
-        Contacts.sharedInstance.inBlockList(widget.userDB.pubKey ?? '');
-    print('isblock====>$isblock');
     return Contacts.sharedInstance.inBlockList(widget.userDB.pubKey ?? '');
   }
 
@@ -441,16 +438,34 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           ),
         ),
       ),
-      onTap: () {
-        String pubKey = widget.userDB.pubKey ?? '';
-        if (isInBlocklist) {
-          Contacts.sharedInstance.removeBlockList(pubKey);
-        } else {
-          Contacts.sharedInstance.addToBlockList(pubKey);
-        }
-        setState(() {});
-      },
+      onTap: _blockOptionFn,
     );
+  }
+
+  void _blockOptionFn() {
+    String pubKey = widget.userDB.pubKey ?? '';
+    if (_isInBlockList()) {
+      Contacts.sharedInstance.removeBlockList(pubKey);
+    } else {
+      OXCommonHintDialog.show(context,
+          title: 'Block this user ?',
+          content:
+              'After blocking, you will no longer receive messages from them.',
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context, false);
+            }),
+            OXCommonHintAction.sure(
+                text: 'Conform',
+                onTap: () async {
+                  Contacts.sharedInstance.addToBlockList(pubKey);
+                  setState(() {});
+                  OXNavigator.pop(context, true);
+                }),
+          ],
+          isRowAction: true);
+    }
+
   }
 
   Future<void> _clickKey(String keyContent) async {
@@ -660,18 +675,33 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       return;
     }
     if (isFriend(widget.userDB.pubKey ?? '') == false) {
-      await OXLoading.show();
-      LogUtil.e(
-          'Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
-      final OKEvent okEvent =
-          await Contacts.sharedInstance.addToContact([widget.userDB.pubKey!]);
-      await OXLoading.dismiss();
-      if (okEvent.status) {
-        CommonToast.instance
-            .show(context, Localized.text('ox_chat.sent_successfully'));
-      } else {
-        CommonToast.instance.show(context, okEvent.message);
-      }
+      OXCommonHintDialog.show(context,
+          content:
+              'Add to private contacts?',
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context, false);
+            }),
+            OXCommonHintAction.sure(
+                text: 'Conform',
+                onTap: () async {
+                  await OXLoading.show();
+                  LogUtil.e(
+                      'Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
+                  final OKEvent okEvent = await Contacts.sharedInstance
+                      .addToContact([widget.userDB.pubKey!]);
+                  await OXLoading.dismiss();
+                  if (okEvent.status) {
+                    OXChatBinding.sharedInstance.contactUpdatedCallBack();
+                    CommonToast.instance.show(
+                        context, Localized.text('ox_chat.sent_successfully'));
+                  } else {
+                    CommonToast.instance.show(context, okEvent.message);
+                  }
+                  OXNavigator.pop(context, true);
+                }),
+          ],
+          isRowAction: true);
     }
   }
 
