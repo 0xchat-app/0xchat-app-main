@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -204,17 +205,15 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
     OXLoading.show();
 
-    final invokeResult = await OXModuleService.invoke<Future<Map<String, String>>>(
-      'ox_usercenter',
-      'getInvoice',
-      [],
-      {
-        #sats: amount,
-        #otherLnurl: lnurl,
-      },);
-    final zapper = invokeResult?['zapper'] ?? '';
-    final invoice = invokeResult?['invoice'] ?? '';
-    final message = invokeResult?['message'] ?? '';
+    final invokeResult = await OXUserCenterInterface.getInvoice(
+      sats: amount,
+      otherLnurl: lnurl,
+      content: description,
+      privateZap: true,
+    );
+    final zapper = invokeResult['zapper'] ?? '';
+    final invoice = invokeResult['invoice'] ?? '';
+    final message = invokeResult['message'] ?? '';
     OXLoading.dismiss();
 
     if (invoice.isEmpty || zapper.isEmpty) {

@@ -414,6 +414,11 @@ class _MessageState extends State<Message> {
 
     Widget bubble;
 
+    final useThemeBubbleBg = (currentUserIsAuthor
+        && widget.message.type != types.MessageType.image
+        && widget.message.type != types.MessageType.video)
+        || widget.message.type == types.MessageType.custom;
+
     if (widget.bubbleBuilder != null) {
       bubble = widget.bubbleBuilder!(
         _messageBuilder(context),
@@ -426,18 +431,14 @@ class _MessageState extends State<Message> {
       bubble = Container(
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          gradient: !currentUserIsAuthor ||
-              widget.message.type == types.MessageType.image ||
-              widget.message.type == types.MessageType.video
-              ? null
-              : LinearGradient(
+          gradient: useThemeBubbleBg ? LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
               ThemeColor.gradientMainEnd,
               ThemeColor.gradientMainStart
             ],
-          ),
+          ) : null,
           color: !currentUserIsAuthor ||
               widget.message.type == types.MessageType.image
               ? ThemeColor.color180

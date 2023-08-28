@@ -118,7 +118,7 @@ extension InputMoreItemEx on InputMoreItem {
         action: (context) {
           final user = otherUser;
           if (user == null) {
-            ChatLogUtils.error(className: 'ChatPageConfig', funcName: 'call', message: 'user is null');
+            ChatLogUtils.error(className: 'ChatPageConfig', funcName: 'zaps', message: 'user is null');
             CommonToast.instance.show(context, 'User info not found');
             return ;
           }

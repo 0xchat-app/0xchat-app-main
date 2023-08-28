@@ -6,7 +6,12 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class ZapsHelper {
 
-  static Future<Map<String, String>> getInvoice({required int sats, required String otherLnurl}) async {
+  static Future<Map<String, String>> getInvoice({
+    required int sats,
+    required String otherLnurl,
+    String? content,
+    bool privateZap = false,
+  }) async {
 
     final result = {
       'zapper': '',
@@ -46,7 +51,15 @@ class ZapsHelper {
         return result;
       }
     }
-    final resultMap = await Zaps.getInvoice(relayNameList, sats, otherLnurl, recipient, privkey);
+    final resultMap = await Zaps.getInvoice(
+      relayNameList,
+      sats,
+      otherLnurl,
+      recipient,
+      privkey,
+      content: content,
+      privateZap: privateZap,
+    );
     final invoice = resultMap['invoice'];
     final zapsDB = resultMap['zapsDB'];
     if (invoice is! String || invoice.isEmpty) {

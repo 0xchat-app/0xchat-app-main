@@ -26,7 +26,7 @@ class ZapsRecordPage extends StatelessWidget {
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
       ),
-      body: _buildBody(),
+      body: SingleChildScrollView(child: _buildBody()),
     );
   }
 
@@ -91,6 +91,7 @@ class ZapsRecordPage extends StatelessWidget {
         color: ThemeColor.color180,
       ),
       child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 0),
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
@@ -126,7 +127,7 @@ class ZapsRecordPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildItem('Description'),
+          _buildItem('Content'),
           Divider(
             height: Adapt.px(0.5),
             color: ThemeColor.color160,
@@ -144,7 +145,7 @@ class ZapsRecordPage extends StatelessWidget {
                         color: ThemeColor.color10),
                   )
                 : Text(
-                'No Description',
+                'No Content',
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     fontSize: Adapt.px(16),

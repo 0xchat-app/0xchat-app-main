@@ -207,18 +207,18 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       CommonToast.instance.show(context, 'privkey not found');
       return ;
     }
-    final zapReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
-    final zapReceipt = zapReceiptList.length > 0 ? zapReceiptList.first : null;
+    final zapsReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
+    final zapsReceipt = zapsReceiptList.length > 0 ? zapsReceiptList.first : null;
 
     OXLoading.dismiss();
 
     final zapsDetail = ZapsRecordDetail(
       invoice: invoice,
-      amount: requestInfo.amount.toDouble(),
+      amount: requestInfo.amount.toDouble() * 100000000,
       fromPubKey: '',
-      toPubKey: zapReceipt?.recipient,
-      zapsTime: requestInfo.timestamp.toString(),
-      description: zapReceipt?.description,
+      toPubKey: zapsReceipt?.recipient,
+      zapsTime: (requestInfo.timestamp.toInt()).toString(),
+      description: zapsReceipt?.content,
     );
 
     OXUserCenterInterface.jumpToZapsRecordPage(context, zapsDetail);
