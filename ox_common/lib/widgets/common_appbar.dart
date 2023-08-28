@@ -100,6 +100,7 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Color? backgroundColor;
   final Color? titleTextColor;
+  final Widget? titleWidget;
   final Widget? leading;
   final double elevation;
   final bool centerTitle;
@@ -116,6 +117,7 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.brightness,
     this.title = "",
     this.elevation = 0,
+    this.titleWidget,
     this.leading,
     this.actions,
     this.backgroundColor,
@@ -152,14 +154,14 @@ class BaseAppBarState extends State<CommonAppBar> {
       // brightness: _defaultBrightness(),
       title: widget.useLargeTitle || widget.useMediumTitle
           ? null
-          : Text(
-              widget.title,
-              style: TextStyle(
-                color: widget.titleTextColor ?? ThemeColor.color0,
-                fontSize: Adapt.px(17),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          : (widget.titleWidget ?? Text(
+        widget.title,
+        style: TextStyle(
+          color: widget.titleTextColor ?? ThemeColor.color0,
+          fontSize: Adapt.px(17),
+          fontWeight: FontWeight.bold,
+        ),
+      )),
       titleSpacing: widget.titleSpacing,
       backgroundColor: _defaultBackgroundColor(),
       centerTitle: widget.centerTitle,
