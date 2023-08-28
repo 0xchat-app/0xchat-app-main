@@ -201,9 +201,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _tabContainerView() {
-    if (!(!_isInBlockList() &&
-        Contacts.sharedInstance.allContacts[widget.userDB.pubKey] != null))
-      return Container();
+    if (!(!_isInBlockList())) return Container();
     return Container(
       padding: EdgeInsets.only(
         bottom: Adapt.px(16),

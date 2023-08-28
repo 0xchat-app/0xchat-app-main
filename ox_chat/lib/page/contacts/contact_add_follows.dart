@@ -217,8 +217,8 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
       picWidget = CachedNetworkImage(
         imageUrl: userInfo.db.picture ?? '',
         fit: BoxFit.contain,
-        // placeholder: (context, url) => _badgePlaceholderImage,
-        // errorWidget: (context, url, error) => _badgePlaceholderImage,
+        placeholder: (context, url) => _badgePlaceholderImage,
+        errorWidget: (context, url, error) => _badgePlaceholderImage,
         width: Adapt.px(40),
         height: Adapt.px(40),
       );
@@ -242,9 +242,16 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
         child: picWidget,
       ),
     );
-
     //
   }
+
+  Image _badgePlaceholderImage = Image.asset(
+    'assets/images/user_image.png',
+    fit: BoxFit.cover,
+    width: Adapt.px(32),
+    height: Adapt.px(32),
+    package: 'ox_common',
+  );
 
   Widget _followsUserInfoWidget(DiyUserDB userInfo) {
     UserDB userDB = userInfo.db;
@@ -255,7 +262,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     String encodedPubKey = userDB.encodedPubkey ?? '';
     int pubKeyLength = encodedPubKey.length;
     String encodedPubKeyShow =
-        '${encodedPubKey.substring(0, 7)}...${encodedPubKey.substring(pubKeyLength - 4, pubKeyLength)}';
+        '${encodedPubKey.substring(0, 10)}...${encodedPubKey.substring(pubKeyLength - 10, pubKeyLength)}';
 
     return Container(
       padding: EdgeInsets.only(

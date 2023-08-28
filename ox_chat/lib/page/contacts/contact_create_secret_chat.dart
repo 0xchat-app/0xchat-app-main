@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+
+import '../session/chat_secret_message_page.dart';
 
 class ContactCreateSecret extends StatefulWidget {
   final UserDB userDB;
@@ -305,17 +308,21 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       chatRelay = inputText;
     }
 
-    String decodePubKey = UserDB.decodePubkey(widget.userDB.pubKey ?? '') ?? '';
-
     OKEvent event =
-        await Contacts.sharedInstance.request(decodePubKey, chatRelay);
-
+        await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
     SecretSessionDB? db =
         Contacts.sharedInstance.secretSessionMap[event.eventId];
-
     if (db != null) {
       ChatSessionModel? chatModel =
           await OXChatBinding.sharedInstance.localCreateSecretChat(db);
+      if(chatModel != null){
+        OXNavigator.pushPage(
+          context,
+              (context) => ChatSecretMessagePage(
+            communityItem: chatModel
+          )
+        );
+      }
     }
   }
 
