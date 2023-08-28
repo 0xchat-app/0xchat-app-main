@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/widget/rich_text_color.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -58,7 +59,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
             height: Adapt.px(12),
           ),
           Container(
-            height: Adapt.px(119),
+            height: Adapt.px(130),
             child: SingleChildScrollView(
               child: RichTextColor(
                 text: Localized.text('ox_chat.str_secret_center_hint'),
@@ -77,6 +78,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
           Container(
             width: double.infinity,
             height: Adapt.px(1),
+            alignment: Alignment.bottomLeft,
             color: ThemeColor.color200,
           ),
           Container(
@@ -91,6 +93,9 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
                   width: Adapt.px(24),
                   height: Adapt.px(24),
                   package: 'ox_chat',
+                ),
+                SizedBox(
+                  width: Adapt.px(8),
                 ),
                 Text(
                   _ssDB?.relay ?? 'wss://relay.0xchat.com',

@@ -16,6 +16,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -111,6 +112,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         context,
         Container(
           child: CustomScrollView(
+            physics: ClampingScrollPhysics(),
             slivers: [
               SliverFixedExtentList(
                   delegate: SliverChildBuilderDelegate((context, index) {
@@ -132,6 +134,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
+        _setAllRead(item);
         OXNavigator.pushPage(
           context,
           (context) => ChatSecretMessagePage(
@@ -285,7 +288,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Widget _buildAvatar(ChatSessionModel reqModel) {
+  Widget _buildAvatar(ChatSessionModel item) {
     Image _placeholderImage = Image.asset(
       'assets/images/user_image.png',
       fit: BoxFit.cover,
@@ -294,10 +297,11 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
       package: 'ox_chat',
     );
     return InkWell(
+      highlightColor: Colors.transparent,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Adapt.px(60)),
         child: CachedNetworkImage(
-          imageUrl: reqModel.avatar ?? '',
+          imageUrl: item.avatar ?? '',
           fit: BoxFit.cover,
           placeholder: (context, url) => _placeholderImage,
           errorWidget: (context, url, error) => _placeholderImage,
@@ -306,7 +310,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         ),
       ),
       onTap: () async {
-        UserDB? userDB = await Account.getUserFromDB(pubkey: reqModel.chatId!);
+        UserDB? userDB = await Account.getUserFromDB(pubkey: item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender!: item.receiver!);
         if (userDB == null) {
           CommonToast.instance.show(context, 'Unknown error about the user.');
           return;
@@ -414,32 +418,65 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
+  void _setAllRead(ChatSessionModel item) {
+    setState(() {
+      item.unreadCount = 0;
+    });
+    OXChatBinding.sharedInstance.updateSession(item);
+  }
+
   void _confirmOnTap(ChatSessionModel item) async {
-    await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.chatId!]);
-    await OXLoading.dismiss();
-    if (okEvent.status) {
-      ///local add contact，notice others page refresh
-      OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      OXChatBinding.sharedInstance.addChatSession(item);
-      CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
-      setState(() {});
-    } else {
-      CommonToast.instance.show(context, okEvent.message);
-    }
+    OXCommonHintDialog.show(context,
+        content: 'Add to private contacts?',
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                await OXLoading.show();
+                String pubkey = (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender: item.receiver) ?? '';
+                final OKEvent okEvent = await Contacts.sharedInstance.addToContact([pubkey]);
+                await OXLoading.dismiss();
+                if (okEvent.status) {
+                  OXChatBinding.sharedInstance.contactUpdatedCallBack();
+                  OXChatBinding.sharedInstance.addChatSession(item);
+                  CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
+                  OXNavigator.pop(context);
+                  setState(() {});
+                } else {
+                  CommonToast.instance.show(context, okEvent.message);
+                }
+              }),
+        ],
+        isRowAction: true);
   }
 
   void _blockOnTap(ChatSessionModel item) async {
-    await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
-    await OXLoading.dismiss();
-    if (okEvent.status) {
-      OXChatBinding.sharedInstance.deleteSession(item);
-      CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
-      setState(() {});
-    } else {
-      CommonToast.instance.show(context, okEvent.message);
-    }
+    OXCommonHintDialog.show(context,
+        content: 'Block this user?\nAfter blocking, you will no longer receive messages from them.',
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                await OXLoading.show();
+                final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
+                await OXLoading.dismiss();
+                if (okEvent.status) {
+                  OXChatBinding.sharedInstance.deleteSession(item);
+                  CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
+                  OXNavigator.pop(context);
+                  setState(() {});
+                } else {
+                  CommonToast.instance.show(context, okEvent.message);
+                }
+              }),
+        ],
+        isRowAction: true);
   }
 
   @override
