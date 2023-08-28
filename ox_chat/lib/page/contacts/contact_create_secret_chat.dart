@@ -301,13 +301,15 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       return;
     }
 
-    if (inputText.isNotEmpty && !_isWssWithValidURL(_relayTextFieldController.text)) {
+    if(inputText.isNotEmpty){
+      if(!_isWssWithValidURL(_relayTextFieldController.text)){
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
-    }else{
+      }
       chatRelay = inputText;
     }
 
+  print('=====chatRelay====>$chatRelay');
     OKEvent event =
         await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
     SecretSessionDB? db =
