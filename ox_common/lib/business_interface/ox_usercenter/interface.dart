@@ -13,4 +13,22 @@ class OXUserCenterInterface {
       'zapsDetail': detail,
     });
   }
+
+  static Future<Map<String, String>> getInvoice({
+    required int sats,
+    required String otherLnurl,
+    String? content,
+    bool privateZap = false,
+  }) async {
+    return await OXModuleService.invoke<Future<Map<String, String>>>(
+      'ox_usercenter',
+      'getInvoice',
+      [],
+      {
+        #sats: sats,
+        #otherLnurl: otherLnurl,
+        #content: content,
+        #privateZap: privateZap,
+      },) ?? {};
+  }
 }
