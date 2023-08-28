@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -115,7 +116,7 @@ class ZapsRecordPage extends StatelessWidget {
   }
 
   Widget _buildDescription(){
-    String donationDesc = zapsRecordDetail.donationDesc ?? '';
+    String description = zapsRecordDetail.description ?? '';
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
@@ -131,9 +132,9 @@ class ZapsRecordPage extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.all(Adapt.px(16)),
-            child: donationDesc.isNotEmpty
+            child: description.isNotEmpty
                 ? Text(
-                    donationDesc,
+                    description,
                     textAlign: TextAlign.left,
                     style: TextStyle(
                         fontSize: Adapt.px(16),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';

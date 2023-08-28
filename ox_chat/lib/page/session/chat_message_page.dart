@@ -83,7 +83,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
-      id: userDB!.pubKey!,
+      id: userDB!.pubKey,
       sourceObject: userDB,
     );
 

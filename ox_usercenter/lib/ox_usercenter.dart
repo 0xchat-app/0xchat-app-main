@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -13,6 +14,7 @@ import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
+import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/utils/zaps_helper.dart';
@@ -31,7 +33,7 @@ class OXUserCenter extends OXFlutterModule {
 
   @override
   // TODO: implement moduleName
-  String get moduleName => 'ox_usercenter';
+  String get moduleName => OXUserCenterInterface.moduleName;
 
   @override
   Map<String, Function> get interfaces => {
@@ -70,6 +72,9 @@ class OXUserCenter extends OXFlutterModule {
                 walletOnPress: walletOnPress,
               );
             });
+      case 'ZapsRecordPage':
+        final zapsDetail = params?['zapsDetail'];
+        return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
     }
     return null;
   }
