@@ -36,6 +36,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:screen_protector/screen_protector.dart';
 
 class ChatSecretMessagePage extends StatefulWidget {
   final ChatSessionModel communityItem;
@@ -70,11 +71,35 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   void initState() {
     super.initState();
     LogUtil.e('Michael: widget.communityItem.chatName =${widget.communityItem.chatName}');
+    protectScreen();
     initSecretData();
     setupUser();
     setupChatGeneralHandler();
     prepareData();
     addListener();
+  }
+
+  @override
+  void dispose() {
+    ChatDataCache.shared.removeObserver(widget.communityItem);
+    disProtectScreen();
+    super.dispose();
+  }
+
+  void protectScreen() async {
+    if (Platform.isAndroid) {
+      await ScreenProtector.protectDataLeakageOn();
+    } else if (Platform.isIOS) {
+      await ScreenProtector.preventScreenshotOn();
+    }
+  }
+
+  void disProtectScreen() async {
+    if (Platform.isAndroid) {
+      await ScreenProtector.protectDataLeakageOff();
+    } else if (Platform.isIOS) {
+      await ScreenProtector.preventScreenshotOff();
+    }
   }
 
   void initSecretData() {
@@ -143,12 +168,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   }
 
   @override
-  void dispose() {
-    ChatDataCache.shared.removeObserver(widget.communityItem);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     LogUtil.e('Michael: secretSessionDB. _messages.length =${_messages.length}');
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
@@ -211,7 +230,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customTopWidget: NotContactTopWidget(chatSessionModel: widget.communityItem),
         customCenterWidget: _messages.length > 0 ? SizedBox() : SecretHintWidget(chatSessionModel: widget.communityItem),
-        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status ==2 ) ? SizedBox() : customBottomWidget(),
+        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? SizedBox() : customBottomWidget(),
       ),
     );
   }
@@ -452,8 +471,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
                                         widget.communityItem,
                                         isStranger: toPubkeyUserDB == null,
                                       );
-                                      OXNavigator.pop(context);//pop dialog
-                                      OXNavigator.pop(context);//pop page
+                                      OXNavigator.pop(context); //pop dialog
+                                      OXNavigator.pop(context); //pop page
                                     } else {
                                       CommonToast.instance.show(context, okEvent.message);
                                     }
@@ -478,7 +497,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
                         if (okEvent.status) {
                           OXChatBinding.sharedInstance.updateChatSession(
                             widget.communityItem.chatId!,
-                            content: "Chatbox Prompt: You have accepted [${otherUser?.name??''}]'s secret chat request.",
+                            content: "Chatbox Prompt: You have accepted [${otherUser?.name ?? ''}]'s secret chat request.",
                           );
                           _secretSessionDB!.status = 2;
                           setState(() {});
