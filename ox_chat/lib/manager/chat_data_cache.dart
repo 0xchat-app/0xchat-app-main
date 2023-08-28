@@ -250,7 +250,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
       orderBy: "createTime desc",
     );
-    return sessionList.where((session) => session.chatType == ChatType.chatSingle).toList();
+    return sessionList.where((session) => (session.chatType == ChatType.chatSingle || session.chatType == ChatType.chatSecret || session.chatType == ChatType.chatSecretStranger || session.chatType == ChatType.chatStranger)).toList();
   }
 
   Future<List<ChatSessionModel>> _channelSessionList() async {
