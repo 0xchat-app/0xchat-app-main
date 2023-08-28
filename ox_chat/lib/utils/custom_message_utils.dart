@@ -56,7 +56,8 @@ extension CustomMessageEx on types.CustomMessage {
 }
 
 extension ZapsMessageEx on types.CustomMessage {
+  String get zapper => metadata?['content']?['zapper'] ?? '';
+  String get invoice => metadata?['content']?['invoice'] ?? '';
   int get amount => int.tryParse(metadata?['content']?['amount'] ?? '') ?? 0;
   String get description => metadata?['content']?['description'] ?? '';
-  String get invoice => metadata?['content']?['invoice'] ?? '';
 }

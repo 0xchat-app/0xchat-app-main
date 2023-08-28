@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -54,7 +56,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
   @override
   void initState() {
     super.initState();
-
     setupUser();
     setupChatGeneralHandler();
     prepareData();
@@ -82,13 +83,16 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
-      id: userDB!.pubKey!,
+      id: userDB!.pubKey,
       sourceObject: userDB,
     );
 
     () async {
       // Other
-      final pubkeys = widget.communityItem.chatId ?? '';
+      var pubkeys = widget.communityItem.chatId ?? '';
+      if(widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger){
+        pubkeys = (widget.communityItem.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? widget.communityItem.sender : widget.communityItem.receiver) ?? '';
+      }
       otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
       setState(() { });
     }();

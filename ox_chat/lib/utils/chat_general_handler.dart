@@ -16,6 +16,8 @@ import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
+import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
@@ -186,7 +188,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     } else if (message is types.CustomMessage) {
       switch(message.customType) {
         case CustomMessageType.zaps:
-          await zapsMessagePressHandler();
+          await zapsMessagePressHandler(context, message.invoice, message.zapper);
           break ;
         default:
           break ;
@@ -194,8 +196,32 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future zapsMessagePressHandler() async {
-    
+  Future zapsMessagePressHandler(BuildContext context, String invoice, String zapper) async {
+
+    OXLoading.show();
+
+    final requestInfo = Zaps.getPaymentRequestInfo(invoice);
+
+    final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
+    if (privkey == null || privkey.isEmpty) {
+      CommonToast.instance.show(context, 'privkey not found');
+      return ;
+    }
+    final zapReceiptList = await Zaps.getZapReceipt(zapper, privkey);
+    final zapReceipt = zapReceiptList.length > 0 ? zapReceiptList.first : null;
+
+    OXLoading.dismiss();
+
+    final zapsDetail = ZapsRecordDetail(
+      invoice: invoice,
+      amount: requestInfo.amount.toDouble(),
+      fromPubKey: '',
+      toPubKey: zapReceipt?.recipient,
+      zapsTime: requestInfo.timestamp.toString(),
+      description: zapReceipt?.description,
+    );
+
+    OXUserCenterInterface.jumpToZapsRecordPage(context, zapsDetail);
   }
 }
 
