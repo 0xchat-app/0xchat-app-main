@@ -207,7 +207,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       CommonToast.instance.show(context, 'privkey not found');
       return ;
     }
-    final zapReceiptList = await Zaps.getZapReceipt(zapper, privkey);
+    final zapReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
     final zapReceipt = zapReceiptList.length > 0 ? zapReceiptList.first : null;
 
     OXLoading.dismiss();

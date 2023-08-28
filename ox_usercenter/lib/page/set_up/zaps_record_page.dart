@@ -4,6 +4,7 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -61,12 +62,13 @@ class ZapsRecordPage extends StatelessWidget {
               fontWeight: FontWeight.w400,
               color: ThemeColor.color100,
             ),
-          ),
+          ).setPadding(EdgeInsets.only(right: Adapt.px(16))),
           Expanded(
             child: Container(
               alignment: Alignment.centerRight,
               child: Text(
                 value ?? '',
+                maxLines: 1,
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   fontWeight: FontWeight.w400,
@@ -156,8 +158,9 @@ class ZapsRecordPage extends StatelessWidget {
   }
 
   String _formatString(String value){
-    if(value.length > 60){
-      return value.substring(0,11) + '...' + value.substring(60);
+    const halfMaxLength = 15;
+    if(value.length > halfMaxLength * 2) {
+      return value.substring(0, halfMaxLength - 2) + '...' + value.substring(value.length - halfMaxLength + 2);
     }
     return value;
   }
