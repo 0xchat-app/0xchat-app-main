@@ -37,6 +37,7 @@ import 'package:ox_common/widgets/common_scan_page.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/highlighted_clickable_text.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -164,6 +165,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   onThemeStyleChange() {
     if (mounted) setState(() {});
+  }
+
+  void privateChatMessageCallBack(MessageDB message){
+    _privatePromptTone(message);
+  }
+
+  void didChannalMessageCallBack(MessageDB messageDB){
+    _channalPromptTone(messageDB);
   }
 
   @override
@@ -1025,6 +1034,28 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               OXNavigator.pop(context);
             }),
       ]);
+    }
+  }
+
+  void _privatePromptTone(MessageDB message) async {
+    bool isMute = false;
+    UserDB? tempUserDB = await Account.getUserFromDB(pubkey: message.sender!);
+    if (tempUserDB != null) {
+      isMute = tempUserDB.mute ?? false;
+    }
+    if(!isMute){
+      PromptToneManager.sharedInstance.play();
+    }
+  }
+
+  void _channalPromptTone(MessageDB message) async {
+    bool isMute = false;
+    ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
+    if (channelDB != null) {
+      isMute = channelDB.mute ?? false;
+    }
+    if(!isMute){
+      PromptToneManager.sharedInstance.play();
     }
   }
 }
