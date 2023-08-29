@@ -10,8 +10,9 @@ class ZapsRecordDetail {
   final String description;
   final bool isConfirmed;
 
-  Map<String, String> get zapsRecordAttributes => <String, String>{
+  Map<String, dynamic> get zapsRecordAttributes => <String, dynamic>{
     'Zaps': '+$amount',
+    'Status': isConfirmed,
     'Invoice': invoice,
     'From': fromPubKey,
     'To': toPubKey,
