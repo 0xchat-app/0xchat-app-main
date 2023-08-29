@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -126,9 +126,25 @@ class OXChatBinding {
       case MessageType.encryptedFile:
         return '[file]';
       case MessageType.template:
-        return 'template';
+        final decryptContent = messageDB.decryptContent;
+        if (decryptContent != null && decryptContent.isNotEmpty) {
+          try {
+            final decryptedContent = json.decode(decryptContent);
+            if (decryptedContent is Map) {
+              final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
+              switch (type) {
+                case CustomMessageType.zaps:
+                  return '[zaps]';
+                default:
+                  break ;
+              }
+            }
+          } catch (_) { }
+        }
+
+        return '[template]';
       default:
-        return 'unknown';
+        return '[unknown]';
     }
   }
 
