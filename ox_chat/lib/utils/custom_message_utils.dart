@@ -1,29 +1,7 @@
 
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-
-enum CustomMessageType {
-  zaps,
-}
-
-extension CustomMessageTypeEx on CustomMessageType {
-  String get value {
-    switch (this) {
-      case CustomMessageType.zaps:
-        return '1';
-      default:
-        return '-1';
-    }
-  }
-
-  static CustomMessageType? fromValue(dynamic value) {
-    try {
-      return CustomMessageType.values.firstWhere((e) => e.value == value);
-    } catch(e) {
-      return null;
-    }
-  }
-}
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 
 extension CustomMessageEx on types.CustomMessage {
   CustomMessageType? get customType =>

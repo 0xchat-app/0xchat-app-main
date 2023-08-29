@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 
