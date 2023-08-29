@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_manager_models.dart';
@@ -11,6 +12,7 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class ChatDataCache with OXChatObserver {
 
@@ -21,7 +23,7 @@ class ChatDataCache with OXChatObserver {
     initTimer();
   }
 
-  Completer<Map<PrivateChatKey, List<types.Message>>> _privateChatMessageMap = Completer();
+  Completer<Map<ChatTypeKey, List<types.Message>>> _privateChatMessageMap = Completer();
 
   Completer<Map<ChannelKey, List<types.Message>>> _channelMessageMap = Completer();
 
@@ -64,17 +66,17 @@ class ChatDataCache with OXChatObserver {
   }
 
   Future<List<types.Message>> _getPrivateChatMessage(ChatSessionModel session) async {
-    var privateChatKey = _convertSessionToPrivateChatKey(session);
+    final privateChatKey = _getChatTypeKey(session);
     if (privateChatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getPrivateChatMessage', message: 'privateChatKey is null');
       return [];
     }
-    Map<PrivateChatKey, List<types.Message>> messageMap = await _privateChatMessageMap.future;
+    final messageMap = await _privateChatMessageMap.future;
     return messageMap[privateChatKey] ?? [];
   }
 
   Future<List<types.Message>> _getChannelMessage(ChatSessionModel session) async {
-    var channelKey = _convertSessionToChannelKey(session);
+    final channelKey = _getChatTypeKey(session);
     if (channelKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getChannelMessage', message: 'channelKey is null');
       return [];
@@ -92,8 +94,8 @@ class ChatDataCache with OXChatObserver {
       message: 'begin',
     );
 
-    var senderId = message.sender;
-    var receiverId = message.receiver;
+    final senderId = message.sender;
+    final receiverId = message.receiver;
     if (senderId == null || receiverId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -115,7 +117,7 @@ class ChatDataCache with OXChatObserver {
 
   @override
   void didChannalMessageCallBack(MessageDB message) async {
-    var groupId = message.groupId;
+    final groupId = message.groupId;
     if (groupId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -134,14 +136,64 @@ class ChatDataCache with OXChatObserver {
 
     await _addChannelMessages(key, msg);
   }
+
+  @override
+  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) async {
+    final toPubkey = ssDB.toPubkey ?? '';
+    final sessionModel = OXChatBinding.sharedInstance.sessionMap[ssDB.sessionId];
+    if (sessionModel == null || toPubkey.isEmpty) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didSecretChatAcceptCallBack',
+        message: 'sessionModel: $sessionModel, toPubkey: $toPubkey',
+      );
+      return ;
+    }
+    final toUser = await ChatUserCache.shared.getUserDB(toPubkey);
+    final userName = toUser.getUserShowName();
+    addSystemMessage('$userName joined Secret Chat', sessionModel);
+  }
+
+  Future addSystemMessage(String text, ChatSessionModel session) async {
+
+    // author
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userDB == null) {
+      return ;
+    }
+    final author = types.User(
+      id: userDB.pubKey,
+      sourceObject: userDB,
+    );
+
+    // create time
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    // id
+    String message_id = const Uuid().v4();
+
+    final message = types.SystemMessage(
+      author: author,
+      createdAt: tempCreateTime,
+      id: message_id,
+      roomId: session.chatId,
+      text: text,
+    );
+
+    addNewMessage(session, message);
+  }
 }
 
 extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
   Future<void> addNewMessage(ChatSessionModel session, types.Message message) async {
-    var key = _getChatTypeKey(session);
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'ChatTypeKey is null');
+      return ;
+    }
+
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey) {
+    if (key is PrivateChatKey || key is SecretChatKey) {
       await _addPrivateChatMessages(key, message);
     } else if (key is ChannelKey) {
       await _addChannelMessages(key, message);
@@ -151,9 +203,14 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
   }
 
   Future<void> deleteMessage(ChatSessionModel session, types.Message message) async {
-    var key = _getChatTypeKey(session);
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'ChatTypeKey is null');
+      return ;
+    }
+
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey) {
+    if (key is PrivateChatKey || key is SecretChatKey) {
       await _removePrivateChatMessages(key, message);
       await notifyPrivateChatObserverValueChanged(key);
     } else if (key is ChannelKey) {
@@ -165,9 +222,14 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
   }
 
   Future<void> resendMessage(ChatSessionModel session, types.Message message) async {
-    var key = _getChatTypeKey(session);
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'resendMessage', message: 'ChatTypeKey is null');
+      return ;
+    }
+
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'resendMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey) {
+    if (key is PrivateChatKey || key is SecretChatKey) {
       await _removePrivateChatMessages(key, message);
       await _addPrivateChatMessages(key, message);
       await notifyPrivateChatObserverValueChanged(key);
@@ -181,8 +243,13 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
   }
 
   Future<void> updateMessage(ChatSessionModel session, types.Message message) async {
-    var key = _getChatTypeKey(session);
-    if (key is PrivateChatKey) {
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
+      return ;
+    }
+
+    if (key is PrivateChatKey || key is SecretChatKey) {
       await _updatePrivateChatMessages(key, message);
       await notifyPrivateChatObserverValueChanged(key);
     } else if (key is ChannelKey) {
@@ -196,7 +263,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
 extension ChatDataCacheObserverEx on ChatDataCache {
   void addObserver(ChatSessionModel session, ValueChanged<List<types.Message>> valueChangedCallback) {
-    var key = _getChatTypeKey(session);
+    final key = _getChatTypeKey(session);
     if (key != null) {
       _valueChangedCallback[key] = valueChangedCallback;
     } else {
@@ -205,7 +272,7 @@ extension ChatDataCacheObserverEx on ChatDataCache {
   }
 
   void removeObserver(ChatSessionModel session) {
-    var key = _getChatTypeKey(session);
+    final key = _getChatTypeKey(session);
     if (key != null) {
       _valueChangedCallback.remove(key);
     } else {
@@ -217,7 +284,7 @@ extension ChatDataCacheObserverEx on ChatDataCache {
     final valueChangedCallback = _valueChangedCallback;
     valueChangedCallback.forEach((key, callback) async {
       List<types.Message> messages = [];
-      if (key is PrivateChatKey) {
+      if (key is PrivateChatKey || key is SecretChatKey) {
         messages = (await _privateChatMessageMap.future)[key] ?? [];
       } else if (key is ChannelKey) {
         messages = (await _channelMessageMap.future)[key] ?? [];
@@ -226,20 +293,20 @@ extension ChatDataCacheObserverEx on ChatDataCache {
     });
   }
 
-  Future<void> notifyPrivateChatObserverValueChanged(PrivateChatKey key) async {
-    var callback = _valueChangedCallback[key];
+  Future<void> notifyPrivateChatObserverValueChanged(ChatTypeKey key) async {
+    final callback = _valueChangedCallback[key];
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyPrivateChatObserverValueChanged', message: 'callback: $callback');
     if (callback != null) {
-      var messages = (await _privateChatMessageMap.future)[key] ?? [];
+      final messages = (await _privateChatMessageMap.future)[key] ?? [];
       callback(messages);
     }
   }
 
   Future<void> notifyChannelObserverValueChanged(ChannelKey key) async {
-    var callback = _valueChangedCallback[key];
+    final callback = _valueChangedCallback[key];
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChannelObserverValueChanged', message: 'key: $key, callback: $callback');
     if (callback != null) {
-      var messages = (await _channelMessageMap.future)[key] ?? [];
+      final messages = (await _channelMessageMap.future)[key] ?? [];
       callback(messages);
     }
   }
@@ -260,9 +327,9 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return sessionList.where((session) => session.chatType == ChatType.chatChannel).toList();
   }
 
-  PrivateChatKey? _convertSessionToPrivateChatKey(ChatSessionModel session) {
-    var senderId = session.sender;
-    var receiverId = session.receiver;
+  ChatTypeKey? _convertSessionToPrivateChatKey(ChatSessionModel session) {
+    final senderId = session.sender;
+    final receiverId = session.receiver;
     if (senderId == null || receiverId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -275,12 +342,21 @@ extension ChatDataCacheSessionEx on ChatDataCache {
   }
 
   ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
-    var groupId = session.groupId;
+    final groupId = session.groupId;
     if (groupId == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'groupId is null');
       return null;
     }
     return ChannelKey(groupId);
+  }
+
+  ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModel session) {
+    final sessionId = session.chatId;
+    if (sessionId == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToSecretChatKey', message: 'session is null');
+      return null;
+    }
+    return SecretChatKey(sessionId);
   }
 
   Future setSessionAllMessageIsRead(ChatSessionModel session) async {
@@ -298,9 +374,9 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
 
   Future<void> _setupPrivateChatMessages() async {
     List<ChatSessionModel> sessionList = await _privateChatSessionList();
-    Map<PrivateChatKey, List<types.Message>> privateChatMessagesMap = {};
+    Map<ChatTypeKey, List<types.Message>> privateChatMessagesMap = {};
     await Future.forEach(sessionList, (session) async {
-      PrivateChatKey? key = _convertSessionToPrivateChatKey(session);
+      final key = _getChatTypeKey(session);
       if (key == null) {
         ChatLogUtils.error(className: 'ChatDataCache', funcName: '_setupPrivateChatMessages', message: 'privateChatKey is null');
         return ;
@@ -321,7 +397,7 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
   }
 
   Future<List<types.Message>> _loadPrivateChatMessages(
-      PrivateChatKey key) async {
+      ChatTypeKey key) async {
     final Map<dynamic, dynamic> tempMap = await Messages.loadMessagesFromDB(
       where: key.getSQLFilter(),
       whereArgs: key.getSQLFilterArgs(),
@@ -342,7 +418,7 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
         types.Message>().toList();
   }
 
-  Future<void> _addPrivateChatMessages(PrivateChatKey key, types.Message message) async {
+  Future<void> _addPrivateChatMessages(ChatTypeKey key, types.Message message) async {
 
     ChatLogUtils.info(
       className: 'ChatDataCache',
@@ -350,7 +426,7 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
       message: 'begin',
     );
 
-    Map<PrivateChatKey, List<types.Message>> messageMap = await _privateChatMessageMap.future;
+    final messageMap = await _privateChatMessageMap.future;
 
     if (!messageIdCache.add(message.id)) return ;
 
@@ -366,9 +442,9 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
     tryAddUnknownPubkey([message]);
   }
 
-  Future _removePrivateChatMessages(PrivateChatKey key, types.Message message) async {
+  Future _removePrivateChatMessages(ChatTypeKey key, types.Message message) async {
 
-    Map<PrivateChatKey, List<types.Message>> messageMap = await _privateChatMessageMap.future;
+    final messageMap = await _privateChatMessageMap.future;
     _privateChatMessageMap = Completer();
 
     List<types.Message> messageList = _removeMessageFromList(messageMap[key], message);
@@ -377,9 +453,9 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
     _privateChatMessageMap.complete(messageMap);
   }
 
-  Future<void> _updatePrivateChatMessages(PrivateChatKey key, types.Message message) async {
+  Future<void> _updatePrivateChatMessages(ChatTypeKey key, types.Message message) async {
 
-    Map<PrivateChatKey, List<types.Message>> messageMap = await _privateChatMessageMap.future;
+    final messageMap = await _privateChatMessageMap.future;
     _privateChatMessageMap = Completer();
 
     List<types.Message> messageList = _updateMessageToList(messageMap[key], message);
@@ -485,13 +561,20 @@ extension ChatDataCacheChannelEx on ChatDataCache {
 extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
   ChatTypeKey? _getChatTypeKey(ChatSessionModel session) {
-    if (session.chatType == ChatType.chatSingle) {
-      return _convertSessionToPrivateChatKey(session);
-    } else if (session.chatType == ChatType.chatChannel) {
-      return _convertSessionToChannelKey(session);
+    final chatType = session.chatType;
+    switch (chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+        return _convertSessionToPrivateChatKey(session);
+      case ChatType.chatChannel:
+        return _convertSessionToChannelKey(session);
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+        return _convertSessionToSecretChatKey(session);
+      default:
+        ChatLogUtils.error(className: 'ChatDataCache', funcName: '_getChatTypeKey', message: 'unknown chatType');
+        return null;
     }
-    ChatLogUtils.error(className: 'ChatDataCache', funcName: '_getChatTypeKey', message: 'unknown chatType');
-    return null;
   }
 
   List<types.Message> _addMessageToList(List<types.Message>? messageList, types.Message newMessage) {
@@ -504,8 +587,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
     // If newMessage is the latest message
     if (messageList.length > 0) {
-      var firstMsgTime = messageList.first.createdAt;
-      var newMsgTime = newMessage.createdAt;
+      final firstMsgTime = messageList.first.createdAt;
+      final newMsgTime = newMessage.createdAt;
       if (firstMsgTime < newMsgTime) {
         messageList.insert(0, newMessage);
         return messageList;
@@ -515,8 +598,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     // Add message and sort the message list
     messageList.insert(0, newMessage);
     messageList.sort((msg1, msg2) {
-      var msg1CreatedTime = msg1.createdAt;
-      var msg2CreatedTime = msg2.createdAt;
+      final msg1CreatedTime = msg1.createdAt;
+      final msg2CreatedTime = msg2.createdAt;
       return msg2CreatedTime.compareTo(msg1CreatedTime);
     });
 
@@ -531,7 +614,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       return [];
     }
 
-    var index = messageList.indexWhere((msg) => msg.id == message.id);
+    final index = messageList.indexWhere((msg) => msg.id == message.id);
     if (index >= 0 && index < messageList.length) {
       messageList.removeAt(index);
     }
@@ -545,7 +628,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       return [];
     }
 
-    var index = messageList.indexWhere((msg) => msg.id == newMessage.id);
+    final index = messageList.indexWhere((msg) => msg.id == newMessage.id);
     if (index >= 0) {
       messageList.replaceRange(index, index + 1, [newMessage]);
     }
@@ -565,7 +648,7 @@ extension ChatDataCacheSyncUserInfoEx on ChatDataCache {
       if (userUpdateTime != 0) return ;
       if (pubkey.isEmpty || unknownUserPubkeyCache.contains(pubkey)) return ;
 
-      var messageList = unknownMessageMap[pubkey] ?? [];
+      final messageList = unknownMessageMap[pubkey] ?? [];
       messageList.add(msg);
       unknownMessageMap[pubkey] = messageList;
 
