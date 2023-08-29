@@ -23,6 +23,8 @@ abstract class OXChatObserver {
 
   void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
 
+  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
+
   void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
 
   void didContactUpdatedCallBack() {}
@@ -228,7 +230,11 @@ class OXChatBinding {
         if (sessionMap[chatId] != null || strangerSessionMap[chatId] != null) {
           if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
             if (messageDB.read != null && !messageDB.read!) {
-              sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
+              if (sessionMap[chatId] != null) {
+                sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
+              } else {
+                sessionModel.unreadCount = strangerSessionMap[chatId]!.unreadCount! + 1;
+              }
             }
           }
           if ((sessionMap[chatId] != null && messageDB.createTime! >= sessionMap[chatId]!.createTime!)
@@ -423,7 +429,7 @@ class OXChatBinding {
     }
     await updateChatSession(ssDB.sessionId, content: "Prompt: [${user.name}] has rejected your secret chat request");
     for (OXChatObserver observer in _observers) {
-      observer.didSecretChatCloseCallBack(ssDB);
+      observer.didSecretChatRejectCallBack(ssDB);
     }
   }
 
@@ -453,25 +459,29 @@ class OXChatBinding {
     }
   }
 
-  void addChatSession(ChatSessionModel strangerSessionModel) async {
+  void changeChatSessionTypeAll(String pubkey, bool isBecomeContact) async {
     //strangerSession to chatSession
-    ChatSessionModel sessionModel = ChatSessionModel(
-      chatId: strangerSessionModel.chatId,
-      chatType: strangerSessionModel.chatType == 5 ? 3 : 1,
-      chatName: strangerSessionModel.chatName,
-      avatar: strangerSessionModel.avatar,
-      unreadCount: strangerSessionModel.unreadCount,
-      content: strangerSessionModel.content,
-      createTime: strangerSessionModel.createTime,
-      messageType: strangerSessionModel.messageType,
-      receiver: strangerSessionModel.receiver,
-      sender: strangerSessionModel.sender,
-      groupId: strangerSessionModel.groupId,
-    );
-    strangerSessionMap.remove(sessionModel.chatId);
-    sessionMap[strangerSessionModel.chatId!] = sessionModel;
-    final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-    if (count > 0) {
+    bool isChange = false;
+    List<ChatSessionModel> list = isBecomeContact ? OXChatBinding.sharedInstance.strangerSessionMap.values.toList() : OXChatBinding.sharedInstance.sessionMap.values.toList();
+    for (ChatSessionModel csModel in list) {
+      if (csModel.sender == pubkey || csModel.receiver == pubkey) {
+        isChange = true;
+        int? tempChatType;
+        if(isBecomeContact){
+          tempChatType = (csModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
+          csModel.chatType = tempChatType;
+          strangerSessionMap.remove(csModel.chatId);
+          sessionMap[csModel.chatId!] = csModel;
+        } else {
+          tempChatType = (csModel.chatType == ChatType.chatSecret ? ChatType.chatSecretStranger : ChatType.chatStranger);
+          csModel.chatType = tempChatType;
+          sessionMap.remove(csModel.chatId);
+          strangerSessionMap[csModel.chatId!] = csModel;
+        }
+        final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
+      }
+    }
+    if (isChange) {
       strangerSessionUpdate();
       sessionUpdate();
     }

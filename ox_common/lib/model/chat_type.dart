@@ -8,7 +8,7 @@ class ChatType {
   /// 0 Chat
   static const int chatSingle = 0;
 
-  ///1 Normal Chat
+  ///1 Normal Group Chat
   static const int chatGroup = 1;
 
   ///2 Channel Chat
