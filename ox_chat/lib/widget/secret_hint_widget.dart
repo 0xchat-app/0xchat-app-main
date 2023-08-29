@@ -40,12 +40,13 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
         color: ThemeColor.color190,
         borderRadius: BorderRadius.circular(Adapt.px(12)),
       ),
-      width: Adapt.px(266),
-      height: Adapt.px(243),
+      constraints: BoxConstraints(maxHeight: Adapt.px(300)),
+      width: Adapt.screenW() * 0.68,
       padding: EdgeInsets.only(
         top: Adapt.px(16),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             widget.chatSessionModel.content ?? '',
@@ -58,18 +59,13 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
           SizedBox(
             height: Adapt.px(12),
           ),
-          Container(
-            height: Adapt.px(130),
-            child: SingleChildScrollView(
-              child: RichTextColor(
-                text: Localized.text('ox_chat.str_secret_center_hint'),
-                highlightTextList: ['Nip 44', 'Nip 59'],
-                maxLines: 8,
-              ).setPadding(
-                EdgeInsets.symmetric(
-                  horizontal: Adapt.px(12),
-                ),
-              ),
+          RichTextColor(
+            text: Localized.text('ox_chat.str_secret_center_hint'),
+            highlightTextList: ['Nip 44', 'Nip 59'],
+            maxLines: 12,
+          ).setPadding(
+            EdgeInsets.symmetric(
+              horizontal: Adapt.px(12),
             ),
           ),
           SizedBox(
@@ -98,7 +94,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
                   width: Adapt.px(8),
                 ),
                 Text(
-                  _ssDB?.relay ?? 'wss://relay.0xchat.com',
+                  (_ssDB == null || _ssDB!.relay == null || _ssDB!.relay == 'null' || _ssDB!.relay!.isEmpty) ? '' : _ssDB!.relay!,
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(12),

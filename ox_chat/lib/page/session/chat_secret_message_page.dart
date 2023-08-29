@@ -53,6 +53,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   List<types.Message> _messages = [];
   late types.User _user;
   bool isMore = false;
+  bool isShowContactMenu = true;
   late double keyboardHeight = 0;
   late ChatStatus chatStatus;
   SecretSessionDB? _secretSessionDB;
@@ -103,11 +104,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   }
 
   void initSecretData() {
-    LogUtil.e('Michael: 1 widget.communityItem.chatType =${widget.communityItem.chatType};');
     if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
       setState(() {
         _secretSessionDB = Contacts.sharedInstance.secretSessionMap[widget.communityItem.chatId];
-        LogUtil.e('Michael: 2 _secretSessionDB =${_secretSessionDB}; _secretSessionDB.status =${_secretSessionDB?.status}');
       });
     }
   }
@@ -170,6 +169,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   @override
   Widget build(BuildContext context) {
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
+    LogUtil.e('Michael: _messages = ${_messages[0].toString()}');
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -191,7 +191,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
                   package: 'ox_chat',
                 ),
               ),
-              SizedBox(width: Adapt.px(4),),
+              SizedBox(
+                width: Adapt.px(4),
+              ),
               Text(
                 otherUser?.getUserShowName() ?? '',
                 style: TextStyle(
@@ -253,11 +255,15 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
-        customTopWidget: NotContactTopWidget(chatSessionModel: widget.communityItem),
-        customCenterWidget: _messages.length > 0 ? SizedBox() : SecretHintWidget(chatSessionModel: widget.communityItem),
-        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? SizedBox() : customBottomWidget(),
+        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
+        customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
+        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
       ),
     );
+  }
+
+  void _hideContactMenu(){
+    isShowContactMenu = false;
   }
 
   Widget _buildGroupDefaultImage() => Image.asset(
@@ -443,9 +449,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
     String _hintText = '';
     String _leftBtnTxt = '';
     String _rightBtnTxt = '';
-    if (_secretSessionDB!.status == 1) {
+    if (_secretSessionDB!.status == 0) {
       _hintText = 'str_waiting_other_join'.localized({r'$username': widget.communityItem.chatName ?? ''});
-    } else if (_secretSessionDB!.status == 2) {
+    } else if (_secretSessionDB!.status == 1) {
       _leftBtnTxt = 'str_reject_secret_chat'.localized();
       _rightBtnTxt = 'str_john_secret_chat'.localized();
     } else if (_secretSessionDB!.status == 3) {
@@ -468,83 +474,53 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
       ),
       alignment: Alignment.center,
       child: GestureDetector(
-        child: _secretSessionDB!.status == 2
+        child: _secretSessionDB!.status == 1
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: Adapt.px(12)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    InkWell(
-                      onTap: () async {
-                        OXCommonHintDialog.show(context,
-                            title: '',
-                            content: 'Are you sure reject and delete？',
-                            actionList: [
-                              OXCommonHintAction.cancel(onTap: () {
-                                OXNavigator.pop(context);
-                              }),
-                              OXCommonHintAction.sure(
-                                  text: Localized.text('ox_common.confirm'),
-                                  onTap: () async {
-                                    await OXLoading.show();
-                                    final OKEvent okEvent = await Contacts.sharedInstance.reject(_secretSessionDB!.sessionId);
-                                    await OXLoading.dismiss();
-                                    if (okEvent.status) {
-                                      UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
-                                      await OXChatBinding.sharedInstance.deleteSession(
-                                        widget.communityItem,
-                                        isStranger: toPubkeyUserDB == null,
-                                      );
-                                      OXNavigator.pop(context); //pop dialog
-                                      OXNavigator.pop(context); //pop page
-                                    } else {
-                                      CommonToast.instance.show(context, okEvent.message);
-                                    }
-                                  }),
-                            ],
-                            isRowAction: true);
-                      },
-                      child: Text(
-                        _leftBtnTxt,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.color100,
-                          fontSize: Adapt.px(14),
+                    Expanded(
+                      child: Center(
+                        child: InkWell(
+                          onTap: () async {
+                            _rejectSecretChat();
+                          },
+                          child: Text(
+                            _leftBtnTxt,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              color: ThemeColor.color100,
+                              fontSize: Adapt.px(14),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    InkWell(
-                      onTap: () async {
-                        await OXLoading.show();
-                        final OKEvent okEvent = await Contacts.sharedInstance.accept(_secretSessionDB!.sessionId);
-                        await OXLoading.dismiss();
-                        if (okEvent.status) {
-                          OXChatBinding.sharedInstance.updateChatSession(
-                            widget.communityItem.chatId!,
-                            content: "Chatbox Prompt: You have accepted [${otherUser?.name ?? ''}]'s secret chat request.",
-                          );
-                          _secretSessionDB!.status = 2;
-                          setState(() {});
-                        } else {
-                          CommonToast.instance.show(context, okEvent.message);
-                        }
-                      },
-                      child: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            colors: [
-                              ThemeColor.gradientMainEnd,
-                              ThemeColor.gradientMainStart,
-                            ],
-                          ).createShader(Offset.zero & bounds.size);
-                        },
-                        child: Text(
-                          _rightBtnTxt,
-                          style: TextStyle(
-                            fontSize: Adapt.px(14),
-                            letterSpacing: Adapt.px(0.4),
-                            fontWeight: FontWeight.w400,
+                    Expanded(
+                      child: Center(
+                        child: InkWell(
+                          onTap: () async {
+                            _johnSecretChat();
+                          },
+                          child: ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                colors: [
+                                  ThemeColor.gradientMainEnd,
+                                  ThemeColor.gradientMainStart,
+                                ],
+                              ).createShader(Offset.zero & bounds.size);
+                            },
+                            child: Text(
+                              _rightBtnTxt,
+                              style: TextStyle(
+                                fontSize: Adapt.px(14),
+                                letterSpacing: Adapt.px(0.4),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -711,5 +687,52 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
     setState(() {
       _messages = messageList;
     });
+  }
+
+  void _rejectSecretChat() async {
+    OXCommonHintDialog.show(context,
+        title: '',
+        content: 'Are you sure reject and delete？',
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                await OXLoading.show();
+                final OKEvent okEvent = await Contacts.sharedInstance.reject(_secretSessionDB!.sessionId);
+                await OXLoading.dismiss();
+                if (okEvent.status) {
+                  UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
+                  await OXChatBinding.sharedInstance.deleteSession(
+                    widget.communityItem,
+                    isStranger: toPubkeyUserDB == null,
+                  );
+                  OXChatBinding.sharedInstance.strangerSessionUpdate();
+                  OXNavigator.pop(context); //pop dialog
+                  OXNavigator.pop(context); //pop page
+                } else {
+                  CommonToast.instance.show(context, okEvent.message);
+                }
+              }),
+        ],
+        isRowAction: true);
+  }
+
+  void _johnSecretChat() async {
+    await OXLoading.show();
+    final OKEvent okEvent = await Contacts.sharedInstance.accept(_secretSessionDB!.sessionId);
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      OXChatBinding.sharedInstance.updateChatSession(
+        widget.communityItem.chatId!,
+        content: "Chatbox Prompt: You have accepted [${otherUser?.name ?? ''}]'s secret chat request.",
+      );
+      _secretSessionDB!.status = 2;
+      setState(() {});
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
+    }
   }
 }

@@ -432,9 +432,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   @override
-  void didUpdateUserInfo() {
-
-  }
+  void didUpdateUserInfo() {}
 
   @override
   void didSessionUpdate() {
@@ -553,6 +551,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       ),
     );
   }
+
   @override
   renderNoDataView(BuildContext context, {String? errorTip}) {
     return Container(
@@ -570,17 +569,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             margin: EdgeInsets.only(top: Adapt.px(24.0)),
             child: HighlightedClickableText(
               text: 'No chats yet?\nTry add a friend or join a channel.',
-              highlightWords: [
-                'add a friend',
-                'join a channel'
-              ],
+              highlightWords: ['add a friend', 'join a channel'],
               onWordTap: (word) async {
                 switch (word) {
                   case 'add a friend':
                     _gotoAddFriend();
                     break;
                   case 'join a channel':
-                    await OXNavigator.pushPage(context, (context) => SearchPage(searchPageType: SearchPageType.discover,));
+                    await OXNavigator.pushPage(
+                        context,
+                        (context) => SearchPage(
+                              searchPageType: SearchPageType.discover,
+                            ));
                     break;
                 }
               },
@@ -656,6 +656,49 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
+  Widget _buildItemName(ChatSessionModel item) {
+    return Container(
+      margin: EdgeInsets.only(right: Adapt.px(4)),
+      child: item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CommonImage(
+                  iconName: 'icon_lock_secret.png',
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_chat',
+                ),
+                SizedBox(
+                  width: Adapt.px(4),
+                ),
+                ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      colors: [
+                        ThemeColor.gradientMainEnd,
+                        ThemeColor.gradientMainStart,
+                      ],
+                    ).createShader(Offset.zero & bounds.size);
+                  },
+                  child: Text(
+                    item.chatName ?? '',
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      color: ThemeColor.color0,
+                      letterSpacing: Adapt.px(0.4),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Text(item.chatName ?? '', textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
+      constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
+      // width: Adapt.px(135),
+    );
+  }
+
   Widget _buildBusinessInfo(ChatSessionModel announceItem) {
     return MaterialButton(
         padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
@@ -692,14 +735,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                   // child: Container(),
                                 ),
                               ),
-                              Container(
-                                margin: EdgeInsets.only(right: Adapt.px(4)),
-                                child: Text(
-                                    announceItem.chatName ?? '',
-                                    textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
-                                constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
-                                // width: Adapt.px(135),
-                              ),
+                              _buildItemName(announceItem),
                               FutureBuilder<bool>(
                                 builder: (context, snapshot) {
                                   return (snapshot.data ?? false)
@@ -932,7 +968,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
     UserDB? friendUserDB = Contacts.sharedInstance.allContacts[announceListItem.chatId];
-    LogUtil.e('Michael: _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;
     }

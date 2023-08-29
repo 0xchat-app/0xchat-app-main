@@ -8,6 +8,7 @@ import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -127,6 +128,34 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
         useLargeTitle: false,
         centerTitle: true,
         title: otherUser?.getUserShowName() ?? '',
+        titleWidget: Center(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: Adapt.px(2)),
+                child: CommonImage(
+                  iconName: 'icon_lock_secret.png',
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_chat',
+                ),
+              ),
+              SizedBox(
+                width: Adapt.px(4),
+              ),
+              Text(
+                otherUser?.getUserShowName() ?? '',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(17),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
         backgroundColor: ThemeColor.color200,
         actions: [
           Container(

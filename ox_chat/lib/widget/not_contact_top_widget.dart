@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -17,8 +18,9 @@ import 'package:nostr_core_dart/nostr.dart';
 ///CreateTime: 2023/8/23 14:42
 class NotContactTopWidget extends StatefulWidget {
   final ChatSessionModel chatSessionModel;
+  final GestureTapCallback? onTap;
 
-  const NotContactTopWidget({Key? key, required this.chatSessionModel}) : super(key: key);
+  const NotContactTopWidget({Key? key, required this.chatSessionModel, required this.onTap}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _NotContactTopWidgetState();
@@ -45,11 +47,15 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
           SizedBox(
             width: Adapt.px(8),
           ),
-          CommonImage(
-            iconName: 'icon_clearbutton.png',
-            fit: BoxFit.fill,
-            width: Adapt.px(20),
-            height: Adapt.px(20),
+          InkWell(
+            highlightColor: Colors.transparent,
+            onTap: widget.onTap,
+            child: CommonImage(
+              iconName: 'icon_clearbutton.png',
+              fit: BoxFit.fill,
+              width: Adapt.px(20),
+              height: Adapt.px(20),
+            ),
           ),
         ],
       ),
