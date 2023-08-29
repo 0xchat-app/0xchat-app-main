@@ -21,9 +21,9 @@ abstract class OXChatObserver {
 
   void didStrangerPrivateMessageCallBack(MessageDB message) {}
 
-  void didSecretChatAcceptCallBack(SecretSessionDB? alias) {}
+  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
 
-  void didSecretChatCloseCallBack(SecretSessionDB alias) {}
+  void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
 
   void didContactUpdatedCallBack() {}
 
@@ -172,7 +172,6 @@ class OXChatBinding {
 
   Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB, {String? secretSessionId}) async {
     int changeCount = 0;
-    LogUtil.e('Michael: messageDB.read =${messageDB.read}');
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContentByMsgType(messageDB),
       createTime: messageDB.createTime,
