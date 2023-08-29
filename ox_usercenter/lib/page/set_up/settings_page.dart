@@ -105,12 +105,12 @@ class _SettingsPageState extends State<SettingsPage> {
           height: Adapt.px(24),
         ),
         Container(
-          height: Adapt.px(52 * 4 + 0.5 * 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
           ),
           child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 0),
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: _itemBuild,
