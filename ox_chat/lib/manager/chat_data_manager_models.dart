@@ -61,6 +61,30 @@ class ChannelKey implements ChatTypeKey {
   int get hashCode => groupId.hashCode;
 }
 
+@immutable
+class SecretChatKey implements ChatTypeKey {
+  final String sessionId;
+
+  SecretChatKey(this.sessionId);
+
+  String getSQLFilter() {
+    return ' sessionId = ? ';
+  }
+
+  List<String> getSQLFilterArgs() {
+    return [sessionId];
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is SecretChatKey && other.sessionId == sessionId;
+  }
+
+  @override
+  int get hashCode => sessionId.hashCode;
+}
+
 abstract class ChatDataManagerObserver  {
 
 }

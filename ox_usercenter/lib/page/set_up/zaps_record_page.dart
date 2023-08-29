@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -6,9 +7,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_usercenter/model/zaps_record.dart';
+import 'package:ox_common/widgets/common_text.dart';
 
 class ZapsRecordPage extends StatelessWidget {
 
@@ -47,7 +46,30 @@ class ZapsRecordPage extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(String label,{String? value}) {
+  Widget _buildItem(String label, { value }) {
+    final text = value?.toString() ?? '';
+    Widget? textWidget;
+    if (value is bool) {
+      if (value) {
+        textWidget = Text(
+          'Confirmed',
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w400,
+            color: ThemeColor.green3,
+          ),
+        );
+      } else {
+        textWidget = Text(
+          'Confirmed',
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w400,
+            color: ThemeColor.gradientMainStart,
+          ),
+        );
+      }
+    }
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
       height: Adapt.px(52),
@@ -66,8 +88,8 @@ class ZapsRecordPage extends StatelessWidget {
           Expanded(
             child: Container(
               alignment: Alignment.centerRight,
-              child: Text(
-                value ?? '',
+              child: textWidget ?? Text(
+                text,
                 maxLines: 1,
                 style: TextStyle(
                   fontSize: Adapt.px(16),
@@ -83,7 +105,7 @@ class ZapsRecordPage extends StatelessWidget {
   }
 
   Widget _buildSummary() {
-    final List<MapEntry<String,String>> zapsRecordDetailList = zapsRecordDetail.zapsRecordAttributes.entries.toList();
+    final List<MapEntry<String,dynamic>> zapsRecordDetailList = zapsRecordDetail.zapsRecordAttributes.entries.toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -158,7 +180,8 @@ class ZapsRecordPage extends StatelessWidget {
     );
   }
 
-  String _formatString(String value){
+  dynamic _formatString(value) {
+    if (value is! String) return value;
     const halfMaxLength = 15;
     if(value.length > halfMaxLength * 2) {
       return value.substring(0, halfMaxLength - 2) + '...' + value.substring(value.length - halfMaxLength + 2);
