@@ -173,6 +173,9 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
           LogUtil.e("onVoiceSend : ${path}");
           _onVoiceSend(path, duration);
         },
+        onGifSend: (value) {
+          _onGifImageMessageSend(value);
+        },
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         onJoinChannelTap: () async {
@@ -299,6 +302,24 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
       if (sendMsg == null) return ;
       _sendMessage(sendMsg);
     }
+  }
+
+  Future _onGifImageMessageSend(GiphyImage image) async {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+    final message = types.ImageMessage(
+      uri: image.url,
+      author: _user,
+      createdAt: tempCreateTime,
+      id: message_id,
+      name: image.name,
+      size: double.parse(image.size!),
+    );
+
+    final sendMsg = await _tryPrepareSendFileMessage(message);
+    if(sendMsg == null) return;
+    _sendMessage(sendMsg);
   }
 
   Future _onVoiceSend(String path, Duration duration) async {

@@ -410,7 +410,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
 
-    final event = await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+    final event = message.sourceKey
+        ?? await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return ;

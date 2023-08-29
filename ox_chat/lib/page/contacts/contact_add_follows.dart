@@ -46,7 +46,7 @@ class ContactAddFollows extends StatefulWidget {
 }
 
 class _ContactAddFollowsState extends State<ContactAddFollows> {
-  List<DiyUserDB> userMapList = [];
+  List<DiyUserDB>? userMapList = null;
   bool isSelectAll = false;
 
   @override
@@ -62,16 +62,20 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
   List<DiyUserDB> getSelectFollowsNum() {
     List<DiyUserDB> selectFollowsList = [];
-    userMapList.forEach((DiyUserDB info) => {
-      if (info.isSelect) {selectFollowsList.add(info)}
-    });
+    if(userMapList != null){
+      userMapList!.forEach((DiyUserDB info) => {
+        if (info.isSelect) {selectFollowsList.add(info)}
+      });
+    }
     return selectFollowsList;
   }
 
   //
   void _getFollowList() async {
+    await OXLoading.show();
     String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
     List userMap = await Account.syncFollowListFromRelay(pubKey);
+    await OXLoading.dismiss();
     List<DiyUserDB> db = [];
 
     userMap.forEach((info) => {db.add(new DiyUserDB(false, info))});
@@ -118,7 +122,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
               Expanded(
                 child: Stack(
                   children: [
-                    userMapList.length > 0
+                    userMapList != null &&  userMapList!.length > 0
                         ? ListView.builder(
                       padding: EdgeInsets.only(
                         left: Adapt.px(24),
@@ -126,7 +130,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
                         bottom: Adapt.px(100),
                       ),
                       primary: false,
-                      itemCount: userMapList.length,
+                      itemCount: userMapList!.length,
                       itemBuilder: (context, index) {
                         return _followsFriendWidget(index);
                       },
@@ -149,11 +153,11 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _appBarActionWidget() {
-    if(userMapList.length == 0 ) return Container();
+    if(userMapList == null || userMapList?.length == 0 ) return Container();
     return GestureDetector(
       onTap: () {
         isSelectAll = !isSelectAll;
-        userMapList.forEach((DiyUserDB useDB) {
+        userMapList!.forEach((DiyUserDB useDB) {
           useDB.isSelect = isSelectAll;
         });
         setState(() {});
@@ -182,7 +186,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _followsFriendWidget(int index) {
-    DiyUserDB userInfo = userMapList[index];
+    DiyUserDB userInfo = userMapList![index];
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => {},
@@ -296,7 +300,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _addContactBtnView() {
-    if (userMapList.length == 0) return Container();
+    if (userMapList == null || userMapList!.length == 0) return Container();
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.symmetric(
@@ -355,7 +359,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _followsStatusView(int index) {
-    DiyUserDB userDB = userMapList[index];
+    DiyUserDB userDB = userMapList![index];
     Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
     String picName = '';
     bool isContacts = allContacts[userDB.db.pubKey] != null;
@@ -370,7 +374,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     return GestureDetector(
       onTap: () {
         if (isContacts) return;
-        userMapList[index].isSelect = !userDB.isSelect;
+        userMapList![index].isSelect = !userDB.isSelect;
         setState(() {});
       },
       child: Container(
@@ -386,6 +390,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _emptyWidget() {
+    if(userMapList == null) return Container();
     return Container(
       alignment: Alignment.topCenter,
       margin: EdgeInsets.only(top: 87.0),

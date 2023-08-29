@@ -19,7 +19,7 @@ class PrivateChatKey implements ChatTypeKey {
   PrivateChatKey(this.userId1, this.userId2);
 
   String getSQLFilter() {
-    return ' (sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? ) ';
+    return '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ';
   }
 
   List<String> getSQLFilterArgs() {

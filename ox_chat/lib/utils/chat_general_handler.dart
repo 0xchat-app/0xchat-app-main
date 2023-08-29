@@ -105,31 +105,31 @@ class ChatGeneralHandler {
   Future loadMoreMessage(
       List<types.Message> originMessage, {
         List<types.Message>? allMessage,
-        int? increasedCount = ChatPageConfig.messagesPerPage,
+        int increasedCount = ChatPageConfig.messagesPerPage,
       }) async {
     final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
     var end = 0;
-    if (originMessage.isEmpty) {
-      end = increasedCount ?? ChatPageConfig.messagesPerPage;
-    } else {
-      // Find the index of the last message in all the messages.
-      var index = -1;
-      for (int i = originMessage.length - 1; i >= 0; i--) {
-        final msg = originMessage[i];
-        final result = allMsg.indexOf(msg);
-        if (result >= 0) {
-          index = result;
-          break ;
-        }
+    // Find the index of the last message in all the messages.
+    var index = -1;
+    for (int i = originMessage.length - 1; i >= 0; i--) {
+      final msg = originMessage[i];
+      final result = allMsg.indexOf(msg);
+      if (result >= 0) {
+        index = result;
+        break ;
       }
-      end = index + 1 + (increasedCount ?? 0);
+    }
+    if (index == -1 && increasedCount == 0) {
+      end = ChatPageConfig.messagesPerPage;
+    } else {
+      end = index + 1 + increasedCount;
     }
     hasMoreMessage = end < allMsg.length;
     refreshMessageUI(allMsg.sublist(0, min(allMsg.length, end)));
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
-    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: null);
+    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: 0);
   }
 }
 

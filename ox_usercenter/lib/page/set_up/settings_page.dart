@@ -13,6 +13,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
+import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:chatcore/chat-core.dart';
@@ -42,6 +43,12 @@ class _SettingsPageState extends State<SettingsPage> {
       title: 'Notifications',
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,
+    ));
+    _settingModelList.add(SettingModel(
+      iconName: 'icon_settings_privacy.png',
+      title: 'Privacy',
+      rightContent: '',
+      settingItemType: SettingItemType.privacy,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_relays.png',
@@ -105,12 +112,12 @@ class _SettingsPageState extends State<SettingsPage> {
           height: Adapt.px(24),
         ),
         Container(
-          height: Adapt.px(52 * 4 + 0.5 * 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
           ),
           child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 0),
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: _itemBuild,
@@ -234,6 +241,8 @@ class _SettingsPageState extends State<SettingsPage> {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
           OXNavigator.pushPage(context, (context) => ZapsPage());
+        } else if (_settingModel.settingItemType == SettingItemType.privacy) {
+          OXNavigator.pushPage(context, (context) => const PrivacyPage());
         }
       },
       child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true),
@@ -335,4 +344,5 @@ enum SettingItemType {
   relays,
   zaps,
   keys,
+  privacy,
 }

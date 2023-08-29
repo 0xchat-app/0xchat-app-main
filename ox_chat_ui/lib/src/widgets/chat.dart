@@ -595,10 +595,13 @@ class ChatState extends State<Chat> {
           onVoiceSend: widget.onVoiceSend,
           onGifSend: widget.onGifSend,
           textFieldHasFocus: () {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              final lastMessageId = widget.messages.first.id;
-              scrollToMessage(lastMessageId);
-            });
+            if (_scrollController.hasClients && _scrollController.offset > 0) {
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 10),
+                curve: Curves.easeInQuad,
+              );
+            }
           },
         );
       }
