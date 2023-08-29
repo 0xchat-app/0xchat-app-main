@@ -90,7 +90,7 @@ class OXRelayManager {
     for (String relay in relays) {
       RelayModel relayModel = RelayModel(
         relayName: relay,
-        canDelete: true,
+        canDelete: relay == CommonConstant.oxChatRelay ? false : true,
         connectStatus: 0,
         createTime: DateTime.now().millisecondsSinceEpoch,
       );
