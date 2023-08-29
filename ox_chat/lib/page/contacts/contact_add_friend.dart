@@ -92,6 +92,7 @@ class _CommunityContactAddFriendState extends State<CommunityContactAddFriend> w
       // leftWidget: CountryTextWidget(_isPhone, countryAreaCode, _selectCountryCode, countryKey),
       rightWidget: InkWell(
         highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         radius: 0.0,
         child: Container(
           width: Adapt.px(58),

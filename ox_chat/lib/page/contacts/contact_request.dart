@@ -71,7 +71,22 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         return session2CreatedTime.compareTo(session1CreatedTime);
       }
     });
-    setState(() {});
+    if (_strangerSessionModelList.length > 0) {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
+    } else {
+      bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
+      if (isLogin == false) {
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_NotLogin);
+        });
+      } else {
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_NoData);
+        });
+      }
+    }
   }
 
   @override
@@ -92,7 +107,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(
-        title: Localized.text('ox_chat.friend_request_title'),
+        title: Localized.text('ox_chat.string_request_title'),
         useLargeTitle: false,
         centerTitle: true,
         canBack: false,
@@ -140,12 +155,25 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         motion: const ScrollMotion(),
         children: [
           CustomSlidableAction(
-            onPressed: (BuildContext context) async {
-              final int count = await OXChatBinding.sharedInstance.deleteSession(item, isStranger: true);
-              LogUtil.e('Michael: contact_request  count =${count}');
-              if (count > 0) {
-                _initData();
-              }
+            onPressed: (BuildContext _) async {
+              OXCommonHintDialog.show(context,
+                  content: 'Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?',
+                  actionList: [
+                    OXCommonHintAction.cancel(onTap: () {
+                      OXNavigator.pop(context);
+                    }),
+                    OXCommonHintAction.sure(
+                        text: Localized.text('ox_common.confirm'),
+                        onTap: () async {
+                          OXNavigator.pop(context);
+                          final int count = await OXChatBinding.sharedInstance.deleteSession(item, isStranger: true);
+                          Contacts.sharedInstance.close(item.chatId!);
+                          if (count > 0) {
+                            _initData();
+                          }
+                        }),
+                  ],
+                  isRowAction: true);
             },
             backgroundColor: ThemeColor.red1,
             child: Column(
@@ -332,6 +360,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
     return InkWell(
       highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Adapt.px(60)),
         child: CachedNetworkImage(
@@ -475,7 +504,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                 await OXLoading.dismiss();
                 if (okEvent.status) {
                   OXChatBinding.sharedInstance.contactUpdatedCallBack();
-                  OXChatBinding.sharedInstance.addChatSession(item);
+                  OXChatBinding.sharedInstance.changeChatSessionTypeAll(pubkey, true);
                   CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
                   OXNavigator.pop(context);
                   setState(() {});
@@ -515,22 +544,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
 
   @override
   void didStrangerSessionUpdate() {
-    LogUtil.e('Michael: contact_request didStrangerSessionUpdate');
-    _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionMap.values.toList();
-    _strangerSessionModelList.sort((session1, session2) {
-      var session2CreatedTime = session2.createTime;
-      var session1CreatedTime = session1.createTime;
-      if (session2CreatedTime == null && session1CreatedTime == null) {
-        return 0;
-      } else if (session1CreatedTime == null) {
-        return 1;
-      } else if (session2CreatedTime == null) {
-        return -1;
-      } else {
-        return session2CreatedTime.compareTo(session1CreatedTime);
-      }
-    });
-    setState(() {});
+    _initData();
   }
 }
 

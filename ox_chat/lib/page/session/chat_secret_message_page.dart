@@ -49,7 +49,7 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver{
   List<types.Message> _messages = [];
   late types.User _user;
   bool isMore = false;
@@ -72,6 +72,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   @override
   void initState() {
     super.initState();
+    OXChatBinding.sharedInstance.addObserver(this);
     protectScreen();
     initSecretData();
     setupUser();
@@ -82,6 +83,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
 
   @override
   void dispose() {
+    OXChatBinding.sharedInstance.removeObserver(this);
     ChatDataCache.shared.removeObserver(widget.communityItem);
     disProtectScreen();
     super.dispose();
@@ -205,6 +207,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
           ),
         ),
         backgroundColor: ThemeColor.color200,
+        backCallback: () {
+          OXNavigator.popToRoot(context);
+        },
         actions: [
           Container(
             alignment: Alignment.center,
@@ -259,6 +264,20 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
       ),
     );
+  }
+
+  @override
+  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {
+    setState(() {
+      _secretSessionDB = ssDB;
+    });
+  }
+
+  @override
+  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {
+    setState(() {
+      _secretSessionDB = ssDB;
+    });
   }
 
   void _hideContactMenu(){

@@ -53,6 +53,8 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
             alignment: Alignment.centerRight,
             color: Colors.transparent,
             child: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
               onTap: () {
                 _settingRemark();
               },

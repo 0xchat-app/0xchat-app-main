@@ -21,7 +21,7 @@
   "please_enter_user_address": "Please enter npub address or DNS",
   "add_contact_confirm": "Add Contacts",
   "add_contact_block": "Block User",
-  "friend_request_title": "Friend Request",
+  "string_request_title": "Requests",
   "friend_request_added": "Request Confirmed",
   "friend_request_rejected": "Request removed",
   "added_successfully": "Added Successfully",
@@ -57,7 +57,7 @@
   "import_follows_tips": "Import follows and add them as Contacts:",
   "str_secret_center_hint": "· Use end-to-end encryption (Nip 44).\n· Prevent metadata leaks (Nip 59).\n· Ensure forward secrecy.\n· Messages irrecoverable on other devices.\n· Secret chat messages will be sent only to the relay:",
   "str_other_rejected": "Rejected",
-  "str_waiting_other_join": "Waiting for $username to join a secret chat",
+  "str_waiting_other_join": "Waiting for $username to join...",
   "str_reject_secret_chat": "Reject",
   "str_john_secret_chat": "Join Secret Chat"
 }

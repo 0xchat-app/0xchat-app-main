@@ -138,4 +138,9 @@ abstract class Message extends Equatable {
 
   /// Converts a particular message to the map representation, serializable to JSON.
   Map<String, dynamic> toJson();
+
+  @override
+  String toString() {
+    return 'Message{author: $author, createdAt: $createdAt, id: $id, metadata: $metadata, remoteId: $remoteId, repliedMessage: $repliedMessage, roomId: $roomId, showStatus: $showStatus, status: $status, type: $type, updatedAt: $updatedAt, fileEncryptionType: $fileEncryptionType, sourceKey: $sourceKey}';
+  }
 }

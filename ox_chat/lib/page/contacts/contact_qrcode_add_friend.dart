@@ -189,6 +189,8 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       onTap: () {
         OXNavigator.pushPage(context, (context) => CommunityContactAddFriend());
       },
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.symmetric(

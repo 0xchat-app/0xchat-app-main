@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -125,7 +126,8 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      OXChatBinding.sharedInstance.addChatSession(item);
+      String pubkey = (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender : item.receiver) ?? '';
+      OXChatBinding.sharedInstance.changeChatSessionTypeAll(pubkey, true);
       CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
       setState(() {});
     } else {

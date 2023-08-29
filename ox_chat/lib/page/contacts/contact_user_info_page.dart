@@ -569,6 +569,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           },
         );
       },
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: Container(
         width: Adapt.px(100),
         height: Adapt.px(100),
@@ -744,6 +746,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 final OKEvent okEvent = await Contacts.sharedInstance
                     .removeContact(widget.userDB.pubKey ?? '');
                 await OXLoading.dismiss();
+                OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.userDB.pubKey, false);
                 OXNavigator.pop(context);
                 if (okEvent.status) {
                   setState(() {});

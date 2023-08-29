@@ -127,34 +127,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> {
         useLargeTitle: false,
         centerTitle: true,
         title: otherUser?.getUserShowName() ?? '',
-        titleWidget: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: Adapt.px(2)),
-                child: CommonImage(
-                  iconName: 'icon_lock_secret.png',
-                  width: Adapt.px(16),
-                  height: Adapt.px(16),
-                  package: 'ox_chat',
-                ),
-              ),
-              SizedBox(
-                width: Adapt.px(4),
-              ),
-              Text(
-                otherUser?.getUserShowName() ?? '',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(17),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
         backgroundColor: ThemeColor.color200,
         actions: [
           Container(
