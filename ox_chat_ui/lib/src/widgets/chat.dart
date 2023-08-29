@@ -10,6 +10,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import '../models/giphy_image.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../models/bubble_rtl_alignment.dart';
@@ -117,6 +118,7 @@ class Chat extends StatefulWidget {
     this.chatStatus,
     this.onJoinChannelTap,
     this.longPressMenuItemsCreator,
+    this.onGifSend,
   });
 
   final ChatStatus? chatStatus;
@@ -296,6 +298,9 @@ class Chat extends StatefulWidget {
 
   ///Send a voice message
   final void Function(String path, Duration duration)? onVoiceSend;
+
+  ///Send a gif message
+  final void Function(GiphyImage image)? onGifSend;
 
   /// See [ChatList.scrollController].
   /// If provided, you cannot use the scroll to message functionality.
@@ -588,6 +593,7 @@ class ChatState extends State<Chat> {
           onSendPressed: widget.onSendPressed,
           options: widget.inputOptions,
           onVoiceSend: widget.onVoiceSend,
+          onGifSend: widget.onGifSend,
           textFieldHasFocus: () {
             Future.delayed(const Duration(milliseconds: 500), () {
               final lastMessageId = widget.messages.first.id;

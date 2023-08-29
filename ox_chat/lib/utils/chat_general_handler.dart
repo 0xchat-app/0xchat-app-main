@@ -65,6 +65,8 @@ class ChatGeneralHandler {
 
   Future Function(List<File> images)? videoMessageSendHandler;
 
+  Future Function(GiphyImage image)? gifMessageSendHandler;
+
   void syncChatSessionForSendMsg({
     required int createTime,
     required String content,

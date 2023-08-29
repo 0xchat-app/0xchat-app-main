@@ -5,13 +5,14 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 
+import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
 import '../../models/send_button_visibility_mode.dart';
 import '../../util.dart';
+import '../giphy/giphy_picker.dart';
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_l10n.dart';
 import 'attachment_button.dart';
-import 'input_face_page.dart';
 import 'input_more_page.dart';
 import 'input_text_field_controller.dart';
 import 'input_voice_page.dart';
@@ -31,6 +32,7 @@ class Input extends StatefulWidget {
     this.options = const InputOptions(),
     this.onVoiceSend,
     this.textFieldHasFocus,
+    this.onGifSend
   });
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -48,13 +50,16 @@ class Input extends StatefulWidget {
 
   ///Send a voice message
   final void Function(String path, Duration duration)? onVoiceSend;
-  
+
   final VoidCallback? textFieldHasFocus;
 
   /// Customisation options for the [Input].
   final InputOptions options;
 
   final List<InputMoreItem> items;
+
+  ///Send a gif message
+  final void Function(GiphyImage giphyImage)? onGifSend;
 
   @override
   State<Input> createState() => InputState();
@@ -64,6 +69,8 @@ class Input extends StatefulWidget {
 class InputState extends State<Input>{
 
   final _itemSpacing = Adapt.px(12);
+
+  bool _isShow = false;
 
   InputType inputType = InputType.inputTypeDefault;
   late final _inputFocusNode = FocusNode(
@@ -166,7 +173,13 @@ class InputState extends State<Input>{
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         height: 260, // Dynamic height adjustment
-        child:InputFacePage(textController: _textController,),
+        child: GiphyPicker(
+          onSelected: (value) {
+            if (widget.onGifSend != null) {
+              widget.onGifSend!(value);
+            }
+          },
+        ),
         onEnd: (){
           _inputFocusNode.unfocus();
         },
@@ -331,9 +344,14 @@ class InputState extends State<Input>{
           package: 'ox_chat_ui',
         ),
         onPressed: (){
+          _isShow = !_isShow;
           setState(() {
             inputType = InputType.inputTypeEmoji;
-            _inputFocusNode.unfocus();
+            if(_isShow){
+              _inputFocusNode.unfocus();
+            }else{
+              _inputFocusNode.requestFocus();
+            }
           });
         },
         splashRadius: 24,
@@ -426,7 +444,7 @@ class InputState extends State<Input>{
         child: Container(
           decoration:
               InheritedChatTheme.of(context).theme.inputContainerDecoration,
-          padding: safeAreaInsets,
+          padding: inputType ==  InputType.inputTypeEmoji ?  EdgeInsets.fromLTRB(query.padding.left, 0, query.padding.right, query.padding.bottom) : safeAreaInsets,
           child: getInputWidget(buttonPadding, textPadding),
       ),
         ),

@@ -58,7 +58,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
     padding: EdgeInsets.symmetric(horizontal: Adapt.px(12)),
     decoration: BoxDecoration(
       color: ThemeColor.color190,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(Adapt.px(12))),
     ),
     child: CustomScrollView(
         controller: _scrollController,
