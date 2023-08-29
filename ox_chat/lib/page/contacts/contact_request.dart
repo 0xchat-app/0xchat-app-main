@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
@@ -21,6 +22,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactRequest extends StatefulWidget {
   ContactRequest({Key? key}) : super(key: key);
@@ -120,7 +122,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                       return Container();
                     }
                     ChatSessionModel item = _strangerSessionModelList[index];
-                    return _buildItemView(item);
+                    return _buildItemView(item, index);
                   }, childCount: _strangerSessionModelList.length),
                   itemExtent: 106),
             ],
@@ -130,80 +132,109 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Widget _buildItemView(ChatSessionModel item) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        _setAllRead(item);
-        OXNavigator.pushPage(
-          context,
-          (context) => ChatSecretMessagePage(
-            communityItem: item,
+  Widget _buildItemView(ChatSessionModel item, int index) {
+    return Slidable(
+      key: ValueKey("$index"),
+      endActionPane: ActionPane(
+        extentRatio: 0.23,
+        motion: const ScrollMotion(),
+        children: [
+          CustomSlidableAction(
+            onPressed: (BuildContext context) async {
+              final int count = await OXChatBinding.sharedInstance.deleteSession(item, isStranger: true);
+              LogUtil.e('Michael: contact_request  count =${count}');
+              if (count > 0) {
+                _initData();
+              }
+            },
+            backgroundColor: ThemeColor.red1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                assetIcon('icon_chat_delete.png', 32, 32),
+                Text(
+                  'delete'.localized(),
+                  style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
+                ),
+              ],
+            ),
           ),
-        );
-      },
-      child: Container(
-        height: Adapt.px(106),
-        margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(20),
-          vertical: Adapt.px(12),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildAvatar(item),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildItemName(item),
-                      ),
-                      FutureBuilder<bool>(
-                        builder: (context, snapshot) {
-                          return _buildReadWidget(item, snapshot.data ?? false);
-                        },
-                        future: _getChatSessionMute(item),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: Adapt.px(2),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.content ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: Adapt.px(14),
-                            color: ThemeColor.color120,
-                            letterSpacing: Adapt.px(0.4),
-                            fontWeight: FontWeight.w600,
+        ],
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          _setAllRead(item);
+          OXNavigator.pushPage(
+            context,
+            (context) => ChatSecretMessagePage(
+              communityItem: item,
+            ),
+          );
+        },
+        child: Container(
+          height: Adapt.px(106),
+          margin: EdgeInsets.symmetric(
+            horizontal: Adapt.px(20),
+            vertical: Adapt.px(12),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildAvatar(item),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildItemName(item),
+                        ),
+                        FutureBuilder<bool>(
+                          builder: (context, snapshot) {
+                            return _buildReadWidget(item, snapshot.data ?? false);
+                          },
+                          future: _getChatSessionMute(item),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: Adapt.px(2),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.content ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: Adapt.px(14),
+                              color: ThemeColor.color120,
+                              letterSpacing: Adapt.px(0.4),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        OXDateUtils.convertTimeFormatString3(
-                          (item.createTime ?? 0) * 1000,
+                        Text(
+                          OXDateUtils.convertTimeFormatString3(
+                            (item.createTime ?? 0) * 1000,
+                          ),
+                          style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
                         ),
-                        style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, letterSpacing: Adapt.px(0.4), fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: Adapt.px(6),
-                  ),
-                  _buildNotAddStatus(item),
-                ],
+                      ],
+                    ),
+                    SizedBox(
+                      height: Adapt.px(6),
+                    ),
+                    _buildNotAddStatus(item),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -313,7 +344,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         ),
       ),
       onTap: () async {
-        UserDB? userDB = await Account.getUserFromDB(pubkey: item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender!: item.receiver!);
+        UserDB? userDB = await Account.getUserFromDB(pubkey: item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender! : item.receiver!);
         if (userDB == null) {
           CommonToast.instance.show(context, 'Unknown error about the user.');
           return;
@@ -439,7 +470,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                String pubkey = (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender: item.receiver) ?? '';
+                String pubkey = (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender : item.receiver) ?? '';
                 final OKEvent okEvent = await Contacts.sharedInstance.addToContact([pubkey]);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
@@ -484,6 +515,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
 
   @override
   void didStrangerSessionUpdate() {
+    LogUtil.e('Michael: contact_request didStrangerSessionUpdate');
     _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionMap.values.toList();
     _strangerSessionModelList.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
