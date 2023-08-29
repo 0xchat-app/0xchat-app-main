@@ -38,4 +38,6 @@ class OXConstantImpl implements ConstantInterface {
   final int NOTIFICATION_CHANNELS = 2;
   /// Zaps
   final int NOTIFICATION_ZAPS = 3;
+
+  final String giphyApiKey = '';
 }
