@@ -169,7 +169,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   @override
   Widget build(BuildContext context) {
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
-    LogUtil.e('Michael: _messages = ${_messages[0].toString()}');
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,

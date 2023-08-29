@@ -41,7 +41,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
         borderRadius: BorderRadius.circular(Adapt.px(12)),
       ),
       constraints: BoxConstraints(maxHeight: Adapt.px(300)),
-      width: Adapt.screenW() * 0.68,
+      width: Adapt.screenW() * 0.71,
       padding: EdgeInsets.only(
         top: Adapt.px(16),
       ),
