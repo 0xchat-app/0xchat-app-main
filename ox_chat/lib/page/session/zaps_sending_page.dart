@@ -243,7 +243,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': invoice,
       'walletOnPress': (WalletModel wallet) async {
-        final result = await OXCommonHintDialog.showConfirmDialog(context, title: 'title', content: 'content');
+        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: 'Are you sure you want to send this zap?');
         if (result) {
           widget.zapsInfoCallback({
             'zapper': zapper,

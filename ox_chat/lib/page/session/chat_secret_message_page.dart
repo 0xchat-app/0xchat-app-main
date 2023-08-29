@@ -153,16 +153,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
   }
 
   void prepareData() {
-    _loadMessages();
+    _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }
 
   void addListener() {
     ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      setState(() {
-        _messages = value;
-      });
+      chatGeneralHandler.refreshMessage(_messages, value);
     });
   }
 
@@ -222,6 +220,10 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
       body: Chat(
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
+        isLastPage: !chatGeneralHandler.hasMoreMessage,
+        onEndReached: () async {
+          await _loadMoreMessages();
+        },
         onMessageTap: _handleMessageTap,
         onPreviewDataFetched: _handlePreviewDataFetched,
         onSendPressed: _handleSendPressed,
@@ -681,11 +683,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> {
     });
   }
 
-  Future<void> _loadMessages() async {
-    List<types.Message> messageList = await ChatDataCache.shared.getSessionMessage(widget.communityItem);
-    setState(() {
-      _messages = messageList;
-    });
+  Future<void> _loadMoreMessages() async {
+    await chatGeneralHandler.loadMoreMessage(_messages);
   }
 
   void _rejectSecretChat() async {
