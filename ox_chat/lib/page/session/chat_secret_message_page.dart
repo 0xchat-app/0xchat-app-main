@@ -49,7 +49,7 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver{
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver {
   List<types.Message> _messages = [];
   late types.User _user;
   bool isMore = false;
@@ -284,8 +284,10 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     });
   }
 
-  void _hideContactMenu(){
-    isShowContactMenu = false;
+  void _hideContactMenu() {
+    setState(() {
+      isShowContactMenu = false;
+    });
   }
 
   Widget _buildGroupDefaultImage() => Image.asset(
@@ -504,11 +506,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Center(
-                        child: InkWell(
-                          onTap: () async {
-                            _rejectSecretChat();
-                          },
+                      child: InkWell(
+                        onTap: () async {
+                          _rejectSecretChat();
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          alignment: Alignment.center,
                           child: Text(
                             _leftBtnTxt,
                             style: TextStyle(
@@ -521,11 +526,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                       ),
                     ),
                     Expanded(
-                      child: Center(
-                        child: InkWell(
-                          onTap: () async {
-                            _johnSecretChat();
-                          },
+                      child: InkWell(
+                        onTap: () async {
+                          _johnSecretChat();
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          alignment: Alignment.center,
                           child: ShaderMask(
                             shaderCallback: (Rect bounds) {
                               return LinearGradient(
