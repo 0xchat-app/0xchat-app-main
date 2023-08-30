@@ -444,7 +444,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   void _blockOptionFn() {
     String pubKey = widget.userDB.pubKey ?? '';
     if (_isInBlockList()) {
-      Contacts.sharedInstance.removeBlockList(pubKey);
+      Contacts.sharedInstance.removeBlockList([pubKey]);
     } else {
       OXCommonHintDialog.show(context,
           title: 'Block this user ?',
