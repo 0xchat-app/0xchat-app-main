@@ -168,12 +168,16 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void privateChatMessageCallBack(MessageDB message) {
+  void didPrivateMessageCallBack(MessageDB message) {
     _privatePromptTone(message);
   }
 
   void didChannalMessageCallBack(MessageDB messageDB) {
     _channalPromptTone(messageDB);
+  }
+
+  void didSecretChatMessageCallBack(MessageDB message) {
+    _privatePromptTone(message);
   }
 
   @override
@@ -1085,7 +1089,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (channelDB != null) {
       isMute = channelDB.mute ?? false;
     }
-    if (!isMute) {
+    if (!isMute && message.sender != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
       PromptToneManager.sharedInstance.play();
     }
   }
