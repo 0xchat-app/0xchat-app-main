@@ -3,7 +3,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -62,10 +61,10 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
   List<DiyUserDB> getSelectFollowsNum() {
     List<DiyUserDB> selectFollowsList = [];
-    if(userMapList != null){
+    if (userMapList != null) {
       userMapList!.forEach((DiyUserDB info) => {
-        if (info.isSelect) {selectFollowsList.add(info)}
-      });
+            if (info.isSelect) {selectFollowsList.add(info)}
+          });
     }
     return selectFollowsList;
   }
@@ -85,26 +84,54 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color190,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: Localized.text('ox_chat.import_follows'),
-        backgroundColor: ThemeColor.color190,
-        actions: [
-          _appBarActionWidget(),
-          SizedBox(
-            width: Adapt.px(24),
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.circular(20)
+
       ),
-      body: SafeArea(
+      child: SafeArea(
         child: Container(
           height: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                height: Adapt.px(56),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Adapt.px(24),
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        OXNavigator.pop(context);
+                      },
+                      child: CommonImage(
+                        iconName: "title_close.png",
+                        color: Colors.white,
+                        width: Adapt.px(24),
+                        height: Adapt.px(24),
+                        useTheme: false,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: Text(
+                          Localized.text('ox_chat.import_follows'),
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: Adapt.px(17),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    _appBarActionWidget(),
+                  ],
+                ),
+              ),
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: Adapt.px(24),
@@ -122,19 +149,19 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
               Expanded(
                 child: Stack(
                   children: [
-                    userMapList != null &&  userMapList!.length > 0
+                    userMapList != null && userMapList!.length > 0
                         ? ListView.builder(
-                      padding: EdgeInsets.only(
-                        left: Adapt.px(24),
-                        right: Adapt.px(24),
-                        bottom: Adapt.px(100),
-                      ),
-                      primary: false,
-                      itemCount: userMapList!.length,
-                      itemBuilder: (context, index) {
-                        return _followsFriendWidget(index);
-                      },
-                    )
+                            padding: EdgeInsets.only(
+                              left: Adapt.px(24),
+                              right: Adapt.px(24),
+                              bottom: Adapt.px(100),
+                            ),
+                            primary: false,
+                            itemCount: userMapList!.length,
+                            itemBuilder: (context, index) {
+                              return _followsFriendWidget(index);
+                            },
+                          )
                         : _emptyWidget(),
                     Positioned(
                       left: 0,
@@ -153,7 +180,10 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _appBarActionWidget() {
-    if(userMapList == null || userMapList?.length == 0 ) return Container();
+    if (userMapList == null || userMapList?.length == 0)
+      return Container(
+        width: Adapt.px(24),
+      );
     return GestureDetector(
       onTap: () {
         isSelectAll = !isSelectAll;
@@ -277,13 +307,13 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
         children: [
           Container(
               child: Text(
-                name,
-                style: TextStyle(
-                  color: ThemeColor.color100,
-                  fontSize: Adapt.px(16),
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
+            name,
+            style: TextStyle(
+              color: ThemeColor.color100,
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w600,
+            ),
+          )),
           Container(
             child: Text(
               encodedPubKeyShow,
@@ -390,7 +420,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _emptyWidget() {
-    if(userMapList == null) return Container();
+    if (userMapList == null) return Container();
     return Container(
       alignment: Alignment.topCenter,
       margin: EdgeInsets.only(top: 87.0),
@@ -421,7 +451,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
       selectFollowPubKey.add(info.db.pubKey ?? '');
     });
     final OKEvent okEvent =
-    await Contacts.sharedInstance.addToContact(selectFollowPubKey);
+        await Contacts.sharedInstance.addToContact(selectFollowPubKey);
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXNavigator.pop(context, true);

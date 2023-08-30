@@ -216,7 +216,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               OXNavigator.presentPage(
                 context,
                 (context) => ContactCreateSecret(userDB: widget.userDB),
-                fullscreenDialog: true,
               );
             },
             iconName: 'icon_secret.png',
