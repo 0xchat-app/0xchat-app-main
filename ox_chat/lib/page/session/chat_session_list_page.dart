@@ -537,6 +537,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                 onTap: () async {
                                   OXNavigator.pop(context);
                                   final int count = await OXChatBinding.sharedInstance.deleteSession(announceItem);
+                                  if (announceItem.chatType == ChatType.chatSecret) {
+                                    Contacts.sharedInstance.close(announceItem.chatId!);
+                                  }
                                   if (count > 0) {
                                     setState(() {
                                       _merge();
