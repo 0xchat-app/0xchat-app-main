@@ -192,7 +192,6 @@ class _ContractsPageState extends State<ContractsPage>
                                   var result = await OXNavigator.presentPage(
                                     context,
                                         (context) => ContactAddFollows(),
-                                      fullscreenDialog:true,
                                   );
                                   if (result == true) {
                                     OXCommonHintDialog.show(
