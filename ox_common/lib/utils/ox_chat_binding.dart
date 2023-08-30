@@ -150,7 +150,14 @@ class OXChatBinding {
     }
   }
 
-  Future<int> updateChatSession(String chatId, {String? chatName, String? content, String? pic, int? unreadCount, bool alwaysTop = false}) async {
+  Future<int> updateChatSession(String chatId, {
+    String? chatName,
+    String? content,
+    String? pic,
+    int? unreadCount,
+    bool alwaysTop = false,
+    String? draft,
+  }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId] ?? strangerSessionMap[chatId];
     if (sessionModel != null) {
@@ -173,6 +180,10 @@ class OXChatBinding {
       }
       if (alwaysTop != sessionModel.alwaysTop) {
         sessionModel.alwaysTop = alwaysTop;
+        isChange = true;
+      }
+      if (draft != null && sessionModel.draft != draft) {
+        sessionModel.draft = draft;
         isChange = true;
       }
       if (isChange) {
