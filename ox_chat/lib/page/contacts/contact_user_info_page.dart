@@ -795,7 +795,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       });
     } else {
       CommonToast.instance
-          .show(context, 'Change failed, please try again later.');
+          .show(context, 'Mute(Unmute) failed, please try again later.');
     }
   }
 

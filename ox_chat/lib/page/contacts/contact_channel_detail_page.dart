@@ -611,7 +611,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         widget.channelDB.mute = value;
       });
     } else {
-      CommonToast.instance.show(context, 'Change failed, please try again later.');
+      CommonToast.instance.show(context, 'Mute(Unmute) failed, please try again later.');
     }
   }
 
