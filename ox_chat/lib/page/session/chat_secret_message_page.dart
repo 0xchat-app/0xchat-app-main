@@ -66,6 +66,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           : widget.communityItem.sender) ??
       '';
 
+  String get sessionId => widget.communityItem.chatId ?? '';
+
   late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
 
@@ -640,7 +642,13 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
 
-    final event = await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+    final event = await Contacts.sharedInstance.getSendSecretMessageEvent(
+      sessionId,
+      receiverPubkey,
+      '',
+      type,
+      contentString,
+    );
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return;
@@ -657,15 +665,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       funcName: '_sendMessage',
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
-    Contacts.sharedInstance
-        .sendPrivateMessage(
-      receiverPubkey,
-      '',
-      type,
-      contentString,
-      event: event,
-    )
-        .then((event) {
+    Contacts.sharedInstance.sendSecretMessage(
+        sessionId,
+        receiverPubkey,
+        'replayId',
+        type,
+        contentString,
+        event: event,
+    ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
         remoteId: event.eventId,
