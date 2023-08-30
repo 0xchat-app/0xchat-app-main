@@ -152,14 +152,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   stateViewCallBack(CommonStateView commonStateView) {
     switch (commonStateView) {
       case CommonStateView.CommonStateView_None:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
         break;
       case CommonStateView.CommonStateView_NetworkError:
       case CommonStateView.CommonStateView_NoData:
         _onRefresh();
         break;
       case CommonStateView.CommonStateView_NotLogin:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
         break;
     }
   }
@@ -168,11 +168,11 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void privateChatMessageCallBack(MessageDB message){
+  void privateChatMessageCallBack(MessageDB message) {
     _privatePromptTone(message);
   }
 
-  void didChannalMessageCallBack(MessageDB messageDB){
+  void didChannalMessageCallBack(MessageDB messageDB) {
     _channalPromptTone(messageDB);
   }
 
@@ -202,8 +202,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 height: Adapt.px(24),
                 child: Image(image: AssetImage('assets/images/0xchat_title_icon.png', package: 'ox_chat')),
               )
-              // Text("0xChat", style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColor.titleColor, fontSize: 34), maxLines: 1,),
-              ),
+            // Text("0xChat", style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColor.titleColor, fontSize: 34), maxLines: 1,),
+          ),
           actions: <Widget>[
             SizedBox(
               height: Adapt.px(24),
@@ -519,13 +519,28 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   //       ],
                   //     )),
                   CustomSlidableAction(
-                    onPressed: (BuildContext context) async {
-                      final int count = await OXChatBinding.sharedInstance.deleteSession(announceItem);
-                      if (count > 0) {
-                        setState(() {
-                          _merge();
-                        });
-                      }
+                    onPressed: (BuildContext _) async {
+                      OXCommonHintDialog.show(context,
+                          content: announceItem.chatType == ChatType.chatSecret
+                              ? 'Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?'
+                              : 'Are you sure you want to delete this conversation?',
+                          actionList: [
+                            OXCommonHintAction.cancel(onTap: () {
+                              OXNavigator.pop(context);
+                            }),
+                            OXCommonHintAction.sure(
+                                text: Localized.text('ox_common.confirm'),
+                                onTap: () async {
+                                  OXNavigator.pop(context);
+                                  final int count = await OXChatBinding.sharedInstance.deleteSession(announceItem);
+                                  if (count > 0) {
+                                    setState(() {
+                                      _merge();
+                                    });
+                                  }
+                                }),
+                          ],
+                          isRowAction: true);
                     },
                     backgroundColor: ThemeColor.red1,
                     child: Column(
@@ -548,9 +563,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   _buildBusinessInfo(announceItem),
                   announceItem.alwaysTop
                       ? Container(
-                          alignment: Alignment.topRight,
-                          child: assetIcon('icon_red_always_top.png', 12, 12),
-                        )
+                    alignment: Alignment.topRight,
+                    child: assetIcon('icon_red_always_top.png', 12, 12),
+                  )
                       : Container(),
                 ],
               ),
@@ -588,7 +603,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   case 'join a channel':
                     await OXNavigator.pushPage(
                         context,
-                        (context) => SearchPage(
+                            (context) =>
+                            SearchPage(
                               searchPageType: SearchPageType.discover,
                             ));
                     break;
@@ -642,22 +658,22 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ),
               (announceListItem.chatType == ChatType.chatSingle)
                   ? Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: FutureBuilder<BadgeDB?>(
-                        builder: (context, snapshot) {
-                          return (snapshot.data != null && snapshot.data!.thumb != null)
-                              ? CachedNetworkImage(
-                                  imageUrl: snapshot.data!.thumb!,
-                                  width: Adapt.px(24),
-                                  height: Adapt.px(24),
-                                  fit: BoxFit.cover,
-                                )
-                              : Container();
-                        },
-                        future: _getUserSelectedBadgeInfo(announceListItem),
-                      ),
+                bottom: 0,
+                right: 0,
+                child: FutureBuilder<BadgeDB?>(
+                  builder: (context, snapshot) {
+                    return (snapshot.data != null && snapshot.data!.thumb != null)
+                        ? CachedNetworkImage(
+                      imageUrl: snapshot.data!.thumb!,
+                      width: Adapt.px(24),
+                      height: Adapt.px(24),
+                      fit: BoxFit.cover,
                     )
+                        : Container();
+                  },
+                  future: _getUserSelectedBadgeInfo(announceListItem),
+                ),
+              )
                   : Container(),
             ],
           ),
@@ -671,38 +687,38 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
           ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CommonImage(
-                  iconName: 'icon_lock_secret.png',
-                  width: Adapt.px(16),
-                  height: Adapt.px(16),
-                  package: 'ox_chat',
-                ),
-                SizedBox(
-                  width: Adapt.px(4),
-                ),
-                ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      colors: [
-                        ThemeColor.gradientMainEnd,
-                        ThemeColor.gradientMainStart,
-                      ],
-                    ).createShader(Offset.zero & bounds.size);
-                  },
-                  child: Text(
-                    item.chatName ?? '',
-                    style: TextStyle(
-                      fontSize: Adapt.px(16),
-                      color: ThemeColor.color0,
-                      letterSpacing: Adapt.px(0.4),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            )
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CommonImage(
+            iconName: 'icon_lock_secret.png',
+            width: Adapt.px(16),
+            height: Adapt.px(16),
+            package: 'ox_chat',
+          ),
+          SizedBox(
+            width: Adapt.px(4),
+          ),
+          ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: [
+                  ThemeColor.gradientMainEnd,
+                  ThemeColor.gradientMainStart,
+                ],
+              ).createShader(Offset.zero & bounds.size);
+            },
+            child: Text(
+              item.chatName ?? '',
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                color: ThemeColor.color0,
+                letterSpacing: Adapt.px(0.4),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      )
           : Text(item.chatName ?? '', textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
       constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
       // width: Adapt.px(135),
@@ -750,11 +766,11 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                 builder: (context, snapshot) {
                                   return (snapshot.data ?? false)
                                       ? CommonImage(
-                                          iconName: 'icon_session_mute.png',
-                                          width: Adapt.px(16),
-                                          height: Adapt.px(16),
-                                          package: 'ox_chat',
-                                        )
+                                    iconName: 'icon_session_mute.png',
+                                    width: Adapt.px(16),
+                                    height: Adapt.px(16),
+                                    package: 'ox_chat',
+                                  )
                                       : Container();
                                 },
                                 future: _getChatSessionMute(announceItem),
@@ -805,19 +821,22 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           } else if (announceItem.chatType == ChatType.chatChannel) {
             OXNavigator.pushPage(
                 context,
-                (context) => ChatGroupMessagePage(
+                    (context) =>
+                    ChatGroupMessagePage(
                       communityItem: announceItem,
                     ));
           } else if (announceItem.chatType == ChatType.chatSecret) {
             OXNavigator.pushPage(
                 context,
-                    (context) => ChatSecretMessagePage(
-                  communityItem: announceItem,
-                ));
+                    (context) =>
+                    ChatSecretMessagePage(
+                      communityItem: announceItem,
+                    ));
           } else {
             OXNavigator.pushPage(
                 context,
-                (context) => ChatMessagePage(
+                    (context) =>
+                    ChatMessagePage(
                       communityItem: announceItem,
                     )).then((value) {
               _merge();
@@ -838,7 +857,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (messageDB.type == MessageType.text) {
       return contentModel.content ?? '';
     } else {
-      return '[${contentModel.contentType.toString().split('.').last}]';
+      return '[${contentModel.contentType
+          .toString()
+          .split('.')
+          .last}]';
     }
   }
 
@@ -1027,7 +1049,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _gotoScan() async {
-    if (await Permission.camera.request().isGranted) {
+    if (await Permission.camera
+        .request()
+        .isGranted) {
       String? result = await OXNavigator.pushPage(context, (context) => CommonScanPage());
       if (result != null) {
         ScanUtils.analysis(context, result);
@@ -1050,7 +1074,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (tempUserDB != null) {
       isMute = tempUserDB.mute ?? false;
     }
-    if(!isMute){
+    if (!isMute) {
       PromptToneManager.sharedInstance.play();
     }
   }
@@ -1061,7 +1085,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (channelDB != null) {
       isMute = channelDB.mute ?? false;
     }
-    if(!isMute){
+    if (!isMute) {
       PromptToneManager.sharedInstance.play();
     }
   }
@@ -1073,7 +1097,8 @@ class _Style {
       fontSize: Adapt.px(12),
       fontWeight: FontWeight.w600,
       color: ThemeColor.white01,
-      background: Paint()..color = ThemeColor.red,
+      background: Paint()
+        ..color = ThemeColor.red,
     );
   }
 
