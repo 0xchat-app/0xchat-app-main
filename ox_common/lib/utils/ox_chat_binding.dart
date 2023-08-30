@@ -150,7 +150,7 @@ class OXChatBinding {
 
   Future<int> updateChatSession(String chatId, {String? chatName, String? content, String? pic, int? unreadCount, bool alwaysTop = false}) async {
     int changeCount = 0;
-    ChatSessionModel? sessionModel = sessionMap[chatId];
+    ChatSessionModel? sessionModel = sessionMap[chatId] ?? strangerSessionMap[chatId];
     if (sessionModel != null) {
       bool isChange = false;
       if (chatName != null && chatName.isNotEmpty && sessionModel.chatName != chatName) {
@@ -259,6 +259,7 @@ class OXChatBinding {
               sessionMap[chatId] = sessionModel;
             } else {
               strangerSessionMap[chatId] = sessionModel;
+              unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
             }
             final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
             if (count > 0) {
@@ -277,6 +278,7 @@ class OXChatBinding {
             sessionMap[chatId] = sessionModel;
           } else {
             strangerSessionMap[chatId] = sessionModel;
+            unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
           }
           final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
           if (count > 0) {
