@@ -458,13 +458,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 text: 'Conform',
                 onTap: () async {
                   Contacts.sharedInstance.addToBlockList(pubKey);
-                  setState(() {});
                   OXNavigator.pop(context, true);
                 }),
           ],
           isRowAction: true);
     }
-
+    setState(() {});
   }
 
   Future<void> _clickKey(String keyContent) async {
