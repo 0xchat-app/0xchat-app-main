@@ -47,7 +47,7 @@ class OXRelayManager {
     } else {
       RelayModel tempRelayModel = RelayModel(
         relayName: CommonConstant.oxChatRelay,
-        canDelete: false,
+        canDelete: true,
         connectStatus: 1,
         isSelected: true,
         createTime: DateTime.now().millisecondsSinceEpoch,
@@ -90,7 +90,7 @@ class OXRelayManager {
     for (String relay in relays) {
       RelayModel relayModel = RelayModel(
         relayName: relay,
-        canDelete: relay == CommonConstant.oxChatRelay ? false : true,
+        canDelete: true,
         connectStatus: 0,
         createTime: DateTime.now().millisecondsSinceEpoch,
       );
