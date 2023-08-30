@@ -36,75 +36,79 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: ThemeColor.color190,
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
-      ),
-      constraints: BoxConstraints(maxHeight: Adapt.px(300)),
-      width: Adapt.screenW() * 0.71,
-      padding: EdgeInsets.only(
-        top: Adapt.px(16),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.chatSessionModel.content ?? '',
-            style: TextStyle(
-              color: ThemeColor.color120,
-              fontSize: Adapt.px(14),
-              fontWeight: FontWeight.w600,
+      margin: EdgeInsets.only(top: Adapt.screenH()/9),
+      alignment: Alignment.topCenter,
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.circular(Adapt.px(12)),
+        ),
+        constraints: BoxConstraints(maxHeight: Adapt.px(300)),
+        width: Adapt.screenW() * 0.71,
+        padding: EdgeInsets.only(
+          top: Adapt.px(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.chatSessionModel.content ?? '',
+              style: TextStyle(
+                color: ThemeColor.color120,
+                fontSize: Adapt.px(14),
+                fontWeight: FontWeight.w600,
+              ),
+            ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(12))),
+            SizedBox(
+              height: Adapt.px(12),
             ),
-          ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(12))),
-          SizedBox(
-            height: Adapt.px(12),
-          ),
-          RichTextColor(
-            text: Localized.text('ox_chat.str_secret_center_hint'),
-            highlightTextList: ['Nip 44', 'Nip 59'],
-            maxLines: 12,
-          ).setPadding(
-            EdgeInsets.symmetric(
-              horizontal: Adapt.px(12),
+            RichTextColor(
+              text: Localized.text('ox_chat.str_secret_center_hint'),
+              highlightTextList: ['Nip 44', 'Nip 59'],
+              maxLines: 12,
+            ).setPadding(
+              EdgeInsets.symmetric(
+                horizontal: Adapt.px(12),
+              ),
             ),
-          ),
-          SizedBox(
-            height: Adapt.px(15),
-          ),
-          Container(
-            width: double.infinity,
-            height: Adapt.px(1),
-            alignment: Alignment.bottomLeft,
-            color: ThemeColor.color200,
-          ),
-          Container(
-            width: double.infinity,
-            height: Adapt.px(44),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CommonImage(
-                  iconName: 'icon_secret_relay.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                  package: 'ox_chat',
-                ),
-                SizedBox(
-                  width: Adapt.px(8),
-                ),
-                Text(
-                  (_ssDB == null || _ssDB!.relay == null || _ssDB!.relay == 'null' || _ssDB!.relay!.isEmpty) ? '' : _ssDB!.relay!,
-                  style: TextStyle(
-                    color: ThemeColor.color100,
-                    fontSize: Adapt.px(12),
-                    fontWeight: FontWeight.w600,
+            SizedBox(
+              height: Adapt.px(15),
+            ),
+            Container(
+              width: double.infinity,
+              height: Adapt.px(1),
+              alignment: Alignment.bottomLeft,
+              color: ThemeColor.color200,
+            ),
+            Container(
+              width: double.infinity,
+              height: Adapt.px(44),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CommonImage(
+                    iconName: 'icon_secret_relay.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                    package: 'ox_chat',
                   ),
-                ),
-              ],
+                  SizedBox(
+                    width: Adapt.px(8),
+                  ),
+                  Text(
+                    (_ssDB == null || _ssDB!.relay == null || _ssDB!.relay == 'null' || _ssDB!.relay!.isEmpty) ? '' : _ssDB!.relay!,
+                    style: TextStyle(
+                      color: ThemeColor.color100,
+                      fontSize: Adapt.px(12),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
