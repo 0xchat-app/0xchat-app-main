@@ -19,8 +19,6 @@ abstract class OXChatObserver {
 
   void didPrivateMessageCallBack(MessageDB message) {}
 
-  void didStrangerPrivateMessageCallBack(MessageDB message) {}
-
   void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
 
   void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
@@ -447,7 +445,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId!, content: "Prompt: [${user.name}] has accepted your secret chat request.");
+    await updateChatSession(ssDB.sessionId!, content: "[${user.name}] has accepted your secret chat request.");
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
@@ -459,7 +457,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId, content: "Prompt: [${user.name}] has rejected your secret chat request");
+    await updateChatSession(ssDB.sessionId, content: "[${user.name}] has rejected your secret chat request");
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatRejectCallBack(ssDB);
     }
