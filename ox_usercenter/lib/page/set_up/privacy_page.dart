@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_usercenter/page/set_up/privacy_blocked_page.dart';
 
 class PrivacyPage extends StatefulWidget {
   const PrivacyPage({super.key});
@@ -18,10 +19,15 @@ class _PrivacyPageState extends State<PrivacyPage> {
 
   List<String> _blockList = [];
 
+  List<UserDB> _blockBlockedUser = [];
+
   @override
   void initState() {
     super.initState();
-    getUserBlockList();
+    _getBlockedUserPubkeys();
+    if(_blockList.isNotEmpty){
+      _getBlockUserProfile(_blockList);
+    }
   }
 
   @override
@@ -33,7 +39,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         useLargeTitle: false,
       ),
       backgroundColor: ThemeColor.color190,
-      body: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24))),
+      body: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12))),
     );
   }
 
@@ -76,33 +82,49 @@ class _PrivacyPageState extends State<PrivacyPage> {
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color180,
       ),
-      child: Row(children: [
-        leading ?? Container(),
-        SizedBox(width: Adapt.px(12),),
-        Expanded(
-          child: Text(
-            content ?? '',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            style: TextStyle(
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w400,
-              color: contentColor ?? ThemeColor.color0,
-              height: Adapt.px(22) / Adapt.px(16),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: (){
+          OXNavigator.pushPage(context, (context) => PrivacyBlockedPage(blockedUsers: _blockBlockedUser,)).then((value){
+            if(value != null){
+              _getBlockedUserPubkeys();
+              _getBlockUserProfile(_blockList);
+            }
+          });
+        },
+        child: Row(children: [
+          leading ?? Container(),
+          SizedBox(width: Adapt.px(12),),
+          Expanded(
+            child: Text(
+              content ?? '',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w400,
+                color: contentColor ?? ThemeColor.color0,
+                height: Adapt.px(22) / Adapt.px(16),
+              ),
             ),
           ),
-        ),
-        actions ?? Container()
-      ]),
+          actions ?? Container()
+        ]),
+      ),
     );
   }
 
-  void getUserBlockList(){
+  void _getBlockedUserPubkeys(){
     List<String>?  blockResult = Contacts.sharedInstance.blockList;
     if(blockResult != null){
       setState(() {
         _blockList = blockResult;
       });
     }
+  }
+
+  Future<void> _getBlockUserProfile(List<String> pubKeys) async {
+    Map<String, UserDB> result = await Account.syncProfilesFromRelay(pubKeys);
+    _blockBlockedUser = result.values.toList();
   }
 }
