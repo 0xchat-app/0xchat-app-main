@@ -86,8 +86,16 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didPrivateMessageCallBack(MessageDB message) async {
+  void didPrivateMessageCallBack(MessageDB message) {
+    receivePrivateMessageHandler(message);
+  }
 
+  @override
+  void didStrangerPrivateMessageCallBack(MessageDB message) {
+    receivePrivateMessageHandler(message);
+  }
+
+  Future receivePrivateMessageHandler(MessageDB message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'didFriendMessageCallBack',
@@ -99,16 +107,44 @@ class ChatDataCache with OXChatObserver {
     if (senderId == null || receiverId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
-        funcName: 'didFriendMessageCallBack',
+        funcName: 'receivePrivateMessageHandler',
         message: 'senderId($senderId) or receiverId($receiverId) is null',
       );
       return ;
     }
-    PrivateChatKey key = PrivateChatKey(senderId, receiverId);
+    final key = PrivateChatKey(senderId, receiverId);
 
     types.Message? msg = await message.toChatUIMessage();
     if (msg == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'didFriendMessageCallBack', message: 'message is null');
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'receivePrivateMessageHandler', message: 'message is null');
+      return ;
+    }
+
+    await _addPrivateChatMessages(key, msg);
+  }
+
+  @override
+  void didSecretChatMessageCallBack(MessageDB message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'didFriendMessageCallBack',
+      message: 'begin',
+    );
+
+    final sessionId = message.sessionId;
+    if (sessionId == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didSecretChatMessageCallBack',
+        message: 'sessionId($sessionId) is null',
+      );
+      return ;
+    }
+    final key = SecretChatKey(sessionId);
+
+    types.Message? msg = await message.toChatUIMessage();
+    if (msg == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'didSecretChatMessageCallBack', message: 'message is null');
       return ;
     }
 
