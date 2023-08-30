@@ -1,6 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:chatcore/chat-core.dart';
 
 class PromptToneManager {
+
+  bool Function(MessageDB msg)? isCurrencyChatPage;
+
   static final PromptToneManager sharedInstance = PromptToneManager._internal();
 
   final AudioPlayer _player;
