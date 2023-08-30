@@ -7,6 +7,7 @@ import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -377,11 +378,17 @@ class _ContractsPageState extends State<ContractsPage>
   @override
   void didLoginSuccess(UserDB? userInfo) {
     _loadData();
-    setState(() {});
+    setState(() {
+      _isShowTools = true;
+    });
   }
 
   @override
-  void didLogout() {}
+  void didLogout() {
+    setState(() {
+      _isShowTools = false;
+    });
+  }
 
   @override
   void didSwitchUser(UserDB? userInfo) {
@@ -389,7 +396,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didSecretChatRequestCallBack() {
+  void didStrangerSessionUpdate() {
     _isShowTools = true;
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {
