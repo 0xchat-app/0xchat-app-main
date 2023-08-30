@@ -4,7 +4,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -42,33 +41,13 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color190,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: 'Create Secret Chat',
-        backgroundColor: ThemeColor.color190,
-        isClose: true,
-        actions: [
-          GestureDetector(
-            onTap: _createSecretChat,
-            child: Center(
-              child: CommonImage(
-                iconName: 'icon_done.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                useTheme: false,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: Adapt.px(24),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: _body(),
+    return Container(
+      decoration: BoxDecoration(
+          color: ThemeColor.color190, borderRadius: BorderRadius.circular(20)),
+      child: SafeArea(
+        child: Container(
+          child: _body(),
+        ),
       ),
     );
   }
@@ -77,6 +56,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        _appBar(),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: Adapt.px(24),
@@ -126,6 +106,55 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _appBar() {
+    return Container(
+      height: Adapt.px(56),
+      padding: EdgeInsets.symmetric(
+        horizontal: Adapt.px(24),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+            child: CommonImage(
+              iconName: "title_close.png",
+              color: Colors.white,
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: false,
+            ),
+          ),
+          Expanded(
+            child: Container(
+              child: Text(
+                'Create Secret Chat',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(17),
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: _createSecretChat,
+            child: Center(
+              child: CommonImage(
+                iconName: 'icon_done.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: false,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -187,8 +216,8 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     );
   }
 
-  Widget? _delTextIconWidget () {
-    if(!_isShowDelete) return null;
+  Widget? _delTextIconWidget() {
+    if (!_isShowDelete) return null;
     return IconButton(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -292,24 +321,22 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     setState(() {});
   }
 
-
   void _createSecretChat() async {
-    String chatRelay = _relaysList[0];
+    String chatRelay = _relaysList[_selectRelayIndex ?? 0];
     String inputText = _relayTextFieldController.text;
     if (_selectRelayIndex == null && inputText.isNotEmpty) {
       CommonToast.instance.show(context, 'Please select relay or enter relay');
       return;
     }
 
-    if(inputText.isNotEmpty){
-      if(!_isWssWithValidURL(_relayTextFieldController.text)){
-      CommonToast.instance.show(context, 'Please input the right wss');
-      return;
+    if (inputText.isNotEmpty) {
+      if (!_isWssWithValidURL(_relayTextFieldController.text)) {
+        CommonToast.instance.show(context, 'Please input the right wss');
+        return;
       }
       chatRelay = inputText;
     }
 
-  print('=====chatRelay====>$chatRelay');
     OKEvent event =
         await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
     SecretSessionDB? db =
@@ -317,13 +344,9 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     if (db != null) {
       ChatSessionModel? chatModel =
           await OXChatBinding.sharedInstance.localCreateSecretChat(db);
-      if(chatModel != null){
-        OXNavigator.pushPage(
-          context,
-              (context) => ChatSecretMessagePage(
-            communityItem: chatModel
-          )
-        );
+      if (chatModel != null) {
+        OXNavigator.pushPage(context,
+            (context) => ChatSecretMessagePage(communityItem: chatModel));
       }
     }
   }
