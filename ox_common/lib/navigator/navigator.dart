@@ -146,7 +146,7 @@ class OXNavigator extends Navigator {
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) =>
             Container(
-              height: MediaQuery.of(context).size.height * 0.9,
+              height: MediaQuery.of(context).size.height * 0.96,
               child: builder(context),
             ),
       );
