@@ -27,6 +27,8 @@ abstract class OXChatObserver {
 
   void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
 
+  void didSecretChatUpdateCallBack(SecretSessionDB ssDB) {}
+
   void didContactUpdatedCallBack() {}
 
   void didCreateChannel(ChannelDB? channelDB) {}
@@ -352,6 +354,7 @@ class OXChatBinding {
   Future<int> deleteSession(ChatSessionModel sessionModel, {bool isStranger = false}) async {
     if (isStranger) {
       strangerSessionMap.remove(sessionModel.chatId);
+      unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
     } else {
       sessionMap.remove(sessionModel.chatId);
     }
@@ -453,7 +456,7 @@ class OXChatBinding {
 
   void secretChatUpdateCallBack(SecretSessionDB ssDB) {
     for (OXChatObserver observer in _observers) {
-      observer.didSecretChatCloseCallBack(ssDB);
+      observer.didSecretChatUpdateCallBack(ssDB);
     }
   }
 
