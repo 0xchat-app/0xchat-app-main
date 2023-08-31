@@ -200,8 +200,8 @@ class OXChatBinding {
   }
 
   Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB) async {
-    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}, secretSessionId =${messageDB.sessionId}');
-    String? secretSessionId = messageDB.sessionId;
+    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}, secretSessionId =${messageDB.sessionId == null|| messageDB.sessionId == ''}');
+    String secretSessionId = messageDB.sessionId ?? '';
     int changeCount = 0;
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContentByMsgType(messageDB),
@@ -215,7 +215,7 @@ class OXChatBinding {
       //single chat
       String chatId = '';
       String? otherUserPubkey;
-      if (secretSessionId == null) {
+      if (secretSessionId.isEmpty) {
         if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey! &&
             messageDB.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
           chatId = messageDB.sender!;
@@ -438,6 +438,7 @@ class OXChatBinding {
       createTime: ssDB.lastUpdateTime,
       sender: ssDB.toPubkey,
       receiver: ssDB.myPubkey,
+      sessionId: ssDB.sessionId,
     ));
   }
 
