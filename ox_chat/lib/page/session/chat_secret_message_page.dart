@@ -677,12 +677,12 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     ChatLogUtils.info(
       className: 'ChatSecretMessagePage',
       funcName: '_sendMessage',
-      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
+      message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
     );
     Contacts.sharedInstance.sendSecretMessage(
         sessionId,
         receiverPubkey,
-        'replayId',
+        '',
         type,
         contentString,
         event: event,
