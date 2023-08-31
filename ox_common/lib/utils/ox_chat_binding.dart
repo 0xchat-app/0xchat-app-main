@@ -199,7 +199,9 @@ class OXChatBinding {
     return changeCount;
   }
 
-  Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB, {String? secretSessionId}) async {
+  Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB) async {
+    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}, secretSessionId =${messageDB.sessionId}');
+    String? secretSessionId = messageDB.sessionId;
     int changeCount = 0;
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContentByMsgType(messageDB),
@@ -419,7 +421,6 @@ class OXChatBinding {
         sender: ssDB.toPubkey,
         receiver: ssDB.myPubkey,
       ),
-      secretSessionId: ssDB.sessionId,
     );
     return chatSessionModel;
   }
@@ -436,7 +437,7 @@ class OXChatBinding {
       createTime: ssDB.lastUpdateTime,
       sender: ssDB.toPubkey,
       receiver: ssDB.myPubkey,
-    ), secretSessionId: ssDB.sessionId);
+    ));
   }
 
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
@@ -475,15 +476,15 @@ class OXChatBinding {
     }
   }
 
-  void privateChatMessageCallBack(MessageDB message, {String? secretSessionId}) async {
-    syncChatSessionTable(message, secretSessionId: secretSessionId);
+  void privateChatMessageCallBack(MessageDB message) async {
+    syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didPrivateMessageCallBack(message);
     }
   }
 
-  void secretChatMessageCallBack(MessageDB message, {String? secretSessionId}) async {
-    syncChatSessionTable(message, secretSessionId: secretSessionId);
+  void secretChatMessageCallBack(MessageDB message) async {
+    syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatMessageCallBack(message);
     }
