@@ -118,9 +118,9 @@ class OXUserInfoManager {
       LogUtil.e("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatMessageCallBack = (String secretSessionId, MessageDB message) {
-      LogUtil.e("Michael: init secretChatMessageCallBack secretSessionId =${secretSessionId}; message.id =${message.messageId}");
-      OXChatBinding.sharedInstance.secretChatMessageCallBack(message, secretSessionId: secretSessionId);
+    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
+      LogUtil.e("Michael: init secretChatMessageCallBack secretSessionId =${message.sessionId}; message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.secretChatMessageCallBack(message, secretSessionId: message.sessionId);
     };
     Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
       LogUtil.e("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
