@@ -499,7 +499,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             OXNavigator.pop(context, false);
           }),
           OXCommonHintAction.sure(
-              text: 'Conform',
+              text: 'Confirm',
               onTap: () async {
                 OXNavigator.pop(context, true);
               }),
