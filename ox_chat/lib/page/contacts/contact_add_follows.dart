@@ -3,6 +3,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -84,54 +85,26 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: ThemeColor.color190,
-        borderRadius: BorderRadius.circular(20)
-
+    return Scaffold(
+      backgroundColor: ThemeColor.color190,
+      appBar: CommonAppBar(
+        useLargeTitle: false,
+        centerTitle: true,
+        title: Localized.text('ox_chat.import_follows'),
+        backgroundColor: ThemeColor.color190,
+        actions: [
+          _appBarActionWidget(),
+          SizedBox(
+            width: Adapt.px(24),
+          ),
+        ],
       ),
-      child: SafeArea(
+      body:  SafeArea(
         child: Container(
           height: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: Adapt.px(56),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Adapt.px(24),
-                ),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        OXNavigator.pop(context);
-                      },
-                      child: CommonImage(
-                        iconName: "title_close.png",
-                        color: Colors.white,
-                        width: Adapt.px(24),
-                        height: Adapt.px(24),
-                        useTheme: false,
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        child: Text(
-                          Localized.text('ox_chat.import_follows'),
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(17),
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    _appBarActionWidget(),
-                  ],
-                ),
-              ),
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: Adapt.px(24),
@@ -298,6 +271,9 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     String encodedPubKeyShow =
         '${encodedPubKey.substring(0, 10)}...${encodedPubKey.substring(pubKeyLength - 10, pubKeyLength)}';
 
+    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
+    bool isContacts = allContacts[userInfo.db.pubKey] != null;
+
     return Container(
       padding: EdgeInsets.only(
         left: Adapt.px(16),
@@ -309,7 +285,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
               child: Text(
             name,
             style: TextStyle(
-              color: ThemeColor.color100,
+              color: isContacts ? ThemeColor.color0 : ThemeColor.color100,
               fontSize: Adapt.px(16),
               fontWeight: FontWeight.w600,
             ),
