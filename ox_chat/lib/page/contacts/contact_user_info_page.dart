@@ -223,9 +223,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             content: 'Secret Chat',
           ),
           _tabWidget(
-            onTap: () => {},
-            iconName: 'icon_lightning.png',
-            content: 'Zaps',
+            onTap: () => {
+              // CommonToast.instance.show(context, "Don't call yourself")
+            },
+            iconName: 'icon_chat_call.png',
+            content: 'Call',
           ),
           _tabWidget(
             onTap: () => _onChangedMute(!_isMute),

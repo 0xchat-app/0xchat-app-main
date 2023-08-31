@@ -189,7 +189,7 @@ class _ContractsPageState extends State<ContractsPage>
                               return _inkWellWidget(
                                 content: 'Import Follows',
                                 onTap: () async {
-                                  var result = await OXNavigator.presentPage(
+                                  var result = await OXNavigator.pushPage(
                                     context,
                                         (context) => ContactAddFollows(),
                                   );
