@@ -439,9 +439,10 @@ class _MessageState extends State<Message> {
               ThemeColor.gradientMainStart
             ],
           ) : null,
-          color: !currentUserIsAuthor ||
-              widget.message.type == types.MessageType.image
-              ? Colors.transparent
+          color: !currentUserIsAuthor
+              ? (!currentUserIsAuthor && widget.message.type == types.MessageType.image)
+                  ? null
+                  : ThemeColor.color180
               : null,
         ),
         child: ClipRRect(
