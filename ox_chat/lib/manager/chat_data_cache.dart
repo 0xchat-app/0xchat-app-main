@@ -122,6 +122,11 @@ class ChatDataCache with OXChatObserver {
     }
 
     await _addPrivateChatMessages(key, msg);
+
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (receiverId == myPubkey) {
+      OXChatBinding.sharedInstance.updateChatSession(senderId, messageKind: message.kind);
+    }
   }
 
   @override
@@ -512,7 +517,7 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
         return ;
       }
 
-      final messageList = await _loadPrivateChatMessages(key);
+      final messageList = await _loadPrivateChatMessages(key, session);
 
       messageIdCache.addAll(messageList.map((e) => e.id));
 
@@ -527,7 +532,7 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
   }
 
   Future<List<types.Message>> _loadPrivateChatMessages(
-      ChatTypeKey key) async {
+      ChatTypeKey key, ChatSessionModel session) async {
     final Map<dynamic, dynamic> tempMap = await Messages.loadMessagesFromDB(
       where: key.getSQLFilter(),
       whereArgs: key.getSQLFilterArgs(),
@@ -544,6 +549,14 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
       }
       convertedMessages.add(uiMsg);
     });
+
+    // try add message kind
+    try {
+      final minePubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+      final lastMessage = messages.firstWhere((element) => element.sender != minePubkey);
+      OXChatBinding.sharedInstance.updateChatSession(session.chatId ?? '', messageKind: lastMessage.kind);
+    } catch (e) { }
+
     return convertedMessages.where((message) => message != null).cast<
         types.Message>().toList();
   }
