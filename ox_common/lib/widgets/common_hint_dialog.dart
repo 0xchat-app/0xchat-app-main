@@ -92,7 +92,7 @@ class OXCommonHintDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: bgImage == null ? ThemeColor.color180 : Colors.transparent,
                     borderRadius: BorderRadius.circular(10.0),
-                    image: DecorationImage(image: bgImage ?? AssetImage(''), fit: BoxFit.fill)),
+                    image: bgImage == null ? null : DecorationImage(image: bgImage!, fit: BoxFit.fill)),
                 child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[_buildTextArea(), _buildButtonArea(context)])),
         ));
   }
