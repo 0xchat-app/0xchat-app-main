@@ -1099,6 +1099,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       isMute = tempUserDB.mute ?? false;
     }
     if (!isMute) {
+      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
       PromptToneManager.sharedInstance.play();
     }
   }
@@ -1110,6 +1111,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       isMute = channelDB.mute ?? false;
     }
     if (!isMute && message.sender != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
+      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
       PromptToneManager.sharedInstance.play();
     }
   }
