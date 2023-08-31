@@ -105,7 +105,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   void _initData() async {
     _isMute = widget.userDB.mute ?? false;
     if (widget.userDB.badges != null && widget.userDB.badges!.isNotEmpty) {
-      List<String> badgeIds = jsonDecode(widget.userDB.badges ?? '');
+      List<dynamic> badgeListDynamic = jsonDecode(widget.userDB.badges!);
+      List<String> badgeIds = badgeListDynamic.cast();
       List<BadgeDB?> dbGetList =
           await BadgesHelper.getBadgeInfosFromDB(badgeIds);
       if (dbGetList.length > 0) {
