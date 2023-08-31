@@ -125,6 +125,8 @@ class OXChatBinding {
       case MessageType.file:
       case MessageType.encryptedFile:
         return '[file]';
+      case MessageType.system:
+        return messageDB.decryptContent ?? '';
       case MessageType.template:
         final decryptContent = messageDB.decryptContent;
         if (decryptContent != null && decryptContent.isNotEmpty) {

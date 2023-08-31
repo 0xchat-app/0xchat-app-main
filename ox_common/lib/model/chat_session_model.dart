@@ -37,6 +37,8 @@ class ChatSessionModel extends DBObject {
 
   String? draft;
 
+  int? messageKind;
+
   ChatSessionModel({
     this.chatId,
     this.chatName,
@@ -51,10 +53,15 @@ class ChatSessionModel extends DBObject {
     this.avatar,
     this.alwaysTop = false,
     this.draft,
+    this.messageKind,
   });
 
   static List<String?> primaryKey() {
     return ['chatId'];
+  }
+
+  static List<String?> ignoreKey() {
+    return ['messageKind'];
   }
 
   static Map<String, String?> updateTable() {
