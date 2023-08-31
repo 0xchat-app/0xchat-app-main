@@ -258,7 +258,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           InputMoreItemEx.album(chatGeneralHandler),
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
-          InputMoreItemEx.call(chatGeneralHandler, otherUser),
+          InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
         ],
         onVoiceSend: (path, duration) {
           _onVoiceSend(path, duration);
