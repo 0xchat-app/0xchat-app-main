@@ -76,13 +76,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        if(_isEdit && _selectedUserList.isNotEmpty){
-          await _removeBlockList(_selectedUserList);
-          if(_selectedUserList.isEmpty){
-            _isShowEdit = false;
-            updateStateView(CommonStateView.CommonStateView_NoData);
-          }
-        }else{
+        if(!_isEdit){
           _selectedUserList.clear();
         }
         setState(() {
@@ -113,14 +107,28 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
   }
 
   Widget _buildBody() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12)),
-      child: ListView.builder(
-        itemCount: widget.blockedUsers.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _buildBlockedUserItem(widget.blockedUsers[index],index);
-        },
-      ),
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Stack(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12)),
+          child: ListView.builder(
+            itemCount: widget.blockedUsers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _buildBlockedUserItem(widget.blockedUsers[index],index);
+            },
+          ),
+        ),
+        _isEdit && _selectedUserList.isNotEmpty
+            ? Positioned(
+                left: 0,
+                right: 0,
+                bottom: Adapt.px(bottomPadding > 0 ? bottomPadding : 0),
+                child: _buildRemoveButton(),
+              )
+            : Container(),
+      ],
     );
   }
 
@@ -216,6 +224,44 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRemoveButton() {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () async {
+        await _removeBlockList(_selectedUserList);
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: Adapt.px(24),
+          vertical: Adapt.px(16),
+        ),
+        width: double.infinity,
+        height: Adapt.px(48),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: ThemeColor.color180,
+          gradient: LinearGradient(
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          'Remove ${_selectedUserList.length} users ',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: Adapt.px(14),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ),
     );
   }
