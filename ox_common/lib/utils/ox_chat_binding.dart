@@ -157,6 +157,7 @@ class OXChatBinding {
     int? unreadCount,
     bool alwaysTop = false,
     String? draft,
+    int? messageKind,
   }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId] ?? strangerSessionMap[chatId];
@@ -184,6 +185,10 @@ class OXChatBinding {
       }
       if (draft != null && sessionModel.draft != draft) {
         sessionModel.draft = draft;
+        isChange = true;
+      }
+      if (messageKind != null && sessionModel.messageKind != messageKind) {
+        sessionModel.messageKind = messageKind;
         isChange = true;
       }
       if (isChange) {
