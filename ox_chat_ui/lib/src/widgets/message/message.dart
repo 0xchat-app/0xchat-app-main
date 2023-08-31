@@ -441,7 +441,7 @@ class _MessageState extends State<Message> {
           ) : null,
           color: !currentUserIsAuthor ||
               widget.message.type == types.MessageType.image
-              ? ThemeColor.color180
+              ? Colors.transparent
               : null,
         ),
         child: ClipRRect(
