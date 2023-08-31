@@ -516,24 +516,28 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 type == OtherInfoItemType.Badges
                     ? Container(
                         width: Adapt.px(100),
-                        child: ListView.separated(
-                            itemCount: _badgeDBList.length,
-                            scrollDirection: Axis.horizontal,
-                            separatorBuilder: (context, index) =>
-                                Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              BadgeDB tempItem = _badgeDBList[index];
-                              return CachedNetworkImage(
-                                imageUrl: tempItem.thumb ?? '',
-                                fit: BoxFit.contain,
-                                placeholder: (context, url) =>
-                                    _badgePlaceholderImage,
-                                errorWidget: (context, url, error) =>
-                                    _badgePlaceholderImage,
-                                width: Adapt.px(32),
-                                height: Adapt.px(32),
-                              );
-                            }),
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: ListView.separated(
+                              itemCount: _badgeDBList.length,
+                              scrollDirection: Axis.horizontal,
+                              separatorBuilder: (context, index) =>
+                                  Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                BadgeDB tempItem = _badgeDBList[index];
+                                LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
+                                return CachedNetworkImage(
+                                  imageUrl: tempItem.thumb ?? '',
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) =>
+                                  _badgePlaceholderImage,
+                                  errorWidget: (context, url, error) =>
+                                  _badgePlaceholderImage,
+                                  width: Adapt.px(32),
+                                  height: Adapt.px(32),
+                                );
+                              }),
+                        ),
                       )
                     : Container(),
                 CommonImage(
