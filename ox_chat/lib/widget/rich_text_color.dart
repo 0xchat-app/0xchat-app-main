@@ -29,6 +29,7 @@ class RichTextColor extends StatelessWidget {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: ThemeColor.color120,
+      height: 1.5
     );
     final highlightTextStyle = normalTextStyle.copyWith(
       color: ThemeColor.color10,
