@@ -43,6 +43,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
   late String _addressStr;
 
+  bool _isVerifiedDNS = false;
+
   @override
   void initState() {
     super.initState();
@@ -65,6 +67,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         }
       });
     _initInterface();
+    _verifiedDNS();
   }
 
   @override
@@ -375,34 +378,30 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
   Widget buildHeadDesc() {
     String dns = OXUserInfoManager.sharedInstance.currentUserInfo?.dns ?? '';
-    return GestureDetector(
-      child: Container(
-        margin: EdgeInsets.only(top: Adapt.px(2)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              dns,
-              maxLines: 1,
-              style: TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
-              // overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(
-              width: Adapt.px(4),
-            ),
-            dns.isNotEmpty
-                ? CommonImage(
-                    iconName: "icon_copy.png",
-                    width: Adapt.px(16),
-                    height: Adapt.px(16),
-                  )
-                : Container(),
-          ],
-        ),
+    return Container(
+      margin: EdgeInsets.only(top: Adapt.px(2)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            dns,
+            maxLines: 1,
+            style: TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
+            // overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(
+            width: Adapt.px(4),
+          ),
+          _isVerifiedDNS
+              ? CommonImage(
+                  iconName: "icon_npi05_verified.png",
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_common',
+                )
+              : Container(),
+        ],
       ),
-      onTap: () async {
-        await TookKit.copyKey(context, dns);
-      },
     );
   }
 
@@ -436,6 +435,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       return match.group(1) ?? '';
     }
     return '';
+  }
+
+  void _verifiedDNS() async {
+    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
+    setState(() {
+      _isVerifiedDNS = isVerifiedDNS;
+    });
   }
 
   @override

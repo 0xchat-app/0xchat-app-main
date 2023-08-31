@@ -86,6 +86,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   List<BadgeDB> _badgeDBList = [];
   bool _isMute = false;
+  bool _isVerifiedDNS = false;
 
   @override
   void initState() {
@@ -139,6 +140,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             chatName: widget.userDB.name, pic: widget.userDB.picture);
       }
     }
+    _verifiedDNS();
   }
 
   @override
@@ -678,6 +680,14 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           SizedBox(
             width: Adapt.px(4),
           ),
+          _isVerifiedDNS
+              ? CommonImage(
+            iconName: "icon_npi05_verified.png",
+            width: Adapt.px(16),
+            height: Adapt.px(16),
+            package: 'ox_common',
+          )
+              : Container(),
         ],
       ),
     );
@@ -858,5 +868,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       return badgeDB;
     }
     return null;
+  }
+
+  void _verifiedDNS() async {
+    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
+    setState(() {
+      _isVerifiedDNS = isVerifiedDNS;
+    });
   }
 }
