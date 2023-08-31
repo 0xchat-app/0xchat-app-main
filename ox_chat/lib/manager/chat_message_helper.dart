@@ -159,6 +159,9 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.encryptedAudio:
         messageFactory = AudioMessageFactory();
         break ;
+      case MessageType.system:
+        messageFactory = SystemMessageFactory();
+        break ;
       case MessageType.template:
         messageFactory = CustomMessageFactory();
         break ;
@@ -206,6 +209,8 @@ extension MessageUIToDBEx on ChatTypes.Message {
         return MessageType.file;
       case ChatTypes.MessageType.custom:
         return MessageType.template;
+      case ChatTypes.MessageType.system:
+        return MessageType.system;
       default:
         return MessageType.text;
     }
@@ -220,7 +225,8 @@ extension MessageUIToDBEx on ChatTypes.Message {
     if (msg is ChatTypes.TextMessage ||
         msg is ChatTypes.ImageMessage ||
         msg is ChatTypes.AudioMessage ||
-        msg is ChatTypes.VideoMessage
+        msg is ChatTypes.VideoMessage ||
+        msg is ChatTypes.SystemMessage
     ) {
       return content;
     } else if (msg is ChatTypes.CustomMessage) {

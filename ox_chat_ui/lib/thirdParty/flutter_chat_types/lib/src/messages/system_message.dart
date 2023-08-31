@@ -52,7 +52,7 @@ abstract class SystemMessage extends Message {
   final String text;
 
   @override
-  String get content => '';
+  String get content => text;
 
   /// Equatable props.
   @override

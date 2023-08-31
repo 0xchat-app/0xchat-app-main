@@ -468,7 +468,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
 
     // sync message to session
-    chatGeneralHandler.syncChatSessionForSendMsg(
+    ChatGeneralHandler.syncChatSessionForSendMsg(
       createTime: sendMsg.createdAt,
       content: sendMsg.content,
       type: type,

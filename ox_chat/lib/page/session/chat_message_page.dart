@@ -415,8 +415,14 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
 
-    final event = message.sourceKey
-        ?? await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+
+    var event = message.sourceKey;
+    final messageKind = session.messageKind;
+    if (messageKind != null) {
+      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString, kind: messageKind);
+    } else {
+      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+    }
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return ;
@@ -454,7 +460,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
 
     // sync message to session
-    chatGeneralHandler.syncChatSessionForSendMsg(
+    ChatGeneralHandler.syncChatSessionForSendMsg(
       createTime: sendMsg.createdAt,
       content: sendMsg.content,
       type: type,

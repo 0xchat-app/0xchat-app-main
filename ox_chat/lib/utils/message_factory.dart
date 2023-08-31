@@ -30,10 +30,6 @@ class TextMessageFactory implements MessageFactory {
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
   }) {
-    final mid = contentModel.mid;
-    if (mid == null) {
-      return null;
-    }
     final text = contentModel.content ?? '';
     return types.TextMessage(
       author: author,
@@ -59,9 +55,8 @@ class ImageMessageFactory implements MessageFactory {
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
   }) {
-    final mid = contentModel.mid;
     final uri = contentModel.content;
-    if (mid == null || uri == null) {
+    if (uri == null) {
       return null;
     }
     return types.ImageMessage(
@@ -91,9 +86,8 @@ class AudioMessageFactory implements MessageFactory {
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
   }) {
-    final mid = contentModel.mid;
     final uri = contentModel.content;
-    if (mid == null || uri == null) {
+    if (uri == null) {
       return null;
     }
     return types.AudioMessage(
@@ -124,10 +118,9 @@ class VideoMessageFactory implements MessageFactory {
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
   }) {
-    final mid = contentModel.mid;
     final uri = contentModel.content;
     final snapshotUrl = '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
-    if (mid == null || uri == null) {
+    if (uri == null) {
       return null;
     }
     return types.VideoMessage(
@@ -145,6 +138,28 @@ class VideoMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+    );
+  }
+}
+
+class SystemMessageFactory implements MessageFactory {
+  types.Message? createMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String remoteId,
+    required dynamic sourceKey,
+    required MessageContentModel contentModel,
+    required Status status,
+    EncryptionType fileEncryptionType = EncryptionType.none,
+  }) {
+    final text = contentModel.content ?? '';
+    return types.SystemMessage(
+      author: author,
+      createdAt: timestamp,
+      id: remoteId,
+      roomId: roomId,
+      text: text,
     );
   }
 }

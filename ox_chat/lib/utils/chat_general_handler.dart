@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:uuid/uuid.dart';
+import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
@@ -71,7 +71,7 @@ class ChatGeneralHandler {
 
   Future Function(GiphyImage image)? gifMessageSendHandler;
 
-  void syncChatSessionForSendMsg({
+  static syncChatSessionForSendMsg({
     required int createTime,
     required String content,
     required MessageType type,
