@@ -96,9 +96,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     () async {
       // Other
       var pubkeys = widget.communityItem.chatId ?? '';
-      if(widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger){
-        pubkeys = (widget.communityItem.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? widget.communityItem.sender : widget.communityItem.receiver) ?? '';
-      }
       otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
       setState(() { });
     }();
