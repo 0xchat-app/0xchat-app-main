@@ -732,7 +732,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
 
     // sync message to session
-    chatGeneralHandler.syncChatSessionForSendMsg(
+    ChatGeneralHandler.syncChatSessionForSendMsg(
       createTime: sendMsg.createdAt,
       content: sendMsg.content,
       type: type,

@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -190,7 +191,7 @@ class ChatDataCache with OXChatObserver {
     addSystemMessage('$userName joined Secret Chat', sessionModel);
   }
 
-  Future addSystemMessage(String text, ChatSessionModel session) async {
+  Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
 
     // author
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -215,7 +216,95 @@ class ChatDataCache with OXChatObserver {
       text: text,
     );
 
-    addNewMessage(session, message);
+    if (isSendToRemote) {
+      sendSystemMessage(session, message);
+    } else {
+      addNewMessage(session, message);
+    }
+  }
+
+  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message) async {
+
+    final sessionId = session.chatId ?? '';
+    final receiverPubkey = (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+        ? session.receiver
+        : session.sender) ??
+        '';
+
+    // send message
+    var sendFinish = OXValue(false);
+    final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
+    final contentString = message.contentString(message.content);
+
+    final event = await Contacts.sharedInstance.getSendSecretMessageEvent(
+      sessionId,
+      receiverPubkey,
+      '',
+      type,
+      contentString,
+    );
+
+    if (event == null) {
+      return;
+    }
+
+    final sendMsg = message.copyWith(
+      id: event.id,
+    );
+
+    addNewMessage(session, sendMsg);
+
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'sendSystemMessage',
+      message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
+    );
+
+    Contacts.sharedInstance
+        .sendSecretMessage(
+      sessionId,
+      receiverPubkey,
+      '',
+      type,
+      contentString,
+      event: event,
+    )
+        .then((event) {
+      sendFinish.value = true;
+      final updatedMessage = sendMsg.copyWith(
+        remoteId: event.eventId,
+        status: event.status ? types.Status.sent : types.Status.error,
+      );
+      ChatDataCache.shared.updateMessage(session, updatedMessage);
+    });
+
+    // If the message is not sent within a short period of time, change the status to the sending state
+    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, session);
+
+    // sync message to session
+    ChatGeneralHandler.syncChatSessionForSendMsg(
+      createTime: sendMsg.createdAt,
+      content: sendMsg.content,
+      type: type,
+      receiver: receiverPubkey,
+      decryptContent: contentString,
+      sessionId: sessionId,
+    );
+  }
+
+  void _updateMessageStatus(types.Message message, types.Status status, ChatSessionModel session) {
+    final updatedMessage = message.copyWith(
+      status: status,
+    );
+    updateMessage(session, updatedMessage);
+  }
+
+  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message, ChatSessionModel session) {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!sendFinish.value) {
+        _updateMessageStatus(message, types.Status.sending, session);
+      }
+    });
   }
 }
 
@@ -353,7 +442,12 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
       orderBy: "createTime desc",
     );
-    return sessionList.where((session) => (session.chatType == ChatType.chatSingle || session.chatType == ChatType.chatSecret || session.chatType == ChatType.chatSecretStranger || session.chatType == ChatType.chatStranger)).toList();
+    return sessionList.where((session) => (
+        session.chatType == ChatType.chatSingle
+            || session.chatType == ChatType.chatSecret
+            || session.chatType == ChatType.chatSecretStranger
+            || session.chatType == ChatType.chatStranger)
+    ).toList();
   }
 
   Future<List<ChatSessionModel>> _channelSessionList() async {
