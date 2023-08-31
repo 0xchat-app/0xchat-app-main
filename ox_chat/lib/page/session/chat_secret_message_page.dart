@@ -116,6 +116,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
       setState(() {
         _secretSessionDB = Contacts.sharedInstance.secretSessionMap[widget.communityItem.chatId];
+        LogUtil.e('Michael: _secretSessionDB =${_secretSessionDB.toString()}');
       });
     }
   }
@@ -176,102 +177,109 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   @override
   Widget build(BuildContext context) {
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      resizeToAvoidBottomInset: false,
-      appBar: CommonAppBar(
-        useLargeTitle: false,
-        centerTitle: true,
-        title: otherUser?.getUserShowName() ?? '',
-        titleWidget: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: Adapt.px(2)),
-                child: CommonImage(
-                  iconName: 'icon_lock_secret.png',
-                  width: Adapt.px(16),
-                  height: Adapt.px(16),
-                  package: 'ox_chat',
-                ),
-              ),
-              SizedBox(
-                width: Adapt.px(4),
-              ),
-              Text(
-                otherUser?.getUserShowName() ?? '',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(17),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
+    return WillPopScope(
+      onWillPop: () async {
+        await OXLoading.dismiss();
+        OXNavigator.popToRoot(context);
+        return Future.value(true);
+      },
+      child: Scaffold(
         backgroundColor: ThemeColor.color200,
-        backCallback: () {
-          OXNavigator.popToRoot(context);
-        },
-        actions: [
-          Container(
-            alignment: Alignment.center,
-            child: OXUserAvatar(
-              user: otherUser,
-              size: Adapt.px(36),
-              isClickable: true,
-              onReturnFromNextPage: () {
-                setState(() {});
-              },
+        resizeToAvoidBottomInset: false,
+        appBar: CommonAppBar(
+          useLargeTitle: false,
+          centerTitle: true,
+          title: otherUser?.getUserShowName() ?? '',
+          titleWidget: Center(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(top: Adapt.px(2)),
+                  child: CommonImage(
+                    iconName: 'icon_lock_secret.png',
+                    width: Adapt.px(16),
+                    height: Adapt.px(16),
+                    package: 'ox_chat',
+                  ),
+                ),
+                SizedBox(
+                  width: Adapt.px(4),
+                ),
+                Text(
+                  otherUser?.getUserShowName() ?? '',
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: Adapt.px(17),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-        ],
-      ),
-      body: Chat(
-        anchorMsgId: widget.anchorMsgId,
-        messages: _messages,
-        isLastPage: !chatGeneralHandler.hasMoreMessage,
-        onEndReached: () async {
-          await _loadMoreMessages();
-        },
-        onMessageTap: _handleMessageTap,
-        onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
-        avatarBuilder: (message) => OXUserAvatar(
-          user: message.author.sourceObject,
-          size: Adapt.px(40),
-          isCircular: false,
-          isClickable: true,
-          onReturnFromNextPage: () {
-            setState(() {});
+          ),
+          backgroundColor: ThemeColor.color200,
+          backCallback: () {
+            OXNavigator.popToRoot(context);
           },
+          actions: [
+            Container(
+              alignment: Alignment.center,
+              child: OXUserAvatar(
+                user: otherUser,
+                size: Adapt.px(36),
+                isClickable: true,
+                onReturnFromNextPage: () {
+                  setState(() {});
+                },
+              ),
+            ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+          ],
         ),
-        showUserNames: showUserNames,
-        //Group chat display nickname
-        user: _user,
-        useTopSafeAreaInset: true,
-        chatStatus: chatStatus,
-        inputMoreItems: [
-          InputMoreItemEx.album(chatGeneralHandler),
-          InputMoreItemEx.camera(chatGeneralHandler),
-          InputMoreItemEx.video(chatGeneralHandler),
-          InputMoreItemEx.call(chatGeneralHandler, otherUser),
-        ],
-        onVoiceSend: (path, duration) {
-          _onVoiceSend(path, duration);
-        },
-        onAttachmentPressed: () {},
-        onMessageLongPressEvent: _handleMessageLongPress,
-        longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
-        onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
-        textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-        imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
-        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
-        customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
-        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
-        inputOptions: chatGeneralHandler.inputOptions,
+        body: Chat(
+          anchorMsgId: widget.anchorMsgId,
+          messages: _messages,
+          isLastPage: !chatGeneralHandler.hasMoreMessage,
+          onEndReached: () async {
+            await _loadMoreMessages();
+          },
+          onMessageTap: _handleMessageTap,
+          onPreviewDataFetched: _handlePreviewDataFetched,
+          onSendPressed: _handleSendPressed,
+          avatarBuilder: (message) => OXUserAvatar(
+            user: message.author.sourceObject,
+            size: Adapt.px(40),
+            isCircular: false,
+            isClickable: true,
+            onReturnFromNextPage: () {
+              setState(() {});
+            },
+          ),
+          showUserNames: showUserNames,
+          //Group chat display nickname
+          user: _user,
+          useTopSafeAreaInset: true,
+          chatStatus: chatStatus,
+          inputMoreItems: [
+            InputMoreItemEx.album(chatGeneralHandler),
+            InputMoreItemEx.camera(chatGeneralHandler),
+            InputMoreItemEx.video(chatGeneralHandler),
+            InputMoreItemEx.call(chatGeneralHandler, otherUser),
+          ],
+          onVoiceSend: (path, duration) {
+            _onVoiceSend(path, duration);
+          },
+          onAttachmentPressed: () {},
+          onMessageLongPressEvent: _handleMessageLongPress,
+          longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
+          onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
+          textMessageOptions: chatGeneralHandler.textMessageOptions(context),
+          imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
+          customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
+          customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
+          customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
+          inputOptions: chatGeneralHandler.inputOptions,
+        ),
       ),
     );
   }
@@ -679,14 +687,16 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       funcName: '_sendMessage',
       message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
     );
-    Contacts.sharedInstance.sendSecretMessage(
-        sessionId,
-        receiverPubkey,
-        '',
-        type,
-        contentString,
-        event: event,
-    ).then((event) {
+    Contacts.sharedInstance
+        .sendSecretMessage(
+      sessionId,
+      receiverPubkey,
+      '',
+      type,
+      contentString,
+      event: event,
+    )
+        .then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
         remoteId: event.eventId,
@@ -748,7 +758,11 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                     widget.communityItem,
                     isStranger: toPubkeyUserDB == null,
                   );
-                  OXChatBinding.sharedInstance.strangerSessionUpdate();
+                  if (toPubkeyUserDB == null) {
+                    OXChatBinding.sharedInstance.strangerSessionUpdate();
+                  } else {
+                    OXChatBinding.sharedInstance.sessionUpdate();
+                  }
                   OXNavigator.pop(context); //pop dialog
                   OXNavigator.pop(context); //pop page
                 } else {
