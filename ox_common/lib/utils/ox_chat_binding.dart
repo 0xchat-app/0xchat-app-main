@@ -200,7 +200,7 @@ class OXChatBinding {
   }
 
   Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB) async {
-    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}, secretSessionId =${messageDB.sessionId == null|| messageDB.sessionId == ''}');
+    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}');
     String secretSessionId = messageDB.sessionId ?? '';
     int changeCount = 0;
     ChatSessionModel sessionModel = ChatSessionModel(
@@ -241,13 +241,13 @@ class OXChatBinding {
         if (otherUserPubkey != null) {
           userDB = await Account.getUserFromDB(pubkey: otherUserPubkey);
         }
-        if (secretSessionId == null) {
+        if (secretSessionId.isEmpty) {
           sessionModel.chatType = ChatType.chatStranger;
         } else {
           sessionModel.chatType = ChatType.chatSecretStranger;
         }
       } else {
-        if (secretSessionId == null) {
+        if (secretSessionId.isEmpty) {
           sessionModel.chatType = ChatType.chatSingle;
         } else {
           sessionModel.chatType = ChatType.chatSecret;
@@ -448,7 +448,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId!, content: "[${user.name}] has accepted your secret chat request.");
+    await updateChatSession(ssDB.sessionId!, content: "${user.name} has accepted your secret chat request.");
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
@@ -460,7 +460,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId, content: "[${user.name}] has rejected your secret chat request");
+    await updateChatSession(ssDB.sessionId, content: "${user.name} has rejected your secret chat request");
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatRejectCallBack(ssDB);
     }
