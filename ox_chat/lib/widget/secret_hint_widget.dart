@@ -83,7 +83,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
                   ),
                   RichTextColor(
                     text: Localized.text('ox_chat.str_secret_center_hint'),
-                    highlightTextList: ['Nip 44', 'Nip 59'],
+                    highlightTextList: ['Nip 44', 'Nip 59', 'Nip 101'],
                     maxLines: 12,
                   ).setPadding(
                     EdgeInsets.symmetric(

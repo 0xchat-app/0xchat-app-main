@@ -448,8 +448,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     String pubKey = widget.userDB.pubKey ?? '';
     if (_isInBlockList()) {
       OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
-      if(event.status){
-        CommonToast.instance.show(context, 'UnBlock success !');
+      if(!event.status){
+        CommonToast.instance.show(context, 'UnBlock fail !');
       }
     } else {
       OXCommonHintDialog.show(context,
@@ -464,10 +464,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 text: 'Confirm',
                 onTap: () async {
                   OKEvent event =  await Contacts.sharedInstance.addToBlockList(pubKey);
-                  if(event.status){
-                    CommonToast.instance.show(context, 'Block success !');
-                    OXNavigator.pop(context, true);
+                  if(!event.status){
+                    CommonToast.instance.show(context, 'Block fail !');
                   }
+                  OXNavigator.pop(context, true);
                 }),
           ],
           isRowAction: true);
