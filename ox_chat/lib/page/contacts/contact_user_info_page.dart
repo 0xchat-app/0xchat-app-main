@@ -442,10 +442,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     );
   }
 
-  void _blockOptionFn() {
+  void _blockOptionFn() async{
     String pubKey = widget.userDB.pubKey ?? '';
     if (_isInBlockList()) {
-      Contacts.sharedInstance.removeBlockList([pubKey]);
+      OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
+      if(event.status){
+        CommonToast.instance.show(context, 'UnBlock success !');
+      }
     } else {
       OXCommonHintDialog.show(context,
           title: 'Block this user ?',
@@ -456,10 +459,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               OXNavigator.pop(context, false);
             }),
             OXCommonHintAction.sure(
-                text: 'Conform',
+                text: 'Confirm',
                 onTap: () async {
-                  Contacts.sharedInstance.addToBlockList(pubKey);
-                  OXNavigator.pop(context, true);
+                  OKEvent event =  await Contacts.sharedInstance.addToBlockList(pubKey);
+                  if(event.status){
+                    CommonToast.instance.show(context, 'Block success !');
+                    OXNavigator.pop(context, true);
+                  }
                 }),
           ],
           isRowAction: true);
@@ -688,7 +694,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               OXNavigator.pop(context, false);
             }),
             OXCommonHintAction.sure(
-                text: 'Conform',
+                text: 'confirm',
                 onTap: () async {
                   await OXLoading.show();
                   LogUtil.e(
