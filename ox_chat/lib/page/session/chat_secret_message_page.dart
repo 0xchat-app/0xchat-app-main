@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -49,7 +50,7 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver {
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin, ChatGeneralHandlerMixin {
   List<types.Message> _messages = [];
   late types.User _user;
   bool isMore = false;
@@ -66,6 +67,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           : widget.communityItem.sender) ??
       '';
 
+  @override
+  ChatSessionModel get session => widget.communityItem;
+
   String get sessionId => widget.communityItem.chatId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
@@ -73,12 +77,13 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   @override
   void initState() {
+    setupUser();
+    setupChatGeneralHandler();
     super.initState();
+
     OXChatBinding.sharedInstance.addObserver(this);
     protectScreen();
     initSecretData();
-    setupUser();
-    setupChatGeneralHandler();
     prepareData();
     addListener();
   }
@@ -266,6 +271,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
+        inputOptions: chatGeneralHandler.inputOptions,
       ),
     );
   }
@@ -699,6 +705,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       type: type,
       receiver: receiverPubkey,
       decryptContent: contentString,
+      sessionId: sessionId,
     );
   }
 

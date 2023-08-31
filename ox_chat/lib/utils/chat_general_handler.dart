@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
@@ -54,6 +55,8 @@ class ChatGeneralHandler {
 
   bool hasMoreMessage = false;
 
+  TextEditingController inputController = TextEditingController();
+
   Function(List<types.Message>) refreshMessageUI;
 
   Function(types.Message message) sendMessageHandler;
@@ -75,6 +78,7 @@ class ChatGeneralHandler {
     String decryptContent = '',
     String receiver = '',
     String groupId = '',
+    String sessionId = '',
   }) async {
 
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
@@ -98,6 +102,7 @@ class ChatGeneralHandler {
       decryptContent: decryptContent,
       read: true,
       type: MessageDB.messageTypeToString(type),
+      sessionId: sessionId,
     );
 
     OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
@@ -413,9 +418,48 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 }
 
+extension ChatInputHandlerEx on ChatGeneralHandler {
+
+  InputOptions get inputOptions => InputOptions(
+    onTextChanged: _onTextChanged,
+    textEditingController: inputController,
+  );
+
+  void _onTextChanged(String text) {
+    final chatId = session.chatId ?? '';
+    if (chatId.isEmpty) return ;
+    ChatDraftManager.shared.updateTempDraft(chatId, text);
+  }
+}
+
 extension StringChatEx on String {
   /// Returns whether it is a local path or null if it is not a path String
   bool? get isLocalPath {
     return !this.startsWith('http://') && !this.startsWith('https://');
+  }
+}
+
+mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
+
+  @protected
+  ChatSessionModel get session;
+
+  @protected
+  ChatGeneralHandler get chatGeneralHandler;
+
+  @override
+  void initState() {
+    final draft = session.draft ?? '';
+    if (draft.isNotEmpty) {
+      chatGeneralHandler.inputController.text = draft;
+      ChatDraftManager.shared.updateTempDraft(session.chatId ?? '', draft);
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    ChatDraftManager.shared.updateSession();
+    super.dispose();
   }
 }

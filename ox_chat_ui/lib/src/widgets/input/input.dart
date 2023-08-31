@@ -410,6 +410,8 @@ class InputState extends State<Input>{
 
       if (widget.options.inputClearMode == InputClearMode.always) {
         _textController.clear();
+        final onTextChanged = widget.options.onTextChanged;
+        if (onTextChanged != null) onTextChanged(_textController.text);
       }
     }
   }

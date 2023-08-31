@@ -788,8 +788,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                             padding: EdgeInsets.only(top: Adapt.px(5)),
                             child: Container(
                               constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 30)),
-                              child: Text(announceItem.content ?? '',
-                                  textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsContentSub()),
+                              child: _buildItemSubtitle(announceItem),
                             ),
                           ),
                         ],
@@ -850,6 +849,24 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             });
           }
         });
+  }
+
+  Widget _buildItemSubtitle(ChatSessionModel announceItem) {
+    final draft = announceItem.draft ?? '';
+    if (draft.isNotEmpty) {
+      return Text('[Draft]$draft',
+        textAlign: TextAlign.left,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: _Style.draftContentSub(),
+      );
+    }
+    return Text(announceItem.content ?? '',
+      textAlign: TextAlign.left,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: _Style.newsContentSub(),
+    );
   }
 
   String getLastMessageStr(MessageDB? messageDB) {
@@ -1122,6 +1139,14 @@ class _Style {
       fontSize: Adapt.px(14),
       fontWeight: FontWeight.w400,
       color: ThemeColor.color120,
+    );
+  }
+
+  static TextStyle draftContentSub() {
+    return new TextStyle(
+      fontSize: Adapt.px(14),
+      fontWeight: FontWeight.w400,
+      color: ThemeColor.red,
     );
   }
 

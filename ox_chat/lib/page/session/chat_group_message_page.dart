@@ -6,6 +6,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
@@ -40,7 +41,7 @@ class ChatGroupMessagePage extends StatefulWidget {
   State<ChatGroupMessagePage> createState() => _ChatGroupMessagePageState();
 }
 
-class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
+class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
 
   List<types.Message> _messages = [];
   
@@ -55,7 +56,12 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
   final pageConfig = ChatPageConfig();
 
   @override
+  ChatSessionModel get session => widget.communityItem;
+
+  @override
   void initState() {
+    setupUser();
+    setupChatGeneralHandler();
     super.initState();
 
     setupUser();
@@ -195,6 +201,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> {
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
+        inputOptions: chatGeneralHandler.inputOptions,
       ),
     );
   }

@@ -4,8 +4,8 @@ import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
@@ -670,6 +670,27 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
 
     return messageList;
+  }
+
+  bool isContainMessage(ChatSessionModel session, MessageDB message) {
+    final sessionId = message.sessionId ?? '';
+    final groupId = message.groupId ?? '';
+    final senderId = message.sender ?? '';
+    final receiverId = message.receiver ?? '';
+    if (sessionId.isNotEmpty) {
+      // Secret Chat
+      return sessionId == session.chatId;
+    } else if (groupId.isNotEmpty) {
+      // Channel
+      return groupId == session.groupId;
+    } else if (senderId.isNotEmpty && receiverId.isNotEmpty) {
+      // Private
+      final key = _convertSessionToPrivateChatKey(session);
+      return key == PrivateChatKey(senderId, receiverId);
+    } else {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'isContainMessage', message: 'unknown message type');
+      return false;
+    }
   }
 }
 
