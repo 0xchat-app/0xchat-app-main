@@ -17,6 +17,7 @@ import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -68,11 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
       rightContent: '',
       settingItemType: SettingItemType.keys,
     ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_version.png',
-      title: 'Version',
-      rightContent: '1.23',
-    ));
+    _getPackageInfo();
   }
 
   @override
@@ -323,6 +320,20 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _getPackageInfo() {
+    String version = '1.0.0';
+    PackageInfo.fromPlatform().then((value) {
+      version = value.version;
+
+      setState(() {
+        _settingModelList.add(SettingModel(
+          iconName: 'icon_settings_version.png',
+          title: 'Version',
+          rightContent: version,
+        ));
+      });
+    });
+  }
 }
 
 class SettingModel {
@@ -335,7 +346,7 @@ class SettingModel {
     this.iconName = '',
     this.title = '',
     this.rightContent = '',
-    this.settingItemType = SettingItemType.relays,
+    this.settingItemType = SettingItemType.none,
   });
 }
 
@@ -345,4 +356,5 @@ enum SettingItemType {
   zaps,
   keys,
   privacy,
+  none,
 }
