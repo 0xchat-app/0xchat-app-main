@@ -216,6 +216,22 @@ class OXUserInfoManager {
     return updateNotificatin;
   }
 
+  Future<bool> checkDNS() async {
+    String pubKey = currentUserInfo?.pubKey ?? '';
+    String dnsStr = currentUserInfo?.dns ?? '';
+    List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
+    List<String> temp = dnsStr.split('@');
+    String name = temp[0];
+    String domain = temp[1];
+    DNS dns = DNS(name, domain, pubKey, relayAddressList);
+    try {
+      return await Account.checkDNS(dns);
+    } catch (error, stack) {
+      LogUtil.e("check dns error:$error\r\n$stack");
+      return false;
+    }
+  }
+
   void _initDatas() async {
     addChatCallBack();
     initDataActions.forEach((fn) {
