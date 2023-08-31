@@ -135,6 +135,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     chatGeneralHandler.messageResendHandler = _resendMessage;
     chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
     chatGeneralHandler.videoMessageSendHandler = _onVideoMessageSend;
+    chatGeneralHandler.gifMessageSendHandler = _onGifImageMessageSend;
   }
 
   void setupUser() {
@@ -261,6 +262,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         ],
         onVoiceSend: (path, duration) {
           _onVoiceSend(path, duration);
+        },
+        onGifSend: (value) {
+          _onGifImageMessageSend(value);
         },
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
@@ -406,6 +410,26 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       if (sendMsg == null) return;
       _sendMessage(sendMsg);
     }
+  }
+
+  Future _onGifImageMessageSend(GiphyImage image) async {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+    final message = types.ImageMessage(
+      uri: image.url,
+      author: _user,
+      createdAt: tempCreateTime,
+      id: message_id,
+      roomId: receiverPubkey,
+      name: image.name,
+      size: double.parse(image.size!),
+      fileEncryptionType: types.EncryptionType.encrypted,
+    );
+
+    final sendMsg = await _tryPrepareSendFileMessage(message);
+    if(sendMsg == null) return;
+    _sendMessage(sendMsg);
   }
 
   Future _onVoiceSend(String path, Duration duration) async {
