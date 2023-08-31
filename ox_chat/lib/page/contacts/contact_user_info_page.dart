@@ -164,6 +164,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             ),
             _buildHeadName(),
             _buildHeadDesc(),
+            _buildHeadPubKey(),
             SizedBox(
               height: Adapt.px(24),
             ),
@@ -375,6 +376,52 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+
+  Widget _buildHeadPubKey() {
+    String encodedPubKey = widget.userDB.encodedPubkey;
+
+    final String start = encodedPubKey.substring(0, 16);
+    final String end = encodedPubKey.substring(encodedPubKey.length - 16);
+
+    String newPubKey = '$start:$end';
+
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap:() => _clickKey(encodedPubKey),
+      child: Container(
+        height: Adapt.px(33),
+        margin: EdgeInsets.only(top: Adapt.px(8)),
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),vertical: Adapt.px(8)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Adapt.px(12)),
+          color: ThemeColor.color180,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              newPubKey,
+              style: TextStyle(
+                  fontSize: Adapt.px(12),
+                  fontWeight: FontWeight.w400,
+                  color: ThemeColor.color0,
+                  overflow: TextOverflow.ellipsis
+              ),
+            ),
+            SizedBox(width:Adapt.px(8)),
+            encodedPubKey.isNotEmpty
+                ? CommonImage(
+              iconName: "icon_copy.png",
+              width: Adapt.px(16),
+              height: Adapt.px(16),
+            ) : Container(),
+          ],
+        ),
       ),
     );
   }
@@ -665,13 +712,14 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (widget.userDB.dns == null || widget.userDB.dns == 'null') {
       return SizedBox();
     }
+    String dns = widget.userDB.dns ?? '';
     return Container(
       margin: EdgeInsets.only(top: Adapt.px(2)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            widget.userDB.dns ?? '',
+            dns,
             maxLines: 1,
             style:
                 TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
@@ -680,7 +728,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           SizedBox(
             width: Adapt.px(4),
           ),
-          _isVerifiedDNS
+          dns.isNotEmpty && _isVerifiedDNS
               ? CommonImage(
             iconName: "icon_npi05_verified.png",
             width: Adapt.px(16),

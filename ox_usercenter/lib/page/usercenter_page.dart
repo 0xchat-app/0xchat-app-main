@@ -169,7 +169,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          height: Adapt.px(210),
           color: ThemeColor.color200,
           child: Column(
             children: <Widget>[
@@ -179,8 +178,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               ),
               buildHeadName(),
               buildHeadDesc(),
-              // buildHeadStatistics(),
-              // buildHeadAdditional(),
+              buildHeadPubKey(),
             ],
           ),
         ),
@@ -392,7 +390,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           SizedBox(
             width: Adapt.px(4),
           ),
-          _isVerifiedDNS
+          dns.isNotEmpty && _isVerifiedDNS
               ? CommonImage(
                   iconName: "icon_npi05_verified.png",
                   width: Adapt.px(16),
@@ -401,6 +399,53 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 )
               : Container(),
         ],
+      ),
+    );
+  }
+
+  Widget buildHeadPubKey() {
+    String encodedPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
+
+    final String start = encodedPubKey.substring(0, 16);
+    final String end = encodedPubKey.substring(encodedPubKey.length - 16);
+
+    String newPubKey = '$start:$end';
+
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () async {
+        await TookKit.copyKey(context, encodedPubKey);
+      },
+      child: Container(
+        height: Adapt.px(33),
+        margin: EdgeInsets.only(top: Adapt.px(8),bottom: Adapt.px(24)),
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),vertical: Adapt.px(8)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Adapt.px(12)),
+          color: ThemeColor.color180,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              newPubKey,
+              style: TextStyle(
+                  fontSize: Adapt.px(12),
+                  fontWeight: FontWeight.w400,
+                  color: ThemeColor.color0,
+                  overflow: TextOverflow.ellipsis
+              ),
+            ),
+            SizedBox(width:Adapt.px(8)),
+            encodedPubKey.isNotEmpty
+                ? CommonImage(
+              iconName: "icon_copy.png",
+              width: Adapt.px(16),
+              height: Adapt.px(16),
+            ) : Container(),
+          ],
+        ),
       ),
     );
   }
