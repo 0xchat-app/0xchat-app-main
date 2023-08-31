@@ -175,7 +175,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           InputMoreItemEx.album(chatGeneralHandler),
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
-          InputMoreItemEx.call(chatGeneralHandler, otherUser),
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
         ],
         onVoiceSend: (path, duration) {

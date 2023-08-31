@@ -64,8 +64,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     setupChatGeneralHandler();
     super.initState();
 
-    setupUser();
-    setupChatGeneralHandler();
     prepareData();
     addListener();
   }
