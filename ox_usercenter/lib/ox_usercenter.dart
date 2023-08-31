@@ -11,6 +11,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
+import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
@@ -75,6 +76,9 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
+      case 'RelayDetailPage':
+        final relayName = params?['relayName'];
+        return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
     }
     return null;
   }
