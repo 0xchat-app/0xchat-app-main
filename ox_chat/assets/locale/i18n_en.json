@@ -55,7 +55,7 @@
   "remove_contacts": "Remove Contacts",
   "import_follows": "Import Follows",
   "import_follows_tips": "Import follows and add them as Contacts:",
-  "str_secret_center_hint": "• Use end-to-end encryption\n• Prevent metadata leaks\n• Ensure forward secrecy\n• Messages irrecoverable on other devices\n• Screenshot detection\n• Messages will be sent only to the relay you/counterparty specify:",
+  "str_secret_center_hint": "• Use end-to-end encryption (Nip 44)\n• Prevent metadata leaks (Nip 59)\n• Ensure forward secrecy\n• Messages irrecoverable on other devices\n• Screenshot detection\n• Messages will be sent only to the relay you/counterparty specify:",
   "str_other_rejected": "Rejected",
   "str_waiting_other_join": "Waiting for $username to join...",
   "str_reject_secret_chat": "Reject",
