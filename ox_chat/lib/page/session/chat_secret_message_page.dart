@@ -515,6 +515,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       _rightBtnTxt = 'str_john_secret_chat'.localized();
     } else if (_secretSessionDB!.status == 3) {
       _hintText = Localized.text('ox_chat.str_other_rejected');
+    } else if (_secretSessionDB!.status == 6) {
+      _hintText = Localized.text('ox_chat.str_other_expired');
     } else {
       _hintText = 'ox_chat.str_waiting_join';
     }
