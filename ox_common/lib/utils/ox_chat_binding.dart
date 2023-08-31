@@ -420,6 +420,7 @@ class OXChatBinding {
         createTime: ssDB.lastUpdateTime,
         sender: ssDB.toPubkey,
         receiver: ssDB.myPubkey,
+        sessionId: ssDB.sessionId,
       ),
     );
     return chatSessionModel;
