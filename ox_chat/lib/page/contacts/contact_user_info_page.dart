@@ -801,9 +801,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       return;
     }
     OXCommonHintDialog.show(context,
-        title: 'Delete Contact',
+        title: 'Remove Contacts',
         content:
-            'Are you sure you want to delete the contact ${widget.userDB.name}?',
+            'Are you sure you want to remove ${widget.userDB.name} from the contacts?',
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -819,7 +819,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 OXNavigator.pop(context);
                 if (okEvent.status) {
                   setState(() {});
-                  CommonToast.instance.show(context, 'Deleted successfully');
+                  CommonToast.instance.show(context, 'Remove successfully');
                 } else {
                   CommonToast.instance.show(context, okEvent.message);
                 }
