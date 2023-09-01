@@ -270,6 +270,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           onVoiceSend: (path, duration) {
             _onVoiceSend(path, duration);
           },
+          onGifSend: (value) {
+            _onGifImageMessageSend(value);
+          },
           onAttachmentPressed: () {},
           onMessageLongPressEvent: _handleMessageLongPress,
           longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
