@@ -26,7 +26,8 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.google.gms.google-services'
 
 android {
-  compileSdkVersion 34
+  namespace 'com.oxchat.nostr'
+  compileSdkVersion 33
   ndkVersion "25.1.8937393"
 
   aaptOptions {
@@ -40,9 +41,9 @@ android {
   }
 
   defaultConfig {
-    applicationId "com.oxchat.global"
+    applicationId "com.oxchat.nostr"
     minSdkVersion 24
-    targetSdkVersion 34
+    targetSdkVersion 33
     versionCode Integer.parseInt(VERSION_CODE)
     versionName VERSION_NAME
 

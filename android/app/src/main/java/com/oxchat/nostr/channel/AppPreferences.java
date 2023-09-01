@@ -1,4 +1,4 @@
-package com.oxchat.global.channel;
+package com.oxchat.nostr.channel;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,8 +7,8 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import com.oxchat.global.MultiEngineActivity;
-import com.oxchat.global.util.SharedPreUtils;
+import com.oxchat.nostr.MultiEngineActivity;
+import com.oxchat.nostr.util.SharedPreUtils;
 
 import java.util.HashMap;
 
@@ -28,7 +28,7 @@ import io.flutter.plugin.common.MethodChannel;
  * @since JDK1.8
  */
 public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
-    private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.global/perferences";
+    private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.nostr/perferences";
     private Context mContext;
     private Activity mActivity;
 

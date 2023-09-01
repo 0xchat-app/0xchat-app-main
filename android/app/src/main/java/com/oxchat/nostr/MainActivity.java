@@ -1,4 +1,4 @@
-package com.oxchat.global;
+package com.oxchat.nostr;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,8 +12,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.oxchat.global.channel.AppPreferences;
-import com.oxchat.global.util.SharedPreUtils;
+import com.oxchat.nostr.channel.AppPreferences;
+import com.oxchat.nostr.util.SharedPreUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

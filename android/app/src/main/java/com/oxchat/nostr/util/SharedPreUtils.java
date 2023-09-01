@@ -1,4 +1,4 @@
-package com.oxchat.global.util;
+package com.oxchat.nostr.util;
 
 /**
  * Title: SharedPreUtils

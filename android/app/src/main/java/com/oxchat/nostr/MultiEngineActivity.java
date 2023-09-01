@@ -1,11 +1,11 @@
-package com.oxchat.global;
+package com.oxchat.nostr;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.oxchat.global.channel.AppPreferences;
+import com.oxchat.nostr.channel.AppPreferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -35,7 +35,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'main.reflectable.dart';
 
-const MethodChannel channel = const MethodChannel('com.oxchat.global/perferences');
+const MethodChannel channel = const MethodChannel('com.oxchat.nostr/perferences');
 const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
 const String _kReloadChannelName = 'reload';
 const BasicMessageChannel<String?> _kReloadChannel =
