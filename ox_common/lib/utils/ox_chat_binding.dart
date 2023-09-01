@@ -504,6 +504,9 @@ class OXChatBinding {
     bool isChange = false;
     List<ChatSessionModel> list = isBecomeContact ? OXChatBinding.sharedInstance.strangerSessionMap.values.toList() : OXChatBinding.sharedInstance.sessionMap.values.toList();
     for (ChatSessionModel csModel in list) {
+      if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
+        continue;
+      }
       if (csModel.sender == pubkey || csModel.receiver == pubkey) {
         isChange = true;
         int? tempChatType;
@@ -522,6 +525,7 @@ class OXChatBinding {
       }
     }
     if (isChange) {
+      unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
       strangerSessionUpdate();
       sessionUpdate();
     }
