@@ -220,6 +220,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -297,5 +299,13 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>0xchat needs access to your album permission, to set avatar in the user center, and send pictures or video messages through the customer service function.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>0xchat needs access to your album permission, to set avatar in the user center, and send pictures or video messages through the customer service function.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>0xchat requires access to your camera, for scanning the QR code in the user center, taking photos or shooting videos for customer service functions.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>0xchat requires access to your microphone, to send voice messages for customer service.</string>
 </dict>
 </plist>
