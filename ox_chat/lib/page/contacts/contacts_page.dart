@@ -188,6 +188,7 @@ class _ContractsPageState extends State<ContractsPage>
                               }
                               return _inkWellWidget(
                                 content: 'Import Follows',
+                                isShowCount: false,
                                 onTap: () async {
                                   var result = await OXNavigator.pushPage(
                                     context,
@@ -230,7 +231,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   Widget _inkWellWidget(
-      {required String content, required GestureTapCallback onTap}) {
+      {required String content, required GestureTapCallback onTap,bool isShowCount = true}) {
     return InkWell(
       child: Container(
         margin: EdgeInsets.only(
@@ -248,7 +249,7 @@ class _ContractsPageState extends State<ContractsPage>
                   fontWeight: FontWeight.w600),
             ),
             SizedBox(width: Adapt.px(6)),
-            _unReadCount(),
+            isShowCount ? _unReadCount() : Container(),
           ],
         ),
         decoration: BoxDecoration(
