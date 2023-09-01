@@ -485,7 +485,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     setState(() {
       item.unreadCount = 0;
     });
-    OXChatBinding.sharedInstance.updateSession(item);
+    OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
   }
 
   void _confirmOnTap(ChatSessionModel item) async {

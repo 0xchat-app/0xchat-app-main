@@ -784,11 +784,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                     widget.communityItem,
                     isStranger: toPubkeyUserDB == null,
                   );
-                  if (toPubkeyUserDB == null) {
-                    OXChatBinding.sharedInstance.strangerSessionUpdate();
-                  } else {
-                    OXChatBinding.sharedInstance.sessionUpdate();
-                  }
                   OXNavigator.pop(context); //pop dialog
                   OXNavigator.pop(context); //pop page
                 } else {

@@ -888,12 +888,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _setAllRead(ChatSessionModel announceItem) {
+  void _setAllRead(ChatSessionModel item) {
     setState(() {
-      announceItem.unreadCount = 0;
+      item.unreadCount = 0;
       _updateReadStatus();
     });
-    OXChatBinding.sharedInstance.updateSession(announceItem);
+    OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
   }
 
   void _routeCustomService() async {
