@@ -406,10 +406,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   Widget buildHeadPubKey() {
     String encodedPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
 
-    final String start = encodedPubKey.substring(0, 16);
-    final String end = encodedPubKey.substring(encodedPubKey.length - 16);
+    String newPubKey = '';
+    if(encodedPubKey.isNotEmpty){
+      final String start = encodedPubKey.substring(0, 16);
+      final String end = encodedPubKey.substring(encodedPubKey.length - 16);
 
-    String newPubKey = '$start:$end';
+      newPubKey = '$start:$end';
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
