@@ -83,6 +83,7 @@ class OXChatBinding {
       sessionUpdate();
     }
     if (isRefreshStrangerSession) {
+      unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
       strangerSessionUpdate();
     }
   }
@@ -197,6 +198,7 @@ class OXChatBinding {
           if (sessionModel.chatType == ChatType.chatSingle || sessionModel.chatType == ChatType.chatChannel || sessionModel.chatType == ChatType.chatSecret) {
             sessionUpdate();
           } else {
+            unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
             strangerSessionUpdate();
           }
           changeCount = count;
@@ -380,15 +382,11 @@ class OXChatBinding {
     final int count = await DB.sharedInstance.delete<ChatSessionModel>(where: "chatId = ?", whereArgs: [sessionModel.chatId]);
     if (count > 0) {
       changeCount = count;
-    }
-    return changeCount;
-  }
-
-  Future<int> updateSession(ChatSessionModel chatSessionModel) async {
-    int changeCount = 0;
-    final int count = await DB.sharedInstance.update<ChatSessionModel>(chatSessionModel);
-    if (count > 0) {
-      changeCount = count;
+      if (isStranger) {
+        OXChatBinding.sharedInstance.strangerSessionUpdate();
+      } else {
+        OXChatBinding.sharedInstance.sessionUpdate();
+      }
     }
     return changeCount;
   }
