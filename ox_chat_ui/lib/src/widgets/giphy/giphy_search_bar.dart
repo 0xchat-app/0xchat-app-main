@@ -71,7 +71,7 @@ class _GiphySearchBarState extends State<GiphySearchBar> {
                         fit: BoxFit.fill,
                       ),
                     ),
-                    hintText: 'Search',
+                    hintText: 'Search Giphy',
                     border: InputBorder.none,
                   ),
                 ),
