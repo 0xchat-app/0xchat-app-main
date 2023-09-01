@@ -24,17 +24,17 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-enum ChannelCreateType {
-  create,
-  edit
-}
+enum ChannelCreateType { create, edit }
 
 class ChatChannelCreate extends StatefulWidget {
-
   ChannelDB? channelDB;
   ChannelCreateType? channelCreateType;
 
-  ChatChannelCreate({Key? key,this.channelDB,this.channelCreateType = ChannelCreateType.create}) : super(key: key);
+  ChatChannelCreate(
+      {Key? key,
+      this.channelDB,
+      this.channelCreateType = ChannelCreateType.create})
+      : super(key: key);
 
   @override
   State<ChatChannelCreate> createState() => _ChatChannelCreateState();
@@ -57,17 +57,19 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
     _channelNameController = TextEditingController();
     _descriptionController = TextEditingController();
     _requirementModel = BadgeModel();
-    _requestBadges().then((value){
+    _requestBadges().then((value) {
       _initEditChannelBadgeData();
     });
-    if(widget.channelCreateType == ChannelCreateType.edit && widget.channelDB != null){
+    if (widget.channelCreateType == ChannelCreateType.edit &&
+        widget.channelDB != null) {
       _initEditChannelData();
     }
     super.initState();
   }
 
   Future<void> _requestBadges() async {
-    _badgeModelList = await BadgeModel.getDefaultBadge(context: context, showLoading: false);
+    _badgeModelList =
+        await BadgeModel.getDefaultBadge(context: context, showLoading: false);
   }
 
   void _initEditChannelData() {
@@ -77,9 +79,14 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   void _initEditChannelBadgeData() {
-    List<String> badgeIds = _badgeModelList.map((badgeModel) => badgeModel.badgeId!).toList();
-    String badgeId = List<String>.from(jsonDecode(widget.channelDB?.badges ?? '')).first;
-    int index = badgeIds.indexOf(badgeId);
+    List<String> badgeIds =
+        _badgeModelList.map((badgeModel) => badgeModel.badgeId!).toList();
+    int index = -1;
+    try {
+      String badgeId =
+          List<String>.from(jsonDecode(widget.channelDB?.badges ?? '')).first;
+      index = badgeIds.indexOf(badgeId);
+    } catch (_) {}
     setState(() {
       _isNone = index == -1;
       if (!_isNone) {
@@ -95,7 +102,9 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: widget.channelCreateType == ChannelCreateType.create ? "New Channel" : "Edit Channel",
+        title: widget.channelCreateType == ChannelCreateType.create
+            ? "New Channel"
+            : "Edit Channel",
         actions: [
           GestureDetector(
             child: Container(
@@ -110,7 +119,9 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                       ],
                     ).createShader(Offset.zero & bounds.size);
                   },
-                  child: widget.channelCreateType == ChannelCreateType.create ? Text("Create") : Text("Done")),
+                  child: widget.channelCreateType == ChannelCreateType.create
+                      ? Text("Create")
+                      : Text("Done")),
             ),
             onTap: () {
               _createChannel();
@@ -128,11 +139,19 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             SizedBox(
               height: Adapt.px(12),
             ),
-            _listItem("Channel Name", childView: _buildTextEditing(controller: _channelNameController, hintText: 'satoshi', maxLines: 1)),
-            _listItem("Badge Requirements", childView: _buildRequirementWidget()),
+            _listItem("Channel Name",
+                childView: _buildTextEditing(
+                    controller: _channelNameController,
+                    hintText: 'satoshi',
+                    maxLines: 1)),
+            _listItem("Badge Requirements",
+                childView: _buildRequirementWidget()),
             _listItem("Description",
-                childView:
-                    _buildTextEditing(controller: _descriptionController, hintText: 'Creator(s) of Bitcoin.\nAbsolute legend. (Optional)', maxLines: null)),
+                childView: _buildTextEditing(
+                    controller: _descriptionController,
+                    hintText:
+                        'Creator(s) of Bitcoin.\nAbsolute legend. (Optional)',
+                    maxLines: null)),
           ],
         ),
       ),
@@ -218,7 +237,10 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         maxLines: maxLines,
         decoration: InputDecoration(
           hintText: hintText ?? "Please enter...",
-          hintStyle: TextStyle(color: Color.fromRGBO(123, 127, 143, 1), fontWeight: FontWeight.w400, fontSize: Adapt.px(16)),
+          hintStyle: TextStyle(
+              color: Color.fromRGBO(123, 127, 143, 1),
+              fontWeight: FontWeight.w400,
+              fontSize: Adapt.px(16)),
           border: InputBorder.none,
         ),
       ),
@@ -240,7 +262,10 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
           alignment: Alignment.centerLeft,
           child: Text(
             'Only users who have met the badge requirements are authorized to send messages.',
-            style: TextStyle(fontWeight: FontWeight.w400, fontSize: Adapt.px(14), color: ThemeColor.color100),
+            style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: Adapt.px(14),
+                color: ThemeColor.color100),
             maxLines: 2,
           ),
         ),
@@ -274,7 +299,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                             imageUrl: _requirementModel.badgeImageUrl ?? '',
                             fit: BoxFit.contain,
                             placeholder: (context, url) => placeholderImage,
-                            errorWidget: (context, url, error) => placeholderImage,
+                            errorWidget: (context, url, error) =>
+                                placeholderImage,
                             width: Adapt.px(32),
                             height: Adapt.px(32),
                           ),
@@ -282,7 +308,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                             width: Adapt.px(6),
                           ),
                           Text(
-                            _requirementModel.badgeName ?? 'Badge Name and above',
+                            _requirementModel.badgeName ??
+                                'Badge Name and above',
                             style: TextStyle(
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w400,
@@ -344,7 +371,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       requirementBadgeIdList.add(badgeId);
     }
 
-    if(widget.channelCreateType == ChannelCreateType.create){
+    if (widget.channelCreateType == ChannelCreateType.create) {
       final ChannelDB? channelDB = await Channels.sharedInstance.createChannel(
         _channelNameController.text,
         _descriptionController.text,
@@ -369,7 +396,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
           ),
         );
       } else {
-        CommonToast.instance.show(context, 'Failed to create, please try again later');
+        CommonToast.instance
+            .show(context, 'Failed to create, please try again later');
       }
     } else {
       widget.channelDB?.name = _channelNameController.text;
@@ -377,27 +405,33 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       widget.channelDB?.picture = _avatarAliyunUrl;
       widget.channelDB?.badges = requirementBadgeIdList.toString();
 
-      OKEvent okEvent = await Channels.sharedInstance.setChannel(widget.channelDB!);
+      OKEvent okEvent =
+          await Channels.sharedInstance.setChannel(widget.channelDB!);
       OXLoading.dismiss();
       if (okEvent.status) {
         await CommonToast.instance.show(context, 'channel update success');
         OXNavigator.pop(context);
         OXNavigator.pop(context);
       } else {
-        CommonToast.instance.show(context, 'Failed to update channel, please try again later');
+        CommonToast.instance
+            .show(context, 'Failed to update channel, please try again later');
       }
     }
   }
 
   void _handleImageSelection() async {
-    Map<Permission, PermissionStatus> statuses = await [Permission.camera, Permission.storage].request();
-    if (statuses[Permission.camera]!.isGranted && statuses[Permission.storage]!.isGranted) {
+    Map<Permission, PermissionStatus> statuses =
+        await [Permission.camera, Permission.storage].request();
+    if (statuses[Permission.camera]!.isGranted &&
+        statuses[Permission.storage]!.isGranted) {
       File? _imgFile = await ImagePickerUtils.getImageFromGallery();
       if (_imgFile != null) {
         final String url = await UplodAliyun.uploadFileToAliyun(
           fileType: UplodAliyunType.imageType,
           file: _imgFile,
-          filename: _channelNameController.text + DateTime.now().microsecondsSinceEpoch.toString() + '_avatar01.png',
+          filename: _channelNameController.text +
+              DateTime.now().microsecondsSinceEpoch.toString() +
+              '_avatar01.png',
         );
         if (url.isNotEmpty) {
           if (mounted) {
