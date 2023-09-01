@@ -780,11 +780,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _sendMsg() {
-    if (!isFriend(widget.userDB.pubKey ?? '')) {
-      CommonToast.instance.show(
-          context, Localized.text('ox_chat.not_friends_send_message_prompts'));
-      return;
-    }
     OXNavigator.pushPage(
       context,
       (context) => ChatMessagePage(
