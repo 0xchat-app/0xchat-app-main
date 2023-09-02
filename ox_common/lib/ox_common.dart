@@ -30,6 +30,7 @@ class OXCommon extends OXFlutterModule {
     BadgeDB,
     RelayDB,
     ChatSessionModel,
+    MessageDB,
   ];
 
   @override
