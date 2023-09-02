@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
@@ -193,12 +194,22 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         behavior: HitTestBehavior.translucent,
         onTap: () {
           _setAllRead(item);
-          OXNavigator.pushPage(
-            context,
-            (context) => ChatSecretMessagePage(
-              communityItem: item,
-            ),
-          );
+          if (item.chatType == ChatType.chatSecret) {
+            OXNavigator.pushPage(
+              context,
+                  (context) =>
+                  ChatSecretMessagePage(
+                    communityItem: item,
+                  ),
+            );
+          } else {
+            OXNavigator.pushPage(
+                context,
+                    (context) =>
+                    ChatMessagePage(
+                      communityItem: item,
+                    ));
+          }
         },
         child: Container(
           height: Adapt.px(106),
