@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/widgets/common_webview.dart';
@@ -28,6 +29,7 @@ class OXCommon extends OXFlutterModule {
     BadgeAwardDB,
     BadgeDB,
     RelayDB,
+    ChatSessionModel,
   ];
 
   @override
