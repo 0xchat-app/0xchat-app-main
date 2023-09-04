@@ -46,8 +46,14 @@ class ContactAddFollows extends StatefulWidget {
 }
 
 class _ContactAddFollowsState extends State<ContactAddFollows> {
+  // full follows
   List<DiyUserDB>? userMapList = null;
-  bool isSelectAll = false;
+  // select follows
+  List<DiyUserDB> selectFollowsList = [];
+  // unSelect follows
+  List<DiyUserDB> unSelectFollowsList = [];
+  // contacts List
+  List<DiyUserDB> contactsFollowsList = [];
 
   @override
   void initState() {
@@ -60,17 +66,6 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     super.dispose();
   }
 
-  List<DiyUserDB> getSelectFollowsNum() {
-    List<DiyUserDB> selectFollowsList = [];
-    if (userMapList != null) {
-      userMapList!.forEach((DiyUserDB info) => {
-            if (info.isSelect) {selectFollowsList.add(info)}
-          });
-    }
-    return selectFollowsList;
-  }
-
-  //
   void _getFollowList() async {
     await OXLoading.show();
     String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
@@ -80,6 +75,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
 
     userMap.forEach((info) => {db.add(new DiyUserDB(false, info))});
     userMapList = db;
+    _resetFollowsData();
     setState(() {});
   }
 
@@ -99,7 +95,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
           ),
         ],
       ),
-      body:  SafeArea(
+      body: SafeArea(
         child: Container(
           height: double.infinity,
           child: Column(
@@ -153,16 +149,20 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _appBarActionWidget() {
-    if (userMapList == null || userMapList?.length == 0)
+    bool isAllFriends =
+        unSelectFollowsList.length == 0 && selectFollowsList.length == 0;
+    if (userMapList == null || userMapList?.length == 0 || isAllFriends)
       return Container(
         width: Adapt.px(24),
       );
+    bool isSelectAll = unSelectFollowsList.length == 0;
+    String content = isSelectAll ? 'None' : 'All';
     return GestureDetector(
       onTap: () {
-        isSelectAll = !isSelectAll;
         userMapList!.forEach((DiyUserDB useDB) {
-          useDB.isSelect = isSelectAll;
+          useDB.isSelect = !isSelectAll;
         });
+        _resetFollowsData();
         setState(() {});
       },
       child: Center(
@@ -176,7 +176,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            !isSelectAll ? 'All' : 'none',
+            content,
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,
@@ -238,9 +238,10 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     }
 
     return GestureDetector(
-      onTap: () {
-        OXNavigator.pushPage(
+      onTap: () async {
+        await OXNavigator.pushPage(
             context, (context) => ContactUserInfoPage(userDB: userDB));
+        _resetFollowsData();
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(
@@ -271,9 +272,6 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     String encodedPubKeyShow =
         '${encodedPubKey.substring(0, 10)}...${encodedPubKey.substring(pubKeyLength - 10, pubKeyLength)}';
 
-    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
-    bool isContacts = allContacts[userInfo.db.pubKey] != null;
-
     return Container(
       padding: EdgeInsets.only(
         left: Adapt.px(16),
@@ -285,7 +283,9 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
               child: Text(
             name,
             style: TextStyle(
-              color: isContacts ? ThemeColor.color0 : ThemeColor.color100,
+              color: _isContacts(userInfo.db.pubKey)
+                  ? ThemeColor.color100
+                  : ThemeColor.color0,
               fontSize: Adapt.px(16),
               fontWeight: FontWeight.w600,
             ),
@@ -306,8 +306,9 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _addContactBtnView() {
-    if (userMapList == null || userMapList!.length == 0) return Container();
+    if (userMapList == null || userMapList!.length == 0 || selectFollowsList.length == 0) return Container();
     return GestureDetector(
+      onTap: _addContactsFn,
       child: Container(
         margin: EdgeInsets.symmetric(
           horizontal: Adapt.px(24),
@@ -341,7 +342,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: Adapt.px(5)),
               child: Text(
-                getSelectFollowsNum().length.toString(),
+                selectFollowsList.length.toString(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: Adapt.px(14),
@@ -360,15 +361,13 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
           ],
         ),
       ),
-      onTap: _addContactsFn,
     );
   }
 
   Widget _followsStatusView(int index) {
     DiyUserDB userDB = userMapList![index];
-    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
     String picName = '';
-    bool isContacts = allContacts[userDB.db.pubKey] != null;
+    bool isContacts = _isContacts(userDB.db.pubKey);
     if (isContacts) {
       picName = FollowsFriendStatus.hasFollows.picName;
     } else {
@@ -381,7 +380,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
       onTap: () {
         if (isContacts) return;
         userMapList![index].isSelect = !userDB.isSelect;
-        setState(() {});
+        _resetFollowsData();
       },
       child: Container(
         padding: EdgeInsets.all(Adapt.px(8)),
@@ -423,7 +422,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   void _addContactsFn() async {
     await OXLoading.show();
     List<String> selectFollowPubKey = [];
-    getSelectFollowsNum().forEach((DiyUserDB info) {
+    selectFollowsList.forEach((DiyUserDB info) {
       selectFollowPubKey.add(info.db.pubKey ?? '');
     });
     final OKEvent okEvent =
@@ -434,5 +433,28 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     } else {
       CommonToast.instance.show(context, okEvent.message);
     }
+  }
+
+  bool _isContacts(String pubKey) {
+    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
+    bool isContacts = allContacts[pubKey] != null;
+    return isContacts;
+  }
+
+  void _resetFollowsData() {
+    List<DiyUserDB> selectFollows = [];
+    List<DiyUserDB> unSelectFollows = [];
+    List<DiyUserDB> contactsFollows = [];
+
+    userMapList!.forEach((DiyUserDB info) {
+      if (_isContacts(info.db.pubKey)) return contactsFollows.add(info);
+      info.isSelect ? selectFollows.add(info) : unSelectFollows.add(info);
+    });
+
+    selectFollowsList = selectFollows;
+    unSelectFollowsList = unSelectFollows;
+    contactsFollowsList = contactsFollows;
+
+    setState(() {});
   }
 }
