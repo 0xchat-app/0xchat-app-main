@@ -29,7 +29,11 @@ class UserCenterPage extends StatefulWidget {
 }
 
 class _UserCenterPageState extends BasePageState<UserCenterPage>
-    with TickerProviderStateMixin, OXUserInfoObserver, WidgetsBindingObserver, CommonStateViewMixin {
+    with
+        TickerProviderStateMixin,
+        OXUserInfoObserver,
+        WidgetsBindingObserver,
+        CommonStateViewMixin {
   late ScrollController _nestedScrollController;
   int selectedIndex = 0;
 
@@ -53,7 +57,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
 
-    _addressStr = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    _addressStr =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
     _nestedScrollController = ScrollController()
@@ -89,25 +94,29 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
   //get user selected Badge Info from DB
   Future<BadgeDB?> _getUserSelectedBadgeInfo() async {
-    String badges = OXUserInfoManager.sharedInstance.currentUserInfo?.badges ?? '';
+    String badges =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.badges ?? '';
     BadgeDB? badgeDB;
-    try{
-      if(badges.isNotEmpty){
+    try {
+      if (badges.isNotEmpty) {
         List<dynamic> badgeListDynamic = jsonDecode(badges);
         List<String> badgeList = badgeListDynamic.cast();
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
-        if(badgeDBList.isNotEmpty){
+        List<BadgeDB?> badgeDBList =
+            await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        if (badgeDBList.isNotEmpty) {
           badgeDB = badgeDBList.first;
           return badgeDB;
         }
-      }else{
-        List<BadgeDB?>? badgeDBList = await BadgesHelper.getProfileBadgesFromRelay(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
+      } else {
+        List<BadgeDB?>? badgeDBList =
+            await BadgesHelper.getProfileBadgesFromRelay(
+                OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
           badgeDB = badgeDBList.first;
           return badgeDB;
         }
       }
-    }catch(error,stack){
+    } catch (error, stack) {
       LogUtil.e("user selected badge info fetch failed: $error\r\n$stack");
     }
     return null;
@@ -127,7 +136,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         actions: <Widget>[
           isLogin
               ? Container(
-                  margin: EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
+                  margin:
+                      EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
                   color: Colors.transparent,
                   child: OXButton(
                     highlightColor: Colors.transparent,
@@ -142,7 +152,11 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                       ),
                     ),
                     onPressed: () {
-                      OXNavigator.push(context, SlideBottomToTopRoute(page: const ProfileSetUpPage())).then((value) {
+                      OXNavigator.push(
+                              context,
+                              SlideBottomToTopRoute(
+                                  page: const ProfileSetUpPage()))
+                          .then((value) {
                         setState(() {});
                       });
                     },
@@ -200,13 +214,18 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                       OXNavigator.pushPage(
                         context,
                         (context) => UsercenterBadgeWallPage(
-                          userDB: OXUserInfoManager.sharedInstance.currentUserInfo,
+                          userDB:
+                              OXUserInfoManager.sharedInstance.currentUserInfo,
                         ),
                       ).then((value) {
                         setState(() {});
                       });
                     },
-                    child: _topItemBuild(iconName: 'icon_settings_badges.png', title: 'Badges', badgeImgUrl: snapshot.data?.thumb, isShowDivider: true),
+                    child: _topItemBuild(
+                        iconName: 'icon_settings_badges.png',
+                        title: 'Badges',
+                        badgeImgUrl: snapshot.data?.thumb,
+                        isShowDivider: true),
                   );
                 },
                 future: _getUserSelectedBadgeInfo(),
@@ -222,7 +241,10 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     ],
                   );
                 },
-                child: _topItemBuild(iconName: 'icon_settings_qrcode.png', title: Localized.text('ox_usercenter.my_qr_code'), isShowDivider: false),
+                child: _topItemBuild(
+                    iconName: 'icon_settings_qrcode.png',
+                    title: Localized.text('ox_usercenter.my_qr_code'),
+                    isShowDivider: false),
               ),
             ],
           ),
@@ -238,7 +260,11 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     );
   }
 
-  Widget _topItemBuild({String? iconName, String? title, String? badgeImgUrl, bool isShowDivider = false}) {
+  Widget _topItemBuild(
+      {String? iconName,
+      String? title,
+      String? badgeImgUrl,
+      bool isShowDivider = false}) {
     Image placeholderImage = Image.asset(
       'assets/images/icon_badge_default.png',
       fit: BoxFit.cover,
@@ -282,7 +308,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                       : CachedNetworkImage(
                           imageUrl: badgeImgUrl!,
                           placeholder: (context, url) => placeholderImage,
-                          errorWidget: (context, url, error) => placeholderImage,
+                          errorWidget: (context, url, error) =>
+                              placeholderImage,
                           width: Adapt.px(32),
                           height: Adapt.px(32),
                           fit: BoxFit.cover,
@@ -309,7 +336,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   Widget buildHeadImage() {
-    String headImgUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? "";
+    String headImgUrl =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? "";
     LogUtil.e("headImgUrl: ${headImgUrl}");
     String localAvatarPath = 'assets/images/user_image.png';
 
@@ -384,7 +412,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           Text(
             dns,
             maxLines: 1,
-            style: TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
+            style:
+                TextStyle(color: ThemeColor.color120, fontSize: Adapt.px(14)),
             // overflow: TextOverflow.ellipsis,
           ),
           SizedBox(
@@ -404,10 +433,11 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   Widget buildHeadPubKey() {
-    String encodedPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
+    String encodedPubKey =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
 
     String newPubKey = '';
-    if(encodedPubKey.isNotEmpty){
+    if (encodedPubKey.isNotEmpty) {
       final String start = encodedPubKey.substring(0, 16);
       final String end = encodedPubKey.substring(encodedPubKey.length - 16);
 
@@ -421,8 +451,9 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       },
       child: Container(
         height: Adapt.px(33),
-        margin: EdgeInsets.only(top: Adapt.px(8),bottom: Adapt.px(24)),
-        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),vertical: Adapt.px(8)),
+        margin: EdgeInsets.only(top: Adapt.px(8), bottom: Adapt.px(24)),
+        padding: EdgeInsets.symmetric(
+            horizontal: Adapt.px(12), vertical: Adapt.px(8)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Adapt.px(12)),
           color: ThemeColor.color180,
@@ -437,16 +468,16 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   fontSize: Adapt.px(12),
                   fontWeight: FontWeight.w400,
                   color: ThemeColor.color0,
-                  overflow: TextOverflow.ellipsis
-              ),
+                  overflow: TextOverflow.ellipsis),
             ),
-            SizedBox(width:Adapt.px(8)),
+            SizedBox(width: Adapt.px(8)),
             encodedPubKey.isNotEmpty
                 ? CommonImage(
-              iconName: "icon_copy.png",
-              width: Adapt.px(16),
-              height: Adapt.px(16),
-            ) : Container(),
+                    iconName: "icon_copy.png",
+                    width: Adapt.px(16),
+                    height: Adapt.px(16),
+                  )
+                : Container(),
           ],
         ),
       ),

@@ -128,14 +128,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         }
       }
     }
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.userDB.pubKey);
-    if (user != null) {
-      widget.userDB.updateWith(user);
-      setState(() {});
-      ChatUserCache.shared.updateUserInfo(widget.userDB);
-      OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey,
-          chatName: widget.userDB.name, pic: widget.userDB.picture);
-    }
+    UserDB user = await Account.sharedInstance.reloadProfileFromRelay(widget.userDB.pubKey);
+    widget.userDB.updateWith(user);
+    setState(() {});
+    ChatUserCache.shared.updateUserInfo(widget.userDB);
+    OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey,
+        chatName: widget.userDB.name, pic: widget.userDB.picture);
     _verifiedDNS();
   }
 
