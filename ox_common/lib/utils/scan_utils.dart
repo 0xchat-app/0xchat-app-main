@@ -86,19 +86,14 @@ class ScanUtils {
   }
 
   static Future<void> _showFriendInfo(BuildContext context, String pubkey) async {
-    await OXLoading.show();
-    var usersMap = await Account.syncProfilesFromRelay([pubkey]);
-    await OXLoading.dismiss();
-    UserDB? user = usersMap[pubkey];
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
     if (user == null) {
       CommonToast.instance.show(context, 'User not found');
     } else {
       if (context.mounted) {
-        if (user.pubKey != null) {
-          OXModuleService.pushPage(context, 'ox_chat', 'ContactFriendUserInfoPage', {
-            'userDB': user,
-          });
-        }
+        OXModuleService.pushPage(context, 'ox_chat', 'ContactFriendUserInfoPage', {
+          'userDB': user,
+        });
       }
     }
   }

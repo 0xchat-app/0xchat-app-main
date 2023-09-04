@@ -63,7 +63,7 @@ class OXUserInfoManager {
       }
       String pubkey = Account.getPublicKey(privKey);
       await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.loginWithPriKey(privKey);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
@@ -72,7 +72,7 @@ class OXUserInfoManager {
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
       await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
@@ -161,7 +161,7 @@ class OXUserInfoManager {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.privkey == null) {
       return;
     }
-    await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
+    await Account.sharedInstance.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
@@ -242,9 +242,9 @@ class OXUserInfoManager {
     });
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
-      Channels.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!, callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
     });
-    Account.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
+    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });

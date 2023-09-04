@@ -248,7 +248,7 @@ class OXChatBinding {
       UserDB? userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
       if (userDB == null) {
         if (otherUserPubkey != null) {
-          userDB = await Account.getUserFromDB(pubkey: otherUserPubkey);
+          userDB = await Account.sharedInstance.getUserInfo(otherUserPubkey);
         }
         if (secretSessionId.isEmpty) {
           sessionModel.chatType = ChatType.chatStranger;
@@ -417,7 +417,7 @@ class OXChatBinding {
     if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return null;
     UserDB? userDB = Contacts.sharedInstance.allContacts[ssDB.toPubkey!];
     if (userDB == null) {
-      userDB = await Account.getUserFromDB(pubkey: ssDB.toPubkey!);
+      userDB = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
     }
     final ChatSessionModel chatSessionModel = await syncChatSessionTable(
       MessageDB(
@@ -433,8 +433,7 @@ class OXChatBinding {
 
   void secretChatRequestCallBack(SecretSessionDB ssDB) async {
     if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return;
-    Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
-    UserDB? user = usersMap[ssDB.toPubkey];
+    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
@@ -448,8 +447,7 @@ class OXChatBinding {
   }
 
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
-    Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
-    UserDB? user = usersMap[ssDB.toPubkey];
+    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
@@ -460,8 +458,7 @@ class OXChatBinding {
   }
 
   void secretChatRejectCallBack(SecretSessionDB ssDB) async {
-    Map usersMap = await Account.syncProfilesFromRelay([ssDB.toPubkey!]);
-    UserDB? user = usersMap[ssDB.toPubkey];
+    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
