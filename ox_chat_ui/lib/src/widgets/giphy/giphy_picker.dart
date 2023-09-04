@@ -4,6 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
+import '../input/input_face_page.dart';
 import 'giphy_grid_view.dart';
 import 'giphy_search_bar.dart';
 import 'giphy_search_page.dart';
@@ -26,7 +27,9 @@ class GiphyPicker extends StatefulWidget {
 
   final ValueSetter<GiphyImage>? onSelected;
 
-  const GiphyPicker({super.key,this.onSelected});
+  final TextEditingController? textController;
+
+  const GiphyPicker({super.key,this.onSelected,this.textController});
 
   @override
   State<GiphyPicker> createState() => _GiphyPickerState();
@@ -96,12 +99,16 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
            SliverFillRemaining(
              child: TabBarView(
                controller: _tabController,
-               children: GiphyCategory.values
-                   .map((item) => GiphyGridView(
-                 category: item,
-                 onSelected: widget.onSelected,
-               )).toList(),
-             ),
+               children: GiphyCategory.values.map((item) {
+                  if (item.name == 'EMOJIS') {
+                    return InputFacePage(textController: widget.textController,);
+                  }
+                  return GiphyGridView(
+                    category: item,
+                    onSelected: widget.onSelected,
+                  );
+                }).toList(),
+              ),
            )
           ],
       ),

@@ -7,14 +7,14 @@ import 'package:ox_network/network_manager.dart';
 import 'giphy_image.dart';
 
 enum GiphyCategory {
+  /// System Emoji
+  EMOJIS,
+
   /// Giphy Gif Endpoint
   GIFS,
 
   /// Giphy Sticker Endpoint
   STICKERS,
-
-  /// Giphy Emoji Endpoint
-  EMOJIS,
 }
 
 extension GiphyCategoryPath on GiphyCategory{
