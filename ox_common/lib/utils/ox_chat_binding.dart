@@ -274,6 +274,13 @@ class OXChatBinding {
                 sessionModel.unreadCount = strangerSessionMap[chatId]!.unreadCount! + 1;
               }
             }
+          } else {
+            if ((sessionModel.chatType == ChatType.chatSecretStranger || sessionModel.chatType == ChatType.chatStranger) && strangerSessionMap[chatId] != null) {
+              //if you message a non-contact, add to the regular conversation list.
+              strangerSessionMap.remove(chatId);
+              sessionModel.chatType = (sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
+              sessionMap[chatId] = sessionModel;
+            }
           }
           if ((sessionMap[chatId] != null && messageDB.createTime! >= sessionMap[chatId]!.createTime!)
               || (strangerSessionMap[chatId] != null && messageDB.createTime! >= strangerSessionMap[chatId]!.createTime!)) {
