@@ -23,7 +23,7 @@ class ChatUserCache {
     }
 
     if(userDB == null) {
-      userDB = await Account.getUserFromDB(pubkey: pubKey);
+      userDB = await Account.sharedInstance.getUserInfo(pubKey);
     }
 
     if(userDB == null) {

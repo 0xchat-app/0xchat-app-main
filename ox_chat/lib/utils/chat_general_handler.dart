@@ -163,13 +163,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    var userDB = await Account.getUserFromDB(pubkey: userId);
-    if (userDB == null) {
-      OXLoading.show();
-      Map<String, UserDB> result = await Account.syncProfilesFromRelay([userId]);
-      OXLoading.dismiss();
-      userDB = result[userId];
-    }
+    var userDB = await Account.sharedInstance.getUserInfo(userId);
 
     if (userDB == null) {
       CommonToast.instance.show(context, 'User not found');

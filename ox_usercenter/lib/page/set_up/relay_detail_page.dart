@@ -205,15 +205,7 @@ extension RelayAttributes on RelayDB {
 
   Future<Map<String, dynamic>> get relayAttributes async {
 
-    UserDB? user = await Account.getUserFromDB(pubkey: pubkey ?? '');
-
-    if(user != null){
-      if(user.name == null || user.name!.isEmpty || user.picture == null || user.picture!.isEmpty){
-        List<String> pubKeys = [pubkey!];
-        Map<String, UserDB> profiles = await Account.syncProfilesFromRelay(pubKeys);
-        user = profiles.values.first;
-      }
-    }
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey ?? '');
 
     Map<String, String> relayOwner = <String, String>{
       'name': user?.name ?? '',

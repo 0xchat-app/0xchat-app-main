@@ -384,7 +384,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         ),
       ),
       onTap: () async {
-        UserDB? userDB = await Account.getUserFromDB(pubkey: item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender! : item.receiver!);
+        UserDB? userDB = await Account.sharedInstance.getUserInfo(item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender! : item.receiver!);
         if (userDB == null) {
           CommonToast.instance.show(context, 'Unknown error about the user.');
           return;
@@ -401,7 +401,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   Future<bool> _getChatSessionMute(ChatSessionModel csModel) async {
     bool isMute = false;
     if (csModel.chatType == ChatType.chatStranger || csModel.chatType == ChatType.chatSecretStranger) {
-      UserDB? tempUserDB = await Account.getUserFromDB(pubkey: csModel.chatId!);
+      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId!);
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }

@@ -903,7 +903,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Future<bool> _getChatSessionMute(ChatSessionModel announceItem) async {
     bool isMute = false;
     if (announceItem.chatType == ChatType.chatSingle) {
-      UserDB? tempUserDB = await Account.getUserFromDB(pubkey: announceItem.chatId!);
+      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(announceItem.chatId!);
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }
@@ -1094,7 +1094,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _privatePromptTone(MessageDB message) async {
     bool isMute = false;
-    UserDB? tempUserDB = await Account.getUserFromDB(pubkey: message.sender!);
+    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender!);
     if (tempUserDB != null) {
       isMute = tempUserDB.mute ?? false;
     }

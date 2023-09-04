@@ -153,7 +153,7 @@ class SearchPageState extends State<SearchPage> {
 
     final userList = await DB.sharedInstance.objects<RecentSearchUser>();
     Future.forEach(userList, (e) async {
-      final user = await Account.getUserFromDB(pubkey: e.pubKey);
+      final user = await Account.sharedInstance.getUserInfo(e.pubKey);
       if (user != null) {
         _selectedHistoryList.add(user);
       }

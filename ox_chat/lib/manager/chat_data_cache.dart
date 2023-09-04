@@ -829,7 +829,7 @@ extension ChatDataCacheSyncUserInfoEx on ChatDataCache {
     Map<String, List<types.Message>> messageMap = Map<String, List<types.Message>>.from(this.unknownMessageMap);
     if (messageMap.keys.length == 0) return ;
 
-    final userMap = await Account.syncProfilesFromRelay(messageMap.keys.toList());
+    final userMap = await Account.sharedInstance.getUserInfos(messageMap.keys.toList());
 
     unknownUserPubkeyCache.addAll(userMap.keys);
     userMap.forEach((key, value) {

@@ -150,14 +150,13 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     await OXLoading.show();
     String pubkey = Account.getPublicKey(_accountKeyInput);
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    UserDB? userDB = await Account.loginWithPriKey(_accountKeyInput);
+    UserDB? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
     if (userDB == null) {
       CommonToast.instance.show(context, 'Private Key regular failed' /*Localized.text('ox_common.network_connect_fail')*/);
       return;
     }
-    var usersMap = await Account.syncProfilesFromRelay([userDB.pubKey!]);
-    UserDB tempUserDB = usersMap[userDB.pubKey!]!;
-    if (tempUserDB.name != null && tempUserDB.name!.isNotEmpty) {
+    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(userDB.pubKey);
+    if (tempUserDB!.name != null && tempUserDB.name!.isNotEmpty) {
       userDB.name = tempUserDB.name!;
     }
     if (tempUserDB.picture != null && tempUserDB.picture!.isNotEmpty) {

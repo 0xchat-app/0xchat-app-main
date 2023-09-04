@@ -484,16 +484,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   Future<List<UserDB>> _getChannelMembers(List<String> pubKeys) async {
     List<UserDB> users = [];
     for (var element in pubKeys) {
-      UserDB? user = await Account.getUserFromDB(pubkey: element);
+      UserDB? user = await Account.sharedInstance.getUserInfo(element);
       if (user != null) {
         users.add(user);
       }
-    }
-
-    //When no local data
-    if (users.isEmpty || users.length != pubKeys.length) {
-      var result = await Account.syncProfilesFromRelay(pubKeys);
-      users.addAll(result.values);
     }
 
     return users;

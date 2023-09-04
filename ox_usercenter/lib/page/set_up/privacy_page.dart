@@ -124,7 +124,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
   }
 
   Future<void> _getBlockUserProfile(List<String> pubKeys) async {
-    Map<String, UserDB> result = await Account.syncProfilesFromRelay(pubKeys);
+    Map<String, UserDB> result = await Account.sharedInstance.getUserInfos(pubKeys);
     _blockBlockedUser = result.values.toList();
   }
 }
