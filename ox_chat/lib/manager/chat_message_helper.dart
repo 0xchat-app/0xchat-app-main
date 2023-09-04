@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as ChatTypes;
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
@@ -19,9 +18,9 @@ class OXValue<T> {
 
 class ChatMessageDBToUIHelper {
 
-  static Future<ChatTypes.User> getUser(String messageSenderPubKey) async {
-    final user = await ChatUserCache.shared.getUserDB(messageSenderPubKey);
-    return user.toMessageModel();
+  static Future<ChatTypes.User?> getUser(String messageSenderPubKey) async {
+    final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
+    return user?.toMessageModel();
   }
 
   static String? getRoomId(MessageDB message) {
@@ -86,7 +85,15 @@ extension MessageDBToUIEx on MessageDB {
       );
       return null;
     }
-    ChatTypes.User author = await ChatMessageDBToUIHelper.getUser(senderId);
+    final author = await ChatMessageDBToUIHelper.getUser(senderId);
+    if (author == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'convertMessageDBToUIModel',
+        message: 'author is null',
+      );
+      return null;
+    }
 
     // Status
     final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(senderId);
@@ -239,7 +246,7 @@ extension MessageUIToDBEx on ChatTypes.Message {
 extension UserDBToUIEx on UserDB {
   ChatTypes.User toMessageModel() {
     ChatTypes.User _user = ChatTypes.User(
-      id: pubKey ?? '',
+      id: pubKey,
       updatedAt: lastUpdatedTime,
       sourceObject: this,
     );

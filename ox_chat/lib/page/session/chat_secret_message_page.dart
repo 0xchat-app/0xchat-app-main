@@ -22,7 +22,6 @@ import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -154,10 +153,10 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 ? widget.communityItem.receiver
                 : widget.communityItem.sender) ??
             '';
-        otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
+        otherUser = await Account.sharedInstance.getUserInfo(pubkeys);
       } else {
         final pubkeys = widget.communityItem.chatId ?? '';
-        otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
+        otherUser = await Account.sharedInstance.getUserInfo(pubkeys);
       }
       setState(() {});
     }();
