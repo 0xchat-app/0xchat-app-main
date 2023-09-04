@@ -809,7 +809,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 final OKEvent okEvent = await Contacts.sharedInstance
                     .removeContact(widget.userDB.pubKey ?? '');
                 await OXLoading.dismiss();
-                OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.userDB.pubKey, false);
                 OXNavigator.pop(context);
                 if (okEvent.status) {
                   setState(() {});
