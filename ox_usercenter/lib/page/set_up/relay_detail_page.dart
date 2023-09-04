@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -8,9 +6,11 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/common_status_view.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 class RelayDetailPage extends StatefulWidget {
 
@@ -88,11 +88,16 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
                           label: items[i].key,
                           bodyContent: items[i].value['name'],
                           leading: _buildAdminAvatar(items[i].value['picture']),
-                          // actions: CommonImage(
-                          //   iconName: 'icon_arrow_more.png',
-                          //   width: Adapt.px(24),
-                          //   height: Adapt.px(24),
-                          // ),
+                          actions: CommonImage(
+                            iconName: 'icon_arrow_more.png',
+                            width: Adapt.px(24),
+                            height: Adapt.px(24),
+                          ),
+                          onTap: (){
+                              OXModuleService.pushPage(context, 'ox_chat', 'ContactFriendUserInfoPage', {
+                              'userDB': items[i].value['user'],
+                            });
+                          }
                         )
                       else if (items[i].key.contains('SUPPORTED NIPS'))
                       _buildItem(label: items[i].key,bodyContent: items[i].value as String,contentColor: ThemeColor.gradientMainStart)
@@ -109,19 +114,23 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
     );
   }
 
-  Widget _buildItem({required String label,String? bodyContent,Widget? leading, Widget? actions,double? height,Color? contentColor}){
+  Widget _buildItem({required String label,String? bodyContent,Widget? leading, Widget? actions,double? height,Color? contentColor,GestureTapCallback? onTap}){
     bool isShow = bodyContent != null && bodyContent.isNotEmpty;
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          isShow ? _buildItemLabel(label: label) : Container(),
-          SizedBox(height: Adapt.px(12),),
-          isShow ? _buildItemBody(content: bodyContent,leading: leading,actions: actions,contentColor: contentColor) : Container(),
-          SizedBox(height: Adapt.px(16),),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            isShow ? _buildItemLabel(label: label) : Container(),
+            SizedBox(height: Adapt.px(12),),
+            isShow ? _buildItemBody(content: bodyContent,leading: leading,actions: actions,contentColor: contentColor) : Container(),
+            SizedBox(height: Adapt.px(16),),
+          ],
+        ),
       ),
     );
   }
@@ -207,9 +216,10 @@ extension RelayAttributes on RelayDB {
 
     UserDB? user = await Account.sharedInstance.getUserInfo(pubkey ?? '');
 
-    Map<String, String> relayOwner = <String, String>{
+    Map<String, dynamic> relayOwner = <String, dynamic>{
       'name': user?.name ?? '',
       'picture': user?.picture ?? '',
+      'user': user!,
     };
     
     if(supportedNips != null){
