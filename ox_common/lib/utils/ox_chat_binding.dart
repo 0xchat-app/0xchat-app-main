@@ -501,6 +501,26 @@ class OXChatBinding {
     }
   }
 
+  Future<int> changeChatSessionType(ChatSessionModel csModel, bool isBecomeContact) async {
+    //strangerSession to chatSession
+    if(isBecomeContact){
+      int tempChatType = (csModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
+      csModel.chatType = tempChatType;
+      strangerSessionMap.remove(csModel.chatId);
+      sessionMap[csModel.chatId!] = csModel;
+    } else {
+      int tempChatType = (csModel.chatType == ChatType.chatSecret ? ChatType.chatSecretStranger : ChatType.chatStranger);
+      csModel.chatType = tempChatType;
+      sessionMap.remove(csModel.chatId);
+      strangerSessionMap[csModel.chatId!] = csModel;
+    }
+    final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
+    unReadStrangerSessionCount = strangerSessionMap.values.fold(0, (prev, session) => prev + session.unreadCount);
+    strangerSessionUpdate();
+    sessionUpdate();
+    return count;
+  }
+
   void changeChatSessionTypeAll(String pubkey, bool isBecomeContact) async {
     //strangerSession to chatSession
     bool isChange = false;
@@ -564,39 +584,8 @@ class OXChatBinding {
     }
   }
 
-  void syncChatSessionForSendMsg({
-    required int createTime,
-    required String content,
-    required MessageType type,
-    String decryptContent = '',
-    String receiver = '',
-    String groupId = '',
-  }) async {
-    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (sender == null) {
-      LogUtil.e('oxchat_binding syncChatSessionForSendMsg  :   sender is null');
-      return;
-    }
-
-    final time = (createTime / 1000).round();
-
-    final messageDB = MessageDB(
-      sender: sender,
-      receiver: receiver,
-      groupId: groupId,
-      createTime: time,
-      content: content,
-      decryptContent: decryptContent,
-      read: true,
-      type: MessageDB.messageTypeToString(type),
-    );
-
-    OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
-  }
-
   void noticePromptToneCallBack(MessageDB message, int type) async {
     print('noticePromptToneCallBack');
-    // syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);
     }
