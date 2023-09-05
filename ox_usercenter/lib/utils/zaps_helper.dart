@@ -24,22 +24,22 @@ class ZapsHelper {
     final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
 
     if (recipient.isEmpty) {
-      result['message'] = 'recipient is empty';
+      result['message'] = 'Recipient is empty';
       return result;
     }
 
     if (privkey.isEmpty) {
-      result['message'] = 'privkey is empty';
+      result['message'] = 'Privkey is empty';
       return result;
     }
 
     if (relayNameList.isEmpty) {
-      result['message'] = 'relay is empty';
+      result['message'] = 'Relay is empty';
       return result;
     }
 
     if (otherLnurl.isEmpty) {
-      result['message'] = 'other lnurl is empty';
+      result['message'] = 'The receiver\'s lightning address has not been set up';
       return result;
     }
 
@@ -47,7 +47,7 @@ class ZapsHelper {
       try {
         otherLnurl = await Zaps.getLnurlFromLnaddr(otherLnurl);
       } catch (error) {
-        result['message'] = 'get lnurl from lnaddr error';
+        result['message'] = 'Error, check if the lightning address is correct';
         return result;
       }
     }
