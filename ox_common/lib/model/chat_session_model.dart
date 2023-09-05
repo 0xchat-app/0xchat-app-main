@@ -1,4 +1,5 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 ///Title: chat_session_model
 ///Description: TODO(Fill in by oneself)
@@ -55,6 +56,10 @@ class ChatSessionModel extends DBObject {
     this.draft,
     this.messageKind,
   });
+
+  String get getOtherPubkey {
+    return (this.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? this.sender : this.receiver) ?? '';
+  }
 
   static List<String?> primaryKey() {
     return ['chatId'];
