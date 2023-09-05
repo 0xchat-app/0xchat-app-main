@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -778,6 +779,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         widget.communityItem.chatId!,
         content: "You have accepted ${otherUser?.name ?? ''}'s secret chat request.",
       );
+      OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
       _secretSessionDB!.status = 2;
       setState(() {});
     } else {
