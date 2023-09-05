@@ -211,7 +211,6 @@ class OXChatBinding {
   }
 
   Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB) async {
-    LogUtil.e('Michael: syncChatSessionTable =${messageDB.messageId}');
     String secretSessionId = messageDB.sessionId ?? '';
     int changeCount = 0;
     ChatSessionModel sessionModel = ChatSessionModel(
@@ -598,8 +597,8 @@ class OXChatBinding {
   void noticePromptToneCallBack(MessageDB message, int type) async {
     print('noticePromptToneCallBack');
     // syncChatSessionTable(message);
-    for (OXChatObserver observer in _observers) {
-      observer.didPromptToneCallBack(message, type);
-    }
+    // for (OXChatObserver observer in _observers) {
+    //   observer.didPromptToneCallBack(message, type);
+    // }
   }
 }
