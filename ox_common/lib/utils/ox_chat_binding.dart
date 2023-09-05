@@ -42,6 +42,8 @@ abstract class OXChatObserver {
   void didSecretChatMessageCallBack(MessageDB message) {}
 
   void didStrangerSessionUpdate() {}
+
+  void didPromptToneCallBack(MessageDB message, int type) {}
 }
 
 class OXChatBinding {
@@ -273,6 +275,7 @@ class OXChatBinding {
               } else {
                 sessionModel.unreadCount = strangerSessionMap[chatId]!.unreadCount! + 1;
               }
+              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
             }
           } else {
             if ((sessionModel.chatType == ChatType.chatSecretStranger || sessionModel.chatType == ChatType.chatStranger) && strangerSessionMap[chatId] != null) {
@@ -301,6 +304,7 @@ class OXChatBinding {
           if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
             if (messageDB.read != null && !messageDB.read!) {
               sessionModel.unreadCount = 1;
+              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
             }
           }
           if (sessionModel.chatType == ChatType.chatSingle || sessionModel.chatType == ChatType.chatSecret) {
@@ -318,24 +322,21 @@ class OXChatBinding {
     } else if (messageDB.groupId != null) {
       //group chat
       sessionModel.chatId = messageDB.groupId;
-      LogUtil.e('Michael: group chat messageDB.groupId =${messageDB.groupId}');
       if (sessionMap[messageDB.groupId] != null) {
-        if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
-          if (messageDB.read != null && !messageDB.read!) {
-            sessionModel.unreadCount = sessionMap[messageDB.groupId]!.unreadCount! + 1;
-          }
-        }
-        LogUtil.e('Michael: group messageDB.createTime =${messageDB.createTime}');
-        LogUtil.e('Michael: group sessionMap[chatId]!.createTime! =${sessionMap[sessionModel.chatId]!.createTime}');
         if (messageDB.createTime! >= sessionMap[messageDB.groupId!]!.createTime!) {
           ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId!];
-          LogUtil.e('Michael: group chat channelDB =${channelDB}');
           if (channelDB != null) {
             //is channel
             sessionModel.avatar = channelDB.picture;
             sessionModel.chatName = channelDB.name;
             sessionModel.chatType = ChatType.chatChannel;
             sessionMap[messageDB.groupId!] = sessionModel;
+            if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
+              if (messageDB.read != null && !messageDB.read!) {
+                sessionModel.unreadCount = sessionMap[messageDB.groupId]!.unreadCount! + 1;
+                noticePromptToneCallBack(messageDB, sessionModel.chatType!);
+              }
+            }
             final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
             if (count > 0) {
               changeCount = count;
@@ -348,7 +349,6 @@ class OXChatBinding {
         }
       } else {
         ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId!];
-        LogUtil.e('Michael: group sessionMap[groupId] is null, syncChatSessionTable channelDB =${channelDB}');
         if (channelDB != null) {
           sessionModel.avatar = channelDB.picture;
           sessionModel.chatName = channelDB.name;
@@ -356,6 +356,7 @@ class OXChatBinding {
           if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
             if (messageDB.read != null && !messageDB.read!) {
               sessionModel.unreadCount = 1;
+              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
             }
           }
           sessionMap[messageDB.groupId!] = sessionModel;
@@ -592,5 +593,12 @@ class OXChatBinding {
     );
 
     OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
+  }
+
+  void noticePromptToneCallBack(MessageDB message, int type) async {
+    syncChatSessionTable(message);
+    for (OXChatObserver observer in _observers) {
+      observer.didPromptToneCallBack(message, type);
+    }
   }
 }
