@@ -284,7 +284,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
             openAppSettings();
             OXNavigator.pop(context);
           }),
-      ]);
+      ], isRowAction: true, showCancelButton: true,);
     }
   }
 
