@@ -266,7 +266,7 @@ class OXCommonHintDialog extends StatelessWidget {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: Adapt.px(17)),
+            padding: EdgeInsets.only(top: Adapt.px(17),bottom: Adapt.px(7)),
             child: Center(
               child: Text(
                 action.text(),
