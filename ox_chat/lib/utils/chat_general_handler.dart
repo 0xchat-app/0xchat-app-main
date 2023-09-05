@@ -71,43 +71,6 @@ class ChatGeneralHandler {
 
   Future Function(GiphyImage image)? gifMessageSendHandler;
 
-  static syncChatSessionForSendMsg({
-    required int createTime,
-    required String content,
-    required MessageType type,
-    String decryptContent = '',
-    String receiver = '',
-    String groupId = '',
-    String sessionId = '',
-  }) async {
-
-    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (sender == null) {
-      ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: 'syncChatSessionForSendMsg',
-          message: 'sender is null',
-      );
-      return ;
-    }
-
-    final time = (createTime / 1000).round();
-
-    final messageDB = MessageDB(
-      sender: sender,
-      receiver: receiver,
-      groupId: groupId,
-      createTime: time,
-      content: content,
-      decryptContent: decryptContent,
-      read: true,
-      type: MessageDB.messageTypeToString(type),
-      sessionId: sessionId,
-    );
-
-    OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
-  }
-
   Future loadMoreMessage(
       List<types.Message> originMessage, {
         List<types.Message>? allMessage,

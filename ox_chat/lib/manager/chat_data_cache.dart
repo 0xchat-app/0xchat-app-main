@@ -232,8 +232,6 @@ class ChatDataCache with OXChatObserver {
       id: event.id,
     );
 
-    addNewMessage(session, sendMsg);
-
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'sendSystemMessage',
@@ -248,8 +246,7 @@ class ChatDataCache with OXChatObserver {
       type,
       contentString,
       event: event,
-    )
-        .then((event) {
+    ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
         remoteId: event.eventId,
@@ -260,16 +257,6 @@ class ChatDataCache with OXChatObserver {
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, session);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      receiver: receiverPubkey,
-      decryptContent: contentString,
-      sessionId: sessionId,
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status, ChatSessionModel session) {

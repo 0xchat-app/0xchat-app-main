@@ -203,10 +203,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     ChatLogUtils.info(className: 'ChatMessagePage', funcName: '_updateChatStatus', message: 'chatStatus: $chatStatus, user: $user');
   }
 
-  void _addMessage(types.Message message) {
-    ChatDataCache.shared.addNewMessage(widget.communityItem, message);
-  }
-
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
@@ -415,7 +411,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
     var event = message.sourceKey;
     final messageKind = session.messageKind;
-    if (messageKind != null && messageKind == 4) {
+    if (messageKind != null) {
       event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString, kind: messageKind);
     } else {
       event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
@@ -429,8 +425,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       id: event.id,
       sourceKey: event,
     );
-
-    _addMessage(sendMsg);
 
     ChatLogUtils.info(
       className: 'ChatMessagePage',
@@ -455,15 +449,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      receiver: receiverPubkey,
-      decryptContent: contentString,
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status) {

@@ -344,10 +344,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     ChatLogUtils.info(className: 'ChatSecretMessagePage', funcName: '_updateChatStatus', message: 'chatStatus: $chatStatus, user: $user');
   }
 
-  void _addMessage(types.Message message) {
-    ChatDataCache.shared.addNewMessage(widget.communityItem, message);
-  }
-
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
@@ -698,8 +694,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       id: event.id,
     );
 
-    _addMessage(sendMsg);
-
     ChatLogUtils.info(
       className: 'ChatSecretMessagePage',
       funcName: '_sendMessage',
@@ -713,8 +707,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       type,
       contentString,
       event: event,
-    )
-        .then((event) {
+    ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
         remoteId: event.eventId,
@@ -725,16 +718,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      receiver: receiverPubkey,
-      decryptContent: contentString,
-      sessionId: sessionId,
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status) {
