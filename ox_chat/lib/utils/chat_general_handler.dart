@@ -169,11 +169,11 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
 
     if (senderPubkey.isEmpty) {
-      CommonToast.instance.show(context, 'Error: pubkey is empty');
+      CommonToast.instance.show(context, 'Error');
       return ;
     }
     if (myPubkey.isEmpty) {
-      CommonToast.instance.show(context, 'Error: pubkey is empty');
+      CommonToast.instance.show(context, 'Error');
       return ;
     }
 
@@ -187,7 +187,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
     if (privkey == null || privkey.isEmpty) {
-      CommonToast.instance.show(context, 'Error: privkey not found');
+      CommonToast.instance.show(context, 'Error');
       return ;
     }
 

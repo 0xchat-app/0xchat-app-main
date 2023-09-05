@@ -61,7 +61,7 @@ class ZapsRecordPage extends StatelessWidget {
         );
       } else {
         textWidget = Text(
-          'Confirming',
+          'Pending',
           style: TextStyle(
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
