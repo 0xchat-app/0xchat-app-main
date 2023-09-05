@@ -776,7 +776,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     if (okEvent.status) {
       OXChatBinding.sharedInstance.updateChatSession(
         widget.communityItem.chatId!,
-        content: "You have accepted [${otherUser?.name ?? ''}]'s secret chat request.",
+        content: "You have accepted ${otherUser?.name ?? ''}'s secret chat request.",
       );
       _secretSessionDB!.status = 2;
       setState(() {});
