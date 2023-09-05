@@ -15,6 +15,7 @@ import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
@@ -624,18 +625,26 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _getMsgIcon(ChatSessionModel announceListItem) {
-    if (announceListItem.chatType == '1000') {
+  Widget _getMsgIcon(ChatSessionModel item) {
+    if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      if (announceListItem.chatId == officialHotchatId && (announceListItem.avatar == null || announceListItem.avatar!.isEmpty)) {
+      if (item.chatId == officialHotchatId && (item.avatar == null || item.avatar!.isEmpty)) {
         return Icon(
           Icons.ac_unit_outlined,
           color: Colors.transparent,
         );
       } else {
+        String showPicUrl = '';
+        if (item.chatType == ChatType.chatChannel){
+          ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+          showPicUrl = channelDB?.picture ?? '';
+        } else {
+          UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+          showPicUrl = otherDB?.picture ?? '';
+        }
         String localAvatarPath = '';
-        if (announceListItem.chatType == ChatType.chatSingle) {
+        if (item.chatType == ChatType.chatSingle) {
           localAvatarPath = 'assets/images/user_image.png';
         } else {
           localAvatarPath = 'assets/images/icon_group_default.png';
@@ -655,7 +664,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ClipRRect(
                 borderRadius: BorderRadius.circular(Adapt.px(60)),
                 child: CachedNetworkImage(
-                  imageUrl: '${announceListItem.avatar}',
+                  imageUrl: '${showPicUrl}',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => placeholderImage,
                   errorWidget: (context, url, error) => placeholderImage,
@@ -663,7 +672,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   height: Adapt.px(60),
                 ),
               ),
-              (announceListItem.chatType == ChatType.chatSingle)
+              (item.chatType == ChatType.chatSingle)
                   ? Positioned(
                 bottom: 0,
                 right: 0,
@@ -678,7 +687,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     )
                         : Container();
                   },
-                  future: _getUserSelectedBadgeInfo(announceListItem),
+                  future: _getUserSelectedBadgeInfo(item),
                 ),
               )
                   : Container(),
@@ -690,9 +699,17 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModel item) {
+    String showName = '';
+    if (item.chatType == ChatType.chatChannel){
+      ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+      showName = channelDB?.name ?? '';
+    } else {
+      UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+      showName = otherDB?.getUserShowName() ?? '';
+    }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
-      child: item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
+      child: item.chatType == ChatType.chatSecret
           ? Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -715,7 +732,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ).createShader(Offset.zero & bounds.size);
             },
             child: Text(
-              item.chatName ?? '',
+              showName,
               style: TextStyle(
                 fontSize: Adapt.px(16),
                 color: ThemeColor.color0,
@@ -726,7 +743,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           ),
         ],
       )
-          : Text(item.chatName ?? '', textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
+          : Text(showName, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
       constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
       // width: Adapt.px(135),
     );

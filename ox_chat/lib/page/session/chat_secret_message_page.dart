@@ -140,27 +140,20 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   void setupUser() {
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey!,
       sourceObject: userDB,
     );
-
-    () async {
-      // Other
-      if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
-        final pubkeys = (widget.communityItem.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
-                ? widget.communityItem.receiver
-                : widget.communityItem.sender) ??
-            '';
-        otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
-      } else {
-        final pubkeys = widget.communityItem.chatId ?? '';
-        otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
-      }
-      setState(() {});
-    }();
+    if (otherUser == null) {
+      () async {
+        // Other
+        otherUser = await Account.sharedInstance.getUserInfo(widget.communityItem.getOtherPubkey);
+        setState(() { });
+      };
+    }
   }
 
   void prepareData() {

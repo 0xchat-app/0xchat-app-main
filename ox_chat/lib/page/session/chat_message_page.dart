@@ -92,13 +92,13 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
-
-    () async {
-      // Other
-      var pubkeys = widget.communityItem.chatId ?? '';
-      otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
-      setState(() { });
-    }();
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.chatId];
+    if (otherUser == null) {
+      () async {
+        otherUser = await Account.sharedInstance.getUserInfo(widget.communityItem.chatId ?? '');
+        setState(() { });
+      };
+    }
   }
 
   void prepareData() {
@@ -172,6 +172,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           InputMoreItemEx.album(chatGeneralHandler),
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
+          InputMoreItemEx.call(chatGeneralHandler, otherUser),
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
         ],
         onVoiceSend: (path, duration) {
