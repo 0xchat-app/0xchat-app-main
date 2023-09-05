@@ -1,13 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as foundation;
-import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
 class InputFacePage extends StatefulWidget {
-  final TextEditingController textController;
-  const InputFacePage({Key? key, required this.textController}) : super(key: key);
+  final TextEditingController? textController;
+  const InputFacePage({super.key, this.textController});
 
   @override
   State<InputFacePage> createState() => _InputFacePageState();

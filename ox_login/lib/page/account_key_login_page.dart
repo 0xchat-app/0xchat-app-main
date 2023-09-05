@@ -155,8 +155,8 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
       CommonToast.instance.show(context, 'Private Key regular failed' /*Localized.text('ox_common.network_connect_fail')*/);
       return;
     }
-    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(userDB.pubKey);
-    if (tempUserDB!.name != null && tempUserDB.name!.isNotEmpty) {
+    UserDB tempUserDB = await Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    if (tempUserDB.name != null && tempUserDB.name!.isNotEmpty) {
       userDB.name = tempUserDB.name!;
     }
     if (tempUserDB.picture != null && tempUserDB.picture!.isNotEmpty) {

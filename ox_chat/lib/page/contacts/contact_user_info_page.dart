@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/user_report.dart';
@@ -128,14 +127,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         }
       }
     }
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.userDB.pubKey);
-    if (user != null) {
-      widget.userDB.updateWith(user);
-      setState(() {});
-      ChatUserCache.shared.updateUserInfo(widget.userDB);
-      OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey,
-          chatName: widget.userDB.name, pic: widget.userDB.picture);
-    }
+    UserDB user = await Account.sharedInstance.reloadProfileFromRelay(widget.userDB.pubKey);
+    widget.userDB.updateWith(user);
+    setState(() {});
+    OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey,
+        chatName: widget.userDB.name, pic: widget.userDB.picture);
     _verifiedDNS();
   }
 

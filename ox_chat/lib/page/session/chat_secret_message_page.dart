@@ -22,7 +22,6 @@ import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -140,13 +139,13 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   void setupUser() {
-    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey!,
       sourceObject: userDB,
     );
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
     if (otherUser == null) {
       () async {
         // Other

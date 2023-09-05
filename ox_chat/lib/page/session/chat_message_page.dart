@@ -16,7 +16,6 @@ import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/widget/avatar.dart';
@@ -416,7 +415,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
     var event = message.sourceKey;
     final messageKind = session.messageKind;
-    if (messageKind != null) {
+    if (messageKind != null && messageKind == 4) {
       event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString, kind: messageKind);
     } else {
       event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
