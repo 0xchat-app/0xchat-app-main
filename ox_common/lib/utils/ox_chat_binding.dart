@@ -596,7 +596,8 @@ class OXChatBinding {
   }
 
   void noticePromptToneCallBack(MessageDB message, int type) async {
-    syncChatSessionTable(message);
+    print('noticePromptToneCallBack');
+    // syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);
     }
