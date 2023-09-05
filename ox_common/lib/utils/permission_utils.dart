@@ -46,11 +46,12 @@ class PermissionUtils{
         permissionGranted = false;
       }
     } else {
-      if (await Permission.photos.request().isGranted) {
+      final status = await Permission.photos.request();
+      if (status.isGranted || status.isLimited) {
         permissionGranted = true;
-      } else if (await Permission.photos.request().isPermanentlyDenied) {
+      } else if (status.isPermanentlyDenied) {
         await openAppSettings();
-      } else if (await Permission.photos.request().isDenied) {
+      } else if (status.isDenied) {
         permissionGranted = false;
       }
     }
