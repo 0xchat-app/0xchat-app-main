@@ -165,9 +165,20 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     OXLoading.show();
 
-    final senderPubkey = message.author.id;
-    final receiverPubkey = senderPubkey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
-        ? session.chatId ?? '' : senderPubkey;
+    final senderPubkey = message.author.sourceObject?.encodedPubkey ?? '';
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
+
+    if (senderPubkey.isEmpty) {
+      CommonToast.instance.show(context, 'Error: pubkey is empty');
+      return ;
+    }
+    if (myPubkey.isEmpty) {
+      CommonToast.instance.show(context, 'Error: pubkey is empty');
+      return ;
+    }
+
+    final receiverPubkey = senderPubkey == myPubkey
+        ? (session.chatId ?? '' ): myPubkey;
     final invoice = message.invoice;
     final zapper = message.zapper;
     final description = message.description;
@@ -176,9 +187,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
     if (privkey == null || privkey.isEmpty) {
-      CommonToast.instance.show(context, 'privkey not found');
+      CommonToast.instance.show(context, 'Error: privkey not found');
       return ;
     }
+
     final zapsReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
     final zapsReceipt = zapsReceiptList.length > 0 ? zapsReceiptList.first : null;
 
