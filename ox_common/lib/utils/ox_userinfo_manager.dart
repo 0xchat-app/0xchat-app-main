@@ -186,8 +186,8 @@ class OXUserInfoManager {
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
 
-    ///4 private chat,  10100,10101,10102,10103 add friend logic, 42  channel message, 9735
-    List<int> kinds = [4, 10100, 10101, 10102, 10103, 42, 9735];
+    ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
+    List<int> kinds = [4, 44, 1059, 42, 9735];
     for (String jsonString in jsonStringList) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
       if (jsonMap['name'] == 'Push Notifications' && !jsonMap['isSelected']) {
@@ -196,10 +196,8 @@ class OXUserInfoManager {
       }
       if (jsonMap['name'] == 'Private Messages' && !jsonMap['isSelected']) {
         kinds.remove(4);
-        kinds.remove(10100);
-        kinds.remove(10101);
-        kinds.remove(10102);
-        kinds.remove(10103);
+        kinds.remove(44);
+        kinds.remove(1059);
       }
       if (jsonMap['name'] == 'Channels' && !jsonMap['isSelected']) {
         kinds.remove(42);
