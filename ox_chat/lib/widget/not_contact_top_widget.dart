@@ -128,6 +128,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
       OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.chatSessionModel.getOtherPubkey, true);
       CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
+      widget.onTap?.call();
       setState(() {});
     } else {
       CommonToast.instance.show(context, okEvent.message);
