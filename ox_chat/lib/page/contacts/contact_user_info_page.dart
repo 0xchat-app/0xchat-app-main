@@ -752,8 +752,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 text: 'confirm',
                 onTap: () async {
                   await OXLoading.show();
-                  LogUtil.e(
-                      'Michael: widget.userDB.pubKey =${widget.userDB.pubKey!}; widget.userDB.toAliasPubkey =${widget.userDB.toAliasPubkey!}');
                   final OKEvent okEvent = await Contacts.sharedInstance
                       .addToContact([widget.userDB.pubKey!]);
                   await OXLoading.dismiss();
