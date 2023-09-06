@@ -64,6 +64,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
+  Map<String, BadgeDB> badgeCache = {};
   static const String officialHotchatId = "2423423424141";
 
   int imageV = 0;
@@ -677,6 +678,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 bottom: 0,
                 right: 0,
                 child: FutureBuilder<BadgeDB?>(
+                  initialData: badgeCache[item.chatId],
                   builder: (context, snapshot) {
                     return (snapshot.data != null && snapshot.data!.thumb != null)
                         ? CachedNetworkImage(
@@ -1050,11 +1052,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[announceListItem.chatId];
+    final chatId = announceListItem.chatId ?? '';
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[chatId];
     if (friendUserDB == null) {
       return null;
     }
-    String badges = friendUserDB!.badges ?? '';
+    String badges = friendUserDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
@@ -1064,6 +1067,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
+      }
+      if (badgeDB != null) {
+        badgeCache[chatId] = badgeDB;
       }
       return badgeDB;
     }
