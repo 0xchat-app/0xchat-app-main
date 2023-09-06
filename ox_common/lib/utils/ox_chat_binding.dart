@@ -213,8 +213,9 @@ class OXChatBinding {
   Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB) async {
     String secretSessionId = messageDB.sessionId ?? '';
     int changeCount = 0;
+    String showContent = showContentByMsgType(messageDB);
     ChatSessionModel sessionModel = ChatSessionModel(
-      content: showContentByMsgType(messageDB),
+      content: showContent,
       createTime: messageDB.createTime,
       messageType: messageDB.type!,
       receiver: messageDB.receiver,
@@ -251,10 +252,14 @@ class OXChatBinding {
         if (otherUserPubkey != null) {
           userDB = await Account.sharedInstance.getUserInfo(otherUserPubkey);
         }
-        if (secretSessionId.isEmpty) {
-          sessionModel.chatType = ChatType.chatStranger;
+        if (sessionMap[chatId] == null) {
+          if (secretSessionId.isEmpty) {
+            sessionModel.chatType = ChatType.chatStranger;
+          } else {
+            sessionModel.chatType = ChatType.chatSecretStranger;
+          }
         } else {
-          sessionModel.chatType = ChatType.chatSecretStranger;
+          sessionModel.chatType = sessionMap[chatId]!.chatType;
         }
       } else {
         if (secretSessionId.isEmpty) {
@@ -369,11 +374,8 @@ class OXChatBinding {
       }
     }
     if (changeCount > 0) {
-      if (sessionModel.chatType == ChatType.chatSingle || sessionModel.chatType == ChatType.chatChannel || sessionModel.chatType == ChatType.chatSecret) {
-        sessionUpdate();
-      } else {
-        strangerSessionUpdate();
-      }
+      sessionUpdate();
+      strangerSessionUpdate();
     }
     return sessionModel;
   }
