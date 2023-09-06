@@ -340,10 +340,9 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     await OXLoading.show();
     OKEvent okEvent =
         await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
-    SecretSessionDB? db =
-        Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
     await OXLoading.dismiss();
     if (okEvent.status) {
+      SecretSessionDB? db = Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
       if (db != null) {
         ChatSessionModel? chatModel =
         await OXChatBinding.sharedInstance.localCreateSecretChat(db);
