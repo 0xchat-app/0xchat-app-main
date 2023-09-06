@@ -64,7 +64,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-  static const String officialHotchatId = "2423423424141";
 
   int imageV = 0;
 
@@ -629,72 +628,65 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      if (item.chatId == officialHotchatId && (item.avatar == null || item.avatar!.isEmpty)) {
-        return Icon(
-          Icons.ac_unit_outlined,
-          color: Colors.transparent,
-        );
+      String showPicUrl = '';
+      if (item.chatType == ChatType.chatChannel) {
+        ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+        showPicUrl = channelDB?.picture ?? '';
       } else {
-        String showPicUrl = '';
-        if (item.chatType == ChatType.chatChannel){
-          ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
-          showPicUrl = channelDB?.picture ?? '';
-        } else {
-          UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
-          showPicUrl = otherDB?.picture ?? '';
-        }
-        String localAvatarPath = '';
-        if (item.chatType == ChatType.chatSingle) {
-          localAvatarPath = 'assets/images/user_image.png';
-        } else {
-          localAvatarPath = 'assets/images/icon_group_default.png';
-        }
-        Image placeholderImage = Image.asset(
-          localAvatarPath,
-          fit: BoxFit.cover,
-          width: Adapt.px(60),
-          height: Adapt.px(60),
-          package: 'ox_chat',
-        );
-        return Container(
-          width: Adapt.px(60),
-          height: Adapt.px(60),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Adapt.px(60)),
-                child: CachedNetworkImage(
-                  imageUrl: '${showPicUrl}',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => placeholderImage,
-                  errorWidget: (context, url, error) => placeholderImage,
-                  width: Adapt.px(60),
-                  height: Adapt.px(60),
-                ),
-              ),
-              (item.chatType == ChatType.chatSingle)
-                  ? Positioned(
-                bottom: 0,
-                right: 0,
-                child: FutureBuilder<BadgeDB?>(
-                  builder: (context, snapshot) {
-                    return (snapshot.data != null && snapshot.data!.thumb != null)
-                        ? CachedNetworkImage(
-                      imageUrl: snapshot.data!.thumb!,
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      fit: BoxFit.cover,
-                    )
-                        : Container();
-                  },
-                  future: _getUserSelectedBadgeInfo(item),
-                ),
-              )
-                  : Container(),
-            ],
-          ),
-        );
+        UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+        showPicUrl = otherDB?.picture ?? '';
       }
+      String localAvatarPath = '';
+      if (item.chatType == ChatType.chatSingle) {
+        localAvatarPath = 'assets/images/user_image.png';
+      } else {
+        localAvatarPath = 'assets/images/icon_group_default.png';
+      }
+      Image placeholderImage = Image.asset(
+        localAvatarPath,
+        fit: BoxFit.cover,
+        width: Adapt.px(60),
+        height: Adapt.px(60),
+        package: 'ox_chat',
+      );
+      return Container(
+        width: Adapt.px(60),
+        height: Adapt.px(60),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(Adapt.px(60)),
+              child: CachedNetworkImage(
+                imageUrl: '${showPicUrl}',
+                fit: BoxFit.cover,
+                placeholder: (context, url) => placeholderImage,
+                errorWidget: (context, url, error) => placeholderImage,
+                width: Adapt.px(60),
+                height: Adapt.px(60),
+              ),
+            ),
+            (item.chatType == ChatType.chatSingle)
+                ? Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: FutureBuilder<BadgeDB?>(
+                      builder: (context, snapshot) {
+                        return (snapshot.data != null && snapshot.data!.thumb != null)
+                            ? CachedNetworkImage(
+                                imageUrl: snapshot.data!.thumb!,
+                                width: Adapt.px(24),
+                                height: Adapt.px(24),
+                                fit: BoxFit.cover,
+                              )
+                            : Container();
+                      },
+                      future: _getUserSelectedBadgeInfo(item),
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+      );
     }
   }
 
