@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
+import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -52,6 +53,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
+  bool isShowContactMenu = true;
 
   @override
   ChatSessionModel get session => widget.communityItem;
@@ -186,10 +188,17 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
+        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
         customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
       ),
     );
+  }
+
+  void _hideContactMenu() {
+    setState(() {
+      isShowContactMenu = false;
+    });
   }
 
   void _updateChatStatus() {
