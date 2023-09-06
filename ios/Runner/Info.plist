@@ -259,6 +259,10 @@
 		<string>phoenix</string>
 		<string>breez</string>
 		<string>cashapp</string>
+		<string>walletofsatoshi</string>
+		<string>bitcoinbeach</string>
+		<string>muun</string>
+		<string>zebedee</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
