@@ -345,8 +345,11 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       ChatSessionModel? chatModel =
           await OXChatBinding.sharedInstance.localCreateSecretChat(db);
       if (chatModel != null) {
-        OXNavigator.pushPage(context,
-            (context) => ChatSecretMessagePage(communityItem: chatModel));
+        OXNavigator.pop(context);
+        OXNavigator.pushReplacement(
+          context,
+          ChatSecretMessagePage(communityItem: chatModel),
+        );
       }
     }
   }

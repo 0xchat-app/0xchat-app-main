@@ -133,7 +133,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB!));
+    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
   }
 
   TextMessageOptions textMessageOptions(BuildContext context) =>

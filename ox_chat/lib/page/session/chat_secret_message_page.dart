@@ -171,112 +171,105 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   @override
   Widget build(BuildContext context) {
     bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
-    return WillPopScope(
-      onWillPop: () async {
-        await OXLoading.dismiss();
-        OXNavigator.popToRoot(context);
-        return Future.value(true);
-      },
-      child: Scaffold(
-        backgroundColor: ThemeColor.color200,
-        resizeToAvoidBottomInset: false,
-        appBar: CommonAppBar(
-          useLargeTitle: false,
-          centerTitle: true,
-          title: otherUser?.getUserShowName() ?? '',
-          titleWidget: Center(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(top: Adapt.px(2)),
-                  child: CommonImage(
-                    iconName: 'icon_lock_secret.png',
-                    width: Adapt.px(16),
-                    height: Adapt.px(16),
-                    package: 'ox_chat',
-                  ),
+    return Scaffold(
+      backgroundColor: ThemeColor.color200,
+      resizeToAvoidBottomInset: false,
+      appBar: CommonAppBar(
+        useLargeTitle: false,
+        centerTitle: true,
+        title: otherUser?.getUserShowName() ?? '',
+        titleWidget: Center(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: Adapt.px(2)),
+                child: CommonImage(
+                  iconName: 'icon_lock_secret.png',
+                  width: Adapt.px(16),
+                  height: Adapt.px(16),
+                  package: 'ox_chat',
                 ),
-                SizedBox(
-                  width: Adapt.px(4),
-                ),
-                Text(
-                  otherUser?.getUserShowName() ?? '',
-                  style: TextStyle(
-                    color: ThemeColor.color0,
-                    fontSize: Adapt.px(17),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          backgroundColor: ThemeColor.color200,
-          backCallback: () {
-            OXNavigator.popToRoot(context);
-          },
-          actions: [
-            Container(
-              alignment: Alignment.center,
-              child: OXUserAvatar(
-                user: otherUser,
-                size: Adapt.px(36),
-                isClickable: true,
-                onReturnFromNextPage: () {
-                  setState(() {});
-                },
               ),
-            ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-          ],
-        ),
-        body: Chat(
-          anchorMsgId: widget.anchorMsgId,
-          messages: _messages,
-          isLastPage: !chatGeneralHandler.hasMoreMessage,
-          onEndReached: () async {
-            await _loadMoreMessages();
-          },
-          onMessageTap: _handleMessageTap,
-          onPreviewDataFetched: _handlePreviewDataFetched,
-          onSendPressed: _handleSendPressed,
-          avatarBuilder: (message) => OXUserAvatar(
-            user: message.author.sourceObject,
-            size: Adapt.px(40),
-            isCircular: false,
-            isClickable: true,
-            onReturnFromNextPage: () {
-              setState(() {});
-            },
+              SizedBox(
+                width: Adapt.px(4),
+              ),
+              Text(
+                otherUser?.getUserShowName() ?? '',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(17),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          showUserNames: showUserNames,
-          //Group chat display nickname
-          user: _user,
-          useTopSafeAreaInset: true,
-          chatStatus: chatStatus,
-          inputMoreItems: [
-            InputMoreItemEx.album(chatGeneralHandler),
-            InputMoreItemEx.camera(chatGeneralHandler),
-            InputMoreItemEx.video(chatGeneralHandler),
-            InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
-          ],
-          onVoiceSend: (path, duration) {
-            _onVoiceSend(path, duration);
-          },
-          onGifSend: (value) {
-            _onGifImageMessageSend(value);
-          },
-          onAttachmentPressed: () {},
-          onMessageLongPressEvent: _handleMessageLongPress,
-          longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
-          onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
-          textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-          imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
-          customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
-          customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
-          customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
-          inputOptions: chatGeneralHandler.inputOptions,
         ),
+        backgroundColor: ThemeColor.color200,
+        backCallback: () {
+          OXNavigator.popToRoot(context);
+        },
+        actions: [
+          Container(
+            alignment: Alignment.center,
+            child: OXUserAvatar(
+              user: otherUser,
+              size: Adapt.px(36),
+              isClickable: true,
+              onReturnFromNextPage: () {
+                setState(() {});
+              },
+            ),
+          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ],
+      ),
+      body: Chat(
+        anchorMsgId: widget.anchorMsgId,
+        messages: _messages,
+        isLastPage: !chatGeneralHandler.hasMoreMessage,
+        onEndReached: () async {
+          await _loadMoreMessages();
+        },
+        onMessageTap: _handleMessageTap,
+        onPreviewDataFetched: _handlePreviewDataFetched,
+        onSendPressed: _handleSendPressed,
+        avatarBuilder: (message) => OXUserAvatar(
+          user: message.author.sourceObject,
+          size: Adapt.px(40),
+          isCircular: false,
+          isClickable: true,
+          onReturnFromNextPage: () {
+            setState(() {});
+          },
+        ),
+        showUserNames: showUserNames,
+        //Group chat display nickname
+        user: _user,
+        useTopSafeAreaInset: true,
+        chatStatus: chatStatus,
+        inputMoreItems: [
+          InputMoreItemEx.album(chatGeneralHandler),
+          InputMoreItemEx.camera(chatGeneralHandler),
+          InputMoreItemEx.video(chatGeneralHandler),
+          InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
+        ],
+        onVoiceSend: (path, duration) {
+          _onVoiceSend(path, duration);
+        },
+        onGifSend: (value) {
+          _onGifImageMessageSend(value);
+        },
+        onAttachmentPressed: () {},
+        onMessageLongPressEvent: _handleMessageLongPress,
+        longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
+        onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
+        textMessageOptions: chatGeneralHandler.textMessageOptions(context),
+        imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
+        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
+        customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
+        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
+        inputOptions: chatGeneralHandler.inputOptions,
       ),
     );
   }

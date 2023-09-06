@@ -772,9 +772,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _sendMsg() {
-    OXNavigator.pushPage(
+    OXNavigator.pushReplacement(
       context,
-      (context) => ChatMessagePage(
+      ChatMessagePage(
         communityItem: ChatSessionModel(
           chatId: widget.userDB.pubKey,
           chatName: widget.userDB.name,
