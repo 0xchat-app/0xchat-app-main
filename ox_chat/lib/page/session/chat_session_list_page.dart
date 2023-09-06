@@ -64,8 +64,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-
-  int imageV = 0;
+  Map<String, BadgeDB> badgeCache = {};
 
   GlobalKey? _latestGlobalKey;
 
@@ -370,8 +369,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _onRefresh() async {
-    imageV++; //update avatar f
-
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (isLogin == false) {
       if (this.mounted) {
@@ -667,22 +664,23 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             ),
             (item.chatType == ChatType.chatSingle)
                 ? Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: FutureBuilder<BadgeDB?>(
-                      builder: (context, snapshot) {
-                        return (snapshot.data != null && snapshot.data!.thumb != null)
-                            ? CachedNetworkImage(
-                                imageUrl: snapshot.data!.thumb!,
-                                width: Adapt.px(24),
-                                height: Adapt.px(24),
-                                fit: BoxFit.cover,
-                              )
-                            : Container();
-                      },
-                      future: _getUserSelectedBadgeInfo(item),
-                    ),
+              bottom: 0,
+              right: 0,
+              child: FutureBuilder<BadgeDB?>(
+                initialData: badgeCache[item.chatId],
+                builder: (context, snapshot) {
+                  return (snapshot.data != null && snapshot.data!.thumb != null)
+                      ? CachedNetworkImage(
+                    imageUrl: snapshot.data!.thumb!,
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                    fit: BoxFit.cover,
                   )
+                      : Container();
+                },
+                future: _getUserSelectedBadgeInfo(item),
+              ),
+            )
                 : Container(),
           ],
         ),
@@ -1042,11 +1040,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[announceListItem.chatId];
+    final chatId = announceListItem.chatId ?? '';
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[chatId];
     if (friendUserDB == null) {
       return null;
     }
-    String badges = friendUserDB!.badges ?? '';
+    String badges = friendUserDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
@@ -1056,6 +1055,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
+      }
+      if (badgeDB != null) {
+        badgeCache[chatId] = badgeDB;
       }
       return badgeDB;
     }
