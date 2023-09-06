@@ -310,6 +310,10 @@ class OXChatBinding {
               sessionModel.unreadCount = 1;
               noticePromptToneCallBack(messageDB, sessionModel.chatType!);
             }
+          } else {
+            if (sessionModel.chatType == ChatType.chatSecretStranger || sessionModel.chatType == ChatType.chatStranger) {
+              sessionModel.chatType = (sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
+            }
           }
           if (sessionModel.chatType == ChatType.chatSingle || sessionModel.chatType == ChatType.chatSecret) {
             sessionMap[chatId] = sessionModel;
