@@ -934,17 +934,21 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
-    if (isMute) {
-      return ClipOval(
-        child: Container(
-          alignment: Alignment.center,
-          color: ThemeColor.red1,
-          width: Adapt.px(12),
-          height: Adapt.px(12),
-        ),
-      );
-    }
     int read = announceItem.unreadCount;
+    if (isMute) {
+      if (read > 0) {
+        return ClipOval(
+          child: Container(
+            alignment: Alignment.center,
+            color: ThemeColor.color110,
+            width: Adapt.px(12),
+            height: Adapt.px(12),
+          ),
+        );
+      } else {
+        return SizedBox();
+      }
+    }
     if (read > 0 && read < 10) {
       return ClipOval(
         child: Container(
