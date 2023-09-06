@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:rive/rive.dart';
 import 'package:ox_common/log_util.dart';
@@ -11,6 +12,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_chat/model/msg_notification_model.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -172,15 +174,25 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   List<Widget> _containerView(BuildContext context) {
     return tabViewInfo.map(
       (TabViewInfo tabModel) {
-        return Container(
-          constraints: const BoxConstraints.expand(
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          child: OXModuleService.invoke(
-            tabModel.moduleName,
-            tabModel.modulePage,
-            [context],
+        return NotificationListener<MsgNotification>(
+          onNotification: (notification) {
+            if(notification.msgNum != null && notification.msgNum! < 1){
+              tabBarList[0].unreadMsgCount = 0;
+              setState(() {});
+            }
+            print('Received notification: ${notification.msgNum}');
+            return true; // Returning true means we've handled the notification.
+          },
+          child: Container(
+            constraints: const BoxConstraints.expand(
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            child: OXModuleService.invoke(
+              tabModel.moduleName,
+              tabModel.modulePage,
+              [context],
+            ),
           ),
         );
       },
@@ -188,21 +200,14 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didChannalMessageCallBack(MessageDB message) {}
-
-  @override
-  void didSecretChatRequestCallBack() {
-    setState(() {
-      tabBarList[1].unreadMsgCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
-    });
-  }
-
-  @override
-  void didPrivateMessageCallBack(MessageDB message) {
-    LogUtil.e("MyTabBarPage new friend msg");
-    setState(() {
+  void didPromptToneCallBack(MessageDB message, int type) {
+    if(message.read! || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+    if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
+      tabBarList[1].unreadMsgCount += 1;
+    } else {
       tabBarList[0].unreadMsgCount += 1;
-    });
+    }
+    setState(() {});
   }
 
   @override

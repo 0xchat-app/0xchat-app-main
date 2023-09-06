@@ -167,17 +167,13 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void didPrivateMessageCallBack(MessageDB message) {
-    _privatePromptTone(message);
+  void didPromptToneCallBack (MessageDB message, int type) async {
+    if(message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+    if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
+    bool isMute = await _checkIsMute(message,type);
+    if(!isMute) PromptToneManager.sharedInstance.play();
   }
 
-  void didChannalMessageCallBack(MessageDB messageDB) {
-    _channalPromptTone(messageDB);
-  }
-
-  void didSecretChatMessageCallBack(MessageDB message) {
-    _privatePromptTone(message);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -457,7 +453,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         readCount += i.unreadCount;
       }
     }
-    MsgNotification(msgNum: readCount).dispatch(context);
+    if(mounted){
+      MsgNotification(msgNum: readCount).dispatch(context);
+    }
   }
 
   Widget _buildListViewItem(context, int index) {
@@ -1107,29 +1105,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _privatePromptTone(MessageDB message) async {
+  Future<bool> _checkIsMute(MessageDB message,int type) async {
     bool isMute = false;
+    if(type == ChatType.chatChannel){
+      ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
+      isMute = channelDB?.mute ?? false;
+      return isMute;
+    }
     UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender!);
-    if (tempUserDB != null) {
-      isMute = tempUserDB.mute ?? false;
-    }
-    if (!isMute) {
-      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-      PromptToneManager.sharedInstance.play();
-    }
+    isMute = tempUserDB?.mute ?? false;
+    return isMute;
   }
 
-  void _channalPromptTone(MessageDB message) async {
-    bool isMute = false;
-    ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
-    if (channelDB != null) {
-      isMute = channelDB.mute ?? false;
-    }
-    if (!isMute && message.sender != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
-      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-      PromptToneManager.sharedInstance.play();
-    }
-  }
 }
 
 class _Style {
