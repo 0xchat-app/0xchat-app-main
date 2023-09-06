@@ -52,7 +52,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   void _initData() async {
     _relayNameList = OXRelayManager.sharedInstance.relayAddressList;
-    mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
+    // mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
     setState(() {});
   }
 
