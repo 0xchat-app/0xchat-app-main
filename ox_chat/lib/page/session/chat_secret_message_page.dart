@@ -414,7 +414,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       roomId: receiverPubkey,
       name: image.name,
       size: double.parse(image.size!),
-      fileEncryptionType: types.EncryptionType.encrypted,
     );
 
     final sendMsg = await _tryPrepareSendFileMessage(message);
