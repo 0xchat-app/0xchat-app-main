@@ -177,7 +177,15 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         }
       }
 
-      UserDB? tempUserDB = await Account.sharedInstance.updateProfile(mCurrentUserInfo!.privkey!, mCurrentUserInfo!);
+      UserDB? tempUserDB;
+      try{
+        await OXLoading.show();
+        tempUserDB = await Account.sharedInstance.updateProfile(mCurrentUserInfo!.privkey!, mCurrentUserInfo!);
+        await OXLoading.dismiss();
+      }catch(e){
+        await OXLoading.dismiss();
+      }
+
       if (tempUserDB != null) {
         OXNavigator.pop(context);
       } else {
