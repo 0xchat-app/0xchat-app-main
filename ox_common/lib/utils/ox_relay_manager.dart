@@ -43,6 +43,9 @@ class OXRelayManager {
       for (RelayModel model in list) {
         relayMap[model.relayName] = model;
       }
+      if (relayMap[CommonConstant.oxChatRelay] != null && relayMap[CommonConstant.oxChatRelay]!.canDelete == false){
+        relayMap[CommonConstant.oxChatRelay]!.canDelete = true;
+      }
       Connect.sharedInstance.connectRelays(relayAddressList);
     } else {
       RelayModel tempRelayModel = RelayModel(
