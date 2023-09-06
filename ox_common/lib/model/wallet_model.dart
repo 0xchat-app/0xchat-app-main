@@ -53,5 +53,29 @@ class WalletModel {
             title: 'Breez',
             scheme: 'breez://',
             image: 'icon_lighting_wallet_breez.png'),
+        WalletModel(
+            id: 'id1438599608',
+            appId: 'com.livingroomofsatoshi.wallet',
+            title: 'Wallet of Satoshi',
+            scheme: 'walletofsatoshi:lightning:',
+            image: 'icon_lighting_wallet_satoshi.png'),
+        WalletModel(
+            id: 'id1531383905',
+            appId: 'com.galoyapp',
+            title: 'Bitcoin Beach',
+            scheme: 'bitcoinbeach://',
+            image: 'icon_lighting_wallet_blink.png'),
+        WalletModel(
+            id: 'id1482037683',
+            appId: 'io.muun.apollo',
+            title: 'Muun',
+            scheme: 'muun:',
+            image: 'icon_lighting_wallet_muun.png'),
+        WalletModel(
+            id: 'id1484394401',
+            appId: 'io.zebedee.wallet',
+            title: 'Zebedee',
+            scheme: 'zebedee:lightning:',
+            image: 'icon_lighting_wallet_zebedee.png'),
       ]);
 }
