@@ -294,39 +294,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     });
   }
 
-  Widget _buildGroupDefaultImage() => Image.asset(
-        'assets/images/icon_user_default.png',
-        fit: BoxFit.contain,
-        width: Adapt.px(36),
-        height: Adapt.px(36),
-        package: 'ox_chat',
-      );
-
-  Widget _buildDetailIcon() => GestureDetector(
-        onTap: () {
-          var userId = receiverPubkey;
-          if (userId.isNotEmpty) {
-            chatGeneralHandler.avatarPressHandler(context, userId: userId);
-          }
-        },
-        child: Container(
-          width: Adapt.px(36),
-          height: Adapt.px(36),
-          alignment: Alignment.center,
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(36.0)),
-            child: CachedNetworkImage(
-              imageUrl: widget.communityItem.avatar ?? '',
-              fit: BoxFit.cover,
-              width: Adapt.px(36),
-              height: Adapt.px(36),
-              placeholder: (context, url) => _buildGroupDefaultImage(),
-              errorWidget: (context, url, error) => _buildGroupDefaultImage(),
-            ),
-          ),
-        ),
-      );
-
   void _updateChatStatus() {
     final userId = receiverPubkey;
     final user = Contacts.sharedInstance.allContacts[userId];

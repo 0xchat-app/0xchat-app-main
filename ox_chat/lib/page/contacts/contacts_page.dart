@@ -396,7 +396,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didStrangerSessionUpdate() {
+  void didSessionUpdate() {
     _isShowTools = true;
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {
