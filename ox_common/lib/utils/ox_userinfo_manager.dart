@@ -190,27 +190,26 @@ class OXUserInfoManager {
     List<int> kinds = [4, 44, 1059, 42, 9735];
     for (String jsonString in jsonStringList) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
-      if (jsonMap['name'] == 'Push Notifications' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 0 && !jsonMap['isSelected']) {
         kinds = [];
         break;
       }
-      if (jsonMap['name'] == 'Private Messages' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 1 && !jsonMap['isSelected']) {
         kinds.remove(4);
         kinds.remove(44);
         kinds.remove(1059);
       }
-      if (jsonMap['name'] == 'Channels' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 2 && !jsonMap['isSelected']) {
         kinds.remove(42);
       }
-      if (jsonMap['name'] == 'Zaps' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 3 && !jsonMap['isSelected']) {
         kinds.remove(9735);
       }
     }
 
-    if (kinds.isNotEmpty) {
-      OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
-      updateNotificatin = okEvent.status;
-    }
+    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
+    updateNotificatin = okEvent.status;
+
     return updateNotificatin;
   }
 
