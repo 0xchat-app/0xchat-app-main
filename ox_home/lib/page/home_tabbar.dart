@@ -242,7 +242,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   fetchUnreadCount() {
-    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
+    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0 && tabBarList.length > 0) {
       setState(() {
         tabBarList[1].unreadMsgCount = 1;
       });
@@ -250,15 +250,19 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   updateUnreadMsgCount(int count) {
-    setState(() {
-      tabBarList[0].unreadMsgCount = count;
-    });
+    if(tabBarList.length > 0){
+      setState(() {
+        tabBarList[0].unreadMsgCount = count;
+      });
+    }
   }
 
   updateNewFriendRequestCount(int count) {
-    setState(() {
-      tabBarList[1].unreadMsgCount = count;
-    });
+    if(tabBarList.length > 0){
+      setState(() {
+        tabBarList[1].unreadMsgCount = count;
+      });
+    }
   }
 
   isHasVibrator() async {
