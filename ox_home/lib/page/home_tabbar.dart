@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:rive/rive.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_chat/model/msg_notification_model.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -176,7 +174,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       (TabViewInfo tabModel) {
         return NotificationListener<MsgNotification>(
           onNotification: (notification) {
-            if(notification.msgNum != null && notification.msgNum! < 1){
+            if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.length > 0){
               tabBarList[0].unreadMsgCount = 0;
               setState(() {});
             }

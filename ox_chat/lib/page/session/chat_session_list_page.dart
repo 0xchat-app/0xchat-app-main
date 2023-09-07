@@ -7,7 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/model/message_content_model.dart';
-import 'package:ox_chat/model/msg_notification_model.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
