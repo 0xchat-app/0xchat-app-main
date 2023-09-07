@@ -167,7 +167,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
 
     await OXLoading.show();
     UserDB? tempUserDB =
-        await Account.updateProfile(widget.userDB.privkey!, widget.userDB);
+        await Account.sharedInstance.updateProfile(widget.userDB.privkey!, widget.userDB);
     await OXLoading.dismiss();
 
     if (tempUserDB == null) {

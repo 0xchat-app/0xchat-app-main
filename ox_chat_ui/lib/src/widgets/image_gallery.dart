@@ -121,17 +121,20 @@ class ImageGallery extends StatelessWidget {
         ),
       );
 
-  Widget _imageGalleryLoadingBuilder(ImageChunkEvent? event) => Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            value: event == null || event.expectedTotalBytes == null
-                ? 0
-                : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-          ),
+  Widget _imageGalleryLoadingBuilder(ImageChunkEvent? event) =>  Container(
+    color: Colors.black,
+    child: Center(
+      child: SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          value: event == null || event.expectedTotalBytes == null
+              ? 0
+              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class ImageGalleryOptions {

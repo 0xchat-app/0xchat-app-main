@@ -153,7 +153,7 @@ class SearchPageState extends State<SearchPage> {
 
     final userList = await DB.sharedInstance.objects<RecentSearchUser>();
     Future.forEach(userList, (e) async {
-      final user = await Account.getUserFromDB(pubkey: e.pubKey);
+      final user = await Account.sharedInstance.getUserInfo(e.pubKey);
       if (user != null) {
         _selectedHistoryList.add(user);
       }
@@ -167,13 +167,16 @@ class SearchPageState extends State<SearchPage> {
   void loadOnlineChannelsData() async {
     dataGroups.clear();
     final requestId = ++lastRequestId;
-    if (RegExp(r'[a-fA-F0-9]{64}').hasMatch(searchQuery)) {
-      List<String> channelIds = [searchQuery];
-      List<ChannelDB> channelDBList = await Channels.sharedInstance.getChannelsFromRelay(channelIds: channelIds);
-      if (channelDBList.isNotEmpty) {
-        dataGroups.add(
-          Group(title: 'Online Channels', type: SearchItemType.channel, items: channelDBList),
-        );
+    if (searchQuery.startsWith('note')) {
+      String decodeNote = Channels.decodeNote(searchQuery);
+      if(decodeNote.isNotEmpty){
+        List<String> channelIds = [decodeNote];
+        List<ChannelDB> channelDBList = await Channels.sharedInstance.getChannelsFromRelay(channelIds: channelIds);
+        if (channelDBList.isNotEmpty) {
+          dataGroups.add(
+            Group(title: 'Online Channels', type: SearchItemType.channel, items: channelDBList),
+          );
+        }
       }
     } else {
       List<ChannelModel?> channelModels = await getHotChannels(queryCode: searchQuery, context: context, showLoading: false);

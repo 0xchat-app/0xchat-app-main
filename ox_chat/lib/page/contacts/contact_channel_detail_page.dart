@@ -86,19 +86,9 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     _badgeRequirementsHint = 'No badge is required in this channel.';
     _isMute = widget.channelDB.mute ?? false;
     if (widget.channelDB.creator != null && widget.channelDB.creator!.isNotEmpty) {
-      final UserDB? userFromDB = await Account.getUserFromDB(pubkey: widget.channelDB.creator!);
+      final UserDB? userFromDB = await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
       if (userFromDB != null) {
-        if (userFromDB.name == null || userFromDB.name!.isEmpty) {
-          Map usersMap = await Account.syncProfilesFromRelay([widget.channelDB.creator!]);
-          UserDB? user = usersMap[widget.channelDB.creator!];
-          if (user == null || user.name!.isEmpty) {
-            _showCreator = userFromDB.encodedPubkey;
-          } else {
-            _showCreator = user?.name ?? '';
-          }
-        } else {
-          _showCreator = userFromDB.name!;
-        }
+        _showCreator = userFromDB.name!;
       } else {
         _showCreator = widget.channelDB.creator!;
       }
@@ -365,7 +355,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                     iconName: 'icon_channel_id.png',
                                     iconPackage: 'ox_chat',
                                     type: OtherInfoItemType.ChannelID,
-                                    rightHint: widget.channelDB.channelId,
+                                    rightHint: Channels.encodeNote(widget.channelDB.channelId),
                                   ),
                                   Divider(
                                     height: Adapt.px(0.5),

@@ -16,6 +16,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
@@ -51,6 +52,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   void _initData() async {
     _relayNameList = OXRelayManager.sharedInstance.relayAddressList;
+    // mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
     setState(() {});
   }
 
@@ -135,17 +137,19 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       String dns = _dnsTextEditingController.text;
       String lnurl = _bltTextEditingController.text;
       bool result;
-      if(dns.isEmpty){
+      if(dns.isEmpty || dns == mCurrentUserInfo!.dns){
         result = true;
-      }else if(dns.contains('@') && dns != mCurrentUserInfo!.dns) {
-        result = await _checkDNS(dns);
-      } else {
-        dns = '$dns@0xchat.com';
-        if(dns != mCurrentUserInfo!.dns){
+      }else if(dns != mCurrentUserInfo!.dns) {
+        if(dns.contains('@') && !dns.contains('@0xchat')) {
+          result = await _checkDNS(dns);
+        }else if(!dns.contains('@0xchat')){
+          dns = '$dns@0xchat.com';
           result = await _set0xchatDNS(dns);
         }else{
-          result = true;
+          result = await _set0xchatDNS(dns);
         }
+      }else{
+        result = true;
       }
       if (result) {
         mCurrentUserInfo!.dns = dns;
@@ -173,7 +177,15 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         }
       }
 
-      UserDB? tempUserDB = await Account.updateProfile(mCurrentUserInfo!.privkey!, mCurrentUserInfo!);
+      UserDB? tempUserDB;
+      try{
+        await OXLoading.show();
+        tempUserDB = await Account.sharedInstance.updateProfile(mCurrentUserInfo!.privkey!, mCurrentUserInfo!);
+        await OXLoading.dismiss();
+      }catch(e){
+        await OXLoading.dismiss();
+      }
+
       if (tempUserDB != null) {
         OXNavigator.pop(context);
       } else {
@@ -450,10 +462,13 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     String domain = temp[1];
     DNS dns = DNS(name, domain, pubKey,_relayNameList);
     try{
+      OXLoading.show(status: 'Checking...');
       bool result = await Account.checkDNS(dns);
+      OXLoading.dismiss();
       if (!result) CommonToast.instance.show(context,'Not a legal DNS address');
       return result;
     }catch(error,stack){
+      OXLoading.dismiss();
       CommonToast.instance.show(context,'check DNS address failed');
       LogUtil.e("check dns error:$error\r\n$stack");
       return false;

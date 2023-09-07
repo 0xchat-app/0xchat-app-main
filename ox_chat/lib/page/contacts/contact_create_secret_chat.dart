@@ -8,6 +8,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
 import '../session/chat_secret_message_page.dart';
@@ -336,18 +337,25 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       }
       chatRelay = inputText;
     }
-
-    OKEvent event =
+    await OXLoading.show();
+    OKEvent okEvent =
         await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
-    SecretSessionDB? db =
-        Contacts.sharedInstance.secretSessionMap[event.eventId];
-    if (db != null) {
-      ChatSessionModel? chatModel =
-          await OXChatBinding.sharedInstance.localCreateSecretChat(db);
-      if (chatModel != null) {
-        OXNavigator.pushPage(context,
-            (context) => ChatSecretMessagePage(communityItem: chatModel));
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      SecretSessionDB? db = Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
+      if (db != null) {
+        ChatSessionModel? chatModel =
+        await OXChatBinding.sharedInstance.localCreateSecretChat(db);
+        if (chatModel != null) {
+          OXNavigator.pop(context);
+          OXNavigator.pushReplacement(
+            context,
+            ChatSecretMessagePage(communityItem: chatModel),
+          );
+        }
       }
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
     }
   }
 

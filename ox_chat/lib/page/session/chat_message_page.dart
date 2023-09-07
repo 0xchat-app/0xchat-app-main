@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
+import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -16,7 +17,6 @@ import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/widget/avatar.dart';
@@ -53,6 +53,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
+  bool isShowContactMenu = true;
 
   @override
   ChatSessionModel get session => widget.communityItem;
@@ -92,13 +93,13 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
-
-    () async {
-      // Other
-      var pubkeys = widget.communityItem.chatId ?? '';
-      otherUser = await ChatUserCache.shared.getUserDB(pubkeys);
-      setState(() { });
-    }();
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.chatId];
+    if (otherUser == null) {
+      () async {
+        otherUser = await Account.sharedInstance.getUserInfo(widget.communityItem.chatId ?? '');
+        setState(() { });
+      };
+    }
   }
 
   void prepareData() {
@@ -186,10 +187,17 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
+        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
         customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
       ),
     );
+  }
+
+  void _hideContactMenu() {
+    setState(() {
+      isShowContactMenu = false;
+    });
   }
 
   void _updateChatStatus() {
@@ -201,10 +209,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       chatStatus = ChatStatus.Normal;
     }
     ChatLogUtils.info(className: 'ChatMessagePage', funcName: '_updateChatStatus', message: 'chatStatus: $chatStatus, user: $user');
-  }
-
-  void _addMessage(types.Message message) {
-    ChatDataCache.shared.addNewMessage(widget.communityItem, message);
   }
 
   void _removeMessage(types.Message message) {
@@ -430,8 +434,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       sourceKey: event,
     );
 
-    _addMessage(sendMsg);
-
     ChatLogUtils.info(
       className: 'ChatMessagePage',
       funcName: '_sendMessage',
@@ -455,15 +457,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      receiver: receiverPubkey,
-      decryptContent: contentString,
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status) {

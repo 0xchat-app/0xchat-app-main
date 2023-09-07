@@ -179,6 +179,7 @@ class InputState extends State<Input>{
               widget.onGifSend!(value);
             }
           },
+          textController:_textController
         ),
         onEnd: (){
           _inputFocusNode.unfocus();

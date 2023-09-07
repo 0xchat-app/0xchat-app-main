@@ -53,7 +53,8 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     }
 
     if (uriIsLocalPath) {
-      final uri = await uploadFile(fileType: UplodAliyunType.imageType, filePath: filePath, messageId: message.id, pubkey: pubkey);
+      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? pubkey : null;
+      final uri = await uploadFile(fileType: UplodAliyunType.imageType, filePath: filePath, messageId: message.id, pubkey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_image_fail'));
         return null;

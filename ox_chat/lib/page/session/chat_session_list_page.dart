@@ -7,7 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/model/message_content_model.dart';
-import 'package:ox_chat/model/msg_notification_model.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
@@ -15,6 +15,7 @@ import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
@@ -63,9 +64,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-  static const String officialHotchatId = "2423423424141";
-
-  int imageV = 0;
+  Map<String, BadgeDB> badgeCache = {};
 
   GlobalKey? _latestGlobalKey;
 
@@ -168,17 +167,13 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void didPrivateMessageCallBack(MessageDB message) {
-    _privatePromptTone(message);
+  void didPromptToneCallBack (MessageDB message, int type) async {
+    if(message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+    if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
+    bool isMute = await _checkIsMute(message,type);
+    if(!isMute) PromptToneManager.sharedInstance.play();
   }
 
-  void didChannalMessageCallBack(MessageDB messageDB) {
-    _channalPromptTone(messageDB);
-  }
-
-  void didSecretChatMessageCallBack(MessageDB message) {
-    _privatePromptTone(message);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -370,8 +365,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _onRefresh() async {
-    imageV++; //update avatar f
-
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (isLogin == false) {
       if (this.mounted) {
@@ -460,7 +453,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         readCount += i.unreadCount;
       }
     }
-    MsgNotification(msgNum: readCount).dispatch(context);
+    if(mounted){
+      MsgNotification(msgNum: readCount).dispatch(context);
+    }
   }
 
   Widget _buildListViewItem(context, int index) {
@@ -624,75 +619,85 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _getMsgIcon(ChatSessionModel announceListItem) {
-    if (announceListItem.chatType == '1000') {
+  Widget _getMsgIcon(ChatSessionModel item) {
+    if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      if (announceListItem.chatId == officialHotchatId && (announceListItem.avatar == null || announceListItem.avatar!.isEmpty)) {
-        return Icon(
-          Icons.ac_unit_outlined,
-          color: Colors.transparent,
-        );
+      String showPicUrl = '';
+      if (item.chatType == ChatType.chatChannel) {
+        ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+        showPicUrl = channelDB?.picture ?? '';
       } else {
-        String localAvatarPath = '';
-        if (announceListItem.chatType == ChatType.chatSingle) {
-          localAvatarPath = 'assets/images/user_image.png';
-        } else {
-          localAvatarPath = 'assets/images/icon_group_default.png';
-        }
-        Image placeholderImage = Image.asset(
-          localAvatarPath,
-          fit: BoxFit.cover,
-          width: Adapt.px(60),
-          height: Adapt.px(60),
-          package: 'ox_chat',
-        );
-        return Container(
-          width: Adapt.px(60),
-          height: Adapt.px(60),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Adapt.px(60)),
-                child: CachedNetworkImage(
-                  imageUrl: '${announceListItem.avatar}',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => placeholderImage,
-                  errorWidget: (context, url, error) => placeholderImage,
-                  width: Adapt.px(60),
-                  height: Adapt.px(60),
-                ),
-              ),
-              (announceListItem.chatType == ChatType.chatSingle)
-                  ? Positioned(
-                bottom: 0,
-                right: 0,
-                child: FutureBuilder<BadgeDB?>(
-                  builder: (context, snapshot) {
-                    return (snapshot.data != null && snapshot.data!.thumb != null)
-                        ? CachedNetworkImage(
-                      imageUrl: snapshot.data!.thumb!,
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      fit: BoxFit.cover,
-                    )
-                        : Container();
-                  },
-                  future: _getUserSelectedBadgeInfo(announceListItem),
-                ),
-              )
-                  : Container(),
-            ],
-          ),
-        );
+        UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+        showPicUrl = otherDB?.picture ?? '';
       }
+      String localAvatarPath = '';
+      if (item.chatType == ChatType.chatSingle) {
+        localAvatarPath = 'assets/images/user_image.png';
+      } else {
+        localAvatarPath = 'assets/images/icon_group_default.png';
+      }
+      Image placeholderImage = Image.asset(
+        localAvatarPath,
+        fit: BoxFit.cover,
+        width: Adapt.px(60),
+        height: Adapt.px(60),
+        package: 'ox_chat',
+      );
+      return Container(
+        width: Adapt.px(60),
+        height: Adapt.px(60),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(Adapt.px(60)),
+              child: CachedNetworkImage(
+                imageUrl: '${showPicUrl}',
+                fit: BoxFit.cover,
+                placeholder: (context, url) => placeholderImage,
+                errorWidget: (context, url, error) => placeholderImage,
+                width: Adapt.px(60),
+                height: Adapt.px(60),
+              ),
+            ),
+            (item.chatType == ChatType.chatSingle)
+                ? Positioned(
+              bottom: 0,
+              right: 0,
+              child: FutureBuilder<BadgeDB?>(
+                initialData: badgeCache[item.chatId],
+                builder: (context, snapshot) {
+                  return (snapshot.data != null && snapshot.data!.thumb != null)
+                      ? CachedNetworkImage(
+                    imageUrl: snapshot.data!.thumb!,
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                    fit: BoxFit.cover,
+                  )
+                      : Container();
+                },
+                future: _getUserSelectedBadgeInfo(item),
+              ),
+            )
+                : Container(),
+          ],
+        ),
+      );
     }
   }
 
   Widget _buildItemName(ChatSessionModel item) {
+    String showName = '';
+    if (item.chatType == ChatType.chatChannel){
+      ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+      showName = channelDB?.name ?? '';
+    } else {
+      UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+      showName = otherDB?.getUserShowName() ?? '';
+    }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
-      child: item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
+      child: item.chatType == ChatType.chatSecret
           ? Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -715,7 +720,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ).createShader(Offset.zero & bounds.size);
             },
             child: Text(
-              item.chatName ?? '',
+              showName,
               style: TextStyle(
                 fontSize: Adapt.px(16),
                 color: ThemeColor.color0,
@@ -726,7 +731,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           ),
         ],
       )
-          : Text(item.chatName ?? '', textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
+          : Text(showName, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
       constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
       // width: Adapt.px(135),
     );
@@ -903,7 +908,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Future<bool> _getChatSessionMute(ChatSessionModel announceItem) async {
     bool isMute = false;
     if (announceItem.chatType == ChatType.chatSingle) {
-      UserDB? tempUserDB = await Account.getUserFromDB(pubkey: announceItem.chatId!);
+      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(announceItem.chatId!);
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }
@@ -917,17 +922,21 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
-    if (isMute) {
-      return ClipOval(
-        child: Container(
-          alignment: Alignment.center,
-          color: ThemeColor.red1,
-          width: Adapt.px(12),
-          height: Adapt.px(12),
-        ),
-      );
-    }
     int read = announceItem.unreadCount;
+    if (isMute) {
+      if (read > 0) {
+        return ClipOval(
+          child: Container(
+            alignment: Alignment.center,
+            color: ThemeColor.color110,
+            width: Adapt.px(12),
+            height: Adapt.px(12),
+          ),
+        );
+      } else {
+        return SizedBox();
+      }
+    }
     if (read > 0 && read < 10) {
       return ClipOval(
         child: Container(
@@ -1029,11 +1038,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[announceListItem.chatId];
+    final chatId = announceListItem.chatId ?? '';
+    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[chatId];
     if (friendUserDB == null) {
       return null;
     }
-    String badges = friendUserDB!.badges ?? '';
+    String badges = friendUserDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
@@ -1043,6 +1053,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
+      }
+      if (badgeDB != null) {
+        badgeCache[chatId] = badgeDB;
       }
       return badgeDB;
     }
@@ -1092,29 +1105,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _privatePromptTone(MessageDB message) async {
+  Future<bool> _checkIsMute(MessageDB message,int type) async {
     bool isMute = false;
-    UserDB? tempUserDB = await Account.getUserFromDB(pubkey: message.sender!);
-    if (tempUserDB != null) {
-      isMute = tempUserDB.mute ?? false;
+    if(type == ChatType.chatChannel){
+      ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
+      isMute = channelDB?.mute ?? false;
+      return isMute;
     }
-    if (!isMute) {
-      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-      PromptToneManager.sharedInstance.play();
-    }
+    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender!);
+    isMute = tempUserDB?.mute ?? false;
+    return isMute;
   }
 
-  void _channalPromptTone(MessageDB message) async {
-    bool isMute = false;
-    ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
-    if (channelDB != null) {
-      isMute = channelDB.mute ?? false;
-    }
-    if (!isMute && message.sender != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) {
-      if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
-      PromptToneManager.sharedInstance.play();
-    }
-  }
 }
 
 class _Style {

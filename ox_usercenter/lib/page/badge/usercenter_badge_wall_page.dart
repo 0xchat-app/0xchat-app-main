@@ -140,7 +140,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         });
         String badges = '["${badgeModel.badgeId}"]';
         _mUserInfo?.badges = badges;
-        UserDB? tempUserDB = await Account.updateProfile(_mUserInfo!.privkey!, _mUserInfo!);
+        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!.privkey!, _mUserInfo!);
         if(tempUserDB == null){
           CommonToast.instance.show(context, 'Fail to update profile badge ');
         }

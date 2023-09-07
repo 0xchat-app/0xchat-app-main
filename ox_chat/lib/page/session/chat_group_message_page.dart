@@ -250,10 +250,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     }
   }
 
-  void _addMessage(types.Message message) {
-    ChatDataCache.shared.addNewMessage(widget.communityItem, message);
-  }
-
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
@@ -448,8 +444,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
       id: event.id,
     );
 
-    _addMessage(sendMsg);
-
     Channels.sharedInstance.sendChannelMessage(
       widget.communityItem.chatId!,
       type,
@@ -466,14 +460,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      groupId: widget.communityItem.groupId ?? '',
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status) {

@@ -148,8 +148,7 @@ class _CommunityContactAddFriendState extends State<CommunityContactAddFriend> w
         CommonToast.instance.show(context, 'User not found, please re-enter.');
         return;
       }
-      var usersMap = await Account.syncProfilesFromRelay([info!]);
-      UserDB? user = usersMap[info];
+      UserDB? user = await Account.sharedInstance.getUserInfo(info);
       await OXLoading.dismiss();
       _isPreventUserClicks = false;
       if (user == null) {

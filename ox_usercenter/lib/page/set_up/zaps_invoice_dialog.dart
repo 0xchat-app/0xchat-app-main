@@ -45,51 +45,53 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
           color: ThemeColor.color190,
         ),
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _topView(),
-            Text(
-              'Select a lighting wallet',
-              style: TextStyle(
-                fontSize: Adapt.px(16),
-                color: ThemeColor.color0,
-                fontWeight: FontWeight.w600,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _topView(),
+              Text(
+                'Select a lighting wallet',
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  color: ThemeColor.color0,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            SizedBox(height: Adapt.px(12),),
-            Container(
-              decoration: BoxDecoration(
-                color: ThemeColor.color180,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: _itemList.length,
-                  separatorBuilder: (context, index) => Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    WalletModel tempItem = _itemList[index];
-                    return ListTile(
-                      title: Text(
-                        tempItem.title,
-                        style: TextStyle(
-                          fontSize: Adapt.px(16),
-                          color: ThemeColor.color0,
+              SizedBox(height: Adapt.px(12),),
+              Container(
+                decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: _itemList.length,
+                    separatorBuilder: (context, index) => Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      WalletModel tempItem = _itemList[index];
+                      return ListTile(
+                        title: Text(
+                          tempItem.title,
+                          style: TextStyle(
+                            fontSize: Adapt.px(16),
+                            color: ThemeColor.color0,
+                          ),
                         ),
-                      ),
-                      leading: CommonImage(
-                        iconName: tempItem.image,
-                        width: Adapt.px(32),
-                        height: Adapt.px(32),
-                        package: 'ox_usercenter',
-                      ),
-                      onTap: ()=> _onTap(tempItem),
-                    );
-                  }),
-            ),
-          ],
+                        leading: CommonImage(
+                          iconName: tempItem.image,
+                          width: Adapt.px(32),
+                          height: Adapt.px(32),
+                          package: 'ox_usercenter',
+                        ),
+                        onTap: ()=> _onTap(tempItem),
+                      );
+                    }),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -126,9 +126,9 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      String pubkey = (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender : item.receiver) ?? '';
-      OXChatBinding.sharedInstance.changeChatSessionTypeAll(pubkey, true);
+      OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.chatSessionModel.getOtherPubkey, true);
       CommonToast.instance.show(context, Localized.text('ox_chat.added_successfully'));
+      widget.onTap?.call();
       setState(() {});
     } else {
       CommonToast.instance.show(context, okEvent.message);

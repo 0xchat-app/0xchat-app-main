@@ -71,43 +71,6 @@ class ChatGeneralHandler {
 
   Future Function(GiphyImage image)? gifMessageSendHandler;
 
-  static syncChatSessionForSendMsg({
-    required int createTime,
-    required String content,
-    required MessageType type,
-    String decryptContent = '',
-    String receiver = '',
-    String groupId = '',
-    String sessionId = '',
-  }) async {
-
-    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (sender == null) {
-      ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: 'syncChatSessionForSendMsg',
-          message: 'sender is null',
-      );
-      return ;
-    }
-
-    final time = (createTime / 1000).round();
-
-    final messageDB = MessageDB(
-      sender: sender,
-      receiver: receiver,
-      groupId: groupId,
-      createTime: time,
-      content: content,
-      decryptContent: decryptContent,
-      read: true,
-      type: MessageDB.messageTypeToString(type),
-      sessionId: sessionId,
-    );
-
-    OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
-  }
-
   Future loadMoreMessage(
       List<types.Message> originMessage, {
         List<types.Message>? allMessage,
@@ -163,20 +126,14 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    var userDB = await Account.getUserFromDB(pubkey: userId);
-    if (userDB == null) {
-      OXLoading.show();
-      Map<String, UserDB> result = await Account.syncProfilesFromRelay([userId]);
-      OXLoading.dismiss();
-      userDB = result[userId];
-    }
+    var userDB = await Account.sharedInstance.getUserInfo(userId);
 
     if (userDB == null) {
       CommonToast.instance.show(context, 'User not found');
       return ;
     }
 
-    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB!));
+    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
   }
 
   TextMessageOptions textMessageOptions(BuildContext context) =>
@@ -208,9 +165,20 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     OXLoading.show();
 
-    final senderPubkey = message.author.id;
-    final receiverPubkey = senderPubkey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
-        ? session.chatId ?? '' : senderPubkey;
+    final senderPubkey = message.author.sourceObject?.encodedPubkey ?? '';
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
+
+    if (senderPubkey.isEmpty) {
+      CommonToast.instance.show(context, 'Error');
+      return ;
+    }
+    if (myPubkey.isEmpty) {
+      CommonToast.instance.show(context, 'Error');
+      return ;
+    }
+
+    final receiverPubkey = senderPubkey == myPubkey
+        ? (session.chatId ?? '' ): myPubkey;
     final invoice = message.invoice;
     final zapper = message.zapper;
     final description = message.description;
@@ -219,9 +187,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
     if (privkey == null || privkey.isEmpty) {
-      CommonToast.instance.show(context, 'privkey not found');
+      CommonToast.instance.show(context, 'Error');
       return ;
     }
+
     final zapsReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
     final zapsReceipt = zapsReceiptList.length > 0 ? zapsReceiptList.first : null;
 
@@ -327,7 +296,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
             openAppSettings();
             OXNavigator.pop(context);
           }),
-      ]);
+      ], isRowAction: true, showCancelButton: true,);
     }
   }
 

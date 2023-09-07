@@ -8,7 +8,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
-import 'package:ox_chat/manager/chat_user_cache.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -21,69 +20,41 @@ class ChatDataCache with OXChatObserver {
 
   ChatDataCache._internal() {
     OXChatBinding.sharedInstance.addObserver(this);
-    initTimer();
   }
 
-  Completer<Map<ChatTypeKey, List<types.Message>>> _privateChatMessageMap = Completer();
-
-  Completer<Map<ChannelKey, List<types.Message>>> _channelMessageMap = Completer();
+  Map<ChatTypeKey, FutureOr<List<types.Message>>> _chatMessageMap = Map();
 
   Map<ChatTypeKey, ValueChanged<List<types.Message>>> _valueChangedCallback = {};
 
   Set<String> messageIdCache = {};
 
-  late Timer syncUserInfoTimer;
-  Map<String, List<types.Message>> unknownMessageMap = {};
-  List<String> unknownUserPubkeyCache = [];
+  Completer setupCompleter = Completer();
 
   setup() async {
-    messageIdCache.clear();
-    unknownUserPubkeyCache.clear();
-    if (_privateChatMessageMap.isCompleted) {
-      _privateChatMessageMap = Completer();
+    if (setupCompleter.isCompleted) {
+      setupCompleter = Completer();
     }
-    if (_channelMessageMap.isCompleted) {
-      _channelMessageMap = Completer();
-    }
-    await _setupPrivateChatMessages();
-    await _setupChannelMessages();
-  }
 
-  initTimer() {
-    syncUserInfoTimer = Timer.periodic(Duration(seconds: 1), (Timer t) {
-      _updateUnknownUserInfo();
-    });
+    messageIdCache.clear();
+
+    await _setupChatMessages();
+
+    if (!setupCompleter.isCompleted) {
+      setupCompleter.complete();
+    }
   }
 
   Future<List<types.Message>> getSessionMessage(ChatSessionModel session) async {
-    if (session.chatType == ChatType.chatSingle || session.chatType == ChatType.chatSecret || session.chatType == ChatType.chatStranger
-    || session.chatType == ChatType.chatSecretStranger) {
-      return await _getPrivateChatMessage(session);
-    } else if (session.chatType == ChatType.chatChannel) {
-      return await _getChannelMessage(session);
-    }
-    ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getSessionMessage', message: 'unknown chatType');
-    return Future.value([]);
-  }
-
-  Future<List<types.Message>> _getPrivateChatMessage(ChatSessionModel session) async {
-    final privateChatKey = _getChatTypeKey(session);
-    if (privateChatKey == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getPrivateChatMessage', message: 'privateChatKey is null');
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'getSessionMessage',
+        message: 'ChatKey is null',
+      );
       return [];
     }
-    final messageMap = await _privateChatMessageMap.future;
-    return messageMap[privateChatKey] ?? [];
-  }
-
-  Future<List<types.Message>> _getChannelMessage(ChatSessionModel session) async {
-    final channelKey = _getChatTypeKey(session);
-    if (channelKey == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getChannelMessage', message: 'channelKey is null');
-      return [];
-    }
-    Map<ChannelKey, List<types.Message>> messageMap = await _channelMessageMap.future;
-    return messageMap[channelKey] ?? [];
+    return _getSessionMessage(key);
   }
 
   @override
@@ -121,7 +92,7 @@ class ChatDataCache with OXChatObserver {
       return ;
     }
 
-    await _addPrivateChatMessages(key, msg);
+    await _addChatMessages(key, msg);
 
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (receiverId == myPubkey) {
@@ -154,7 +125,7 @@ class ChatDataCache with OXChatObserver {
       return ;
     }
 
-    await _addPrivateChatMessages(key, msg);
+    await _addChatMessages(key, msg);
   }
 
   @override
@@ -172,11 +143,15 @@ class ChatDataCache with OXChatObserver {
 
     types.Message? msg = await message.toChatUIMessage();
     if (msg == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'didChannalMessageCallBack', message: 'message is null');
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didChannalMessageCallBack',
+        message: 'message is null',
+      );
       return ;
     }
 
-    await _addChannelMessages(key, msg);
+    await _addChatMessages(key, msg);
   }
 
   @override
@@ -191,8 +166,8 @@ class ChatDataCache with OXChatObserver {
       );
       return ;
     }
-    final toUser = await ChatUserCache.shared.getUserDB(toPubkey);
-    final userName = toUser.getUserShowName();
+    final toUser = await Account.sharedInstance.getUserInfo(toPubkey);
+    final userName = toUser?.getUserShowName() ?? '';
     addSystemMessage('$userName joined Secret Chat', sessionModel);
   }
 
@@ -257,8 +232,6 @@ class ChatDataCache with OXChatObserver {
       id: event.id,
     );
 
-    addNewMessage(session, sendMsg);
-
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'sendSystemMessage',
@@ -273,8 +246,7 @@ class ChatDataCache with OXChatObserver {
       type,
       contentString,
       event: event,
-    )
-        .then((event) {
+    ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
         remoteId: event.eventId,
@@ -285,16 +257,6 @@ class ChatDataCache with OXChatObserver {
 
     // If the message is not sent within a short period of time, change the status to the sending state
     _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, session);
-
-    // sync message to session
-    ChatGeneralHandler.syncChatSessionForSendMsg(
-      createTime: sendMsg.createdAt,
-      content: sendMsg.content,
-      type: type,
-      receiver: receiverPubkey,
-      decryptContent: contentString,
-      sessionId: sessionId,
-    );
   }
 
   void _updateMessageStatus(types.Message message, types.Status status, ChatSessionModel session) {
@@ -323,13 +285,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     }
 
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey || key is SecretChatKey) {
-      await _addPrivateChatMessages(key, message);
-    } else if (key is ChannelKey) {
-      await _addChannelMessages(key, message);
-    } else {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'unknown chatType');
-    }
+    await _addChatMessages(key, message);
   }
 
   Future<void> deleteMessage(ChatSessionModel session, types.Message message) async {
@@ -340,36 +296,31 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     }
 
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey || key is SecretChatKey) {
-      await _removePrivateChatMessages(key, message);
-      await notifyPrivateChatObserverValueChanged(key);
-    } else if (key is ChannelKey) {
-      await _removeChannelMessages(key, message);
-      await notifyChannelObserverValueChanged(key);
-    } else {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'unknown chatType');
-    }
+    await _removeChatMessages(key, message);
+    await notifyChatObserverValueChanged(key);
   }
 
   Future<void> resendMessage(ChatSessionModel session, types.Message message) async {
     final key = _getChatTypeKey(session);
     if (key == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'resendMessage', message: 'ChatTypeKey is null');
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'resendMessage',
+        message: 'ChatTypeKey is null',
+      );
       return ;
     }
 
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'resendMessage', message: 'session: ${session.chatId}, key: $key');
-    if (key is PrivateChatKey || key is SecretChatKey) {
-      await _removePrivateChatMessages(key, message);
-      await _addPrivateChatMessages(key, message);
-      await notifyPrivateChatObserverValueChanged(key);
-    } else if (key is ChannelKey) {
-      await _removeChannelMessages(key, message);
-      await _addChannelMessages(key, message);
-      await notifyChannelObserverValueChanged(key);
-    } else {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'resendMessage', message: 'unknown chatType');
-    }
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'resendMessage',
+      message: 'session: ${session.chatId}, key: $key',
+    );
+
+    await _removeChatMessages(key, message);
+    await _addChatMessages(key, message);
+    await notifyChatObserverValueChanged(key);
+
   }
 
   Future<void> updateMessage(ChatSessionModel session, types.Message message) async {
@@ -379,15 +330,8 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
       return ;
     }
 
-    if (key is PrivateChatKey || key is SecretChatKey) {
-      await _updatePrivateChatMessages(key, message);
-      await notifyPrivateChatObserverValueChanged(key);
-    } else if (key is ChannelKey) {
-      await _updateChannelMessages(key, message);
-      await notifyChannelObserverValueChanged(key);
-    } else {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'unknown chatType');
-    }
+    await _updatePrivateChatMessages(key, message);
+    await notifyChatObserverValueChanged(key);
   }
 }
 
@@ -413,53 +357,26 @@ extension ChatDataCacheObserverEx on ChatDataCache {
   Future<void> notifyAllObserverValueChanged() async {
     final valueChangedCallback = _valueChangedCallback;
     valueChangedCallback.forEach((key, callback) async {
-      List<types.Message> messages = [];
-      if (key is PrivateChatKey || key is SecretChatKey) {
-        messages = (await _privateChatMessageMap.future)[key] ?? [];
-      } else if (key is ChannelKey) {
-        messages = (await _channelMessageMap.future)[key] ?? [];
-      }
-      callback(messages);
+      callback(await _getSessionMessage(key));
     });
   }
 
-  Future<void> notifyPrivateChatObserverValueChanged(ChatTypeKey key) async {
+  Future<void> notifyChatObserverValueChanged(ChatTypeKey key) async {
     final callback = _valueChangedCallback[key];
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyPrivateChatObserverValueChanged', message: 'callback: $callback');
+    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChatObserverValueChanged', message: 'callback: $callback');
     if (callback != null) {
-      final messages = (await _privateChatMessageMap.future)[key] ?? [];
-      callback(messages);
-    }
-  }
-
-  Future<void> notifyChannelObserverValueChanged(ChannelKey key) async {
-    final callback = _valueChangedCallback[key];
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChannelObserverValueChanged', message: 'key: $key, callback: $callback');
-    if (callback != null) {
-      final messages = (await _channelMessageMap.future)[key] ?? [];
-      callback(messages);
+      final msgList = await _getSessionMessage(key);
+      callback(msgList);
     }
   }
 }
 
 extension ChatDataCacheSessionEx on ChatDataCache {
-  Future<List<ChatSessionModel>> _privateChatSessionList() async {
+  Future<List<ChatSessionModel>> _chatSessionList() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
       orderBy: "createTime desc",
     );
-    return sessionList.where((session) => (
-        session.chatType == ChatType.chatSingle
-            || session.chatType == ChatType.chatSecret
-            || session.chatType == ChatType.chatSecretStranger
-            || session.chatType == ChatType.chatStranger)
-    ).toList();
-  }
-
-  Future<List<ChatSessionModel>> _channelSessionList() async {
-    final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
-      orderBy: "createTime desc",
-    );
-    return sessionList.where((session) => session.chatType == ChatType.chatChannel).toList();
+    return sessionList;
   }
 
   ChatTypeKey? _convertSessionToPrivateChatKey(ChatSessionModel session) {
@@ -505,33 +422,53 @@ extension ChatDataCacheSessionEx on ChatDataCache {
   }
 }
 
-extension ChatDataCachePrivateChatEx on ChatDataCache {
+extension ChatDataCacheEx on ChatDataCache {
 
-  Future<void> _setupPrivateChatMessages() async {
-    List<ChatSessionModel> sessionList = await _privateChatSessionList();
+  Future<void> _setupChatMessages() async {
+    List<ChatSessionModel> sessionList = await _chatSessionList();
     Map<ChatTypeKey, List<types.Message>> privateChatMessagesMap = {};
+    // Add Session message(Future)
     await Future.forEach(sessionList, (session) async {
       final key = _getChatTypeKey(session);
       if (key == null) {
-        ChatLogUtils.error(className: 'ChatDataCache', funcName: '_setupPrivateChatMessages', message: 'privateChatKey is null');
+        ChatLogUtils.error(
+          className: 'ChatDataCache',
+          funcName: '_setupChatMessages',
+          message: 'privateChatKey is null',
+        );
         return ;
       }
 
-      final messageList = await _loadPrivateChatMessages(key, session);
-
-      messageIdCache.addAll(messageList.map((e) => e.id));
-
-      privateChatMessagesMap[key] = messageList;
-
-      tryAddUnknownPubkey(messageList);
+      // Create completer
+      final completer = Completer<List<types.Message>>();
+      _chatMessageMap[key] = completer.future;
+      _loadChatMessages(key, session).then((msgList) {
+        messageIdCache.addAll(msgList.map((e) => e.id));
+        _chatMessageMap[key] = msgList;
+        // Finish completer
+        completer.complete(msgList);
+      });
     });
 
-    _privateChatMessageMap.complete(privateChatMessagesMap);
-
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: '_setupPrivateChatMessages', message: 'setup complete, session length: ${privateChatMessagesMap.keys.length}');
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_setupChatMessages',
+      message: 'setup complete, session length: ${privateChatMessagesMap.keys.length}',
+    );
   }
 
-  Future<List<types.Message>> _loadPrivateChatMessages(
+  FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key) async {
+    await setupCompleter;
+    final msgList = _chatMessageMap[key];
+    if (msgList == null) {
+      List<types.Message> emptyList = [];
+      _chatMessageMap[key] = emptyList;
+      return emptyList;
+    }
+    return msgList;
+  }
+
+  Future<List<types.Message>> _loadChatMessages(
       ChatTypeKey key, ChatSessionModel session) async {
     final Map<dynamic, dynamic> tempMap = await Messages.loadMessagesFromDB(
       where: key.getSQLFilter(),
@@ -551,153 +488,43 @@ extension ChatDataCachePrivateChatEx on ChatDataCache {
     });
 
     // try add message kind
-    try {
-      final minePubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-      final lastMessage = messages.firstWhere((element) => element.sender != minePubkey);
-      OXChatBinding.sharedInstance.updateChatSession(session.chatId ?? '', messageKind: lastMessage.kind);
-    } catch (e) { }
+    if (key is! ChannelKey) {
+      try {
+        final minePubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+        final lastMessage = messages.firstWhere((element) => element.sender != minePubkey);
+        OXChatBinding.sharedInstance.updateChatSession(session.chatId ?? '', messageKind: lastMessage.kind);
+      } catch (e) { }
 
+    }
     return convertedMessages.where((message) => message != null).cast<
         types.Message>().toList();
   }
 
-  Future<void> _addPrivateChatMessages(ChatTypeKey key, types.Message message) async {
+  Future<void> _addChatMessages(ChatTypeKey key, types.Message message) async {
 
     ChatLogUtils.info(
       className: 'ChatDataCache',
-      funcName: '_addPrivateChatMessages',
+      funcName: '_addChatMessages',
       message: 'begin',
     );
 
-    final messageMap = await _privateChatMessageMap.future;
+    final msgList = await _getSessionMessage(key);
 
     if (!messageIdCache.add(message.id)) return ;
 
-    _privateChatMessageMap = Completer();
+    _addMessageToList(msgList, message);
 
-    List<types.Message> messageList = _addMessageToList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _privateChatMessageMap.complete(messageMap);
-
-    await notifyPrivateChatObserverValueChanged(key);
-
-    tryAddUnknownPubkey([message]);
+    await notifyChatObserverValueChanged(key);
   }
 
-  Future _removePrivateChatMessages(ChatTypeKey key, types.Message message) async {
-
-    final messageMap = await _privateChatMessageMap.future;
-    _privateChatMessageMap = Completer();
-
-    List<types.Message> messageList = _removeMessageFromList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _privateChatMessageMap.complete(messageMap);
+  Future _removeChatMessages(ChatTypeKey key, types.Message message) async {
+    final messageList = await _getSessionMessage(key);
+    _removeMessageFromList(messageList, message);
   }
 
   Future<void> _updatePrivateChatMessages(ChatTypeKey key, types.Message message) async {
-
-    final messageMap = await _privateChatMessageMap.future;
-    _privateChatMessageMap = Completer();
-
-    List<types.Message> messageList = _updateMessageToList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _privateChatMessageMap.complete(messageMap);
-  }
-}
-
-extension ChatDataCacheChannelEx on ChatDataCache {
-
-  Future<void> _setupChannelMessages() async {
-    List<ChatSessionModel> sessionList = await _channelSessionList();
-    Map<ChannelKey, List<types.Message>> channelMessagesMap = {};
-    await Future.forEach(sessionList, (session) async {
-      ChannelKey? key = _convertSessionToChannelKey(session);
-      if (key == null) {
-        ChatLogUtils.error(className: 'ChatDataCache', funcName: '_setupChannelMessages', message: 'ChannelKey is null');
-        return;
-      }
-
-      final messageList = await _loadChannelMessages(key);
-
-      messageIdCache.addAll(messageList.map((e) => e.id));
-
-      channelMessagesMap[key] = messageList;
-
-      tryAddUnknownPubkey(messageList);
-    });
-
-    _channelMessageMap.complete(channelMessagesMap);
-
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: '_setupChannelMessages', message: 'setup complete, session length: ${channelMessagesMap.keys.length}');
-  }
-
-  Future<List<types.Message>> _loadChannelMessages(ChannelKey key) async {
-    final Map<dynamic, dynamic> tempMap= await Messages.loadMessagesFromDB(
-      where: key.getSQLFilter(),
-      whereArgs: key.getSQLFilterArgs(),
-      orderBy: "createTime desc",
-    );
-    List<MessageDB> messages = tempMap['messages'];
-    List<types.Message?> convertedMessages = [];
-    await Future.forEach(messages, (msg) async {
-      var uiMsg = await msg.toChatUIMessage();
-      if (uiMsg?.status == types.Status.sending) {
-        uiMsg = uiMsg?.copyWith(
-          status: types.Status.error,
-        );
-      }
-      convertedMessages.add(uiMsg);
-    });
-    return convertedMessages.where((message) => message != null).cast<types.Message>().toList();
-  }
-
-  Future<void> _addChannelMessages(ChannelKey key, types.Message message) async {
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: '_addChannelMessages',
-      message: 'begin',
-    );
-
-    Map<ChannelKey, List<types.Message>> messageMap = await _channelMessageMap.future;
-
-    if (!messageIdCache.add(message.id)) return ;
-
-    _channelMessageMap = Completer();
-
-    List<types.Message> messageList = _addMessageToList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _channelMessageMap.complete(messageMap);
-
-    await notifyChannelObserverValueChanged(key);
-
-    tryAddUnknownPubkey([message]);
-  }
-
-  Future _removeChannelMessages(ChannelKey key, types.Message message) async {
-
-    Map<ChannelKey, List<types.Message>> messageMap = await _channelMessageMap.future;
-    _channelMessageMap = Completer();
-
-    List<types.Message> messageList = _removeMessageFromList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _channelMessageMap.complete(messageMap);
-  }
-
-  Future<void> _updateChannelMessages(ChannelKey key, types.Message message) async {
-
-    Map<ChannelKey, List<types.Message>> messageMap = await _channelMessageMap.future;
-    _channelMessageMap = Completer();
-
-    List<types.Message> messageList = _updateMessageToList(messageMap[key], message);
-    messageMap[key] = messageList;
-
-    _channelMessageMap.complete(messageMap);
+    final messageList = await _getSessionMessage(key);
+    _updateMessageToList(messageList, message);
   }
 }
 
@@ -720,21 +547,14 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
   }
 
-  List<types.Message> _addMessageToList(List<types.Message>? messageList, types.Message newMessage) {
-
-    if (messageList == null) {
-      List<types.Message> newMessageList = [];
-      newMessageList.add(newMessage);
-      return newMessageList;
-    }
-
+  void _addMessageToList(List<types.Message> messageList, types.Message newMessage) {
     // If newMessage is the latest message
     if (messageList.length > 0) {
       final firstMsgTime = messageList.first.createdAt;
       final newMsgTime = newMessage.createdAt;
       if (firstMsgTime < newMsgTime) {
         messageList.insert(0, newMessage);
-        return messageList;
+        return ;
       }
     }
 
@@ -745,38 +565,22 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       final msg2CreatedTime = msg2.createdAt;
       return msg2CreatedTime.compareTo(msg1CreatedTime);
     });
-
-    return messageList;
   }
 
-  List<types.Message> _removeMessageFromList(List<types.Message>? messageList, types.Message message) {
-
+  void _removeMessageFromList(List<types.Message> messageList, types.Message message) {
     messageIdCache.remove(message.id);
-
-    if (messageList == null) {
-      return [];
-    }
 
     final index = messageList.indexWhere((msg) => msg.id == message.id);
     if (index >= 0 && index < messageList.length) {
       messageList.removeAt(index);
     }
-
-    return messageList;
   }
 
-  List<types.Message> _updateMessageToList(List<types.Message>? messageList, types.Message newMessage) {
-
-    if (messageList == null) {
-      return [];
-    }
-
+  void _updateMessageToList(List<types.Message> messageList, types.Message newMessage) {
     final index = messageList.indexWhere((msg) => msg.id == newMessage.id);
     if (index >= 0) {
       messageList.replaceRange(index, index + 1, [newMessage]);
     }
-
-    return messageList;
   }
 
   bool isContainMessage(ChatSessionModel session, MessageDB message) {
@@ -798,59 +602,5 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'isContainMessage', message: 'unknown message type');
       return false;
     }
-  }
-}
-
-extension ChatDataCacheSyncUserInfoEx on ChatDataCache {
-
-  Future tryAddUnknownPubkey(List<types.Message> messages) async {
-    messages.forEach((msg) {
-
-      final pubkey = msg.author.id;
-      final userUpdateTime = msg.author.updatedAt ?? 0;
-
-      if (userUpdateTime != 0) return ;
-      if (pubkey.isEmpty || unknownUserPubkeyCache.contains(pubkey)) return ;
-
-      final messageList = unknownMessageMap[pubkey] ?? [];
-      messageList.add(msg);
-      unknownMessageMap[pubkey] = messageList;
-
-      ChatLogUtils.info(
-        className: 'ChatDataCache',
-        funcName: 'tryAddUnknownPubkey',
-        message: 'pubkey: $pubkey, message length:${messageList.length}',
-      );
-    });
-  }
-  
-  Future _updateUnknownUserInfo() async {
-
-    Map<String, List<types.Message>> messageMap = Map<String, List<types.Message>>.from(this.unknownMessageMap);
-    if (messageMap.keys.length == 0) return ;
-
-    final userMap = await Account.syncProfilesFromRelay(messageMap.keys.toList());
-
-    unknownUserPubkeyCache.addAll(userMap.keys);
-    userMap.forEach((key, value) {
-      this.unknownMessageMap.remove(key);
-    });
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: '_updateUnknownUserInfo',
-      message: 'userMap: $userMap',
-    );
-
-    userMap.forEach((pubkey, user) {
-      ChatUserCache.shared.updateUserInfo(user);
-      ChatLogUtils.info(
-        className: 'ChatDataCache',
-        funcName: '_updateUnknownUserInfo',
-        message: 'User has been updated, user: $pubkey, name:${user.name}',
-      );
-    });
-
-    notifyAllObserverValueChanged();
   }
 }
