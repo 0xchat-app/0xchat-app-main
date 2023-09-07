@@ -355,7 +355,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                     iconName: 'icon_channel_id.png',
                                     iconPackage: 'ox_chat',
                                     type: OtherInfoItemType.ChannelID,
-                                    rightHint: widget.channelDB.channelId,
+                                    rightHint: Channels.encodeNote(widget.channelDB.channelId),
                                   ),
                                   Divider(
                                     height: Adapt.px(0.5),
