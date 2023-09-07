@@ -80,8 +80,8 @@ class OXRelayManager {
     relayMap[relayModel.relayName] = relayModel;
     await saveRelayList(relayModelList);
     Connect.sharedInstance.connect(relayModel.relayName);
-    if (OXUserInfoManager.sharedInstance.currentUserInfo != null && OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey != null) {
-      Account.sharedInstance.updateRelaysMetadata(relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!);
+    if (OXUserInfoManager.sharedInstance.currentUserInfo != null) {
+      Account.sharedInstance.updateRelaysMetadata(relayAddressList, OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
     }
     for (OXRelayObserver observer in _observers) {
       observer.didAddRelay(relayModel);
