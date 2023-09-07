@@ -63,7 +63,7 @@ class OXUserInfoManager {
       }
       String pubkey = Account.getPublicKey(privKey);
       await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.loginWithPriKey(privKey);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
@@ -72,7 +72,7 @@ class OXUserInfoManager {
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
       await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
@@ -161,7 +161,7 @@ class OXUserInfoManager {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.privkey == null) {
       return;
     }
-    await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
+    await Account.sharedInstance.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
@@ -186,33 +186,30 @@ class OXUserInfoManager {
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
 
-    ///4 private chat,  10100,10101,10102,10103 add friend logic, 42  channel message, 9735
-    List<int> kinds = [4, 10100, 10101, 10102, 10103, 42, 9735];
+    ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
+    List<int> kinds = [4, 44, 1059, 42, 9735];
     for (String jsonString in jsonStringList) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
-      if (jsonMap['name'] == 'Push Notifications' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 0 && !jsonMap['isSelected']) {
         kinds = [];
         break;
       }
-      if (jsonMap['name'] == 'Private Messages' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 1 && !jsonMap['isSelected']) {
         kinds.remove(4);
-        kinds.remove(10100);
-        kinds.remove(10101);
-        kinds.remove(10102);
-        kinds.remove(10103);
+        kinds.remove(44);
+        kinds.remove(1059);
       }
-      if (jsonMap['name'] == 'Channels' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 2 && !jsonMap['isSelected']) {
         kinds.remove(42);
       }
-      if (jsonMap['name'] == 'Zaps' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 3 && !jsonMap['isSelected']) {
         kinds.remove(9735);
       }
     }
 
-    if (kinds.isNotEmpty) {
-      OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
-      updateNotificatin = okEvent.status;
-    }
+    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
+    updateNotificatin = okEvent.status;
+
     return updateNotificatin;
   }
 
@@ -242,9 +239,9 @@ class OXUserInfoManager {
     });
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
-      Channels.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!, callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
     });
-    Account.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
+    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
