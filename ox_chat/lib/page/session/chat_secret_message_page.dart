@@ -489,11 +489,13 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   Widget customBottomWidget() {
+    UserDB? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
+    String showUsername = otherDB?.getUserShowName() ?? '';
     String _hintText = '';
     String _leftBtnTxt = '';
     String _rightBtnTxt = '';
     if (_secretSessionDB!.status == 0) {
-      _hintText = 'str_waiting_other_join'.localized({r'$username': widget.communityItem.chatName ?? ''});
+      _hintText = 'str_waiting_other_join'.localized({r'$username': showUsername});
     } else if (_secretSessionDB!.status == 1) {
       _leftBtnTxt = 'str_reject_secret_chat'.localized();
       _rightBtnTxt = 'str_john_secret_chat'.localized();
