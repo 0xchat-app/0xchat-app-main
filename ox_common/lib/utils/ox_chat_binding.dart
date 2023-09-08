@@ -398,7 +398,6 @@ class OXChatBinding {
   Future<ChatSessionModel?> localCreateSecretChat(SecretSessionDB ssDB) async {
     if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return null;
     UserDB? userDB = Contacts.sharedInstance.allContacts[ssDB.toPubkey!];
-    int type = userDB == null ? ChatType.chatSecretStranger : ChatType.chatSecret;
     if (userDB == null) {
       userDB = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
     }
@@ -410,7 +409,7 @@ class OXChatBinding {
         receiver: ssDB.myPubkey,
         sessionId: ssDB.sessionId,
       ),
-      chatType: type,
+      chatType: ChatType.chatSecret,
     );
     return chatSessionModel;
   }
