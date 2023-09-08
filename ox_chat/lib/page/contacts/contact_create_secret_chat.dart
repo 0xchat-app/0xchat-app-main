@@ -65,7 +65,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'For the sake of security and privacy, secret chat messages will only be sent to the relay you choose. Please select a relay you deem trustworthy.',
+            'For enhanced privacy, you can select a specific relay for your secret chat; all secret chat messages will only be sent to this relay.',
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(12),

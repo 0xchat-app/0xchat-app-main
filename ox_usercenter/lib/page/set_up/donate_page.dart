@@ -277,46 +277,32 @@ class _DonatePageState extends State<DonatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: WillPopScope(
-        onWillPop: () async {
-          if (OXLoading.isShow) {
-            await OXLoading.dismiss();
-            return Future.value(false);
-          } else {
-            return Future.value(true);
-          }
-        },
-        child: Scaffold(
+    return Scaffold(
+      backgroundColor: ThemeColor.color200,
+      appBar: CommonAppBar(
+        centerTitle: true,
+        useLargeTitle: false,
+        titleTextColor: ThemeColor.color0,
         backgroundColor: ThemeColor.color200,
-        appBar: CommonAppBar(
-          centerTitle: true,
-          useLargeTitle: false,
-          titleTextColor: ThemeColor.color0,
-          backgroundColor: ThemeColor.color200,
-          // actions: [
-          //    YLEButton(
-          //     highlightColor: Colors.transparent,
-          //     color: Colors.transparent,
-          //     disabledColor: Colors.transparent,
-          //     child: CommonImage(
-          //       iconName: _isAppleOrGooglePay ? 'icon_pay_channel_sats.png' : (Platform.isAndroid ? 'icon_pay_channel_google.png':'icon_pay_channel_apple.png'),
-          //       width: Adapt.px(40),
-          //       height: Adapt.px(26),
-          //       fit: BoxFit.cover,
-          //       package: 'ox_usercenter',
-          //     ),
-          //     onPressed: () {
-          //       _switchPay();
-          //     },
-          //   ),
-          // ],
-        ),
-        body: _body(),
-      ),),
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
+        // actions: [
+        //    YLEButton(
+        //     highlightColor: Colors.transparent,
+        //     color: Colors.transparent,
+        //     disabledColor: Colors.transparent,
+        //     child: CommonImage(
+        //       iconName: _isAppleOrGooglePay ? 'icon_pay_channel_sats.png' : (Platform.isAndroid ? 'icon_pay_channel_google.png':'icon_pay_channel_apple.png'),
+        //       width: Adapt.px(40),
+        //       height: Adapt.px(26),
+        //       fit: BoxFit.cover,
+        //       package: 'ox_usercenter',
+        //     ),
+        //     onPressed: () {
+        //       _switchPay();
+        //     },
+        //   ),
+        // ],
+      ),
+      body: _body(),
     );
   }
 

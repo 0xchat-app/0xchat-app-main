@@ -218,66 +218,68 @@ class _ZapsPageState extends State<ZapsPage> {
                   color: ThemeColor.color180,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child:  Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    // GestureDetector(
-                    //   behavior: HitTestBehavior.translucent,
-                    //   onTap: (){
-                    //     YLNavigator.pop(context);
-                    //     setState(() {
-                    //       _selectedWalletName = 'Local default';
-                    //     });
-                    //   },
-                    //   child: Container(
-                    //     width: double.infinity,
-                    //     height: Adapt.px(56),
-                    //     alignment: Alignment.center,
-                    //     child: Text(
-                    //       'Default',
-                    //       style: TextStyle(fontSize: Adapt.px(16), color: Colors.white),
-                    //     ),
-                    //   ),
-                    // ),
-                    // Container(
-                    //   height: Adapt.px(0.5),
-                    //   color: ThemeColor.color190,
-                    // ),
-                    SizedBox(
-                      width: double.infinity,
-                      // height: Adapt.px(280),
-                      child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemBuilder: _itemWidget,
-                        itemCount: _walletList.length,
-                        shrinkWrap: true,
-                      ),
-                    ),
-                    Container(
-                      height: Adapt.px(8),
-                      color: ThemeColor.color190,
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        OXNavigator.pop(context);
-                      },
-                      child: Container(
+                child:  SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      // GestureDetector(
+                      //   behavior: HitTestBehavior.translucent,
+                      //   onTap: (){
+                      //     YLNavigator.pop(context);
+                      //     setState(() {
+                      //       _selectedWalletName = 'Local default';
+                      //     });
+                      //   },
+                      //   child: Container(
+                      //     width: double.infinity,
+                      //     height: Adapt.px(56),
+                      //     alignment: Alignment.center,
+                      //     child: Text(
+                      //       'Default',
+                      //       style: TextStyle(fontSize: Adapt.px(16), color: Colors.white),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   height: Adapt.px(0.5),
+                      //   color: ThemeColor.color190,
+                      // ),
+                      SizedBox(
                         width: double.infinity,
-                        height: Adapt.px(56),
-                        color: ThemeColor.color180,
-                        child: Center(
-                          child: Text(
-                            Localized.text('ox_common.cancel'),
-                            style: TextStyle(fontSize: 16, color: ThemeColor.gray02),
+                        // height: Adapt.px(280),
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemBuilder: _itemWidget,
+                          itemCount: _walletList.length,
+                          shrinkWrap: true,
+                        ),
+                      ),
+                      Container(
+                        height: Adapt.px(8),
+                        color: ThemeColor.color190,
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () {
+                          OXNavigator.pop(context);
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: Adapt.px(56),
+                          color: ThemeColor.color180,
+                          child: Center(
+                            child: Text(
+                              Localized.text('ox_common.cancel'),
+                              style: TextStyle(fontSize: 16, color: ThemeColor.gray02),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ));

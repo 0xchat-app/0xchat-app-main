@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/widget/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -55,10 +56,10 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
       setState(() {});
       return;
     }
-    if (OXChatBinding.sharedInstance.strangerSessionMap.length == 0) {
+    if (OXChatBinding.sharedInstance.strangerSessionList.length == 0) {
       updateStateView(CommonStateView.CommonStateView_NoData);
     }
-    _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionMap.values.toList();
+    _strangerSessionModelList = OXChatBinding.sharedInstance.strangerSessionList;
     _strangerSessionModelList.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
       var session1CreatedTime = session1.createTime;
@@ -221,6 +222,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildAvatar(item),
+              SizedBox(width: Adapt.px(16),),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,6 +282,8 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildItemName(ChatSessionModel item) {
+    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+    String showName = otherDB?.getUserShowName() ?? '';
     return item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
         ? Row(
             children: [
@@ -302,7 +306,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                   ).createShader(Offset.zero & bounds.size);
                 },
                 child: Text(
-                  item.chatName ?? '',
+                  showName,
                   style: TextStyle(
                     fontSize: Adapt.px(16),
                     color: ThemeColor.color0,
@@ -314,7 +318,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
             ],
           )
         : Text(
-            item.chatName ?? '',
+            showName,
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: ThemeColor.color0,
@@ -362,39 +366,16 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildAvatar(ChatSessionModel item) {
-    Image _placeholderImage = Image.asset(
-      'assets/images/user_image.png',
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_chat',
-    );
-    return InkWell(
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(Adapt.px(60)),
-        child: CachedNetworkImage(
-          imageUrl: item.avatar ?? '',
-          fit: BoxFit.cover,
-          placeholder: (context, url) => _placeholderImage,
-          errorWidget: (context, url, error) => _placeholderImage,
-          width: Adapt.px(60),
-          height: Adapt.px(60),
-        ),
-      ),
-      onTap: () async {
-        UserDB? userDB = await Account.sharedInstance.getUserInfo(item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? item.sender! : item.receiver!);
-        if (userDB == null) {
-          CommonToast.instance.show(context, 'Unknown error about the user.');
-          return;
-        }
-        OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
+    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+    String showPicUrl = otherDB?.picture ?? '';
+    return OXUserAvatar(
+      user: otherDB,
+      imageUrl: showPicUrl,
+      size: Adapt.px(60),
+      isClickable: true,
+      onReturnFromNextPage: () {
+        setState(() { });
       },
-    ).setPadding(
-      EdgeInsets.only(
-        right: Adapt.px(16),
-      ),
     );
   }
 
@@ -415,17 +396,21 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
-    if (isMute) {
-      return ClipOval(
-        child: Container(
-          alignment: Alignment.center,
-          color: ThemeColor.red1,
-          width: Adapt.px(12),
-          height: Adapt.px(12),
-        ),
-      );
-    }
     int read = announceItem.unreadCount;
+    if (isMute) {
+      if (read > 0) {
+        return ClipOval(
+          child: Container(
+            alignment: Alignment.center,
+            color: ThemeColor.color110,
+            width: Adapt.px(12),
+            height: Adapt.px(12),
+          ),
+        );
+      } else {
+        return SizedBox();
+      }
+    }
     if (read > 0 && read < 10) {
       return ClipOval(
         child: Container(
@@ -554,7 +539,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   @override
-  void didStrangerSessionUpdate() {
+  void didSessionUpdate() {
     _initData();
   }
 }

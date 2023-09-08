@@ -9,6 +9,7 @@ import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
@@ -439,7 +440,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       funcName: '_sendMessage',
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
-
+    OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
     Contacts.sharedInstance.sendPrivateMessage(
       receiverPubkey,
       '',
