@@ -54,7 +54,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       _allNoticeModelList.add(NoticeModel(
         CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
         'Private Messages',
-        'Enabling notifications for Private Messages will send the Alias Key of your friends to the push server.',
+        'Enable notifications for private messages and secret chat requests, without compromising the privacy of your message contents.',
         true,
       ));
     }
