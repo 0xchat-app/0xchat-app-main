@@ -633,10 +633,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         showPicUrl = otherDB?.picture ?? '';
       }
       String localAvatarPath = '';
-      if (item.chatType == ChatType.chatSingle) {
-        localAvatarPath = 'assets/images/user_image.png';
-      } else {
+      if (item.chatType == ChatType.chatChannel) {
         localAvatarPath = 'assets/images/icon_group_default.png';
+      } else {
+        localAvatarPath = 'assets/images/user_image.png';
       }
       Image placeholderImage = Image.asset(
         localAvatarPath,
