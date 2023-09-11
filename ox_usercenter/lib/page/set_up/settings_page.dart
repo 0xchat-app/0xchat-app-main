@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
+import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
@@ -68,6 +69,12 @@ class _SettingsPageState extends State<SettingsPage> {
       title: 'Keys',
       rightContent: '',
       settingItemType: SettingItemType.keys,
+    ));
+    _settingModelList.add(SettingModel(
+      iconName: 'icon_settings_language.png',
+      title: 'Language',
+      rightContent: 'English',
+      settingItemType: SettingItemType.language,
     ));
     _getPackageInfo();
   }
@@ -240,6 +247,8 @@ class _SettingsPageState extends State<SettingsPage> {
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
+        } else if (_settingModel.settingItemType == SettingItemType.language) {
+          OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
         }
       },
       child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true),
@@ -356,5 +365,6 @@ enum SettingItemType {
   zaps,
   keys,
   privacy,
+  language,
   none,
 }

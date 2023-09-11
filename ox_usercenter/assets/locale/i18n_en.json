@@ -13,5 +13,18 @@
   "unfinished_order_sos": "You have an unfinished order, do you need to complete it now?",
   "purchase_success": "Purchase success",
   "purchase_successful": "Purchase successful, please check the newly acquired badge later",
-  "cancel_purchase": "Cancel purchase"
+  "cancel_purchase": "Cancel purchase",
+  "language_zh": "简体中文",
+  "language_en": "English",
+  "language_es": "Español",
+  "language_ru": "русский",
+  "language_pt": "Português",
+  "language_vi": "Tiếng việt",
+  "language_ja": "日本語",
+  "language_fr": "Français",
+  "language_de": "Deutsch",
+  "language_ar": "عربي",
+  "language_th": "ภาษาไทย",
+  "language_ko": "한국어",
+  "language_zh_tw": "繁體中文"
 }
