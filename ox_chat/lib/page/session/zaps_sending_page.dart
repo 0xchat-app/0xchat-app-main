@@ -49,46 +49,57 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16.0),
-            topRight: Radius.circular(16.0),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());  // 移除焦点
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.color190,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16.0),
+              topRight: Radius.circular(16.0),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildNavBar(),
-            Column(
-              children: [
-                Text(
-                  'Zaps',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow(
-                  title: 'Amount',
-                  placeholder: defaultSatsValue,
-                  controller: amountController,
-                  suffix: 'Sats',
-                  maxLength: 9,
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow(
-                  title: 'Description',
-                  placeholder: defaultDescription,
-                  controller: descriptionController,
-                  maxLength: 50,
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildSatsText()
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                CommonButton.themeButton(text: 'Send', onTap: _sendButtonOnPressed)
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-              ],
-            ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
-          ],
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildNavBar(),
+                  Column(
+                    children: [
+                      Text(
+                        'Zaps',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildInputRow(
+                        title: 'Amount',
+                        placeholder: defaultSatsValue,
+                        controller: amountController,
+                        suffix: 'Sats',
+                        maxLength: 9,
+                        keyboardType: TextInputType.number,
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildInputRow(
+                        title: 'Description',
+                        placeholder: defaultDescription,
+                        controller: descriptionController,
+                        maxLength: 50,
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildSatsText()
+                          .setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      CommonButton.themeButton(text: 'Send', onTap: _sendButtonOnPressed)
+                          .setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                    ],
+                  ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -100,9 +111,6 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
         useLargeTitle: false,
         centerTitle: true,
         isClose: true,
-        actions: [
-          _buildSettingIcon(),
-        ],
     );
 
   Widget _buildSettingIcon() =>
@@ -124,6 +132,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     required TextEditingController controller,
     String suffix = '',
     int? maxLength,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +154,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
               children: [
                 Expanded(
                   child: TextField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: keyboardType,
                     maxLength: maxLength,
                     controller: controller,
                     decoration: InputDecoration(
@@ -253,6 +262,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
           });
           OXNavigator.pop(context);
         }
+        isConfirm = result;
         return result;
       },
     });
