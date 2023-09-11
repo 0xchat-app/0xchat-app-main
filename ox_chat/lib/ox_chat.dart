@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
@@ -9,6 +8,8 @@ import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -32,10 +33,11 @@ class OXChat extends OXFlutterModule {
     'showMyIdCardDialog': _showMyIdCardDialog,
     'chatSessionListPageWidget': _chatSessionListPageWidget,
     'contractsPageWidget': _contractsPageWidget,
+    'sendCallMessage': _sendCallMessage,
   };
 
   @override
-  String get moduleName => 'ox_chat';
+  String get moduleName => OXChatInterface.moduleName;
 
   @override
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
@@ -86,4 +88,7 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
+  void _sendCallMessage(ChatSessionModel session, String text, CallMessageType type) {
+
+  }
 }
