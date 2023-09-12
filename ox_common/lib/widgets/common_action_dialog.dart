@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ox_common/navigator/dialog_router.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -9,16 +10,20 @@ import 'package:ox_common/utils/adapt.dart';
 class OXActionModel<T> {
   static const CancelIdentify = 'ActionModelCancel';
 
-  const OXActionModel({required this.identify,required this.text});
+  const OXActionModel({required this.identify,required this.text, this.iconName, this.package});
   final T identify;
   final String text;
+  final String? iconName;
+  final String? package;
 
   OXActionModel.fromJson(Map<String, dynamic> jsonMap)
       : identify = jsonMap['identify'],
-        text = jsonMap['text'];
+        text = jsonMap['text'],
+        iconName = jsonMap['iconName'],
+        package = jsonMap['package'];
 
   Map<String, dynamic> toJson() =>
-      <String, dynamic>{'identify': identify, 'text': text};
+      <String, dynamic>{'identify': identify, 'text': text, 'iconName': iconName, 'package': package};
 
   @override
   bool operator ==(dynamic value) {
@@ -127,18 +132,49 @@ class OXActionDialog extends StatelessWidget {
             width: double.infinity,
             height: Adapt.px(actionHeight),
             color: Colors.transparent,
-            child: Center(
-              child: Text(
-                item.text,
-                style: TextStyle(
-                  fontSize: Adapt.px(16.0),
-                  fontWeight: selected ?
-                    FontWeight.w500 : FontWeight.w400,
-                  color: selected
-                    ? ThemeColor.red
-                    : this.textColor,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      item.iconName == null
+                          ? SizedBox()
+                          : CommonImage(
+                        iconName: item.iconName ?? '',
+                        width: Adapt.px(20),
+                        height: Adapt.px(20),
+                        package: item.package ?? '',
+                      ),
+                      SizedBox(width: Adapt.px(6),),
+                      Text(
+                        item.text,
+                        style: TextStyle(
+                          fontSize: Adapt.px(16.0),
+                          fontWeight: selected ?
+                          FontWeight.w500 : FontWeight.w400,
+                          color: selected
+                              ? ThemeColor.red
+                              : this.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(0.5),
+                    color: separatorColor,
+                  ),
+                ),
+              ],
             ),
           ),
           onTap: () {
