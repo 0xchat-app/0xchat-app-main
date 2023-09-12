@@ -3,11 +3,16 @@ import 'package:ox_calling/ox_calling_platform_interface.dart';
 import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'dart:core';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:chatcore/chat-core.dart' as ChatCore;
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -31,16 +36,17 @@ class CallManager {
   Session? _session;
   DesktopCapturerSource? selected_source_;
   bool _waitAccept = false;
-  late BuildContext context;
+  late BuildContext _context;
   ValueChanged<CallState>? callStateHandler;
+  CallMessageType callType = CallMessageType.video;
 
   void initRTC({String? tHost}) {
     if (tHost != null) {
       host = tHost;
     }
-    context = OXNavigator.navigatorKey.currentContext!;
+    _context = OXNavigator.navigatorKey.currentContext!;
     initRenderers();
-    _connect(context);
+    _connect(_context);
   }
 
   Future<void> initRenderers() async {
@@ -76,15 +82,18 @@ class CallManager {
           if (CallManager.instance._waitAccept || CallManager.instance.inCalling) {
             return;
           }
-
           ///lack of speech type
-          UserDB? userDB = Contacts.sharedInstance.allContacts[session.pid];
+          ChatCore.UserDB? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
           if (userDB == null) {
             break;
           } else {
-            if (!inCalling && (session.media == 'audio' || session.media == 'video')) {
-              OXNavigator.pushPage(
-                  context,
+            if (!inCalling && (session.media == CallMessageType.audio.text || session.media == CallMessageType.video.text)) {
+              if (session.media == CallMessageType.audio.text) {
+                callType = CallMessageType.audio;
+              } else if (session.media == CallMessageType.video.text) {
+                callType = CallMessageType.video;
+              }
+              OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
                         session.media,
@@ -143,14 +152,14 @@ class CallManager {
 
   invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
-      _signaling?.invite(peerId, 'video', useScreen);
+      _signaling?.invite(peerId, callType.text, useScreen);
     }
   }
 
   accept() {
     if (_session != null) {
       inCalling = true;
-      _signaling?.accept(_session!.sid, 'video');
+      _signaling?.accept(_session!.sid, callType.text);
     }
   }
 
@@ -175,38 +184,6 @@ class CallManager {
     LogUtil.e('Michael: -----setSpeaker =${setResult}');
   }
 
-  Future<void> selectScreenSourceDialog(BuildContext context) async {
-    MediaStream? screenStream;
-    if (WebRTC.platformIsDesktop) {
-      final source = await showDialog<DesktopCapturerSource>(
-        context: context,
-        builder: (context) => ScreenSelectDialog(),
-      );
-      if (source != null) {
-        try {
-          var stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-            'video': {
-              'deviceId': {'exact': source.id},
-              'mandatory': {'frameRate': 30.0}
-            }
-          });
-          stream.getVideoTracks()[0].onEnded = () {
-            print('By adding a listener on onEnded you can: 1) catch stop video sharing on Web');
-          };
-          screenStream = stream;
-        } catch (e) {
-          print(e);
-        }
-      }
-    } else if (WebRTC.platformIsWeb) {
-      screenStream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-        'audio': false,
-        'video': true,
-      });
-    }
-    if (screenStream != null) _signaling?.switchToScreenSharing(screenStream);
-  }
-
   muteMic() {
     _signaling?.muteMic();
   }
@@ -222,5 +199,20 @@ class CallManager {
       }
     }
     return aspectRatio;
+  }
+
+  Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
+    if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
+      return false;
+    }
+    ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
+    if (chatSessionModel == null) {
+      return false;
+    }
+    OXChatInterface.sendCallMessage(
+        chatSessionModel,
+        decryptContent,
+        callType);
+    return true;
   }
 }

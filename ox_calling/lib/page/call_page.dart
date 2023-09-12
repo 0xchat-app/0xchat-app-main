@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/utils/widget_util.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -47,6 +48,8 @@ class CallPageState extends State<CallPage> {
   bool _isSpeakerOn = true;
   bool _isVideoOn = true;
   late double _aspectRatio;
+  String? callInitiator;
+  String? callReceiver;
 
   @override
   void initState() {
@@ -74,7 +77,7 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    LogUtil.e('Michael: calling---1---state=${CallManager.instance.callState}-----_initData---');
+    LogUtil.e('Michael: calling---1---state=${CallManager.instance.callState}-----_initData---${CallManager.instance.callType.text}');
     if (CallManager.instance.callState == CallState.CallStateInvite) {
       LogUtil.e('Michael: calling---2--state=${CallManager.instance.callState}-----_initData---');
       CallManager.instance.invitePeer(widget.userDB!.pubKey!);
@@ -199,7 +202,7 @@ class CallPageState extends State<CallPage> {
 
   List<Widget> _buildRowChild() {
     List<Widget> showButtons = [];
-    if (widget.mediaType == 'video') {
+    if (widget.mediaType == CallMessageType.video.text) {
       showButtons.add(
         InkWell(
           onTap: () {
@@ -361,15 +364,37 @@ class CallPageState extends State<CallPage> {
 
   void _callStateUpdate(CallState callState) {
     LogUtil.e('Michael: calling---- _callStateUpdate CallState =${callState.name}-----mounted =$mounted-----');
+    if (!mounted) {
+      return;
+    }
     if (callState == CallState.CallStateConnected) {
       startTimer();
     } else if (callState == CallState.CallStateBye) {
       stopTimer();
+      String content = '';
+      if (_counter > 0) {
+        Duration duration = Duration(seconds: _counter);
+        String twoDigits(int n) => n.toString().padLeft(2, "0");
+        String twoDigitMinutes = twoDigits(duration.inMinutes);
+        String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+        content = 'str_call_duration'.localized().replaceAll(r'${time}', '$twoDigitMinutes:$twoDigitSeconds');
+      } else {
+        if (callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+          content = 'str_call_canceled'.localized();
+        } else {
+          content = 'str_call_rejected'.localized();
+        }
+      }
+      CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
       OXNavigator.pop(context);
+    } else if (callState == CallState.CallStateRinging) {
+      callInitiator = widget.userDB.pubKey;
+      callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+    } else if (callState == CallState.CallStateInvite) {
+      callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+      callReceiver = widget.userDB.pubKey;
     }
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   void stopTimer() {

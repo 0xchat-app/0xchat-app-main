@@ -4,6 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/message_report.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
@@ -298,15 +302,25 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future callPressHandler(BuildContext context, UserDB user) async {
-    OXModuleService.pushPage(
+    OXActionModel? oxActionModel = await OXActionDialog.show(
       context,
-      'ox_calling',
-      'CallPage',
-      {
-        'userDB': user,
-        'media': 'video',
-      },
+      data: [
+        OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat'),
+        OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat'),
+      ],
     );
+    LogUtil.e('Michael: oxActionModel =${oxActionModel?.identify}; oxActionModel =${oxActionModel?.text}');
+    if (oxActionModel != null) {
+      OXModuleService.pushPage(
+        context,
+        'ox_calling',
+        'CallPage',
+        {
+          'userDB': user,
+          'media': oxActionModel.identify == 1 ? CallMessageType.audio.text : CallMessageType.video.text,
+        },
+      );
+    }
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
