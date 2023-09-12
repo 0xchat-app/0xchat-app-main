@@ -185,13 +185,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final requestInfo = Zaps.getPaymentRequestInfo(invoice);
 
-    final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
-    if (privkey == null || privkey.isEmpty) {
-      CommonToast.instance.show(context, 'Error');
-      return ;
-    }
-
-    final zapsReceiptList = await Zaps.getZapReceipt(zapper, privkey, invoice: invoice);
+    final zapsReceiptList = await Zaps.getZapReceipt(zapper, invoice: invoice);
     final zapsReceipt = zapsReceiptList.length > 0 ? zapsReceiptList.first : null;
 
     OXLoading.dismiss();
@@ -243,11 +237,10 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     );
 
     if (result) {
-      final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey;
       final messageId = message.remoteId;
-      if (privkey != null && messageId != null) {
+      if (messageId != null) {
         OXLoading.show();
-        OKEvent event = await Messages.deleteMessageFromRelay([messageId], '', privkey);
+        OKEvent event = await Messages.deleteMessageFromRelay([messageId], '');
         OXLoading.dismiss();
         if (event.status) {
           OXNavigator.pop(context);

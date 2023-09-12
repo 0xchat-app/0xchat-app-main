@@ -31,10 +31,14 @@ class ProfileSetUpPage extends StatefulWidget {
 
 class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   UserDB? mCurrentUserInfo;
-  final TextEditingController _userNameTextEditingController = TextEditingController();
-  final TextEditingController _dnsTextEditingController = TextEditingController();
-  final TextEditingController _aboutTextEditingController = TextEditingController();
-  final TextEditingController _bltTextEditingController = TextEditingController();
+  final TextEditingController _userNameTextEditingController =
+      TextEditingController();
+  final TextEditingController _dnsTextEditingController =
+      TextEditingController();
+  final TextEditingController _aboutTextEditingController =
+      TextEditingController();
+  final TextEditingController _bltTextEditingController =
+      TextEditingController();
   final ValueNotifier<bool> _is0xchatAddress = ValueNotifier<bool>(true);
   List<String> _relayNameList = [];
   File? imageFile;
@@ -120,7 +124,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         ),
         body: createBody(),
       ),
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
     );
@@ -128,7 +132,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   void _editProfile() async {
     if (mCurrentUserInfo == null) {
-      CommonToast.instance.show(context, Localized.text('ox_common.network_connect_fail'));
+      CommonToast.instance
+          .show(context, Localized.text('ox_common.network_connect_fail'));
     }
     if (_userNameTextEditingController.text.length > 0) {
       mCurrentUserInfo!.name = _userNameTextEditingController.text;
@@ -137,18 +142,18 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       String dns = _dnsTextEditingController.text;
       String lnurl = _bltTextEditingController.text;
       bool result;
-      if(dns.isEmpty || dns == mCurrentUserInfo!.dns){
+      if (dns.isEmpty || dns == mCurrentUserInfo!.dns) {
         result = true;
-      }else if(dns != mCurrentUserInfo!.dns) {
-        if(dns.contains('@') && !dns.contains('@0xchat')) {
+      } else if (dns != mCurrentUserInfo!.dns) {
+        if (dns.contains('@') && !dns.contains('@0xchat')) {
           result = await _checkDNS(dns);
-        }else if(!dns.contains('@0xchat')){
+        } else if (!dns.contains('@0xchat')) {
           dns = '$dns@0xchat.com';
           result = await _set0xchatDNS(dns);
-        }else{
+        } else {
           result = await _set0xchatDNS(dns);
         }
-      }else{
+      } else {
         result = true;
       }
       if (result) {
@@ -170,7 +175,10 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         final String url = await UplodAliyun.uploadFileToAliyun(
           fileType: UplodAliyunType.imageType,
           file: imageFile!,
-          filename: 'avatar_' + _userNameTextEditingController.text + DateTime.now().microsecondsSinceEpoch.toString() + '.png',
+          filename: 'avatar_' +
+              _userNameTextEditingController.text +
+              DateTime.now().microsecondsSinceEpoch.toString() +
+              '.png',
         );
         if (url.isNotEmpty) {
           mCurrentUserInfo!.picture = url;
@@ -178,21 +186,23 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
 
       UserDB? tempUserDB;
-      try{
+      try {
         await OXLoading.show();
-        tempUserDB = await Account.sharedInstance.updateProfile(mCurrentUserInfo!.privkey!, mCurrentUserInfo!);
+        tempUserDB =
+            await Account.sharedInstance.updateProfile(mCurrentUserInfo!);
         await OXLoading.dismiss();
-      }catch(e){
+      } catch (e) {
         await OXLoading.dismiss();
       }
 
       if (tempUserDB != null) {
         OXNavigator.pop(context);
       } else {
-        CommonToast.instance.show(context, Localized.text('ox_common.network_connect_fail'));
+        CommonToast.instance
+            .show(context, Localized.text('ox_common.network_connect_fail'));
       }
-    }else{
-      if(_userNameTextEditingController.text.isEmpty){
+    } else {
+      if (_userNameTextEditingController.text.isEmpty) {
         CommonToast.instance.show(context, 'Please Enter Username');
       }
     }
@@ -200,7 +210,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   Widget createBody() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(12)),
+      margin: EdgeInsets.symmetric(
+          horizontal: Adapt.px(24), vertical: Adapt.px(12)),
       child: CustomScrollView(
         shrinkWrap: false,
         slivers: <Widget>[
@@ -210,23 +221,34 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               delegate: SliverChildListDelegate(
                 <Widget>[
                   _buildHeadImgView(),
-                  _itemView(Localized.text('ox_login.username'), 'Satoshi Nakamoto', editingController: _userNameTextEditingController),
-                  _itemView(Localized.text('ox_login.dns'), 'satoshi(Optional)', editingController: _dnsTextEditingController,
+                  _itemView(
+                      Localized.text('ox_login.username'), 'Satoshi Nakamoto',
+                      editingController: _userNameTextEditingController),
+                  _itemView(Localized.text('ox_login.dns'), 'satoshi(Optional)',
+                      editingController: _dnsTextEditingController,
                       suffix: ValueListenableBuilder(
                         valueListenable: _is0xchatAddress,
-                        builder: (BuildContext context, dynamic value, Widget? child) {
-                          return value ? Text(
-                            '@0xchat.com',
-                            style: TextStyle(
-                                fontSize: Adapt.px(16),
-                                color: ThemeColor.color0,
-                                fontWeight: FontWeight.w400),
-                          ) : Container();
+                        builder: (BuildContext context, dynamic value,
+                            Widget? child) {
+                          return value
+                              ? Text(
+                                  '@0xchat.com',
+                                  style: TextStyle(
+                                      fontSize: Adapt.px(16),
+                                      color: ThemeColor.color0,
+                                      fontWeight: FontWeight.w400),
+                                )
+                              : Container();
                         },
-                      )
-                  ),
-                  _itemView(Localized.text('ox_login.about'), 'Bitcoin Core Dev (Optional)', editingController: _aboutTextEditingController,maxLines: null),
-                  _itemView(Localized.text('ox_login.bitcoin_lightning_tips'), 'Lighting Address or LNURL (Optional)', editingController: _bltTextEditingController,maxLines: null),
+                      )),
+                  _itemView(Localized.text('ox_login.about'),
+                      'Bitcoin Core Dev (Optional)',
+                      editingController: _aboutTextEditingController,
+                      maxLines: null),
+                  _itemView(Localized.text('ox_login.bitcoin_lightning_tips'),
+                      'Lighting Address or LNURL (Optional)',
+                      editingController: _bltTextEditingController,
+                      maxLines: null),
                 ],
               ),
             ),
@@ -237,7 +259,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   Widget _buildHeadImgView() {
-    String headerUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
+    String headerUrl =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
     String localAvatarPath = 'assets/images/user_image.png';
     Image placeholderImage = Image.asset(
       localAvatarPath,
@@ -260,21 +283,24 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                   borderRadius: BorderRadius.circular(Adapt.px(120)),
                   child: imageFile != null
                       ? Image.file(
-                    imageFile!,
-                    alignment: Alignment.topCenter,
-                    fit: BoxFit.cover,
-                    height: Adapt.px(120),
-                    width: Adapt.px(120),
-                  )
-                      : headerUrl.isNotEmpty ? CachedNetworkImage(
-                    height: Adapt.px(120),
-                    width: Adapt.px(120),
-                    imageUrl: headerUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => placeholderImage,
-                    errorWidget: (context, url, error) => placeholderImage,
-                    // httpHeaders: map,
-                  ):placeholderImage,
+                          imageFile!,
+                          alignment: Alignment.topCenter,
+                          fit: BoxFit.cover,
+                          height: Adapt.px(120),
+                          width: Adapt.px(120),
+                        )
+                      : headerUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                              height: Adapt.px(120),
+                              width: Adapt.px(120),
+                              imageUrl: headerUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => placeholderImage,
+                              errorWidget: (context, url, error) =>
+                                  placeholderImage,
+                              // httpHeaders: map,
+                            )
+                          : placeholderImage,
                 ),
               ),
               Center(
@@ -300,7 +326,10 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     );
   }
 
-  Widget _itemView(String title, String hintStr, {TextEditingController? editingController,Widget? suffix,int? maxLines = 1}) {
+  Widget _itemView(String title, String hintStr,
+      {TextEditingController? editingController,
+      Widget? suffix,
+      int? maxLines = 1}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -324,7 +353,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
           ),
-          padding: EdgeInsets.symmetric(horizontal: Adapt.px(16), vertical: Adapt.px(13)),
+          padding: EdgeInsets.symmetric(
+              horizontal: Adapt.px(16), vertical: Adapt.px(13)),
           child: Row(
             children: [
               Expanded(
@@ -350,9 +380,14 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       ],
     ).setPadding(EdgeInsets.only(bottom: Adapt.px(12)));
   }
-  
+
   onChangeHeadImg() async {
-    OXNavigator.pushPage(context, (context) => AvatarPreviewPage(imageFile: imageFile, userDB: OXUserInfoManager.sharedInstance.currentUserInfo)).then((value) {
+    OXNavigator.pushPage(
+            context,
+            (context) => AvatarPreviewPage(
+                imageFile: imageFile,
+                userDB: OXUserInfoManager.sharedInstance.currentUserInfo))
+        .then((value) {
       if (value is File) {
         setState(() {
           imageFile = value;
@@ -390,28 +425,31 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             ),
           Text(
             leftTitle,
-            style: TextStyle(color: ThemeColor.titleColor, fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: ThemeColor.titleColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           isRightTitle
               ? Container(
-            child: Text(rightTitle,
-                style: TextStyle(
-                  color: ThemeColor.gray4,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w200,
-                ),
-                maxLines: 1,
-                textAlign: TextAlign.end),
-            width: Adapt.px(150),
-          )
+                  child: Text(rightTitle,
+                      style: TextStyle(
+                        color: ThemeColor.gray4,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
+                      maxLines: 1,
+                      textAlign: TextAlign.end),
+                  width: Adapt.px(150),
+                )
               : (isRightImage
-              ? CommonImage(
-            iconName: rightIconName,
-            width: Adapt.px(20),
-            height: Adapt.px(20),
-          )
-              : Container()),
+                  ? CommonImage(
+                      iconName: rightIconName,
+                      width: Adapt.px(20),
+                      height: Adapt.px(20),
+                    )
+                  : Container()),
           SizedBox(width: Adapt.px(0)),
           CommonImage(
             iconName: "icon_arrow_right.png",
@@ -427,9 +465,9 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   Future<Map<String, dynamic>?> _registerNip05(String dns) async {
-    String privateKey = mCurrentUserInfo?.privkey ?? '';
     String publicKey = mCurrentUserInfo?.pubKey ?? '';
-    String sig = signData([publicKey,dns,_relayNameList], privateKey);
+    String sig = signData([publicKey, dns, _relayNameList],
+        Account.sharedInstance.currentPrivkey);
     Map<String, dynamic> params = {};
     params['name'] = _userNameTextEditingController.text;
     params['publicKey'] = publicKey;
@@ -437,19 +475,20 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     params['relays'] = _relayNameList;
     params['sig'] = sig;
 
-    return await registerNip05(context: context,params: params,showLoading: false);
+    return await registerNip05(
+        context: context, params: params, showLoading: false);
   }
 
   Future<bool> _set0xchatDNS(String dns) async {
     Map<String, dynamic>? result = await _registerNip05(dns);
-    if(result!=null){
-      if(result['code'] == NIP05_SUCCESSFUL){
+    if (result != null) {
+      if (result['code'] == NIP05_SUCCESSFUL) {
         return true;
-      }else{
-        CommonToast.instance.show(context,result['message']);
+      } else {
+        CommonToast.instance.show(context, result['message']);
         return false;
       }
-    }else{
+    } else {
       CommonToast.instance.show(context, 'Unrecognized 0xchat DNS address');
       return false;
     }
@@ -460,23 +499,24 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     List<String> temp = dnsStr.split('@');
     String name = temp[0];
     String domain = temp[1];
-    DNS dns = DNS(name, domain, pubKey,_relayNameList);
-    try{
+    DNS dns = DNS(name, domain, pubKey, _relayNameList);
+    try {
       OXLoading.show(status: 'Checking...');
       bool result = await Account.checkDNS(dns);
       OXLoading.dismiss();
-      if (!result) CommonToast.instance.show(context,'Not a legal DNS address');
+      if (!result)
+        CommonToast.instance.show(context, 'Not a legal DNS address');
       return result;
-    }catch(error,stack){
+    } catch (error, stack) {
       OXLoading.dismiss();
-      CommonToast.instance.show(context,'check DNS address failed');
+      CommonToast.instance.show(context, 'check DNS address failed');
       LogUtil.e("check dns error:$error\r\n$stack");
       return false;
     }
   }
 
   Future<bool> _checkLnurl(String lnurl) async {
-    if(lnurl.isEmpty){
+    if (lnurl.isEmpty) {
       return true;
     }
     //when input is ln address
@@ -484,7 +524,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       try {
         lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
       } catch (error, stack) {
-        CommonToast.instance.show(context, 'Please enter the correct Lighting Address');
+        CommonToast.instance
+            .show(context, 'Please enter the correct Lighting Address');
         LogUtil.d('LN Address parse fail::$error\r\n$stack');
         return false;
       }
@@ -508,7 +549,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   Future<bool> _showNoAllowNostrTips() async {
     return await OXCommonHintDialog.show(context,
         title: 'Tips',
-        content: 'The LNURL does not support the Nostr protocol, unable to view transaction history',
+        content:
+            'The LNURL does not support the Nostr protocol, unable to view transaction history',
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context, false);

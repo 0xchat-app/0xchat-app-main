@@ -20,16 +20,10 @@ class ZapsHelper {
       'message': '',
     };
 
-    final privkey = OXUserInfoManager.sharedInstance.currentUserInfo?.privkey ?? '';
     final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
 
     if (recipient.isEmpty) {
       result['message'] = 'Recipient is empty';
-      return result;
-    }
-
-    if (privkey.isEmpty) {
-      result['message'] = 'Privkey is empty';
       return result;
     }
 
@@ -56,7 +50,6 @@ class ZapsHelper {
       sats,
       otherLnurl,
       recipient,
-      privkey,
       content: content,
       privateZap: privateZap,
     );

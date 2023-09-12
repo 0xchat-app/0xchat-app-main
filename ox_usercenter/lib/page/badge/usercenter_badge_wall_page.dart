@@ -132,7 +132,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   Future<void> _setUserProfileBadge(BadgeModel badgeModel) async {
     try{
       List<String> id = [badgeModel.badgeId!];
-      OKEvent okEvent = await BadgesHelper.setProfileBadges(id, _mUserInfo?.pubKey ?? '', _mUserInfo?.privkey ?? '');
+      OKEvent okEvent = await BadgesHelper.setProfileBadges(id);
       //after user set profile Badge complete, update profile database
       if(okEvent.status){
         setState(() {
@@ -140,7 +140,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         });
         String badges = '["${badgeModel.badgeId}"]';
         _mUserInfo?.badges = badges;
-        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!.privkey!, _mUserInfo!);
+        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
         if(tempUserDB == null){
           CommonToast.instance.show(context, 'Fail to update profile badge ');
         }

@@ -155,31 +155,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
       CommonToast.instance.show(context, 'Private Key regular failed' /*Localized.text('ox_common.network_connect_fail')*/);
       return;
     }
-    UserDB tempUserDB = await Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
-    if (tempUserDB.name != null && tempUserDB.name!.isNotEmpty) {
-      userDB.name = tempUserDB.name!;
-    }
-    if (tempUserDB.picture != null && tempUserDB.picture!.isNotEmpty) {
-      userDB.picture = tempUserDB.picture!;
-    }
-    if (tempUserDB.gender != null && tempUserDB.gender!.isNotEmpty) {
-      userDB.gender = tempUserDB.gender!;
-    }
-    if (tempUserDB.area != null && tempUserDB.area!.isNotEmpty) {
-      userDB.area = tempUserDB.area!;
-    }
-    if (tempUserDB.about != null && tempUserDB.about!.isNotEmpty) {
-      userDB.about = tempUserDB.about!;
-    }
-    if (tempUserDB.dns != null && tempUserDB.dns!.isNotEmpty){
-      userDB.dns = tempUserDB.dns!;
-    }
-    if (tempUserDB.lnurl != null && tempUserDB.lnurl!.isNotEmpty){
-      userDB.lnurl = tempUserDB.lnurl;
-    }
-    if (tempUserDB.badges != null && tempUserDB.badges!.isNotEmpty){
-      userDB.badges = tempUserDB.badges;
-    }
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);

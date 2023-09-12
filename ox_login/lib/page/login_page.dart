@@ -242,8 +242,7 @@ class _LoginPageState extends State<LoginPage> {
     Keychain keychain = Account.generateNewKeychain();
     await OXUserInfoManager.sharedInstance.initDB(keychain.public);
     final UserDB userDB = await Account.newAccount(user: keychain);
-    LogUtil.e('Michael: pubKey =${userDB.pubKey}; privkey =${userDB.privkey}');
-    LogUtil.e('Michael: encodedPrivkey =${userDB.encodedPubkey}; encodedPrivkey =${userDB.encodedPrivkey}');
+    LogUtil.e('Michael: pubKey =${userDB.pubKey}');
     await OXLoading.dismiss();
     OXNavigator.pushPage(context, (context) => CreateAccountPage(userDB: userDB));
   }
