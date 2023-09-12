@@ -117,8 +117,14 @@ class ScanUtils {
   static Future<void> _gotoChannel(
       BuildContext context, String channelID) async {
     await OXLoading.show();
-    List<ChannelDB> channelsList = await Channels.sharedInstance
-        .getChannelsFromRelay(channelIds: [channelID]);
+    List<ChannelDB> channelsList = [];
+    ChannelDB? c = Channels.sharedInstance.channels[channelID];
+    if (c == null) {
+      channelsList = await Channels.sharedInstance
+          .getChannelsFromRelay(channelIds: [channelID]);
+    } else {
+      channelsList = [c];
+    }
     await OXLoading.dismiss();
     if (channelsList.isNotEmpty) {
       ChannelDB channelDB = channelsList[0];
