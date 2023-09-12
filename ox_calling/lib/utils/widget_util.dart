@@ -1,4 +1,5 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: widget_util
 ///Description: TODO(Fill in by oneself)
@@ -12,5 +13,17 @@ extension UserDBToUIEx on UserDB {
     if (nickName.isNotEmpty) return nickName;
     if (name.isNotEmpty) return name;
     return 'unknown';
+  }
+}
+
+extension OXCallStr on String {
+  String localized([Map<String, String>? replaceArg]) {
+    String text = Localized.text('ox_chat.$this');
+    if (replaceArg != null) {
+      replaceArg.keys.forEach((key) {
+        text = text.replaceAll(key, replaceArg[key] ?? '');
+      });
+    }
+    return text;
   }
 }
