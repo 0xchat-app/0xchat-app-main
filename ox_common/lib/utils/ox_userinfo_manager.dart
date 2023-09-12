@@ -158,10 +158,10 @@ class OXUserInfoManager {
   }
 
   Future logout() async {
-    if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.privkey == null) {
+    if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    await Account.sharedInstance.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
+    await Account.sharedInstance.logout();
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
@@ -250,8 +250,8 @@ class OXUserInfoManager {
 
   void _initMessage() {
     _initAllCompleted = true;
-    Messages.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!);
-    NotificationHelper.sharedInstance.init(OXUserInfoManager.sharedInstance.currentUserInfo?.privkey ?? '', CommonConstant.serverPubkey);
+    Messages.sharedInstance.init();
+    NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
     setNotification();
     OXModuleService.invoke(
       'ox_calling',
