@@ -28,7 +28,6 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -38,9 +37,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:images_picker/images_picker.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as Path;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:video_compress/video_compress.dart';
 import 'custom_message_utils.dart';
 
 part 'chat_send_message_handler.dart';
@@ -51,11 +52,13 @@ class ChatGeneralHandler {
     required this.author,
     required this.session,
     required this.refreshMessageUI,
-    required this.sendMessageHandler
+    required this.sendMessageHandler,
+    this.fileEncryptionType = types.EncryptionType.none,
   });
 
   final types.User author;
   final ChatSessionModel session;
+  final types.EncryptionType fileEncryptionType;
 
   bool hasMoreMessage = false;
 
@@ -63,17 +66,9 @@ class ChatGeneralHandler {
 
   Function(List<types.Message>) refreshMessageUI;
 
-  Function(types.Message message) sendMessageHandler;
+  Function(types.Message message, {bool isResend}) sendMessageHandler;
 
   ValueChanged<types.Message>? messageDeleteHandler;
-
-  ValueChanged<types.Message>? messageResendHandler;
-
-  Future Function(List<File> images)? imageMessageSendHandler;
-
-  Future Function(List<File> images)? videoMessageSendHandler;
-
-  Future Function(GiphyImage image)? gifMessageSendHandler;
 
   Future loadMoreMessage(
       List<types.Message> originMessage, {
@@ -109,16 +104,14 @@ class ChatGeneralHandler {
 extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void messageStatusPressHandler(BuildContext context, types.Message message) async {
-    final messageResendHandler = this.messageResendHandler;
-    if (messageResendHandler == null || message.status != types.Status.error) return ;
-
+    if (message.status != types.Status.error) return ;
     final result = await OXCommonHintDialog.showConfirmDialog(
       context,
       content: Localized.text('ox_chat.message_resend_hint'),
     );
     if (result) {
       OXNavigator.pop(context);
-      messageResendHandler(message);
+      resendMessage(message);
     }
   }
 
@@ -347,16 +340,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
     final isVideo = type == 2;
     final pickType = isVideo ? PickType.video : PickType.image;
-    final messageSendHandler = isVideo ? this.videoMessageSendHandler : this.imageMessageSendHandler;
-
-    if (messageSendHandler == null) {
-      ChatLogUtils.error(
-        className: 'ChatGeneralHandler',
-        funcName: 'goToPhoto',
-        message: 'messageSendHandler is null',
-      );
-      return ;
-    }
+    final messageSendHandler = isVideo ? this.sendVideoMessageSend : this.sendImageMessage;
 
     final res = await ImagesPicker.pick(
       count: 1, // Maximum selectable quantity
@@ -385,12 +369,11 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       quality: 0.8, // only for android
       maxSize: 1024,
     );
-    final imageMessageSendHandler = this.imageMessageSendHandler;
-    if(res == null || imageMessageSendHandler == null) return;
+    if(res == null || res.isEmpty) return;
 
     final media = res.first;
     final file = File(media.path);
-    imageMessageSendHandler([file]);
+    sendImageMessage([file]);
   }
 }
 
