@@ -8,9 +8,7 @@ import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -79,12 +77,9 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         });
       },
       sendMessageHandler: _sendMessage,
+      fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
-    chatGeneralHandler.messageResendHandler = _resendMessage;
-    chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
-    chatGeneralHandler.videoMessageSendHandler = _onVideoMessageSend;
-    chatGeneralHandler.gifMessageSendHandler = _onGifImageMessageSend;
   }
 
   void setupUser() {
@@ -155,7 +150,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
+        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -177,12 +172,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
           InputMoreItemEx.call(chatGeneralHandler, otherUser),
         ],
-        onVoiceSend: (path, duration) {
-          _onVoiceSend(path, duration);
-        },
-        onGifSend: (value) {
-          _onGifImageMessageSend(value);
-        },
+        onVoiceSend: chatGeneralHandler.sendVoiceMessage,
+        onGifSend: chatGeneralHandler.sendGifImageMessage,
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
@@ -217,15 +208,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
 
-  void _resendMessage(types.Message message) async {
-    final resendMsg = message.copyWith(
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      status: types.Status.sending,
-    );
-    ChatDataCache.shared.deleteMessage(widget.communityItem, resendMsg);
-    _sendMessage(resendMsg, isResend: true);
-  }
-
   Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
     types.Message? updatedMessage;
     if (message is types.ImageMessage) {
@@ -239,114 +221,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     }
 
     return updatedMessage;
-  }
-
-  Future _onImageMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-      String message_id = const Uuid().v4();
-      String fileName = Path.basename(result.path);
-      fileName = fileName.substring(13);
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.ImageMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        roomId: receiverPubkey,
-        name: fileName,
-        size: bytes.length,
-        uri: result.path.toString(),
-        width: image.width.toDouble(),
-        fileEncryptionType: types.EncryptionType.encrypted,
-      );
-
-      _sendMessage(message);
-    }
-  }
-
-  Future _onGifImageMessageSend(GiphyImage image) async {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.ImageMessage(
-      uri: image.url,
-      author: _user,
-      createdAt: tempCreateTime,
-      id: message_id,
-      roomId: receiverPubkey,
-      name: image.name,
-      size: double.parse(image.size!),
-    );
-
-    final sendMsg = await _tryPrepareSendFileMessage(message);
-    if(sendMsg == null) return;
-    _sendMessage(sendMsg);
-  }
-
-  Future _onVoiceSend(String path, Duration duration) async {
-    File voiceFile = File(path);
-    final bytes = await voiceFile.readAsBytes();
-    String message_id = const Uuid().v4();
-    final fileName = '${message_id}.mp3';
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = types.AudioMessage(
-      // uri: 'http://music.163.com/song/media/outer/url?id=447925558.mp3',
-      // uri: uri,
-      uri: path,
-      id: message_id,
-      createdAt: tempCreateTime,
-      author: _user,
-      name: fileName,
-      duration: duration,
-      size: bytes.length,
-    );
-    ChatLogUtils.info(className: 'ChatMessagePage', funcName: '_onVoiceSend', message: 'uri: ${path}, size: ${bytes.length/1024}KB');
-
-    _sendMessage(message);
-  }
-
-  Future _onVideoMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-      );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.VideoMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        name: fileName,
-        size: bytes.length,
-        metadata: {
-          "videoUrl": result.path.toString(),
-        },
-        // metadata:{"videoUrl" : uri ?? "","snapshotUrl":snapshotUrl},
-        uri: thumbnailPath,
-        // uri: snapshotUrl,
-        width: image.width.toDouble(),
-      );
-
-      _sendMessage(message);
-    }
   }
 
   Widget customBottomWidget() {
@@ -390,21 +264,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
   }
 
-  void _handleSendPressed(types.PartialText message) {
-
-    final mid = Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    var textMessage = types.TextMessage(
-      author: _user,
-      createdAt: tempCreateTime,
-      id: mid,
-      text: message.text,
-    );
-
-    _sendMessage(textMessage);
-  }
-
   Future _sendMessage(types.Message message, {bool isResend = false}) async {
 
     if (!isResend) {
@@ -417,7 +276,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
-
 
     var event = message.sourceKey;
     final messageKind = session.messageKind;

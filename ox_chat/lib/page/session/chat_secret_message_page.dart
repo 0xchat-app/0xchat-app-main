@@ -4,7 +4,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -36,7 +35,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:screen_protector/screen_protector.dart';
 
@@ -131,12 +129,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         });
       },
       sendMessageHandler: _sendMessage,
+      fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
-    chatGeneralHandler.messageResendHandler = _resendMessage;
-    chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
-    chatGeneralHandler.videoMessageSendHandler = _onVideoMessageSend;
-    chatGeneralHandler.gifMessageSendHandler = _onGifImageMessageSend;
   }
 
   void setupUser() {
@@ -231,9 +226,9 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         onEndReached: () async {
           await _loadMoreMessages();
         },
-        onMessageTap: _handleMessageTap,
+        onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
+        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -254,12 +249,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           InputMoreItemEx.video(chatGeneralHandler),
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
         ],
-        onVoiceSend: (path, duration) {
-          _onVoiceSend(path, duration);
-        },
-        onGifSend: (value) {
-          _onGifImageMessageSend(value);
-        },
+        onVoiceSend: chatGeneralHandler.sendVoiceMessage,
+        onGifSend: chatGeneralHandler.sendGifImageMessage,
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
@@ -309,15 +300,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
 
-  void _resendMessage(types.Message message) async {
-    final resendMsg = message.copyWith(
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      status: types.Status.sending,
-    );
-    ChatDataCache.shared.deleteMessage(widget.communityItem, resendMsg);
-    _sendMessage(resendMsg);
-  }
-
   Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
     types.Message? updatedMessage;
     if (message is types.ImageMessage) {
@@ -336,123 +318,11 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         context,
         message,
       );
+    } else {
+      return message;
     }
 
     return updatedMessage;
-  }
-
-  Future _onImageMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-      String message_id = const Uuid().v4();
-      String fileName = Path.basename(result.path);
-      fileName = fileName.substring(13);
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.ImageMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        roomId: receiverPubkey,
-        name: fileName,
-        size: bytes.length,
-        uri: result.path.toString(),
-        width: image.width.toDouble(),
-        fileEncryptionType: types.EncryptionType.encrypted,
-      );
-
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return;
-      _sendMessage(sendMsg);
-    }
-  }
-
-  Future _onGifImageMessageSend(GiphyImage image) async {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.ImageMessage(
-      uri: image.url,
-      author: _user,
-      createdAt: tempCreateTime,
-      id: message_id,
-      roomId: receiverPubkey,
-      name: image.name,
-      size: double.parse(image.size!),
-    );
-
-    final sendMsg = await _tryPrepareSendFileMessage(message);
-    if(sendMsg == null) return;
-    _sendMessage(sendMsg);
-  }
-
-  Future _onVoiceSend(String path, Duration duration) async {
-    File voiceFile = File(path);
-    final bytes = await voiceFile.readAsBytes();
-    String message_id = const Uuid().v4();
-    final fileName = '${message_id}.mp3';
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = types.AudioMessage(
-      // uri: 'http://music.163.com/song/media/outer/url?id=447925558.mp3',
-      // uri: uri,
-      uri: path,
-      id: message_id,
-      createdAt: tempCreateTime,
-      author: _user,
-      name: fileName,
-      duration: duration,
-      size: bytes.length,
-    );
-    ChatLogUtils.info(className: 'ChatSecretMessagePage', funcName: '_onVoiceSend', message: 'uri: ${path}, size: ${bytes.length / 1024}KB');
-
-    final sendMsg = await _tryPrepareSendFileMessage(message);
-    if (sendMsg == null) return;
-    _sendMessage(sendMsg);
-  }
-
-  Future _onVideoMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-          );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.VideoMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        name: fileName,
-        size: bytes.length,
-        metadata: {
-          "videoUrl": result.path.toString(),
-        },
-        // metadata:{"videoUrl" : uri ?? "","snapshotUrl":snapshotUrl},
-        uri: thumbnailPath,
-        // uri: snapshotUrl,
-        width: image.width.toDouble(),
-      );
-
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return;
-      _sendMessage(sendMsg);
-    }
   }
 
   Widget customBottomWidget() {
@@ -571,44 +441,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
 
-  void _handleMessageTap(BuildContext _, types.Message message) async {
-    if (message is types.FileMessage) {
-      var localPath = message.uri;
-      if (message.uri.startsWith('http')) {
-        try {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: true,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-
-          final client = http.Client();
-          final request = await client.get(Uri.parse(message.uri));
-          final bytes = request.bodyBytes;
-          final documentsDir = (await getApplicationDocumentsDirectory()).path;
-          localPath = '$documentsDir/${message.name}';
-
-          // if (!File(localPath).existsSync()) {
-          //   final file = File(localPath);
-          //   await file.writeAsBytes(bytes);
-          // }
-        } finally {
-          final index = _messages.indexWhere((element) => element.id == message.id);
-          final updatedMessage = (_messages[index] as types.FileMessage).copyWith(
-            isLoading: null,
-          );
-          ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-        }
-      }
-    } else if (message is types.VideoMessage) {
-      LogUtil.e("_handleMessageTap : VideoMessage");
-      final index = _messages.indexWhere((element) => element.id == message.id);
-      types.VideoMessage videoMessage = _messages[index] as types.VideoMessage;
-      LogUtil.e(videoMessage.metadata);
-      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: videoMessage.metadata!["videoUrl"] ?? ''));
-    }
-  }
-
   void _handlePreviewDataFetched(
     types.TextMessage message,
     types.PreviewData previewData,
@@ -620,21 +452,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
   }
 
-  void _handleSendPressed(types.PartialText message) {
-    final mid = Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+  void _sendMessage(types.Message message, {bool isResend = false}) async {
 
-    var textMessage = types.TextMessage(
-      author: _user,
-      createdAt: tempCreateTime,
-      id: mid,
-      text: message.text,
-    );
+    if (!isResend) {
+      final sendMsg = await _tryPrepareSendFileMessage(message);
+      if (sendMsg == null) return ;
+      message = sendMsg;
+    }
 
-    _sendMessage(textMessage);
-  }
-
-  void _sendMessage(types.Message message) async {
     // send message
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
@@ -654,6 +479,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
     final sendMsg = message.copyWith(
       id: event.id,
+      sourceKey: event,
     );
 
     ChatLogUtils.info(
