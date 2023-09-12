@@ -36,7 +36,8 @@ class ContactChanneDetailsPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ContactChanneDetailsPage> createState() => _ContactChanneDetailsPageState();
+  State<ContactChanneDetailsPage> createState() =>
+      _ContactChanneDetailsPageState();
 }
 
 enum OtherInfoItemType {
@@ -68,7 +69,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   String? _showCreator;
   late String _badgeRequirementsHint;
   bool _isJoinChannel = false;
-  final String badgeRequirementsHint = 'Only users who have met the badge requirements are authorized to send messages.';
+  final String badgeRequirementsHint =
+      'Only users who have met the badge requirements are authorized to send messages.';
 
   @override
   void dispose() {
@@ -85,8 +87,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     _badgeDBList = [];
     _badgeRequirementsHint = 'No badge is required in this channel.';
     _isMute = widget.channelDB.mute ?? false;
-    if (widget.channelDB.creator != null && widget.channelDB.creator!.isNotEmpty) {
-      final UserDB? userFromDB = await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
+    if (widget.channelDB.creator != null &&
+        widget.channelDB.creator!.isNotEmpty) {
+      final UserDB? userFromDB =
+          await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
       if (userFromDB != null) {
         _showCreator = userFromDB.name!;
       } else {
@@ -96,11 +100,13 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     } else {
       _showCreator = '';
     }
-    if (widget.channelDB.badges != null && widget.channelDB.badges!.isNotEmpty) {
+    if (widget.channelDB.badges != null &&
+        widget.channelDB.badges!.isNotEmpty) {
       List<dynamic> badgeIds = jsonDecode(widget.channelDB.badges!);
       List<String> badgeList = badgeIds.cast();
-      if(badgeList.isNotEmpty) {
-        List<BadgeDB?> dbGetList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+      if (badgeList.isNotEmpty) {
+        List<BadgeDB?> dbGetList =
+            await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if (dbGetList.length > 0) {
           dbGetList.forEach((element) {
             if (element != null) {
@@ -110,7 +116,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
           _badgeRequirementsHint = badgeRequirementsHint;
           setState(() {});
         } else {
-          List<BadgeDB> badgeDB = await BadgesHelper.getBadgesInfoFromRelay(badgeList);
+          List<BadgeDB> badgeDB =
+              await BadgesHelper.getBadgesInfoFromRelay(badgeList);
           if (badgeDB.length > 0) {
             _badgeDBList = badgeDB;
             _badgeRequirementsHint = badgeRequirementsHint;
@@ -122,7 +129,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       }
     }
 
-    _isJoinChannel = Channels.sharedInstance.myChannels.containsKey(widget.channelDB.channelId);
+    _isJoinChannel = Channels.sharedInstance.myChannels
+        .containsKey(widget.channelDB.channelId);
   }
 
   @override
@@ -135,7 +143,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       package: 'ox_chat',
     );
 
-    bool isCreator = OXUserInfoManager.sharedInstance.isCurrentUser(widget.channelDB.creator!);
+    bool isCreator = OXUserInfoManager.sharedInstance
+        .isCurrentUser(widget.channelDB.creator!);
     return Scaffold(
       body: SafeArea(
         top: false,
@@ -203,26 +212,33 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                   ],
                 ),
               ),
-              actions: isCreator ? Container(
-                margin: EdgeInsets.only(
-                  right: Adapt.px(14),
-                ),
-                color: Colors.transparent,
-                child: OXButton(
-                  highlightColor: Colors.transparent,
-                  color: Colors.transparent,
-                  minWidth: Adapt.px(44),
-                  height: Adapt.px(44),
-                  child: CommonImage(
-                    iconName: 'icon_edit.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                  ),
-                  onPressed: () {
-                    OXNavigator.pushPage(context, (context) => ChatChannelCreate(channelCreateType: ChannelCreateType.edit,channelDB: widget.channelDB,));
-                  },
-                ),
-              ) : Container(),
+              actions: isCreator
+                  ? Container(
+                      margin: EdgeInsets.only(
+                        right: Adapt.px(14),
+                      ),
+                      color: Colors.transparent,
+                      child: OXButton(
+                        highlightColor: Colors.transparent,
+                        color: Colors.transparent,
+                        minWidth: Adapt.px(44),
+                        height: Adapt.px(44),
+                        child: CommonImage(
+                          iconName: 'icon_edit.png',
+                          width: Adapt.px(24),
+                          height: Adapt.px(24),
+                        ),
+                        onPressed: () {
+                          OXNavigator.pushPage(
+                              context,
+                              (context) => ChatChannelCreate(
+                                    channelCreateType: ChannelCreateType.edit,
+                                    channelDB: widget.channelDB,
+                                  ));
+                        },
+                      ),
+                    )
+                  : Container(),
             ),
             SliverPinnedToBoxAdapter(
               child: Container(
@@ -244,7 +260,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               widget.channelDB.name!,
-                              style: TextStyle(fontWeight: FontWeight.w400, fontSize: Adapt.px(20), color: ThemeColor.titleColor),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: Adapt.px(20),
+                                  color: ThemeColor.titleColor),
                             ),
                           ),
                           SizedBox(
@@ -258,7 +277,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                               children: [
                                 Text(
                                   'By',
-                                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: Adapt.px(15), color: ThemeColor.color0),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: Adapt.px(15),
+                                      color: ThemeColor.color0),
                                   maxLines: 1,
                                 ),
                                 SizedBox(
@@ -268,18 +290,25 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                     ? Container(
                                         width: Adapt.px(12),
                                         height: Adapt.px(12),
-                                        margin: EdgeInsets.only(left: Adapt.px(2), top: Adapt.px(4)),
+                                        margin: EdgeInsets.only(
+                                            left: Adapt.px(2),
+                                            top: Adapt.px(4)),
                                         child: CircularProgressIndicator(
                                           strokeWidth: Adapt.px(2),
                                           backgroundColor: Colors.transparent,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.red),
                                         ),
                                       )
                                     : SizedBox(
                                         width: Adapt.screenW() - Adapt.px(100),
                                         child: Text(
                                           _showCreator!,
-                                          style: TextStyle(fontWeight: FontWeight.w400, fontSize: Adapt.px(15), color: ThemeColor.color0),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: Adapt.px(15),
+                                              color: ThemeColor.color0),
                                         ),
                                       ),
                               ],
@@ -292,7 +321,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               Localized.text("ox_usercenter.DESCRIPTION"),
-                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14), color: ThemeColor.color100),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: Adapt.px(14),
+                                  color: ThemeColor.color100),
                             ),
                           ),
                           SizedBox(
@@ -302,7 +334,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               widget.channelDB.about!,
-                              style: TextStyle(fontWeight: FontWeight.normal, fontSize: Adapt.px(14), color: ThemeColor.color100),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: Adapt.px(14),
+                                  color: ThemeColor.color100),
                               maxLines: 2,
                             ),
                           ),
@@ -323,7 +358,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                             Container(
                               child: Text(
                                 'Badge Requirements',
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14), color: ThemeColor.color100),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: Adapt.px(14),
+                                    color: ThemeColor.color100),
                               ),
                             ),
                             SizedBox(
@@ -333,7 +371,10 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 _badgeRequirementsHint,
-                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: Adapt.px(14), color: ThemeColor.color100),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: Adapt.px(14),
+                                    color: ThemeColor.color100),
                                 maxLines: 2,
                               ),
                             ),
@@ -355,7 +396,12 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                     iconName: 'icon_channel_id.png',
                                     iconPackage: 'ox_chat',
                                     type: OtherInfoItemType.ChannelID,
-                                    rightHint: Channels.encodeNote(widget.channelDB.channelId),
+                                    rightHint: Channels.encodeChannel(
+                                        widget.channelDB.channelId,
+                                        widget.channelDB.relayURL != null
+                                            ? [widget.channelDB.relayURL!]
+                                            : null,
+                                        widget.channelDB.creator),
                                   ),
                                   Divider(
                                     height: Adapt.px(0.5),
@@ -374,7 +420,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                     iconName: 'icon_settings_relays.png',
                                     iconPackage: 'ox_usercenter',
                                     type: OtherInfoItemType.Relay,
-                                    rightHint: widget.channelDB.relayURL, // widget.channelDB.fromRelay
+                                    rightHint: widget.channelDB
+                                        .relayURL, // widget.channelDB.fromRelay
                                   ),
                                   Visibility(
                                     visible: _isJoinChannel,
@@ -415,7 +462,9 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                   height: Adapt.px(48),
                                   child: Text(
                                     'Leave',
-                                    style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color100),
+                                    style: TextStyle(
+                                        fontSize: Adapt.px(16),
+                                        color: ThemeColor.color100),
                                   ),
                                   alignment: Alignment.center,
                                 ),
@@ -502,7 +551,9 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     final endIndex = (truncateAfter ~/ 2);
     final startIndex = str.length - (truncateAfter ~/ 2);
 
-    return (str.length <= truncateAfter) ? str : '${str.substring(0, endIndex)}...${str.substring(startIndex)}';
+    return (str.length <= truncateAfter)
+        ? str
+        : '${str.substring(0, endIndex)}...${str.substring(startIndex)}';
   }
 
   Widget _getChildrenWidget() {
@@ -592,7 +643,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     } else {
       await Channels.sharedInstance.unMuteChannel(widget.channelDB.channelId!);
     }
-    final bool result = await OXUserInfoManager.sharedInstance.setNotification();
+    final bool result =
+        await OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
     if (result) {
       OXChatBinding.sharedInstance.sessionUpdate();
@@ -601,7 +653,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         widget.channelDB.mute = value;
       });
     } else {
-      CommonToast.instance.show(context, 'Mute(Unmute) failed, please try again later.');
+      CommonToast.instance
+          .show(context, 'Mute(Unmute) failed, please try again later.');
     }
   }
 
@@ -617,7 +670,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Channels.sharedInstance.leaveChannel(widget.channelDB.channelId!);
+                final OKEvent okEvent = await Channels.sharedInstance
+                    .leaveChannel(widget.channelDB.channelId!);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
                   OXChatBinding.sharedInstance.channelsUpdatedCallBack();

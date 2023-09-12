@@ -167,9 +167,10 @@ class SearchPageState extends State<SearchPage> {
   void loadOnlineChannelsData() async {
     dataGroups.clear();
     final requestId = ++lastRequestId;
-    if (searchQuery.startsWith('note')) {
-      String decodeNote = Channels.decodeNote(searchQuery);
-      if(decodeNote.isNotEmpty){
+    if (searchQuery.startsWith('nevent') || searchQuery.startsWith('nostr:') || searchQuery.startsWith('note')) {
+      Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
+      if(map != null && map.containsKey('channelId')){
+        String decodeNote = map['channelId'].toString();
         List<String> channelIds = [decodeNote];
         List<ChannelDB> channelDBList = await Channels.sharedInstance.getChannelsFromRelay(channelIds: channelIds);
         if (channelDBList.isNotEmpty) {
