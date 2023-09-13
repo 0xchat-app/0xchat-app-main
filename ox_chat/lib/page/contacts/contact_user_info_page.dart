@@ -479,8 +479,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         child: Text(
           btnContent,
           style: TextStyle(
-            color: Colors.white,
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
