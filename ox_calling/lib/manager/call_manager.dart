@@ -24,7 +24,7 @@ class CallManager {
   }
 
   static String tag = 'call_sample';
-  String host = '192.168.1.4:8086';
+  String host = '8.210.109.173:8086';
 
   SignalingManager? _signaling;
 
@@ -72,7 +72,6 @@ class CallManager {
     };
 
     _signaling?.onCallStateChange = (Session session, CallState state) async {
-      LogUtil.e('Michael: calling---- state=${state}-----_signaling?.onCallStateChange---');
       callState = state;
       switch (state) {
         case CallState.CallStateNew:
@@ -102,7 +101,6 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          LogUtil.e('Michael: -----_waitAccept =${_waitAccept}');
           if (_waitAccept) {
             print('peer reject');
             _waitAccept = false;
@@ -181,11 +179,14 @@ class CallManager {
 
   setSpeaker(bool isSpeakerOn) async {
     final bool setResult = await OxCallingPlatform.instance.setSpeakerStatus(isSpeakerOn);
-    LogUtil.e('Michael: -----setSpeaker =${setResult}');
   }
 
   muteMic() {
     _signaling?.muteMic();
+  }
+
+  videoOnOff() {
+    _signaling?.videoOnOff();
   }
 
   double computeAspectRatio() {
@@ -193,7 +194,6 @@ class CallManager {
     if (localRenderer.srcObject != null && localRenderer.srcObject!.getVideoTracks().isNotEmpty) {
       final videoTrack = localRenderer.srcObject!.getVideoTracks()[0];
       final settings = videoTrack.getSettings();
-      LogUtil.e('Michael: _computeAspectRatio settings[width]  =${settings['width']} ; settings[height] =${settings['height']}');
       if (settings['width'] != null && settings['height'] != null) {
         aspectRatio = settings['width']! / settings['height']!;
       }

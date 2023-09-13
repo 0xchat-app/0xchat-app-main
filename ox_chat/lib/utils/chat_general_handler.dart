@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
@@ -301,6 +302,8 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
         OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat'),
         OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat'),
       ],
+      backGroundColor: ThemeColor.color180,
+      separatorCancelColor: ThemeColor.color190,
     );
     LogUtil.e('Michael: oxActionModel =${oxActionModel?.identify}; oxActionModel =${oxActionModel?.text}');
     if (oxActionModel != null) {

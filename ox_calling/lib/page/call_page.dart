@@ -78,9 +78,10 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    LogUtil.e('Michael: calling---1---state=${CallManager.instance.callState}-----_initData---${CallManager.instance.callType.text}');
+    if (CallManager.instance.callType == CallMessageType.audio) {
+      _isVideoOn = false;
+    }
     if (CallManager.instance.callState == CallState.CallStateInvite) {
-      LogUtil.e('Michael: calling---2--state=${CallManager.instance.callState}-----_initData---');
       CallManager.instance.invitePeer(widget.userDB!.pubKey!);
     }
     _aspectRatio = CallManager.instance.computeAspectRatio();
@@ -129,8 +130,8 @@ class CallPageState extends State<CallPage> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          ThemeColor.gradientMainEnd.withOpacity(0.4),
-                          ThemeColor.gradientMainStart.withOpacity(0.4),
+                          ThemeColor.gradientMainEnd.withOpacity(0.7),
+                          ThemeColor.gradientMainStart.withOpacity(0.7),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -172,6 +173,7 @@ class CallPageState extends State<CallPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildHeadImage(),
+                        SizedBox(height: Adapt.px(16),),
                         _buildHeadName(),
                         _buildHint(),
                       ],
@@ -180,13 +182,13 @@ class CallPageState extends State<CallPage> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: ThemeColor.color180.withOpacity(0.2),
+                    color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.all(Radius.circular(Adapt.px(24))),
                   ),
                   width: double.infinity,
                   height: Adapt.px(80),
                   margin: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
-                  padding: EdgeInsets.symmetric(horizontal: Adapt.px(12), vertical: Adapt.px(10)),
+                  padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -207,11 +209,14 @@ class CallPageState extends State<CallPage> {
       showButtons.add(
         InkWell(
           onTap: () {
-            setState(() {
-              _isVideoOn = !_isVideoOn;
-            });
+            if (CallManager.instance.inCalling) {
+              setState(() {
+                _isVideoOn = !_isVideoOn;
+                CallManager.instance.videoOnOff();
+              });
+            }
           },
-          child: _buildItemImg(_isVideoOn ? 'icon_call_video_on.png' : 'icon_call_video_off.png', 24),
+          child: _buildItemImg(_isVideoOn ? 'icon_call_video_on.png' : 'icon_call_video_off.png', 26, 48),
         ),
       );
     }
@@ -226,7 +231,7 @@ class CallPageState extends State<CallPage> {
         ///TODO add end_call message
         OXNavigator.pop(context);
       },
-      child: _buildItemImg('icon_call_end.png', 60),
+      child: _buildItemImg('icon_call_end.png', 56, 56),
     ));
     if (CallManager.instance.callState != CallState.CallStateRinging) {
       showButtons.insert(
@@ -237,7 +242,7 @@ class CallPageState extends State<CallPage> {
             CallManager.instance.muteMic();
             setState(() {});
           },
-          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24),
+          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
         ),
       );
       if (widget.mediaType == 'video') {
@@ -246,7 +251,7 @@ class CallPageState extends State<CallPage> {
             onTap: () {
               CallManager.instance.switchCamera();
             },
-            child: _buildItemImg('icon_call_camera_flip.png', 24),
+            child: _buildItemImg('icon_call_camera_flip.png', 24, 48),
           ),
         );
       }
@@ -258,7 +263,7 @@ class CallPageState extends State<CallPage> {
               CallManager.instance.setSpeaker(_isSpeakerOn);
             });
           },
-          child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26),
+          child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
         ),
       );
     } else {
@@ -267,17 +272,17 @@ class CallPageState extends State<CallPage> {
           onTap: () {
             CallManager.instance.accept();
           },
-          child: _buildItemImg('icon_call_accept.png', 60),
+          child: _buildItemImg('icon_call_accept.png', 56, 56),
         ),
       );
     }
     return showButtons;
   }
 
-  Widget _buildItemImg(String icon, int wh) {
+  Widget _buildItemImg(String icon, int wh, int outsideWH) {
     return SizedBox(
-      width: Adapt.px(60),
-      height: Adapt.px(60),
+      width: Adapt.px(outsideWH),
+      height: Adapt.px(outsideWH),
       child: Center(
         child: CommonImage(
           iconName: icon,
@@ -339,7 +344,7 @@ class CallPageState extends State<CallPage> {
       children: [
         Text(
           showName,
-          style: TextStyle(color: ThemeColor.titleColor, fontSize: 20),
+          style: TextStyle(color: ThemeColor.color10, fontSize: Adapt.px(20)),
         ),
       ],
     );
@@ -355,16 +360,14 @@ class CallPageState extends State<CallPage> {
       String twoDigitMinutes = twoDigits(duration.inMinutes);
       String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
       showHint = '$twoDigitMinutes:$twoDigitSeconds';
-      LogUtil.e('Michael: update _counter =${_counter};  showHint =${showHint}');
     }
     return Text(
       showHint,
-      style: TextStyle(color: ThemeColor.titleColor, fontSize: 20),
+      style: TextStyle(color: ThemeColor.color10, fontSize: Adapt.px(14)),
     );
   }
 
   void _callStateUpdate(CallState callState) {
-    LogUtil.e('Michael: calling---- _callStateUpdate CallState =${callState.name}-----mounted =$mounted-----');
     if (!mounted) {
       return;
     }

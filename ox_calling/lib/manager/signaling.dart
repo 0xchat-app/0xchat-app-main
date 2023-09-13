@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:nostr_core_dart/src/nips/nip_100.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 
 import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
@@ -119,6 +120,13 @@ class SignalingManager {
     }
   }
 
+  void videoOnOff() {
+    if (_localStream != null) {
+      bool enabled = _localStream!.getVideoTracks()[0].enabled;
+      _localStream!.getVideoTracks()[0].enabled = !enabled;
+    }
+  }
+
   void muteMic() {
     if (_localStream != null) {
       bool enabled = _localStream!.getAudioTracks()[0].enabled;
@@ -136,6 +144,11 @@ class SignalingManager {
     _sessions[sessionId] = session;
     if (media == 'data') {
       _createDataChannel(session);
+    }
+    if (media == CallMessageType.audio.text) {
+      if (_localStream != null) {
+        _localStream!.getVideoTracks()[0].enabled = false;
+      }
     }
     await _createOffer(session, media);
     onCallStateChange?.call(session, CallState.CallStateNew);
@@ -155,6 +168,11 @@ class SignalingManager {
     var session = _sessions[sessionId];
     if (session == null) {
       return;
+    }
+    if (media == CallMessageType.audio.text) {
+      if (_localStream != null) {
+        _localStream!.getVideoTracks()[0].enabled = false;
+      }
     }
     _createAnswer(session, media);
     onCallStateChange?.call(session, CallState.CallStateConnected);
@@ -195,7 +213,6 @@ class SignalingManager {
               sessionId: sessionId,
               media: media,
               screenSharing: false);
-          LogUtil.e('Michael: offer CallStateRinging media =${media}');
           _sessions[sessionId] = newSession;
           await newSession.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
@@ -491,15 +508,13 @@ class SignalingManager {
       RTCSessionDescription s =
           await session.pc!.createOffer(media == 'data' ? _dcConstraints : {});
       await session.pc!.setLocalDescription(_fixSdp(s));
-      print('Michael: s.sdp.length =${s.sdp?.length}');
-      print('Michael: s.sdp =${s.sdp}');
       Map map = {
         'description': {'sdp': s.sdp, 'type': s.type},
         'session_id': session.sid,
         'media': media
       };
       String jsonOfOfferContent = jsonEncode(map);
-      print('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
+      LogUtil.e('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
       await Contacts.sharedInstance.sendOffer(session.pid, jsonOfOfferContent);
     } catch (e) {
       print(e.toString());
