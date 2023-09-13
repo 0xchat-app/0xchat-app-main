@@ -5,6 +5,7 @@ import 'package:avatar_stack/positions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -43,6 +44,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXRelayManager.sharedInstance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.addObserver(this);
     String localAvatarPath = 'assets/images/icon_group_default.png';
     _placeholderImage = Image.asset(
@@ -643,5 +645,9 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   void didRelayStatusChange(String relay, int status) {
     setState(() {});
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 }

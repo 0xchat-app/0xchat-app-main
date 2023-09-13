@@ -199,7 +199,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               child: Container(
                 width: Adapt.px(103),
                 height: Adapt.px(24),
-                child: Image(image: AssetImage('assets/images/0xchat_title_icon.png', package: 'ox_chat')),
+                child: CommonImage(
+                  iconName: '0xchat_title_icon.png',
+                  useTheme: true,
+                ),
               )
             // Text("0xChat", style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColor.titleColor, fontSize: 34), maxLines: 1,),
           ),

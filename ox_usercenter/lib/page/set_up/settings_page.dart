@@ -10,12 +10,14 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
+import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -40,6 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
       title: 'Notifications',
@@ -76,7 +79,12 @@ class _SettingsPageState extends State<SettingsPage> {
       rightContent: 'English',
       settingItemType: SettingItemType.language,
     ));
-    _getPackageInfo();
+    _settingModelList.add(SettingModel(
+        iconName: 'icon_settings_Theme.png',
+        title: 'Theme',
+        rightContent: ThemeManager.getCurrentThemeStyle().value(),
+        settingItemType: SettingItemType.theme
+    ));
   }
 
   @override
@@ -147,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(
               'Sign out',
               style: TextStyle(
-                color: Colors.white,
+                color: ThemeColor.color0,
                 fontSize: Adapt.px(15),
               ),
             ),
@@ -230,9 +238,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
+    if( _settingModel.settingItemType == SettingItemType.theme){
+      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value();
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: () async{
         if (_settingModel.settingItemType == SettingItemType.messageNotification) {
           OXNavigator.pushPage(context, (context) => MessageNotificationPage()).then((value) {
             setState(() {});
@@ -249,6 +260,8 @@ class _SettingsPageState extends State<SettingsPage> {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
         } else if (_settingModel.settingItemType == SettingItemType.language) {
           OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
+        } else if (_settingModel.settingItemType == SettingItemType.theme) {
+          await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
         }
       },
       child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true),
@@ -348,7 +361,7 @@ class _SettingsPageState extends State<SettingsPage> {
 class SettingModel {
   final String iconName;
   final String title;
-  final String rightContent;
+  String rightContent;
   final SettingItemType settingItemType;
 
   SettingModel({
@@ -366,5 +379,6 @@ enum SettingItemType {
   keys,
   privacy,
   language,
+  theme,
   none,
 }
