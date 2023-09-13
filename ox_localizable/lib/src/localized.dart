@@ -223,13 +223,13 @@ class Localized {
 
     static Future<Null> init() async {
 
-        // String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
+        String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
         // if(lan == LocaleType.zh.value()){
         //     localized.localeType = LocaleType.zh;
         // }else{
-            localized.localeType = LocaleType.en;
+        //     localized.localeType = LocaleType.en;
         // }
-        // localized.localeType = getLocaleTypeByString(lan);
+        localized.localeType = getLocaleTypeByString(lan);
         String language = localized.localeType.value();
         String? jsonContent = await _readAsset("assets/locale/i18n_$language.json");
         String? defaultJsonContent;
