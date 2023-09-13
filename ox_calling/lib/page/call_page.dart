@@ -70,6 +70,7 @@ class CallPageState extends State<CallPage> {
   void dispose() {
     _timer?.cancel();
     _timer = null;
+    CallManager.instance.setSpeaker(true);
     CallManager.instance.callState = null;
     CallManager.instance.inCalling = false;
     super.dispose();
