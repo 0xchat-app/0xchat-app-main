@@ -473,10 +473,10 @@ class SearchPageState extends State<SearchPage> {
     final hasHistory =
         _selectedHistoryList.length > 0 || _txtHistoryList.length > 0;
     if (!hasHistory) {
-      String hintStr = 'Try searching for' +
-          '${widget.searchPageType == SearchPageType.all ? ' chats, friends, channels' : ''}' +
-          '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleFriend ? ' friends' : ''}' +
-          '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleChannel ? ' channels' : ''}';
+      String hintStr = Localized.text('ox_chat.search_tips_prefix') +
+          '${widget.searchPageType == SearchPageType.all ? Localized.text('ox_chat.search_tips_suffix_all') : ''}' +
+          '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleFriend ? Localized.text('ox_chat.search_tips_suffix_friend') : ''}' +
+          '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleChannel ? Localized.text('ox_chat.search_tips_suffix_channel') : ''}';
       return Container(
         width: double.infinity,
         height: Adapt.px(22),
@@ -711,7 +711,7 @@ class SearchPageState extends State<SearchPage> {
                       fit: BoxFit.fill,
                     ),
                   ),
-                  hintText: 'Search',
+                  hintText: Localized.text('ox_chat.search'),
                   border: InputBorder.none,
                 ),
               ),

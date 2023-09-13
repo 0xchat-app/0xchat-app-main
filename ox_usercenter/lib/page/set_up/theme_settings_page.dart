@@ -14,11 +14,11 @@ extension ThemeSettingTypeText on ThemeSettingType {
   String get text {
     switch (this) {
       case ThemeSettingType.defaultTheme:
-        return 'Default (Dark)';
+        return Localized.text('ox_usercenter.theme_color_default');
       case ThemeSettingType.dark:
-        return 'Dark';
+        return Localized.text('ox_usercenter.theme_color_dart');
       case ThemeSettingType.light:
-        return 'Light';
+        return Localized.text('ox_usercenter.theme_color_light');
     }
   }
 
@@ -85,7 +85,7 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Theme',
+        title: Localized.text('ox_usercenter.theme'),
         backgroundColor: ThemeColor.color190,
       ),
       body: _buildBody().setPadding(EdgeInsets.symmetric(
@@ -99,7 +99,7 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'COLOR THEME',
+            Localized.text('ox_usercenter.theme_color_title'),
             style:
                 TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14)),
           ),

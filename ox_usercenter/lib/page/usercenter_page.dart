@@ -145,7 +145,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     minWidth: Adapt.px(44),
                     height: Adapt.px(44),
                     child: Text(
-                      'Edit',
+                      Localized.text('ox_common.edit'),
                       style: TextStyle(
                         fontSize: Adapt.px(16),
                         color: ThemeColor.color0,
@@ -223,7 +223,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     },
                     child: _topItemBuild(
                         iconName: 'icon_settings_badges.png',
-                        title: 'Badges',
+                        title: Localized.text('ox_usercenter.badges'),
                         badgeImgUrl: snapshot.data?.thumb,
                         isShowDivider: true),
                   );
@@ -243,7 +243,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 },
                 child: _topItemBuild(
                     iconName: 'icon_settings_qrcode.png',
-                    title: Localized.text('ox_usercenter.my_qr_code'),
+                    title: Localized.text('ox_common.qr_code'),
                     isShowDivider: false),
               ),
             ],

@@ -51,13 +51,13 @@ extension OtherInfoItemStr on OtherInfoItemType {
   String get text {
     switch (this) {
       case OtherInfoItemType.QRCode:
-        return 'QR code';
+        return Localized.text('ox_common.qr_code');
       case OtherInfoItemType.ChannelID:
-        return 'ChannelID';
+        return Localized.text('ox_chat.channel_id_item');
       case OtherInfoItemType.Relay:
-        return 'Relay';
+        return Localized.text('ox_chat.relay_item');
       case OtherInfoItemType.Mute:
-        return 'Mute';
+        return Localized.text('ox_chat.mute_item');
     }
   }
 }
@@ -69,8 +69,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   String? _showCreator;
   late String _badgeRequirementsHint;
   bool _isJoinChannel = false;
-  final String badgeRequirementsHint =
-      'Only users who have met the badge requirements are authorized to send messages.';
+  final String badgeRequirementsHint = Localized.text('ox_chat.badge_requirement_tips');
 
   @override
   void dispose() {
@@ -85,7 +84,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
 
   void _initData() async {
     _badgeDBList = [];
-    _badgeRequirementsHint = 'No badge is required in this channel.';
+    _badgeRequirementsHint = Localized.text('ox_chat.badge_no_requirement_tips');
     _isMute = widget.channelDB.mute ?? false;
     if (widget.channelDB.creator != null &&
         widget.channelDB.creator!.isNotEmpty) {
@@ -357,7 +356,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                             ),
                             Container(
                               child: Text(
-                                'Badge Requirements',
+                                Localized.text('ox_chat.badge_requirement'),
                                 style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: Adapt.px(14),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -52,13 +53,27 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _getCurrentLocaleType();
+  }
+
+  void _getCurrentLocaleType() async {
+    String currentLanguage = await OXCacheManager.defaultOXCacheManager.getData('userLanguage') as String;
+    LocaleType localeType = Localized.getLocaleTypeByString(currentLanguage);
+    setState(() {
+      _selectedIndex = localeType.index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Language',
+        title: Localized.text('ox_usercenter.language'),
         backgroundColor: ThemeColor.color190,
       ),
       body: _buildBody().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(12))),
@@ -66,18 +81,16 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'INTERFACE LANGUAGE',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14)),
-          ),
-          SizedBox(height: Adapt.px(12),),
-          _buildLanguageList(),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          Localized.text('ox_usercenter.language_title'),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: Adapt.px(14)),
+        ),
+        SizedBox(height: Adapt.px(12),),
+        Expanded(child: _buildLanguageList()),
+      ],
     );
   }
 

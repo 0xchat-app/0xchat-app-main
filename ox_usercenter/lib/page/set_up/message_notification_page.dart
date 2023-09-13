@@ -13,6 +13,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/notice_model.dart';
 
 ///Title: message_notification_page
@@ -44,8 +45,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsNotification) {
       _allNoticeModelList.add(NoticeModel(
         CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS,
-        'Push Notifications',
-        'We employ a privacy-oriented solution for our message push notifications. Technical details can be found here: ',
+        Localized.text('ox_usercenter.push_notifications'),
+        Localized.text('ox_usercenter.push_notifications_tips'),
         true,
       ));
     }
@@ -53,8 +54,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsPrivMessages) {
       _allNoticeModelList.add(NoticeModel(
         CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
-        'Private Messages',
-        'Enable notifications for private messages and secret chat requests, without compromising the privacy of your message contents.',
+        Localized.text('ox_usercenter.private_messages_notifications'),
+        Localized.text('ox_usercenter.private_messages_notifications_tips'),
         true,
       ));
     }
@@ -62,8 +63,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsChannels) {
       _allNoticeModelList.add(NoticeModel(
         CommonConstant.NOTIFICATION_CHANNELS,
-        'Channels',
-        'Enabling notifications for Channels will send your list of joined channels to the push server.',
+        Localized.text('ox_usercenter.channels'),
+        Localized.text('ox_usercenter.channels_notifications_tips'),
         true,
       ));
     }
@@ -71,8 +72,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     if (!containsZaps) {
       _allNoticeModelList.add(NoticeModel(
         CommonConstant.NOTIFICATION_ZAPS,
-        'Zaps',
-        'Only Zaps that support the Nostr protocol are able to receive Zap notifications.',
+        Localized.text('ox_usercenter.zaps'),
+        Localized.text('ox_usercenter.zaps_notifications_tips'),
         true,
       ));
     }
@@ -90,7 +91,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: 'Notification',
+        title: Localized.text('ox_usercenter.notifications'),
         centerTitle: true,
         useLargeTitle: false,
       ),

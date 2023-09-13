@@ -45,43 +45,43 @@ class _SettingsPageState extends State<SettingsPage> {
     _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
-      title: 'Notifications',
+      title: Localized.text('ox_usercenter.notifications'),
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_privacy.png',
-      title: 'Privacy',
+      title: Localized.text('ox_usercenter.privacy'),
       rightContent: '',
       settingItemType: SettingItemType.privacy,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_relays.png',
-      title: 'Relays',
+      title: Localized.text('ox_usercenter.relays'),
       rightContent: '',
       settingItemType: SettingItemType.relays,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_zaps.png',
-      title: 'Zaps',
+      title: Localized.text('ox_usercenter.zaps'),
       rightContent: '',
       settingItemType: SettingItemType.zaps,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_keys.png',
-      title: 'Keys',
+      title: Localized.text('ox_usercenter.keys'),
       rightContent: '',
       settingItemType: SettingItemType.keys,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_language.png',
-      title: 'Language',
+      title: Localized.text('ox_usercenter.language'),
       rightContent: 'English',
       settingItemType: SettingItemType.language,
     ));
     _settingModelList.add(SettingModel(
         iconName: 'icon_settings_Theme.png',
-        title: 'Theme',
+        title: Localized.text('ox_usercenter.theme'),
         rightContent: ThemeManager.getCurrentThemeStyle().value(),
         settingItemType: SettingItemType.theme
     ));
@@ -101,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            OXNavigator.pushPage(context, (context) => DonatePage());
+            OXNavigator.pushPage(context, (context) => const DonatePage());
           },
           child: Container(
             width: double.infinity,
@@ -117,7 +117,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 end: Alignment.centerRight,
               ),
             ),
-            child: _itemView('icon_settings_donate.png', 'Donate', '', false),
+            child: _itemView('icon_settings_donate.png', Localized.text('ox_usercenter.donate'), '', false),
           ),
         ),
         SizedBox(
@@ -350,7 +350,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _settingModelList.add(SettingModel(
           iconName: 'icon_settings_version.png',
-          title: 'Version',
+          title: Localized.text('ox_usercenter.version'),
           rightContent: version,
         ));
       });

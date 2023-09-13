@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_detail_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -156,7 +157,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Badges',
+        title: Localized.text('ox_usercenter.badges'),
       ),
       backgroundColor: ThemeColor.color190,
       body: _body(),
@@ -188,7 +189,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    '0xchat Badges Collection',
+                    Localized.text('ox_usercenter.0xchat_badge_collection'),
                     style: TextStyle(
                       color: ThemeColor.color100,
                       fontSize: Adapt.px(14),
@@ -324,7 +325,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  'Badge Awards',
+                  Localized.text('ox_usercenter.badge_award'),
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(14),
@@ -367,7 +368,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  'Profile Badge',
+                  Localized.text('ox_usercenter.profile_badge'),
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(14),

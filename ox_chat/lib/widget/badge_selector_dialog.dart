@@ -5,6 +5,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class BadgeSelectorDialog extends StatefulWidget {
   List<BadgeModel> badgeList = [];
@@ -92,9 +93,9 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
               },
             ),
           _buildConfirmButton(
-            "None",
+            Localized.text('ox_common.none'),
             onTap: () {
-              OXNavigator.pop(context, "None");
+              OXNavigator.pop(context, Localized.text('ox_common.none'));
             },
           ),
           Container(
@@ -102,7 +103,7 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
             color: ThemeColor.color190,
           ),
           _buildConfirmButton(
-            "Cancel",
+            Localized.text('ox_common.cancel'),
             onTap: () {
               OXNavigator.pop(context);
             },

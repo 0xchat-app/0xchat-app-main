@@ -222,9 +222,9 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                 <Widget>[
                   _buildHeadImgView(),
                   _itemView(
-                      Localized.text('ox_login.username'), 'Satoshi Nakamoto',
+                      Localized.text('ox_usercenter.username'), Localized.text('ox_usercenter.username_hint_text'),
                       editingController: _userNameTextEditingController),
-                  _itemView(Localized.text('ox_login.dns'), 'satoshi(Optional)',
+                  _itemView(Localized.text('ox_usercenter.dns'), Localized.text('ox_usercenter.dns_hint_text'),
                       editingController: _dnsTextEditingController,
                       suffix: ValueListenableBuilder(
                         valueListenable: _is0xchatAddress,
@@ -241,12 +241,12 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                               : Container();
                         },
                       )),
-                  _itemView(Localized.text('ox_login.about'),
-                      'Bitcoin Core Dev (Optional)',
+                  _itemView(Localized.text('ox_usercenter.about'),
+                      Localized.text('ox_usercenter.about_hint_text'),
                       editingController: _aboutTextEditingController,
                       maxLines: null),
-                  _itemView(Localized.text('ox_login.bitcoin_lightning_tips'),
-                      'Lighting Address or LNURL (Optional)',
+                  _itemView(Localized.text('ox_usercenter.bitcoin_lightning_tips'),
+                      Localized.text('ox_usercenter.bitcoin_lightning_tips_hint_text'),
                       editingController: _bltTextEditingController,
                       maxLines: null),
                 ],

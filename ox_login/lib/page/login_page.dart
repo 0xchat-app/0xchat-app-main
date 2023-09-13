@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Container(
                   child: Text(
-                    'Log in with the private key or create a new one.',
+                    Localized.text('ox_usercenter.login_tips'),
                     style: TextStyle(color: ThemeColor.titleColor, fontSize: Adapt.px(18)),
                     textAlign: TextAlign.center,
                   ),

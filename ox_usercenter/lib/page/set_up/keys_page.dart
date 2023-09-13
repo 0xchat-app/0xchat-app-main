@@ -58,7 +58,7 @@ class _KeysPageState extends State<KeysPage>{
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Keys',
+        title: Localized.text('ox_usercenter.keys'),
         centerTitle: true,
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
@@ -126,7 +126,7 @@ class _KeysPageState extends State<KeysPage>{
                 children: [
                   Container(
                     child: Text(
-                      'Show',
+                      Localized.text('ox_usercenter.show'),
                       style: TextStyle(
                         fontSize: Adapt.px(14),
                         color: ThemeColor.color100,

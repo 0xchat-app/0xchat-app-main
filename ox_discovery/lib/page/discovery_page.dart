@@ -82,7 +82,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(Localized.text('ox_discovery.Discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
+    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -145,7 +145,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             ),
             Container(
               constraints: BoxConstraints(maxWidth: mm),
-              child: GradientText(Localized.text('ox_discovery.Discovery'),
+              child: GradientText(Localized.text('ox_discovery.discovery'),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor),
                   colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd]),
             ),
@@ -357,7 +357,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                   }),
                               item?.msgCount != null ? Expanded(
                                 child: Text(
-                                  '${item?.msgCount} Messages',
+                                  '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
                                   style: TextStyle(
                                     fontSize: Adapt.px(13),
                                     fontWeight: FontWeight.w400,
@@ -420,7 +420,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               width: Adapt.px(8),
             ),
             Text(
-              'Search channel',
+              Localized.text('ox_discovery.channel_search_hint_text'),
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(15),
@@ -542,7 +542,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildItem(
-            "Recommended",
+            Localized.text('ox_discovery.recommended_item'),
             index: 0,
             onTap: () {
               _currentIndex.value = 0;
@@ -555,7 +555,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            "Popular",
+            Localized.text('ox_discovery.popular_item'),
             index: 1,
             onTap: () {
               _currentIndex.value = 1;
@@ -568,7 +568,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            "Latest",
+            Localized.text('ox_discovery.latest_item'),
             index: 2,
             onTap: () {
               _currentIndex.value = 2;
@@ -581,7 +581,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem("Cancel", index: 3, onTap: () {
+          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
             OXNavigator.pop(context);
           }),
         ],

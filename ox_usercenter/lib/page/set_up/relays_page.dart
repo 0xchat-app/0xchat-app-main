@@ -109,7 +109,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Relays',
+        title: Localized.text('ox_usercenter.relays'),
         titleTextColor: ThemeColor.color0,
         actions: [
           //icon_edit.png
@@ -153,7 +153,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             height: Adapt.px(46),
             alignment: Alignment.centerLeft,
             child: Text(
-              'CONNECT TO RELAY',
+              Localized.text('ox_usercenter.connect_relay'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
@@ -232,7 +232,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             height: Adapt.px(58),
             alignment: Alignment.centerLeft,
             child: Text(
-              'CONNECTED TO RELAY',
+              Localized.text('ox_usercenter.connected_relay'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),

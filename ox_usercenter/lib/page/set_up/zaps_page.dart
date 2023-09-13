@@ -45,7 +45,7 @@ class _ZapsPageState extends State<ZapsPage> {
 
   Future<void> _initData() async {
     pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    _selectedWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet') ?? 'Not Set';
+    _selectedWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet') ?? Localized.text('ox_usercenter.not_set_wallet_status');
     _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector') ?? true;
     // _defaultZapAmount = await YLCacheManager.defaultYLCacheManager.getForeverData('$pubKey.defaultZapAmount');
     _zapsRecord  = await getZapsRecord(context: context,userPubKey: pubKey);
@@ -65,7 +65,7 @@ class _ZapsPageState extends State<ZapsPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'Zaps',
+          title: Localized.text('ox_usercenter.zaps'),
           centerTitle: true,
           useLargeTitle: false,
           titleTextColor: ThemeColor.color0,
@@ -85,7 +85,7 @@ class _ZapsPageState extends State<ZapsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _buildItem(label: 'Wallet',itemBody: Container(
+          _buildItem(label: Localized.text('ox_usercenter.zaps'),itemBody: Container(
             width: double.infinity,
             height: Adapt.px(104 + 0.5),
             decoration: BoxDecoration(
@@ -95,14 +95,14 @@ class _ZapsPageState extends State<ZapsPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildItemBody(title: 'Show wallet selector', isShowDivider: true,trailing: _buildWalletSelector(),isShowArrow: false),
-                _buildItemBody(title: 'Select default wallet', flag: _selectedWalletName,onTap: ()=>_walletSelectorDialog()),
+                _buildItemBody(title: Localized.text('ox_usercenter.show_wallet_selector'), isShowDivider: true,trailing: _buildWalletSelector(),isShowArrow: false),
+                _buildItemBody(title: Localized.text('ox_usercenter.select_default_wallet'), flag: _selectedWalletName,onTap: ()=>_walletSelectorDialog()),
               ],
             ),
           ),),
           // _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
           // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
-          zapsRecordDetails.isNotEmpty ? _buildItem(label: 'Zaps record', itemBody: _buildZapsRecord()) : Container(),
+          zapsRecordDetails.isNotEmpty ? _buildItem(label: Localized.text('ox_usercenter.zaps_record'), itemBody: _buildZapsRecord()) : Container(),
         ],
       ).setPadding(EdgeInsets.symmetric(
         horizontal: Adapt.px(24),
@@ -348,8 +348,8 @@ class _ZapsPageState extends State<ZapsPage> {
         inactiveTrackColor: ThemeColor.color160,
         onChanged: (value) async {
           if(!value){
-            if(_selectedWalletName ==  'Not Set'){
-              CommonToast.instance.show(context, 'Please set the default wallet first');
+            if(_selectedWalletName ==  Localized.text('ox_usercenter.not_set_wallet_status')){
+              CommonToast.instance.show(context, Localized.text('ox_usercenter.not_set_wallet_tips'));
               return;
             }
           }
