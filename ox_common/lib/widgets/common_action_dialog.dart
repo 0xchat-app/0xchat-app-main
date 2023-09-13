@@ -48,12 +48,14 @@ class OXActionDialog extends StatelessWidget {
     this.maxRow,
     backGroundColor,
     separatorColor,
+    separatorCancelColor,
     textColor,
     required this.onPressCallback,
   })  : _maxHeight = maxHeight,
-        this.backGroundColor = backGroundColor ?? ThemeColor.dark02,
-        this.separatorColor = separatorColor ?? ThemeColor.dark01,
-        this.textColor = textColor ?? ThemeColor.gray02,
+        this.backGroundColor = backGroundColor ?? ThemeColor.color180,
+        this.separatorColor = separatorColor ?? ThemeColor.color160,
+        this.separatorCancelColor = separatorCancelColor ?? ThemeColor.color190,
+        this.textColor = textColor ?? ThemeColor.color10,
         super();
 
 
@@ -68,6 +70,7 @@ class OXActionDialog extends StatelessWidget {
   final void Function(OXActionModel) onPressCallback;
   final Color backGroundColor;
   final Color separatorColor;
+  final Color separatorCancelColor;
   final Color textColor;
 
   double get maxHeight {
@@ -132,46 +135,29 @@ class OXActionDialog extends StatelessWidget {
             width: double.infinity,
             height: Adapt.px(actionHeight),
             color: Colors.transparent,
-            child: Stack(
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      item.iconName == null
-                          ? SizedBox()
-                          : CommonImage(
-                        iconName: item.iconName ?? '',
-                        width: Adapt.px(20),
-                        height: Adapt.px(20),
-                        package: item.package ?? '',
-                      ),
-                      SizedBox(width: Adapt.px(6),),
-                      Text(
-                        item.text,
-                        style: TextStyle(
-                          fontSize: Adapt.px(16.0),
-                          fontWeight: selected ?
-                          FontWeight.w500 : FontWeight.w400,
-                          color: selected
-                              ? ThemeColor.red
-                              : this.textColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                item.iconName == null
+                    ? SizedBox()
+                    : CommonImage(
+                  iconName: item.iconName ?? '',
+                  width: Adapt.px(20),
+                  height: Adapt.px(20),
+                  package: item.package ?? '',
                 ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    width: double.infinity,
-                    height: Adapt.px(0.5),
-                    color: separatorColor,
+                SizedBox(width: Adapt.px(6),),
+                Text(
+                  item.text,
+                  style: TextStyle(
+                    fontSize: Adapt.px(16.0),
+                    fontWeight: selected ?
+                    FontWeight.w500 : FontWeight.w400,
+                    color: selected
+                        ? ThemeColor.red
+                        : this.textColor,
                   ),
                 ),
               ],
@@ -184,8 +170,7 @@ class OXActionDialog extends StatelessWidget {
         Offstage(
           offstage: !separator,
           child: Container(
-            height: Adapt.px(1.0),
-            margin: EdgeInsets.symmetric(horizontal: Adapt.px(16.0)),
+            height: Adapt.px(0.5),
             color: this.separatorColor,
           ),
         )
@@ -205,7 +190,7 @@ class OXActionDialog extends StatelessWidget {
         children: <Widget>[
           Container(
             height: Adapt.px(4.0),
-            color: separatorColor,
+            color: separatorCancelColor,
           ),
           GestureDetector(
             child: Container(
@@ -241,7 +226,8 @@ class OXActionDialog extends StatelessWidget {
     double? maxHeight,
     int? maxRow,
     Color? backGroundColor,
-    Color? separatorColor
+    Color? separatorColor,
+    Color? separatorCancelColor,
   }) {
     return showYLEActionDialog<OXActionModel<T>?>(
       context: context,
@@ -260,6 +246,7 @@ class OXActionDialog extends StatelessWidget {
         },
         backGroundColor:backGroundColor,
         separatorColor: separatorColor,
+        separatorCancelColor: separatorCancelColor,
       )
     );
   }
