@@ -186,9 +186,9 @@ class MainState extends State<MainApp>
   void changeTheme(int themeStyle) {
     print("******  changeTheme int $themeStyle");
 
-    channel.invokeMethod('changeTheme', {
-      'themeStyle': themeStyle,
-    });
+    // channel.invokeMethod('changeTheme', {
+    //   'themeStyle': themeStyle,
+    // });
   }
 
   onLocaleChange() {
