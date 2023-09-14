@@ -268,8 +268,8 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     Image placeholderImage = Image.asset(
       'assets/images/icon_badge_default.png',
       fit: BoxFit.cover,
-      width: Adapt.px(32),
-      height: Adapt.px(32),
+      width: Adapt.px(48),
+      height: Adapt.px(48),
       package: 'ox_common',
     );
     return Column(

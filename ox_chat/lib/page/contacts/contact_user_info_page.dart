@@ -673,8 +673,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                           imageUrl: snapshot.data?.thumb ?? '',
                           errorWidget: (context, url, error) =>
                               badgePlaceholderImage,
-                          width: Adapt.px(24),
-                          height: Adapt.px(24),
+                          width: Adapt.px(40),
+                          height: Adapt.px(40),
                           fit: BoxFit.cover,
                         )
                       : Container();
@@ -883,7 +883,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
+    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {

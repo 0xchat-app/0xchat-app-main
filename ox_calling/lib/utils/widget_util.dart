@@ -18,7 +18,7 @@ extension UserDBToUIEx on UserDB {
 
 extension OXCallStr on String {
   String localized([Map<String, String>? replaceArg]) {
-    String text = Localized.text('ox_chat.$this');
+    String text = Localized.text('ox_calling.$this');
     if (replaceArg != null) {
       replaceArg.keys.forEach((key) {
         text = text.replaceAll(key, replaceArg[key] ?? '');

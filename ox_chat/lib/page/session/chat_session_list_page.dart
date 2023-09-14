@@ -1043,7 +1043,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
     final chatId = announceListItem.chatId ?? '';
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[chatId];
+    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
     if (friendUserDB == null) {
       return null;
     }
