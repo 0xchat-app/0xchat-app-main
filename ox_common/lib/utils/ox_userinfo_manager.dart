@@ -23,7 +23,6 @@ abstract class OXUserInfoObserver {
 }
 
 class OXUserInfoManager {
-  UserDB? currentUserInfo;
 
   static final OXUserInfoManager sharedInstance = OXUserInfoManager._internal();
 
@@ -38,6 +37,8 @@ class OXUserInfoManager {
   final List<VoidCallback> initDataActions = [];
 
   bool get isLogin => (currentUserInfo != null);
+
+  UserDB? get currentUserInfo => Account.sharedInstance.me;
 
   bool _initFriendsCompleted = false;
   bool _initChannelsCompleted = false;
@@ -65,7 +66,6 @@ class OXUserInfoManager {
       await initDB(pubkey);
       final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
         _initDatas();
         await OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', tempUserDB.pubKey);
         await OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', tempUserDB.defaultPassword);
@@ -74,7 +74,6 @@ class OXUserInfoManager {
       await initDB(localPubKey);
       final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
         _initDatas();
       }
     } else {
@@ -87,7 +86,6 @@ class OXUserInfoManager {
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
   Future<void> loginSuccess(UserDB userDB) async {
-    OXUserInfoManager.sharedInstance.currentUserInfo = userDB;
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', userDB.defaultPassword);
     LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
@@ -161,11 +159,10 @@ class OXUserInfoManager {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    await Account.sharedInstance.logout();
+    Account.sharedInstance.logout();
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
-    OXUserInfoManager.sharedInstance.currentUserInfo = null;
     _initFriendsCompleted = false;
     _initChannelsCompleted = false;
     _initAllCompleted = false;
@@ -216,7 +213,7 @@ class OXUserInfoManager {
   Future<bool> checkDNS() async {
     String pubKey = currentUserInfo?.pubKey ?? '';
     String dnsStr = currentUserInfo?.dns ?? '';
-    if(dnsStr.isEmpty) {
+    if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
     List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
