@@ -94,7 +94,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
                             height: Adapt.px(24),
                           ),
                           onTap: (){
-                              OXModuleService.pushPage(context, 'ox_chat', 'ContactFriendUserInfoPage', {
+                              OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
                               'userDB': items[i].value['user'],
                             });
                           }

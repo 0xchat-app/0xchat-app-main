@@ -25,7 +25,7 @@ import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat/widget/avatar.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_common/utils/widget_tool.dart';

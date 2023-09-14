@@ -8,7 +8,7 @@ import 'package:ox_chat/model/search_history_model.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
-import 'package:ox_chat/widget/avatar.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';

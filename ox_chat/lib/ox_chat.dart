@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
@@ -60,11 +61,18 @@ class OXChat extends OXFlutterModule {
         return SearchPage(
           searchPageType: SearchPageType.discover,
         ).show(context);
-      case 'ContactFriendUserInfoPage':
+      case 'ContactUserInfoPage':
         return OXNavigator.pushPage(
           context,
-              (context) => ContactUserInfoPage(
+          (context) => ContactUserInfoPage(
             userDB: params?['userDB'],
+          ),
+        );
+      case 'ContactChanneDetailsPage':
+        return OXNavigator.pushPage(
+          context,
+          (context) => ContactChanneDetailsPage(
+            channelDB: params?['channelDB'],
           ),
         );
     }

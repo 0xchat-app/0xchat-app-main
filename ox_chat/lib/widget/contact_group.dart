@@ -4,7 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_chat/widget/avatar.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
