@@ -237,12 +237,13 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   Widget _itemBuilder(context, index) {
     BadgeModel _model = _defaultBadgeModelList[index];
     bool isHad = _currentUserBadgeModelList.where((element) => element.identifies == _model.identifies).toList().isNotEmpty;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: _imageWH,
       height: _imageWH,
-      package: 'ox_common',
+      useTheme: true,
     );
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -308,6 +309,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       fit: BoxFit.cover,
       width: Adapt.px(80),
       height: Adapt.px(80),
+      useTheme: true,
     );
     return Container(
       height: Adapt.px(140),

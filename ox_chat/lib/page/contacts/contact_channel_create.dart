@@ -249,12 +249,13 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   Widget _buildRequirementWidget() {
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_common',
+      useTheme: true,
     );
 
     return Column(

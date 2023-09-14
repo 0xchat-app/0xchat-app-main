@@ -73,12 +73,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     package: 'ox_chat',
   );
 
-  Image _badgePlaceholderImage = Image.asset(
-    'assets/images/icon_badge_default.png',
+  Widget _badgePlaceholderImage = CommonImage(
+    iconName: 'icon_badge_default.png',
     fit: BoxFit.cover,
     width: Adapt.px(32),
     height: Adapt.px(32),
-    package: 'ox_common',
+    useTheme: true,
   );
 
   bool _publicKeyCopied = false;
@@ -361,6 +361,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                           width: Adapt.px(24),
                           height: Adapt.px(24),
                           fit: BoxFit.fill,
+                          useTheme: !_publicKeyCopied,
                         ),
                       ),
                     )
@@ -414,6 +415,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               iconName: "icon_copy.png",
               width: Adapt.px(16),
               height: Adapt.px(16),
+              useTheme: true,
             ) : Container(),
           ],
         ),
@@ -607,13 +609,14 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _buildHeadImage() {
-    Image badgePlaceholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget badgePlaceholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(24),
       height: Adapt.px(24),
-      package: 'ox_common',
+      useTheme: true,
     );
+
     return InkWell(
       onTap: () {
         OXModuleService.pushPage(
@@ -657,6 +660,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(Adapt.px(91)),
                     border: Border.all(
+                      color: ThemeColor.color200,
                       width: Adapt.px(3),
                     ),
                   ),
@@ -914,3 +918,5 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     });
   }
 }
+
+

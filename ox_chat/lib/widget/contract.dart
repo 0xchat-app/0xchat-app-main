@@ -14,6 +14,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 typedef void OnTouchCallback(int index);
@@ -392,13 +393,15 @@ class _ContractListItemState extends State<ContractListItem> {
     //   iconAvatar =
     //       ClipRRect(borderRadius: BorderRadius.circular(76), child: assetIcon('icon_notice_avatar.png', 76, 76));
     // }
-    Image badgePlaceholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget badgePlaceholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(20),
       height: Adapt.px(20),
-      package: 'ox_common',
+      useTheme: true,
     );
+
     Widget checkWidget = isChecked
         ? assetIcon(
             'icon_item_selected.png',

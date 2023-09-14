@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
           fit: BoxFit.contain,
           width: Adapt.px(24),
           height: Adapt.px(24),
+          useTheme: true,
         ),
       ),
     );

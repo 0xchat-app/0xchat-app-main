@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -397,18 +398,19 @@ class _MessageState extends State<Message> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Image.asset(
-                        item.icon.path,
-                        width: _LayoutConstant.menuIconSize,
-                        height: _LayoutConstant.menuIconSize,
-                        fit: BoxFit.fill,
-                        package: item.icon.package,
+                    CommonImage(
+                      iconName:item.icon.path,
+                      fit: BoxFit.fill,
+                      width: _LayoutConstant.menuIconSize,
+                      height: _LayoutConstant.menuIconSize,
+                      package: item.icon.package!,
+                      useTheme: true,
                     ),
                     Container(
                       margin: EdgeInsets.only(top: _LayoutConstant.menuTitleTopPadding),
                       child: Text(
                         item.title,
-                        style: TextStyle(color: Colors.white, fontSize: _LayoutConstant.menuTitleSize),
+                        style: TextStyle(color: ThemeColor.color0, fontSize: _LayoutConstant.menuTitleSize),
                       ),
                     ),
                   ],

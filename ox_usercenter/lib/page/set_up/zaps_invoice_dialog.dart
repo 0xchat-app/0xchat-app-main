@@ -199,10 +199,11 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                   width: Adapt.px(48),
                   alignment: Alignment.center,
                   child: CommonImage(
-                    iconName: false ? 'icon_copyied_success.png' : 'icon_copy.png',
+                    iconName: 'icon_copy.png',
                     width: Adapt.px(24),
                     height: Adapt.px(24),
                     fit: BoxFit.fill,
+                    useTheme: true,
                   ),
                 ),
               ),
