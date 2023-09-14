@@ -159,7 +159,7 @@ class OXUserInfoManager {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    await Account.sharedInstance.logout();
+    Account.sharedInstance.logout();
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
