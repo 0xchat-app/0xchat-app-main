@@ -216,7 +216,7 @@ class OXUserInfoManager {
   Future<bool> checkDNS() async {
     String pubKey = currentUserInfo?.pubKey ?? '';
     String dnsStr = currentUserInfo?.dns ?? '';
-    if(dnsStr.isEmpty) {
+    if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
     List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
