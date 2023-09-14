@@ -822,7 +822,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 0),
-                  child: Text(OXDateUtils.convertTimeFormatString2(announceItem.createTime! * 1000, pattern: 'MM-dd'),
+                  child: Text(announceItem.createTime ==null ? '': OXDateUtils.convertTimeFormatString2(announceItem.createTime! * 1000, pattern: 'MM-dd'),
                       textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
                 ),
               ],

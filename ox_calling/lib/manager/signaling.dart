@@ -270,13 +270,6 @@ class SignalingManager {
       //   break;
       case SignalingState.disconnect:
         {
-          var sessionId = data['session_id'];
-          print('bye: ' + sessionId);
-          var session = _sessions.remove(sessionId);
-          if (session != null) {
-            onCallStateChange?.call(session, CallState.CallStateBye);
-            _closeSession(session);
-          }
         }
         break;
       // case 'keepalive':
@@ -467,7 +460,14 @@ class SignalingManager {
     };
 
     pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state');
+      print('onIceConnectionState: $state ;===${state == RTCIceConnectionState.RTCIceConnectionStateDisconnected}');
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
+        var session = _sessions.remove(sessionId);
+        if (session != null) {
+          onCallStateChange?.call(session, CallState.CallStateBye);
+          _closeSession(session);
+        }
+      }
     };
 
     pc.onRemoveStream = (stream) {

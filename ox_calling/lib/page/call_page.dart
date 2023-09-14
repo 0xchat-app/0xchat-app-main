@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_calling/manager/signaling.dart';
+import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
@@ -42,14 +43,11 @@ class CallPageState extends State<CallPage> {
     package: 'ox_chat',
   );
 
-  Timer? _timer;
-  int _counter = 0;
   bool _isMicOn = true;
   bool _isSpeakerOn = true;
   bool _isVideoOn = true;
-  late double _aspectRatio;
-  String? callInitiator;
-  String? callReceiver;
+  double top = 120.0;
+  double left = 20;
 
   @override
   void initState() {
@@ -68,11 +66,12 @@ class CallPageState extends State<CallPage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _timer = null;
-    CallManager.instance.setSpeaker(true);
-    CallManager.instance.callState = null;
-    CallManager.instance.inCalling = false;
+    CallManager.instance.removeObserver(counterValueChange);
+    if (CallManager.instance.inCalling) {
+      Future.delayed(const Duration(milliseconds: 10), () {
+        CallManager.instance.toggleFloatingWindow(widget.userDB);
+      });
+    }
     super.dispose();
   }
 
@@ -81,10 +80,19 @@ class CallPageState extends State<CallPage> {
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
-    if (CallManager.instance.callState == CallState.CallStateInvite) {
-      CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+    if (!CallManager.instance.inCalling) {
+      CallManager.instance.setSpeaker(true);
+      if (CallManager.instance.callState == CallState.CallStateInvite) {
+        CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+      }
     }
-    _aspectRatio = CallManager.instance.computeAspectRatio();
+    CallManager.instance.addObserver(counterValueChange);
+  }
+
+  void counterValueChange(value) {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -94,38 +102,20 @@ class CallPageState extends State<CallPage> {
         top: false,
         child: Stack(
           children: [
-            CallManager.instance.inCalling && _isVideoOn
-                ? OrientationBuilder(builder: (context, orientation) {
-                    return Container(
-                      child: Stack(children: <Widget>[
-                        Positioned(
-                            left: 0.0,
-                            right: 0.0,
-                            top: 0.0,
-                            bottom: 0.0,
-                            child: Container(
-                              margin: EdgeInsets.zero,
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height,
-                              decoration: const BoxDecoration(color: Colors.black54),
-                              child: AspectRatio(
-                                aspectRatio: _aspectRatio,
-                                child: RTCVideoView(CallManager.instance.remoteRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
-                              ),
-                            )),
-                        Positioned(
-                          left: 20.0,
-                          top: 120.0,
-                          child: Container(
-                            width: orientation == Orientation.portrait ? 90.0 : 120.0,
-                            height: orientation == Orientation.portrait ? 120.0 : 90.0,
-                            decoration: const BoxDecoration(color: Colors.black54),
-                            child: RTCVideoView(CallManager.instance.localRenderer, mirror: true),
-                          ),
-                        ),
-                      ]),
-                    );
-                  })
+            _isVideoOn
+                ? Positioned(
+                    left: 0.0,
+                    right: 0.0,
+                    top: 0.0,
+                    bottom: 0.0,
+                    child: Container(
+                      margin: EdgeInsets.zero,
+                      width: Adapt.screenW(),
+                      height: Adapt.screenH(),
+                      decoration: BoxDecoration(color: ThemeColor.color180),
+                      child: RTCVideoView(CallManager.instance.remoteRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                    ),
+                  )
                 : Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -173,8 +163,13 @@ class CallPageState extends State<CallPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildHeadImage(),
-                        SizedBox(height: Adapt.px(16),),
+                        SizedBox(
+                          height: Adapt.px(16),
+                        ),
                         _buildHeadName(),
+                        SizedBox(
+                          height: Adapt.px(7),
+                        ),
                         _buildHint(),
                       ],
                     ),
@@ -184,6 +179,17 @@ class CallPageState extends State<CallPage> {
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.all(Radius.circular(Adapt.px(24))),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        offset: Offset(
+                          3.0,
+                          1.0,
+                        ),
+                        blurRadius: 20.0,
+                        spreadRadius: 2.0,
+                      ),
+                    ],
                   ),
                   width: double.infinity,
                   height: Adapt.px(80),
@@ -197,6 +203,28 @@ class CallPageState extends State<CallPage> {
                 ),
               ],
             ),
+            if (_isVideoOn)
+              Positioned(
+                top: top,
+                left: left,
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    setState(() {
+                      top += details.delta.dy;
+                      left += details.delta.dx;
+                    });
+                  },
+                  child: Container(
+                    width: 90.0,
+                    height: 120.0,
+                    decoration: BoxDecoration(color: ThemeColor.color110, borderRadius: BorderRadius.circular(Adapt.px(16))),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -344,7 +372,7 @@ class CallPageState extends State<CallPage> {
       children: [
         Text(
           showName,
-          style: TextStyle(color: ThemeColor.color10, fontSize: Adapt.px(20)),
+          style: TextStyle(color: ThemeColor.color10, fontSize: Adapt.px(20), fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -353,9 +381,9 @@ class CallPageState extends State<CallPage> {
   Widget _buildHint() {
     String showHint = 'Calling...';
     if (CallManager.instance.callState == CallState.CallStateRinging) {
-      showHint = widget.mediaType == 'audio' ? 'Invites you to a call...' : 'Invites you to a video call...';
+      showHint = widget.mediaType == CallMessageType.audio.text ? 'Invites you to a call...' : 'Invites you to a video call...';
     } else if (CallManager.instance.callState == CallState.CallStateConnected) {
-      Duration duration = Duration(seconds: _counter);
+      Duration duration = Duration(seconds: CallManager.instance.counter);
       String twoDigits(int n) => n.toString().padLeft(2, "0");
       String twoDigitMinutes = twoDigits(duration.inMinutes);
       String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
@@ -368,52 +396,19 @@ class CallPageState extends State<CallPage> {
   }
 
   void _callStateUpdate(CallState callState) {
+    LogUtil.e('_callStateUpdate ${callState}-----');
     if (!mounted) {
       return;
     }
-    if (callState == CallState.CallStateConnected) {
-      startTimer();
-    } else if (callState == CallState.CallStateBye) {
-      stopTimer();
-      String content = '';
-      if (_counter > 0) {
-        Duration duration = Duration(seconds: _counter);
-        String twoDigits(int n) => n.toString().padLeft(2, "0");
-        String twoDigitMinutes = twoDigits(duration.inMinutes);
-        String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-        content = 'str_call_duration'.localized().replaceAll(r'${time}', '$twoDigitMinutes:$twoDigitSeconds');
-      } else {
-        if (callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-          content = 'str_call_canceled'.localized();
-        } else {
-          content = 'str_call_rejected'.localized();
-        }
-      }
-      CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    if (callState == CallState.CallStateBye) {
       OXNavigator.pop(context);
     } else if (callState == CallState.CallStateRinging) {
-      callInitiator = widget.userDB.pubKey;
-      callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+      CallManager.instance.callInitiator = widget.userDB.pubKey;
+      CallManager.instance.callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
     } else if (callState == CallState.CallStateInvite) {
-      callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
-      callReceiver = widget.userDB.pubKey;
+      CallManager.instance.callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+      CallManager.instance.callReceiver = widget.userDB.pubKey;
     }
     setState(() {});
-  }
-
-  void stopTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void startTimer() async {
-    _counter = 0;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          _counter++;
-        });
-      }
-    });
   }
 }
