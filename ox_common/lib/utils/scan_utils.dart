@@ -107,7 +107,7 @@ class ScanUtils {
     } else {
       if (context.mounted) {
         OXModuleService.pushPage(
-            context, 'ox_chat', 'ContactFriendUserInfoPage', {
+            context, 'ox_chat', 'ContactUserInfoPage', {
           'userDB': user,
         });
       }
