@@ -22,7 +22,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       createdAt: tempCreateTime,
       id: mid,
       text: text,
+      repliedMessage: replyHandler.replyMessage,
     );
+
+    replyHandler.updateReplyMessage(null);
 
     sendMessageHandler(message);
   }

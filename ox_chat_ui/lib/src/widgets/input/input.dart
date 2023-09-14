@@ -32,7 +32,8 @@ class Input extends StatefulWidget {
     this.options = const InputOptions(),
     this.onVoiceSend,
     this.textFieldHasFocus,
-    this.onGifSend
+    this.onGifSend,
+    this.inputBottomView,
   });
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -60,6 +61,8 @@ class Input extends StatefulWidget {
 
   ///Send a gif message
   final void Function(GiphyImage giphyImage)? onGifSend;
+
+  final Widget? inputBottomView;
 
   @override
   State<Input> createState() => InputState();
@@ -152,6 +155,7 @@ class InputState extends State<Input>{
       Column(
         children: [
           defaultInputWidget(buttonPadding, textPadding),
+          widget.inputBottomView ?? SizedBox(),
           getMyMoreView(),
         ],
       );

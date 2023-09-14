@@ -127,6 +127,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
                 iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
                 width: Adapt.px(24),
                 height: Adapt.px(24),
+                useTheme: true,
               ),
               onPressed: () {
                 setState(() {

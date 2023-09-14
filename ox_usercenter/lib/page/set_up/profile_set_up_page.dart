@@ -96,6 +96,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               iconName: "close_icon_white.png",
               width: Adapt.px(24),
               height: Adapt.px(24),
+              useTheme: true,
             ),
             onPressed: () {
               OXNavigator.pop(context);
@@ -114,6 +115,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                   iconName: "icon_done.png",
                   width: Adapt.px(24),
                   height: Adapt.px(24),
+                  useTheme: true,
                 ),
                 onPressed: () {
                   _editProfile();
@@ -311,6 +313,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(Adapt.px(111)),
                     border: Border.all(
+                      color: ThemeColor.color200,
                       width: Adapt.px(3),
                     ),
                   ),
@@ -342,7 +345,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
             title,
             style: TextStyle(
               fontSize: Adapt.px(16),
-              color: Colors.white,
+              color: ThemeColor.color0,
               fontWeight: FontWeight.bold,
             ),
           ),

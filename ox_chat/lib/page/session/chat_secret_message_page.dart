@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
@@ -220,6 +221,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         ],
       ),
       body: Chat(
+        theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
         isLastPage: !chatGeneralHandler.hasMoreMessage,
@@ -261,6 +263,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
         inputOptions: chatGeneralHandler.inputOptions,
+        inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
       ),
     );
   }
@@ -464,11 +468,12 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
+    final replayId = message.repliedMessage?.id ?? '';
 
     final event = await Contacts.sharedInstance.getSendSecretMessageEvent(
       sessionId,
       receiverPubkey,
-      '',
+      replayId,
       type,
       contentString,
     );
@@ -491,7 +496,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         .sendSecretMessage(
       sessionId,
       receiverPubkey,
-      '',
+      replayId,
       type,
       contentString,
       event: event,

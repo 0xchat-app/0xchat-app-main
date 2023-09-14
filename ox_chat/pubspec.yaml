@@ -47,8 +47,8 @@ flutter:
   assets:
     - assets/theme/
     - assets/images/
-#    - assets/images/dark/
-#    - assets/images/light/
+    - assets/images/dark/
+    - assets/images/light/
     - assets/locale/
     - assets/messages.json
 

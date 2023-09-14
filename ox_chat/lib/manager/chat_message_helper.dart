@@ -2,13 +2,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter_chat_types/flutter_chat_types.dart' as ChatTypes;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/message_factory.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class OXValue<T> {
@@ -18,7 +19,7 @@ class OXValue<T> {
 
 class ChatMessageDBToUIHelper {
 
-  static Future<ChatTypes.User?> getUser(String messageSenderPubKey) async {
+  static Future<types.User?> getUser(String messageSenderPubKey) async {
     final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
     return user?.toMessageModel();
   }
@@ -42,7 +43,7 @@ class ChatMessageDBToUIHelper {
 
 extension MessageDBToUIEx on MessageDB {
 
-  Future<ChatTypes.Message?> toChatUIMessage() async {
+  Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true}) async {
 
     // Msg id
     final messageId = this.messageId;
@@ -188,6 +189,17 @@ extension MessageDBToUIEx on MessageDB {
         fileEncryptionType = UIMessage.EncryptionType.none;
     }
 
+    // repliedMessage
+    types.Message? repliedMessage;
+    if (replyId.isNotEmpty && loadRepliedMessage) {
+      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
+      final messageList = result['messages'];
+      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
+        final repliedMessageDB = messageList.first;
+        repliedMessage = await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
+      }
+    }
+
     return messageFactory.createMessage(
       author: author,
       timestamp: messageTimestamp,
@@ -197,26 +209,27 @@ extension MessageDBToUIEx on MessageDB {
       contentModel: contentModel,
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
+      repliedMessage: repliedMessage,
     );
   }
 }
 
-extension MessageUIToDBEx on ChatTypes.Message {
+extension MessageUIToDBEx on types.Message {
   MessageType dbMessageType({bool encrypt = false}) {
     switch (type) {
-      case ChatTypes.MessageType.text:
+      case types.MessageType.text:
         return MessageType.text;
-      case ChatTypes.MessageType.image:
+      case types.MessageType.image:
         return encrypt ? MessageType.encryptedImage : MessageType.image;
-      case ChatTypes.MessageType.audio:
+      case types.MessageType.audio:
         return MessageType.audio;
-      case ChatTypes.MessageType.video:
+      case types.MessageType.video:
         return MessageType.video;
-      case ChatTypes.MessageType.file:
+      case types.MessageType.file:
         return MessageType.file;
-      case ChatTypes.MessageType.custom:
+      case types.MessageType.custom:
         return MessageType.template;
-      case ChatTypes.MessageType.system:
+      case types.MessageType.system:
         return MessageType.system;
       default:
         return MessageType.text;
@@ -229,14 +242,14 @@ extension MessageUIToDBEx on ChatTypes.Message {
     Map map = {
       'content': content,
     };
-    if (msg is ChatTypes.TextMessage ||
-        msg is ChatTypes.ImageMessage ||
-        msg is ChatTypes.AudioMessage ||
-        msg is ChatTypes.VideoMessage ||
-        msg is ChatTypes.SystemMessage
+    if (msg is types.TextMessage ||
+        msg is types.ImageMessage ||
+        msg is types.AudioMessage ||
+        msg is types.VideoMessage ||
+        msg is types.SystemMessage
     ) {
       return content;
-    } else if (msg is ChatTypes.CustomMessage) {
+    } else if (msg is types.CustomMessage) {
       return msg.customContentString;
     }
     return jsonEncode(map);
@@ -244,8 +257,8 @@ extension MessageUIToDBEx on ChatTypes.Message {
 }
 
 extension UserDBToUIEx on UserDB {
-  ChatTypes.User toMessageModel() {
-    ChatTypes.User _user = ChatTypes.User(
+  types.User toMessageModel() {
+    types.User _user = types.User(
       id: pubKey,
       updatedAt: lastUpdatedTime,
       sourceObject: this,
@@ -272,3 +285,38 @@ extension UserDBToUIEx on UserDB {
   }
 }
 
+
+extension UIMessageEx on types.Message {
+  String get replyDisplayContent {
+    final author = this.author.sourceObject;
+    if (author == null) {
+      return '';
+    }
+
+    final replyMessage = this;
+    final authorName = author.getUserShowName();
+    String? messageText;
+    if (replyMessage is types.TextMessage) {
+      messageText = replyMessage.text;
+    } else if (replyMessage is types.ImageMessage) {
+      messageText = '[image]';
+    } else if (replyMessage is types.AudioMessage) {
+      messageText = '[audio]';
+    } else if (replyMessage is types.VideoMessage) {
+      messageText = '[video]';
+    } else if (replyMessage is types.CustomMessage) {
+      final customType = replyMessage.customType;
+      switch (customType) {
+        case CustomMessageType.zaps:
+          messageText = '[zaps]';
+          break ;
+        default:
+          break ;
+      }
+    }
+    if (messageText == null) {
+      messageText = '[unknown type]';
+    }
+    return '$authorName: $messageText';
+  }
+}

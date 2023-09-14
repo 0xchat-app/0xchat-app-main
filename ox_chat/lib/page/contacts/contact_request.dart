@@ -121,6 +121,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
             iconName: "icon_back_left_arrow.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
+            useTheme: true,
           ),
           onPressed: () {
             OXNavigator.pop(context);

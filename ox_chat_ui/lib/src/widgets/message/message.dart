@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -67,6 +68,7 @@ class Message extends StatefulWidget {
     required this.usePreviewData,
     this.userAgent,
     this.videoMessageBuilder,
+    this.repliedMessageBuilder,
     this.onMessageLongPressEvent,
     this.longPressMenuItemsCreator,
   });
@@ -192,6 +194,9 @@ class Message extends StatefulWidget {
   final Widget Function(types.VideoMessage, {required int messageWidth})?
   videoMessageBuilder;
 
+  final Widget Function(types.Message, {required int messageWidth})?
+  repliedMessageBuilder;
+
   /// Create a menu that pops up when long pressing on a message
   final List<ItemModel> Function(BuildContext context, types.Message)? longPressMenuItemsCreator;
 
@@ -222,16 +227,83 @@ class _MessageState extends State<Message> {
     final query = MediaQuery.of(context);
     final user = InheritedUser.of(context).user;
     final currentUserIsAuthor = user.id == widget.message.author.id;
-    final enlargeEmojis =
-        widget.emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
-            widget.message is types.TextMessage &&
-            isConsistsOfEmojis(
-              widget.emojiEnlargementBehavior,
-              widget.message as types.TextMessage,
-            );
+
+    AlignmentGeometry? alignment;
+    if (widget.bubbleRtlAlignment == BubbleRtlAlignment.left) {
+      if (currentUserIsAuthor) {
+        alignment = AlignmentDirectional.centerEnd;
+      } else {
+        alignment = AlignmentDirectional.centerStart;
+      }
+    } else {
+      if (currentUserIsAuthor) {
+        alignment = Alignment.centerRight;
+      } else {
+        alignment = Alignment.centerLeft;
+      }
+    }
+
+    EdgeInsetsGeometry? margin;
+    if (widget.bubbleRtlAlignment == BubbleRtlAlignment.left) {
+      margin = EdgeInsetsDirectional.only(
+        bottom: 16,
+        end: isMobile ? query.padding.right : 0,
+        start: 20 + (isMobile ? query.padding.left : 0),
+      );
+    } else {
+      margin = EdgeInsets.only(
+        bottom: 16,
+        left: 20 + (isMobile ? query.padding.left : 0),
+        right: isMobile ? query.padding.right : 0,
+      );
+    }
+
+    return Container(
+      alignment: alignment,
+      margin: margin,
+      child: _buildMessageContentView(),
+    );
+  }
+
+  // avatar & name & message
+  Widget _buildMessageContentView() {
+    final user = InheritedUser.of(context).user;
+    final currentUserIsAuthor = user.id == widget.message.author.id;
+    final avatarBuilder = widget.avatarBuilder;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      textDirection: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
+          ? null
+          : TextDirection.ltr,
+      children: [
+        if (!currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.messageWidth.toDouble(),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildMessageBubbleView(),
+            ],
+          ),
+        ),
+        if (currentUserIsAuthor)
+          Padding(
+            padding: EdgeInsets.only(right: 10),
+          ),
+        if (currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
+      ],
+    );
+  }
+
+  // name & message
+  Widget _buildMessageBubbleView() {
+    final user = InheritedUser.of(context).user;
+    final currentUserIsAuthor = user.id == widget.message.author.id;
     final messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
-
     final borderRadius = widget.bubbleRtlAlignment == BubbleRtlAlignment.left
         ? BorderRadiusDirectional.only(
       bottomEnd: Radius.circular(
@@ -255,111 +327,56 @@ class _MessageState extends State<Message> {
       topRight:
       Radius.circular(currentUserIsAuthor ? 0 : messageBorderRadius),
     );
-    final avatarBuilder = widget.avatarBuilder;
-    return Container(
-      alignment: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
-          ? currentUserIsAuthor
-          ? AlignmentDirectional.centerEnd
-          : AlignmentDirectional.centerStart
-          : currentUserIsAuthor
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      margin: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
-          ? EdgeInsetsDirectional.only(
-        bottom: 16,
-        end: isMobile ? query.padding.right : 0,
-        start: 20 + (isMobile ? query.padding.left : 0),
+    final enlargeEmojis =
+        widget.emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
+            widget.message is types.TextMessage &&
+            isConsistsOfEmojis(
+              widget.emojiEnlargementBehavior,
+              widget.message as types.TextMessage,
+            );
+    final bubbleWithPopupMenu = CustomPopupMenu(
+      controller: _popController,
+      arrowColor: ThemeColor.color180,
+      menuBuilder: _buildLongPressMenu,
+      pressType: PressType.longPress,
+      child: _bubbleBuilder(
+        context,
+        borderRadius.resolve(Directionality.of(context)),
+        currentUserIsAuthor,
+        enlargeEmojis,
       )
-          : EdgeInsets.only(
-        bottom: 16,
-        left: 20 + (isMobile ? query.padding.left : 0),
-        right: isMobile ? query.padding.right : 0,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        textDirection: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
-            ? null
-            : TextDirection.ltr,
-        children: [
-          if (!currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: widget.messageWidth.toDouble(),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onDoubleTap: () => widget.onMessageDoubleTap?.call(context, widget.message),
-                  onLongPress: () => widget.onMessageLongPress?.call(context, widget.message),
-                  onTap: () => widget.onMessageTap?.call(context, widget.message),
-                  child: widget.onMessageVisibilityChanged != null
-                      ? VisibilityDetector(
-                    key: Key(widget.message.id),
-                    onVisibilityChanged: (visibilityInfo) =>
-                        widget.onMessageVisibilityChanged!(
-                          widget.message,
-                          visibilityInfo.visibleFraction > 0.1,
-                        ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (widget.showName)
-                          UserName(author: widget.message.author),
-                        CustomPopupMenu(
-                          controller: _popController,
-                          arrowColor: ThemeColor.color180,
-                          menuBuilder: _buildLongPressMenu,
-                          pressType: PressType.longPress,
-                          child: _bubbleBuilder(
-                            context,
-                            borderRadius
-                                .resolve(Directionality.of(context)),
-                            currentUserIsAuthor,
-                            enlargeEmojis,
-                          ),
-                          menuOnChange:(isChange){
+    );
 
-                          },
-                        )
-                      ],
-                    ),
-                  )
-                      : Column(
-                    crossAxisAlignment: currentUserIsAuthor
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: [
-                      if (widget.showName)
-                        UserName(author: widget.message.author),
-                      CustomPopupMenu(
-                        controller: _popController,
-                        arrowColor: ThemeColor.color180,
-                        menuBuilder: _buildLongPressMenu,
-                        pressType: PressType.longPress,
-                        child: _bubbleBuilder(
-                          context,
-                          borderRadius.resolve(Directionality.of(context)),
-                          currentUserIsAuthor,
-                          enlargeEmojis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (currentUserIsAuthor)
-            Padding(
-              padding: EdgeInsets.only(right: 10),
-            ),
-          if (currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
-        ],
-      ),
+    final bubbleWithName = Column(
+      crossAxisAlignment: currentUserIsAuthor
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        if (widget.showName)
+          UserName(author: widget.message.author),
+        bubbleWithPopupMenu,
+      ],
+    );
+
+    return GestureDetector(
+      onDoubleTap: () => widget.onMessageDoubleTap?.call(context, widget.message),
+      onLongPress: () => widget.onMessageLongPress?.call(context, widget.message),
+      onTap: () => widget.onMessageTap?.call(context, widget.message),
+      child: widget.onMessageVisibilityChanged != null
+          ? _buildWithVisibilityDetector(child: bubbleWithName)
+          : bubbleWithName,
     );
   }
+
+  Widget _buildWithVisibilityDetector({required Widget child}) => VisibilityDetector(
+      key: Key(widget.message.id),
+      onVisibilityChanged: (visibilityInfo) =>
+          widget.onMessageVisibilityChanged!(
+            widget.message,
+            visibilityInfo.visibleFraction > 0.1,
+          ),
+      child: child,
+    );
 
   Widget _buildLongPressMenu() => ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -381,18 +398,19 @@ class _MessageState extends State<Message> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Image.asset(
-                        item.icon.path,
-                        width: _LayoutConstant.menuIconSize,
-                        height: _LayoutConstant.menuIconSize,
-                        fit: BoxFit.fill,
-                        package: item.icon.package,
+                    CommonImage(
+                      iconName:item.icon.path,
+                      fit: BoxFit.fill,
+                      width: _LayoutConstant.menuIconSize,
+                      height: _LayoutConstant.menuIconSize,
+                      package: item.icon.package!,
+                      useTheme: true,
                     ),
                     Container(
                       margin: EdgeInsets.only(top: _LayoutConstant.menuTitleTopPadding),
                       child: Text(
                         item.title,
-                        style: TextStyle(color: Colors.white, fontSize: _LayoutConstant.menuTitleSize),
+                        style: TextStyle(color: ThemeColor.color0, fontSize: _LayoutConstant.menuTitleSize),
                       ),
                     ),
                   ],
@@ -403,12 +421,16 @@ class _MessageState extends State<Message> {
         ),
       );
 
-  Widget _avatarBuilder(Widget child) => Container(
-    margin: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
-        ? const EdgeInsetsDirectional.only(end: 8)
-        : const EdgeInsets.only(right: 8),
-    child: child,
-  );
+  Widget _avatarBuilder(Widget child) {
+    final avatarBuilder = widget.avatarBuilder;
+    if (avatarBuilder == null) return SizedBox();
+    return Container(
+      margin: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
+          ? const EdgeInsetsDirectional.only(end: 8)
+          : const EdgeInsets.only(right: 8),
+      child: avatarBuilder(widget.message),
+    );
+  }
 
   Widget _bubbleBuilder(BuildContext context, BorderRadius borderRadius, bool currentUserIsAuthor, bool enlargeEmojis) {
 
@@ -472,7 +494,21 @@ class _MessageState extends State<Message> {
                   : MessageStatus(status: widget.message.status),
             ),
           ),
-        Flexible(child: bubble),
+        Flexible(
+          child: IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: currentUserIsAuthor ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                bubble,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  // widthFactor: 1,
+                  child: widget.repliedMessageBuilder!(widget.message, messageWidth: widget.messageWidth),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

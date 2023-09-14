@@ -536,7 +536,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: const Color.fromRGBO(36, 37, 42, 1),
+        color:  ThemeColor.color160,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -599,6 +599,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         child: Text(
           title,
           style: TextStyle(
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
             fontWeight: index == _currentIndex.value ? FontWeight.w600 : FontWeight.w400,
           ),

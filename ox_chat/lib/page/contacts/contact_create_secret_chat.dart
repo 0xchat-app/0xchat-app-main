@@ -150,7 +150,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
                 iconName: 'icon_done.png',
                 width: Adapt.px(24),
                 height: Adapt.px(24),
-                useTheme: false,
+                useTheme: true,
               ),
             ),
           ),

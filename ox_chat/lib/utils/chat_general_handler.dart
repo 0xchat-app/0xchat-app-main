@@ -44,6 +44,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:video_compress/video_compress.dart';
 import 'custom_message_utils.dart';
+import 'chat_reply_handler.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -63,6 +64,8 @@ class ChatGeneralHandler {
 
   bool hasMoreMessage = false;
 
+  ChatReplyHandler replyHandler = ChatReplyHandler();
+
   TextEditingController inputController = TextEditingController();
 
   Function(List<types.Message>) refreshMessageUI;
@@ -70,6 +73,9 @@ class ChatGeneralHandler {
   Function(types.Message message, {bool isResend}) sendMessageHandler;
 
   ValueChanged<types.Message>? messageDeleteHandler;
+}
+
+extension ChatMessageHandlerEx on ChatGeneralHandler {
 
   Future loadMoreMessage(
       List<types.Message> originMessage, {
@@ -214,6 +220,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         break;
       case MessageLongPressEventType.report:
         _reportMenuItemPressHandler(context, message);
+        break;
+      case MessageLongPressEventType.quote:
+        replyHandler.quoteMenuItemPressHandler(context, message);
         break;
       default:
         break;

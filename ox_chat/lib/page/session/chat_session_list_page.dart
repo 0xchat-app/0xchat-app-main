@@ -324,7 +324,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             SizedBox(
               height: Adapt.px(5),
             ),
-            Container(width: Adapt.px(60), height: Adapt.px(60), child: Image(image: AssetImage('assets/images/${model.iconName}', package: 'ox_common'))),
+            Container(width: Adapt.px(60), height: Adapt.px(60), child: CommonImage(iconName:model.iconName,useTheme:true),),
             SizedBox(
               height: Adapt.px(5),
             ),

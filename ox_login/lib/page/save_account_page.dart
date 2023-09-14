@@ -151,7 +151,8 @@ class _SaveAccountPageState extends State<SaveAccountPage>
     bool isPublicKeySuccess = publicKeyCopied && keyType == KeyType.PublicKey;
     bool isPrivateKeySuccess =
         privateKeyCopied && keyType == KeyType.PrivateKey;
-    String copyStatusIcon = isPublicKeySuccess || isPrivateKeySuccess
+    bool isSuccessPic = isPublicKeySuccess || isPrivateKeySuccess;
+    String copyStatusIcon = isSuccessPic
         ? 'icon_copyied_success.png'
         : 'icon_copy.png';
 
@@ -216,6 +217,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
                     width: Adapt.px(24),
                     height: Adapt.px(24),
                     fit: BoxFit.fill,
+                    useTheme: !isSuccessPic,
                   ),
                 ),
               ),

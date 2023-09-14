@@ -30,12 +30,12 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width / 3;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_common',
+      useTheme: true,
     );
     return Container(
       height: Adapt.px(390),

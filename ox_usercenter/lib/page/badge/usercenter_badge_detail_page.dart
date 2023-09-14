@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:pull_to_refresh_notification/pull_to_refresh_notification.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -57,13 +58,14 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.screenW() * 0.6,
       height: Adapt.screenW() * 0.6,
-      package: 'ox_common',
+      useTheme: true,
     );
+
     return Scaffold(
       body: SafeArea(
         top: false,

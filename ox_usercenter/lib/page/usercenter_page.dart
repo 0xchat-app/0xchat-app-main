@@ -265,12 +265,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       String? title,
       String? badgeImgUrl,
       bool isShowDivider = false}) {
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(48),
       height: Adapt.px(48),
-      package: 'ox_common',
+      useTheme: true,
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -378,6 +379,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(Adapt.px(111)),
                   border: Border.all(
+                    color: ThemeColor.color200,
                     width: Adapt.px(3),
                   ),
                 ),
@@ -476,6 +478,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     iconName: "icon_copy.png",
                     width: Adapt.px(16),
                     height: Adapt.px(16),
+                    useTheme: true,
                   )
                 : Container(),
           ],
