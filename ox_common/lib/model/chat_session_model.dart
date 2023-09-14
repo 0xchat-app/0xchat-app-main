@@ -81,6 +81,11 @@ class ChatSessionModel extends DBObject {
   static ChatSessionModel fromMap(Map<String, Object?> map) {
     return _chatSessionModelFromMap(map);
   }
+
+  @override
+  String toString() {
+    return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind}';
+  }
 }
 
 ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {

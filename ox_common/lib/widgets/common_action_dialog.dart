@@ -67,7 +67,7 @@ class OXActionDialog extends StatelessWidget {
   final bool showCancelButton;
   final double? _maxHeight;
   final int? maxRow;
-  final void Function(OXActionModel) onPressCallback;
+  final void Function(OXActionModel?) onPressCallback;
   final Color backGroundColor;
   final Color separatorColor;
   final Color separatorCancelColor;
@@ -90,8 +90,8 @@ class OXActionDialog extends StatelessWidget {
           decoration: BoxDecoration(
             color: this.backGroundColor,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(Adapt.px(4.0)),
-              topRight: Radius.circular(Adapt.px(4.0)),
+              topLeft: Radius.circular(Adapt.px(12.0)),
+              topRight: Radius.circular(Adapt.px(12.0)),
             ),
           ),
           child: SafeArea(
@@ -148,7 +148,7 @@ class OXActionDialog extends StatelessWidget {
                   height: Adapt.px(20),
                   package: item.package ?? '',
                 ),
-                SizedBox(width: Adapt.px(6),),
+                SizedBox(width: Adapt.px(10),),
                 Text(
                   item.text,
                   style: TextStyle(
@@ -209,7 +209,7 @@ class OXActionDialog extends StatelessWidget {
               ),
             ),
             onTap: () {
-              onPressCallback(item);
+              onPressCallback(null);
             },
           ),
         ],
@@ -238,7 +238,7 @@ class OXActionDialog extends StatelessWidget {
         showCancelButton: showCancelButton,
         maxHeight: maxHeight,
         maxRow: maxRow,
-        onPressCallback: (OXActionModel item) {
+        onPressCallback: (OXActionModel? item) {
           OXNavigator.pop(
             context,
             item,
