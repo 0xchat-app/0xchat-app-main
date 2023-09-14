@@ -754,10 +754,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 onTap: () async {
                   await OXLoading.show();
                   final OKEvent okEvent = await Contacts.sharedInstance
-                      .addToContact([widget.userDB.pubKey!]);
+                      .addToContact([widget.userDB.pubKey]);
                   await OXLoading.dismiss();
                   if (okEvent.status) {
                     OXChatBinding.sharedInstance.contactUpdatedCallBack();
+                    OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.userDB.pubKey, true);
                     CommonToast.instance.show(
                         context, Localized.text('ox_chat.sent_successfully'));
                   } else {
