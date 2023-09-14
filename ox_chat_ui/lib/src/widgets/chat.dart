@@ -528,11 +528,9 @@ class ChatState extends State<Chat> {
                         ),
                       ),
                     ),
-                    SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),),
-                        child: widget.customBottomWidget ?? _buildBottomInputArea(),
-                      ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: Adapt.px(12),),
+                      child: widget.customBottomWidget ?? _buildBottomInputArea(),
                     ),
                   ],
                 ),
@@ -554,7 +552,7 @@ class ChatState extends State<Chat> {
         ),
         margin: EdgeInsets.only(bottom: Adapt.px(10)),
         height: Adapt.px(58),
-        child: child
+        child: child,
       );
       if (chatStatus == ChatStatus.NotJoined) {
         return GestureDetector(

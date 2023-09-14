@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -73,8 +75,6 @@ class InputState extends State<Input>{
 
   final _itemSpacing = Adapt.px(12);
 
-  bool _isShow = false;
-
   InputType inputType = InputType.inputTypeDefault;
   late final _inputFocusNode = FocusNode(
     onKeyEvent: (node, event) {
@@ -96,6 +96,9 @@ class InputState extends State<Input>{
   );
   bool _sendButtonVisible = false;
   late TextEditingController _textController;
+
+  bool safeAreaBottomInsetsInit = false;
+  double safeAreaBottomInsets = 0.0;
 
   void dissMissMoreView(){
       inputType = InputType.inputTypeDefault;
@@ -120,10 +123,16 @@ class InputState extends State<Input>{
   }
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () =>  _inputFocusNode.requestFocus(),
-    child: _inputBuilder(),
-  );
+  Widget build(BuildContext context) {
+    if (!safeAreaBottomInsetsInit) {
+      safeAreaBottomInsetsInit = true;
+      safeAreaBottomInsets = MediaQuery.of(context).padding.bottom;
+    }
+    return GestureDetector(
+      onTap: () => _inputFocusNode.requestFocus(),
+      child: _inputBuilder(),
+    );
+  }
 
   @override
   void initState() {
@@ -161,64 +170,48 @@ class InputState extends State<Input>{
       );
 
 
-  Widget getMyMoreView(){
-    if(inputType == InputType.inputTypeMore){
-      return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.ease,
-        height: 260, // Dynamic height adjustment
-        child: InputMorePage(items: widget.items,),
-        onEnd: () {
-          _inputFocusNode.unfocus();
-        },
-      );
-    }else if(inputType == InputType.inputTypeEmoji){
-      return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        height: 260, // Dynamic height adjustment
-        child: GiphyPicker(
+  Widget getMyMoreView() {
+    Widget? contentWidget;
+    if (inputType == InputType.inputTypeMore) {
+      contentWidget = InputMorePage(items: widget.items,);
+    } else if (inputType == InputType.inputTypeEmoji) {
+      contentWidget = GiphyPicker(
           onSelected: (value) {
             if (widget.onGifSend != null) {
               widget.onGifSend!(value);
             }
           },
           textController:_textController
-        ),
-        onEnd: (){
-          _inputFocusNode.unfocus();
-        },
       );
-    }else if(inputType == InputType.inputTypeVoice){
-      return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        height: 260, // Dynamic height adjustment
-        child:InputVoicePage(onPressed: (_path, duration) {
-          // Duration(milliseconds: _longPressDuration.toInt())
-          print("_longPressDuration  send ${_path}");
-          if(widget.onVoiceSend != null){
-            widget.onVoiceSend!(_path, duration);
-          }
-        }, onCancel: () {
-          print("_longPressDuration  cancel");
-        },),
-        onEnd: (){
-          _inputFocusNode.unfocus();
-        },
-      );
+    } else if (inputType == InputType.inputTypeVoice){
+      contentWidget = InputVoicePage(onPressed: (_path, duration) {
+        if(widget.onVoiceSend != null){
+          widget.onVoiceSend!(_path, duration);
+        }
+      }, onCancel: () { },);
     }
-    else{
+
+    final animationDuration = Duration(milliseconds: 200);
+    if (contentWidget != null) {
       return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: animationDuration,
+        curve: Curves.ease,
+        height: 260 + safeAreaBottomInsets, // Dynamic height adjustment
+        child: contentWidget,
+        onEnd: () {
+          _inputFocusNode.unfocus();
+        },
+      );
+    } else {
+      return AnimatedContainer(
+        duration: animationDuration,
         curve: Curves.easeInOut,
-        height: 0, // Dynamic height adjustment
+        height: 0 + safeAreaBottomInsets, // Dynamic height adjustment
         child:Container(),
-        onEnd: (){
+        onEnd: () {
           if(inputType == InputType.inputTypeText){
             _inputFocusNode.requestFocus();
           }
-          // _inputFocusNode.unfocus();
         },
       );
     }
@@ -267,16 +260,8 @@ class InputState extends State<Input>{
         isLoading: widget.isAttachmentUploading ?? false,
         // onPressed: widget.onAttachmentPressed,
         onPressed: (){
-          // if (_showMore) {
-          //   SystemChannels.textInput.invokeMethod('TextInput.hide');
-          // }
-
-          inputType = InputType.inputTypeVoice;
           setState(() {
-            // widget.onAttachmentPressed;
-            // if (widget.options.inputClearMode == InputClearMode.always) {
-            //   _textController.clear();
-            // }
+            inputType = InputType.inputTypeVoice;
           });
         },
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
@@ -349,13 +334,10 @@ class InputState extends State<Input>{
           package: 'ox_chat_ui',
         ),
         onPressed: (){
-          _isShow = !_isShow;
           setState(() {
             inputType = InputType.inputTypeEmoji;
-            if(_isShow){
+            if (_inputFocusNode.hasFocus) {
               _inputFocusNode.unfocus();
-            }else{
-              _inputFocusNode.requestFocus();
             }
           });
         },
@@ -376,13 +358,8 @@ class InputState extends State<Input>{
           // color: InheritedChatTheme.of(context).theme.inputTextColor,
           package: 'ox_chat_ui',
         ),
-        onPressed: (){
-          // _inputFocusNode.unfocus();
-          // if(inputType == InputType.inputTypeMore){
-          //   return;
-          // }
+        onPressed: () {
           setState(() {
-
             inputType = InputType.inputTypeMore;
             _inputFocusNode.unfocus();
           });
@@ -428,22 +405,17 @@ class InputState extends State<Input>{
   }
 
   Widget _inputBuilder() {
-    final query = MediaQuery.of(context);
     final buttonPadding = InheritedChatTheme.of(context)
         .theme
         .inputPadding
         .copyWith(left: Adapt.px(12), right: Adapt.px(12));
-    final safeAreaInsets = isMobile
-        ? EdgeInsets.fromLTRB(
-            query.padding.left,
-            0,
-            query.padding.right,
-            query.viewInsets.bottom + query.padding.bottom,
-          )
-        : EdgeInsets.zero;
     final textPadding = InheritedChatTheme.of(context)
         .theme
         .inputPadding;
+    final query = MediaQuery.of(context);
+    var bottomInset = isMobile ? query.viewInsets.bottom : 0.0;
+    bottomInset -= safeAreaBottomInsets;
+    bottomInset = max(0.0, bottomInset);
     return Focus(
       autofocus: true,
       child: Material(
@@ -451,15 +423,12 @@ class InputState extends State<Input>{
         child: Container(
           decoration:
               InheritedChatTheme.of(context).theme.inputContainerDecoration,
-          padding: inputType ==  InputType.inputTypeEmoji ?  EdgeInsets.fromLTRB(query.padding.left, 0, query.padding.right, query.padding.bottom) : safeAreaInsets,
+          padding: EdgeInsets.only(bottom: bottomInset),
           child: getInputWidget(buttonPadding, textPadding),
       ),
         ),
     );
   }
-
-
-
 }
 
 @immutable
