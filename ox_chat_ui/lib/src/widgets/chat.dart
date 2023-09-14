@@ -113,12 +113,14 @@ class Chat extends StatefulWidget {
     this.userAgent,
     this.useTopSafeAreaInset,
     this.videoMessageBuilder,
+    this.repliedMessageBuilder,
     this.onVoiceSend,
     this.onMessageLongPressEvent,
     this.chatStatus,
     this.onJoinChannelTap,
     this.longPressMenuItemsCreator,
     this.onGifSend,
+    this.inputBottomView,
   });
 
   final ChatStatus? chatStatus;
@@ -360,11 +362,17 @@ class Chat extends StatefulWidget {
   final Widget Function(types.VideoMessage, {required int messageWidth})?
       videoMessageBuilder;
 
+  /// See [Message.repliedMessageBuilder].
+  final Widget Function(types.Message, {required int messageWidth})?
+  repliedMessageBuilder;
+
   ///Called  when the menu items clicked after a long press‘
   final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
 
   /// Create a menu that pops up when long pressing on a message
   final List<ItemModel> Function(BuildContext context, types.Message message)? longPressMenuItemsCreator;
+
+  final Widget? inputBottomView;
 
   @override
   State<Chat> createState() => ChatState();
@@ -598,6 +606,7 @@ class ChatState extends State<Chat> {
               );
             }
           },
+          inputBottomView: widget.inputBottomView,
         );
       }
     }
@@ -718,6 +727,7 @@ class ChatState extends State<Chat> {
               usePreviewData: widget.usePreviewData,
               userAgent: widget.userAgent,
               videoMessageBuilder: widget.videoMessageBuilder,
+              repliedMessageBuilder: widget.repliedMessageBuilder,
               onMessageLongPressEvent:widget.onMessageLongPressEvent,
               longPressMenuItemsCreator: widget.longPressMenuItemsCreator,
           );

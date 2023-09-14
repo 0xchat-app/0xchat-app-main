@@ -5,6 +5,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:path/path.dart' as Path;
@@ -141,6 +142,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         ),
       ),
       body: Chat(
+        theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
         isLastPage: !chatGeneralHandler.hasMoreMessage,
@@ -191,6 +193,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
         inputOptions: chatGeneralHandler.inputOptions,
+        inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
       ),
     );
   }
@@ -288,8 +292,9 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
+    final replayId = message.repliedMessage?.id ?? '';
 
-    final event = Channels.sharedInstance.getSendChannelMessageEvent(channelId, type, contentString);
+    final event = Channels.sharedInstance.getSendChannelMessageEvent(channelId, type, contentString, replyMessage: replayId);
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
       return ;
@@ -302,6 +307,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
 
     Channels.sharedInstance.sendChannelMessage(
       widget.communityItem.chatId!,
+      replyMessage: replayId,
       type,
       contentString,
       event: event,

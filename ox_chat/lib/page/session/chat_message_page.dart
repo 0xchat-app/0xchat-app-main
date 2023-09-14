@@ -142,6 +142,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         ],
       ),
       body: Chat(
+        theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
         isLastPage: !chatGeneralHandler.hasMoreMessage,
@@ -183,6 +184,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
         customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
+        inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
       ),
     );
   }
@@ -276,13 +279,14 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
     final contentString = message.contentString(message.content);
+    final replayId = message.repliedMessage?.id ?? '';
 
     var event = message.sourceKey;
     final messageKind = session.messageKind;
     if (messageKind != null) {
-      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString, kind: messageKind);
+      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, replayId, type, contentString, kind: messageKind);
     } else {
-      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, '', type, contentString);
+      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, replayId, type, contentString);
     }
     if (event == null) {
       CommonToast.instance.show(context, 'send message fail');
@@ -302,7 +306,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
     Contacts.sharedInstance.sendPrivateMessage(
       receiverPubkey,
-      '',
+      replayId,
       type,
       contentString,
       event: event,

@@ -16,6 +16,7 @@ abstract class MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   });
 }
 
@@ -29,6 +30,7 @@ class TextMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final text = contentModel.content ?? '';
     return types.TextMessage(
@@ -40,6 +42,7 @@ class TextMessageFactory implements MessageFactory {
       remoteId: remoteId,
       text: text,
       status: status,
+      repliedMessage: repliedMessage,
     );
   }
 }
@@ -54,6 +57,7 @@ class ImageMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -85,6 +89,7 @@ class AudioMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -117,6 +122,7 @@ class VideoMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final uri = contentModel.content;
     final snapshotUrl = '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
@@ -152,6 +158,7 @@ class SystemMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final text = contentModel.content ?? '';
     return types.SystemMessage(
@@ -174,6 +181,7 @@ class CustomMessageFactory implements MessageFactory {
     required MessageContentModel contentModel,
     required Status status,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
   }) {
     final contentString = contentModel.content;
     if (contentString == null) return null;
