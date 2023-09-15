@@ -251,7 +251,7 @@ class OXChatBinding {
       UserDB? userDB;
       if (sessionMap[chatId] != null) {
         sessionModel.chatType = sessionMap[chatId]!.chatType;
-        if (sessionMap[chatId] != null && messageDB.createTime! >= sessionMap[chatId]!.createTime!) {
+        if (messageDB.createTime! >= sessionMap[chatId]!.createTime!) {
           if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
             if (messageDB.read != null && !messageDB.read!) {
               sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
