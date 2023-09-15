@@ -410,7 +410,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              'No Follows yet',
+              Localized.text('ox_chat.import_follows_no_data'),
               14,
               ThemeColor.gray02,
             ),

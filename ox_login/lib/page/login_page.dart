@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Container(
                   child: Text(
-                    Localized.text('ox_usercenter.login_tips'),
+                    Localized.text('ox_login.login_tips'),
                     style: TextStyle(color: ThemeColor.titleColor, fontSize: Adapt.px(18)),
                     textAlign: TextAlign.center,
                   ),

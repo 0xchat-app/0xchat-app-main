@@ -10,6 +10,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../session/chat_secret_message_page.dart';
 
@@ -65,7 +66,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'For enhanced privacy, you can select a specific relay for your secret chat; all secret chat messages will only be sent to this relay.',
+            Localized.text('ox_chat.secret_chat_tips'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(12),
@@ -81,7 +82,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           ),
           alignment: Alignment.centerLeft,
           child: Text(
-            'PLEASE ENTER OR SELECT RELAY',
+            Localized.text('ox_chat.secret_chat_relay_tips'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -133,7 +134,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           Expanded(
             child: Container(
               child: Text(
-                'Create Secret Chat',
+                Localized.text('ox_chat.create_secret_chat'),
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(17),
@@ -326,13 +327,13 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     String chatRelay = _relaysList[_selectRelayIndex ?? 0];
     String inputText = _relayTextFieldController.text;
     if (_selectRelayIndex == null && inputText.isNotEmpty) {
-      CommonToast.instance.show(context, 'Please select relay or enter relay');
+      CommonToast.instance.show(context, Localized.text('ox_chat.secret_chat_relay_enter_tips'),);
       return;
     }
 
     if (inputText.isNotEmpty) {
       if (!_isWssWithValidURL(_relayTextFieldController.text)) {
-        CommonToast.instance.show(context, 'Please input the right wss');
+        CommonToast.instance.show(context, Localized.text('ox_chat.secret_chat_relay_input_right_wss_tips'),);
         return;
       }
       chatRelay = inputText;

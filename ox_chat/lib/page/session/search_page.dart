@@ -344,7 +344,7 @@ class SearchPageState extends State<SearchPage> {
                                   ).createShader(Offset.zero & bounds.size);
                                 },
                                 child: Text(
-                                  'See more',
+                                  Localized.text('ox_chat.search_see_more'),
                                   style: TextStyle(
                                     fontSize: Adapt.px(15),
                                     fontWeight: FontWeight.bold,
@@ -506,7 +506,7 @@ class SearchPageState extends State<SearchPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent searches',
+                Localized.text('ox_chat.recent_searches'),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: Adapt.px(14),

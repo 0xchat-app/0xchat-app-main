@@ -55,6 +55,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     imageCache.clear();
     imageCache.maximumSize = 10;
     OXUserInfoManager.sharedInstance.addObserver(this);
+    Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
 
     _addressStr =
@@ -120,6 +121,10 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       LogUtil.e("user selected badge info fetch failed: $error\r\n$stack");
     }
     return null;
+  }
+
+  onLocaleChange() {
+    if (mounted) setState(() {});
   }
 
   @override

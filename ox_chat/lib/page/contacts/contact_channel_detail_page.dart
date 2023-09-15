@@ -277,7 +277,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'By',
+                                  Localized.text('ox_common.by'),
                                   style: TextStyle(
                                       fontWeight: FontWeight.w400,
                                       fontSize: Adapt.px(15),
@@ -462,7 +462,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                   width: double.infinity,
                                   height: Adapt.px(48),
                                   child: Text(
-                                    'Leave',
+                                    Localized.text('ox_chat.leave_item'),
                                     style: TextStyle(
                                         fontSize: Adapt.px(16),
                                         color: ThemeColor.color100),
