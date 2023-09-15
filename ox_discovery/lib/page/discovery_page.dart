@@ -45,6 +45,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXRelayManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
     String localAvatarPath = 'assets/images/icon_group_default.png';
     _placeholderImage = Image.asset(
@@ -649,6 +650,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   }
 
   onThemeStyleChange() {
+    if (mounted) setState(() {});
+  }
+
+  onLocaleChange() {
     if (mounted) setState(() {});
   }
 }
