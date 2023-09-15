@@ -160,13 +160,13 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   Widget _buildHeader() {
-    String localAvatarPath = 'assets/images/icon_default_channel.png';
     Widget placeholderImage = CommonImage(
-      iconName: 'icon_default_channel',
+      iconName: 'icon_default_channel.png',
       fit: BoxFit.fill,
       width: Adapt.px(100),
       height: Adapt.px(100),
       package: 'ox_chat',
+      useTheme: true,
     );
 
     return GestureDetector(

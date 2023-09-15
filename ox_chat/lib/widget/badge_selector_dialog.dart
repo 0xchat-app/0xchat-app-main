@@ -41,7 +41,7 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
       height: Adapt.px(390),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       child: ListView(
         children: [
