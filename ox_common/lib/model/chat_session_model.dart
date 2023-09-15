@@ -48,7 +48,7 @@ class ChatSessionModel extends DBObject {
     this.groupId,
     this.content,
     this.unreadCount = 0,
-    this.createTime,
+    this.createTime = 0,
     this.chatType,
     this.messageType,
     this.avatar,
