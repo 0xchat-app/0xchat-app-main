@@ -460,7 +460,7 @@ class SignalingManager {
     };
 
     pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state ;===${state == RTCIceConnectionState.RTCIceConnectionStateDisconnected}');
+      print('onIceConnectionState: $state');
       if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
         var session = _sessions.remove(sessionId);
         if (session != null) {

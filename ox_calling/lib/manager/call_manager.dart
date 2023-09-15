@@ -35,7 +35,7 @@ class CallManager {
   String? _selfId;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-  bool inCalling = false;
+  bool _inCalling = false;
   CallState? callState;
   Session? _session;
   DesktopCapturerSource? selected_source_;
@@ -50,6 +50,14 @@ class CallManager {
   OverlayEntry? overlayEntry;
 
   final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
+
+  bool get getInCallIng{
+    return _inCalling;
+  }
+
+  bool get getWaitAccept{
+    return _waitAccept;
+  }
 
   void initRTC({String? tHost}) {
     if (tHost != null) {
@@ -91,7 +99,7 @@ class CallManager {
           _session = session;
           break;
         case CallState.CallStateRinging:
-          if (CallManager.instance._waitAccept || CallManager.instance.inCalling) {
+          if (_waitAccept || _inCalling) {
             return;
           }
           ///lack of speech type
@@ -99,7 +107,7 @@ class CallManager {
           if (userDB == null) {
             break;
           } else {
-            if (!inCalling && (session.media == CallMessageType.audio.text || session.media == CallMessageType.video.text)) {
+            if (!_inCalling && (session.media == CallMessageType.audio.text || session.media == CallMessageType.video.text)) {
               if (session.media == CallMessageType.audio.text) {
                 callType = CallMessageType.audio;
               } else if (session.media == CallMessageType.video.text) {
@@ -124,7 +132,7 @@ class CallManager {
             _waitAccept = false;
           }
           startTimer();
-          inCalling = true;
+          _inCalling = true;
           break;
       }
       if (callStateHandler != null && callState !=null) {
@@ -162,7 +170,7 @@ class CallManager {
 
   accept() {
     if (_session != null) {
-      inCalling = true;
+      _inCalling = true;
       _signaling?.accept(_session!.sid, callType.text);
     }
   }
@@ -217,7 +225,7 @@ class CallManager {
     stopTimer();
     localRenderer.srcObject = null;
     remoteRenderer.srcObject = null;
-    inCalling = false;
+    _inCalling = false;
     _session = null;
     if (overlayEntry != null && overlayEntry!.mounted) {
       overlayEntry?.remove();

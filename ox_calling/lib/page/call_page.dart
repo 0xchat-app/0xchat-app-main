@@ -6,7 +6,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_calling/manager/signaling.dart';
-import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
@@ -67,7 +66,7 @@ class CallPageState extends State<CallPage> {
   @override
   void dispose() {
     CallManager.instance.removeObserver(counterValueChange);
-    if (CallManager.instance.inCalling) {
+    if (CallManager.instance.getInCallIng || CallManager.instance.getWaitAccept) {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
@@ -80,7 +79,7 @@ class CallPageState extends State<CallPage> {
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
-    if (!CallManager.instance.inCalling) {
+    if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
       CallManager.instance.setSpeaker(true);
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.invitePeer(widget.userDB!.pubKey!);
@@ -113,7 +112,7 @@ class CallPageState extends State<CallPage> {
                       width: Adapt.screenW(),
                       height: Adapt.screenH(),
                       decoration: BoxDecoration(color: ThemeColor.color180),
-                      child: RTCVideoView(CallManager.instance.remoteRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                      child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                     ),
                   )
                 : Container(
@@ -203,7 +202,7 @@ class CallPageState extends State<CallPage> {
                 ),
               ],
             ),
-            if (_isVideoOn)
+            if (_isVideoOn && CallManager.instance.callState == CallState.CallStateConnected)
               Positioned(
                 top: top,
                 left: left,
@@ -217,7 +216,6 @@ class CallPageState extends State<CallPage> {
                   child: Container(
                     width: 90.0,
                     height: 120.0,
-                    decoration: BoxDecoration(color: ThemeColor.color110, borderRadius: BorderRadius.circular(Adapt.px(16))),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
@@ -237,12 +235,10 @@ class CallPageState extends State<CallPage> {
       showButtons.add(
         InkWell(
           onTap: () {
-            if (CallManager.instance.inCalling) {
-              setState(() {
-                _isVideoOn = !_isVideoOn;
-                CallManager.instance.videoOnOff();
-              });
-            }
+            setState(() {
+              _isVideoOn = !_isVideoOn;
+              CallManager.instance.videoOnOff();
+            });
           },
           child: _buildItemImg(_isVideoOn ? 'icon_call_video_on.png' : 'icon_call_video_off.png', 26, 48),
         ),

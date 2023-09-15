@@ -68,12 +68,13 @@ class _CallFloatingDraggableOverlayState extends State<CallFloatingDraggableOver
                 ? Container(
               width: 80.0,
               height: 104.0,
-              decoration: BoxDecoration(color: ThemeColor.color180, borderRadius: BorderRadius.circular(Adapt.px(16))),
+              decoration: BoxDecoration(color: ThemeColor.color180.withOpacity(0.72), borderRadius: BorderRadius.circular(Adapt.px(16))),
+              child: _contentWidget(),
             )
                 : Container(
               width: 144.0,
               height: 200.0,
-              decoration: BoxDecoration(color: ThemeColor.color180, borderRadius: BorderRadius.circular(Adapt.px(16))),
+              decoration: BoxDecoration(color: ThemeColor.color180.withOpacity(0.72), borderRadius: BorderRadius.circular(Adapt.px(16))),
               child: Stack(
                 children: [
                   ClipRRect(
@@ -92,24 +93,27 @@ class _CallFloatingDraggableOverlayState extends State<CallFloatingDraggableOver
 
   Widget _contentWidget(){
     return Container(
-      alignment: (CallManager.instance.callType == CallMessageType.video && CallManager.instance.inCalling) ? Alignment.bottomCenter : Alignment.center,
-      padding: (CallManager.instance.callType == CallMessageType.video && CallManager.instance.inCalling) ? EdgeInsets.only(bottom: Adapt.px(12)) : null,
+      alignment: (CallManager.instance.callType == CallMessageType.video && CallManager.instance.getInCallIng) ? Alignment.bottomCenter : Alignment.center,
+      padding: (CallManager.instance.callType == CallMessageType.video && CallManager.instance.getInCallIng) ? EdgeInsets.only(bottom: Adapt.px(12)) : null,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (CallManager.instance.callType != CallMessageType.video || !CallManager.instance.inCalling)
-            OXUserAvatar(
-              user: widget.userDB,
-              size: Adapt.px(56),
-              isCircular: false,
-              isClickable: false,
+          if (CallManager.instance.callType != CallMessageType.video || !CallManager.instance.getInCallIng)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(Adapt.px(60)),
+              child: OXUserAvatar(
+                user: widget.userDB,
+                size: Adapt.px(56),
+                isCircular: false,
+                isClickable: false,
+              ),
             ),
           SizedBox(
             height: Adapt.px(3),
           ),
-          if (CallManager.instance.callType == CallMessageType.video && !CallManager.instance.inCalling)
+          if (CallManager.instance.callType == CallMessageType.video && !CallManager.instance.getInCallIng)
             SizedBox(
               width: Adapt.px(121),
               child: Center(
