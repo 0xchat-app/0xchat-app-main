@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -5,38 +7,39 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 
 extension OXLanguageType on LocaleType {
   String get languageText {
     switch (this) {
-      case LocaleType.zh:
-        return Localized.text('ox_usercenter.language_zh');
       case LocaleType.en:
-        return Localized.text('ox_usercenter.language_en');
-      case LocaleType.es:
-        return Localized.text('ox_usercenter.language_es');
+        return 'English';
+      case LocaleType.zh:
+        return '简体中文';
       case LocaleType.ru:
-        return Localized.text('ox_usercenter.language_ru');
-      case LocaleType.pt:
-        return Localized.text('ox_usercenter.language_pt');
-      case LocaleType.vi:
-        return Localized.text('ox_usercenter.language_vi');
-      case LocaleType.ja:
-        return Localized.text('ox_usercenter.language_ja');
+        return 'русский';
       case LocaleType.fr:
-        return Localized.text('ox_usercenter.language_fr');
+        return 'Français';
       case LocaleType.de:
-        return Localized.text('ox_usercenter.language_de');
-      case LocaleType.ar:
-        return Localized.text('ox_usercenter.language_ar');
-      case LocaleType.th:
-        return Localized.text('ox_usercenter.language_th');
+        return 'Deutsch';
+      case LocaleType.es:
+        return 'Español';
+      case LocaleType.ja:
+        return '日本語';
       case LocaleType.ko:
-        return Localized.text('ox_usercenter.language_ko');
+        return '한국어';
+      case LocaleType.pt:
+        return 'Português';
+      case LocaleType.vi:
+        return 'Tiếng việt';
+      case LocaleType.ar:
+        return 'عربي';
+      case LocaleType.th:
+        return 'ภาษาไทย';
       case LocaleType.zh_tw:
-        return Localized.text('ox_usercenter.language_zh_tw');
+        return '繁體中文(中國台灣)';
     }
   }
 }
@@ -48,13 +51,18 @@ class LanguageSettingsPage extends StatefulWidget {
   State<LanguageSettingsPage> createState() => _LanguageSettingsPageState();
 }
 
-class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
+class _LanguageSettingsPageState extends State<LanguageSettingsPage> with SingleTickerProviderStateMixin{
 
   int _selectedIndex = 0;
+
+  late AnimationController _controller;
+
+  bool _isShowLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(vsync: this,duration: const Duration(milliseconds: 500));
     _getCurrentLocaleType();
   }
 
@@ -121,9 +129,15 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
       onTap: () async {
         final selectedIndex = index ?? 0;
         setState(() {
+          _isShowLoading = true;
           _selectedIndex = selectedIndex;
         });
+        _controller.repeat();
         await Localized.changeLocale(LocaleType.values[selectedIndex]);
+        setState(() {
+          _isShowLoading = false;
+          _controller.stop();
+        });
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
@@ -141,7 +155,15 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               ),
             ),
             const Spacer(),
-            _selectedIndex == index ? CommonImage(
+            _isShowLoading && _selectedIndex == index ? RotationTransition(
+              turns: _controller,
+              child: CommonImage(
+                iconName: 'icon_switch_loading.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                package: 'ox_usercenter',
+              ),
+            ) : _selectedIndex == index ? CommonImage(
               iconName: 'icon_item_selected.png',
               width: Adapt.px(24),
               height: Adapt.px(24),
@@ -151,5 +173,11 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 }

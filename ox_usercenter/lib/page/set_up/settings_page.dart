@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -19,7 +17,6 @@ import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 ///Title: settings_page
@@ -28,7 +25,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 ///@author Michael
 ///CreateTime: 2023/5/4 15:20
 class SettingsPage extends StatefulWidget {
-  SettingsPage({super.key});
+  const SettingsPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -45,43 +42,43 @@ class _SettingsPageState extends State<SettingsPage> {
     _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
-      title: Localized.text('ox_usercenter.notifications'),
+      title: 'ox_usercenter.notifications',
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_privacy.png',
-      title: Localized.text('ox_usercenter.privacy'),
+      title: 'ox_usercenter.privacy',
       rightContent: '',
       settingItemType: SettingItemType.privacy,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_relays.png',
-      title: Localized.text('ox_usercenter.relays'),
+      title: 'ox_usercenter.relays',
       rightContent: '',
       settingItemType: SettingItemType.relays,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_zaps.png',
-      title: Localized.text('ox_usercenter.zaps'),
+      title: 'ox_usercenter.zaps',
       rightContent: '',
       settingItemType: SettingItemType.zaps,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_keys.png',
-      title: Localized.text('ox_usercenter.keys'),
+      title: 'ox_usercenter.keys',
       rightContent: '',
       settingItemType: SettingItemType.keys,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_language.png',
-      title: Localized.text('ox_usercenter.language'),
-      rightContent: 'English',
+      title: 'ox_usercenter.language',
+      rightContent: Localized.getCurrentLanguage().languageText,
       settingItemType: SettingItemType.language,
     ));
     _settingModelList.add(SettingModel(
         iconName: 'icon_settings_Theme.png',
-        title: Localized.text('ox_usercenter.theme'),
+        title: 'ox_usercenter.theme',
         rightContent: ThemeManager.getCurrentThemeStyle().value(),
         settingItemType: SettingItemType.theme
     ));
@@ -117,7 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 end: Alignment.centerRight,
               ),
             ),
-            child: _itemView('icon_settings_donate.png', Localized.text('ox_usercenter.donate'), '', false),
+            child: _itemView('icon_settings_donate.png', 'ox_usercenter.donate', '', false),
           ),
         ),
         SizedBox(
@@ -153,7 +150,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             alignment: Alignment.center,
             child: Text(
-              'Sign out',
+              Localized.text('ox_usercenter.sign_out'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(15),
@@ -178,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             alignment: Alignment.center,
             child: Text(
-              'Delete Account',
+              Localized.text('ox_usercenter.delete_account'),
               style: TextStyle(
                 color: ThemeColor.red1,
                 fontSize: Adapt.px(15),
@@ -190,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _itemView(String iconName, String title, String rightContent, bool showDivider) {
+  Widget _itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true}) {
     return Column(
       children: [
         Container(
@@ -205,26 +202,29 @@ class _SettingsPageState extends State<SettingsPage> {
               package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
             ),
             title: Text(
-              title,
+              Localized.text(title),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
               ),
             ),
-            trailing: rightContent.isNotEmpty
-                ? Text(
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
                     rightContent,
                     style: TextStyle(
                       color: ThemeColor.color100,
                       fontSize: Adapt.px(16),
                     ),
-                  )
-                : CommonImage(
+                  ),
+                  showArrow ? CommonImage(
                     iconName: 'icon_arrow_more.png',
                     width: Adapt.px(24),
                     height: Adapt.px(24),
-                  ),
-          ),
+                  ) : Container(),
+                ],
+              )),
         ),
         showDivider
             ? Divider(
@@ -238,6 +238,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
+    if(_settingModel.settingItemType == SettingItemType.language){
+      _settingModel.rightContent = Localized.getCurrentLanguage().languageText;
+    }
     if( _settingModel.settingItemType == SettingItemType.theme){
       _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value();
     }
@@ -264,14 +267,14 @@ class _SettingsPageState extends State<SettingsPage> {
           await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
         }
       },
-      child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true),
+      child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true,showArrow: _settingModel.settingItemType == SettingItemType.none ? false : true),
     );
   }
 
   void _logout() async {
     OXCommonHintDialog.show(context,
-        title: 'Warning',
-        content: "Make sure you've backed up your private key. Otherwise, you risk losing access to your account.",
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -290,8 +293,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _deleteAccountHandler() {
     OXCommonHintDialog.show(context,
-      title: 'Warning',
-      content: 'This will sign an event that deletes this account.\n\nyou will no loger be able to log into 0xchat using this account key.\n\nAre you sure you want to continue?',
+      title: Localized.text('ox_usercenter.warn_title'),
+      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
       actionList: [
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
@@ -350,7 +353,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _settingModelList.add(SettingModel(
           iconName: 'icon_settings_version.png',
-          title: Localized.text('ox_usercenter.version'),
+          title: 'ox_usercenter.version',
           rightContent: version,
         ));
       });

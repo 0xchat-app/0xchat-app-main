@@ -177,7 +177,7 @@ class _ContractsPageState extends State<ContractsPage>
                             itemBuilder: (context, index) {
                               if (index == 0) {
                                 return _inkWellWidget(
-                                    content: 'Requests',
+                                    content: Localized.text('ox_chat.string_request_title'),
                                     onTap: () {
                                       OXNavigator.pushPage(
                                         context,
@@ -186,7 +186,7 @@ class _ContractsPageState extends State<ContractsPage>
                                     });
                               }
                               return _inkWellWidget(
-                                content: 'Import Follows',
+                                content: Localized.text('ox_chat.import_follows'),
                                 isShowCount: false,
                                 onTap: () async {
                                   var result = await OXNavigator.pushPage(
@@ -197,7 +197,7 @@ class _ContractsPageState extends State<ContractsPage>
                                     OXCommonHintDialog.show(
                                       context,
                                       content:
-                                      'Added successfully. Share 0xchat with your Contacts.',
+                                      Localized.text('ox_chat.import_follows_success_dialog'),
                                     );
                                   }
                                 },

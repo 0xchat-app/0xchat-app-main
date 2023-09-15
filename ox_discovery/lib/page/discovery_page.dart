@@ -305,7 +305,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                 future: _getCreator(item?.owner ?? ''),
                                 builder: (context, snapshot) {
                                   return Text(
-                                    'By ${snapshot.data}',
+                                    '${Localized.text('ox_common.by')} ${snapshot.data}',
                                     style: TextStyle(
                                       color: ThemeColor.color100,
                                       fontSize: 14,
