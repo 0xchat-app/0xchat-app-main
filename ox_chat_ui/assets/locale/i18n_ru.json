@@ -1,0 +1,11 @@
+{
+  "record_hint": "Удерживайте для записи, отпустите для отправки после ${durationInSeconds} секунды",
+  "input_more_album": "Альбом",
+  "input_more_camera": "Камера",
+  "input_more_video": "Видео",
+  "input_more_call": "Звонок",
+  "input_more_zaps": "Запсы",
+  "channel_join": "Присоединиться к каналу",
+  "channel_badge_requirements": "Отправка сообщений в этом канале требует наличия значка",
+  "friend_requirements": "Невозможно отправить сообщение, так как больше не является другом"
+}

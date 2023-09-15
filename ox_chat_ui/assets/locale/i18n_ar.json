@@ -1,0 +1,11 @@
+{
+  "record_hint": "اضغط للتسجيل، اترك بعد ${durationInSeconds} ثانية للإرسال",
+  "input_more_album": "ألبوم",
+  "input_more_camera": "كاميرا",
+  "input_more_video": "فيديو",
+  "input_more_call": "مكالمة",
+  "input_more_zaps": "زابس",
+  "channel_join": "انضم للقناة",
+  "channel_badge_requirements": "الإرسال في هذه القناة يتطلب شارة",
+  "friend_requirements": "لا يمكن الإرسال، لأنه لم يعد صديقًا"
+}

@@ -1,0 +1,11 @@
+{
+  "record_hint": "Segure para gravar, solte para enviar após ${durationInSeconds} segundo",
+  "input_more_album": "Álbum",
+  "input_more_camera": "Câmera",
+  "input_more_video": "Vídeo",
+  "input_more_call": "Chamada",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Entrar no Canal",
+  "channel_badge_requirements": "Enviar mensagens neste canal requer Insignias",
+  "friend_requirements": "Não é possível enviar mensagens, não são mais amigos"
+}

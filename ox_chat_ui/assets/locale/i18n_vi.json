@@ -1,0 +1,11 @@
+{
+  "record_hint": "Giữ để ghi âm, thả để gửi sau ${durationInSeconds} giây",
+  "input_more_album": "Album",
+  "input_more_camera": "Máy ảnh",
+  "input_more_video": "Video",
+  "input_more_call": "Gọi",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Tham gia kênh",
+  "channel_badge_requirements": "Gửi tin nhắn trong kênh này cần phải có Huy hiệu",
+  "friend_requirements": "Không thể gửi tin nhắn, vì không còn là bạn nữa"
+}

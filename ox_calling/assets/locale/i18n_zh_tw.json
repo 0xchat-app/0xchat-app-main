@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "通話時長：${time}",
+  "str_call_canceled": "已取消",
+  "str_call_rejected": "對方已掛斷"
+}
