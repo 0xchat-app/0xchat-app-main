@@ -28,7 +28,7 @@ class CallManager {
   }
 
   static String tag = 'call_sample';
-  String host = '8.210.109.173:8086';
+  String host = 'rtc.0xchat.com';
 
   SignalingManager? _signaling;
 
