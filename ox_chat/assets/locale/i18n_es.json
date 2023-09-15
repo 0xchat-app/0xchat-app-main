@@ -105,5 +105,15 @@
   "block_dialog_title": "¿Bloquear a este usuario?",
   "block_dialog_content": "Después de bloquear, ya no recibirás mensajes de ellos.",
   "block_fail": "Bloqueo fallido",
-  "un_block_fail": "Desbloqueo fallido"
+  "un_block_fail": "Desbloqueo fallido",
+  "message_menu_quote": "cita",
+  "message_delete_tips": "¿Estás seguro de que quieres eliminar esta conversación?",
+  "secret_message_delete_tips": "Una vez eliminados, los mensajes secretos no pueden ser recuperados. ¿Estás seguro de que quieres proceder?",
+  "secret_message_reject_tips": "¿Estás seguro de rechazar y eliminar?",
+  "leave_channel_tips": "¿Estás seguro de que quieres salir del canal?",
+  "send": "Enviar",
+  "send_zap_tips": "¿Estás seguro de que quieres enviar este zap?",
+  "zap_illegal_toast": "La cantidad de zaps no puede ser 0",
+  "zap_default_description": "Mis mejores deseos",
+  "zap_amount": "Cantidad"
 }

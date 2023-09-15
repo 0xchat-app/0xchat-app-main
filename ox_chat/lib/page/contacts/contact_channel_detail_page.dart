@@ -662,7 +662,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   void _leaveChannel() async {
     OXCommonHintDialog.show(context,
         title: 'Tips',
-        content: 'Are you sure you want to leave the channel?',
+        content: Localized.text('ox_chat.leave_channel_tips'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);

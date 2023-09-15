@@ -16,6 +16,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsSendingPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
   final TextEditingController descriptionController = TextEditingController();
 
   final defaultSatsValue = '0';
-  final defaultDescription = 'Best wishes';
+  final defaultDescription = Localized.text('ox_chat.zap_default_description');
 
   String get zapsAmount => amountController.text.orDefault(defaultSatsValue);
   String get zapsDescription => descriptionController.text.orDefault(defaultDescription);
@@ -77,7 +78,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
                       _buildInputRow(
-                        title: 'Amount',
+                        title: Localized.text('ox_chat.zap_amount'),
                         placeholder: defaultSatsValue,
                         controller: amountController,
                         suffix: 'Sats',
@@ -85,14 +86,14 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
                         keyboardType: TextInputType.number,
                       ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
                       _buildInputRow(
-                        title: 'Description',
+                        title: Localized.text('ox_chat.description'),
                         placeholder: defaultDescription,
                         controller: descriptionController,
                         maxLength: 50,
                       ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
                       _buildSatsText()
                           .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                      CommonButton.themeButton(text: 'Send', onTap: _sendButtonOnPressed)
+                      CommonButton.themeButton(text: Localized.text('ox_chat.send'), onTap: _sendButtonOnPressed)
                           .setPadding(EdgeInsets.only(top: Adapt.px(24))),
                     ],
                   ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
@@ -208,7 +209,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     final description = zapsDescription;
     final lnurl = widget.otherUser.lnurl ?? '';
     if (amount < 1) {
-      CommonToast.instance.show(context, 'Zaps amount cannot be 0');
+      CommonToast.instance.show(context, Localized.text('ox_chat.zap_illegal_toast'));
       return ;
     }
 
@@ -252,7 +253,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': invoice,
       'walletOnPress': (WalletModel wallet) async {
-        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: 'Are you sure you want to send this zap?');
+        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: Localized.text('ox_chat.send_zap_tips'),);
         if (result) {
           widget.zapsInfoCallback({
             'zapper': zapper,

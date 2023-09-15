@@ -67,5 +67,14 @@
   "unfinished_order_sos": "You have an unfinished order, do you need to complete it now?",
   "purchase_success": "Purchase success",
   "purchase_successful": "Purchase successful, please check the newly acquired badge later",
-  "cancel_purchase": "Cancel purchase"
+  "cancel_purchase": "Cancel purchase",
+  "pay_invoice_title": "Pay the lightning invoice",
+  "copy_invoice_title": "Copy invoice",
+  "select_wallet_title": "Select a lighting wallet",
+  "select": "Select",
+  "selected": "Selected",
+  "benefits": "Benefits",
+  "obtain": "Obtain",
+  "obtained": " obtained",
+  "not_yet_obtained": "Not yet obtained"
 }

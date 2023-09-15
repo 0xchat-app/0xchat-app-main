@@ -67,5 +67,14 @@
   "unfinished_order_sos": "未完了の注文があります、今完了させますか？",
   "purchase_success": "購入成功",
   "purchase_successful": "購入が成功しました、後で新しく取得したバッジを確認してください",
-  "cancel_purchase": "購入をキャンセル"
+  "cancel_purchase": "購入をキャンセル",
+  "pay_invoice_title": "ライトニング請求書を支払う",
+  "copy_invoice_title": "請求書をコピー",
+  "select_wallet_title": "ライトニングウォレットを選択",
+  "select": "選択",
+  "selected": "選択済み",
+  "benefits": "利点",
+  "obtain": "取得",
+  "obtained": " 取得済み",
+  "not_yet_obtained": "まだ取得していない"
 }

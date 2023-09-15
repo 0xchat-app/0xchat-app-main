@@ -12,6 +12,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: zaps_invoice_dialog
 ///Description: TODO(Fill in by oneself)
@@ -52,7 +53,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
             children: [
               _topView(),
               Text(
-                'Select a lighting wallet',
+                Localized.text('ox_usercenter.select_wallet_title'),
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   color: ThemeColor.color0,
@@ -109,7 +110,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  'Pay the lightning invoice',
+                  Localized.text('ox_usercenter.pay_invoice_title'),
                   style: TextStyle(
                     fontSize: Adapt.px(16),
                     color: ThemeColor.color0,
@@ -133,7 +134,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                   ).createShader(Offset.zero & bounds.size);
                 },
                 child: Text(
-                  'Done',
+                  Localized.text('ox_common.complete'),
                   style: TextStyle(
                     fontSize: Adapt.px(16),
                   ),
@@ -151,7 +152,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
             Container(
               alignment: Alignment.topLeft,
               child: Text(
-                'Copy invoice',
+                Localized.text('ox_usercenter.copy_invoice_title'),
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   color: ThemeColor.color0,

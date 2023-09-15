@@ -67,5 +67,14 @@
   "unfinished_order_sos": "미완료 주문이 있습니다, 지금 완료하시겠습니까?",
   "purchase_success": "구매 성공",
   "purchase_successful": "구매 성공, 나중에 새로 획득한 배지를 확인해주세요",
-  "cancel_purchase": "구매 취소"
+  "cancel_purchase": "구매 취소",
+  "pay_invoice_title": "번개 인보이스 지불",
+  "copy_invoice_title": "인보이스 복사",
+  "select_wallet_title": "번개 지갑 선택",
+  "select": "선택",
+  "selected": "선택됨",
+  "benefits": "혜택",
+  "obtain": "획득",
+  "obtained": " 획득함",
+  "not_yet_obtained": "아직 획득하지 않음"
 }

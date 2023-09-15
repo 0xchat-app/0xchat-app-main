@@ -67,5 +67,15 @@
   "unfinished_order_sos": "Vous avez une commande non terminée, souhaitez-vous la compléter maintenant ?",
   "purchase_success": "Achat réussi",
   "purchase_successful": "Achat réussi, veuillez vérifier le nouveau badge plus tard",
-  "cancel_purchase": "Annuler l'achat"
+  "cancel_purchase": "Annuler l'achat",
+  "pay_invoice_title": "Payer la facture éclair",
+  "copy_invoice_title": "Copier la facture",
+  "select_wallet_title": "Sélectionnez un portefeuille éclair",
+  "select": "Sélectionner",
+  "selected": "Sélectionné",
+  "benefits": "Avantages",
+  "obtain": "Obtenir",
+  "obtained": " Obtenu",
+  "not_yet_obtained": "Pas encore obtenu"
+
 }

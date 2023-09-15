@@ -67,5 +67,14 @@
   "unfinished_order_sos": "Tienes un pedido sin terminar, ¿necesitas completarlo ahora?",
   "purchase_success": "Compra exitosa",
   "purchase_successful": "Compra exitosa, por favor revisa la nueva insignia adquirida más tarde",
-  "cancel_purchase": "Cancelar compra"
+  "cancel_purchase": "Cancelar compra",
+  "pay_invoice_title": "Pagar la factura relámpago",
+  "copy_invoice_title": "Copiar factura",
+  "select_wallet_title": "Seleccionar una cartera relámpago",
+  "select": "Seleccionar",
+  "selected": "Seleccionado",
+  "benefits": "Beneficios",
+  "obtain": "Obtener",
+  "obtained": " Obtenido",
+  "not_yet_obtained": "Aún no obtenido"
 }

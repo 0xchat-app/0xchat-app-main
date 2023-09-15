@@ -106,5 +106,15 @@
   "block_dialog_title": "Bloquer cet utilisateur ?",
   "block_dialog_content": "Après le blocage, vous ne recevrez plus de messages de leur part.",
   "block_fail": "Échec du blocage !",
-  "un_block_fail": "Échec du déblocage !"
+  "un_block_fail": "Échec du déblocage !",
+  "message_menu_quote": "citation",
+  "message_delete_tips": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+  "secret_message_delete_tips": "Une fois supprimés, les messages secrets ne peuvent pas être récupérés. Êtes-vous sûr de vouloir continuer ?",
+  "secret_message_reject_tips": "Êtes-vous sûr de vouloir rejeter et supprimer ?",
+  "leave_channel_tips": "Êtes-vous sûr de vouloir quitter la chaîne ?",
+  "send": "Envoyer",
+  "send_zap_tips": "Êtes-vous sûr de vouloir envoyer ce zap ?",
+  "zap_illegal_toast": "Le montant des zaps ne peut pas être de 0",
+  "zap_default_description": "Meilleurs vœux",
+  "zap_amount": "Montant"
 }

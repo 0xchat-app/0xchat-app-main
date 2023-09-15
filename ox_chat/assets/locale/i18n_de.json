@@ -106,5 +106,15 @@
   "block_dialog_title": "Diesen Benutzer blockieren?",
   "block_dialog_content": "Nach dem Blockieren erhalten Sie keine Nachrichten mehr von dieser Person.",
   "block_fail": "Blockieren fehlgeschlagen!",
-  "un_block_fail": "Entblocken fehlgeschlagen!"
+  "un_block_fail": "Entblocken fehlgeschlagen!",
+  "message_menu_quote": "Zitat",
+  "message_delete_tips": "Sind Sie sicher, dass Sie diese Unterhaltung löschen möchten?",
+  "secret_message_delete_tips": "Einmal gelöscht, können geheime Nachrichten nicht wiederhergestellt werden. Sind Sie sicher, dass Sie fortfahren möchten?",
+  "secret_message_reject_tips": "Sind Sie sicher, ablehnen und löschen?",
+  "leave_channel_tips": "Sind Sie sicher, dass Sie den Kanal verlassen möchten?",
+  "send": "Senden",
+  "send_zap_tips": "Sind Sie sicher, dass Sie diesen Zap senden möchten?",
+  "zap_illegal_toast": "Die Zap-Anzahl kann nicht 0 sein",
+  "zap_default_description": "Alles Gute",
+  "zap_amount": "Betrag"
 }

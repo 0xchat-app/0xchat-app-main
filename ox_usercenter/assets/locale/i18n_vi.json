@@ -67,5 +67,14 @@
   "unfinished_order_sos": "Bạn có một đơn hàng chưa hoàn thành, bạn có muốn hoàn thành nó ngay không?",
   "purchase_success": "Mua hàng thành công",
   "purchase_successful": "Mua hàng thành công, vui lòng kiểm tra huy hiệu mới đạt được sau",
-  "cancel_purchase": "Hủy mua hàng"
+  "cancel_purchase": "Hủy mua hàng",
+  "pay_invoice_title": "Thanh toán hóa đơn nhanh",
+  "copy_invoice_title": "Sao chép hóa đơn",
+  "select_wallet_title": "Chọn một ví nhanh",
+  "select": "Chọn",
+  "selected": "Đã chọn",
+  "benefits": "Lợi ích",
+  "obtain": "Nhận",
+  "obtained": " Đã nhận",
+  "not_yet_obtained": "Chưa nhận"
 }

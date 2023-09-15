@@ -106,5 +106,15 @@
   "block_dialog_title": "บล็อกผู้ใช้นี้?",
   "block_dialog_content": "หลังจากบล็อก คุณจะไม่ได้รับข้อความจากเขาอีก",
   "block_fail": "บล็อกไม่สำเร็จ",
-  "un_block_fail": "ยกเลิกบล็อกไม่สำเร็จ"
+  "un_block_fail": "ยกเลิกบล็อกไม่สำเร็จ",
+  "message_menu_quote": "อ้าง",
+  "message_delete_tips": "คุณแน่ใจหรือว่าต้องการลบการสนทนานี้?",
+  "secret_message_delete_tips": "เมื่อลบแล้ว ข้อความลับจะไม่สามารถกู้คืนได้ คุณแน่ใจหรือว่าต้องการดำเนินการต่อ?",
+  "secret_message_reject_tips": "คุณแน่ใจหรือว่าต้องการปฏิเสธและลบ?",
+  "leave_channel_tips": "คุณแน่ใจหรือว่าต้องการออกจากช่อง?",
+  "send": "ส่ง",
+  "send_zap_tips": "คุณแน่ใจหรือว่าต้องการส่ง zap นี้?",
+  "zap_illegal_toast": "จำนวน zap ไม่สามารถเป็น 0",
+  "zap_default_description": "ขอให้โชคดี",
+  "zap_amount": "จำนวน"
 }

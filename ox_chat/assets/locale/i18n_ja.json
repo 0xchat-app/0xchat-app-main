@@ -105,5 +105,15 @@
   "block_dialog_title": "このユーザーをブロックしますか？",
   "block_dialog_content": "ブロック後、このユーザーからのメッセージは受信されません。",
   "block_fail": "ブロック失敗！",
-  "un_block_fail": "ブロック解除失敗！"
+  "un_block_fail": "ブロック解除失敗！",
+  "message_menu_quote": "引用",
+  "message_delete_tips": "この会話を削除してもよろしいですか？",
+  "secret_message_delete_tips": "一度削除すると、秘密のメッセージは復元できません。続行してもよろしいですか？",
+  "secret_message_reject_tips": "拒否して削除してもよろしいですか？",
+  "leave_channel_tips": "このチャンネルを退出してもよろしいですか？",
+  "send": "送信",
+  "send_zap_tips": "このzapを送信してもよろしいですか？",
+  "zap_illegal_toast": "zapの数は0にできません",
+  "zap_default_description": "おめでとう",
+  "zap_amount": "数量"
 }

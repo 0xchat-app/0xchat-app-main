@@ -354,8 +354,7 @@ class _ContractsPageState extends State<ContractsPage>
             ),
             MyText(
               'search'.localized() +
-                  ' your ' +
-                  (_selectedIndex == 0 ? 'friend' : 'channel'),
+                  (_selectedIndex == 0 ? 'search_tips_suffix_friend'.localized() : 'search_tips_suffix_channel'.localized()),
               15,
               ThemeColor.color150,
               fontWeight: FontWeight.w400,

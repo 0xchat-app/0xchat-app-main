@@ -67,5 +67,15 @@
   "unfinished_order_sos": "你有一个未完成的订单，需要现在完成吗？",
   "purchase_success": "购买成功",
   "purchase_successful": "购买成功，请稍后查看新获得的徽章",
-  "cancel_purchase": "取消购买"
+  "cancel_purchase": "取消购买",
+  "pay_invoice_title": "支付闪电账单",
+  "copy_invoice_title": "复制账单",
+  "select_wallet_title": "选择一个闪电钱包",
+  "select": "选择",
+  "selected": "已选择",
+  "benefits": "成就",
+  "obtain": "获得",
+  "obtained": " 已获得",
+  "not_yet_obtained": "尚未获得"
+
 }

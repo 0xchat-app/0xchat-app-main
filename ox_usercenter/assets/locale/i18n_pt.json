@@ -67,5 +67,14 @@
   "unfinished_order_sos": "Você tem um pedido incompleto, deseja completá-lo agora?",
   "purchase_success": "Compra bem-sucedida",
   "purchase_successful": "Compra bem-sucedida, verifique a nova insígnia adquirida mais tarde",
-  "cancel_purchase": "Cancelar compra"
+  "cancel_purchase": "Cancelar compra",
+  "pay_invoice_title": "Pagar a fatura relâmpago",
+  "copy_invoice_title": "Copiar fatura",
+  "select_wallet_title": "Selecione uma carteira relâmpago",
+  "select": "Selecionar",
+  "selected": "Selecionado",
+  "benefits": "Benefícios",
+  "obtain": "Obter",
+  "obtained": " Obtido",
+  "not_yet_obtained": "Ainda não obtido"
 }

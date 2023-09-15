@@ -67,5 +67,14 @@
   "unfinished_order_sos": "Sie haben eine unvollständige Bestellung, möchten Sie diese jetzt abschließen?",
   "purchase_success": "Kauf erfolgreich",
   "purchase_successful": "Kauf erfolgreich, bitte überprüfen Sie später das neu erworbene Abzeichen",
-  "cancel_purchase": "Kauf abbrechen"
+  "cancel_purchase": "Kauf abbrechen",
+  "pay_invoice_title": "Blitzrechnung bezahlen",
+  "copy_invoice_title": "Rechnung kopieren",
+  "select_wallet_title": "Wählen Sie eine Blitz-Brieftasche",
+  "select": "Auswählen",
+  "selected": "Ausgewählt",
+  "benefits": "Vorteile",
+  "obtain": "Erhalten",
+  "obtained": " Erhalten",
+  "not_yet_obtained": "Noch nicht erhalten"
 }

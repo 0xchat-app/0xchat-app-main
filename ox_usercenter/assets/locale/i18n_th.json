@@ -67,5 +67,14 @@
   "unfinished_order_sos": "คุณมีคำสั่งซื้อที่ยังไม่เสร็จ ต้องการเสร็จสิ้นมันเลยหรือไม่",
   "purchase_success": "ซื้อสำเร็จ",
   "purchase_successful": "ซื้อสำเร็จ โปรดตรวจสอบแบดจ์ใหม่ที่ได้รับ",
-  "cancel_purchase": "ยกเลิกการซื้อ"
+  "cancel_purchase": "ยกเลิกการซื้อ",
+  "pay_invoice_title": "จ่ายใบแจ้งหนี้แสนสิ้น",
+  "copy_invoice_title": "คัดลอกใบแจ้งหนี้",
+  "select_wallet_title": "เลือกกระเป๋าสตางค์แสนสิ้น",
+  "select": "เลือก",
+  "selected": "เลือกแล้ว",
+  "benefits": "ประโยชน์",
+  "obtain": "ได้รับ",
+  "obtained": " ได้รับแล้ว",
+  "not_yet_obtained": "ยังไม่ได้รับ"
 }

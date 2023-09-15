@@ -535,7 +535,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   void _rejectSecretChat() async {
     OXCommonHintDialog.show(context,
         title: '',
-        content: 'Are you sure reject and delete？',
+        content: Localized.text('ox_chat.secret_message_reject_tips'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);

@@ -525,8 +525,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     onPressed: (BuildContext _) async {
                       OXCommonHintDialog.show(context,
                           content: announceItem.chatType == ChatType.chatSecret
-                              ? 'Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?'
-                              : 'Are you sure you want to delete this conversation?',
+                              ? Localized.text('ox_chat.secret_message_delete_tips')
+                              : Localized.text('ox_chat.message_delete_tips'),
                           actionList: [
                             OXCommonHintAction.cancel(onTap: () {
                               OXNavigator.pop(context);

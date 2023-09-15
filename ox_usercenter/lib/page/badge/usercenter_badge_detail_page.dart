@@ -193,7 +193,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                               Container(
                                 margin: EdgeInsets.only(top: Adapt.px(4)),
                                 child: Text(
-                                  widget.badgeModel.obtainedTime != null ? (OXDateUtils.formatTimestamp((widget.badgeModel.obtainedTime!) * 1000, pattern: 'yyyy.MM.dd') + ' obtained') : 'Not yet obtained',
+                                  widget.badgeModel.obtainedTime != null ? (OXDateUtils.formatTimestamp((widget.badgeModel.obtainedTime!) * 1000, pattern: 'yyyy.MM.dd') + Localized.text('ox_usercenter.obtained')) : Localized.text('ox_usercenter.not_yet_obtained'),
                                   style: TextStyle(
                                     fontSize: Adapt.px(14),
                                     color: ThemeColor.color100,
@@ -273,7 +273,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                               height: Adapt.px(4),
                             ),
                             Text(
-                              "by ${widget.badgeModel.creator ?? ''}",
+                              "${Localized.text('ox_common.by')} ${widget.badgeModel.creator ?? ''}",
                               style: TextStyle(
                                   fontSize: Adapt.px(15),
                                   color: ThemeColor.color0),
@@ -285,7 +285,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                             Container(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'Description',
+                                Localized.text('ox_usercenter.DESCRIPTION'),
                                 style: TextStyle(
                                     fontSize: Adapt.px(14),
                                     fontWeight: FontWeight.w600,
@@ -327,7 +327,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                                 height: Adapt.px(24),
                               ),
                               Text(
-                                'Benefits',
+                                Localized.text('ox_usercenter.benefits'),
                                 style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100),
                               ),
                               _getChildrenWidget(),
@@ -423,7 +423,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    widget.isHad ? widget.isSelected! ? 'Selected' : 'Select' : 'Obtain',
+                    widget.isHad ? widget.isSelected! ? Localized.text('ox_usercenter.selected') : Localized.text('ox_usercenter.select') : Localized.text('ox_usercenter.obtain'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: Adapt.px(16),

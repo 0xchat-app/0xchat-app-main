@@ -160,7 +160,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
           CustomSlidableAction(
             onPressed: (BuildContext _) async {
               OXCommonHintDialog.show(context,
-                  content: 'Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?',
+                  content: Localized.text('ox_chat.secret_message_delete_tips'),
                   actionList: [
                     OXCommonHintAction.cancel(onTap: () {
                       OXNavigator.pop(context);
