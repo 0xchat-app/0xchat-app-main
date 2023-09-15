@@ -48,15 +48,33 @@ class OXRelayManager {
       }
       Connect.sharedInstance.connectRelays(relayAddressList);
     } else {
-      RelayModel tempRelayModel = RelayModel(
+      RelayModel defaultModel1 = RelayModel(
         relayName: CommonConstant.oxChatRelay,
         canDelete: true,
-        connectStatus: 1,
+        connectStatus: 0,
         isSelected: true,
         createTime: DateTime.now().millisecondsSinceEpoch,
       );
-      relayMap[CommonConstant.oxChatRelay] = tempRelayModel;
-      Connect.sharedInstance.connectRelays([CommonConstant.oxChatRelay]);
+      String defaultRelayName2 = 'wss://relay.damus.io';
+      String defaultRelayName3 = 'wss://relay.nostr.band';
+      RelayModel defaultModel2 = RelayModel(
+        relayName: defaultRelayName2,
+        canDelete: true,
+        connectStatus: 0,
+        isSelected: true,
+        createTime: DateTime.now().millisecondsSinceEpoch,
+      );
+      RelayModel defaultModel3 = RelayModel(
+        relayName: defaultRelayName3,
+        canDelete: true,
+        connectStatus: 0,
+        isSelected: true,
+        createTime: DateTime.now().millisecondsSinceEpoch,
+      );
+      relayMap[CommonConstant.oxChatRelay] = defaultModel1;
+      relayMap[defaultRelayName2] = defaultModel2;
+      relayMap[defaultRelayName3] = defaultModel3;
+      Connect.sharedInstance.connectRelays([CommonConstant.oxChatRelay, defaultRelayName2, defaultRelayName3]);
       await saveRelayList(relayModelList);
     }
     connectedCount = relayAddressList.where((item) => Connect.sharedInstance.connectStatus[item] != null && Connect.sharedInstance.connectStatus[item] == RelayConnectStatus.open ).length;
