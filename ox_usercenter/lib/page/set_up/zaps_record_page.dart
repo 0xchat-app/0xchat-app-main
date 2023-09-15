@@ -20,7 +20,7 @@ class ZapsRecordPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Zaps record',
+        title: 'Zap Record',
         centerTitle: true,
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
