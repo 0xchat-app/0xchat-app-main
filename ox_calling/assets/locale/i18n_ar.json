@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "المدة: ${time}",
+  "str_call_canceled": "ملغى",
+  "str_call_rejected": "مكالمة صادرة"
+}

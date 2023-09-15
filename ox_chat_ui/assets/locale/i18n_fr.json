@@ -1,0 +1,11 @@
+{
+  "record_hint": "Maintenez pour enregistrer, relâchez pour envoyer après ${durationInSeconds} seconde",
+  "input_more_album": "Album",
+  "input_more_camera": "Caméra",
+  "input_more_video": "Vidéo",
+  "input_more_call": "Appel",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Rejoindre le canal",
+  "channel_badge_requirements": "Envoyer des messages dans ce canal nécessite un badge",
+  "friend_requirements": "Impossible d'envoyer un message, n'est plus un ami"
+}

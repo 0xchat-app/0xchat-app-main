@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "통화 시간: ${time}",
+  "str_call_canceled": "취소됨",
+  "str_call_rejected": "발신 통화"
+}

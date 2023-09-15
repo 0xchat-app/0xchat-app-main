@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "ระยะเวลา: ${time}",
+  "str_call_canceled": "ยกเลิก",
+  "str_call_rejected": "โทรออก"
+}

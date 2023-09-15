@@ -1,0 +1,11 @@
+{
+  "record_hint": "Halten zum Aufnehmen, nach ${durationInSeconds} Sekunde senden",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Anruf",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Kanal beitreten",
+  "channel_badge_requirements": "Nachrichten in diesem Kanal erfordern Abzeichen",
+  "friend_requirements": "Nachricht nicht möglich, da nicht mehr befreundet"
+}
