@@ -16,7 +16,6 @@ class PromptToneManager {
   }
 
   void play() async {
-    String promptToneUrl = 'https://nostrfiles.dev/uploads/hXR21snKdEzeeF5SZK1t.mp3';
-    await _player.play(UrlSource(promptToneUrl));
+    await _player.play(AssetSource('sounds/message_notice_sound.mp3'));
   }
 }
