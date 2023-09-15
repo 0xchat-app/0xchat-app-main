@@ -1097,7 +1097,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       groupId,
                       content,
                       unreadCount = 0,
-                      createTime,
+                      createTime = 0,
                       chatType,
                       messageType,
                       avatar,
@@ -5623,7 +5623,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             #unreadCount),
         r.ParameterMirrorImpl(
             r'createTime',
-            67253254,
+            67255302,
             486,
             const prefix0.Reflector(),
             -1,
@@ -5631,7 +5631,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             21,
             const <int>[],
             const [],
-            null,
+            0,
             #createTime),
         r.ParameterMirrorImpl(
             r'chatType',
