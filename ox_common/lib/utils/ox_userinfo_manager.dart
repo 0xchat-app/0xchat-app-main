@@ -23,7 +23,6 @@ abstract class OXUserInfoObserver {
 }
 
 class OXUserInfoManager {
-  UserDB? currentUserInfo;
 
   static final OXUserInfoManager sharedInstance = OXUserInfoManager._internal();
 
@@ -38,6 +37,8 @@ class OXUserInfoManager {
   final List<VoidCallback> initDataActions = [];
 
   bool get isLogin => (currentUserInfo != null);
+
+  UserDB? get currentUserInfo => Account.sharedInstance.me;
 
   bool _initFriendsCompleted = false;
   bool _initChannelsCompleted = false;
@@ -63,18 +64,16 @@ class OXUserInfoManager {
       }
       String pubkey = Account.getPublicKey(privKey);
       await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.loginWithPriKey(privKey);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
         _initDatas();
         await OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', tempUserDB.pubKey);
         await OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', tempUserDB.defaultPassword);
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
       await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
         _initDatas();
       }
     } else {
@@ -87,7 +86,6 @@ class OXUserInfoManager {
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
   Future<void> loginSuccess(UserDB userDB) async {
-    OXUserInfoManager.sharedInstance.currentUserInfo = userDB;
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', userDB.defaultPassword);
     LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
@@ -99,28 +97,28 @@ class OXUserInfoManager {
 
   void addChatCallBack() async {
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDB ssDB) async {
-      LogUtil.e("Michael: init secretChatRequestCallBack ssDB.toPubkey =${ssDB.toPubkey}");
+      LogUtil.e("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatAcceptCallBack ssDB.toPubkey =${ssDB.toPubkey}");
+      LogUtil.e("Michael: init secretChatAcceptCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatAcceptCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatRejectCallBack ssDB.toPubkey =${ssDB.toPubkey}");
+      LogUtil.e("Michael: init secretChatRejectCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRejectCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatUpdateCallBack ssDB.toPubkey =${ssDB.toPubkey}");
+      LogUtil.e("Michael: init secretChatUpdateCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatUpdateCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
       LogUtil.e("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatMessageCallBack = (String secretSessionId, MessageDB message) {
-      LogUtil.e("Michael: init secretChatMessageCallBack secretSessionId =${secretSessionId}; message.id =${message.messageId}");
-      OXChatBinding.sharedInstance.secretChatMessageCallBack(message, secretSessionId: secretSessionId);
+    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
+      LogUtil.e("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.secretChatMessageCallBack(message);
     };
     Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
       LogUtil.e("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
@@ -158,14 +156,13 @@ class OXUserInfoManager {
   }
 
   Future logout() async {
-    if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.privkey == null) {
+    if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    await Account.logout(OXUserInfoManager.sharedInstance.currentUserInfo!.privkey!);
+    Account.sharedInstance.logout();
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
-    OXUserInfoManager.sharedInstance.currentUserInfo = null;
     _initFriendsCompleted = false;
     _initChannelsCompleted = false;
     _initAllCompleted = false;
@@ -186,34 +183,50 @@ class OXUserInfoManager {
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
 
-    ///4 private chat,  10100,10101,10102,10103 add friend logic, 42  channel message, 9735
-    List<int> kinds = [4, 10100, 10101, 10102, 10103, 42, 9735];
+    ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
+    List<int> kinds = [4, 44, 1059, 42, 9735];
     for (String jsonString in jsonStringList) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
-      if (jsonMap['name'] == 'Push Notifications' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 0 && !jsonMap['isSelected']) {
         kinds = [];
         break;
       }
-      if (jsonMap['name'] == 'Private Messages' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 1 && !jsonMap['isSelected']) {
         kinds.remove(4);
-        kinds.remove(10100);
-        kinds.remove(10101);
-        kinds.remove(10102);
-        kinds.remove(10103);
+        kinds.remove(44);
+        kinds.remove(1059);
       }
-      if (jsonMap['name'] == 'Channels' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 2 && !jsonMap['isSelected']) {
         kinds.remove(42);
       }
-      if (jsonMap['name'] == 'Zaps' && !jsonMap['isSelected']) {
+      if (jsonMap['id'] == 3 && !jsonMap['isSelected']) {
         kinds.remove(9735);
       }
     }
 
-    if (kinds.isNotEmpty) {
-      OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
-      updateNotificatin = okEvent.status;
-    }
+    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
+    updateNotificatin = okEvent.status;
+
     return updateNotificatin;
+  }
+
+  Future<bool> checkDNS() async {
+    String pubKey = currentUserInfo?.pubKey ?? '';
+    String dnsStr = currentUserInfo?.dns ?? '';
+    if(dnsStr.isEmpty || dnsStr == 'null') {
+      return false;
+    }
+    List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
+    List<String> temp = dnsStr.split('@');
+    String name = temp[0];
+    String domain = temp[1];
+    DNS dns = DNS(name, domain, pubKey, relayAddressList);
+    try {
+      return await Account.checkDNS(dns);
+    } catch (error, stack) {
+      LogUtil.e("check dns error:$error\r\n$stack");
+      return false;
+    }
   }
 
   void _initDatas() async {
@@ -223,9 +236,9 @@ class OXUserInfoManager {
     });
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
-      Channels.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!, callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
     });
-    Account.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
+    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
@@ -234,8 +247,8 @@ class OXUserInfoManager {
 
   void _initMessage() {
     _initAllCompleted = true;
-    Messages.sharedInstance.initWithPrivkey(currentUserInfo!.privkey!);
-    NotificationHelper.sharedInstance.init(OXUserInfoManager.sharedInstance.currentUserInfo?.privkey ?? '', CommonConstant.serverPubkey);
+    Messages.sharedInstance.init();
+    NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
     setNotification();
     OXModuleService.invoke(
       'ox_calling',

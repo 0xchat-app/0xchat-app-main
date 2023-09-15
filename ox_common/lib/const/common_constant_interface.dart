@@ -33,4 +33,7 @@ abstract class ConstantInterface {
   int get NOTIFICATION_CHANNELS;
   /// Zaps
   int get NOTIFICATION_ZAPS;
+
+  /// Giphy API Key
+  String get giphyApiKey;
 }

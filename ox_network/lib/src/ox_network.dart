@@ -192,14 +192,17 @@ class OXNetwork {
           fullUrl += (key.toString() + '=' + value.toString());
           fullUrl += '&';
         });
-        // 删除多余的 &
         fullUrl = fullUrl.substring(0, fullUrl.length - 1);
       }
       url = url + fullUrl;
     }
 
     _option.headers = headers;
-    _option.contentType = contentType;
+    if(requestType == RequestType.GET){
+      _option.contentType = null;
+    } else {
+      _option.contentType = contentType;
+    }
     _option.method = _getRequestTypeString(requestType);
     late Response response;
     try {

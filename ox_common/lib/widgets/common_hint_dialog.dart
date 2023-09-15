@@ -8,6 +8,7 @@ import 'package:ox_common/utils/common_color.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_text.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 enum HintIconType { prompt }
@@ -92,7 +93,7 @@ class OXCommonHintDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: bgImage == null ? ThemeColor.color180 : Colors.transparent,
                     borderRadius: BorderRadius.circular(10.0),
-                    image: DecorationImage(image: bgImage ?? AssetImage(''), fit: BoxFit.fill)),
+                    image: bgImage == null ? null : DecorationImage(image: bgImage!, fit: BoxFit.fill)),
                 child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[_buildTextArea(), _buildButtonArea(context)])),
         ));
   }
@@ -157,8 +158,8 @@ class OXCommonHintDialog extends StatelessWidget {
   }
 
   Widget _buildButtonArea(BuildContext context) {
-    Widget view =
-        (icon != null && actionList.length == 2) || isRowAction ? _buildRowButtonArea(context, actionList[0], actionList[1]) : _buildColumnButtonArea(context);
+    bool isRowAction = (icon != null && actionList.length == 2) || this.isRowAction;
+    Widget view = isRowAction ? _buildRowButtonArea(context, actionList) : _buildColumnButtonArea(context);
     return Container(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -174,76 +175,48 @@ class OXCommonHintDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildRowButtonArea(BuildContext context, OXCommonHintAction aButtonAction, OXCommonHintAction bButtonAction) {
-    Widget bButton = Center(
-      child: Text(
-        bButtonAction.text(),
-        style: TextStyle(
-          fontSize: Adapt.px(16),
-          color: bButtonAction.style == OXHintActionStyle.red ? ThemeColor.red1 : null,
-        ),
-      ),
-    );
-    if (bButtonAction.style == OXHintActionStyle.theme) {
-      bButton = ShaderMask(
-        shaderCallback: (Rect bounds) {
-          return LinearGradient(
-            colors: [
-              ThemeColor.gradientMainEnd,
-              ThemeColor.gradientMainStart,
-            ],
-          ).createShader(Offset.zero & bounds.size);
-        },
-        child: bButton,
-      );
-    }
+  Widget _buildRowButtonArea(BuildContext context, List<OXCommonHintAction> actions,) {
+    final aButtonAction = actions.length > 0 ? actions[0] : null;
+    final bButtonAction = actions.length > 1 ? actions[1] : null;
+    final aButton = aButtonAction != null ? _buildActionButton(context, aButtonAction) : null;
+    final bButton = bButtonAction != null ? _buildActionButton(context, bButtonAction) : null;
+    var widgetList = [aButton, bButton]
+        .where((e) => e != null).cast<Widget>()
+        .map((e) => Expanded(flex: 1,child: e,))
+        .expand((e) => [e, Container(width: Adapt.px(0.5),color: ThemeColor.color160,)]).toList()
+        ..removeLast();
     return Container(
       height: Adapt.px(56),
       child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                if (aButtonAction.onTap == null) {
-                  OXNavigator.pop(context);
-                } else {
-                  aButtonAction.onTap!();
-                }
-              },
-              child: Container(
-                child: Center(
-                  child: Text(
-                    aButtonAction.text(),
-                    style: TextStyle(
-                      fontSize: Adapt.px(16),
-                      color: ThemeColor.color110,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: Adapt.px(0.5),
-            color: ThemeColor.color160,
-          ),
-          Expanded(
-            flex: 1,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                if (bButtonAction.onTap == null) {
-                  OXNavigator.pop(context);
-                } else {
-                  bButtonAction.onTap!();
-                }
-              },
-              child: bButton,
-            ),
-          ),
-        ],
+        children: widgetList,
+      ),
+    );
+  }
+
+  Widget _buildActionButton(BuildContext context, OXCommonHintAction action) {
+    final isThemeButton = action.style == OXHintActionStyle.theme;
+    final text = action.text();
+    final textColor = isThemeButton ? null : action.style == OXHintActionStyle.red ? ThemeColor.red1 : null;
+    final textStyle = TextStyle(
+      fontSize: Adapt.px(16),
+      color: textColor,
+    );
+    final textWidget = isThemeButton
+        ? OXText.themeText(text, style: textStyle,)
+        : Text(text, style: textStyle,);
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        if (action.onTap == null) {
+          OXNavigator.pop(context);
+        } else {
+          action.onTap!();
+        }
+      },
+      child: Container(
+        child: Center(
+          child: textWidget,
+        ),
       ),
     );
   }
@@ -274,11 +247,46 @@ class OXCommonHintDialog extends StatelessWidget {
   }
 
   Widget _buildThemeButton(BuildContext context, OXCommonHintAction action) {
+    if (action.style == OXHintActionStyle.theme) {
+      return GestureDetector(
+        onTap: () {
+          if (action.onTap == null) {
+            OXNavigator.pop(context);
+          } else {
+            action.onTap!();
+          }
+        },
+        child: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: Container(
+            padding: EdgeInsets.only(top: Adapt.px(17),bottom: Adapt.px(7)),
+            child: Center(
+              child: Text(
+                action.text(),
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  color: action.style == OXHintActionStyle.red
+                      ? ThemeColor.red1
+                      : null,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return CommonButton(
         content: action.text(),
-        backgroundColor: ThemeColor.main,
-        fontColor: CommonColor.white01,
-        borderSideColor: ThemeColor.main,
+        backgroundColor: Colors.transparent,
+        borderSideColor: Colors.transparent,
         onPressed: () {
           if (action.onTap == null) {
             OXNavigator.pop(context);
@@ -397,7 +405,10 @@ class OXCommonHintDialog extends StatelessWidget {
     AssetImage? bgImage,
     bool isRowAction = false,
   }) {
-    actionList ??= [OXCommonHintAction.sure(text: Localized.text('ox_common.ok'), onTap: sureOnTap)];
+    actionList ??= [
+      OXCommonHintAction.sure(
+          text: Localized.text('ox_common.complete'), onTap: sureOnTap)
+    ];
     if (showCancelButton) {
       actionList.insert(0, OXCommonHintAction.cancel());
     }

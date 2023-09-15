@@ -29,33 +29,32 @@ extension LocaleTypeExtension on LocaleType{
 
     String value(){
         switch(this){
-            case LocaleType.zh:
-                return "zh";
             case LocaleType.en:
                 return "en";
-            case LocaleType.es:
-                return "es";
+            case LocaleType.zh:
+                return "zh";
             case LocaleType.ru:
                 return "ru";
-            case LocaleType.pt:
-                return "pt";
-            case LocaleType.vi:
-                return "vi";
-            case LocaleType.ja:
-                return "ja";
             case LocaleType.fr:
                 return "fr";
             case LocaleType.de:
                 return "de";
+            case LocaleType.es:
+                return "es";
+            case LocaleType.ja:
+                return "ja";
+            case LocaleType.ko:
+                return "ko";
+            case LocaleType.pt:
+                return "pt";
+            case LocaleType.vi:
+                return "vi";
             case LocaleType.ar:
                 return "ar";
             case LocaleType.th:
                 return "th";
-            case LocaleType.ko:
-                return "ko";
             case LocaleType.zh_tw:
                 return "zh_tw";
-
         }
     }
 
@@ -63,64 +62,61 @@ extension LocaleTypeExtension on LocaleType{
     int symbol(){
 
         switch(this){
-            case LocaleType.zh:
-                return 1;
             case LocaleType.en:
+                return 1;
+            case LocaleType.zh:
                 return 2;
-            case LocaleType.es:
-                return 7;
             case LocaleType.ru:
+                return 3;
+            case LocaleType.fr:
+                return 4;
+            case LocaleType.de:
+                return 5;
+            case LocaleType.es:
+                return 6;
+            case LocaleType.ja:
+                return 7;
+            case LocaleType.ko:
                 return 8;
             case LocaleType.pt:
                 return 9;
             case LocaleType.vi:
                 return 10;
-            case LocaleType.ja:
-                return 4;
-            case LocaleType.fr:
-                return 11;
-            case LocaleType.de:
-                return 12;
             case LocaleType.ar:
-                return 3;
+                return 11;
             case LocaleType.th:
-                return 6;
-            case LocaleType.ko:
-                return 5;
+                return 12;
             case LocaleType.zh_tw:
                 return 13;
-
         }
-
-
     }
 
     String get nativeLocalString {
         switch(this){
-            case LocaleType.zh:
-                return "zh-Hans";
             case LocaleType.en:
                 return "en";
-            case LocaleType.es:
-                return "es";
+            case LocaleType.zh:
+                return "zh-Hans";
             case LocaleType.ru:
                 return "ru";
-            case LocaleType.pt:
-                return "pt";
-            case LocaleType.vi:
-                return "vi";
-            case LocaleType.ja:
-                return "ja";
             case LocaleType.fr:
                 return "fr";
             case LocaleType.de:
                 return "de";
+            case LocaleType.es:
+                return "es";
+            case LocaleType.ja:
+                return "ja";
+            case LocaleType.ko:
+                return "ko";
+            case LocaleType.pt:
+                return "pt";
+            case LocaleType.vi:
+                return "vi";
             case LocaleType.ar:
                 return "ar";
             case LocaleType.th:
                 return "th";
-            case LocaleType.ko:
-                return "ko";
             case LocaleType.zh_tw:
                 return "zh-HK";
         }
@@ -223,13 +219,13 @@ class Localized {
 
     static Future<Null> init() async {
 
-        // String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
+        String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
         // if(lan == LocaleType.zh.value()){
         //     localized.localeType = LocaleType.zh;
         // }else{
-            localized.localeType = LocaleType.en;
+        //     localized.localeType = LocaleType.en;
         // }
-        // localized.localeType = getLocaleTypeByString(lan);
+        localized.localeType = getLocaleTypeByString(lan);
         String language = localized.localeType.value();
         String? jsonContent = await _readAsset("assets/locale/i18n_$language.json");
         String? defaultJsonContent;
@@ -318,6 +314,7 @@ class Localized {
         }).then((value){
         }).whenComplete((){
 
+            print("共有:${localized._onLocaleChangedCallbackList.length}监听");
             localized._onLocaleChangedCallbackList.forEach((VoidCallback callback) {
                 callback();
             });

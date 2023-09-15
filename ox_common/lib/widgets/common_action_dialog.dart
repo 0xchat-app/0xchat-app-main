@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ox_common/navigator/dialog_router.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -9,16 +10,20 @@ import 'package:ox_common/utils/adapt.dart';
 class OXActionModel<T> {
   static const CancelIdentify = 'ActionModelCancel';
 
-  const OXActionModel({required this.identify,required this.text});
+  const OXActionModel({required this.identify,required this.text, this.iconName, this.package});
   final T identify;
   final String text;
+  final String? iconName;
+  final String? package;
 
   OXActionModel.fromJson(Map<String, dynamic> jsonMap)
       : identify = jsonMap['identify'],
-        text = jsonMap['text'];
+        text = jsonMap['text'],
+        iconName = jsonMap['iconName'],
+        package = jsonMap['package'];
 
   Map<String, dynamic> toJson() =>
-      <String, dynamic>{'identify': identify, 'text': text};
+      <String, dynamic>{'identify': identify, 'text': text, 'iconName': iconName, 'package': package};
 
   @override
   bool operator ==(dynamic value) {
@@ -43,12 +48,14 @@ class OXActionDialog extends StatelessWidget {
     this.maxRow,
     backGroundColor,
     separatorColor,
+    separatorCancelColor,
     textColor,
     required this.onPressCallback,
   })  : _maxHeight = maxHeight,
-        this.backGroundColor = backGroundColor ?? ThemeColor.dark02,
-        this.separatorColor = separatorColor ?? ThemeColor.dark01,
-        this.textColor = textColor ?? ThemeColor.gray02,
+        this.backGroundColor = backGroundColor ?? ThemeColor.color180,
+        this.separatorColor = separatorColor ?? ThemeColor.color160,
+        this.separatorCancelColor = separatorCancelColor ?? ThemeColor.color190,
+        this.textColor = textColor ?? ThemeColor.color10,
         super();
 
 
@@ -60,9 +67,10 @@ class OXActionDialog extends StatelessWidget {
   final bool showCancelButton;
   final double? _maxHeight;
   final int? maxRow;
-  final void Function(OXActionModel) onPressCallback;
+  final void Function(OXActionModel?) onPressCallback;
   final Color backGroundColor;
   final Color separatorColor;
+  final Color separatorCancelColor;
   final Color textColor;
 
   double get maxHeight {
@@ -82,8 +90,8 @@ class OXActionDialog extends StatelessWidget {
           decoration: BoxDecoration(
             color: this.backGroundColor,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(Adapt.px(4.0)),
-              topRight: Radius.circular(Adapt.px(4.0)),
+              topLeft: Radius.circular(Adapt.px(12.0)),
+              topRight: Radius.circular(Adapt.px(12.0)),
             ),
           ),
           child: SafeArea(
@@ -127,18 +135,32 @@ class OXActionDialog extends StatelessWidget {
             width: double.infinity,
             height: Adapt.px(actionHeight),
             color: Colors.transparent,
-            child: Center(
-              child: Text(
-                item.text,
-                style: TextStyle(
-                  fontSize: Adapt.px(16.0),
-                  fontWeight: selected ?
-                    FontWeight.w500 : FontWeight.w400,
-                  color: selected
-                    ? ThemeColor.red
-                    : this.textColor,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                item.iconName == null
+                    ? SizedBox()
+                    : CommonImage(
+                  iconName: item.iconName ?? '',
+                  width: Adapt.px(20),
+                  height: Adapt.px(20),
+                  package: item.package ?? '',
                 ),
-              ),
+                SizedBox(width: Adapt.px(10),),
+                Text(
+                  item.text,
+                  style: TextStyle(
+                    fontSize: Adapt.px(16.0),
+                    fontWeight: selected ?
+                    FontWeight.w500 : FontWeight.w400,
+                    color: selected
+                        ? ThemeColor.red
+                        : this.textColor,
+                  ),
+                ),
+              ],
             ),
           ),
           onTap: () {
@@ -148,8 +170,7 @@ class OXActionDialog extends StatelessWidget {
         Offstage(
           offstage: !separator,
           child: Container(
-            height: Adapt.px(1.0),
-            margin: EdgeInsets.symmetric(horizontal: Adapt.px(16.0)),
+            height: Adapt.px(0.5),
             color: this.separatorColor,
           ),
         )
@@ -169,7 +190,7 @@ class OXActionDialog extends StatelessWidget {
         children: <Widget>[
           Container(
             height: Adapt.px(4.0),
-            color: separatorColor,
+            color: separatorCancelColor,
           ),
           GestureDetector(
             child: Container(
@@ -188,7 +209,7 @@ class OXActionDialog extends StatelessWidget {
               ),
             ),
             onTap: () {
-              onPressCallback(item);
+              onPressCallback(null);
             },
           ),
         ],
@@ -205,7 +226,8 @@ class OXActionDialog extends StatelessWidget {
     double? maxHeight,
     int? maxRow,
     Color? backGroundColor,
-    Color? separatorColor
+    Color? separatorColor,
+    Color? separatorCancelColor,
   }) {
     return showYLEActionDialog<OXActionModel<T>?>(
       context: context,
@@ -216,7 +238,7 @@ class OXActionDialog extends StatelessWidget {
         showCancelButton: showCancelButton,
         maxHeight: maxHeight,
         maxRow: maxRow,
-        onPressCallback: (OXActionModel item) {
+        onPressCallback: (OXActionModel? item) {
           OXNavigator.pop(
             context,
             item,
@@ -224,6 +246,7 @@ class OXActionDialog extends StatelessWidget {
         },
         backGroundColor:backGroundColor,
         separatorColor: separatorColor,
+        separatorCancelColor: separatorCancelColor,
       )
     );
   }

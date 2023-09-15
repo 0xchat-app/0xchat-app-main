@@ -1,12 +1,17 @@
 {
   "cancel": "Cancel",
   "confirm": "Confirm",
+  "create": "Create",
   "ok": "OK",
+  "none": "None",
   "tips": "Notice",
   "next_step": "Next",
   "complete": "Done",
+  "edit":"Edit",
+  "qr_code": "QR code",
   "commit": "Submit",
   "loading": "Loading...",
+  "by": "By",
   "permiss_camera_refuse": "Failed to get camera permission",
   "permiss_storage_refuse": "Failed to get storage permission",
   "permiss_microphone_refuse": "Failed to get microphone permission",
@@ -82,5 +87,12 @@
   "str_scan": "Scan",
   "str_add_friend" : "Add Friend",
   "str_new_channel": "New Channel",
-  "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data."
+  "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
+  "message_type_image": "[image]",
+  "message_type_video": "[video]",
+  "message_type_audio": "[audio]",
+  "message_type_file": "[file]",
+  "message_type_zaps": "[zaps]",
+  "message_type_template": "[template]",
+  "message_type_unknown": "[unknown]"
 }

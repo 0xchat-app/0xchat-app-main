@@ -31,9 +31,16 @@ class ScanUtils {
     }
     Map<String, dynamic>? tempMap;
     int type = CommonConstant.qrCodeUser;
-    if (url.startsWith('nprofile')) {
-      tempMap = Account.decodeProfile(url); //return {'pubkey': pubkey, 'relays': relays};
-    } else if (url.startsWith('nevent')) {
+    if (url.startsWith('nprofile') ||
+        url.startsWith('nostr:nprofile') ||
+        url.startsWith('nostr:npub') ||
+        url.startsWith('npub')) {
+      tempMap = Account.decodeProfile(
+          url); //return {'pubkey': pubkey, 'relays': relays};
+    } else if (url.startsWith('nevent') ||
+        url.startsWith('nostr:nevent') ||
+        url.startsWith('nostr:note') ||
+        url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
       type = CommonConstant.qrCodeChannel;
     }
@@ -41,13 +48,15 @@ class ScanUtils {
       return;
     }
     bool notSame = true;
-    List<String> relaysList = (tempMap['relays'] as List<dynamic>).cast<String>();
+    List<String> relaysList =
+        (tempMap['relays'] as List<dynamic>).cast<String>();
     String willAddRelay = '';
-    if(relaysList.isEmpty){
+    if (relaysList.isEmpty) {
       notSame = false;
     } else {
       for (String tempRelay in relaysList) {
-        for (String localRelay in OXRelayManager.sharedInstance.relayAddressList) {
+        for (String localRelay
+            in OXRelayManager.sharedInstance.relayAddressList) {
           if (localRelay == tempRelay) {
             notSame = false;
           }
@@ -56,26 +65,31 @@ class ScanUtils {
     }
     if (notSame) {
       willAddRelay = relaysList[0];
-      OXCommonHintDialog.show(context, content: 'scan_find_not_same_hint'.commonLocalized().replaceAll(r'${relay}', willAddRelay), actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction.sure(
-            text: Localized.text('ox_common.confirm'),
-            onTap: () async {
-              RelayModel _tempRelayModel = RelayModel(
-                relayName: willAddRelay,
-                canDelete: true,
-                connectStatus: 0,
-              );
-              await OXRelayManager.sharedInstance.addRelaySuccess(_tempRelayModel);
-              if (type == CommonConstant.qrCodeUser) {
-                _showFriendInfo(context, tempMap!['pubkey']);
-              } else if (type == CommonConstant.qrCodeChannel) {
-                _gotoChannel(context, tempMap!['channelId']);
-              }
+      OXCommonHintDialog.show(context,
+          content: 'scan_find_not_same_hint'
+              .commonLocalized()
+              .replaceAll(r'${relay}', willAddRelay),
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context);
             }),
-      ]);
+            OXCommonHintAction.sure(
+                text: Localized.text('ox_common.confirm'),
+                onTap: () async {
+                  RelayModel _tempRelayModel = RelayModel(
+                    relayName: willAddRelay,
+                    canDelete: true,
+                    connectStatus: 0,
+                  );
+                  await OXRelayManager.sharedInstance
+                      .addRelaySuccess(_tempRelayModel);
+                  if (type == CommonConstant.qrCodeUser) {
+                    _showFriendInfo(context, tempMap!['pubkey']);
+                  } else if (type == CommonConstant.qrCodeChannel) {
+                    _gotoChannel(context, tempMap!['channelId']);
+                  }
+                }),
+          ]);
     } else {
       if (type == CommonConstant.qrCodeUser) {
         _showFriendInfo(context, tempMap['pubkey']);
@@ -85,32 +99,35 @@ class ScanUtils {
     }
   }
 
-  static Future<void> _showFriendInfo(BuildContext context, String pubkey) async {
-    await OXLoading.show();
-    var usersMap = await Account.syncProfilesFromRelay([pubkey]);
-    await OXLoading.dismiss();
-    UserDB? user = usersMap[pubkey];
+  static Future<void> _showFriendInfo(
+      BuildContext context, String pubkey) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
     if (user == null) {
       CommonToast.instance.show(context, 'User not found');
     } else {
       if (context.mounted) {
-        if (user.pubKey != null) {
-          OXModuleService.pushPage(context, 'ox_chat', 'ContactFriendUserInfoPage', {
-            'userDB': user,
-          });
-        }
+        OXModuleService.pushPage(
+            context, 'ox_chat', 'ContactUserInfoPage', {
+          'userDB': user,
+        });
       }
     }
   }
 
-  static Future<void> _gotoChannel(BuildContext context, String channelID) async {
+  static Future<void> _gotoChannel(
+      BuildContext context, String channelID) async {
     await OXLoading.show();
-    List<ChannelDB> channelsList = await Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelID]);
-    await OXLoading.dismiss();
-    ChannelDB channelDB = channelsList[0];
-    if (channelDB.channelId == null && channelDB.channelId!.isEmpty) {
-      CommonToast.instance.show(context, 'ChannelDB not found');
+    List<ChannelDB> channelsList = [];
+    ChannelDB? c = Channels.sharedInstance.channels[channelID];
+    if (c == null) {
+      channelsList = await Channels.sharedInstance
+          .getChannelsFromRelay(channelIds: [channelID]);
     } else {
+      channelsList = [c];
+    }
+    await OXLoading.dismiss();
+    if (channelsList.isNotEmpty) {
+      ChannelDB channelDB = channelsList[0];
       if (context.mounted) {
         OXModuleService.pushPage(context, 'ox_chat', 'ChatGroupMessagePage', {
           'chatId': channelID,

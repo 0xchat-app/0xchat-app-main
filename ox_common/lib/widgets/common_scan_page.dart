@@ -86,7 +86,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                         'str_scan'.commonLocalized(),
                         style: TextStyle(
                           fontSize: Adapt.px(18),
-                          color: ThemeColor.color0,
+                          color: ThemeColor.white,
                         ),
                       ),
                     ),
@@ -115,6 +115,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                             iconName: 'icon_business_card.png',
                             width: Adapt.px(54),
                             height: Adapt.px(54),
+                            useTheme: true,
                           ),
                           SizedBox(
                             height: Adapt.px(7),
@@ -122,7 +123,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                           Text(
                             'str_my_idcard'.commonLocalized(),
                             style: TextStyle(
-                              color: ThemeColor.white02,
+                              color: ThemeColor.color40,
                               fontSize: Adapt.px(12),
                             ),
                           ),
@@ -151,6 +152,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                             iconName: 'icon_scan_qr.png',
                             width: Adapt.px(54),
                             height: Adapt.px(54),
+                            useTheme: true,
                           ),
                           SizedBox(
                             height: Adapt.px(7),
@@ -158,7 +160,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                           Text(
                             'str_album'.commonLocalized(),
                             style: TextStyle(
-                              color: ThemeColor.white02,
+                              color: ThemeColor.color40,
                               fontSize: Adapt.px(12),
                             ),
                           ),
