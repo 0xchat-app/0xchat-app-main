@@ -71,11 +71,18 @@ class ChatPageConfig {
   ChatTheme get pageTheme =>
       DefaultChatTheme(
         sentMessageBodyTextStyle: TextStyle(
-          color: ThemeColor.color0,
+          color: ThemeColor.white,
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           height: 1.5,
         ),
+        receivedMessageBodyTextStyle: TextStyle(
+          color: ThemeColor.color0,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 1.5,
+        ),
+        inputTextColor: ThemeColor.color0,
       );
 }
 

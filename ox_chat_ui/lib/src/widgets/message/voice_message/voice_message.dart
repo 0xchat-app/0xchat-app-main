@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:just_audio/just_audio.dart' as jsAudio;
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 
 import './noises.dart';
 import 'contact_noises.dart';
@@ -82,8 +84,11 @@ class _VoiceMessageState extends State<VoiceMessage>
   AnimationController? _controller;
   String? _playUrl;
 
+  Color? themeColor;
+
   @override
   void initState() {
+    themeColor = widget.me ? ThemeColor.white : ThemeColor.color0;
     formatDuration = widget.formatDuration ?? (Duration? duration) => duration?.toString().substring(2, 7) ?? '00:00';
     _player = audioPlayerSingleton.audioPlayer;
     _remainingTime = formatDuration!(Duration());
@@ -204,19 +209,21 @@ class _VoiceMessageState extends State<VoiceMessage>
       );
 
   Widget _buildPlayIcon() =>
-      Image.asset(
-        'assets/images/chat_voice_play_icon.png',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
+      CommonImage(
+        size: Adapt.px(32),
+        iconName: 'chat_voice_play_icon.png',
         package: 'ox_chat_ui',
+        color: themeColor,
+        useTheme: false,
       );
 
   Widget _buildPauseIcon() =>
-      Image.asset(
-        'assets/images/chat_voice_pause_icon.png',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
+      CommonImage(
+        size: Adapt.px(32),
+        iconName: 'chat_voice_pause_icon.png',
         package: 'ox_chat_ui',
+        color: themeColor,
+        useTheme: false,
       );
 
   Widget _buildProgressView() {
@@ -244,7 +251,7 @@ class _VoiceMessageState extends State<VoiceMessage>
                 animation: CurvedAnimation(parent: _controller!, curve: Curves.ease),
                 builder: (context, child) {
                   final itemProgress = (index + 1) / dotCount;
-                  var dotColor = Colors.white;
+                  var dotColor = themeColor;
                   if (_controller?.status == AnimationStatus.forward) {
                     dotColor = itemProgress <= _controller!.value ? Colors.white
                         : Colors.white.withOpacity(0.2);
@@ -271,7 +278,6 @@ class _VoiceMessageState extends State<VoiceMessage>
     if (input > 60) return maxCount;
     final dotCount = (minCount + (maxCount - minCount) * log(input) / log(60)).floor();
     return dotCount;
-    return max(min(dotCount, maxCount), minCount);
   }
 
   Widget _buildTimeView() => SizedBox(
@@ -279,6 +285,7 @@ class _VoiceMessageState extends State<VoiceMessage>
     child: Text(
       _remainingTime,
       style: TextStyle(
+        color: themeColor,
         fontSize: 12,
         fontWeight: FontWeight.w400,
       ),

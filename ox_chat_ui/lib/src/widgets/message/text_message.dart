@@ -140,16 +140,16 @@ class TextMessage extends StatelessWidget {
         : InheritedChatTheme.of(context).theme.receivedMessageBodyLinkTextStyle;
     final bodyTextStyle = user.id == message.author.id
         ? theme.sentMessageBodyTextStyle
-        : theme.sentMessageBodyTextStyle;
+        : theme.receivedMessageBodyTextStyle;
     final boldTextStyle = user.id == message.author.id
         ? theme.sentMessageBodyBoldTextStyle
-        : theme.sentMessageBodyBoldTextStyle;
+        : theme.receivedMessageBodyBoldTextStyle;
     final codeTextStyle = user.id == message.author.id
         ? theme.sentMessageBodyCodeTextStyle
-        : theme.sentMessageBodyCodeTextStyle;
+        : theme.receivedMessageBodyCodeTextStyle;
     final emojiTextStyle = user.id == message.author.id
         ? theme.sentEmojiMessageTextStyle
-        : theme.sentEmojiMessageTextStyle;
+        : theme.receivedEmojiMessageTextStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
