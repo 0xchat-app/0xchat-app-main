@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ox_calling/ox_calling_platform_interface.dart';
+import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/manager/signaling.dart';
+import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -39,6 +43,13 @@ class CallManager {
   late BuildContext _context;
   ValueChanged<CallState>? callStateHandler;
   CallMessageType callType = CallMessageType.video;
+  String? callInitiator;
+  String? callReceiver;
+  Timer? _timer;
+  int counter = 0;
+  OverlayEntry? overlayEntry;
+
+  final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
 
   void initRTC({String? tHost}) {
     if (tHost != null) {
@@ -58,6 +69,8 @@ class CallManager {
     _signaling?.close();
     localRenderer.dispose();
     remoteRenderer.dispose();
+    _timer?.cancel();
+    _timer = null;
   }
 
   void _connect(BuildContext context) async {
@@ -101,27 +114,20 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          if (_waitAccept) {
-            print('peer reject');
-            _waitAccept = false;
-          }
-          localRenderer.srcObject = null;
-          remoteRenderer.srcObject = null;
-          inCalling = false;
-          _session = null;
+          calledBye();
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
-          // _showInvateDialog();
           break;
         case CallState.CallStateConnected:
           if (_waitAccept) {
             _waitAccept = false;
           }
+          startTimer();
           inCalling = true;
           break;
       }
-      if (callStateHandler != null) {
+      if (callStateHandler != null && callState !=null) {
         callStateHandler!(callState!);
       }
     };
@@ -165,12 +171,14 @@ class CallManager {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
     }
+    calledBye();
   }
 
   hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
     }
+    calledBye();
   }
 
   switchCamera() {
@@ -201,6 +209,38 @@ class CallManager {
     return aspectRatio;
   }
 
+  void calledBye(){
+    if (_waitAccept) {
+      print('peer reject');
+      _waitAccept = false;
+    }
+    stopTimer();
+    localRenderer.srcObject = null;
+    remoteRenderer.srcObject = null;
+    inCalling = false;
+    _session = null;
+    if (overlayEntry != null && overlayEntry!.mounted) {
+      overlayEntry?.remove();
+      overlayEntry = null;
+    }
+
+    String content = '';
+    if (CallManager.instance.counter > 0) {
+      Duration duration = Duration(seconds: CallManager.instance.counter);
+      String twoDigits(int n) => n.toString().padLeft(2, "0");
+      String twoDigitMinutes = twoDigits(duration.inMinutes);
+      String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+      content = 'str_call_duration'.localized().replaceAll(r'${time}', '$twoDigitMinutes:$twoDigitSeconds');
+    } else {
+      if (callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        content = 'str_call_canceled'.localized();
+      } else {
+        content = 'str_call_rejected'.localized();
+      }
+    }
+    CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+  }
+
   Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
     if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
       return false;
@@ -214,5 +254,37 @@ class CallManager {
         decryptContent,
         callType);
     return true;
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void startTimer() async {
+    counter = 0;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      counter++;
+      notifyAllObserverValueChanged();
+    });
+  }
+
+  void toggleFloatingWindow(ChatCore.UserDB userDB) {
+    overlayEntry ??= OverlayEntry(
+        builder: (context) => CallFloatingDraggableOverlay(userDB: userDB),
+      );
+    Overlay.of(OXNavigator.navigatorKey.currentContext!)!.insert(overlayEntry!);
+  }
+}
+
+extension CallCacheObserverEx on CallManager {
+  void addObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.add(valueChangedCallback);
+  bool removeObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.remove(valueChangedCallback);
+
+  Future<void> notifyAllObserverValueChanged() async {
+    final valueChangedCallback = _valueChangedCallback;
+    for (var callback in valueChangedCallback) {
+      callback(counter);
+    }
   }
 }

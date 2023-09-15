@@ -314,7 +314,6 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       backGroundColor: ThemeColor.color180,
       separatorCancelColor: ThemeColor.color190,
     );
-    LogUtil.e('Michael: oxActionModel =${oxActionModel?.identify}; oxActionModel =${oxActionModel?.text}');
     if (oxActionModel != null) {
       OXModuleService.pushPage(
         context,

@@ -364,6 +364,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_usercenter',
+              useTheme: true,
             ),
           ),
           Expanded(

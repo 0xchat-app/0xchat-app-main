@@ -1,7 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -27,6 +25,7 @@ class ReplyMessageWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(Adapt.px(12)),
             color: ThemeColor.color190,
           ),
+          margin: EdgeInsets.only(bottom: Adapt.px(10)),
           padding: EdgeInsets.symmetric(horizontal: Adapt.px(12), vertical: Adapt.px(4)),
           child: Row(
             children: [

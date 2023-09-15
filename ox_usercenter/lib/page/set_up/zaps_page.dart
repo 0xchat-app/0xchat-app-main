@@ -305,7 +305,7 @@ class _ZapsPageState extends State<ZapsPage> {
         alignment: Alignment.center,
         child: Text(
           walletName,
-          style: TextStyle(fontSize: Adapt.px(16), color: Colors.white),
+          style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
         ),
       ),
     );

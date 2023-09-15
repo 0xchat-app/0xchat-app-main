@@ -161,13 +161,14 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
 
   Widget _buildHeader() {
     String localAvatarPath = 'assets/images/icon_default_channel.png';
-    Image placeholderImage = Image.asset(
-      localAvatarPath,
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_default_channel',
       fit: BoxFit.fill,
       width: Adapt.px(100),
       height: Adapt.px(100),
       package: 'ox_chat',
     );
+
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -229,7 +230,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             Adapt.px(16),
           ),
         ),
-        color: Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       height: height,
       child: TextField(
@@ -285,7 +286,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                 Adapt.px(16),
               ),
             ),
-            color: Color.fromRGBO(36, 37, 42, 1),
+            color: ThemeColor.color180,
           ),
           height: Adapt.px(48),
           width: MediaQuery.of(context).size.width,
