@@ -56,7 +56,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
             ? null
             : <Widget>[
                 Container(
-                  margin: EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
+                  margin: EdgeInsets.only(right: Adapt.px(5)),
                   color: Colors.transparent,
                   child: OXButton(
                     highlightColor: Colors.transparent,
@@ -65,6 +65,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                     height: Adapt.px(44),
                     child: CommonImage(
                       iconName: "nav_more_new.png",
+                      color: ThemeColor.color0,
                       width: Adapt.px(24),
                       height: Adapt.px(24),
                     ),
