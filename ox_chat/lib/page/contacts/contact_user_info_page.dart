@@ -438,8 +438,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               ? null
               : LinearGradient(
                   colors: [
-                    ThemeColor.gradientMainEnd.withOpacity(0.24),
-                    ThemeColor.gradientMainStart.withOpacity(0.24),
+                    ThemeColor.gradientMainEnd,
+                    ThemeColor.gradientMainStart,
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,

@@ -167,7 +167,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
             title,
             style: TextStyle(
               fontSize: Adapt.px(16),
-              color: Colors.white,
+              color: ThemeColor.color0,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -179,7 +179,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
             keyHintStr,
             style: TextStyle(
               fontSize: Adapt.px(16),
-              color: Colors.white,
+              color: ThemeColor.color0,
               fontWeight: FontWeight.w400,
             ),
           ),

@@ -173,7 +173,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
                     suffix,
                     style: TextStyle(
                       fontSize: 16,
-                      color: ThemeColor.white,
+                      color: ThemeColor.color0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

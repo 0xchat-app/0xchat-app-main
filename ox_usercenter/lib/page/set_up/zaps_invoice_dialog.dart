@@ -112,7 +112,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                   'Pay the lightning invoice',
                   style: TextStyle(
                     fontSize: Adapt.px(16),
-                    color: Colors.white,
+                    color: ThemeColor.color0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -154,7 +154,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                 'Copy invoice',
                 style: TextStyle(
                   fontSize: Adapt.px(16),
-                  color: Colors.white,
+                  color: ThemeColor.color0,
                   fontWeight: FontWeight.bold,
                 ),
               ),

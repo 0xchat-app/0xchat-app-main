@@ -34,7 +34,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: const Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -44,7 +44,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
             OXNavigator.pop(context, imgFile);
           }),
           Divider(
-            color: ThemeColor.color170,
+            color: ThemeColor.color160,
             height: Adapt.px(0.5),
           ),
           _buildItem(Localized.text('ox_usercenter.camera'), onTap: () async {
@@ -71,6 +71,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
         child: Text(
           title,
           style: TextStyle(
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
           ),
