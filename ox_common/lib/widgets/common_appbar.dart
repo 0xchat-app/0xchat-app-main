@@ -217,7 +217,7 @@ class BaseAppBarState extends State<CommonAppBar> {
               color: Colors.white,
               width: Adapt.px(24),
               height: Adapt.px(24),
-              useTheme: false,
+              useTheme: true,
             ),
             onPressed: widget.backCallback ??
                 () {

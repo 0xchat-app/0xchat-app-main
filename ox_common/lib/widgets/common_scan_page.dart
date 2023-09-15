@@ -123,7 +123,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                           Text(
                             'str_my_idcard'.commonLocalized(),
                             style: TextStyle(
-                              color: ThemeColor.color40,
+                              color: ThemeColor.white,
                               fontSize: Adapt.px(12),
                             ),
                           ),
@@ -160,7 +160,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                           Text(
                             'str_album'.commonLocalized(),
                             style: TextStyle(
-                              color: ThemeColor.color40,
+                              color: ThemeColor.white,
                               fontSize: Adapt.px(12),
                             ),
                           ),

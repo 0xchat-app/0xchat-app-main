@@ -66,7 +66,7 @@ class CommonButton extends StatefulWidget {
               )),
           child: Text(
             text,
-            style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0),
+            style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: Colors.white),
           ),
         ),
       );
