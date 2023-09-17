@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -8,10 +7,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
@@ -21,7 +16,6 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -77,7 +71,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           _messages = messages;
         });
       },
-      sendMessageHandler: _sendMessage,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
   }
@@ -87,7 +80,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     channel = Channels.sharedInstance.channels[widget.communityItem.groupId];
     _user = types.User(
-      id: userDB!.pubKey!,
+      id: userDB!.pubKey,
       sourceObject: userDB,
     );
   }
@@ -151,7 +144,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(msg.text),
+        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -171,8 +164,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
         ],
-        onVoiceSend: chatGeneralHandler.sendVoiceMessage,
-        onGifSend: chatGeneralHandler.sendGifImageMessage,
+        onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
+        onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         onJoinChannelTap: () async {

@@ -9,17 +9,12 @@ import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:http/http.dart' as http;
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
@@ -28,7 +23,6 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -129,7 +123,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           _messages = messages;
         });
       },
-      sendMessageHandler: _sendMessage,
       fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
@@ -139,7 +132,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
-      id: userDB!.pubKey!,
+      id: userDB!.pubKey,
       sourceObject: userDB,
     );
     otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
@@ -230,7 +223,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(msg.text),
+        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -251,8 +244,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           InputMoreItemEx.video(chatGeneralHandler),
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
         ],
-        onVoiceSend: chatGeneralHandler.sendVoiceMessage,
-        onGifSend: chatGeneralHandler.sendGifImageMessage,
+        onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
+        onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
@@ -302,31 +295,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
-  }
-
-  Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
-    types.Message? updatedMessage;
-    if (message is types.ImageMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendImageMessage(
-        context,
-        message,
-        pubkey: receiverPubkey,
-      );
-    } else if (message is types.AudioMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendAudioMessage(
-        context,
-        message,
-      );
-    } else if (message is types.VideoMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendVideoMessage(
-        context,
-        message,
-      );
-    } else {
-      return message;
-    }
-
-    return updatedMessage;
   }
 
   Widget customBottomWidget() {
@@ -454,78 +422,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       previewData: previewData,
     );
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _sendMessage(types.Message message, {bool isResend = false}) async {
-
-    if (!isResend) {
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      message = sendMsg;
-    }
-
-    // send message
-    var sendFinish = OXValue(false);
-    final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
-    final contentString = message.contentString(message.content);
-    final replayId = message.repliedMessage?.id ?? '';
-
-    final event = await Contacts.sharedInstance.getSendSecretMessageEvent(
-      sessionId,
-      receiverPubkey,
-      replayId,
-      type,
-      contentString,
-    );
-    if (event == null) {
-      CommonToast.instance.show(context, 'send message fail');
-      return;
-    }
-
-    final sendMsg = message.copyWith(
-      id: event.id,
-      sourceKey: event,
-    );
-
-    ChatLogUtils.info(
-      className: 'ChatSecretMessagePage',
-      funcName: '_sendMessage',
-      message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
-    );
-    Contacts.sharedInstance
-        .sendSecretMessage(
-      sessionId,
-      receiverPubkey,
-      replayId,
-      type,
-      contentString,
-      event: event,
-    ).then((event) {
-      sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
-      );
-      ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-    });
-
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-  }
-
-  void _updateMessageStatus(types.Message message, types.Status status) {
-    final updatedMessage = message.copyWith(
-      status: status,
-    );
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending);
-      }
-    });
   }
 
   Future<void> _loadMoreMessages() async {

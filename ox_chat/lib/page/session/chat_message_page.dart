@@ -1,6 +1,4 @@
 
-import 'dart:io';
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -8,11 +6,6 @@ import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
@@ -25,7 +18,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 
 class ChatMessagePage extends StatefulWidget {
 
@@ -76,7 +68,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           _messages = messages;
         });
       },
-      sendMessageHandler: _sendMessage,
       fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
@@ -151,7 +142,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(msg.text),
+        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -173,8 +164,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
           InputMoreItemEx.call(chatGeneralHandler, otherUser),
         ],
-        onVoiceSend: chatGeneralHandler.sendVoiceMessage,
-        onGifSend: chatGeneralHandler.sendGifImageMessage,
+        onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
+        onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
@@ -209,21 +200,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
-  }
-
-  Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
-    types.Message? updatedMessage;
-    if (message is types.ImageMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendImageMessage(context, message, pubkey: receiverPubkey,);
-    } else if (message is types.AudioMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendAudioMessage(context, message,);
-    } else if (message is types.VideoMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendVideoMessage(context, message,);
-    } else {
-      return message;
-    }
-
-    return updatedMessage;
   }
 
   Widget customBottomWidget() {
@@ -265,77 +241,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       previewData: previewData,
     );
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  Future _sendMessage(types.Message message, {bool isResend = false}) async {
-
-    if (!isResend) {
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      message = sendMsg;
-    }
-
-    // send message
-    var sendFinish = OXValue(false);
-    final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
-    final contentString = message.contentString(message.content);
-    final replayId = message.repliedMessage?.id ?? '';
-
-    var event = message.sourceKey;
-    final messageKind = session.messageKind;
-    if (messageKind != null) {
-      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, replayId, type, contentString, kind: messageKind);
-    } else {
-      event ??= await Contacts.sharedInstance.getSendMessageEvent(receiverPubkey, replayId, type, contentString);
-    }
-    if (event == null) {
-      CommonToast.instance.show(context, 'send message fail');
-      return ;
-    }
-
-    final sendMsg = message.copyWith(
-      id: event.id,
-      sourceKey: event,
-    );
-
-    ChatLogUtils.info(
-      className: 'ChatMessagePage',
-      funcName: '_sendMessage',
-      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
-    );
-    OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
-    Contacts.sharedInstance.sendPrivateMessage(
-      receiverPubkey,
-      replayId,
-      type,
-      contentString,
-      event: event,
-    ).then((event) {
-      sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
-      );
-      ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-    });
-
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-  }
-
-  void _updateMessageStatus(types.Message message, types.Status status) {
-    final updatedMessage = message.copyWith(
-      status: status,
-    );
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending);
-      }
-    });
   }
 
   Future<void> _loadMoreMessages() async {

@@ -104,7 +104,7 @@ extension InputMoreItemEx on InputMoreItem {
         title: () => Localized.text('ox_chat_ui.input_more_camera'),
         iconName: 'chat_camera_more.png',
         action: (context) {
-          handler.cameraPressHandler();
+          handler.cameraPressHandler(context);
         },
       );
 

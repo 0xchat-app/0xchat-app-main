@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -53,8 +53,7 @@ class ChatGeneralHandler {
   ChatGeneralHandler({
     required this.author,
     required this.session,
-    required this.refreshMessageUI,
-    required this.sendMessageHandler,
+    this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
   });
 
@@ -68,9 +67,7 @@ class ChatGeneralHandler {
 
   TextEditingController inputController = TextEditingController();
 
-  Function(List<types.Message>) refreshMessageUI;
-
-  Function(types.Message message, {bool isResend}) sendMessageHandler;
+  Function(List<types.Message>)? refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
 }
@@ -100,7 +97,7 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
       end = index + 1 + increasedCount;
     }
     hasMoreMessage = end < allMsg.length;
-    refreshMessageUI(allMsg.sublist(0, min(allMsg.length, end)));
+    refreshMessageUI?.call(allMsg.sublist(0, min(allMsg.length, end)));
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
@@ -118,7 +115,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     );
     if (result) {
       OXNavigator.pop(context);
-      resendMessage(message);
+      resendMessage(context, message);
     }
   }
 
@@ -287,7 +284,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future albumPressHandler(BuildContext context, int type) async {
     final storagePermission = await PermissionUtils.getPhotosPermission();
     if(storagePermission){
-      await _goToPhoto(type);
+      await _goToPhoto(context, type);
     } else {
       await OXCommonHintDialog.show(context, content: 'Please grant permission to access the photo', actionList: [
         OXCommonHintAction(
@@ -300,8 +297,8 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future cameraPressHandler() async {
-    _goToCamera();
+  Future cameraPressHandler(BuildContext context,) async {
+    _goToCamera(context);
   }
 
   Future callPressHandler(BuildContext context, UserDB user) async {
@@ -329,13 +326,13 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
     await OXNavigator.presentPage<Map<String, String>>(
-      context, (context) => ZapsSendingPage(user, (zapsInfo) {
+      context, (_) => ZapsSendingPage(user, (zapsInfo) {
         final zapper = zapsInfo['zapper'] ?? '';
         final invoice = zapsInfo['invoice'] ?? '';
         final amount = zapsInfo['amount'] ?? '';
         final description = zapsInfo['description'] ?? '';
         if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-          sendZapsMessage(zapper, invoice, amount, description);
+          sendZapsMessage(context, zapper, invoice, amount, description);
         } else {
           ChatLogUtils.error(
             className: 'ChatGeneralHandler',
@@ -347,7 +344,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     );
   }
 
-  Future<void> _goToPhoto(int type) async {
+  Future<void> _goToPhoto(BuildContext context, int type) async {
 
     final isVideo = type == 2;
     final pickType = isVideo ? PickType.video : PickType.image;
@@ -370,10 +367,10 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       fileList.add(file);
     });
 
-    messageSendHandler(fileList);
+    messageSendHandler(context, fileList);
   }
 
-  Future<void> _goToCamera() async {
+  Future<void> _goToCamera(BuildContext context) async {
     //Open the camera or gallery based on the status indicator
     List<Media>? res = await ImagesPicker.openCamera(
       pickType: PickType.image,
@@ -384,7 +381,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
     final media = res.first;
     final file = File(media.path);
-    sendImageMessage([file]);
+    sendImageMessage(context, [file]);
   }
 }
 
