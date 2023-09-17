@@ -242,21 +242,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
 
-  Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
-    types.Message? updatedMessage;
-    if (message is types.ImageMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendImageMessage(context, message);
-    } else if (message is types.AudioMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendAudioMessage(context, message);
-    } else if (message is types.VideoMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendVideoMessage(context, message);
-    } else {
-      return message;
-    }
-
-    return updatedMessage;
-  }
-
   void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
     chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
@@ -271,65 +256,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     );
 
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  Future _sendMessage(types.Message message, {bool isResend = false}) async {
-
-    if (!isResend) {
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      message = sendMsg;
-    }
-
-    // send message
-    var sendFinish = OXValue(false);
-    final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
-    final contentString = message.contentString(message.content);
-    final replayId = message.repliedMessage?.id ?? '';
-
-    final event = Channels.sharedInstance.getSendChannelMessageEvent(channelId, type, contentString, replyMessage: replayId);
-    if (event == null) {
-      CommonToast.instance.show(context, 'send message fail');
-      return ;
-    }
-
-    final sendMsg = message.copyWith(
-      id: event.id,
-      sourceKey: event,
-    );
-
-    Channels.sharedInstance.sendChannelMessage(
-      widget.communityItem.chatId!,
-      replyMessage: replayId,
-      type,
-      contentString,
-      event: event,
-    ).then((event) {
-      sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
-      );
-      ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-    });
-
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-  }
-
-  void _updateMessageStatus(types.Message message, types.Status status) {
-    final updatedMessage = message.copyWith(
-      status: status,
-    );
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending);
-      }
-    });
   }
 
   Future<void> _loadMoreMessages() async {

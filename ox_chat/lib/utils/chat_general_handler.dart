@@ -51,11 +51,11 @@ part 'chat_send_message_handler.dart';
 class ChatGeneralHandler {
 
   ChatGeneralHandler({
-    required this.author,
     required this.session,
+    types.User? author,
     this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
-  });
+  }) : author = author ?? _defaultAuthor();
 
   final types.User author;
   final ChatSessionModel session;
@@ -70,6 +70,14 @@ class ChatGeneralHandler {
   Function(List<types.Message>)? refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
+
+  static types.User _defaultAuthor() {
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    return types.User(
+      id: userDB!.pubKey,
+      sourceObject: userDB,
+    );
+  }
 }
 
 extension ChatMessageHandlerEx on ChatGeneralHandler {

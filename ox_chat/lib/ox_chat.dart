@@ -9,6 +9,7 @@ import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -96,7 +97,9 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  void _sendCallMessage(ChatSessionModel session, String text, CallMessageType type) {
-
-  }
+  void _sendCallMessage({
+    required ChatSessionModel session,
+    required String text,
+    required CallMessageType type,
+  }) => ChatGeneralHandler(session: session).sendCallMessage(text: text, type: type);
 }

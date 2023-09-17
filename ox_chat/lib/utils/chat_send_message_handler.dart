@@ -2,10 +2,21 @@
 part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
-
-  Future sendMessageHandler(
-      BuildContext context,
+  
+  static Future sendMessageHandler(
+      ChatSessionModel session,
       types.Message message, {
+        BuildContext? context,
+        ChatGeneralHandler? handler,
+        bool isResend = false,
+      }) async {
+    handler ??= ChatGeneralHandler(session: session);
+    handler._sendMessageHandler( message, context: context, isResend: isResend);
+  }
+
+  Future _sendMessageHandler(
+      types.Message message, {
+        BuildContext? context,
         bool isResend = false,
       }) async {
     if (!isResend) {
@@ -27,7 +38,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       status: types.Status.sending,
     );
     ChatDataCache.shared.deleteMessage(session, resendMsg);
-    sendMessageHandler(context, message, isResend: true);
+    _sendMessageHandler(message, context: context, isResend: true);
   }
 
   void sendTextMessage(BuildContext context, String text) {
@@ -45,7 +56,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
     replyHandler.updateReplyMessage(null);
 
-    sendMessageHandler(context, message);
+    _sendMessageHandler(message, context: context);
   }
 
   Future sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) async {
@@ -62,7 +73,22 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       description: description,
     );
 
-    sendMessageHandler(context, message);
+    _sendMessageHandler(message, context: context);
+  }
+
+  Future sendCallMessage({BuildContext? context, required String text, required CallMessageType type}) async {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    final message = CustomMessageFactory().createCallMessage(
+      author: author,
+      timestamp: tempCreateTime,
+      id: message_id,
+      roomId: session.chatId ?? '',
+      text: text,
+      type: type,
+    );
+
+    _sendMessageHandler(message, context: context);
   }
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
@@ -87,7 +113,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         fileEncryptionType: fileEncryptionType,
       );
 
-      sendMessageHandler(context, message);
+      _sendMessageHandler(message, context: context);
     }
   }
 
@@ -105,7 +131,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       size: double.parse(image.size!),
     );
 
-    sendMessageHandler(context, message);
+    _sendMessageHandler(message, context: context);
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
@@ -125,7 +151,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       size: bytes.length,
     );
 
-    sendMessageHandler(context, message);
+    _sendMessageHandler(message, context: context);
   }
 
   Future sendVideoMessageSend(BuildContext context, List<File> images) async {
@@ -164,7 +190,26 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         fileEncryptionType: fileEncryptionType,
       );
 
-      sendMessageHandler(context, message);
+      _sendMessageHandler(message, context: context);
+    }
+  }
+
+  Future addSystemMessage(BuildContext context, String text, { bool isSendToRemote = true}) async {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+    final message = types.SystemMessage(
+      author: author,
+      createdAt: tempCreateTime,
+      id: message_id,
+      roomId: session.chatId,
+      text: text,
+    );
+
+    if (isSendToRemote) {
+      _sendMessageHandler(message, context: context);
+    } else {
+      ChatDataCache.shared.addNewMessage(session, message);
     }
   }
 }
@@ -183,24 +228,24 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return await UplodAliyun.uploadFileToAliyun(fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey);
   }
 
-  Future<types.Message?> tryPrepareSendFileMessage(BuildContext context, types.Message message, String encryptedKey) async {
+  Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message, String encryptedKey) async {
     types.Message? updatedMessage;
     if (message is types.ImageMessage) {
       updatedMessage = await prepareSendImageMessage(
-        context,
-        message,
+        message: message,
+        context: context,
         encryptedKey: encryptedKey,
       );
     } else if (message is types.AudioMessage) {
       updatedMessage = await prepareSendAudioMessage(
-        context,
-        message,
+        message: message,
+        context: context,
         encryptedKey: encryptedKey,
       );
     } else if (message is types.VideoMessage) {
       updatedMessage = await prepareSendVideoMessage(
-        context,
-        message,
+        message: message,
+        context: context,
         encryptedKey: encryptedKey,
       );
     } else {
@@ -210,11 +255,11 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return updatedMessage;
   }
 
-  Future<types.Message?> prepareSendImageMessage(
-      BuildContext context,
-      types.ImageMessage message, {
-        String? encryptedKey,
-      }) async {
+  Future<types.Message?> prepareSendImageMessage({
+    BuildContext? context,
+    required types.ImageMessage message,
+    String? encryptedKey,
+  }) async {
     final filePath = message.uri;
     final uriIsLocalPath = filePath.isLocalPath;
 
@@ -239,11 +284,11 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return message;
   }
 
-  Future<types.Message?> prepareSendAudioMessage(
-      BuildContext context,
-      types.AudioMessage message, {
-        String? encryptedKey,
-      }) async {
+  Future<types.Message?> prepareSendAudioMessage({
+    BuildContext? context,
+    required types.AudioMessage message,
+    String? encryptedKey,
+  }) async {
     final filePath = message.uri;
     final uriIsLocalPath = filePath.isLocalPath;
 
@@ -268,11 +313,11 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return message;
   }
 
-  Future<types.Message?> prepareSendVideoMessage(
-      BuildContext context,
-      types.VideoMessage message, {
-        String? encryptedKey,
-      }) async {
+  Future<types.Message?> prepareSendVideoMessage({
+    BuildContext? context,
+    required types.VideoMessage message,
+    String? encryptedKey,
+  }) async {
     final filePath = message.metadata?['videoUrl'] as String ?? '';
     final uriIsLocalPath = filePath.isLocalPath;
 

@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
@@ -212,6 +213,20 @@ class CustomMessageFactory implements MessageFactory {
             amount: amount,
             description: description,
           );
+        case CustomMessageType.call:
+          final text = content['text'];
+          final type = CallMessageTypeEx.fromValue(content['type']);
+          if (type == null) return null;
+          return createCallMessage(
+            author: author,
+            timestamp: timestamp,
+            id: remoteId,
+            roomId: roomId,
+            remoteId: remoteId,
+            sourceKey: sourceKey,
+            text: text,
+            type: type,
+          );
         default :
           return null;
       }
@@ -244,6 +259,31 @@ class CustomMessageFactory implements MessageFactory {
         invoice: invoice,
         amount: amount,
         description: description,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
+
+  types.CustomMessage createCallMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    required String text,
+    required CallMessageType type,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.callMetaData(
+        text: text,
+        type: type,
       ),
       type: types.MessageType.custom,
     );
