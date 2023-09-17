@@ -21,9 +21,9 @@ enum UplodAliyunType {
 }
 
 class UplodAliyun {
-  static Future<String> uploadFileToAliyun({BuildContext? context, params, String? pubkey, required UplodAliyunType fileType, required File file, required String filename}) async {
+  static Future<String> uploadFileToAliyun({BuildContext? context, params, String? encryptedKey, required UplodAliyunType fileType, required File file, required String filename}) async {
     File? encryptedFile;
-    if(pubkey != null) {
+    if(encryptedKey != null) {
       String directoryPath = '';
       if (Platform.isAndroid) {
         Directory? externalStorageDirectory = await getExternalStorageDirectory();
@@ -37,7 +37,7 @@ class UplodAliyun {
         directoryPath = temporaryDirectory.path;
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
-      AesEncryptUtils.encryptFile(file, encryptedFile, pubkey);
+      AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
       file = encryptedFile;
     }
     return OXNetwork.instance
