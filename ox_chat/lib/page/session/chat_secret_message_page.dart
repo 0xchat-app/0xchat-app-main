@@ -109,7 +109,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
       setState(() {
         _secretSessionDB = Contacts.sharedInstance.secretSessionMap[widget.communityItem.chatId];
-        LogUtil.e('Michael:  initSecretData ssDB =${_secretSessionDB!.hashCode}; _secretSessionDB =${_secretSessionDB.toString()}');
       });
     }
   }
@@ -312,8 +311,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       _hintText = Localized.text('ox_chat.str_other_rejected');
     } else if (_secretSessionDB!.currentStatus == 6) {
       _hintText = Localized.text('ox_chat.str_other_expired');
-    } else {
-      _hintText = 'ox_chat.str_waiting_join';
     }
 
     return Container(
@@ -402,7 +399,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 ),
               ),
         onTap: () {
-          //TODO:
           setState(() {});
         },
       ),
@@ -465,7 +461,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     if (okEvent.status) {
       OXChatBinding.sharedInstance.updateChatSession(
         widget.communityItem.chatId!,
-        content: Localized.text('ox_chat.secret_chat_accepted_tips'),
+        content: 'secret_chat_accepted_tips'.localized({r"${name}": otherUser?.name ?? ''}),
       );
       OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
       setState(() {});
