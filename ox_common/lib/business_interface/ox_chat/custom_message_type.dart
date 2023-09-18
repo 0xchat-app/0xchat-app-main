@@ -1,6 +1,7 @@
 
 enum CustomMessageType {
   zaps,
+  call,
 }
 
 extension CustomMessageTypeEx on CustomMessageType {
@@ -8,6 +9,8 @@ extension CustomMessageTypeEx on CustomMessageType {
     switch (this) {
       case CustomMessageType.zaps:
         return '1';
+      case CustomMessageType.call:
+        return '2';
       default:
         return '-1';
     }
