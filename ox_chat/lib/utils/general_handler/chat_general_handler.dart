@@ -42,7 +42,6 @@ import 'package:images_picker/images_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:video_compress/video_compress.dart';
 import '../custom_message_utils.dart';
 import 'chat_reply_handler.dart';
@@ -56,9 +55,17 @@ class ChatGeneralHandler {
     types.User? author,
     this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
-  }) : author = author ?? _defaultAuthor();
+  }) : author = author ?? _defaultAuthor(),
+       otherUser = _defaultOtherUser(session) {
+    if (otherUser == null) {
+      Account.sharedInstance.getUserInfo(session.getOtherPubkey).then((value) {
+        otherUser = value;
+      });
+    }
+  }
 
   final types.User author;
+  UserDB? otherUser;
   final ChatSessionModel session;
   final types.EncryptionType fileEncryptionType;
 
@@ -78,6 +85,11 @@ class ChatGeneralHandler {
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
+  }
+
+  static UserDB? _defaultOtherUser(ChatSessionModel session) {
+    return Account.sharedInstance.userCache[session.chatId]
+        ?? Account.sharedInstance.userCache[session.getOtherPubkey];
   }
 }
 
@@ -217,7 +229,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   }
 
   void callMessagePressHandler(BuildContext context, types.CustomMessage message) {
-    final user = message.author.sourceObject;
+    final otherUser = this.otherUser;
     CallMessageType? pageType;
     switch (message.callType) {
       case CallMessageType.audio:
@@ -229,10 +241,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       default:
         break ;
     }
-    if (user == null || pageType == null) return ;
+    if (otherUser == null || pageType == null) return ;
     OXCallingInterface.pushCallingPage(
       context,
-      user,
+      otherUser,
       pageType,
     );
   }

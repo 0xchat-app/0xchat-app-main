@@ -94,6 +94,11 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       await ScreenProtector.protectDataLeakageOn();
     } else if (Platform.isIOS) {
       await ScreenProtector.preventScreenshotOn();
+      ScreenProtector.addListener(() {
+        chatGeneralHandler.addSystemMessage(context, r'You take a screenshot', localTextKey: r'${user} take a screenshot');
+      }, (p0) {
+        chatGeneralHandler.addSystemMessage(context, r'You attempted to screen record', localTextKey: r'${user} attempted to screen record');
+      });
     }
   }
 
@@ -102,6 +107,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       await ScreenProtector.protectDataLeakageOff();
     } else if (Platform.isIOS) {
       await ScreenProtector.preventScreenshotOff();
+      ScreenProtector.removeListener();
     }
   }
 
