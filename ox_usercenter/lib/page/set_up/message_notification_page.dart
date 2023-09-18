@@ -157,6 +157,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       ),
       padding: EdgeInsets.symmetric(vertical: Adapt.px(15), horizontal: Adapt.px(16)),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
