@@ -109,7 +109,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     if (widget.communityItem.chatType == ChatType.chatSecret || widget.communityItem.chatType == ChatType.chatSecretStranger) {
       setState(() {
         _secretSessionDB = Contacts.sharedInstance.secretSessionMap[widget.communityItem.chatId];
-        LogUtil.e('Michael: _secretSessionDB =${_secretSessionDB.toString()}');
+        LogUtil.e('Michael:  initSecretData ssDB =${_secretSessionDB!.hashCode}; _secretSessionDB =${_secretSessionDB.toString()}');
       });
     }
   }
@@ -254,7 +254,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
-        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.status == 2) ? null : customBottomWidget(),
+        customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
@@ -303,14 +303,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     String _hintText = '';
     String _leftBtnTxt = '';
     String _rightBtnTxt = '';
-    if (_secretSessionDB!.status == 0) {
+    if (_secretSessionDB!.currentStatus == 0) {
       _hintText = 'str_waiting_other_join'.localized({r'$username': showUsername});
-    } else if (_secretSessionDB!.status == 1) {
+    } else if (_secretSessionDB!.currentStatus == 1) {
       _leftBtnTxt = 'str_reject_secret_chat'.localized();
       _rightBtnTxt = 'str_john_secret_chat'.localized();
-    } else if (_secretSessionDB!.status == 3) {
+    } else if (_secretSessionDB!.currentStatus == 3) {
       _hintText = Localized.text('ox_chat.str_other_rejected');
-    } else if (_secretSessionDB!.status == 6) {
+    } else if (_secretSessionDB!.currentStatus == 6) {
       _hintText = Localized.text('ox_chat.str_other_expired');
     } else {
       _hintText = 'ox_chat.str_waiting_join';
@@ -330,7 +330,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       ),
       alignment: Alignment.center,
       child: GestureDetector(
-        child: _secretSessionDB!.status == 1
+        child: _secretSessionDB!.currentStatus == 1
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: Adapt.px(12)),
                 child: Row(
@@ -468,7 +468,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         content: "You have accepted ${otherUser?.name ?? ''}'s secret chat request.",
       );
       OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);
-      _secretSessionDB!.status = 2;
       setState(() {});
     } else {
       CommonToast.instance.show(context, okEvent.message);
