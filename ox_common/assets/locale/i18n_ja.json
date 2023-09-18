@@ -95,5 +95,9 @@
   "message_type_zaps": "[zaps]",
   "message_type_call": "[ビデオ通話]",
   "message_type_template": "[テンプレート]",
-  "message_type_unknown": "[不明]"
+  "message_type_unknown": "[不明]",
+  "secret_chat_invited_tips": "${name}を秘密のチャットに招待しました",
+  "secret_chat_received_tips": "秘密のチャットのリクエストを受け取りました",
+  "secret_chat_accepted_tips": "${name}があなたの秘密のチャットのリクエストを受け入れました",
+  "secret_chat_rejected_tips": "${name}があなたの秘密のチャットのリクエストを拒否しました"
 }

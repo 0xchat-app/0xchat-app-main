@@ -95,5 +95,9 @@
   "message_type_zaps": "[zaps]",
   "message_type_call": "[Appel vidéo]",
   "message_type_template": "[modèle]",
-  "message_type_unknown": "[inconnu]"
+  "message_type_unknown": "[inconnu]",
+  "secret_chat_invited_tips": "Vous avez invité ${name} à rejoindre une discussion secrète",
+  "secret_chat_received_tips": "Vous avez reçu une demande de chat secret",
+  "secret_chat_accepted_tips": "${name} a accepté votre demande de chat secret",
+  "secret_chat_rejected_tips": "${name} a refusé votre demande de chat secret"
 }

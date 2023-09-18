@@ -95,5 +95,9 @@
   "message_type_zaps": "[زابس]",
   "message_type_call": "[مكالمة فيديو]",
   "message_type_template": "[قالب]",
-  "message_type_unknown": "[غير معروف]"
+  "message_type_unknown": "[غير معروف]",
+  "secret_chat_invited_tips": "لقد دعوت ${name} للانضمام إلى دردشة سرية",
+  "secret_chat_received_tips": "لقد تلقيت طلب دردشة سرية",
+  "secret_chat_accepted_tips": "${name} قد قبل طلبك للدردشة السرية",
+  "secret_chat_rejected_tips": "${name} قد رفض طلبك للدردشة السرية"
 }

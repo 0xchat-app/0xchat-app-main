@@ -433,7 +433,7 @@ class OXChatBinding {
     }
     final ChatSessionModel chatSessionModel = await syncChatSessionTable(
       MessageDB(
-        decryptContent: 'You invited ${userDB?.name ??''} to join a secret chat',
+        decryptContent: Localized.text('ox_common.secret_chat_invited_tips'),
         createTime: ssDB.lastUpdateTime,
         sender: ssDB.toPubkey,
         receiver: ssDB.myPubkey,
@@ -451,7 +451,7 @@ class OXChatBinding {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
     syncChatSessionTable(MessageDB(
-      decryptContent: 'You have received a secret chat request',
+      decryptContent: Localized.text('ox_common.secret_chat_received_tips'),
       createTime: ssDB.lastUpdateTime,
       sender: ssDB.toPubkey,
       receiver: ssDB.myPubkey,
@@ -464,7 +464,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId!, content: "${user.name} has accepted your secret chat request.");
+    await updateChatSession(ssDB.sessionId!, content: Localized.text('ox_common.secret_chat_accepted_tips'));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
@@ -475,7 +475,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId, content: "${user.name} has rejected your secret chat request");
+    await updateChatSession(ssDB.sessionId, content: Localized.text('ox_common.secret_chat_rejected_tips'));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatRejectCallBack(ssDB);
     }

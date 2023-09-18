@@ -94,5 +94,9 @@
   "message_type_zaps": "[zaps]",
   "message_type_call": "[cuộc gọi video]",
   "message_type_template": "[mẫu]",
-  "message_type_unknown": "[không xác định]"
+  "message_type_unknown": "[không xác định]",
+  "secret_chat_invited_tips": "Bạn đã mời ${name} tham gia cuộc trò chuyện bí mật",
+  "secret_chat_received_tips": "Bạn đã nhận được yêu cầu trò chuyện bí mật",
+  "secret_chat_accepted_tips": "${name} đã chấp nhận yêu cầu trò chuyện bí mật của bạn",
+  "secret_chat_rejected_tips": "${name} đã từ chối yêu cầu trò chuyện bí mật của bạn"
 }
