@@ -18,7 +18,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/utils/chat_general_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';

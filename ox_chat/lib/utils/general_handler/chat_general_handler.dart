@@ -44,7 +44,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:video_compress/video_compress.dart';
-import 'custom_message_utils.dart';
+import '../custom_message_utils.dart';
 import 'chat_reply_handler.dart';
 
 part 'chat_send_message_handler.dart';
