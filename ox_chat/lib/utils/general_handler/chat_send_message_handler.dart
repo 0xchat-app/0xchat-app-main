@@ -194,7 +194,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  Future addSystemMessage(BuildContext context, String text, { bool isSendToRemote = true}) async {
+  Future addSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) async {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -204,6 +204,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       id: message_id,
       roomId: session.chatId,
       text: text,
+      metadata: {
+        'localTextKey': localTextKey,
+      },
     );
 
     if (isSendToRemote) {

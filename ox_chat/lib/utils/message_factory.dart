@@ -2,10 +2,13 @@
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 abstract class MessageFactory {
   types.Message? createMessage({
@@ -161,7 +164,16 @@ class SystemMessageFactory implements MessageFactory {
     EncryptionType fileEncryptionType = EncryptionType.none,
     types.Message? repliedMessage,
   }) {
-    final text = contentModel.content ?? '';
+    var text = contentModel.content ?? '';
+    final key = text;
+    if (key.isNotEmpty) {
+      text = Localized.text(key, useOrigin: true);
+      if (key == r'${user} take a screenshot' || key == r'${user} attempted to screen record') {
+        final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
+        final name = isMe ? 'You' : (author.sourceObject?.getUserShowName() ?? 'The other party');
+        text = text.replaceAll(r'${user}', name);
+      }
+    }
     return types.SystemMessage(
       author: author,
       createdAt: timestamp,
