@@ -101,7 +101,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     }
     if (widget.channelDB.badges != null &&
         widget.channelDB.badges!.isNotEmpty) {
-      List<dynamic> badgeIds = jsonDecode(widget.channelDB.badges!);
+      List<dynamic> badgeIds = jsonDecode(widget.channelDB.badges!) ?? [];
       List<String> badgeList = badgeIds.cast();
       if (badgeList.isNotEmpty) {
         List<BadgeDB?> dbGetList =

@@ -629,7 +629,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     } else {
       String showPicUrl = '';
       if (item.chatType == ChatType.chatChannel) {
-        ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+        ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
         showPicUrl = channelDB?.picture ?? '';
       } else {
         UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
@@ -693,7 +693,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Widget _buildItemName(ChatSessionModel item) {
     String showName = '';
     if (item.chatType == ChatType.chatChannel){
-      ChannelDB? channelDB = Channels.sharedInstance.myChannels[item.chatId];
+      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
       showName = channelDB?.name ?? '';
     } else {
       UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
