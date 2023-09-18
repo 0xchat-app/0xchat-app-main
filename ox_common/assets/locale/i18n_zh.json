@@ -93,6 +93,7 @@
   "message_type_audio": "[音频]",
   "message_type_file": "[文件]",
   "message_type_zaps": "[打闪]",
+  "message_type_call": "[语音通话]",
   "message_type_template": "[模版消息]",
   "message_type_unknown": "[未知消息]"
 }

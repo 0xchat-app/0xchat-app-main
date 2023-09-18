@@ -93,6 +93,7 @@
   "message_type_audio": "[аудио]",
   "message_type_file": "[файл]",
   "message_type_zaps": "[zaps]",
+  "message_type_call": "[видеозвонок]",
   "message_type_template": "[шаблон]",
   "message_type_unknown": "[неизвестно]"
 }

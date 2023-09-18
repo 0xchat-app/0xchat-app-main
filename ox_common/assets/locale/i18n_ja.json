@@ -93,6 +93,7 @@
   "message_type_audio": "[オーディオ]",
   "message_type_file": "[ファイル]",
   "message_type_zaps": "[zaps]",
+  "message_type_call": "[ビデオ通話]",
   "message_type_template": "[テンプレート]",
   "message_type_unknown": "[不明]"
 }

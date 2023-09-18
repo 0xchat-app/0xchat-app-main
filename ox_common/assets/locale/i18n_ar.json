@@ -93,6 +93,7 @@
   "message_type_audio": "[صوت]",
   "message_type_file": "[ملف]",
   "message_type_zaps": "[زابس]",
+  "message_type_call": "[مكالمة فيديو]",
   "message_type_template": "[قالب]",
   "message_type_unknown": "[غير معروف]"
 }

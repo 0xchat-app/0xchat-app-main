@@ -143,6 +143,8 @@ class OXChatBinding {
               switch (type) {
                 case CustomMessageType.zaps:
                   return Localized.text('ox_common.message_type_zaps');
+                case CustomMessageType.call:
+                  return Localized.text('ox_common.message_type_call');
                 default:
                   break ;
               }

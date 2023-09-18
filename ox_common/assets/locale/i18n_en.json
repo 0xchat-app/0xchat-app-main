@@ -88,11 +88,12 @@
   "str_add_friend" : "Add Friend",
   "str_new_channel": "New Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
-  "message_type_image": "[image]",
-  "message_type_video": "[video]",
-  "message_type_audio": "[audio]",
-  "message_type_file": "[file]",
-  "message_type_zaps": "[zaps]",
-  "message_type_template": "[template]",
+  "message_type_image": "[Image]",
+  "message_type_video": "[Video]",
+  "message_type_audio": "[Audio]",
+  "message_type_file": "[File]",
+  "message_type_zaps": "[Zaps]",
+  "message_type_call": "[Video call]",
+  "message_type_template": "[Template]",
   "message_type_unknown": "[unknown]"
 }

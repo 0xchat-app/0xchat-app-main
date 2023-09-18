@@ -92,6 +92,7 @@
   "message_type_audio": "[audio]",
   "message_type_file": "[tệp]",
   "message_type_zaps": "[zaps]",
+  "message_type_call": "[cuộc gọi video]",
   "message_type_template": "[mẫu]",
   "message_type_unknown": "[không xác định]"
 }

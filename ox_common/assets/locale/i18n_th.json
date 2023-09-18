@@ -93,6 +93,7 @@
   "message_type_audio": "[เสียง]",
   "message_type_file": "[ไฟล์]",
   "message_type_zaps": "[zaps]",
+  "message_type_call": "[การโทรวิดีโอ]",
   "message_type_template": "[แม่แบบ]",
   "message_type_unknown": "[ไม่ทราบ]"
 }

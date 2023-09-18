@@ -93,6 +93,7 @@
   "message_type_audio": "[audio]",
   "message_type_file": "[fichier]",
   "message_type_zaps": "[zaps]",
+  "message_type_call": "[Appel vidéo]",
   "message_type_template": "[modèle]",
   "message_type_unknown": "[inconnu]"
 }
