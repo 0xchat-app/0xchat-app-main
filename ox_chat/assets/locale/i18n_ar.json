@@ -115,5 +115,9 @@
   "send_zap_tips": "هل أنت متأكد من أنك تريد إرسال هذا الزاب؟",
   "zap_illegal_toast": "لا يمكن أن يكون عدد الزابات صفر",
   "zap_default_description": "أطيب التمنيات",
-  "zap_amount": "المبلغ"
+  "zap_amount": "المبلغ",
+  "add_contact_suggestion": "اقتراح",
+  "refresh_text": "تحديث",
+  "screenshot_hint_message": "${user} أخذ لقطة شاشة",
+  "secret_chat_accepted_tips": "لقد قبلت طلب الدردشة السرية من ${name}"
 }

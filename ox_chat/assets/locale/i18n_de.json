@@ -116,5 +116,9 @@
   "send_zap_tips": "Sind Sie sicher, dass Sie diesen Zap senden möchten?",
   "zap_illegal_toast": "Die Zap-Anzahl kann nicht 0 sein",
   "zap_default_description": "Alles Gute",
-  "zap_amount": "Betrag"
+  "zap_amount": "Betrag",
+  "add_contact_suggestion": "Vorschlag",
+  "refresh_text": "Aktualisieren",
+  "screenshot_hint_message": "${user} hat einen Screenshot gemacht",
+  "secret_chat_accepted_tips": "Sie haben die geheime Chat-Anfrage von ${name} angenommen"
 }

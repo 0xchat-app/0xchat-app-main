@@ -116,5 +116,9 @@
   "send_zap_tips": "您確定要發送這個zap嗎？",
   "zap_illegal_toast": "Zap的數量不能為0",
   "zap_default_description": "恭喜發財，大吉大利",
-  "zap_amount": "數量"
+  "zap_amount": "數量",
+  "add_contact_suggestion": "建議",
+  "refresh_text": "重新整理",
+  "screenshot_hint_message": "${user} 截了屏",
+  "secret_chat_accepted_tips": "你已經接受了 ${name} 的密聊請求"
 }

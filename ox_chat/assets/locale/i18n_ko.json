@@ -116,5 +116,9 @@
   "send_zap_tips": "이 zap을 보내시겠습니까?",
   "zap_illegal_toast": "zap의 수량은 0이 될 수 없습니다",
   "zap_default_description": "최상의 소원",
-  "zap_amount": "수량"
+  "zap_amount": "수량",
+  "add_contact_suggestion": "제안",
+  "refresh_text": "새로 고침",
+  "screenshot_hint_message": "${user} 스크린샷 찍음",
+  "secret_chat_accepted_tips": "${name} 님의 비밀 채팅 요청을 수락했습니다"
 }

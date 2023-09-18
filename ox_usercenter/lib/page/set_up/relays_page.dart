@@ -450,7 +450,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   void _deleteOnTap(RelayModel relayModel) async {
     if (relayModel.canDelete) {
       OXCommonHintDialog.show(context,
-          title: 'Tips',
+          title: Localized.text('ox_common.tips'),
           content: Localized.text('ox_usercenter.delete_relay_hint'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
