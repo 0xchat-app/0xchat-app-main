@@ -23,6 +23,7 @@ import 'package:ox_chat/utils/message_report.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/business_interface/ox_calling/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -164,6 +165,9 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.zaps:
           await zapsMessagePressHandler(context, message);
           break ;
+        case CustomMessageType.call:
+          callMessagePressHandler(context, message);
+          break ;
         default:
           break ;
       }
@@ -210,6 +214,27 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     );
 
     OXUserCenterInterface.jumpToZapsRecordPage(context, zapsDetail);
+  }
+
+  void callMessagePressHandler(BuildContext context, types.CustomMessage message) {
+    final user = message.author.sourceObject;
+    CallMessageType? pageType;
+    switch (message.callType) {
+      case CallMessageType.audio:
+        pageType = CallMessageType.audio;
+        break ;
+      case CallMessageType.video:
+        pageType = CallMessageType.video;
+        break ;
+      default:
+        break ;
+    }
+    if (user == null || pageType == null) return ;
+    OXCallingInterface.pushCallingPage(
+      context,
+      user,
+      pageType,
+    );
   }
 }
 
@@ -320,14 +345,10 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       separatorCancelColor: ThemeColor.color190,
     );
     if (oxActionModel != null) {
-      OXModuleService.pushPage(
+      OXCallingInterface.pushCallingPage(
         context,
-        'ox_calling',
-        'CallPage',
-        {
-          'userDB': user,
-          'media': oxActionModel.identify == 1 ? CallMessageType.audio.text : CallMessageType.video.text,
-        },
+        user,
+        oxActionModel.identify == 1 ? CallMessageType.audio : CallMessageType.video,
       );
     }
   }
