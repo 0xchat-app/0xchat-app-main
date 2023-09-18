@@ -9,7 +9,9 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/user_report.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -20,6 +22,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -218,8 +221,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             content: Localized.text('ox_chat.secret_chat'),
           ),
           _tabWidget(
-            onTap: () => {
-              // CommonToast.instance.show(context, "Don't call yourself")
+            onTap: () {
+              _clickCall();
             },
             iconName: 'icon_chat_call.png',
             content: Localized.text('ox_chat.call'),
@@ -829,6 +832,33 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
     OXNavigator.pop(context);
     return;
+  }
+
+  void _clickCall() async {
+    if (widget.userDB.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey){
+      CommonToast.instance.show(context,  "Don't call yourself");
+    } else {
+      OXActionModel? oxActionModel = await OXActionDialog.show(
+        context,
+        data: [
+          OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat'),
+          OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat'),
+        ],
+        backGroundColor: ThemeColor.color180,
+        separatorCancelColor: ThemeColor.color190,
+      );
+      if (oxActionModel != null) {
+        OXModuleService.pushPage(
+          context,
+          'ox_calling',
+          'CallPage',
+          {
+            'userDB': widget.userDB,
+            'media': oxActionModel.identify == 1 ? CallMessageType.audio.text : CallMessageType.video.text,
+          },
+        );
+      }
+    }
   }
 
   ///Determine if it's a friend
