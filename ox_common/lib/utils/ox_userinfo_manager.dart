@@ -40,8 +40,6 @@ class OXUserInfoManager {
 
   UserDB? get currentUserInfo => Account.sharedInstance.me;
 
-  bool _initFriendsCompleted = false;
-  bool _initChannelsCompleted = false;
   bool _initAllCompleted = false;
 
   Future initDB(String pubkey) async {
@@ -127,10 +125,11 @@ class OXUserInfoManager {
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.e("Michael: init contactUpdatedCallBack");
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      _initFriendsCompleted = true;
-      if (_initChannelsCompleted && !_initAllCompleted) {
-        _initMessage();
-      }
+      Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
+      tempList.forEach ((userDB) {
+        OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
+      });
+
     };
     Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
       LogUtil.e('Michael: init  channelMessageCallBack');
@@ -140,10 +139,7 @@ class OXUserInfoManager {
     Channels.sharedInstance.myChannelsUpdatedCallBack = () async {
       LogUtil.e('Michael: init  myChannelsUpdatedCallBack');
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
-      _initChannelsCompleted = true;
-      if (_initFriendsCompleted && !_initAllCompleted) {
-        _initMessage();
-      }
+      _initMessage();
     };
   }
 
@@ -163,8 +159,6 @@ class OXUserInfoManager {
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
-    _initFriendsCompleted = false;
-    _initChannelsCompleted = false;
     _initAllCompleted = false;
     OXChatBinding.sharedInstance.clearSession();
     for (OXUserInfoObserver observer in _observers) {
