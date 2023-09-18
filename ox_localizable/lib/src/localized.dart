@@ -150,24 +150,53 @@ class Localized {
         return text('ox_common.$key');
     }
 
-    static String text(String key) {
-        String string = '** $key not found';
+    static String text(String key,{ bool useOrigin = false }) {
+        String? string;
         Map<dynamic, dynamic> _localizedValues = localized.localizedValues;
         Map<dynamic, dynamic> _defaultLocalizedValues = localized.defaultLocalizedValues;
         
         Map<String, String> _cache = localized.cache;
-        if (_localizedValues != null) {
+        {
+          if (_cache[key] != null) {
+            return _cache[key]!;
+          }
+          bool found = true;
+          Map<dynamic, dynamic> _values = _localizedValues;
+          List<String> _keyParts = key.split('.');
+          int _keyPartsLen = _keyParts.length;
+          int index = 0;
+          int lastIndex = _keyPartsLen - 1;
+          while (index < _keyPartsLen && found) {
+            var value = _values[_keyParts[index]];
+            if (value == null) {
+              found = false;
+              break;
+            }
+            if (value is String && index == lastIndex) {
+              string = value;
+              _cache[key] = string;
+              break;
+            }
+            _values = value;
+            index++;
+          }
+        }
+
+        if (string != null) return string;
+
+        //If the corresponding translation key is not found in the translation JSON, the default translation JSON (en) will be used
+        {
             if (_cache[key] != null){
                 return _cache[key]!;
             }
             bool found = true;
-            Map<dynamic, dynamic> _values = _localizedValues;
+            Map<dynamic,dynamic>_defaultValues = _defaultLocalizedValues;
             List<String> _keyParts = key.split('.');
             int _keyPartsLen = _keyParts.length;
             int index = 0;
             int lastIndex = _keyPartsLen - 1;
             while(index < _keyPartsLen && found){
-                var value = _values[_keyParts[index]];
+                var value = _defaultValues[_keyParts[index]];
                 if (value == null) {
                     found = false;
                     break;
@@ -177,43 +206,15 @@ class Localized {
                     _cache[key] = string;
                     break;
                 }
-                _values = value;
+                _defaultValues = value;
                 index++;
             }
         }
-        if(string == ("** $key not found")){  //If the corresponding translation key is not found in the translation JSON, the default translation JSON (en) will be used
-            if (_localizedValues != null) {
-                if (_cache[key] != null){
-                    return _cache[key]!;
-                }
-                bool found = true;
-                Map<dynamic,dynamic>_defaultValues = _defaultLocalizedValues;
-                List<String> _keyParts = key.split('.');
-                int _keyPartsLen = _keyParts.length;
-                int index = 0;
-                int lastIndex = _keyPartsLen - 1;
-                while(index < _keyPartsLen && found){
-                    var value = _defaultValues[_keyParts[index]];
-                    if (value == null) {
-                        found = false;
-                        break;
-                    }
-                    if (value is String && index == lastIndex){
-                        string = value;
-                        _cache[key] = string;
-                        break;
-                    }
-                    _defaultValues = value;
-                    index++;
-                }
-            }
-            if(string == ("** $key not found")){
-                string = "** EN $key not found EN";   //Default English configuration missing.
-                print('resourse：'+string);
-            }else{
-                print('resourse：'+"** $key not found-Transformation en："+string);
-            }
-        }
+
+        if (string != null) return string;
+
+        string = useOrigin ? key : "** EN $key not found EN";
+
         return string;
     }
 
