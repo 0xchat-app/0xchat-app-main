@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -29,9 +30,9 @@ class MessageNotificationPage extends StatefulWidget {
 }
 
 class _MessageNotificationPageState extends State<MessageNotificationPage> {
-  List<NoticeModel> _allNoticeModelList = [];
+  Map<int, NoticeModel> _allNoticeModel = {};
   List<NoticeModel> _noticeModelList = [];
-  late NoticeModel _messageNoticeModel;
+  NoticeModel? _messageNoticeModel;
 
   @override
   void initState() {
@@ -40,44 +41,36 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   }
 
   void _loadData() async {
-    _allNoticeModelList = await getObjectList();
-    bool containsNotification = _allNoticeModelList.any((notice) => notice.id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
+    _allNoticeModel = await getObjectList();
+    bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
     if (!containsNotification) {
-      _allNoticeModelList.add(NoticeModel(
-        CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS,
-        Localized.text('ox_usercenter.push_notifications'),
-        Localized.text('ox_usercenter.push_notifications_tips'),
-        true,
-      ));
+      _allNoticeModel[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS,
+        isSelected: true,
+      );
     }
-    bool containsPrivMessages = _allNoticeModelList.any((notice) => notice.id == CommonConstant.NOTIFICATION_PRIVATE_MESSAGES);
+    bool containsPrivMessages = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PRIVATE_MESSAGES);
     if (!containsPrivMessages) {
-      _allNoticeModelList.add(NoticeModel(
-        CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
-        Localized.text('ox_usercenter.private_messages_notifications'),
-        Localized.text('ox_usercenter.private_messages_notifications_tips'),
-        true,
-      ));
+      _allNoticeModel[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
+        isSelected: true,
+      );
     }
-    bool containsChannels = _allNoticeModelList.any((notice) => notice.id == CommonConstant.NOTIFICATION_CHANNELS);
+    bool containsChannels = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_CHANNELS);
     if (!containsChannels) {
-      _allNoticeModelList.add(NoticeModel(
-        CommonConstant.NOTIFICATION_CHANNELS,
-        Localized.text('ox_usercenter.channels'),
-        Localized.text('ox_usercenter.channels_notifications_tips'),
-        true,
-      ));
+      _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_CHANNELS,
+        isSelected: true,
+      );
     }
-    bool containsZaps = _allNoticeModelList.any((notice) => notice.id == CommonConstant.NOTIFICATION_ZAPS);
+    bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS);
     if (!containsZaps) {
-      _allNoticeModelList.add(NoticeModel(
-        CommonConstant.NOTIFICATION_ZAPS,
-        Localized.text('ox_usercenter.zaps'),
-        Localized.text('ox_usercenter.zaps_notifications_tips'),
-        true,
-      ));
+      _allNoticeModel[CommonConstant.NOTIFICATION_ZAPS] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_ZAPS,
+        isSelected: true,
+      );
     }
-    _allNoticeModelList.forEach((element) {
+    _allNoticeModel.forEach((key, element) {
       if (element.id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
         _messageNoticeModel = element;
       } else {
@@ -113,7 +106,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
           ),
-          child: _itemContent(_messageNoticeModel, height: Adapt.px(80)),
+          child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
         ),
         SizedBox(
           height: Adapt.px(12),
@@ -164,7 +157,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
             children: [
               Container(
                 child: Text(
-                  model.name,
+                  _showNameById(model.id),
                   style: TextStyle(
                     color: ThemeColor.color0,
                     fontSize: Adapt.px(16),
@@ -178,7 +171,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: model.description,
+                  text: _showDescriptionById(model.id),
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(12),
@@ -221,11 +214,11 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         if (value != model.isSelected) {
           model.isSelected = value;
           if (model.id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
-            for (var element in _allNoticeModelList) {
+            for (var element in _allNoticeModel.values) {
               element.isSelected = value;
             }
           }
-          await saveObjectList(_allNoticeModelList);
+          await saveObjectList(_allNoticeModel.values.toList());
           OXUserInfoManager.sharedInstance.setNotification();
         }
         await OXLoading.dismiss();
@@ -237,18 +230,20 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
 
   Future<void> saveObjectList(List<NoticeModel> objectList) async {
     List<String> jsonStringList = objectList.map((obj) => json.encode(obj.noticeModelToMap(obj))).toList();
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
+    final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
   }
 
-  Future<List<NoticeModel>> getObjectList() async {
+  Future<Map<int, NoticeModel>> getObjectList() async {
     List<dynamic> dynamicList = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
-    List<String> jsonStringList = dynamicList.cast<String>();
-    List<NoticeModel> objectList = jsonStringList.map((jsonString) {
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      return NoticeModel(jsonMap['id'] ?? -1, jsonMap['name'] ?? '', jsonMap['description'] ?? '', jsonMap['isSelected'] ?? false);
-    }).toList();
-
-    return objectList;
+    Map<int, NoticeModel> resultMap = {};
+    if (dynamicList.isNotEmpty) {
+      List<String> jsonStringList = dynamicList.cast<String>();
+      for (var jsonString in jsonStringList) {
+        Map<String, dynamic> jsonMap = json.decode(jsonString);
+        resultMap[jsonMap['id'] ?? 0] = NoticeModel(id: jsonMap['id'] ?? 0, isSelected: jsonMap['isSelected'] ?? false);
+      }
+    }
+    return resultMap;
   }
 
   Future _showWebView(String title, String url) {
@@ -259,5 +254,31 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         title: '0xchat',
       ),
     );
+  }
+
+  String _showNameById(int id) {
+    if (id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
+      return Localized.text('ox_usercenter.push_notifications');
+    } else if (id == CommonConstant.NOTIFICATION_PRIVATE_MESSAGES) {
+      return Localized.text('ox_usercenter.private_messages_notifications');
+    } else if (id == CommonConstant.NOTIFICATION_CHANNELS) {
+      return Localized.text('ox_usercenter.channels');
+    } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
+      return Localized.text('ox_usercenter.zaps');
+    }
+    return '';
+  }
+
+  String _showDescriptionById(int id) {
+    if (id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
+      return Localized.text('ox_usercenter.push_notifications_tips');
+    } else if (id == CommonConstant.NOTIFICATION_PRIVATE_MESSAGES) {
+      return Localized.text('ox_usercenter.private_messages_notifications_tips');
+    } else if (id == CommonConstant.NOTIFICATION_CHANNELS) {
+      return Localized.text('ox_usercenter.channels_notifications_tips');
+    } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
+      return Localized.text('ox_usercenter.zaps_notifications_tips');
+    }
+    return '';
   }
 }
