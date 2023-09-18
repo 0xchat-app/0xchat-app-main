@@ -313,8 +313,6 @@ class Localized {
 
         }).then((value){
         }).whenComplete((){
-
-            print("共有:${localized._onLocaleChangedCallbackList.length}监听");
             localized._onLocaleChangedCallbackList.forEach((VoidCallback callback) {
                 callback();
             });
