@@ -115,5 +115,9 @@
   "send_zap_tips": "¿Estás seguro de que quieres enviar este zap?",
   "zap_illegal_toast": "La cantidad de zaps no puede ser 0",
   "zap_default_description": "Mis mejores deseos",
-  "zap_amount": "Cantidad"
+  "zap_amount": "Cantidad",
+  "add_contact_suggestion": "Sugerencia",
+  "refresh_text": "Actualizar",
+  "screenshot_hint_message": "${user} tomó una captura de pantalla",
+  "secret_chat_accepted_tips": "Has aceptado la solicitud de chat secreto de ${name}"
 }

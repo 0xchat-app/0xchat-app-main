@@ -115,5 +115,9 @@
   "send_zap_tips": "Вы уверены, что хотите отправить этот зап?",
   "zap_illegal_toast": "Количество запов не может быть 0",
   "zap_default_description": "Наилучшие пожелания",
-  "zap_amount": "Количество"
+  "zap_amount": "Количество",
+  "add_contact_suggestion": "Предложение",
+  "refresh_text": "Обновить",
+  "screenshot_hint_message": "$user сделал скриншот",
+  "secret_chat_accepted_tips": "Вы приняли секретный чат от ${name}"
 }

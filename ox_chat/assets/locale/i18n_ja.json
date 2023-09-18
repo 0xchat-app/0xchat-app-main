@@ -115,5 +115,9 @@
   "send_zap_tips": "このzapを送信してもよろしいですか？",
   "zap_illegal_toast": "zapの数は0にできません",
   "zap_default_description": "おめでとう",
-  "zap_amount": "数量"
+  "zap_amount": "数量",
+  "add_contact_suggestion": "提案",
+  "refresh_text": "更新",
+  "screenshot_hint_message": "${user} がスクリーンショットを撮りました",
+  "secret_chat_accepted_tips": "${name} さんのシークレットチャットリクエストを受け入れました"
 }

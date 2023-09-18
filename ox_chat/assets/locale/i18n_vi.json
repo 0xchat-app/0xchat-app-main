@@ -116,5 +116,9 @@
   "send_zap_tips": "Bạn có chắc chắn muốn gửi zap này không?",
   "zap_illegal_toast": "Số lượng zap không thể là 0",
   "zap_default_description": "Chúc tốt lành",
-  "zap_amount": "Số lượng"
+  "zap_amount": "Số lượng",
+  "add_contact_suggestion": "Gợi ý",
+  "refresh_text": "Làm mới",
+  "screenshot_hint_message": "${user} đã chụp màn hình",
+  "secret_chat_accepted_tips": "Bạn đã chấp nhận lời mời trò chuyện mật từ ${name}"
 }

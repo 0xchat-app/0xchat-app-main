@@ -116,5 +116,9 @@
   "send_zap_tips": "คุณแน่ใจหรือว่าต้องการส่ง zap นี้?",
   "zap_illegal_toast": "จำนวน zap ไม่สามารถเป็น 0",
   "zap_default_description": "ขอให้โชคดี",
-  "zap_amount": "จำนวน"
+  "zap_amount": "จำนวน",
+  "add_contact_suggestion": "ข้อเสนอ",
+  "refresh_text": "รีเฟรช",
+  "screenshot_hint_message": "${user} ถ่ายภาพหน้าจอ",
+  "secret_chat_accepted_tips": "คุณได้ยอมรับคำขอแชทลับจาก ${name}"
 }
