@@ -188,6 +188,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        mentionUserListWidget: chatGeneralHandler.mentionHandler.buildMentionUserList(),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -57,11 +58,26 @@ class ChatGeneralHandler {
     this.fileEncryptionType = types.EncryptionType.none,
   }) : author = author ?? _defaultAuthor(),
        otherUser = _defaultOtherUser(session) {
+
     if (otherUser == null) {
       Account.sharedInstance.getUserInfo(session.getOtherPubkey).then((value) {
         otherUser = value;
       });
     }
+
+    ChatDataCache.shared.getSessionMessage(session).then((messageList) {
+      final userList = Set<UserDB>();
+      messageList.forEach((msg) {
+        final userDB = msg.author.sourceObject;
+        if (userDB is UserDB) {
+          if (userDB.pubKey != this.author.id) {
+            userList.add(userDB);
+          }
+        }
+      });
+      mentionHandler.allUser = userList.toList();
+    });
+    mentionHandler.inputController = inputController;
   }
 
   final types.User author;
@@ -72,6 +88,7 @@ class ChatGeneralHandler {
   bool hasMoreMessage = false;
 
   ChatReplyHandler replyHandler = ChatReplyHandler();
+  ChatMentionHandler mentionHandler = ChatMentionHandler();
 
   TextEditingController inputController = TextEditingController();
 

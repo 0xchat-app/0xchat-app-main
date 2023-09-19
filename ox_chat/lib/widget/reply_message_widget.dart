@@ -16,6 +16,7 @@ class ReplyMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String?>(
       valueListenable: this.displayContent,
+      child: SizedBox(),
       builder: (context, displayContent, child) {
         if (displayContent == null) {
           return SizedBox();
