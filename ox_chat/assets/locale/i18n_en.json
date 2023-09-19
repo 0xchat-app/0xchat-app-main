@@ -108,7 +108,7 @@
   "block_fail": "Block fail !",
   "un_block_fail": "UnBlock fail !",
   "message_menu_quote": "Quote",
-  "message_delete_tips": "Are you sure you want to delete this conversation?",
+  "message_delete_tips": "Are you sure you want to delete this conversation and local messages?",
   "secret_message_delete_tips": "Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?",
   "secret_message_reject_tips": "Are you sure reject and delete？",
   "leave_channel_tips": "Are you sure you want to leave the channel?",

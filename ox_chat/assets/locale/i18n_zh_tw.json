@@ -108,7 +108,7 @@
   "block_fail": "屏蔽失敗",
   "un_block_fail": "解除屏蔽失敗",
   "message_menu_quote": "引述",
-  "message_delete_tips": "您確定要刪除這個對話嗎？",
+  "message_delete_tips": "確定要刪除這個對話和本地消息嗎？",
   "secret_message_delete_tips": "一旦刪除，秘密訊息將無法恢復。您確定要繼續嗎？",
   "secret_message_reject_tips": "您確定要拒絕並刪除嗎？",
   "leave_channel_tips": "您確定要離開這個頻道嗎？",

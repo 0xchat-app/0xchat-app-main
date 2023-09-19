@@ -108,7 +108,7 @@
   "block_fail": "Échec du blocage !",
   "un_block_fail": "Échec du déblocage !",
   "message_menu_quote": "citation",
-  "message_delete_tips": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+  "message_delete_tips": "Êtes-vous sûr de vouloir supprimer cette conversation et les messages locaux?",
   "secret_message_delete_tips": "Une fois supprimés, les messages secrets ne peuvent pas être récupérés. Êtes-vous sûr de vouloir continuer ?",
   "secret_message_reject_tips": "Êtes-vous sûr de vouloir rejeter et supprimer ?",
   "leave_channel_tips": "Êtes-vous sûr de vouloir quitter la chaîne ?",
