@@ -60,7 +60,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
-  ScrollController _scrollController = new ScrollController();
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
@@ -98,7 +97,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void dispose() {
     _refreshController.dispose();
-    _scrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXRelayManager.sharedInstance.removeObserver(this);
@@ -204,9 +202,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   iconName: '0xchat_title_icon.png',
                   useTheme: true,
                 ),
-              )
-            // Text("0xChat", style: TextStyle(fontWeight: FontWeight.bold, color: ThemeColor.titleColor, fontSize: 34), maxLines: 1,),
-          ),
+              )),
           actions: <Widget>[
             SizedBox(
               height: Adapt.px(24),
@@ -243,68 +239,34 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           ],
         ),
         backgroundColor: ThemeColor.color200,
-        body: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                backgroundColor: ThemeColor.color200,
-                pinned: true,
-                floating: true,
-                expandedHeight: Adapt.px(150),
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Container(
-                    height: double.infinity,
-                    color: ThemeColor.color200,
-                    child: Column(
-                      children: <Widget>[
-                        _topSearch(),
-                      ],
-                    ),
-                  ),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(Adapt.px(92)),
-                  child: Container(
-                      alignment: Alignment.centerLeft,
-                      height: Adapt.px(92),
-                      color: ThemeColor.color200,
-                      child: Theme(
-                        data: ThemeData(
-                          backgroundColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                        ),
-                        child: ListView.builder(
-                            padding: EdgeInsets.only(left: Adapt.px(16)),
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _menuOptionModelList.length,
-                            itemBuilder: (context, index) {
-                              return _getTopWidget(index);
-                            }),
-                      )),
-                ),
-              ),
-            ];
-          },
-          body: commonStateViewWidget(
-            context,
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+        body: OXSmartRefresher(
+          controller: _refreshController,
+          enablePullDown: true,
+          enablePullUp: false,
+          onRefresh: _onRefresh,
+          onLoading: null,
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                Expanded(
-                  child: OXSmartRefresher(
-                    controller: _refreshController,
-                    enablePullDown: true,
-                    enablePullUp: false,
-                    onRefresh: _onRefresh,
-                    onLoading: null,
-                    child: _listView(),
+                _topSearch(),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  height: Adapt.px(92),
+                  color: ThemeColor.color200,
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(left: Adapt.px(16)),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _menuOptionModelList.length,
+                    itemBuilder: (context, index) {
+                      return _getTopWidget(index);
+                    },
                   ),
-                )
+                ),
+                commonStateViewWidget(
+                  context,
+                  _listView(),
+                ),
               ],
             ),
           ),
@@ -349,19 +311,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (itemCount() > 0) {
       return ListView.builder(
         padding: EdgeInsets.only(bottom: Adapt.px(150)),
-        controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true, // Important!
         itemCount: itemCount(),
-        itemBuilder: _buildListViewGeneralItem,
+        itemBuilder: _buildListViewItem,
       );
     } else {
       return Container();
     }
-  }
-
-  /// UI
-  Widget _buildListViewGeneralItem(BuildContext context, int index) {
-    return _buildListViewItem(context, index);
   }
 
   int itemCount() {
@@ -1150,14 +1107,6 @@ class _Style {
       fontSize: Adapt.px(14),
       fontWeight: FontWeight.w400,
       color: ThemeColor.red,
-    );
-  }
-
-  static TextStyle newsCreateTime() {
-    return new TextStyle(
-      fontSize: Adapt.px(12),
-      fontWeight: FontWeight.w400,
-      color: ThemeColor.X737373_9B9B9B,
     );
   }
 
