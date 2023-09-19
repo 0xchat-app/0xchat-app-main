@@ -64,7 +64,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int pageNum = 1; // Page number
   List<ChatSessionModel> msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-  Map<String, BadgeDB> badgeCache = {};
+  Map<String, BadgeDB> _badgeCache = {};
+  Map<String, bool> _muteCache = {};
 
   GlobalKey? _latestGlobalKey;
 
@@ -669,7 +670,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               bottom: 0,
               right: 0,
               child: FutureBuilder<BadgeDB?>(
-                initialData: badgeCache[item.chatId],
+                initialData: _badgeCache[item.chatId],
                 builder: (context, snapshot) {
                   return (snapshot.data != null && snapshot.data!.thumb != null)
                       ? CachedNetworkImage(
@@ -741,7 +742,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _buildBusinessInfo(ChatSessionModel announceItem) {
+  Widget _buildBusinessInfo(ChatSessionModel item) {
     return MaterialButton(
         padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
         minWidth: 30.0,
@@ -756,7 +757,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             Expanded(
               child: Row(
                 children: <Widget>[
-                  _getMsgIcon(announceItem),
+                  _getMsgIcon(item),
                   Expanded(
                     child: Container(
                       alignment: Alignment.centerLeft,
@@ -766,19 +767,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Offstage(
-                                //Online Offline Read Unread Not yet implemented
-                                offstage: true,
-                                child: Container(
-                                  margin: EdgeInsets.only(top: Adapt.px(3), right: Adapt.px(5)),
-                                  width: Adapt.px(12),
-                                  height: Adapt.px(12),
-                                  color: Colors.red,
-                                  // child: Container(),
-                                ),
-                              ),
-                              _buildItemName(announceItem),
+                              _buildItemName(item),
                               FutureBuilder<bool>(
+                                initialData: _muteCache[item.chatId],
                                 builder: (context, snapshot) {
                                   return (snapshot.data ?? false)
                                       ? CommonImage(
@@ -789,7 +780,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                   )
                                       : Container();
                                 },
-                                future: _getChatSessionMute(announceItem),
+                                future: _getChatSessionMute(item),
                               ),
                             ],
                           ),
@@ -797,7 +788,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                             padding: EdgeInsets.only(top: Adapt.px(5)),
                             child: Container(
                               constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 30)),
-                              child: _buildItemSubtitle(announceItem),
+                              child: _buildItemSubtitle(item),
                             ),
                           ),
                         ],
@@ -812,17 +803,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 FutureBuilder<bool>(
+                  initialData: _muteCache[item.chatId],
                   builder: (context, snapshot) {
-                    return _buildReadWidget(announceItem, snapshot.data ?? false);
+                    return _buildReadWidget(item, snapshot.data ?? false);
                   },
-                  future: _getChatSessionMute(announceItem),
+                  future: _getChatSessionMute(item),
                 ),
                 SizedBox(
                   height: Adapt.px(18),
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 0),
-                  child: Text(announceItem.createTime ==null ? '': OXDateUtils.convertTimeFormatString2(announceItem.createTime! * 1000, pattern: 'MM-dd'),
+                  child: Text(item.createTime ==null ? '': OXDateUtils.convertTimeFormatString2(item.createTime! * 1000, pattern: 'MM-dd'),
                       textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
                 ),
               ],
@@ -830,29 +822,29 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           ],
         ),
         onPressed: () async {
-          _setAllRead(announceItem);
-          if (announceItem.chatType == 9999) {
+          _setAllRead(item);
+          if (item.chatType == 9999) {
             _routeCustomService();
-          } else if (announceItem.chatType == ChatType.chatChannel) {
+          } else if (item.chatType == ChatType.chatChannel) {
             OXNavigator.pushPage(
                 context,
                     (context) =>
                     ChatGroupMessagePage(
-                      communityItem: announceItem,
+                      communityItem: item,
                     ));
-          } else if (announceItem.chatType == ChatType.chatSecret) {
+          } else if (item.chatType == ChatType.chatSecret) {
             OXNavigator.pushPage(
                 context,
                     (context) =>
                     ChatSecretMessagePage(
-                      communityItem: announceItem,
+                      communityItem: item,
                     ));
           } else {
             OXNavigator.pushPage(
                 context,
                     (context) =>
                     ChatMessagePage(
-                      communityItem: announceItem,
+                      communityItem: item,
                     )).then((value) {
               _merge();
             });
@@ -909,18 +901,21 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     CommonToast.instance.show(context, Localized.text('ox_chat.services'));
   }
 
-  Future<bool> _getChatSessionMute(ChatSessionModel announceItem) async {
+  Future<bool> _getChatSessionMute(ChatSessionModel item) async {
     bool isMute = false;
-    if (announceItem.chatType == ChatType.chatSingle) {
-      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(announceItem.chatId!);
+    if (item.chatType == ChatType.chatSingle) {
+      UserDB? tempUserDB = Account.sharedInstance.userCache[item.chatId!];
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }
-    } else if (announceItem.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[announceItem.chatId!];
+    } else if (item.chatType == ChatType.chatChannel) {
+      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId!];
       if (channelDB != null) {
         isMute = channelDB.mute ?? false;
       }
+    }
+    if (isMute != _muteCache[item.chatId!]){
+      _muteCache[item.chatId!] = isMute;
     }
     return isMute;
   }
@@ -1059,7 +1054,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         LogUtil.e("user selected badge info fetch failed: $error");
       }
       if (badgeDB != null) {
-        badgeCache[chatId] = badgeDB;
+        _badgeCache[chatId] = badgeDB;
       }
       return badgeDB;
     }
