@@ -441,7 +441,7 @@ extension ChatDataCacheEx on ChatDataCache {
       // Create completer
       final completer = Completer<List<types.Message>>();
       _chatMessageMap[key] = completer.future;
-      _loadChatMessages(key, session).then((msgList) {
+      await _loadChatMessages(key, session).then((msgList) {
         messageIdCache.addAll(msgList.map((e) => e.id));
         _chatMessageMap[key] = msgList;
         // Finish completer
