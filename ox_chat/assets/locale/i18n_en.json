@@ -67,7 +67,7 @@
   "import_follows_tips": "Import follows and add them as Contacts:",
   "import_follows_no_data": "No Follows yet",
   "import_follows_success_dialog": "Added successfully. Share 0xchat with your Contacts.",
-  "str_secret_center_hint": "• Use end-to-end encryption (NIP-44)\n• Prevent metadata leaks (NIP-59)\n• Ensure forward secrecy (NIP-101)\n• Irrecoverable on other devices\n• Screenshot detection\n• Messages will be sent only to the relay you/counterparty specify:",
+  "str_secret_center_hint": "• Use end-to-end encryption (NIP-44)\n• Prevent metadata leaks (NIP-59)\n• Forward secrecy (NIP-101)\n• Irrecoverable on other devices\n• Screenshot detection\n• Messages will be sent only to the relay you/counterparty specify:",
   "str_other_rejected": "Rejected",
   "str_other_expired": "Expired",
   "str_waiting_other_join": "Waiting for $username to join...",
