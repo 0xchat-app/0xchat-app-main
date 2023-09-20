@@ -310,7 +310,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Widget _listView() {
     if (itemCount() > 0) {
       return ListView.builder(
-        padding: EdgeInsets.only(bottom: Adapt.px(150)),
+        padding: EdgeInsets.only(bottom: Adapt.px(120)),
         physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true, // Important!
         itemCount: itemCount(),

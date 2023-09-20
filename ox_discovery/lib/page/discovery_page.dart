@@ -159,53 +159,38 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           ],
         ),
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              expandedHeight: Adapt.px(60),
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: Container(
-                  height: double.infinity,
-                  color: ThemeColor.color200,
-                  child: Column(
-                    children: <Widget>[
-                      _topSearch(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ];
-        },
-        body: commonStateViewWidget(context, bodyWidget()),
-      ),
-    );
-  }
-
-  Widget bodyWidget() {
-    return SafeArea(
-      bottom: false,
-      child: OXSmartRefresher(
+      body: OXSmartRefresher(
         controller: _refreshController,
         enablePullDown: true,
         enablePullUp: false,
         onRefresh: _onRefresh,
         onLoading: null,
-        child: ListView.builder(
-          padding: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
-          primary: false,
-          controller: null,
-          itemCount: 1,
-          itemBuilder: (context, index) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: hotChatViews(),
-            );
-          },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _topSearch(),
+              commonStateViewWidget(context, bodyWidget()),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget bodyWidget() {
+    return ListView.builder(
+      padding: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
+      primary: false,
+      controller: null,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 1,
+      itemBuilder: (context, index) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: hotChatViews(),
+        );
+      },
     );
   }
 
