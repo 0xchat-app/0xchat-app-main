@@ -83,11 +83,15 @@ extension ChatMentionMessageEx on ChatMentionHandler {
     return null;
   }
 
-  static Future<String?> tryDecoder(String text) async {
+  static String? tryDecoder(String text) {
     List<ProfileMention> mentions = Nip27.decodeProfileMention(text);
     if (mentions.isEmpty) return null;
-    await Future.forEach(mentions.reversed, (mention) async {
-      final userName = (await Account.sharedInstance.getUserInfo(mention.pubkey))?.name ?? '';
+    mentions.reversed.forEach((mention) {
+      final user = Account.sharedInstance.getUserInfo(mention.pubkey);
+      var userName = '';
+      if (user is UserDB) {
+        userName = user.name ?? userName;
+      }
       text = text.replaceRange(mention.start, mention.end, '$_mentionPrefix$userName');
     });
     return text;
@@ -103,7 +107,31 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
     _inputController.addListener(_inputFieldOnTextChanged);
   }
 
-  String mentionTextString(String text) => '$_mentionPrefix$text$_mentionSuffix';
+  void addMentionText(UserDB user) {
+
+    final userName = user.name ?? '';
+    final mentionText = _mentionTextString(userName);
+    final originText = inputController.text;
+    final selection = inputController.selection;
+    final mentionTextStart = selection.end;
+    final mentionTextEnd = mentionTextStart + mentionText.length;
+
+    final newText = originText.replaceRange(mentionTextStart, mentionTextStart, mentionText);
+    inputController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: mentionTextEnd),
+    );
+
+    final mention = ProfileMentionWrapper.create(
+      start: mentionTextStart,
+      end: mentionTextEnd,
+      pubkey: user.pubKey,
+      relays: ['wss://relay.0xchat.com'],
+    );
+    mentions.add(mention);
+  }
+
+  String _mentionTextString(String text) => '$_mentionPrefix$text$_mentionSuffix';
 
   void _inputFieldOnTextChanged() {
     final newText = inputController.text;
@@ -119,7 +147,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
       final userName = mention.user?.name;
       if (userName == null) return ;
 
-      final target = mentionTextString(userName);
+      final target = _mentionTextString(userName);
       var searchStart = searchStarrMap[userName] ?? 0;
       if (searchStart > newText.length) return ;
 
@@ -213,7 +241,7 @@ extension ChatMentionUserListEx on ChatMentionHandler {
     final userName = item.name ?? '';
     if (userName.isEmpty) return ;
 
-    final replaceText = mentionTextString(userName);
+    final replaceText = _mentionTextString(userName);
     final newText = originText.replaceRange(prefixStart, cursorPosition, replaceText);
     final end = prefixStart + replaceText.length;
     inputController.value = TextEditingValue(

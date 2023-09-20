@@ -15,8 +15,13 @@ class MentionUserList extends StatelessWidget {
 
   final Function(UserDB item) itemOnPressed;
 
+  final double itemHeight = Adapt.px(44);
+  final double dividerHeight = 1;
+  final int maxItemCount = 5;
+
   @override
   Widget build(BuildContext context) {
+    final double maxContainerHeight = (itemHeight + dividerHeight) * maxItemCount;
     return ValueListenableBuilder(
       valueListenable: this.userList,
       child: SizedBox(),
@@ -24,6 +29,9 @@ class MentionUserList extends StatelessWidget {
         return Visibility(
           visible: userList.isNotEmpty,
           child: Container(
+            constraints: BoxConstraints(
+              maxHeight: maxContainerHeight,
+            ),
             decoration: BoxDecoration(
               color: ThemeColor.color180,
               borderRadius: BorderRadius.circular(Adapt.px(16)),
@@ -33,7 +41,7 @@ class MentionUserList extends StatelessWidget {
               shrinkWrap: true,
               itemCount: userList.length,
               itemBuilder: (_, index) => _buildUserItem(userList[index]),
-              separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
+              separatorBuilder: (BuildContext context, int index) => Divider(height: dividerHeight),
             ),
           ),
         );
@@ -46,7 +54,7 @@ class MentionUserList extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () => itemOnPressed(user),
       child: Container(
-        height: Adapt.px(44),
+        height: itemHeight,
         child: Row(
           children: [
             OXUserAvatar(

@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -12,6 +13,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class OXValue<T> {
   OXValue(this.value);
@@ -20,31 +22,25 @@ class OXValue<T> {
 
 class ChatMessageDBToUIHelper {
 
+  static String? sessionMessageTextBuilder(MessageDB message) {
+    final type = MessageDB.stringtoMessageType(message.type ?? '');
+    final decryptContent = message.decryptContent ?? '';
+    if (type == MessageType.text && decryptContent.isNotEmpty) {
+      final mentionDecoderText = ChatMentionMessageEx.tryDecoder(decryptContent);
+      return mentionDecoderText;
+    }
+    return null;
+  }
+
   static Future<types.User?> getUser(String messageSenderPubKey) async {
     final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
     return user?.toMessageModel();
-  }
-
-  static String? getRoomId(MessageDB message) {
-    String? chatId;
-    final groupId = message.groupId ?? '';
-    final senderId = message.sender ?? '';
-    final receiverId = message.receiver ?? '';
-    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (groupId.isNotEmpty) {
-      chatId = groupId;
-    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
-      chatId = senderId;
-    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
-      chatId = receiverId;
-    }
-    return chatId;
   }
 }
 
 extension MessageDBToUIEx on MessageDB {
 
-  Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true}) async {
+  Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
     // Msg id
     final messageId = this.messageId;
@@ -129,7 +125,7 @@ extension MessageDBToUIEx on MessageDB {
     }
 
     // ChatId
-    final chatId = ChatMessageDBToUIHelper.getRoomId(this);
+    final chatId = getRoomId();
     if (chatId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -156,7 +152,11 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.text:
         messageFactory = TextMessageFactory();
         final initialText = contentModel.content ?? '';
-        contentModel.content = await ChatMentionMessageEx.tryDecoder(initialText) ?? initialText;
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText);
+        if (mentionDecodeText != null) {
+          contentModel.content = mentionDecodeText;
+          isMentionMessageCallback?.call();
+        }
         break ;
       case MessageType.image:
       case MessageType.encryptedImage:
@@ -214,6 +214,22 @@ extension MessageDBToUIEx on MessageDB {
       fileEncryptionType: fileEncryptionType,
       repliedMessage: repliedMessage,
     );
+  }
+
+  String? getRoomId() {
+    String? chatId;
+    final groupId = this.groupId ?? '';
+    final senderId = this.sender ?? '';
+    final receiverId = this.receiver ?? '';
+    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (groupId.isNotEmpty) {
+      chatId = groupId;
+    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
+      chatId = senderId;
+    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
+      chatId = receiverId;
+    }
+    return chatId;
   }
 }
 
@@ -302,16 +318,19 @@ extension UIMessageEx on types.Message {
     if (replyMessage is types.TextMessage) {
       messageText = replyMessage.text;
     } else if (replyMessage is types.ImageMessage) {
-      messageText = '[image]';
+      messageText = Localized.text('ox_common.message_type_image');
     } else if (replyMessage is types.AudioMessage) {
-      messageText = '[audio]';
+      messageText = Localized.text('ox_common.message_type_audio');
     } else if (replyMessage is types.VideoMessage) {
-      messageText = '[video]';
+      messageText = Localized.text('ox_common.message_type_video');
     } else if (replyMessage is types.CustomMessage) {
       final customType = replyMessage.customType;
       switch (customType) {
         case CustomMessageType.zaps:
-          messageText = '[zaps]';
+          messageText = Localized.text('ox_common.message_type_zaps');
+          break ;
+        case CustomMessageType.zaps:
+          messageText = Localized.text('ox_common.message_type_call');
           break ;
         default:
           break ;

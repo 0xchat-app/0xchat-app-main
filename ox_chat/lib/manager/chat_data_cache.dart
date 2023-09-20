@@ -140,7 +140,11 @@ class ChatDataCache with OXChatObserver {
     }
     ChannelKey key = ChannelKey(groupId);
 
-    types.Message? msg = await message.toChatUIMessage();
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+      },
+    );
     if (msg == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',

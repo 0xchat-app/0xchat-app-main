@@ -89,6 +89,10 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
+
+    if (widget.communityItem.isMentioned) {
+      OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: false);
+    }
   }
 
   void addListener() {
@@ -152,6 +156,11 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           isClickable: true,
           onReturnFromNextPage: () {
             setState(() { });
+          },
+          onLongPress: () {
+            final user = message.author.sourceObject;
+            if (user != null)
+              chatGeneralHandler.mentionHandler?.addMentionText(user);
           },
         ),
         showUserNames: showUserNames,

@@ -810,16 +810,40 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemSubtitle(ChatSessionModel announceItem) {
+
+    final isMentioned = announceItem.isMentioned;
+    if (isMentioned) {
+      return RichText(
+        textAlign: TextAlign.left,
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              // text: '[${Localized.text('ox_chat.session_content_mentioned')}]',
+              text: '[You`re mentioned]',
+              style: _Style.hintContentSub(),
+            ),
+            TextSpan(
+              text: announceItem.content ?? '',
+              style: _Style.newsContentSub(),
+            ),
+          ],
+        ),
+      );
+    }
+
     final draft = announceItem.draft ?? '';
     if (draft.isNotEmpty) {
-      return Text('[Draft]$draft',
+      return Text(
+        '[${Localized.text('ox_chat.session_content_draft')}]$draft',
         textAlign: TextAlign.left,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: _Style.draftContentSub(),
+        style: _Style.hintContentSub(),
       );
     }
-    return Text(announceItem.content ?? '',
+    return Text(
+      announceItem.content ?? '',
       textAlign: TextAlign.left,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -1102,7 +1126,7 @@ class _Style {
     );
   }
 
-  static TextStyle draftContentSub() {
+  static TextStyle hintContentSub() {
     return new TextStyle(
       fontSize: Adapt.px(14),
       fontWeight: FontWeight.w400,

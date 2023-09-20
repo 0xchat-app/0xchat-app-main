@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
@@ -28,6 +29,7 @@ class OXChat extends OXFlutterModule {
       OXChatBinding.sharedInstance.initLocalSession();
       ChatDataCache.shared.setup();
     });
+    OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
   }
 
   @override
