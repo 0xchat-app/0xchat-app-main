@@ -819,8 +819,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         text: TextSpan(
           children: [
             TextSpan(
-              // text: '[${Localized.text('ox_chat.session_content_mentioned')}]',
-              text: '[You`re mentioned]',
+              text: '[${Localized.text('ox_chat.session_content_mentioned')}]',
               style: _Style.hintContentSub(),
             ),
             TextSpan(

@@ -57,6 +57,11 @@ class ProfileMentionWrapper {
       user ?? this.user,
     );
   }
+
+  @override
+  String toString() {
+    return '[ProfileMentionWrapper]start: ${this.source.start}, end: ${this.source.end}, pubkey: ${this.source.pubkey}';
+  }
 }
 
 const _mentionPrefix = '@';

@@ -11,6 +11,7 @@ import 'package:ox_chat/widget/secret_hint_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -95,9 +96,19 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     } else if (Platform.isIOS) {
       await ScreenProtector.preventScreenshotOn();
       ScreenProtector.addListener(() {
-        chatGeneralHandler.addSystemMessage(context, r'You take a screenshot', localTextKey: r'${user} take a screenshot');
+        final key = 'ox_chat.screenshot_hint_message';
+        chatGeneralHandler.addSystemMessage(
+          context,
+          Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
+          localTextKey: key,
+        );
       }, (p0) {
-        chatGeneralHandler.addSystemMessage(context, r'You attempted to screen record', localTextKey: r'${user} attempted to screen record');
+        final key = 'ox_chat.screen_record_hint_message';
+        chatGeneralHandler.addSystemMessage(
+          context,
+          Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
+          localTextKey: key,
+        );
       });
     }
   }
