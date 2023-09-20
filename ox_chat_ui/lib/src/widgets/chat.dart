@@ -297,7 +297,7 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed].
-  final void Function(types.PartialText) onSendPressed;
+  final Future Function(types.PartialText) onSendPressed;
 
   final List<InputMoreItem> inputMoreItems;
 

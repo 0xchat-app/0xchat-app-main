@@ -142,7 +142,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(context, msg.text),
+        onSendPressed: (msg) async => await chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),

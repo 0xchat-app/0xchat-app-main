@@ -10,6 +10,8 @@ import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import 'general_handler/chat_mention_handler.dart';
+
 abstract class MessageFactory {
   types.Message? createMessage({
     required types.User author,

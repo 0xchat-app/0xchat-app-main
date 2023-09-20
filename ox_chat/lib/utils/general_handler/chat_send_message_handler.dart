@@ -26,13 +26,25 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       message = sendMsg;
     }
 
-    final errorMsg = await ChatSendMessageHelper.sendMessage(session, message);
+    final errorMsg = await ChatSendMessageHelper.sendMessage(
+      session: session,
+      message: message,
+      contentEncoder: messageContentEncoder,
+    );
     if (errorMsg != null && errorMsg.isNotEmpty) {
       CommonToast.instance.show(context, errorMsg);
     }
   }
 
-  Future resendMessage(BuildContext context, types.Message message) async {
+  FutureOr<String?> messageContentEncoder(types.Message message) {
+    // try use mention encoder.
+    final mentionResult = mentionHandler?.tryEncoder(message);
+    if (mentionResult != null) return mentionResult;
+
+    return null;
+  }
+
+  void resendMessage(BuildContext context, types.Message message) {
     final resendMsg = message.copyWith(
       createdAt: DateTime.now().millisecondsSinceEpoch,
       status: types.Status.sending,
@@ -41,7 +53,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context, isResend: true);
   }
 
-  void sendTextMessage(BuildContext context, String text) {
+  Future sendTextMessage(BuildContext context, String text) async {
 
     final mid = Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
@@ -56,10 +68,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
     replyHandler.updateReplyMessage(null);
 
-    _sendMessageHandler(message, context: context);
+    await _sendMessageHandler(message, context: context);
   }
 
-  Future sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) async {
+  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     final message = CustomMessageFactory().createZapsMessage(
@@ -76,7 +88,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context);
   }
 
-  Future sendCallMessage({BuildContext? context, required String text, required CallMessageType type}) async {
+  void sendCallMessage({BuildContext? context, required String text, required CallMessageType type}) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     final message = CustomMessageFactory().createCallMessage(
@@ -88,7 +100,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       type: type,
     );
 
-    _sendMessageHandler(message, context: context);
+    ChatDataCache.shared.addNewMessage(session, message);
   }
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
@@ -117,7 +129,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  Future sendGifImageMessage(BuildContext context, GiphyImage image) async {
+  void sendGifImageMessage(BuildContext context, GiphyImage image) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -194,7 +206,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  Future addSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) async {
+  void addSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -321,7 +333,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     required types.VideoMessage message,
     String? encryptedKey,
   }) async {
-    final filePath = message.metadata?['videoUrl'] as String ?? '';
+    final filePath = message.metadata?['videoUrl'] as String? ?? '';
     final uriIsLocalPath = filePath.isLocalPath;
 
     if (filePath.isEmpty || uriIsLocalPath == null) {

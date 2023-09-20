@@ -43,6 +43,7 @@ class MentionUserList extends StatelessWidget {
 
   Widget _buildUserItem(UserDB user) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () => itemOnPressed(user),
       child: Container(
         height: Adapt.px(44),

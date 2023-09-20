@@ -1,15 +1,37 @@
 
 import 'package:flutter/material.dart';
+
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/widget/mention_user_list.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
+
+extension ChatSessionModelMentionEx on ChatSessionModel {
+  bool get isSupportMention {
+    switch (this.chatType) {
+      case ChatType.chatChannel:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
 
 class ProfileMentionWrapper {
 
   ProfileMentionWrapper(this.source, [this.user]) {
-    if (user == null)
-      Account.sharedInstance.getUserInfo(source.pubkey).then((value) => user = value);
+    if (user == null) {
+      final userFuture = Account.sharedInstance.getUserInfo(source.pubkey);
+      if (userFuture is Future<UserDB?>) {
+        userFuture.then((value){
+          user = value;
+        });
+      } else {
+        user = userFuture;
+      }
+    }
   }
 
   factory ProfileMentionWrapper.create({
@@ -37,23 +59,53 @@ class ProfileMentionWrapper {
   }
 }
 
+const _mentionPrefix = '@';
+const _mentionSuffix = ' ';
+
 class ChatMentionHandler {
 
-  final mentionPrefix = '@';
-  final mentionSuffix = ' ';
-
   TextEditingController _inputController = TextEditingController();
-  TextEditingController get inputController => _inputController;
 
   List<ProfileMentionWrapper> mentions = [];
 
   List<UserDB> allUser = [];
 
   final userList = ValueNotifier<List<UserDB>>([]);
+}
 
-  String mentionTextString(String text) => '$mentionPrefix$text$mentionSuffix';
+extension ChatMentionMessageEx on ChatMentionHandler {
+  String? tryEncoder(types.Message message) {
+    if (mentions.isNotEmpty && message is types.TextMessage) {
+      final originText = message.text;
+      _updateMentions(originText);
+      return Nip27.encodeProfileMention(mentions.map((e) => e.source).toList(), originText);
+    }
+    return null;
+  }
 
-  void inputFieldOnTextChanged() {
+  static Future<String?> tryDecoder(String text) async {
+    List<ProfileMention> mentions = Nip27.decodeProfileMention(text);
+    if (mentions.isEmpty) return null;
+    await Future.forEach(mentions.reversed, (mention) async {
+      final userName = (await Account.sharedInstance.getUserInfo(mention.pubkey))?.name ?? '';
+      text = text.replaceRange(mention.start, mention.end, '$_mentionPrefix$userName');
+    });
+    return text;
+  }
+}
+
+extension ChatMentionInputFieldEx on ChatMentionHandler {
+
+  TextEditingController get inputController => _inputController;
+  void set inputController(value) {
+    _inputController.removeListener(_inputFieldOnTextChanged);
+    _inputController = value;
+    _inputController.addListener(_inputFieldOnTextChanged);
+  }
+
+  String mentionTextString(String text) => '$_mentionPrefix$text$_mentionSuffix';
+
+  void _inputFieldOnTextChanged() {
     final newText = inputController.text;
     _updateMentions(newText);
     _showUserListIfNeeded(newText, inputController.selection);
@@ -79,29 +131,30 @@ class ChatMentionHandler {
       searchStarrMap[userName] = newMention.source.end + 1;
     });
 
-    mentions = newMentions;
+    mentions.clear();
+    mentions.addAll(newMentions);
   }
 
   void _showUserListIfNeeded(String newText, TextSelection selection) {
 
-    if (!newText.contains(mentionPrefix)) {
-      setEmptyUserList();
+    if (!newText.contains(_mentionPrefix)) {
+      _updateUserListValue([]);
       return ;
     }
 
     final cursorPosition = selection.start;
     if (!selection.isCollapsed) {
-      setEmptyUserList();
+      _updateUserListValue([]);
       return ;
     }
 
-    if (newText.endsWith(mentionPrefix)) {
-      userList.value = allUser;
+    if (newText.endsWith(_mentionPrefix)) {
+      _updateUserListValue(allUser);
       return ;
     }
-    final prefixStart = newText.lastIndexOf(mentionPrefix, cursorPosition);
+    final prefixStart = newText.lastIndexOf(_mentionPrefix, cursorPosition);
     if (prefixStart < 0) {
-      setEmptyUserList();
+      _updateUserListValue([]);
       return ;
     }
 
@@ -113,12 +166,12 @@ class ChatMentionHandler {
       final userName = mention.user?.name;
       if (userName == null) return ;
 
-      final target = '$mentionPrefix$userName$mentionSuffix';
+      final target = '$_mentionPrefix$userName$_mentionSuffix';
       if (searchText == target) isRecorded = true;
     });
 
     if (isRecorded) {
-      setEmptyUserList();
+      _updateUserListValue([]);
       return ;
     }
 
@@ -130,14 +183,17 @@ class ChatMentionHandler {
       return isNameMatch || isDNSMatch || isNickNameMatch;
     }).toList();
 
-    userList.value = result;
+    _updateUserListValue(result);
+  }
+}
+
+extension ChatMentionUserListEx on ChatMentionHandler {
+
+  void _updateUserListValue(List<UserDB> value) {
+    userList.value = value;
   }
 
-  void setEmptyUserList() {
-    userList.value = [];
-  }
-
-  Widget buildMentionUserList() {;
+  Widget buildMentionUserList() {
     return MentionUserList(userList, mentionUserListOnPressed);
   }
 
@@ -149,7 +205,7 @@ class ChatMentionHandler {
       return ;
     }
 
-    final prefixStart = originText.lastIndexOf(mentionPrefix, cursorPosition);
+    final prefixStart = originText.lastIndexOf(_mentionPrefix, cursorPosition);
     if (prefixStart < 0) {
       return ;
     }
@@ -165,12 +221,12 @@ class ChatMentionHandler {
       selection: TextSelection.collapsed(offset: end),
     );
 
-    mentions.add(ProfileMentionWrapper.create(start: prefixStart, end: end, pubkey: item.pubKey));
-  }
-
-  void set inputController(value) {
-    _inputController.removeListener(inputFieldOnTextChanged);
-    _inputController = value;
-    _inputController.addListener(inputFieldOnTextChanged);
+    final mention = ProfileMentionWrapper.create(
+      start: prefixStart,
+      end: end,
+      pubkey: item.pubKey,
+      relays: ['wss://relay.0xchat.com'],
+    );
+    mentions.add(mention);
   }
 }
