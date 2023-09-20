@@ -434,7 +434,7 @@ class OXChatBinding {
     }
     final ChatSessionModel chatSessionModel = await syncChatSessionTable(
       MessageDB(
-        decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB.name ?? ''}),
+        decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB?.name ?? ''}),
         createTime: ssDB.lastUpdateTime,
         sender: ssDB.toPubkey,
         receiver: ssDB.myPubkey,
