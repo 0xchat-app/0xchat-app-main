@@ -67,6 +67,8 @@ class OXChatBinding {
 
   final List<OXChatObserver> _observers = <OXChatObserver>[];
 
+  String? Function(MessageDB messageDB)? sessionMessageTextBuilder;
+
   Future<void> initLocalSession() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
       orderBy: "createTime desc",
@@ -102,6 +104,10 @@ class OXChatBinding {
   }
 
   String showContentByMsgType(MessageDB messageDB) {
+
+    final text = sessionMessageTextBuilder?.call(messageDB);
+    if (text != null) return text;
+
     switch (MessageDB.stringtoMessageType(messageDB.type!)) {
       case MessageType.text:
         String? showContent;
@@ -167,6 +173,7 @@ class OXChatBinding {
     bool alwaysTop = false,
     String? draft,
     int? messageKind,
+    bool? isMentioned,
   }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId];
@@ -197,6 +204,10 @@ class OXChatBinding {
       }
       if (draft != null && sessionModel.draft != draft) {
         sessionModel.draft = draft;
+        isChange = true;
+      }
+      if (isMentioned != null && sessionModel.isMentioned != isMentioned) {
+        sessionModel.isMentioned = isMentioned;
         isChange = true;
       }
       if (messageKind != null && sessionModel.messageKind != messageKind) {

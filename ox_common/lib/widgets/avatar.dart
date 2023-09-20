@@ -18,6 +18,7 @@ class _BaseAvatarWidget extends StatelessWidget {
     this.isCircular = false,
     this.isClickable = false,
     this.onTap,
+    this.onLongPress,
   });
 
   final String imageUrl;
@@ -26,12 +27,14 @@ class _BaseAvatarWidget extends StatelessWidget {
   final bool isCircular;
   final bool isClickable;
   final GestureTapCallback? onTap;
+  final GestureLongPressCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final radius = isCircular ? size : 5.0;
     return GestureDetector(
       onTap: isClickable ? onTap : null,
+      onLongPress: onLongPress,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: _buildAvatar(),
@@ -73,6 +76,7 @@ class OXUserAvatar extends StatefulWidget {
     this.isCircular = true,
     this.isClickable = false,
     this.onReturnFromNextPage,
+    this.onLongPress,
   }) : this.size = size ?? Adapt.px(48);
 
   final UserDB? user;
@@ -81,6 +85,7 @@ class OXUserAvatar extends StatefulWidget {
   final bool isCircular;
   final bool isClickable;
   final VoidCallback? onReturnFromNextPage;
+  final GestureLongPressCallback? onLongPress;
 
   @override
   State<StatefulWidget> createState() => OXUserAvatarState();
@@ -111,6 +116,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
         final onReturnFromNextPage = widget.onReturnFromNextPage;
         if (onReturnFromNextPage != null) onReturnFromNextPage();
       },
+      onLongPress: widget.onLongPress,
     );
   }
 }

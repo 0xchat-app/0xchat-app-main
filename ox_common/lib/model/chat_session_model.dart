@@ -38,6 +38,8 @@ class ChatSessionModel extends DBObject {
 
   String? draft;
 
+  bool isMentioned;
+
   int? messageKind;
 
   ChatSessionModel({
@@ -54,6 +56,7 @@ class ChatSessionModel extends DBObject {
     this.avatar,
     this.alwaysTop = false,
     this.draft,
+    this.isMentioned = false,
     this.messageKind,
   });
 
@@ -70,7 +73,10 @@ class ChatSessionModel extends DBObject {
   }
 
   static Map<String, String?> updateTable() {
-    return {"2": '''alter table ChatSessionModel add draft TEXT;'''};
+    return {
+      '2': '''alter table ChatSessionModel add draft TEXT;''',
+      '3': '''alter table ChatSessionModel add isMentioned INT DEFAULT 0;''',
+    };
   }
 
   @override
@@ -103,6 +109,7 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
     avatar: map['avatar'],
     alwaysTop: map['alwaysTop'] == 1,
     draft: map['draft'],
+    isMentioned: map['isMentioned'] == 1,
   );
 }
 
@@ -120,4 +127,5 @@ Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <Strin
       'avatar': instance.avatar,
       'alwaysTop': instance.alwaysTop == true ? 1 : 0,
       'draft': instance.draft,
+      'isMentioned': instance.isMentioned == true ? 1 : 0,
     };
