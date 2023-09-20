@@ -103,7 +103,6 @@ class _ContractsPageState extends State<ContractsPage>
             selectedIndex: _selectedIndex,
           ),
         ),
-
         actions: <Widget>[
           Container(
             margin: EdgeInsets.only(right: Adapt.px(16), top: Adapt.px(0)),
@@ -120,110 +119,80 @@ class _ContractsPageState extends State<ContractsPage>
                 package: 'ox_chat',
               ),
               onPressed: () {
-                // if (_selectedIndex == 0) {
                 _gotoAddFriend();
-                // } else if (_selectedIndex == 1) {
-                //   _gotoCreateGroup();
-                // }
               },
             ),
           ),
         ],
       ),
-      body: SafeArea(
-        bottom: false,
-        child: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                backgroundColor: ThemeColor.color200,
-                pinned: true,
-                floating: true,
-                expandedHeight:
-                _isShowTools ? Adapt.px(126) : Adapt.px(126 - 66),
-                elevation: 0,
-                flexibleSpace: _isShowTools
-                    ? FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Container(
-                    height: double.infinity,
-                    color: ThemeColor.color200,
-                    child: Column(
-                      children: <Widget>[
-                        _topSearch(),
-                      ],
-                    ),
-                  ),
-                )
-                    : Container(),
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(Adapt.px(68)),
-                  child: _isShowTools
-                      ? Container(
-                      alignment: Alignment.centerLeft,
-                      height: Adapt.px(68),
-                      color: ThemeColor.color200,
-                      child: Theme(
-                        data: ThemeData(
-                          backgroundColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                        ),
-                        child: ListView.builder(
-                            padding: EdgeInsets.only(left: Adapt.px(24)),
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: 2,
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return _inkWellWidget(
-                                    content: Localized.text('ox_chat.string_request_title'),
-                                    onTap: () {
-                                      OXNavigator.pushPage(
-                                        context,
-                                            (context) => ContactRequest(),
-                                      );
-                                    });
-                              }
-                              return _inkWellWidget(
-                                content: Localized.text('ox_chat.import_follows'),
-                                isShowCount: false,
-                                onTap: () async {
-                                  var result = await OXNavigator.pushPage(
-                                    context,
-                                        (context) => ContactAddFollows(),
-                                  );
-                                  if (result == true) {
-                                    OXCommonHintDialog.show(
-                                      context,
-                                      content:
-                                      Localized.text('ox_chat.import_follows_success_dialog'),
-                                    );
-                                  }
-                                },
-                              );
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            _topSearch(),
+            Container(
+              alignment: Alignment.centerLeft,
+              height: Adapt.px(68),
+              color: ThemeColor.color200,
+              child: ListView.builder(
+                  padding: EdgeInsets.only(left: Adapt.px(24)),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 2,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _inkWellWidget(
+                          content: Localized.text('ox_chat.string_request_title'),
+                          onTap: () {
+                            OXNavigator.pushPage(
+                              context,
+                              (context) => ContactRequest(),
+                            );
+                          });
+                    }
+                    return _inkWellWidget(
+                      content: Localized.text('ox_chat.import_follows'),
+                      isShowCount: false,
+                      onTap: () async {
+                        var result = await OXNavigator.pushPage(
+                          context,
+                          (context) => ContactAddFollows(),
+                        );
+                        if (result == true) {
+                          OXCommonHintDialog.show(
+                            context,
+                            content: Localized.text('ox_chat.import_follows_success_dialog'),
+                          );
+                        }
+                      },
+                    );
 
-                              return Container();
-                            }),
-                      ))
-                      : _topSearch(),
-                ),
+                    return Container();
+                  }),
+            ),
+            Container(
+              height: Adapt.screenH() - Adapt.px(128),
+              margin: EdgeInsets.only(bottom: Adapt.px(50)),
+              child: PageView(
+                physics: const BouncingScrollPhysics(),
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                children: [
+                  ContractViewFriends(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: false,
+                  ),
+                  ChatViewChannels(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: false,
+                  ),
+                ],
               ),
-            ];
-          },
-          body: PageView(
-            physics: const BouncingScrollPhysics(),
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            children: [
-              ContractViewFriends(),
-              ChatViewChannels(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

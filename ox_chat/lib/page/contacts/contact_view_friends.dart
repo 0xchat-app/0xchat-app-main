@@ -15,6 +15,10 @@ import 'package:ox_localizable/ox_localizable.dart';
 const String systemUserType = "10000";
 
 class ContractViewFriends extends StatefulWidget {
+  final bool shrinkWrap;
+  ScrollPhysics? physics;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics}): super(key: key);
+
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
 }
@@ -59,6 +63,8 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           child: ContractWidget(
             key: contractWidgetKey,
             data: userList,
+            shrinkWrap: widget.shrinkWrap,
+            physics: widget.physics,
           ),
         )
     );
