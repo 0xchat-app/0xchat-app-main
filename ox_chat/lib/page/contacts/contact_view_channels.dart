@@ -14,6 +14,10 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 
 class ChatViewChannels extends StatefulWidget {
+  final bool shrinkWrap;
+  ScrollPhysics? physics;
+  ChatViewChannels({Key? key, this.shrinkWrap = false, this.physics}): super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return ChatViewChannelsState();
@@ -70,6 +74,8 @@ class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerPro
         key: contractWidgetKey,
         data: channels,
         chatType:  ChatType.chatChannel,
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
       ),
     );
   }

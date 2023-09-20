@@ -27,6 +27,8 @@ class ContractWidget extends StatefulWidget {
   final bool editable;
   final onSelectChanged;
   String hostName = ''; //The current domain
+  final bool shrinkWrap;
+  ScrollPhysics? physics;
 
   ContractWidget({
     Key? key,
@@ -34,6 +36,8 @@ class ContractWidget extends StatefulWidget {
     this.editable = false,
     this.onSelectChanged,
     this.hostName = 'ox.com',
+    this.shrinkWrap = false,
+    this.physics,
   }) : super(key: key);
 
   @override
@@ -144,7 +148,8 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
               children: <Widget>[
                 CustomScrollView(
                   slivers: _buildSlivers(context),
-                  physics: AlwaysScrollableScrollPhysics(),
+                  physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
+                  shrinkWrap: widget.shrinkWrap,
                   controller: scrollController,
                 ),
                 Container(

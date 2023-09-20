@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -20,14 +21,16 @@ const double itemHeight = 62.0;
 
 class GroupContact extends StatefulWidget {
   final List<ChannelDB> data;
-
-  // 0 chat  1 Group chat 2 Channel Group chat
   final int chatType;
+  final bool shrinkWrap;
+  ScrollPhysics? physics;
 
   GroupContact({
     Key? key,
     required this.data,
     required this.chatType,
+    this.shrinkWrap = false,
+    this.physics,
   });
 
   @override
@@ -117,7 +120,8 @@ class GroupContactState extends State<GroupContact> {
               children: <Widget>[
                 CustomScrollView(
                   slivers: _buildSlivers(context),
-                  physics: AlwaysScrollableScrollPhysics(),
+                  physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
+                  shrinkWrap: widget.shrinkWrap,
                   controller: scrollController,
                 ),
                 Container(
