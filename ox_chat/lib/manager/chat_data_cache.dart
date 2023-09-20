@@ -362,7 +362,6 @@ extension ChatDataCacheObserverEx on ChatDataCache {
 
   Future<void> notifyChatObserverValueChanged(ChatTypeKey key) async {
     final callback = _valueChangedCallback[key];
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChatObserverValueChanged', message: 'callback: $callback');
     if (callback != null) {
       final msgList = await _getSessionMessage(key);
       callback(msgList);

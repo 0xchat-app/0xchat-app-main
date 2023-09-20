@@ -121,6 +121,7 @@ class Chat extends StatefulWidget {
     this.longPressMenuItemsCreator,
     this.onGifSend,
     this.inputBottomView,
+    this.mentionUserListWidget,
   });
 
   final ChatStatus? chatStatus;
@@ -148,6 +149,8 @@ class Chat extends StatefulWidget {
   final Widget? customTopWidget;
 
   final Widget? customCenterWidget;
+
+  final Widget? mentionUserListWidget;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view. If you're looking for the bottom widget added to the chat
@@ -294,7 +297,7 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed].
-  final void Function(types.PartialText) onSendPressed;
+  final Future Function(types.PartialText) onSendPressed;
 
   final List<InputMoreItem> inputMoreItems;
 
@@ -461,6 +464,7 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
+    final mentionUserListBottom = _getBottomOffsetForMentionUserList();
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -536,11 +540,27 @@ class ChatState extends State<Chat> {
                 ),
               ),
               widget.customCenterWidget != null ? widget.customCenterWidget! :  SizedBox(),
+              if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
+                Positioned(
+                  left: Adapt.px(12),
+                  right: Adapt.px(12),
+                  bottom: mentionUserListBottom,
+                  child: widget.mentionUserListWidget!,
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  double? _getBottomOffsetForMentionUserList() {
+    if (_inputKey.currentContext != null) {
+      final renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
+      return renderBox.size.height + Adapt.px(36);
+    } else {
+      return null;
+    }
   }
 
     Widget _buildBottomInputArea() {

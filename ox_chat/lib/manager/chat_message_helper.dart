@@ -8,6 +8,7 @@ import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -154,6 +155,8 @@ extension MessageDBToUIEx on MessageDB {
     switch (messageType) {
       case MessageType.text:
         messageFactory = TextMessageFactory();
+        final initialText = contentModel.content ?? '';
+        contentModel.content = await ChatMentionMessageEx.tryDecoder(initialText) ?? initialText;
         break ;
       case MessageType.image:
       case MessageType.encryptedImage:

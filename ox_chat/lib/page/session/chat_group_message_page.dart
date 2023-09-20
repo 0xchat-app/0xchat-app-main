@@ -5,10 +5,10 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
@@ -144,7 +144,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) => chatGeneralHandler.sendTextMessage(context, msg.text),
+        onSendPressed: (msg) async => await chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -188,6 +188,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
       ),
     );
   }

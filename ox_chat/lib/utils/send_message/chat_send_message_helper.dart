@@ -1,4 +1,7 @@
 
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -7,16 +10,21 @@ import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 
+typedef MessageContentEncoder = FutureOr<String?> Function(types.Message message);
+
 class ChatSendMessageHelper {
 
   static String getEncryptedKey(ChatSessionModel session) => ChatStrategyFactory.getStrategy(session).encryptedKey;
 
-  static Future<String?> sendMessage(ChatSessionModel session, types.Message message) async {
-
+  static Future<String?> sendMessage({
+    required ChatSessionModel session,
+    required types.Message message,
+    MessageContentEncoder? contentEncoder,
+  }) async {
     // prepare data
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
-    final contentString = message.contentString(message.content);
+    final contentString = (await contentEncoder?.call(message)) ?? message.contentString(message.content);
     final replayId = message.repliedMessage?.id ?? '';
 
     // create chat sender strategy
