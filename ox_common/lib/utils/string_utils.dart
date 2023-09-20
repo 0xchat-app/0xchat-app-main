@@ -154,5 +154,12 @@ extension StringUtil on String {
   String orDefault(String defaultValue) {
     return this.isEmpty ? defaultValue : this;
   }
+
+  String capitalize() {
+    if (this.isEmpty) {
+      return this;
+    }
+    return this[0].toUpperCase() + this.substring(1);
+  }
 }
 
