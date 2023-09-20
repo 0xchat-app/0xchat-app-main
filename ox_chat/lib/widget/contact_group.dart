@@ -19,11 +19,15 @@ import 'package:ox_localizable/ox_localizable.dart';
 const double headerHeight = 30.0;
 const double itemHeight = 62.0;
 
+typedef void CursorChannelsChanged(Widget cursor);
+
 class GroupContact extends StatefulWidget {
   final List<ChannelDB> data;
   final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
+  ScrollController? scrollController;
+  CursorChannelsChanged? onCursorChannelsChanged;
 
   GroupContact({
     Key? key,
@@ -31,6 +35,8 @@ class GroupContact extends StatefulWidget {
     required this.chatType,
     this.shrinkWrap = false,
     this.physics,
+    this.scrollController,
+    this.onCursorChannelsChanged
   });
 
   @override
@@ -47,9 +53,8 @@ class Note {
 }
 
 class GroupContactState extends State<GroupContact> {
-  ScrollController scrollController = ScrollController();
   List<String> indexTagList = [];
-  late List<ChannelDB> userList;
+  late List<ChannelDB> channelList;
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -63,18 +68,22 @@ class GroupContactState extends State<GroupContact> {
   @override
   void initState() {
     super.initState();
-    userList = widget.data;
+    channelList = widget.data;
     _initIndexBarData();
-    scrollController.addListener(() {
-      double position = scrollController.offset.toDouble();
-      int index = _computerIndex(position);
-      defaultIndex = index;
-    });
+    // scrollController.addListener(() {
+    //   double position = scrollController.offset.toDouble();
+    //   int index = _computerIndex(position);
+    //   defaultIndex = index;
+    // });
   }
 
   void updateContactData(List<ChannelDB> data) {
-    userList = data;
+    channelList = data;
     _initIndexBarData();
+    widget.onCursorChannelsChanged?.call(Container(
+      child: _buildAlphaBar(),
+      width: 30,
+    ));
   }
 
   void _initIndexBarData() {
@@ -82,17 +91,17 @@ class GroupContactState extends State<GroupContact> {
     mapData.clear();
     noteList.clear();
 
-    if (null == userList || userList?.length == 0) return;
+    if (null == channelList || channelList?.length == 0) return;
 
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
 
-    userList!.sort((v1, v2) {
+    channelList!.sort((v1, v2) {
       return PinyinHelper.getFirstWordPinyin(v1.name ?? '').compareTo(PinyinHelper.getFirstWordPinyin(v1.name ?? ''));
     });
 
-    userList!.forEach((item) {
+    channelList!.forEach((item) {
       if (item.channelId == '' || item.name == '') return;
       var cTag = PinyinHelper.getFirstWordPinyin(item.name ?? '').substring(0, 1).toUpperCase();
       if (!ALPHAS_INDEX.contains(cTag)) cTag = '#';
@@ -109,11 +118,11 @@ class GroupContactState extends State<GroupContact> {
 
   @override
   Widget build(BuildContext context) {
-    userList = widget.data;
+    channelList = widget.data;
     _initIndexBarData();
     return Material(
       color: ThemeColor.color200,
-      child: userList == null || userList!.isEmpty
+      child: channelList == null || channelList!.isEmpty
           ? _emptyWidget()
           : Stack(
               alignment: AlignmentDirectional.centerEnd,
@@ -122,11 +131,6 @@ class GroupContactState extends State<GroupContact> {
                   slivers: _buildSlivers(context),
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
-                  controller: scrollController,
-                ),
-                Container(
-                  child: _buildAlphaBar(),
-                  width: 30,
                 ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
@@ -160,7 +164,7 @@ class GroupContactState extends State<GroupContact> {
 
   @override
   void dispose() {
-    scrollController.dispose();
+    widget.scrollController?.dispose();
     super.dispose();
   }
 
@@ -187,13 +191,14 @@ class GroupContactState extends State<GroupContact> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
+    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, scrollController.position.maxScrollExtent);
-      scrollController.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
+      widget.scrollController!.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
     timer = Timer(Duration(milliseconds: 300), () {

@@ -13,22 +13,24 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 
-class ChatViewChannels extends StatefulWidget {
+class ContactViewChannels extends StatefulWidget {
   final bool shrinkWrap;
-  ScrollPhysics? physics;
-  ChatViewChannels({Key? key, this.shrinkWrap = false, this.physics}): super(key: key);
+  final ScrollPhysics? physics;
+  final ScrollController? scrollController;
+  final CursorChannelsChanged? onCursorChannelsChanged;
+  ContactViewChannels({Key? key, this.shrinkWrap = false, this.physics, this.scrollController, this.onCursorChannelsChanged}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return ChatViewChannelsState();
+    return _ContactViewChannelsState();
   }
 }
 
-class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerProviderStateMixin,
+class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTickerProviderStateMixin,
     AutomaticKeepAliveClientMixin, WidgetsBindingObserver, CommonStateViewMixin, OXChatObserver, OXUserInfoObserver {
   List<ChannelDB> channels = [];
   RefreshController _refreshController = RefreshController();
-  GlobalKey<GroupContactState> contractWidgetKey = new GlobalKey<GroupContactState>();
+  GlobalKey<GroupContactState> channelsWidgetKey = new GlobalKey<GroupContactState>();
   num imageV = 0;
 
   @override
@@ -37,7 +39,7 @@ class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerPro
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
-    _getDefaultData();
+    _loadData();
     _onRefresh();
   }
 
@@ -71,25 +73,20 @@ class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerPro
     return commonStateViewWidget(
       context,
       GroupContact(
-        key: contractWidgetKey,
+        key: channelsWidgetKey,
         data: channels,
         chatType:  ChatType.chatChannel,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
+        scrollController: widget.scrollController,
+        onCursorChannelsChanged: widget.onCursorChannelsChanged,
       ),
     );
   }
 
-  void _getDefaultData() async {
-    Map<String, ChannelDB> channelsMap = Channels.sharedInstance.myChannels;
-    LogUtil.e('Michael: channelsMap.length =${channelsMap.length}');
-    channels = channelsMap.values.toList();
-    LogUtil.e('Michael: channels.length =${channels.length}');
-    setState(() {});
-
-  }
-
   void _loadData() async {
+    Map<String, ChannelDB> channelsMap = Channels.sharedInstance.myChannels;
+    channels = channelsMap.values.toList();
     if(Channels.sharedInstance.myChannels.length>0) {
       channels = Channels.sharedInstance.myChannels.values.toList();
     }
@@ -97,10 +94,9 @@ class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerPro
   }
 
   void _showView() {
-    LogUtil.e('groupList: ${channels.length}');
     if (this.mounted) {
-      contractWidgetKey.currentState?.updateContactData(channels);
-      if (null == channels || channels.length == 0) {
+      channelsWidgetKey.currentState?.updateContactData(channels);
+      if (channels.length == 0) {
         setState(() {
           updateStateView(CommonStateView.CommonStateView_NoData);
         });
@@ -188,18 +184,18 @@ class ChatViewChannelsState extends State<ChatViewChannels> with SingleTickerPro
 
   @override
   void didCreateChannel(ChannelDB? channelDB) {
-    _getDefaultData();
+    _loadData();
   }
 
   @override
   void didChannelsUpdatedCallBack() {
-    _getDefaultData();
+    _loadData();
   }
 
 
 
   @override
   void didDeleteChannel(ChannelDB? channelDB) {
-    _getDefaultData();
+    _loadData();
   }
 }

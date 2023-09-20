@@ -17,20 +17,22 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-typedef void OnTouchCallback(int index);
-
 const double headerHeight = 30.0;
 const double itemHeight = 62.0;
 
-class ContractWidget extends StatefulWidget {
+typedef void CursorContactsChanged(Widget cursor);
+
+class ContactWidget extends StatefulWidget {
   final List<UserDB> data;
   final bool editable;
   final onSelectChanged;
   String hostName = ''; //The current domain
   final bool shrinkWrap;
   ScrollPhysics? physics;
+  ScrollController? scrollController;
+  CursorContactsChanged? onCursorContactsChanged;
 
-  ContractWidget({
+  ContactWidget({
     Key? key,
     required this.data,
     this.editable = false,
@@ -38,11 +40,13 @@ class ContractWidget extends StatefulWidget {
     this.hostName = 'ox.com',
     this.shrinkWrap = false,
     this.physics,
+    this.scrollController,
+    this.onCursorContactsChanged
   }) : super(key: key);
 
   @override
   State createState() {
-    return ContractWidgetState();
+    return ContactWidgetState();
   }
 }
 
@@ -53,9 +57,8 @@ class Note {
   Note(this.tag, this.childList);
 }
 
-class ContractWidgetState<T extends ContractWidget> extends State<T> {
+class ContactWidgetState<T extends ContactWidget> extends State<T> {
   late List<UserDB> _data;
-  ScrollController scrollController = ScrollController();
   List<String> indexTagList = [];
   List<UserDB>? userList;
   int defaultIndex = 0;
@@ -74,13 +77,12 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
     super.initState();
     _data = widget.data;
     _initIndexBarData();
-    scrollController.addListener(() {
-      double position = scrollController.offset.toDouble();
-      int index = _computerIndex(position);
-      defaultIndex = index;
-    });
-
     initFromCache();
+    // scrollController!.addListener(() {
+    //   double position = scrollController!.offset.toDouble();
+    //   int index = _computerIndex(position);
+    //   defaultIndex = index;
+    // });
   }
 
   void initFromCache() async {}
@@ -93,6 +95,10 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
   void updateContactData(List<UserDB> data) {
     _data = data;
     _initIndexBarData();
+    widget.onCursorContactsChanged?.call(Container(
+      child: _buildAlphaBar(),
+      width: 30,
+    ));
   }
 
   void _initIndexBarData() {
@@ -150,11 +156,6 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
                   slivers: _buildSlivers(context),
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
-                  controller: scrollController,
-                ),
-                Container(
-                  child: _buildAlphaBar(),
-                  width: 30,
                 ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
@@ -188,7 +189,7 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
 
   @override
   void dispose() {
-    scrollController.dispose();
+    widget.scrollController?.dispose();
     super.dispose();
   }
 
@@ -215,13 +216,14 @@ class ContractWidgetState<T extends ContractWidget> extends State<T> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
+    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, scrollController.position.maxScrollExtent);
-      scrollController.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
+      widget.scrollController!.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
 
