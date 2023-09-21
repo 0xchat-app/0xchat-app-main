@@ -208,7 +208,7 @@ extension MessageDBToUIEx on MessageDB {
       timestamp: messageTimestamp,
       roomId: chatId,
       remoteId: messageId,
-      sourceKey: originEvent,
+      sourceKey: plaintEvent,
       contentModel: contentModel,
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,

@@ -1,7 +1,8 @@
 
 import 'dart:async';
-import 'dart:ui';
+import 'dart:convert';
 
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -31,7 +32,16 @@ class ChatSendMessageHelper {
     final senderStrategy = ChatStrategyFactory.getStrategy(session);
 
     // prepare send event
-    var event = message.sourceKey;
+    var event;
+    var plaintEvent = message.sourceKey;
+    if (plaintEvent != null && plaintEvent is String) {
+      try {
+        event = Event.fromJson(jsonDecode(plaintEvent));
+      } catch (_) {
+        return null;
+      }
+    }
+
     if (event == null) {
       event = await senderStrategy.getSendMessageEvent(
         messageType: type,
