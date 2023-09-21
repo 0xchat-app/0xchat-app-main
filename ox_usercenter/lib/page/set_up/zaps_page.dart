@@ -375,6 +375,7 @@ class _ZapsPageState extends State<ZapsPage> {
         color: ThemeColor.color180,
       ),
       child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 0),
         itemBuilder: (context, index) => _buildItemBody(
             title: '+${zapsRecordDetails[index].amount}',
@@ -438,7 +439,7 @@ class _ZapsPageState extends State<ZapsPage> {
             fromPubKey: '${fromUser?.name} (${fromUser?.shortEncodedPubkey})',
             toPubKey: '${toUser?.name} (${toUser?.shortEncodedPubkey})',
             zapsTime: paidAt,
-            description: zapRecordsDB.description,
+            description: zapRecordsDB.content,
             isConfirmed: true
           ),
         );
