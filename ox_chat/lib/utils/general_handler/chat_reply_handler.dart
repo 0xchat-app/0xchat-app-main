@@ -16,7 +16,7 @@ class ChatReplyHandler {
     replyMessageNotifier.value = message?.replyDisplayContent;
   }
 
-  Future quoteMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void quoteMenuItemPressHandler(BuildContext context, types.Message message) {
     updateReplyMessage(message);
   }
 

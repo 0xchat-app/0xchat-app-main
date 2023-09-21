@@ -194,7 +194,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           elevation: 0,
           titleSpacing: 0.0,
           title: Container(
-              margin: EdgeInsets.only(left: Adapt.px(16)),
+              margin: EdgeInsets.only(left: Adapt.px(24)),
               child: Container(
                 width: Adapt.px(103),
                 height: Adapt.px(24),
@@ -254,7 +254,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   height: Adapt.px(92),
                   color: ThemeColor.color200,
                   child: ListView.builder(
-                    padding: EdgeInsets.only(left: Adapt.px(16)),
+                    padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     itemCount: _menuOptionModelList.length,
@@ -310,7 +310,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Widget _listView() {
     if (itemCount() > 0) {
       return ListView.builder(
-        padding: EdgeInsets.only(bottom: Adapt.px(150)),
+        padding: EdgeInsets.only(bottom: Adapt.px(120)),
         physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true, // Important!
         itemCount: itemCount(),
@@ -810,16 +810,39 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemSubtitle(ChatSessionModel announceItem) {
+
+    final isMentioned = announceItem.isMentioned;
+    if (isMentioned) {
+      return RichText(
+        textAlign: TextAlign.left,
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '[${Localized.text('ox_chat.session_content_mentioned')}]',
+              style: _Style.hintContentSub(),
+            ),
+            TextSpan(
+              text: announceItem.content ?? '',
+              style: _Style.newsContentSub(),
+            ),
+          ],
+        ),
+      );
+    }
+
     final draft = announceItem.draft ?? '';
     if (draft.isNotEmpty) {
-      return Text('[Draft]$draft',
+      return Text(
+        '[${Localized.text('ox_chat.session_content_draft')}]$draft',
         textAlign: TextAlign.left,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: _Style.draftContentSub(),
+        style: _Style.hintContentSub(),
       );
     }
-    return Text(announceItem.content ?? '',
+    return Text(
+      announceItem.content ?? '',
       textAlign: TextAlign.left,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -957,7 +980,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(16),
+          horizontal: Adapt.px(24),
           vertical: Adapt.px(6),
         ),
         height: Adapt.px(48),
@@ -1102,7 +1125,7 @@ class _Style {
     );
   }
 
-  static TextStyle draftContentSub() {
+  static TextStyle hintContentSub() {
     return new TextStyle(
       fontSize: Adapt.px(14),
       fontWeight: FontWeight.w400,

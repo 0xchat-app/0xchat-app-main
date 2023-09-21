@@ -140,7 +140,11 @@ class ChatDataCache with OXChatObserver {
     }
     ChannelKey key = ChannelKey(groupId);
 
-    types.Message? msg = await message.toChatUIMessage();
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+      },
+    );
     if (msg == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -362,7 +366,6 @@ extension ChatDataCacheObserverEx on ChatDataCache {
 
   Future<void> notifyChatObserverValueChanged(ChatTypeKey key) async {
     final callback = _valueChangedCallback[key];
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChatObserverValueChanged', message: 'callback: $callback');
     if (callback != null) {
       final msgList = await _getSessionMessage(key);
       callback(msgList);

@@ -121,6 +121,7 @@ class Chat extends StatefulWidget {
     this.longPressMenuItemsCreator,
     this.onGifSend,
     this.inputBottomView,
+    this.mentionUserListWidget,
   });
 
   final ChatStatus? chatStatus;
@@ -148,6 +149,8 @@ class Chat extends StatefulWidget {
   final Widget? customTopWidget;
 
   final Widget? customCenterWidget;
+
+  final Widget? mentionUserListWidget;
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view. If you're looking for the bottom widget added to the chat
@@ -294,7 +297,7 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed].
-  final void Function(types.PartialText) onSendPressed;
+  final Future Function(types.PartialText) onSendPressed;
 
   final List<InputMoreItem> inputMoreItems;
 
@@ -461,6 +464,7 @@ class ChatState extends State<Chat> {
     var scrollToAnchorMsgAction = null;
     if (anchorMsgId != null && anchorMsgId.isNotEmpty)
       scrollToAnchorMsgAction = () => scrollToMessage(anchorMsgId);
+    final mentionUserListBottom = _getBottomOffsetForMentionUserList();
     return InheritedUser(
       user: widget.user,
       child: InheritedChatTheme(
@@ -536,6 +540,13 @@ class ChatState extends State<Chat> {
                 ),
               ),
               widget.customCenterWidget != null ? widget.customCenterWidget! :  SizedBox(),
+              if (widget.mentionUserListWidget != null && mentionUserListBottom != null)
+                Positioned(
+                  left: Adapt.px(12),
+                  right: Adapt.px(12),
+                  bottom: mentionUserListBottom,
+                  child: widget.mentionUserListWidget!,
+                ),
             ],
           ),
         ),
@@ -543,16 +554,31 @@ class ChatState extends State<Chat> {
     );
   }
 
+  double? _getBottomOffsetForMentionUserList() {
+    if (_inputKey.currentContext != null) {
+      final renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
+      // final position = renderBox.localToGlobal(Offset.zero);
+      // final pageHeight = MediaQuery.of(context).size.height;
+      // final inputViewY = position.dy;
+      final inputHeight = renderBox.size.height;
+      return inputHeight + Adapt.px(16);
+    } else {
+      return null;
+    }
+  }
+
     Widget _buildBottomInputArea() {
       final chatStatus = widget.chatStatus;
-      Widget container({required Widget child}) => Container(
-        decoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.circular(Adapt.px(12)),
+      Widget container({required Widget child}) => SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.color190,
+            borderRadius: BorderRadius.circular(Adapt.px(12)),
+          ),
+          margin: EdgeInsets.only(bottom: Adapt.px(10)),
+          height: Adapt.px(58),
+          child: child,
         ),
-        margin: EdgeInsets.only(bottom: Adapt.px(10)),
-        height: Adapt.px(58),
-        child: child,
       );
       if (chatStatus == ChatStatus.NotJoined) {
         return GestureDetector(

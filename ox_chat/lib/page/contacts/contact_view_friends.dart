@@ -2,7 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat/widget/contract.dart';
+import 'package:ox_chat/widget/contact.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/mixin/common_ui_refresh_mixin.dart';
@@ -14,7 +14,15 @@ import 'package:ox_localizable/ox_localizable.dart';
 /// Contact - Friends List
 const String systemUserType = "10000";
 
+
+
 class ContractViewFriends extends StatefulWidget {
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
+  final ScrollController? scrollController;
+  final CursorContactsChanged? onCursorContactsChanged;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.scrollController, this.onCursorContactsChanged}): super(key: key);
+
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
 }
@@ -24,7 +32,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
         CommonStateViewMixin, OXUserInfoObserver , OXChatObserver{
   List<UserDB> userList = [];
 
-  GlobalKey<ContractWidgetState> contractWidgetKey = new GlobalKey<ContractWidgetState>();
+  GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
 
 
   @override
@@ -56,9 +64,13 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
               _loadData();
             }
           },
-          child: ContractWidget(
+          child: ContactWidget(
             key: contractWidgetKey,
             data: userList,
+            shrinkWrap: widget.shrinkWrap,
+            physics: widget.physics,
+            scrollController: widget.scrollController,
+            onCursorContactsChanged: widget.onCursorContactsChanged,
           ),
         )
     );

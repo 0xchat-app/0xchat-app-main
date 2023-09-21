@@ -1,11 +1,14 @@
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -57,11 +60,8 @@ class ChatGeneralHandler {
     this.fileEncryptionType = types.EncryptionType.none,
   }) : author = author ?? _defaultAuthor(),
        otherUser = _defaultOtherUser(session) {
-    if (otherUser == null) {
-      Account.sharedInstance.getUserInfo(session.getOtherPubkey).then((value) {
-        otherUser = value;
-      });
-    }
+    setupOtherUserIfNeeded();
+    setupMentionHandlerIfNeeded();
   }
 
   final types.User author;
@@ -72,6 +72,7 @@ class ChatGeneralHandler {
   bool hasMoreMessage = false;
 
   ChatReplyHandler replyHandler = ChatReplyHandler();
+  ChatMentionHandler? mentionHandler;
 
   TextEditingController inputController = TextEditingController();
 
@@ -90,6 +91,40 @@ class ChatGeneralHandler {
   static UserDB? _defaultOtherUser(ChatSessionModel session) {
     return Account.sharedInstance.userCache[session.chatId]
         ?? Account.sharedInstance.userCache[session.getOtherPubkey];
+  }
+
+  void setupOtherUserIfNeeded() {
+    if (otherUser == null) {
+      final userFuture = Account.sharedInstance.getUserInfo(session.getOtherPubkey);
+      if (userFuture is Future<UserDB?>) {
+        userFuture.then((value){
+          otherUser = value;
+        });
+      } else {
+        otherUser = userFuture;
+      }
+    }
+  }
+
+  void setupMentionHandlerIfNeeded() {
+    if (!session.isSupportMention) return ;
+
+    final mentionHandler = ChatMentionHandler();
+    ChatDataCache.shared.getSessionMessage(session).then((messageList) {
+      final userList = Set<UserDB>();
+      messageList.forEach((msg) {
+        final userDB = msg.author.sourceObject;
+        if (userDB is UserDB) {
+          if (userDB.pubKey != this.author.id) {
+            userList.add(userDB);
+          }
+        }
+      });
+      mentionHandler.allUser = userList.toList();
+    });
+    mentionHandler.inputController = inputController;
+
+    this.mentionHandler = mentionHandler;
   }
 }
 
