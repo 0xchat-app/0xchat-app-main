@@ -51,6 +51,7 @@ abstract class ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    bool isLocal = false,
     Event? event,
   });
 
@@ -84,6 +85,7 @@ class ChannelChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    bool isLocal = false,
     Event? event,
   }) async {
     return Channels.sharedInstance.sendChannelMessage(
@@ -92,6 +94,7 @@ class ChannelChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       event: event,
+      local: isLocal,
     );
   }
 }
@@ -130,6 +133,7 @@ class PrivateChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    bool isLocal = false,
     Event? event,
   }) async {
     return await Contacts.sharedInstance.sendPrivateMessage(
@@ -138,6 +142,7 @@ class PrivateChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       event: event,
+      local: isLocal,
     );
   }
 }
@@ -177,6 +182,7 @@ class SecretChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    bool isLocal = false,
     Event? event,
   }) async {
     return Contacts.sharedInstance
@@ -187,6 +193,7 @@ class SecretChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       event: event,
+      local: isLocal,
     );
   }
 }

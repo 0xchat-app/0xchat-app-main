@@ -97,14 +97,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       await ScreenProtector.preventScreenshotOn();
       ScreenProtector.addListener(() {
         final key = 'ox_chat.screenshot_hint_message';
-        chatGeneralHandler.addSystemMessage(
+        chatGeneralHandler.sendSystemMessage(
           context,
           Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
           localTextKey: key,
         );
       }, (p0) {
         final key = 'ox_chat.screen_record_hint_message';
-        chatGeneralHandler.addSystemMessage(
+        chatGeneralHandler.sendSystemMessage(
           context,
           Localized.text(key).replaceAll(r'${user}', Localized.text('ox_common.you')).capitalize(),
           localTextKey: key,

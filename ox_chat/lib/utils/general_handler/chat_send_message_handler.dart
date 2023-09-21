@@ -18,6 +18,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       types.Message message, {
         BuildContext? context,
         bool isResend = false,
+        bool isLocal = false,
       }) async {
     if (!isResend) {
       final encryptedKey = ChatSendMessageHelper.getEncryptedKey(session);
@@ -29,6 +30,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     final errorMsg = await ChatSendMessageHelper.sendMessage(
       session: session,
       message: message,
+      isLocal: isLocal,
       contentEncoder: messageContentEncoder,
     );
     if (errorMsg != null && errorMsg.isNotEmpty) {
@@ -88,11 +90,19 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context);
   }
 
-  void sendCallMessage({BuildContext? context, required String text, required CallMessageType type}) {
+  void sendCallMessage({BuildContext? context, required String text, required CallMessageType type, String? authorPubkey}) async {
+
+    var sender = this.author;
+    if (authorPubkey != null) {
+      final author = await ChatMessageDBToUIHelper.getUser(authorPubkey);
+      if (author == null) return ;
+      sender = author;
+    }
+
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     final message = CustomMessageFactory().createCallMessage(
-      author: author,
+      author: sender,
       timestamp: tempCreateTime,
       id: message_id,
       roomId: session.chatId ?? '',
@@ -100,7 +110,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       type: type,
     );
 
-    ChatDataCache.shared.addNewMessage(session, message);
+    _sendMessageHandler(message, context: context, isLocal: true);
   }
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
@@ -206,7 +216,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  void addSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) {
+  void sendSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -221,11 +231,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       },
     );
 
-    if (isSendToRemote) {
-      _sendMessageHandler(message, context: context);
-    } else {
-      ChatDataCache.shared.addNewMessage(session, message);
-    }
+    _sendMessageHandler(message, context: context, isLocal: !isSendToRemote);
   }
 }
 

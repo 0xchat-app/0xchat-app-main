@@ -20,6 +20,7 @@ class ChatSendMessageHelper {
   static Future<String?> sendMessage({
     required ChatSessionModel session,
     required types.Message message,
+    bool isLocal = false,
     MessageContentEncoder? contentEncoder,
   }) async {
     // prepare data
@@ -71,6 +72,7 @@ class ChatSendMessageHelper {
       contentString: contentString,
       replayId: replayId,
       event: event,
+      isLocal: isLocal,
     ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
