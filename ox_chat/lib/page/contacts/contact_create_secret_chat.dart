@@ -451,7 +451,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
   int _changeTimeToSecond(
       {bool isNeedCurrentTime = false, required int hourTime}) {
     int baseTime = hourTime * 60 * 60;
-    if (isNeedCurrentTime) return currentUnixTimestampSeconds() * baseTime;
+    if (isNeedCurrentTime) return currentUnixTimestampSeconds() + baseTime;
     return baseTime;
   }
 }
