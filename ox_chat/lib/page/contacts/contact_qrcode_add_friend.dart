@@ -161,6 +161,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
                       iconName: 'icon_business_card.png',
                       width: Adapt.px(60),
                       height: Adapt.px(60),
+                      useTheme: true,
                   ),
                   SizedBox(height: Adapt.px(7),),
                   MyText(

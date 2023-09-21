@@ -73,7 +73,12 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: ThemeColor.color190, borderRadius: BorderRadius.circular(20)),
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(Adapt.px(20)),
+          topLeft: Radius.circular(Adapt.px(20)),
+        ),
+      ),
       child: SafeArea(
         child: Container(
           child: _body(),
@@ -262,10 +267,9 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             },
             child: CommonImage(
               iconName: "title_close.png",
-              color: Colors.white,
               width: Adapt.px(24),
               height: Adapt.px(24),
-              useTheme: false,
+              useTheme: true,
             ),
           ),
           Expanded(
@@ -346,7 +350,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             opacity: 1,
             child: Container(
               alignment: Alignment.bottomCenter,
-              height: Adapt.px(215),
+              height: Adapt.px(290),
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
                 borderRadius: BorderRadius.circular(12),
