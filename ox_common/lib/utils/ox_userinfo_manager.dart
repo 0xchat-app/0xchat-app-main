@@ -141,6 +141,10 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
       _initMessage();
     };
+
+    Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
+      OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
+    };
   }
 
   void updateUserInfo(UserDB userDB) {}
