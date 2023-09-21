@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 /// Title: CommonToast
 /// Description: TODO()
@@ -36,7 +37,7 @@ class CommonToast {
     EasyLoading.instance.successWidget = _getToastTypeIconName(toastType);
     EasyLoading.instance.textStyle = TextStyle(
       // backgroundColor: ThemeColor.gray5,
-      color: ThemeColor.titleColor,
+      color: Colors.black,
       fontSize: Adapt.px(12),
       fontWeight: FontWeight.w400,
     );
