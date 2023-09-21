@@ -35,6 +35,7 @@ class ChatDataCache with OXChatObserver {
     }
 
     messageIdCache.clear();
+    _chatMessageMap = Map();
 
     await _setupChatMessages();
 
