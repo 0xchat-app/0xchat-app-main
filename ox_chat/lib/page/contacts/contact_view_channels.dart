@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ox_common/mixin/common_ui_refresh_mixin.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -39,7 +40,6 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
-    _loadData();
     _onRefresh();
   }
 
@@ -72,14 +72,23 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
     super.build(context);
     return commonStateViewWidget(
       context,
-      GroupContact(
-        key: channelsWidgetKey,
-        data: channels,
-        chatType:  ChatType.chatChannel,
-        shrinkWrap: widget.shrinkWrap,
-        physics: widget.physics,
-        scrollController: widget.scrollController,
-        onCursorChannelsChanged: widget.onCursorChannelsChanged,
+      VisibilityDetector(
+        key: const Key('friend_list'),
+        onVisibilityChanged: (VisibilityInfo visibilityInfo) {
+          if (visibilityInfo.visibleFraction == 0.0) {
+          } else {
+            _loadData();
+          }
+        },
+        child: GroupContact(
+          key: channelsWidgetKey,
+          data: channels,
+          chatType:  ChatType.chatChannel,
+          shrinkWrap: widget.shrinkWrap,
+          physics: widget.physics,
+          scrollController: widget.scrollController,
+          onCursorChannelsChanged: widget.onCursorChannelsChanged,
+        ),
       ),
     );
   }

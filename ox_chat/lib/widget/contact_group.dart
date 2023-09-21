@@ -36,8 +36,8 @@ class GroupContact extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.scrollController,
-    this.onCursorChannelsChanged
-  });
+    this.onCursorChannelsChanged,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {

@@ -39,7 +39,7 @@ class _ContractsPageState extends State<ContractsPage>
   ScrollController _scrollController = ScrollController();
   Widget? _cursorContactsWidget;
   Widget? _cursorChannelsWidget;
-  bool _isShowTools = true;
+  bool _isShowTools = false;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _ContractsPageState extends State<ContractsPage>
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
-    _loadData();
+    _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
   }
 
   @override
@@ -56,9 +56,6 @@ class _ContractsPageState extends State<ContractsPage>
     OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  void _loadData() {
   }
 
   @override
@@ -376,7 +373,6 @@ class _ContractsPageState extends State<ContractsPage>
 
   @override
   void didLoginSuccess(UserDB? userInfo) {
-    _loadData();
     setState(() {
       _isShowTools = true;
     });
@@ -396,11 +392,7 @@ class _ContractsPageState extends State<ContractsPage>
 
   @override
   void didSessionUpdate() {
-    _isShowTools = true;
-    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-    if (!isLogin) {
-      _isShowTools = false;
-    }
+    _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
     setState(() {});
   }
 }

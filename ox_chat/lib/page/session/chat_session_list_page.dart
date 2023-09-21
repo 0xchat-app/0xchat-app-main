@@ -194,7 +194,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           elevation: 0,
           titleSpacing: 0.0,
           title: Container(
-              margin: EdgeInsets.only(left: Adapt.px(16)),
+              margin: EdgeInsets.only(left: Adapt.px(24)),
               child: Container(
                 width: Adapt.px(103),
                 height: Adapt.px(24),
@@ -254,7 +254,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   height: Adapt.px(92),
                   color: ThemeColor.color200,
                   child: ListView.builder(
-                    padding: EdgeInsets.only(left: Adapt.px(16)),
+                    padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     itemCount: _menuOptionModelList.length,
@@ -980,7 +980,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(16),
+          horizontal: Adapt.px(24),
           vertical: Adapt.px(6),
         ),
         height: Adapt.px(48),
