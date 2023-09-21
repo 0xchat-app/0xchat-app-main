@@ -170,9 +170,9 @@ class SystemMessageFactory implements MessageFactory {
     final key = text;
     if (key.isNotEmpty) {
       text = Localized.text(key, useOrigin: true);
-      if (key == r'${user} take a screenshot' || key == r'${user} attempted to screen record') {
+      if (key == 'ox_chat.screen_record_hint_message' || key == 'ox_chat.screenshot_hint_message') {
         final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
-        final name = isMe ? 'You' : (author.sourceObject?.getUserShowName() ?? 'The other party');
+        final name = isMe ? Localized.text('ox_common.you') : (author.sourceObject?.getUserShowName() ?? '');
         text = text.replaceAll(r'${user}', name);
       }
     }

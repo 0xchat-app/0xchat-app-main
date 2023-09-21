@@ -131,7 +131,6 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
       start: mentionTextStart,
       end: mentionTextEnd,
       pubkey: user.pubKey,
-      relays: ['wss://relay.0xchat.com'],
     );
     mentions.add(mention);
   }
@@ -258,7 +257,6 @@ extension ChatMentionUserListEx on ChatMentionHandler {
       start: prefixStart,
       end: end,
       pubkey: item.pubKey,
-      relays: ['wss://relay.0xchat.com'],
     );
     mentions.add(mention);
   }
