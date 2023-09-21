@@ -1,17 +1,17 @@
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-
-import '../conditional/conditional.dart';
-import '../models/preview_image.dart';
+import 'dart:async';
+import 'dart:io';
 
 import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import '../models/preview_image.dart';
 
 class ImageGallery extends StatelessWidget {
   const ImageGallery({
@@ -86,32 +86,27 @@ class ImageGallery extends StatelessWidget {
                 bottom: 56,
                 child: IconButton(
                   icon: Icon(Icons.save_alt, color: Colors.white),
-                  onPressed: () async{
-                    if (RegExp(r'http?:\/\/').hasMatch(images[pageController.initialPage].uri)) {
-                      final uri = Uri.parse(images[pageController.initialPage].uri);
+                  onPressed: () async {
+                    if (images.isEmpty) return ;
+                    final pageIndex = pageController.page?.round() ?? 0;
+                    final imageUri = images[pageIndex].uri;
+
+                    final isNetworkImage = imageUri.startsWith('http');
+                    var result;
+                    if (isNetworkImage) {
                       final response = await Dio().get(
-                          images[pageController.initialPage].uri,
+                          imageUri,
                           options: Options(responseType: ResponseType.bytes));
-                      final result = await ImageGallerySaver.saveImage(
-                          Uint8List.fromList(response.data),
-                          quality: 100,
-                          name: uri.pathSegments.last);
-                      // print(result);
-                      if(result['isSuccess'] == true){
-                        CommonToast.instance.show(context, 'save successful');
-                      }
+                      result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
                     } else {
-                      File imageFile = File(images[pageController.initialPage].uri);
-                      final uri = Uri.parse(images[pageController.initialPage].uri);
-                      final bytes = await imageFile.readAsBytes();
-                      final result = await ImageGallerySaver.saveImage(
-                          Uint8List.fromList(bytes),
-                          quality: 100,
-                          name: uri.pathSegments.last);
-                      // print(result);
-                      if(result['isSuccess'] == true){
-                        CommonToast.instance.show(context, 'save successful');
-                      }
+                      final imageData = await File(imageUri).readAsBytes();
+                      result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+                    }
+
+                    if (result != null) {
+                      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
+                    } else {
+                      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
                     }
                   },
                 ),
