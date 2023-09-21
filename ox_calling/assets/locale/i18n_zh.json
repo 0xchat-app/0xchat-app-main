@@ -1,6 +1,7 @@
 {
   "str_call_duration": "通话时长：${time}",
   "str_call_canceled": "已取消",
+  "str_call_other_canceled": "对方已取消",
   "str_call_rejected": "已拒绝",
   "str_call_other_rejected": "对方已拒绝"
 }

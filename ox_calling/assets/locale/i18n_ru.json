@@ -1,6 +1,7 @@
 {
   "str_call_duration": "Длительность: ${time}",
   "str_call_canceled": "Отменено",
+  "str_call_other_canceled": "Другая сторона отменила",
   "str_call_rejected": "Исходящий вызов",
   "str_call_other_rejected": "Другая сторона отклонила"
 }

@@ -152,6 +152,7 @@ class SignalingManager {
       }
     }
     await _createOffer(session, media);
+    _isDisconnected = false;
     onCallStateChange?.call(session, CallState.CallStateNew);
     onCallStateChange?.call(session, CallState.CallStateInvite);
   }

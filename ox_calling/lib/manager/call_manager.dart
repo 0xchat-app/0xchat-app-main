@@ -257,6 +257,8 @@ class CallManager {
       } else {
         if (isReceiverReject){
           content = 'str_call_rejected'.localized();
+        } else {
+          content = 'str_call_other_canceled'.localized();
         }
       }
     }

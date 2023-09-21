@@ -1,6 +1,7 @@
 {
   "str_call_duration": "المدة: ${time}",
   "str_call_canceled": "ملغى",
+  "str_call_other_canceled": "تم الإلغاء من قبل الطرف الآخر",
   "str_call_rejected": "مكالمة صادرة",
   "str_call_other_rejected": "تم الرفض من قبل الطرف الآخر"
 }
