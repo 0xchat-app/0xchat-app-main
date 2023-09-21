@@ -76,6 +76,7 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
+    CallManager.instance.connectServer();
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
@@ -111,7 +112,6 @@ class CallPageState extends State<CallPage> {
                       margin: EdgeInsets.zero,
                       width: Adapt.screenW(),
                       height: Adapt.screenH(),
-                      decoration: BoxDecoration(color: ThemeColor.color180),
                       child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                     ),
                   )
@@ -295,6 +295,7 @@ class CallPageState extends State<CallPage> {
         InkWell(
           onTap: () {
             CallManager.instance.accept();
+            setState(() {});
           },
           child: _buildItemImg('icon_call_accept.png', 56, 56),
         ),
@@ -392,19 +393,12 @@ class CallPageState extends State<CallPage> {
   }
 
   void _callStateUpdate(CallState callState) {
-    LogUtil.e('_callStateUpdate ${callState}-----');
-    if (!mounted) {
-      return;
-    }
     if (callState == CallState.CallStateBye) {
       OXNavigator.pop(context);
-    } else if (callState == CallState.CallStateRinging) {
-      CallManager.instance.callInitiator = widget.userDB.pubKey;
-      CallManager.instance.callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
-    } else if (callState == CallState.CallStateInvite) {
-      CallManager.instance.callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
-      CallManager.instance.callReceiver = widget.userDB.pubKey;
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+
   }
 }
