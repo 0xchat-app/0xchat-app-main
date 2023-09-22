@@ -34,10 +34,12 @@ class CommonToast {
 
   Future<void> show(BuildContext? context, String message,
       {int duration = 2000, ToastType toastType = ToastType.normal}) async{
+    EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.instance.successWidget = _getToastTypeIconName(toastType);
+    EasyLoading.instance.backgroundColor = ThemeColor.color180;
+    EasyLoading.instance.indicatorColor = Colors.transparent;
+    EasyLoading.instance.textColor =  ThemeColor.color0;
     EasyLoading.instance.textStyle = TextStyle(
-      // backgroundColor: ThemeColor.gray5,
-      color: Colors.black,
       fontSize: Adapt.px(12),
       fontWeight: FontWeight.w400,
     );
