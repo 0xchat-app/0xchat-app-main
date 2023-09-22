@@ -40,7 +40,7 @@ class LaunchPageViewState extends State<LaunchPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColor.color200,
+      backgroundColor: Colors.black,
       body: buildBody(context),
     );
   }
