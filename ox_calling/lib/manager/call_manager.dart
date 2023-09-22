@@ -49,7 +49,6 @@ class CallManager {
   Timer? _timer;
   int counter = 0;
   OverlayEntry? overlayEntry;
-
   final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
 
   bool get getInCallIng{
@@ -146,7 +145,7 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          calledBye(false);
+          calledBye(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
@@ -195,6 +194,13 @@ class CallManager {
     calledBye(false);
   }
 
+  timeOutAutoHangUp() {
+    if (_session != null) {
+      _signaling?.bye(_session!.sid);
+    }
+    calledBye(false, isTomeOut: true);
+  }
+
   switchCamera() {
     _signaling?.switchCamera();
   }
@@ -223,8 +229,8 @@ class CallManager {
     return aspectRatio;
   }
 
-  void calledBye(bool isReceiverReject){
-    String content = _getCallHint(isReceiverReject);
+  void calledBye(bool isReceiverReject, {bool? isTomeOut}){
+    String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     if (_waitAccept) {
       print('peer reject');
       _waitAccept = false;
@@ -244,7 +250,7 @@ class CallManager {
     callReceiver = null;
   }
 
-  String _getCallHint(bool isReceiverReject){
+  String _getCallHint(bool isReceiverReject, {bool? isTomeOut}){
     String content = '';
     if (CallManager.instance.counter > 0) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
@@ -254,16 +260,24 @@ class CallManager {
       content = 'str_call_duration'.localized().replaceAll(r'${time}', '$twoDigitMinutes:$twoDigitSeconds');
     } else {
       if (callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-        if (isReceiverReject){
-          content = 'str_call_other_rejected'.localized();
+        if (isTomeOut == null){
+          if (isReceiverReject) {
+            content = 'str_call_other_rejected'.localized();
+          } else {
+            content = 'str_call_canceled'.localized();
+          }
         } else {
-          content = 'str_call_canceled'.localized();
+          content = 'str_call_other_not_answered'.localized();
         }
       } else {
-        if (isReceiverReject){
-          content = 'str_call_rejected'.localized();
+        if (isTomeOut == null) {
+          if (isReceiverReject) {
+            content = 'str_call_rejected'.localized();
+          } else {
+            content = 'str_call_other_canceled'.localized();
+          }
         } else {
-          content = 'str_call_other_canceled'.localized();
+          content = 'str_call_not_answered'.localized();
         }
       }
     }

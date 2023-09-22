@@ -62,6 +62,12 @@ class CallPageState extends State<CallPage> {
       return;
     }
     _initData();
+    Future.delayed(const Duration(seconds: 60), (){
+      CallManager.instance.timeOutAutoHangUp();
+      if (mounted) {
+        OXNavigator.pop(context);
+      }
+    });
   }
 
   @override
@@ -149,7 +155,7 @@ class CallPageState extends State<CallPage> {
                             color: Colors.white,
                             width: Adapt.px(24),
                             height: Adapt.px(24),
-                            useTheme: false,
+                            useTheme: true,
                           ),
                           onPressed: () {
                             OXNavigator.pop(context);
