@@ -1,0 +1,11 @@
+{
+  "record_hint": "Kaydetmek için basılı tutun, ${durationInSeconds} saniye sonra göndermek için bırakın",
+  "input_more_album": "Albüm",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Ara",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Kanala Katıl",
+  "channel_badge_requirements": "Bu kanala mesaj gönderme rozet gereksinimleri var",
+  "friend_requirements": "Daha fazla arkadaş olmadıkları için mesaj gönderilemiyor"
+}

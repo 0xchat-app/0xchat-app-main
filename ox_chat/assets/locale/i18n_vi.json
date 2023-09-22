@@ -120,5 +120,16 @@
   "add_contact_suggestion": "Gợi ý",
   "refresh_text": "Làm mới",
   "screenshot_hint_message": "${user} đã chụp màn hình",
-  "secret_chat_accepted_tips": "Bạn đã chấp nhận lời mời trò chuyện mật từ ${name}"
+  "secret_chat_accepted_tips": "Bạn đã chấp nhận lời mời trò chuyện mật từ ${name}",
+  "secret_chat_setting": "CÀI ĐẶT TRÒ CHUYỆN KÍN",
+  "request_validity_period": "Thời gian hiệu lực của yêu cầu",
+  "key_update_time": "Thời gian cập nhật khóa",
+  "select_relay": "CHỌN RELAY",
+  "relay": "Relay",
+  "create_secret_chat_tips": "Vì lý do an ninh và riêng tư, tin nhắn trò chuyện kín chỉ được gửi đến relay bạn chọn. Vui lòng chọn một relay đáng tin cậy.",
+  "hour": "Giờ",
+  "enter_or_relay": "NHẬP HOẶC CHỌN RELAY",
+  "screen_record_hint_message" :"${user} đã cố gắng ghi hình màn hình",
+  "session_content_mentioned": "Bạn đã được đề cập",
+  "session_content_draft":"Bản nháp"
 }

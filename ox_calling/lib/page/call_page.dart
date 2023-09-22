@@ -145,7 +145,7 @@ class CallPageState extends State<CallPage> {
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           icon: CommonImage(
-                            iconName: "appbar_back.png",
+                            iconName: "icon_back_left_arrow.png",
                             color: Colors.white,
                             width: Adapt.px(24),
                             height: Adapt.px(24),

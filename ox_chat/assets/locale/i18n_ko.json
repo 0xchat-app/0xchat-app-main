@@ -120,5 +120,16 @@
   "add_contact_suggestion": "제안",
   "refresh_text": "새로 고침",
   "screenshot_hint_message": "${user} 스크린샷 찍음",
-  "secret_chat_accepted_tips": "${name} 님의 비밀 채팅 요청을 수락했습니다"
+  "secret_chat_accepted_tips": "${name} 님의 비밀 채팅 요청을 수락했습니다",
+  "secret_chat_setting": "비밀 채팅 설정",
+  "request_validity_period": "요청 유효 기간",
+  "key_update_time": "키 업데이트 시간",
+  "select_relay": "릴레이 선택",
+  "relay": "릴레이",
+  "create_secret_chat_tips": "보안과 개인 정보 보호를 위해, 비밀 채팅 메시지는 선택한 릴레이로만 전송됩니다. 신뢰할 수 있는 릴레이를 선택해 주세요.",
+  "hour": "시간",
+  "enter_or_relay": "릴레이 입력 또는 선택",
+  "screen_record_hint_message" :"${user}님이 화면을 녹화하려고 했습니다",
+  "session_content_mentioned": "당신이 언급되었습니다",
+  "session_content_draft":"임시 저장"
 }

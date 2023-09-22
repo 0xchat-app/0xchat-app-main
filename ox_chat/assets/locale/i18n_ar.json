@@ -119,5 +119,16 @@
   "add_contact_suggestion": "اقتراح",
   "refresh_text": "تحديث",
   "screenshot_hint_message": "${user} أخذ لقطة شاشة",
-  "secret_chat_accepted_tips": "لقد قبلت طلب الدردشة السرية من ${name}"
+  "secret_chat_accepted_tips": "لقد قبلت طلب الدردشة السرية من ${name}",
+  "secret_chat_setting": "إعداد الدردشة السرية",
+  "request_validity_period": "فترة صلاحية الطلب",
+  "key_update_time": "زمن تحديث المفتاح",
+  "select_relay": "اختيار المحول",
+  "relay": "محول",
+  "create_secret_chat_tips": "من أجل الأمان والخصوصية، سيتم إرسال رسائل الدردشة السرية فقط إلى المحول الذي تختاره. من فضلك اختر محولاً تعتبره موثوقاً.",
+  "hour": "الساعة",
+  "enter_or_relay": "أدخل أو اختر المحول",
+  "screen_record_hint_message": "${user} حاول تسجيل الشاشة",
+  "session_content_mentioned": "تمت الإشارة إليك",
+  "session_content_draft": "مسودة"
 }

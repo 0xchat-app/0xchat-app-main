@@ -1,0 +1,11 @@
+{
+  "record_hint": "Tahan untuk merekam, lepaskan untuk mengirim setelah ${durationInSeconds} detik",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Panggilan",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Bergabung dengan Saluran",
+  "channel_badge_requirements": "Mengirim pesan di saluran ini memiliki persyaratan badge",
+  "friend_requirements": "Tidak dapat mengirim pesan, karena mereka bukan teman lagi"
+}

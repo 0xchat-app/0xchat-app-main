@@ -1,0 +1,11 @@
+{
+  "record_hint": "Утримуйте для запису, відпустіть для відправлення через ${durationInSeconds} секунд",
+  "input_more_album": "Альбом",
+  "input_more_camera": "Камера",
+  "input_more_video": "Відео",
+  "input_more_call": "Дзвінок",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Приєднатися до каналу",
+  "channel_badge_requirements": "Відправлення повідомлень на цьому каналі вимагає значків",
+  "friend_requirements": "Неможливо відправити повідомлення, оскільки вони вже не є друзями"
+}

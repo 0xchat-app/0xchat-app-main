@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Duur: ${time}",
+  "str_call_canceled": "Geannuleerd",
+  "str_call_rejected": "Uitgaand gesprek"
+}

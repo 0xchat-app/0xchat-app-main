@@ -119,5 +119,16 @@
   "add_contact_suggestion": "Sugerencia",
   "refresh_text": "Actualizar",
   "screenshot_hint_message": "${user} tomó una captura de pantalla",
-  "secret_chat_accepted_tips": "Has aceptado la solicitud de chat secreto de ${name}"
+  "secret_chat_accepted_tips": "Has aceptado la solicitud de chat secreto de ${name}",
+  "secret_chat_setting": "CONFIGURACIÓN DE CHAT SECRETO",
+  "request_validity_period": "Período de validez de la solicitud",
+  "key_update_time": "Tiempo de actualización de la clave",
+  "select_relay": "SELECCIONAR RELAY",
+  "relay": "Relay",
+  "create_secret_chat_tips": "Por razones de seguridad y privacidad, los mensajes de chat secreto solo se enviarán al relay que elijas. Por favor, selecciona un relay en el que confíes.",
+  "hour": "Hora",
+  "enter_or_relay": "INGRESAR O SELECCIONAR RELAY",
+  "screen_record_hint_message" :"${user} intentó grabar la pantalla",
+  "session_content_mentioned": "Te han mencionado",
+  "session_content_draft":"Borrador"
 }

@@ -120,5 +120,16 @@
   "add_contact_suggestion": "Suggestion",
   "refresh_text": "Rafraîchir",
   "screenshot_hint_message": "$user a pris une capture d'écran",
-  "secret_chat_accepted_tips": "Vous avez accepté la demande de chat secret de ${name}"
+  "secret_chat_accepted_tips": "Vous avez accepté la demande de chat secret de ${name}",
+  "secret_chat_setting": "PARAMÈTRES DE CHAT SECRET",
+  "request_validity_period": "Durée de validité de la demande",
+  "key_update_time": "Temps de mise à jour de la clé",
+  "select_relay": "SÉLECTIONNER RELAIS",
+  "relay": "Relais",
+  "create_secret_chat_tips": "Pour des raisons de sécurité et de confidentialité, les messages de chat secret ne seront envoyés qu'au relais que vous choisissez. Veuillez sélectionner un relais de confiance.",
+  "hour": "Heure",
+  "enter_or_relay": "ENTREZ OU SÉLECTIONNEZ RELAIS",
+  "screen_record_hint_message" :"${user} a tenté d'enregistrer l'écran",
+  "session_content_mentioned": "Vous êtes mentionné",
+  "session_content_draft":"Brouillon"
 }

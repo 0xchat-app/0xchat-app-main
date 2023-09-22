@@ -33,13 +33,13 @@ class ChatSendMessageHelper {
     final senderStrategy = ChatStrategyFactory.getStrategy(session);
 
     // prepare send event
-    var event;
+    Event? event;
     var plaintEvent = message.sourceKey;
     if (plaintEvent != null && plaintEvent is String) {
       try {
         event = Event.fromJson(jsonDecode(plaintEvent));
       } catch (_) {
-        return null;
+        return 'send message error';
       }
     }
 
@@ -54,9 +54,10 @@ class ChatSendMessageHelper {
       return 'send message fail';
     }
 
+    final sourceKey = jsonEncode(event);
     final sendMsg = message.copyWith(
       id: event.id,
-      sourceKey: event,
+      sourceKey: sourceKey,
     );
 
     ChatLogUtils.info(

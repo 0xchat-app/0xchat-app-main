@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Διάρκεια: ${time}",
+  "str_call_canceled": "Ακυρώθηκε",
+  "str_call_rejected": "Εξερχόμενη κλήση"
+}

@@ -841,8 +841,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       OXActionModel? oxActionModel = await OXActionDialog.show(
         context,
         data: [
-          OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat'),
-          OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat'),
+          OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat', isUseTheme:true),
+          OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat', isUseTheme:true),
         ],
         backGroundColor: ThemeColor.color180,
         separatorCancelColor: ThemeColor.color190,

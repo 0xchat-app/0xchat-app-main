@@ -128,5 +128,8 @@
   "relay": "Relay",
   "create_secret_chat_tips": "For the sake of security and privacy, secret chat messages will only be sent to the relay you choose. Please select a relay you deem trustworthy.",
   "hour": "Hour",
-  "enter_or_relay": "ENTER OR SELECT RELAY"
+  "enter_or_relay": "ENTER OR SELECT RELAY",
+  "screen_record_hint_message" :"${user} attempted to screen record",
+  "session_content_mentioned": "You're mentioned",
+  "session_content_draft":"Draft"
 }

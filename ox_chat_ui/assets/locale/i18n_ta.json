@@ -1,0 +1,11 @@
+{
+  "record_hint": "रिकॉर्ड करने के लिए दबाएँ, ${durationInSeconds} सेकंड के बाद भेजने के लिए छोड़ें",
+  "input_more_album": "एल्बम",
+  "input_more_camera": "कैमरा",
+  "input_more_video": "वीडियो",
+  "input_more_call": "कॉल",
+  "input_more_zaps": "Zaps",
+  "channel_join": "चैनल में शामिल हों",
+  "channel_badge_requirements": "इस चैनल में मैसेज भेजने के लिए बैज आवश्यकता है",
+  "friend_requirements": "वे अब दोस्त नहीं हैं, इसलिए मैसेज नहीं भेज सकते"
+}

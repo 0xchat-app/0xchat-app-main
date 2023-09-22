@@ -1,0 +1,11 @@
+{
+  "record_hint": "Hoidke allalaadimiseks all, vabastage pärast ${durationInSeconds} sekundit",
+  "input_more_album": "Album",
+  "input_more_camera": "Kaamera",
+  "input_more_video": "Video",
+  "input_more_call": "Kõne",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Liitu Kanaliga",
+  "channel_badge_requirements": "Selles kanalis sõnumite saatmiseks on vajalik märkmete nõue",
+  "friend_requirements": "Sõnumite saatmine pole võimalik, kuna nad pole enam sõbrad"
+}

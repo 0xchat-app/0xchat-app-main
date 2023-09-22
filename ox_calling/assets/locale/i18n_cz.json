@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Doba trvání: ${time}",
+  "str_call_canceled": "Zrušeno",
+  "str_call_rejected": "Odchozí hovor"
+}

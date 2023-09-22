@@ -120,5 +120,17 @@
   "add_contact_suggestion": "建議",
   "refresh_text": "重新整理",
   "screenshot_hint_message": "${user} 截了屏",
-  "secret_chat_accepted_tips": "你已經接受了 ${name} 的密聊請求"
+  "secret_chat_accepted_tips": "你已經接受了 ${name} 的密聊請求",
+  "secret_chat_setting": "密聊設定",
+  "request_validity_period": "請求有效期",
+  "key_update_time": "密鑰更新時間",
+  "select_relay": "選擇中繼",
+  "relay": "中繼",
+  "create_secret_chat_tips": "為了安全和隱私，密聊消息只會發送到你選擇的中繼。請選擇你認為可靠的中繼。",
+  "hour": "小時",
+  "enter_or_relay": "輸入或選擇中繼",
+  "screen_record_hint_message" :"${user}試圖錄屏",
+  "session_content_mentioned": "你被提及",
+  "session_content_draft":"草稿"
+
 }
