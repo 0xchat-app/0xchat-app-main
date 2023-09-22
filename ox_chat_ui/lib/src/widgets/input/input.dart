@@ -192,16 +192,29 @@ class InputState extends State<Input>{
     }
 
     final animationDuration = Duration(milliseconds: 200);
+    final emojiHeight = 360;
     if (contentWidget != null) {
-      return AnimatedContainer(
-        duration: animationDuration,
-        curve: Curves.ease,
-        height: 260 + safeAreaBottomInsets, // Dynamic height adjustment
-        child: contentWidget,
-        onEnd: () {
-          _inputFocusNode.unfocus();
-        },
-      );
+      if(inputType == InputType.inputTypeEmoji){
+        return AnimatedContainer(
+          duration: animationDuration,
+          curve: Curves.ease,
+          height: emojiHeight + safeAreaBottomInsets, // Dynamic height adjustment
+          child: contentWidget,
+          onEnd: () {
+            _inputFocusNode.unfocus();
+          },
+        );
+      }else{
+        return AnimatedContainer(
+          duration: animationDuration,
+          curve: Curves.ease,
+          height: 260 + safeAreaBottomInsets, // Dynamic height adjustment
+          child: contentWidget,
+          onEnd: () {
+            _inputFocusNode.unfocus();
+          },
+        );
+      }
     } else {
       return AnimatedContainer(
         duration: animationDuration,
