@@ -76,5 +76,21 @@
   "benefits": "혜택",
   "obtain": "획득",
   "obtained": " 획득함",
-  "not_yet_obtained": "아직 획득하지 않음"
+  "not_yet_obtained": "아직 획득하지 않음",
+  "enter_username_tips": "사용자 이름을 입력하세요",
+  "set_0xchat_dns_toast": "인식할 수 없는 0xchat DNS 주소",
+  "set_dns_legal_toast": "합법적인 DNS 주소가 아닙니다",
+  "set_dns_failed_toast": "DNS 주소 확인 실패",
+  "dns_checking": "확인 중...",
+  "enter_lnurl_address_toast": "올바른 조명 주소를 입력하세요",
+  "enter_lnurl_toast": "올바른 LNURL을 입력하세요",
+  "not_allow_lnurl_tips": "LNURL은 Nostr 프로토콜을 지원하지 않아 거래 내역을 볼 수 없습니다.",
+  "zap_status": "상태",
+  "zap_status_pending": "보류 중",
+  "zap_invoice": "송장",
+  "zap_from": "에서",
+  "zap_to": "받는 사람",
+  "zap_time": "시간",
+  "zap_content": "콘텐츠",
+  "zap_no_content": "콘텐츠 없음"
 }

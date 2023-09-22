@@ -76,5 +76,21 @@
   "benefits": "Benefícios",
   "obtain": "Obter",
   "obtained": " Obtido",
-  "not_yet_obtained": "Ainda não obtido"
+  "not_yet_obtained": "Ainda não obtido",
+  "enter_username_tips": "Por favor, digite o nome de usuário",
+  "set_0xchat_dns_toast": "Endereço DNS 0xchat não reconhecido",
+  "set_dns_legal_toast": "Não é um endereço DNS legal",
+  "set_dns_failed_toast": "falha na verificação do endereço DNS",
+  "dns_checking": "Verificando...",
+  "enter_lnurl_address_toast": "Por favor, insira o endereço de iluminação correto",
+  "enter_lnurl_toast": "Por favor insira o LNURL correto",
+  "not_allow_lnurl_tips": "O LNURL não suporta o protocolo Nostr, não é possível visualizar o histórico de transações",
+  "zap_status": "Status",
+  "zap_status_pending": "Pendente",
+  "zap_invoice": "Fatura",
+  "zap_from": "De",
+  "zap_to": "Para",
+  "zap_time": "Hora",
+  "zap_content": "Conteúdo",
+  "zap_no_content": "Sem conteúdo"
 }

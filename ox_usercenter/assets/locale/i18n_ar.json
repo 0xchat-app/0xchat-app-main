@@ -76,5 +76,21 @@
   "benefits": "الفوائد",
   "obtain": "الحصول على",
   "obtained": "تم الحصول عليه",
-  "not_yet_obtained": "لم يتم الحصول عليه بعد"
+  "not_yet_obtained": "لم يتم الحصول عليه بعد",
+  "enter_username_tips": "الرجاء إدخال اسم المستخدم",
+  "set_0xchat_dns_toast": "عنوان DNS لـ 0xchat غير معترف به",
+  "set_dns_legal_toast": "عنوان DNS غير قانوني",
+  "set_dns_failed_toast": "فشل في التحقق من عنوان DNS",
+  "dns_checking": "جارٍ التحقق...",
+  "enter_lnurl_address_toast": "يرجى إدخال عنوان Lighting الصحيح",
+  "enter_lnurl_toast": "الرجاء إدخال LNURL الصحيح",
+  "not_allow_lnurl_tips": "لا يدعم LNURL بروتوكول نوستر، ولا يمكن عرض تاريخ المعاملات",
+  "zap_status": "الحالة",
+  "zap_status_pending": "معلق",
+  "zap_invoice": "الفاتورة",
+  "zap_from": "من",
+  "zap_to": "إلى",
+  "zap_time": "الوقت",
+  "zap_content": "المحتوى",
+  "zap_no_content": "لا يوجد محتوى"
 }

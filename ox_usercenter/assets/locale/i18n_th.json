@@ -76,5 +76,21 @@
   "benefits": "ประโยชน์",
   "obtain": "ได้รับ",
   "obtained": " ได้รับแล้ว",
-  "not_yet_obtained": "ยังไม่ได้รับ"
+  "not_yet_obtained": "ยังไม่ได้รับ",
+  "enter_username_tips": "กรุณากรอกชื่อผู้ใช้",
+  "set_0xchat_dns_toast": "ที่อยู่ DNS 0xchat ที่ไม่รู้จัก",
+  "set_dns_legal_toast": "ไม่ใช่ที่อยู่ DNS ตามกฎหมาย",
+  "set_dns_failed_toast": "ตรวจสอบที่อยู่ DNS ล้มเหลว",
+  "dns_checking": "กำลังตรวจสอบ...",
+  "enter_lnurl_address_toast": "โปรดป้อนที่อยู่แสงสว่างที่ถูกต้อง",
+  "enter_lnurl_toast": "โปรดป้อน LNURL ที่ถูกต้อง",
+  "not_allow_lnurl_tips": "LNURL ไม่รองรับโปรโตคอล Nostr ไม่สามารถดูประวัติการทำธุรกรรมได้",
+  "zap_status": "สถานะ",
+  "zap_status_pending": "รอดำเนินการ",
+  "zap_invoice": "ใบแจ้งหนี้",
+  "zap_from": "จาก",
+  "zap_to": "ถึง",
+  "zap_time": "เวลา",
+  "zap_content": "เนื้อหา",
+  "zap_no_content": "ไม่มีเนื้อหา"
 }

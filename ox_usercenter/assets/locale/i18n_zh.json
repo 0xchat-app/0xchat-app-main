@@ -76,6 +76,21 @@
   "benefits": "成就",
   "obtain": "获得",
   "obtained": " 已获得",
-  "not_yet_obtained": "尚未获得"
-
+  "not_yet_obtained": "尚未获得",
+  "enter_username_tips": "请输入用户名",
+  "set_0xchat_dns_toast": "无法识别 0xchat DNS 地址",
+  "set_dns_legal_toast": "不是合法的 DNS 地址",
+  "set_dns_failed_toast": "检查 DNS 地址失败",
+  "dns_checking": "正在检查...",
+  "enter_lnurl_address_toast": "请输入正确的灯光地址",
+  "enter_lnurl_toast": "请输入正确的LNURL",
+  "not_allow_lnurl_tips": "该LNURL不支持Nostr协议，无法查看交易历史",
+  "zap_status": "状态",
+  "zap_status_pending": "待处理",
+  "zap_invoice": "发票",
+  "zap_from": "来自",
+  "zap_to": "到",
+  "zap_time": "时间",
+  "zap_content": "内容",
+  "zap_no_content": "没有内容"
 }
