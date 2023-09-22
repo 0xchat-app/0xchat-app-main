@@ -29,7 +29,6 @@ class OxCalling extends OXFlutterModule {
       case 'CallPage':
         CallManager.instance.callState = CallState.CallStateInvite;
         String mediaType = params?['media'] ?? 'video';
-        LogUtil.e('Michael: OxCalling navigateToPage called CallPage ----mediaType =${mediaType}');
         if (mediaType == CallMessageType.audio.text) {
           CallManager.instance.callType = CallMessageType.audio;
         } else if (mediaType == CallMessageType.video.text) {
@@ -41,12 +40,10 @@ class OxCalling extends OXFlutterModule {
   }
 
   void initRTC() {
-    LogUtil.e('Michael: OxCalling interfaces initRTC');
     CallManager.instance.initRTC();
   }
 
   void closeRTC(BuildContext context) {
-    LogUtil.e('Michael: OxCalling interfaces closeRTC');
     CallManager.instance.closeRTC();
   }
 }

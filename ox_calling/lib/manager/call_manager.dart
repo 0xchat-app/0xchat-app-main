@@ -146,7 +146,7 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          calledBye(true);
+          calledBye(false);
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
@@ -240,6 +240,8 @@ class CallManager {
       overlayEntry = null;
     }
     CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    callInitiator = null;
+    callReceiver = null;
   }
 
   String _getCallHint(bool isReceiverReject){

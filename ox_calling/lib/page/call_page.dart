@@ -71,12 +71,12 @@ class CallPageState extends State<CallPage> {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
+    } else {
+      super.dispose();
     }
-    super.dispose();
   }
 
   void _initData() async {
-    PromptToneManager.sharedInstance.playCalling();
     CallManager.instance.callStateHandler = _callStateUpdate;
     CallManager.instance.connectServer();
     if (CallManager.instance.callType == CallMessageType.audio) {
@@ -84,6 +84,7 @@ class CallPageState extends State<CallPage> {
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
       CallManager.instance.setSpeaker(true);
+      PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.invitePeer(widget.userDB!.pubKey!);
       }
@@ -136,20 +137,28 @@ class CallPageState extends State<CallPage> {
                   width: double.infinity,
                   height: Adapt.px(56),
                   margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    icon: CommonImage(
-                      iconName: "appbar_back.png",
-                      color: Colors.white,
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      useTheme: false,
-                    ),
-                    onPressed: () {
-                      OXNavigator.pop(context);
-                    },
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          icon: CommonImage(
+                            iconName: "appbar_back.png",
+                            color: Colors.white,
+                            width: Adapt.px(24),
+                            height: Adapt.px(24),
+                            useTheme: false,
+                          ),
+                          onPressed: () {
+                            OXNavigator.pop(context);
+                          },
+                        ),
+                      ),
+                      if (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)
+                        Align(alignment: Alignment.center, child: _buildHint()),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -159,21 +168,24 @@ class CallPageState extends State<CallPage> {
                   child: Container(
                     width: double.infinity,
                     height: Adapt.px(190),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildHeadImage(),
-                        SizedBox(
-                          height: Adapt.px(16),
-                        ),
-                        _buildHeadName(),
-                        SizedBox(
-                          height: Adapt.px(7),
-                        ),
-                        _buildHint(),
-                      ],
-                    ),
+                    child: (CallManager.instance.callType == CallMessageType.audio ||
+                            (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState != CallState.CallStateConnected))
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildHeadImage(),
+                              SizedBox(
+                                height: Adapt.px(16),
+                              ),
+                              _buildHeadName(),
+                              SizedBox(
+                                height: Adapt.px(7),
+                              ),
+                              _buildHint(),
+                            ],
+                          )
+                        : SizedBox(),
                   ),
                 ),
                 Container(
@@ -260,17 +272,19 @@ class CallPageState extends State<CallPage> {
       child: _buildItemImg('icon_call_end.png', 56, 56),
     ));
     if (CallManager.instance.callState != CallState.CallStateRinging) {
-      showButtons.insert(
-        0,
-        InkWell(
-          onTap: () {
-            _isMicOn = !_isMicOn;
-            CallManager.instance.muteMic();
-            setState(() {});
-          },
-          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
-        ),
-      );
+      if (CallManager.instance.callType == CallMessageType.audio ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
+        showButtons.insert(
+          0,
+          InkWell(
+            onTap: () {
+              _isMicOn = !_isMicOn;
+              CallManager.instance.muteMic();
+              setState(() {});
+            },
+            child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
+          ),
+        );
+      }
       if (widget.mediaType == 'video') {
         showButtons.add(
           InkWell(
@@ -281,17 +295,19 @@ class CallPageState extends State<CallPage> {
           ),
         );
       }
-      showButtons.add(
-        InkWell(
-          onTap: () {
-            _isSpeakerOn = !_isSpeakerOn;
-            setState(() {
-              CallManager.instance.setSpeaker(_isSpeakerOn);
-            });
-          },
-          child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
-        ),
-      );
+      if (CallManager.instance.callType == CallMessageType.audio ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
+        showButtons.add(
+          InkWell(
+            onTap: () {
+              _isSpeakerOn = !_isSpeakerOn;
+              setState(() {
+                CallManager.instance.setSpeaker(_isSpeakerOn);
+              });
+            },
+            child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
+          ),
+        );
+      }
     } else {
       showButtons.add(
         InkWell(
