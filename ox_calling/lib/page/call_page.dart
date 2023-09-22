@@ -11,6 +11,7 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -70,11 +71,14 @@ class CallPageState extends State<CallPage> {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
+    } else {
+      PromptToneManager.sharedInstance.stopPlay();
     }
     super.dispose();
   }
 
   void _initData() async {
+    PromptToneManager.sharedInstance.playCalling();
     CallManager.instance.callStateHandler = _callStateUpdate;
     CallManager.instance.connectServer();
     if (CallManager.instance.callType == CallMessageType.audio) {
@@ -395,6 +399,8 @@ class CallPageState extends State<CallPage> {
   void _callStateUpdate(CallState callState) {
     if (callState == CallState.CallStateBye) {
       OXNavigator.pop(context);
+    } else if (callState == CallState.CallStateConnected) {
+      PromptToneManager.sharedInstance.stopPlay();
     }
     if (mounted) {
       setState(() {});
