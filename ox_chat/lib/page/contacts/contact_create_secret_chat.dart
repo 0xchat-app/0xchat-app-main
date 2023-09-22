@@ -34,13 +34,13 @@ extension ESecretChatTimeToSecond on ESecretChatTime {
   String toText() {
     switch (this) {
       case ESecretChatTime.oneHour:
-        return '1 Hour';
+        return '1' + Localized.text('ox_chat.hour');
       case ESecretChatTime.twelveHours:
-        return '12 Hour';
+        return '12' + Localized.text('ox_chat.hour');
       case ESecretChatTime.twentyFourHours:
-        return '24 Hour';
+        return '24' + Localized.text('ox_chat.hour');
       case ESecretChatTime.seventyTwoHours:
-        return '72 Hour';
+        return '72' + Localized.text('ox_chat.hour');
     }
   }
 }
@@ -100,7 +100,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'SECRET CHAT SETTING',
+            Localized.text('ox_chat.secret_chat_setting'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -119,7 +119,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           child: Column(
             children: [
               _labelWidget(
-                title: 'Request validity period',
+                title: Localized.text('ox_chat.request_validity_period'),
                 content: _requestValidityPeriod.toText(),
                 onTap: () => _selectTimeDialog(_selectValidityPeriodWidget),
               ),
@@ -128,7 +128,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
                 color: ThemeColor.color160,
               ),
               _labelWidget(
-                title: 'Key update time',
+                title: Localized.text('ox_chat.key_update_time'),
                 content: _keyUpdateTime.toText(),
                 onTap: () => _selectTimeDialog(_selectKeyUpdateWidget),
               ),
@@ -143,7 +143,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'SELECT RELAY',
+             Localized.text('ox_chat.select_relay'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -156,7 +156,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             horizontal: Adapt.px(24),
           ),
           child: _labelWidget(
-            title: 'Relay',
+            title:  Localized.text('ox_chat.relay'),
             content: _chatRelay,
             onTap: () async {
               var result = await OXNavigator.presentPage(
@@ -178,7 +178,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
           width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'For the sake of security and privacy, secret chat messages will only be sent to the relay you choose. Please select a relay you deem trustworthy.',
+            Localized.text('ox_chat.create_secret_chat_tips'),
             style: TextStyle(
               color: ThemeColor.color100,
               fontSize: Adapt.px(12),

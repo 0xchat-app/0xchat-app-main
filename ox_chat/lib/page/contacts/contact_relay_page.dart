@@ -67,7 +67,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
           ),
           alignment: Alignment.centerLeft,
           child: Text(
-            'ENTER OR SELECT RELAY',
+            Localized.text('ox_chat.enter_or_relay'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -110,10 +110,9 @@ class _ContactRelayPage extends State<ContactRelayPage> {
             },
             child: CommonImage(
               iconName: "title_close.png",
-              color: Colors.white,
               width: Adapt.px(24),
               height: Adapt.px(24),
-              useTheme: false,
+              useTheme: true,
             ),
           ),
           Expanded(
@@ -169,6 +168,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_usercenter',
+              useTheme: true,
             ),
           ),
           Expanded(
