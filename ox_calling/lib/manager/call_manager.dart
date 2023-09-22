@@ -13,6 +13,7 @@ import 'dart:core';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:chatcore/chat-core.dart' as ChatCore;
@@ -151,6 +152,7 @@ class CallManager {
           _waitAccept = true;
           break;
         case CallState.CallStateConnected:
+          PromptToneManager.sharedInstance.stopPlay();
           if (_waitAccept) {
             _waitAccept = false;
           }
@@ -227,11 +229,12 @@ class CallManager {
       print('peer reject');
       _waitAccept = false;
     }
+    _inCalling = false;
     stopTimer();
     localRenderer.srcObject = null;
     remoteRenderer.srcObject = null;
-    _inCalling = false;
     _session = null;
+    PromptToneManager.sharedInstance.stopPlay();
     if (overlayEntry != null && overlayEntry!.mounted) {
       overlayEntry?.remove();
       overlayEntry = null;

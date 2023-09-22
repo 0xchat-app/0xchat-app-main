@@ -71,8 +71,6 @@ class CallPageState extends State<CallPage> {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
-    } else {
-      PromptToneManager.sharedInstance.stopPlay();
     }
     super.dispose();
   }
@@ -401,8 +399,6 @@ class CallPageState extends State<CallPage> {
       if (mounted) {
         OXNavigator.pop(context);
       }
-    } else if (callState == CallState.CallStateConnected) {
-      PromptToneManager.sharedInstance.stopPlay();
     }
     if (mounted) {
       setState(() {});
