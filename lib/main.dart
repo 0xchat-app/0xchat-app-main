@@ -154,7 +154,6 @@ class MainState extends State<MainApp>
   }
 
   UserDB getUser(String loginInfoStr) {
-    ///后期根据需要的字段再转化
     Map<String, dynamic> user = convert.jsonDecode(loginInfoStr);
     UserDB userInfo = UserDB.fromMap(Map.from(user));
     return userInfo;
