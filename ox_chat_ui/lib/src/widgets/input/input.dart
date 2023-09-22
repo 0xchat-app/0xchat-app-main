@@ -192,7 +192,7 @@ class InputState extends State<Input>{
     }
 
     final animationDuration = Duration(milliseconds: 200);
-    final emojiHeight = (MediaQuery.of(context).size.height - safeAreaBottomInsets) * 0.65;
+    final emojiHeight = 360;
     if (contentWidget != null) {
       if(inputType == InputType.inputTypeEmoji){
         return AnimatedContainer(
