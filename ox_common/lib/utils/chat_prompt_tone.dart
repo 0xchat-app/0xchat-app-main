@@ -30,6 +30,7 @@ class PromptToneManager {
   void stopPlay() async {
     if ( _player.state == PlayerState.playing) {
       _player.stop();
+      _player.setReleaseMode(ReleaseMode.release);
     }
   }
 }
