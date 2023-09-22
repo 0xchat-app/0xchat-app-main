@@ -151,7 +151,7 @@ class SignalingManager {
         _localStream!.getVideoTracks()[0].enabled = false;
       }
     }
-    _createOffer(session, media);
+    await _createOffer(session, media);
     _isDisconnected = false;
     onCallStateChange?.call(session, CallState.CallStateNew);
     onCallStateChange?.call(session, CallState.CallStateInvite);
