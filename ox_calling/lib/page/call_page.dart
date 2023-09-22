@@ -143,11 +143,10 @@ class CallPageState extends State<CallPage> {
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     icon: CommonImage(
-                      iconName: "appbar_back.png",
-                      color: Colors.white,
+                      iconName: "icon_back_left_arrow.png",
                       width: Adapt.px(24),
                       height: Adapt.px(24),
-                      useTheme: false,
+                      useTheme: true,
                     ),
                     onPressed: () {
                       OXNavigator.pop(context);
