@@ -147,11 +147,11 @@ class SignalingManager {
       _createDataChannel(session);
     }
     if (media == CallMessageType.audio.text) {
-      if (_localStream != null) {
+      if (_localStream != null && _localStream!.getVideoTracks().isNotEmpty) {
         _localStream!.getVideoTracks()[0].enabled = false;
       }
     }
-    await _createOffer(session, media);
+    _createOffer(session, media);
     _isDisconnected = false;
     onCallStateChange?.call(session, CallState.CallStateNew);
     onCallStateChange?.call(session, CallState.CallStateInvite);
