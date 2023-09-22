@@ -49,7 +49,7 @@ class CallManager {
   Timer? _timer;
   int counter = 0;
   OverlayEntry? overlayEntry;
-  final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
+  final List<ValueChanged<int>> _valueChangedCallBack = <ValueChanged<int>>[];
 
   bool get getInCallIng{
     return _inCalling;
@@ -57,6 +57,10 @@ class CallManager {
 
   bool get getWaitAccept{
     return _waitAccept;
+  }
+
+  void resetCounterCallBack(){
+    _valueChangedCallBack.clear();
   }
 
   void initRTC({String? tHost}) {
@@ -230,6 +234,7 @@ class CallManager {
   }
 
   void calledBye(bool isReceiverReject, {bool? isTomeOut}){
+    callState = null;
     String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     if (_waitAccept) {
       print('peer reject');
@@ -240,6 +245,7 @@ class CallManager {
     localRenderer.srcObject = null;
     remoteRenderer.srcObject = null;
     _session = null;
+    resetCounterCallBack();
     PromptToneManager.sharedInstance.stopPlay();
     if (overlayEntry != null && overlayEntry!.mounted) {
       overlayEntry?.remove();
@@ -321,11 +327,11 @@ class CallManager {
 }
 
 extension CallCacheObserverEx on CallManager {
-  void addObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.add(valueChangedCallback);
-  bool removeObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.remove(valueChangedCallback);
+  void addObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallBack.add(valueChangedCallback);
+  bool removeObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallBack.remove(valueChangedCallback);
 
   Future<void> notifyAllObserverValueChanged() async {
-    final valueChangedCallback = _valueChangedCallback;
+    final valueChangedCallback = _valueChangedCallBack;
     for (var callback in valueChangedCallback) {
       callback(counter);
     }
