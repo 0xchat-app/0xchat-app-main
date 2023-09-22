@@ -120,5 +120,13 @@
   "add_contact_suggestion": "Suggestion",
   "refresh_text": "Refresh",
   "screenshot_hint_message": "${user} take a screenshot",
-  "secret_chat_accepted_tips": "You have accepted ${name}'s secret chat request."
+  "secret_chat_accepted_tips": "You have accepted ${name}'s secret chat request.",
+  "secret_chat_setting": "SECRET CHAT SETTING",
+  "request_validity_period": "Request validity period",
+  "key_update_time": "Key update time",
+  "select_relay": "SELECT RELAY",
+  "relay": "Relay",
+  "create_secret_chat_tips": "For the sake of security and privacy, secret chat messages will only be sent to the relay you choose. Please select a relay you deem trustworthy.",
+  "hour": "Hour",
+  "enter_or_relay": "ENTER OR SELECT RELAY"
 }
