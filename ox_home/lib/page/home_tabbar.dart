@@ -178,6 +178,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
               tabBarList[0].unreadMsgCount = 0;
               setState(() {});
             }
+            if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.length > 0){
+              tabBarList[3].unreadMsgCount = 0;
+              setState(() {});
+            }
             print('Received notification: ${notification.msgNum}');
             return true; // Returning true means we've handled the notification.
           },
@@ -224,12 +228,20 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       isLogin = false;
       tabBarList[0].unreadMsgCount = 0;
       tabBarList[1].unreadMsgCount = 0;
+      tabBarList[3].unreadMsgCount = 0;
     });
   }
 
   @override
   void didSwitchUser(UserDB? userInfo) {
     // TODO: implement didSwitchUser
+  }
+
+  @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    setState(() {
+      tabBarList[3].unreadMsgCount = 1;
+    });
   }
 
   _showLoginPage(BuildContext context) {

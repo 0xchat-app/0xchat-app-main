@@ -1,5 +1,7 @@
 {
   "str_call_duration": "Duration: ${time}",
   "str_call_canceled": "Canceled",
-  "str_call_rejected": "Outgoing Call"
+  "str_call_other_canceled": "The other party has cancelled",
+  "str_call_rejected": "Outgoing Call",
+  "str_call_other_rejected": "The other party has declined"
 }

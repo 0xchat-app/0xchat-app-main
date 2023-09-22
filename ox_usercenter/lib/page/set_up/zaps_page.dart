@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -10,10 +9,12 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/zaps_record.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: zaps_page
 ///Description: TODO(Fill in by oneself)
@@ -48,7 +49,7 @@ class _ZapsPageState extends State<ZapsPage> {
     _selectedWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet') ?? Localized.text('ox_usercenter.not_set_wallet_status');
     _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector') ?? true;
     // _defaultZapAmount = await YLCacheManager.defaultYLCacheManager.getForeverData('$pubKey.defaultZapAmount');
-    _zapsRecord  = await getZapsRecord(context: context,userPubKey: pubKey);
+    _zapsRecord = await getZapsRecord();
     // _focusNode.addListener(() {
       // if(!_focusNode.hasFocus){
       //   double defaultZapAmount = double.parse(_zapAmountTextEditingController.text);
@@ -374,6 +375,7 @@ class _ZapsPageState extends State<ZapsPage> {
         color: ThemeColor.color180,
       ),
       child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 0),
         itemBuilder: (context, index) => _buildItemBody(
             title: '+${zapsRecordDetails[index].amount}',
@@ -408,6 +410,47 @@ class _ZapsPageState extends State<ZapsPage> {
 
     result = result + '$totalZaps';
     return result;
+  }
+
+  Future<ZapsRecord> getZapsRecord() async {
+    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    await OXLoading.show();
+    List<ZapRecordsDB?> zapRecordsDBList = await Zaps.loadZapRecordsFromDB(
+        where: "recipient = ?", whereArgs: [pubKey], orderBy: 'paidAt desc',limit: 50);
+    await OXLoading.dismiss();
+
+    List<ZapsRecordDetail> zapsRecordDetailList = [];
+
+    for (var zapRecordsDB in zapRecordsDBList) {
+      if (zapRecordsDB != null) {
+        final invoice = zapRecordsDB.bolt11;
+        final requestInfo = Zaps.getPaymentRequestInfo(invoice);
+        final fromPubKey = zapRecordsDB.sender;
+        final toPubKey = zapRecordsDB.recipient;
+        final paidAt = (zapRecordsDB.paidAt * 1000).toString();
+
+        UserDB? fromUser = await Account.sharedInstance.getUserInfo(fromPubKey);
+        UserDB? toUser = await Account.sharedInstance.getUserInfo(toPubKey);
+
+        zapsRecordDetailList.add(
+          ZapsRecordDetail(
+            invoice: invoice,
+            amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
+            fromPubKey: '${fromUser?.name} (${fromUser?.shortEncodedPubkey})',
+            toPubKey: '${toUser?.name} (${toUser?.shortEncodedPubkey})',
+            zapsTime: paidAt,
+            description: zapRecordsDB.content,
+            isConfirmed: true
+          ),
+        );
+      }
+    }
+
+    ZapsRecord zapsRecord = ZapsRecord(
+      list: zapsRecordDetailList,
+    );
+
+    return zapsRecord;
   }
 }
 

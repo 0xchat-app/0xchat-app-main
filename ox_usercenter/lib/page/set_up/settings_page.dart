@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -18,6 +21,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -33,12 +37,18 @@ class SettingsPage extends StatefulWidget {
   }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
+
+  Future<bool>? _isShowZapBadge;
+
+  final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
   @override
   void initState() {
     super.initState();
+    OXChatBinding.sharedInstance.addObserver(this);
+    _isShowZapBadge = _getZapBadge();
     _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
@@ -187,7 +197,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true}) {
+  Widget _itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge}) {
     return Column(
       children: [
         Container(
@@ -208,22 +218,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 fontSize: Adapt.px(16),
               ),
             ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    rightContent,
-                    style: TextStyle(
-                      color: ThemeColor.color100,
-                      fontSize: Adapt.px(16),
-                    ),
-                  ),
-                  showArrow ? CommonImage(
-                    iconName: 'icon_arrow_more.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                  ) : Container(),
-                ],
+              trailing: FutureBuilder(
+                future: _getZapBadge(),
+                builder: (context,snapshot) {
+                  final isShowZapBadge = snapshot.data ?? false;
+                    return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      isShowZapBadge ? badge ?? Container() : Container(),
+                      Text(
+                        rightContent,
+                        style: TextStyle(
+                          color: ThemeColor.color100,
+                          fontSize: Adapt.px(16),
+                        ),
+                      ),
+                      showArrow ? CommonImage(
+                        iconName: 'icon_arrow_more.png',
+                        width: Adapt.px(24),
+                        height: Adapt.px(24),
+                      ) : Container(),
+                    ],
+                  );
+                }
               )),
         ),
         showDivider
@@ -258,16 +275,65 @@ class _SettingsPageState extends State<SettingsPage> {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
+          MsgNotification(noticeNum: 0).dispatch(context);
+          OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
+            setState(() {
+              _isShowZapBadge = _getZapBadge();
+            });
+          });
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
         } else if (_settingModel.settingItemType == SettingItemType.language) {
-          OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
+          OXNavigator.pushPage(context, (context) => LanguageSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.theme) {
           await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
         }
       },
-      child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true,showArrow: _settingModel.settingItemType == SettingItemType.none ? false : true),
+      child: _itemView(
+        _settingModel.iconName,
+        _settingModel.title,
+        _settingModel.rightContent,
+        index == _settingModelList.length - 1 ? false : true,
+        showArrow: _settingModel.settingItemType == SettingItemType.none
+            ? false
+            : true,
+        badge: _settingModel.settingItemType == SettingItemType.zaps
+            ? _buildZapBadgeWidget()
+            : Container(),
+      ),
+    );
+  }
+
+  @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true).then((value){
+      setState(() {
+        _isShowZapBadge = _getZapBadge();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    OXChatBinding.sharedInstance.removeObserver(this);
+  }
+
+  Future<bool> _getZapBadge() async {
+    return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.zap_badge',defaultValue: false);
+  }
+
+  Widget _buildZapBadgeWidget(){
+    return Container(
+      width: Adapt.px(20),
+      height: Adapt.px(20),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(10)
+      ),
+      child: Text('1',style: TextStyle(fontSize: Adapt.px(12)),),
     );
   }
 

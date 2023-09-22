@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:nostr_core_dart/src/nips/nip_100.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
@@ -63,6 +63,7 @@ class SignalingManager {
   Function(Session session, RTCDataChannel dc, RTCDataChannelMessage data)?
       onDataChannelMessage;
   Function(Session session, RTCDataChannel dc)? onDataChannel;
+  bool _isDisconnected = false;
 
   String get sdpSemantics => 'unified-plan';
 
@@ -151,6 +152,7 @@ class SignalingManager {
       }
     }
     await _createOffer(session, media);
+    _isDisconnected = false;
     onCallStateChange?.call(session, CallState.CallStateNew);
     onCallStateChange?.call(session, CallState.CallStateInvite);
   }
@@ -186,7 +188,7 @@ class SignalingManager {
     bye(session.sid);
   }
 
-  void _onMessage(String friend, SignalingState state, String content) async {
+  void onParseMessage(String friend, SignalingState state, String content) async {
     var data = jsonDecode(content);
 
     switch (state) {
@@ -224,6 +226,7 @@ class SignalingManager {
             });
             newSession.remoteCandidates.clear();
           }
+          _isDisconnected = false;
           onCallStateChange?.call(newSession, CallState.CallStateNew);
           onCallStateChange?.call(newSession, CallState.CallStateRinging);
         }
@@ -270,6 +273,15 @@ class SignalingManager {
       //   break;
       case SignalingState.disconnect:
         {
+          if (!_isDisconnected){
+            _isDisconnected = true;
+            var sessionId = data['session_id'];
+            var session = _sessions.remove(sessionId);
+            if (session != null) {
+              onCallStateChange?.call(session, CallState.CallStateBye);
+              _closeSession(session);
+            }
+          }
         }
         break;
       // case 'keepalive':
@@ -306,10 +318,7 @@ class SignalingManager {
       } catch (e) {}
     }
 
-    Contacts.sharedInstance.onCallStateChange =
-        (String friend, SignalingState state, String data) {
-      _onMessage(friend, state, data);
-    };
+
   }
 
   Future<MediaStream> createStream(String media, bool userScreen,
@@ -460,8 +469,9 @@ class SignalingManager {
     };
 
     pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state');
-      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
+      print('onIceConnectionState: $state ');
+      if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
+        _isDisconnected = true;
         var session = _sessions.remove(sessionId);
         if (session != null) {
           onCallStateChange?.call(session, CallState.CallStateBye);

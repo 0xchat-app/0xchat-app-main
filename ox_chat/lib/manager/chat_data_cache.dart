@@ -200,14 +200,10 @@ class ChatDataCache with OXChatObserver {
       text: text,
     );
 
-    if (isSendToRemote) {
-      sendSystemMessage(session, message);
-    } else {
-      addNewMessage(session, message);
-    }
+    sendSystemMessage(session, message, !isSendToRemote);
   }
 
-  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message) async {
+  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message, bool isLocal) async {
 
     final sessionId = session.chatId ?? '';
     final receiverPubkey = (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
@@ -250,6 +246,7 @@ class ChatDataCache with OXChatObserver {
       type,
       contentString,
       event: event,
+      local: isLocal,
     ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
@@ -428,7 +425,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
 extension ChatDataCacheEx on ChatDataCache {
 
   Future<void> _setupChatMessages() async {
-    List<ChatSessionModel> sessionList = await _chatSessionList();
+    List<ChatSessionModel> sessionList = OXChatBinding.sharedInstance.sessionMap.values.toList();
     Map<ChatTypeKey, List<types.Message>> privateChatMessagesMap = {};
     // Add Session message(Future)
     await Future.forEach(sessionList, (session) async {

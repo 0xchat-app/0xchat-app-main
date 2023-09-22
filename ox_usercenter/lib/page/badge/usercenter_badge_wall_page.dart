@@ -248,10 +248,11 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if(_mUserInfo == null) return;
-        if(_mUserInfo?.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey){
-          _onTapForBadge(index,isHad);
-        }
+        // if(_mUserInfo == null) return;
+        // if(_mUserInfo?.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey){
+        //
+        // }
+        _onTapForBadge(index,isHad);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

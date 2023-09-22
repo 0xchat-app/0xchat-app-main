@@ -6,7 +6,6 @@ import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/utils/widget_util.dart';
-import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
@@ -17,6 +16,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:chatcore/chat-core.dart' as ChatCore;
+import 'package:nostr_core_dart/nostr.dart';
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -64,11 +64,28 @@ class CallManager {
       host = tHost;
     }
     _context = OXNavigator.navigatorKey.currentContext!;
+    _signaling ??= SignalingManager(host, _context);
+    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
+      _signaling?.onParseMessage(friend, state, data);
+    };
     initRenderers();
-    _connect(_context);
+    _signaling?.onLocalStream = ((stream) {
+      localRenderer.srcObject = stream;
+      // setState(() {});
+    });
+
+    _signaling?.onAddRemoteStream = ((_, stream) {
+      remoteRenderer.srcObject = stream;
+      // setState(() {});
+    });
+
+    _signaling?.onRemoveRemoteStream = ((_, stream) {
+      remoteRenderer.srcObject = null;
+    });
+    initListener();
   }
 
-  Future<void> initRenderers() async {
+  void initRenderers() async {
     await localRenderer.initialize();
     await remoteRenderer.initialize();
   }
@@ -81,8 +98,12 @@ class CallManager {
     _timer = null;
   }
 
-  void _connect(BuildContext context) async {
-    _signaling ??= SignalingManager(host, context)..connect();
+  void connectServer() async {
+
+    _signaling?.connect();
+  }
+
+  void initListener() async {
     _signaling?.onSignalingStateChange = (SignalingStatus state) {
       switch (state) {
         case SignalingStatus.ConnectionClosed:
@@ -113,6 +134,8 @@ class CallManager {
               } else if (session.media == CallMessageType.video.text) {
                 callType = CallMessageType.video;
               }
+              callInitiator = userDB.pubKey;
+              callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
@@ -122,7 +145,7 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          calledBye();
+          calledBye(true);
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
@@ -136,35 +159,16 @@ class CallManager {
           break;
       }
       if (callStateHandler != null && callState !=null) {
-        callStateHandler!(callState!);
+        callStateHandler!.call(callState!);
       }
     };
-
-    // _signaling?.onPeersUpdate = ((event) {
-    //   // setState(() {
-    //     _selfId = event['self'];
-    //     _peers = event['peers'];
-    //   // });
-    // });
-
-    _signaling?.onLocalStream = ((stream) {
-      localRenderer.srcObject = stream;
-      // setState(() {});
-    });
-
-    _signaling?.onAddRemoteStream = ((_, stream) {
-      remoteRenderer.srcObject = stream;
-      // setState(() {});
-    });
-
-    _signaling?.onRemoveRemoteStream = ((_, stream) {
-      remoteRenderer.srcObject = null;
-    });
   }
 
   invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
       _signaling?.invite(peerId, callType.text, useScreen);
+      callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+      callReceiver = peerId;
     }
   }
 
@@ -179,14 +183,14 @@ class CallManager {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
     }
-    calledBye();
+    calledBye(true);
   }
 
   hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
     }
-    calledBye();
+    calledBye(false);
   }
 
   switchCamera() {
@@ -217,7 +221,8 @@ class CallManager {
     return aspectRatio;
   }
 
-  void calledBye(){
+  void calledBye(bool isReceiverReject){
+    String content = _getCallHint(isReceiverReject);
     if (_waitAccept) {
       print('peer reject');
       _waitAccept = false;
@@ -231,7 +236,10 @@ class CallManager {
       overlayEntry?.remove();
       overlayEntry = null;
     }
+    CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+  }
 
+  String _getCallHint(bool isReceiverReject){
     String content = '';
     if (CallManager.instance.counter > 0) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
@@ -241,12 +249,20 @@ class CallManager {
       content = 'str_call_duration'.localized().replaceAll(r'${time}', '$twoDigitMinutes:$twoDigitSeconds');
     } else {
       if (callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-        content = 'str_call_canceled'.localized();
+        if (isReceiverReject){
+          content = 'str_call_other_rejected'.localized();
+        } else {
+          content = 'str_call_canceled'.localized();
+        }
       } else {
-        content = 'str_call_rejected'.localized();
+        if (isReceiverReject){
+          content = 'str_call_rejected'.localized();
+        } else {
+          content = 'str_call_other_canceled'.localized();
+        }
       }
     }
-    CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    return content;
   }
 
   Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
@@ -265,12 +281,12 @@ class CallManager {
   }
 
   void stopTimer() {
+    counter = 0;
     _timer?.cancel();
     _timer = null;
   }
 
   void startTimer() async {
-    counter = 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       counter++;
       notifyAllObserverValueChanged();

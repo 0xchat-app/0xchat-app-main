@@ -25,9 +25,9 @@ class OXChat extends OXFlutterModule {
   Future<void> setup() async {
     super.setup();
     OXModuleService.registerFlutterModule(moduleName, this);
-    OXUserInfoManager.sharedInstance.initDataActions.add(() {
-      OXChatBinding.sharedInstance.initLocalSession();
-      ChatDataCache.shared.setup();
+    OXUserInfoManager.sharedInstance.initDataActions.add(() async {
+      await OXChatBinding.sharedInstance.initLocalSession();
+      await ChatDataCache.shared.setup();
     });
     OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
   }
@@ -103,5 +103,5 @@ class OXChat extends OXFlutterModule {
     required ChatSessionModel session,
     required String text,
     required CallMessageType type,
-  }) => ChatGeneralHandler(session: session).sendCallMessage(text: text, type: type);
+  }) => ChatGeneralHandler(session: session).sendCallMessage(text: text, type: type, authorPubkey: session.sender);
 }
