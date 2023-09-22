@@ -120,5 +120,16 @@
   "add_contact_suggestion": "ข้อเสนอ",
   "refresh_text": "รีเฟรช",
   "screenshot_hint_message": "${user} ถ่ายภาพหน้าจอ",
-  "secret_chat_accepted_tips": "คุณได้ยอมรับคำขอแชทลับจาก ${name}"
+  "secret_chat_accepted_tips": "คุณได้ยอมรับคำขอแชทลับจาก ${name}",
+  "secret_chat_setting": "การตั้งค่าแชทลับ",
+  "request_validity_period": "ระยะเวลาความถูกต้องของคำขอ",
+  "key_update_time": "เวลาอัปเดตคีย์",
+  "select_relay": "เลือกเรลย์",
+  "relay": "เรลย์",
+  "create_secret_chat_tips": "เพื่อความปลอดภัยและความเป็นส่วนตัว ข้อความแชทลับจะถูกส่งไปยังเรลย์ที่คุณเลือกเท่านั้น โปรดเลือกเรลย์ที่คุณเชื่อถือได้",
+  "hour": "ชั่วโมง",
+  "enter_or_relay": "ป้อนหรือเลือกเรลย์",
+  "screen_record_hint_message": "${user} พยายามบันทึกหน้าจอ",
+  "session_content_mentioned": "คุณถูกกล่าวถึง",
+  "session_content_draft": "ร่าง"
 }

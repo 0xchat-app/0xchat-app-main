@@ -1,0 +1,11 @@
+{
+  "record_hint": "Vasthouden om op te nemen, loslaten om na ${durationInSeconds} seconde te verzenden",
+  "input_more_album": "Album",
+  "input_more_camera": "Camera",
+  "input_more_video": "Video",
+  "input_more_call": "Oproep",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Kanaal Lid Worden",
+  "channel_badge_requirements": "Berichten sturen in dit kanaal vereist een badge",
+  "friend_requirements": "Kan geen berichten sturen, omdat ze geen vrienden meer zijn"
+}

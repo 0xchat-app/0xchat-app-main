@@ -120,5 +120,16 @@
   "add_contact_suggestion": "Vorschlag",
   "refresh_text": "Aktualisieren",
   "screenshot_hint_message": "${user} hat einen Screenshot gemacht",
-  "secret_chat_accepted_tips": "Sie haben die geheime Chat-Anfrage von ${name} angenommen"
+  "secret_chat_accepted_tips": "Sie haben die geheime Chat-Anfrage von ${name} angenommen",
+  "secret_chat_setting": "EINSTELLUNGEN FÜR GEHEIMEN CHAT",
+  "request_validity_period": "Gültigkeitsdauer der Anfrage",
+  "key_update_time": "Schlüsselaktualisierungszeit",
+  "select_relay": "RELAY AUSWÄHLEN",
+  "relay": "Relay",
+  "create_secret_chat_tips": "Aus Sicherheits- und Datenschutzgründen werden Nachrichten im geheimen Chat nur an das von Ihnen gewählte Relay gesendet. Bitte wählen Sie ein zuverlässiges Relay.",
+  "hour": "Stunde",
+  "enter_or_relay": "RELAY EINGEBEN ODER AUSWÄHLEN",
+  "screen_record_hint_message" :"${user} hat versucht, den Bildschirm aufzunehmen",
+  "session_content_mentioned": "Sie wurden erwähnt",
+  "session_content_draft":"Entwurf"
 }

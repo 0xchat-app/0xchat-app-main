@@ -1,0 +1,11 @@
+{
+  "record_hint": "Hold for at optage, slip for at sende efter ${durationInSeconds} sekunder",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Video",
+  "input_more_call": "Opkald",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Tilmeld dig kanalen",
+  "channel_badge_requirements": "Kravene til at sende beskeder i denne kanal er badge-krav",
+  "friend_requirements": "Det er ikke muligt at sende beskeder, da de ikke længere er venner"
+}

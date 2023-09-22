@@ -1,0 +1,11 @@
+{
+  "record_hint": "Mantén premut per gravar, allibera per enviar després de ${durationInSeconds} segons",
+  "input_more_album": "Àlbum",
+  "input_more_camera": "Càmera",
+  "input_more_video": "Vídeo",
+  "input_more_call": "Trucada",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Unir-se al Canal",
+  "channel_badge_requirements": "L'enviament de missatges en aquest canal té requisits de distintiu",
+  "friend_requirements": "No es pot enviar missatges, ja que ja no són amics"
+}

@@ -1,0 +1,10 @@
+{"record_hint": "Nyomva tartásra rögzítés, ${durationInSeconds} másodperc után küldés",
+  "input_more_album": "Album",
+  "input_more_camera": "Kamera",
+  "input_more_video": "Videó",
+  "input_more_call": "Hívás",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Csatlakozás a Csoportba",
+  "channel_badge_requirements": "Ehhez a csoportban üzenetek küldéséhez jelvénykövetelmények szükségesek",
+  "friend_requirements": "Nem lehet üzenetet küldeni, mivel már nem barátok"
+}

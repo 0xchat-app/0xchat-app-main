@@ -119,5 +119,16 @@
   "add_contact_suggestion": "提案",
   "refresh_text": "更新",
   "screenshot_hint_message": "${user} がスクリーンショットを撮りました",
-  "secret_chat_accepted_tips": "${name} さんのシークレットチャットリクエストを受け入れました"
+  "secret_chat_accepted_tips": "${name} さんのシークレットチャットリクエストを受け入れました",
+  "secret_chat_setting": "シークレットチャットの設定",
+  "request_validity_period": "リクエスト有効期間",
+  "key_update_time": "キー更新時間",
+  "select_relay": "リレーを選択",
+  "relay": "リレー",
+  "create_secret_chat_tips": "セキュリティとプライバシーのため、シークレットチャットのメッセージは、選択したリレーにのみ送信されます。信頼できるリレーを選択してください。",
+  "hour": "時間",
+  "enter_or_relay": "リレーを入力または選択",
+  "screen_record_hint_message" :"${user}が画面を録画しようとしました",
+  "session_content_mentioned": "あなたが言及されました",
+  "session_content_draft":"ドラフト"
 }

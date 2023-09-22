@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Durata: ${time}",
+  "str_call_canceled": "Annullata",
+  "str_call_rejected": "Chiamata in uscita"
+}

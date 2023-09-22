@@ -119,5 +119,16 @@
   "add_contact_suggestion": "Предложение",
   "refresh_text": "Обновить",
   "screenshot_hint_message": "$user сделал скриншот",
-  "secret_chat_accepted_tips": "Вы приняли секретный чат от ${name}"
+  "secret_chat_accepted_tips": "Вы приняли секретный чат от ${name}",
+  "secret_chat_setting": "Настройка секретного чата",
+  "request_validity_period": "Срок действия запроса",
+  "key_update_time": "Время обновления ключа",
+  "select_relay": "Выбрать релей",
+  "relay": "Релей",
+  "create_secret_chat_tips": "Ради безопасности и конфиденциальности сообщения в секретном чате будут отправляться только на выбранный вами релей. Пожалуйста, выберите надежный релей.",
+  "hour": "Час",
+  "enter_or_relay": "Введите или выберите релей",
+  "screen_record_hint_message" :"${user} пытался записать экран",
+  "session_content_mentioned": "Вас упомянули",
+  "session_content_draft":"Черновик"
 }
