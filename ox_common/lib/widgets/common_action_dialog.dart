@@ -10,20 +10,22 @@ import 'package:ox_common/utils/adapt.dart';
 class OXActionModel<T> {
   static const CancelIdentify = 'ActionModelCancel';
 
-  const OXActionModel({required this.identify,required this.text, this.iconName, this.package});
+  const OXActionModel({required this.identify,required this.text, this.iconName, this.package, this.isUseTheme = false});
   final T identify;
   final String text;
   final String? iconName;
   final String? package;
+  final bool isUseTheme;
 
   OXActionModel.fromJson(Map<String, dynamic> jsonMap)
       : identify = jsonMap['identify'],
         text = jsonMap['text'],
         iconName = jsonMap['iconName'],
-        package = jsonMap['package'];
+        package = jsonMap['package'],
+        isUseTheme = jsonMap['isUseTheme'];
 
   Map<String, dynamic> toJson() =>
-      <String, dynamic>{'identify': identify, 'text': text, 'iconName': iconName, 'package': package};
+      <String, dynamic>{'identify': identify, 'text': text, 'iconName': iconName, 'package': package, 'isUseTheme': isUseTheme};
 
   @override
   bool operator ==(dynamic value) {
@@ -147,6 +149,7 @@ class OXActionDialog extends StatelessWidget {
                   width: Adapt.px(20),
                   height: Adapt.px(20),
                   package: item.package ?? '',
+                  useTheme: item.isUseTheme,
                 ),
                 SizedBox(width: Adapt.px(10),),
                 Text(
