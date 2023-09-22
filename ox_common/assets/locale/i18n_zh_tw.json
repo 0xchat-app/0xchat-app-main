@@ -99,5 +99,6 @@
   "secret_chat_invited_tips": "您邀請了${name}加入密聊",
   "secret_chat_received_tips": "您收到了一個密聊請求",
   "secret_chat_accepted_tips": "${name}接受了您的密聊請求",
-  "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求"
+  "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求",
+  "you": "你"
 }

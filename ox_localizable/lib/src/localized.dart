@@ -23,6 +23,23 @@ enum LocaleType {
     ar,//Arabic
     th,//Thai
     zh_tw,//Traditional Chinese
+    it,//Italian
+    tu,//Turkish
+    sw,//Swedish
+    hu,//Hungarian
+    du,//Dutch
+    po,//Polish
+    gr,//Greek
+    cz,//Czech
+    la,//Latvian
+    az,//Azerbaijani
+    uk,//Ukrainian
+    bu,//Bulgarian
+    ind,//Indonesian
+    est,//estonian
+    ta,//India
+    da,//danish
+    ca,//Catalan
 }
 
 extension LocaleTypeExtension on LocaleType{
@@ -55,6 +72,40 @@ extension LocaleTypeExtension on LocaleType{
                 return "th";
             case LocaleType.zh_tw:
                 return "zh_tw";
+            case LocaleType.it:
+                return 'it';
+            case LocaleType.tu:
+                return 'tu';
+            case LocaleType.sw:
+                return 'sw';
+            case LocaleType.hu:
+                return 'hu';
+            case LocaleType.du:
+                return 'du';
+            case LocaleType.po:
+                return 'po';
+            case LocaleType.gr:
+                return 'gr';
+            case LocaleType.cz:
+                return 'cz';
+            case LocaleType.la:
+                return 'la';
+            case LocaleType.az:
+                return 'az';
+            case LocaleType.uk:
+                return 'uk';
+            case LocaleType.bu:
+                return 'bu';
+            case LocaleType.ind:
+                return 'ind';
+            case LocaleType.est:
+                return 'est';
+            case LocaleType.ta:
+                return 'ta';
+            case LocaleType.da:
+                return 'da';
+            case LocaleType.ca:
+                return 'ca';
         }
     }
 
@@ -88,6 +139,40 @@ extension LocaleTypeExtension on LocaleType{
                 return 12;
             case LocaleType.zh_tw:
                 return 13;
+            case LocaleType.it:
+                return 14;
+            case LocaleType.tu:
+                return 15;
+            case LocaleType.sw:
+                return 16;
+            case LocaleType.hu:
+                return 17;
+            case LocaleType.du:
+                return 18;
+            case LocaleType.po:
+                return 19;
+            case LocaleType.gr:
+                return 20;
+            case LocaleType.cz:
+                return 21;
+            case LocaleType.la:
+                return 22;
+            case LocaleType.az:
+                return 23;
+            case LocaleType.uk:
+                return 24;
+            case LocaleType.bu:
+                return 25;
+            case LocaleType.ind:
+                return 26;
+            case LocaleType.est:
+                return 27;
+            case LocaleType.ta:
+                return 28;
+            case LocaleType.da:
+                return 29;
+            case LocaleType.ca:
+                return 30;
         }
     }
 
@@ -118,7 +203,41 @@ extension LocaleTypeExtension on LocaleType{
             case LocaleType.th:
                 return "th";
             case LocaleType.zh_tw:
-                return "zh-HK";
+                return "zh-TW";
+            case LocaleType.it:
+                return 'it';
+            case LocaleType.tu:
+                return 'tu';
+            case LocaleType.sw:
+                return 'sw';
+            case LocaleType.hu:
+                return 'hu';
+            case LocaleType.du:
+                return 'du';
+            case LocaleType.po:
+                return 'po';
+            case LocaleType.gr:
+                return 'gr';
+            case LocaleType.cz:
+                return 'cz';
+            case LocaleType.la:
+                return 'la';
+            case LocaleType.az:
+                return 'az';
+            case LocaleType.uk:
+                return 'uk';
+            case LocaleType.bu:
+                return 'bu';
+            case LocaleType.ind:
+                return 'ind';
+            case LocaleType.est:
+                return 'est';
+            case LocaleType.ta:
+                return 'ta';
+            case LocaleType.da:
+                return 'da';
+            case LocaleType.ca:
+                return 'ca';
         }
     }
 }

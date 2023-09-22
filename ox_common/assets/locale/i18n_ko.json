@@ -99,5 +99,6 @@
   "secret_chat_invited_tips": "${name}을(를) 비밀 채팅에 초대하였습니다",
   "secret_chat_received_tips": "비밀 채팅 요청을 받았습니다",
   "secret_chat_accepted_tips": "${name}이(가) 당신의 비밀 채팅 요청을 수락했습니다",
-  "secret_chat_rejected_tips": "${name}이(가) 당신의 비밀 채팅 요청을 거절했습니다"
+  "secret_chat_rejected_tips": "${name}이(가) 당신의 비밀 채팅 요청을 거절했습니다",
+  "you": "당신"
 }

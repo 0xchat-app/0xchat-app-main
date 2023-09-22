@@ -99,5 +99,6 @@
   "secret_chat_invited_tips": "Вы пригласили ${name} в секретный чат",
   "secret_chat_received_tips": "Вы получили запрос на секретный чат",
   "secret_chat_accepted_tips": "${name} принял ваш запрос на секретный чат",
-  "secret_chat_rejected_tips": "${name} отклонил ваш запрос на секретный чат"
+  "secret_chat_rejected_tips": "${name} отклонил ваш запрос на секретный чат",
+  "you": "ты"
 }

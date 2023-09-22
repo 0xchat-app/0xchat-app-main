@@ -99,5 +99,6 @@
   "secret_chat_invited_tips": "You invited ${name} to join a secret chat",
   "secret_chat_received_tips": "You have received a secret chat request",
   "secret_chat_accepted_tips": "${name} has accepted your secret chat request.",
-  "secret_chat_rejected_tips": "${name} has rejected your secret chat request"
+  "secret_chat_rejected_tips": "${name} has rejected your secret chat request",
+  "you": "you"
 }
