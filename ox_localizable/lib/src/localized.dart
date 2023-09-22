@@ -23,39 +23,89 @@ enum LocaleType {
     ar,//Arabic
     th,//Thai
     zh_tw,//Traditional Chinese
+    it,//Italian
+    tu,//Turkish
+    sw,//Swedish
+    hu,//Hungarian
+    du,//Dutch
+    po,//Polish
+    gr,//Greek
+    cz,//Czech
+    la,//Latvian
+    az,//Azerbaijani
+    uk,//Ukrainian
+    bu,//Bulgarian
+    ind,//Indonesian
+    est,//estonian
+    ta,//India
+    da,//danish
+    ca,//Catalan
 }
 
 extension LocaleTypeExtension on LocaleType{
 
     String value(){
         switch(this){
-            case LocaleType.zh:
-                return "zh";
             case LocaleType.en:
                 return "en";
-            case LocaleType.es:
-                return "es";
+            case LocaleType.zh:
+                return "zh";
             case LocaleType.ru:
                 return "ru";
-            case LocaleType.pt:
-                return "pt";
-            case LocaleType.vi:
-                return "vi";
-            case LocaleType.ja:
-                return "ja";
             case LocaleType.fr:
                 return "fr";
             case LocaleType.de:
                 return "de";
+            case LocaleType.es:
+                return "es";
+            case LocaleType.ja:
+                return "ja";
+            case LocaleType.ko:
+                return "ko";
+            case LocaleType.pt:
+                return "pt";
+            case LocaleType.vi:
+                return "vi";
             case LocaleType.ar:
                 return "ar";
             case LocaleType.th:
                 return "th";
-            case LocaleType.ko:
-                return "ko";
             case LocaleType.zh_tw:
                 return "zh_tw";
-
+            case LocaleType.it:
+                return 'it';
+            case LocaleType.tu:
+                return 'tu';
+            case LocaleType.sw:
+                return 'sw';
+            case LocaleType.hu:
+                return 'hu';
+            case LocaleType.du:
+                return 'du';
+            case LocaleType.po:
+                return 'po';
+            case LocaleType.gr:
+                return 'gr';
+            case LocaleType.cz:
+                return 'cz';
+            case LocaleType.la:
+                return 'la';
+            case LocaleType.az:
+                return 'az';
+            case LocaleType.uk:
+                return 'uk';
+            case LocaleType.bu:
+                return 'bu';
+            case LocaleType.ind:
+                return 'ind';
+            case LocaleType.est:
+                return 'est';
+            case LocaleType.ta:
+                return 'ta';
+            case LocaleType.da:
+                return 'da';
+            case LocaleType.ca:
+                return 'ca';
         }
     }
 
@@ -63,66 +113,131 @@ extension LocaleTypeExtension on LocaleType{
     int symbol(){
 
         switch(this){
-            case LocaleType.zh:
-                return 1;
             case LocaleType.en:
+                return 1;
+            case LocaleType.zh:
                 return 2;
-            case LocaleType.es:
-                return 7;
             case LocaleType.ru:
+                return 3;
+            case LocaleType.fr:
+                return 4;
+            case LocaleType.de:
+                return 5;
+            case LocaleType.es:
+                return 6;
+            case LocaleType.ja:
+                return 7;
+            case LocaleType.ko:
                 return 8;
             case LocaleType.pt:
                 return 9;
             case LocaleType.vi:
                 return 10;
-            case LocaleType.ja:
-                return 4;
-            case LocaleType.fr:
-                return 11;
-            case LocaleType.de:
-                return 12;
             case LocaleType.ar:
-                return 3;
+                return 11;
             case LocaleType.th:
-                return 6;
-            case LocaleType.ko:
-                return 5;
+                return 12;
             case LocaleType.zh_tw:
                 return 13;
-
+            case LocaleType.it:
+                return 14;
+            case LocaleType.tu:
+                return 15;
+            case LocaleType.sw:
+                return 16;
+            case LocaleType.hu:
+                return 17;
+            case LocaleType.du:
+                return 18;
+            case LocaleType.po:
+                return 19;
+            case LocaleType.gr:
+                return 20;
+            case LocaleType.cz:
+                return 21;
+            case LocaleType.la:
+                return 22;
+            case LocaleType.az:
+                return 23;
+            case LocaleType.uk:
+                return 24;
+            case LocaleType.bu:
+                return 25;
+            case LocaleType.ind:
+                return 26;
+            case LocaleType.est:
+                return 27;
+            case LocaleType.ta:
+                return 28;
+            case LocaleType.da:
+                return 29;
+            case LocaleType.ca:
+                return 30;
         }
-
-
     }
 
     String get nativeLocalString {
         switch(this){
-            case LocaleType.zh:
-                return "zh-Hans";
             case LocaleType.en:
                 return "en";
-            case LocaleType.es:
-                return "es";
+            case LocaleType.zh:
+                return "zh-Hans";
             case LocaleType.ru:
                 return "ru";
-            case LocaleType.pt:
-                return "pt";
-            case LocaleType.vi:
-                return "vi";
-            case LocaleType.ja:
-                return "ja";
             case LocaleType.fr:
                 return "fr";
             case LocaleType.de:
                 return "de";
+            case LocaleType.es:
+                return "es";
+            case LocaleType.ja:
+                return "ja";
+            case LocaleType.ko:
+                return "ko";
+            case LocaleType.pt:
+                return "pt";
+            case LocaleType.vi:
+                return "vi";
             case LocaleType.ar:
                 return "ar";
             case LocaleType.th:
                 return "th";
-            case LocaleType.ko:
-                return "ko";
             case LocaleType.zh_tw:
-                return "zh-HK";
+                return "zh-TW";
+            case LocaleType.it:
+                return 'it';
+            case LocaleType.tu:
+                return 'tu';
+            case LocaleType.sw:
+                return 'sw';
+            case LocaleType.hu:
+                return 'hu';
+            case LocaleType.du:
+                return 'du';
+            case LocaleType.po:
+                return 'po';
+            case LocaleType.gr:
+                return 'gr';
+            case LocaleType.cz:
+                return 'cz';
+            case LocaleType.la:
+                return 'la';
+            case LocaleType.az:
+                return 'az';
+            case LocaleType.uk:
+                return 'uk';
+            case LocaleType.bu:
+                return 'bu';
+            case LocaleType.ind:
+                return 'ind';
+            case LocaleType.est:
+                return 'est';
+            case LocaleType.ta:
+                return 'ta';
+            case LocaleType.da:
+                return 'da';
+            case LocaleType.ca:
+                return 'ca';
         }
     }
 }
@@ -154,24 +269,53 @@ class Localized {
         return text('ox_common.$key');
     }
 
-    static String text(String key) {
-        String string = '** $key not found';
+    static String text(String key,{ bool useOrigin = false }) {
+        String? string;
         Map<dynamic, dynamic> _localizedValues = localized.localizedValues;
         Map<dynamic, dynamic> _defaultLocalizedValues = localized.defaultLocalizedValues;
         
         Map<String, String> _cache = localized.cache;
-        if (_localizedValues != null) {
+        {
+          if (_cache[key] != null) {
+            return _cache[key]!;
+          }
+          bool found = true;
+          Map<dynamic, dynamic> _values = _localizedValues;
+          List<String> _keyParts = key.split('.');
+          int _keyPartsLen = _keyParts.length;
+          int index = 0;
+          int lastIndex = _keyPartsLen - 1;
+          while (index < _keyPartsLen && found) {
+            var value = _values[_keyParts[index]];
+            if (value == null) {
+              found = false;
+              break;
+            }
+            if (value is String && index == lastIndex) {
+              string = value;
+              _cache[key] = string;
+              break;
+            }
+            _values = value;
+            index++;
+          }
+        }
+
+        if (string != null) return string;
+
+        //If the corresponding translation key is not found in the translation JSON, the default translation JSON (en) will be used
+        {
             if (_cache[key] != null){
                 return _cache[key]!;
             }
             bool found = true;
-            Map<dynamic, dynamic> _values = _localizedValues;
+            Map<dynamic,dynamic>_defaultValues = _defaultLocalizedValues;
             List<String> _keyParts = key.split('.');
             int _keyPartsLen = _keyParts.length;
             int index = 0;
             int lastIndex = _keyPartsLen - 1;
             while(index < _keyPartsLen && found){
-                var value = _values[_keyParts[index]];
+                var value = _defaultValues[_keyParts[index]];
                 if (value == null) {
                     found = false;
                     break;
@@ -181,55 +325,27 @@ class Localized {
                     _cache[key] = string;
                     break;
                 }
-                _values = value;
+                _defaultValues = value;
                 index++;
             }
         }
-        if(string == ("** $key not found")){  //If the corresponding translation key is not found in the translation JSON, the default translation JSON (en) will be used
-            if (_localizedValues != null) {
-                if (_cache[key] != null){
-                    return _cache[key]!;
-                }
-                bool found = true;
-                Map<dynamic,dynamic>_defaultValues = _defaultLocalizedValues;
-                List<String> _keyParts = key.split('.');
-                int _keyPartsLen = _keyParts.length;
-                int index = 0;
-                int lastIndex = _keyPartsLen - 1;
-                while(index < _keyPartsLen && found){
-                    var value = _defaultValues[_keyParts[index]];
-                    if (value == null) {
-                        found = false;
-                        break;
-                    }
-                    if (value is String && index == lastIndex){
-                        string = value;
-                        _cache[key] = string;
-                        break;
-                    }
-                    _defaultValues = value;
-                    index++;
-                }
-            }
-            if(string == ("** $key not found")){
-                string = "** EN $key not found EN";   //Default English configuration missing.
-                print('resourse：'+string);
-            }else{
-                print('resourse：'+"** $key not found-Transformation en："+string);
-            }
-        }
+
+        if (string != null) return string;
+
+        string = useOrigin ? key : "** EN $key not found EN";
+
         return string;
     }
 
     static Future<Null> init() async {
 
-        // String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
+        String lan = await OXCacheManager.defaultOXCacheManager.getData(_keyLanguages, defaultValue: localized._defaultLanguage) as String;
         // if(lan == LocaleType.zh.value()){
         //     localized.localeType = LocaleType.zh;
         // }else{
-            localized.localeType = LocaleType.en;
+        //     localized.localeType = LocaleType.en;
         // }
-        // localized.localeType = getLocaleTypeByString(lan);
+        localized.localeType = getLocaleTypeByString(lan);
         String language = localized.localeType.value();
         String? jsonContent = await _readAsset("assets/locale/i18n_$language.json");
         String? defaultJsonContent;
@@ -317,7 +433,6 @@ class Localized {
 
         }).then((value){
         }).whenComplete((){
-
             localized._onLocaleChangedCallbackList.forEach((VoidCallback callback) {
                 callback();
             });

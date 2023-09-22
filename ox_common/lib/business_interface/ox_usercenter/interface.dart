@@ -22,7 +22,7 @@ class OXUserCenterInterface {
     bool privateZap = false,
   }) async {
     return await OXModuleService.invoke<Future<Map<String, String>>>(
-      'ox_usercenter',
+      moduleName,
       'getInvoice',
       [],
       {

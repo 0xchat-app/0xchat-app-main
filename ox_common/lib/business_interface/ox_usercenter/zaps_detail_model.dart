@@ -1,5 +1,6 @@
 
 import 'package:intl/intl.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ZapsRecordDetail {
   final String invoice;
@@ -11,12 +12,12 @@ class ZapsRecordDetail {
   final bool isConfirmed;
 
   Map<String, dynamic> get zapsRecordAttributes => <String, dynamic>{
-    'Zaps': '+$amount',
-    'Status': isConfirmed,
-    'Invoice': invoice,
-    'From': fromPubKey,
-    'To': toPubKey,
-    'Time': zapsTimeFormat,
+    Localized.text('ox_usercenter.zaps'): '+$amount',
+    Localized.text('ox_usercenter.zap_status'): isConfirmed,
+    Localized.text('ox_usercenter.zap_invoice'): invoice,
+    Localized.text('ox_usercenter.zap_from'): fromPubKey,
+    Localized.text('ox_usercenter.zap_to'): toPubKey,
+    Localized.text('ox_usercenter.zap_time'): zapsTimeFormat,
   };
 
   String get zapsTimeFormat => DateFormat('yyyy/MM/dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(int.tryParse(zapsTime) ?? 0));

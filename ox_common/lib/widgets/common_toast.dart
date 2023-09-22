@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 /// Title: CommonToast
 /// Description: TODO()
@@ -33,10 +34,12 @@ class CommonToast {
 
   Future<void> show(BuildContext? context, String message,
       {int duration = 2000, ToastType toastType = ToastType.normal}) async{
+    EasyLoading.instance.loadingStyle = EasyLoadingStyle.custom;
     EasyLoading.instance.successWidget = _getToastTypeIconName(toastType);
+    EasyLoading.instance.backgroundColor = ThemeColor.color180;
+    EasyLoading.instance.indicatorColor = Colors.transparent;
+    EasyLoading.instance.textColor =  ThemeColor.color0;
     EasyLoading.instance.textStyle = TextStyle(
-      // backgroundColor: ThemeColor.gray5,
-      color: ThemeColor.titleColor,
       fontSize: Adapt.px(12),
       fontWeight: FontWeight.w400,
     );

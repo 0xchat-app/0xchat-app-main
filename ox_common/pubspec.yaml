@@ -110,6 +110,8 @@ flutter:
   assets:
     - assets/theme/
     - assets/images/
+    - assets/images/dark/
+    - assets/images/light/
     - assets/locale/
     - assets/dark/
     - assets/light/

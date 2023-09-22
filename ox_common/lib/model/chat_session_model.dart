@@ -38,6 +38,8 @@ class ChatSessionModel extends DBObject {
 
   String? draft;
 
+  bool isMentioned;
+
   int? messageKind;
 
   ChatSessionModel({
@@ -48,12 +50,13 @@ class ChatSessionModel extends DBObject {
     this.groupId,
     this.content,
     this.unreadCount = 0,
-    this.createTime,
+    this.createTime = 0,
     this.chatType,
     this.messageType,
     this.avatar,
     this.alwaysTop = false,
     this.draft,
+    this.isMentioned = false,
     this.messageKind,
   });
 
@@ -70,7 +73,10 @@ class ChatSessionModel extends DBObject {
   }
 
   static Map<String, String?> updateTable() {
-    return {"2": '''alter table ChatSessionModel add draft TEXT;'''};
+    return {
+      '2': '''alter table ChatSessionModel add draft TEXT;''',
+      '3': '''alter table ChatSessionModel add isMentioned INT DEFAULT 0;''',
+    };
   }
 
   @override
@@ -80,6 +86,11 @@ class ChatSessionModel extends DBObject {
 
   static ChatSessionModel fromMap(Map<String, Object?> map) {
     return _chatSessionModelFromMap(map);
+  }
+
+  @override
+  String toString() {
+    return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind}';
   }
 }
 
@@ -98,6 +109,7 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
     avatar: map['avatar'],
     alwaysTop: map['alwaysTop'] == 1,
     draft: map['draft'],
+    isMentioned: map['isMentioned'] == 1,
   );
 }
 
@@ -115,4 +127,5 @@ Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <Strin
       'avatar': instance.avatar,
       'alwaysTop': instance.alwaysTop == true ? 1 : 0,
       'draft': instance.draft,
+      'isMentioned': instance.isMentioned == true ? 1 : 0,
     };

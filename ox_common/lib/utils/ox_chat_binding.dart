@@ -6,7 +6,10 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'dart:convert';
+
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: ox_chat_binding
 ///Description: TODO(Fill in by OXChat)
@@ -42,6 +45,8 @@ abstract class OXChatObserver {
   void didSecretChatMessageCallBack(MessageDB message) {}
 
   void didPromptToneCallBack(MessageDB message, int type) {}
+
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {}
 }
 
 class OXChatBinding {
@@ -63,6 +68,8 @@ class OXChatBinding {
   }
 
   final List<OXChatObserver> _observers = <OXChatObserver>[];
+
+  String? Function(MessageDB messageDB)? sessionMessageTextBuilder;
 
   Future<void> initLocalSession() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
@@ -89,7 +96,7 @@ class OXChatBinding {
     unReadStrangerSessionCount = sessionMap.values.fold(
       0,
       (int previousValue, ChatSessionModel session) {
-        if (session.chatType == 4 || session.chatType == 5) {
+        if (session.chatType == ChatType.chatStranger || session.chatType == ChatType.chatSecretStranger) {
           return previousValue + session.unreadCount;
         } else {
           return previousValue;
@@ -99,6 +106,10 @@ class OXChatBinding {
   }
 
   String showContentByMsgType(MessageDB messageDB) {
+
+    final text = sessionMessageTextBuilder?.call(messageDB);
+    if (text != null) return text;
+
     switch (MessageDB.stringtoMessageType(messageDB.type!)) {
       case MessageType.text:
         String? showContent;
@@ -119,16 +130,16 @@ class OXChatBinding {
         return showContent;
       case MessageType.image:
       case MessageType.encryptedImage:
-        return '[image]';
+        return Localized.text('ox_common.message_type_image');
       case MessageType.video:
       case MessageType.encryptedVideo:
-        return '[video]';
+        return Localized.text('ox_common.message_type_video');
       case MessageType.audio:
       case MessageType.encryptedAudio:
-        return '[audio]';
+        return Localized.text('ox_common.message_type_audio');
       case MessageType.file:
       case MessageType.encryptedFile:
-        return '[file]';
+        return Localized.text('ox_common.message_type_file');
       case MessageType.system:
         return messageDB.decryptContent ?? '';
       case MessageType.template:
@@ -140,7 +151,9 @@ class OXChatBinding {
               final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
               switch (type) {
                 case CustomMessageType.zaps:
-                  return '[zaps]';
+                  return Localized.text('ox_common.message_type_zaps');
+                case CustomMessageType.call:
+                  return Localized.text('ox_common.message_type_call');
                 default:
                   break ;
               }
@@ -148,9 +161,9 @@ class OXChatBinding {
           } catch (_) { }
         }
 
-        return '[template]';
+        return Localized.text('ox_common.message_type_template');
       default:
-        return '[unknown]';
+        return Localized.text('ox_common.message_type_unknown');
     }
   }
 
@@ -162,6 +175,7 @@ class OXChatBinding {
     bool alwaysTop = false,
     String? draft,
     int? messageKind,
+    bool? isMentioned,
   }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId];
@@ -192,6 +206,10 @@ class OXChatBinding {
       }
       if (draft != null && sessionModel.draft != draft) {
         sessionModel.draft = draft;
+        isChange = true;
+      }
+      if (isMentioned != null && sessionModel.isMentioned != isMentioned) {
+        sessionModel.isMentioned = isMentioned;
         isChange = true;
       }
       if (messageKind != null && sessionModel.messageKind != messageKind) {
@@ -249,23 +267,23 @@ class OXChatBinding {
       UserDB? userDB;
       if (sessionMap[chatId] != null) {
         sessionModel.chatType = sessionMap[chatId]!.chatType;
-        if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
-          if (messageDB.read != null && !messageDB.read!) {
-            sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
-            if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
-              unReadStrangerSessionCount += 1;
+        if (messageDB.createTime! >= sessionMap[chatId]!.createTime!) {
+          if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
+            if (messageDB.read != null && !messageDB.read!) {
+              sessionModel.unreadCount = sessionMap[chatId]!.unreadCount! + 1;
+              if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
+                unReadStrangerSessionCount += 1;
+              }
+              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
             }
-            noticePromptToneCallBack(messageDB, sessionModel.chatType!);
           }
-        }
-        if (sessionMap[chatId] != null && messageDB.createTime! >= sessionMap[chatId]!.createTime!) {
           sessionMap[chatId] = sessionModel;
+          final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+          if (count > 0) {
+            changeCount = count;
+          }
         } else {
           // old message don't update
-        }
-        final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-        if (count > 0) {
-          changeCount = count;
         }
       } else {
         userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
@@ -395,6 +413,32 @@ class OXChatBinding {
     }
   }
 
+  Future<ChatSessionModel?> getChatSession(String sender, String receiver, String decryptContent) async {
+    if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey.isEmpty) {
+      return null;
+    }
+    String chatId = sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? receiver : sender;
+    ChatSessionModel? chatSessionModel = sessionMap[chatId];
+    if (chatSessionModel == null) {
+      UserDB? userDB = Contacts.sharedInstance.allContacts[chatId];
+      if (userDB == null) {
+        userDB = await Account.sharedInstance.getUserInfo(chatId);
+      }
+      int tempCreateTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      chatSessionModel = await syncChatSessionTable(
+        MessageDB(
+          decryptContent: decryptContent,
+          content: decryptContent,
+          createTime: tempCreateTime,
+          sender: sender,
+          receiver: receiver,
+        ),
+        chatType: ChatType.chatSecret,
+      );
+    }
+    return chatSessionModel;
+  }
+
   Future<ChatSessionModel?> localCreateSecretChat(SecretSessionDB ssDB) async {
     if (ssDB.toPubkey == null || ssDB.toPubkey!.isEmpty) return null;
     UserDB? userDB = Contacts.sharedInstance.allContacts[ssDB.toPubkey!];
@@ -403,7 +447,7 @@ class OXChatBinding {
     }
     final ChatSessionModel chatSessionModel = await syncChatSessionTable(
       MessageDB(
-        decryptContent: 'You invited ${userDB?.name ??''} to join a secret chat',
+        decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB?.name ?? ''}),
         createTime: ssDB.lastUpdateTime,
         sender: ssDB.toPubkey,
         receiver: ssDB.myPubkey,
@@ -421,7 +465,7 @@ class OXChatBinding {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
     syncChatSessionTable(MessageDB(
-      decryptContent: 'You have received a secret chat request',
+      decryptContent: Localized.text('ox_common.secret_chat_received_tips'),
       createTime: ssDB.lastUpdateTime,
       sender: ssDB.toPubkey,
       receiver: ssDB.myPubkey,
@@ -434,7 +478,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId!, content: "${user.name} has accepted your secret chat request.");
+    await updateChatSession(ssDB.sessionId!, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
@@ -445,7 +489,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId, content: "${user.name} has rejected your secret chat request");
+    await updateChatSession(ssDB.sessionId, content: 'secret_chat_rejected_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatRejectCallBack(ssDB);
     }
@@ -566,6 +610,12 @@ class OXChatBinding {
     print('noticePromptToneCallBack');
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);
+    }
+  }
+
+  void zapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    for (OXChatObserver observer in _observers) {
+      observer.didZapRecordsCallBack(zapRecordsDB);
     }
   }
 }
