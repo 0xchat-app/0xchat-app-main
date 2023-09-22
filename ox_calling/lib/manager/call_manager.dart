@@ -281,12 +281,12 @@ class CallManager {
   }
 
   void stopTimer() {
+    counter = 0;
     _timer?.cancel();
     _timer = null;
   }
 
   void startTimer() async {
-    counter = 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       counter++;
       notifyAllObserverValueChanged();

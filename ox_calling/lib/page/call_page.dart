@@ -398,7 +398,9 @@ class CallPageState extends State<CallPage> {
 
   void _callStateUpdate(CallState callState) {
     if (callState == CallState.CallStateBye) {
-      OXNavigator.pop(context);
+      if (mounted) {
+        OXNavigator.pop(context);
+      }
     } else if (callState == CallState.CallStateConnected) {
       PromptToneManager.sharedInstance.stopPlay();
     }
