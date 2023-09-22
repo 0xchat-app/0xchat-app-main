@@ -76,5 +76,21 @@
   "benefits": "好處",
   "obtain": "獲得",
   "obtained": "已獲得",
-  "not_yet_obtained": "尚未獲得"
+  "not_yet_obtained": "尚未獲得",
+  "enter_username_tips": "請輸入使用者名稱",
+  "set_0xchat_dns_toast": "無法辨識 0xchat DNS 位址",
+  "set_dns_legal_toast": "不是合法的 DNS 位址",
+  "set_dns_failed_toast": "檢查 DNS 位址失敗",
+  "dns_checking": "正在檢查...",
+  "enter_lnurl_address_toast": "請輸入正確的燈光位址",
+  "enter_lnurl_toast": "請輸入正確的LNURL",
+  "not_allow_lnurl_tips": "該LNURL不支援Nostr協議，無法查看交易歷史記錄",
+  "zap_status": "狀態",
+  "zap_status_pending": "待處理",
+  "zap_invoice": "發票",
+  "zap_from": "來自",
+  "zap_to": "到",
+  "zap_time": "時間",
+  "zap_content": "內容",
+  "zap_no_content": "沒有內容"
 }

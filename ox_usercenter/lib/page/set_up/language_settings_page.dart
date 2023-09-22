@@ -40,6 +40,40 @@ extension OXLanguageType on LocaleType {
         return 'ภาษาไทย';
       case LocaleType.zh_tw:
         return '繁體中文(中國台灣)';
+      case LocaleType.it:
+        return 'Italiano';
+      case LocaleType.tu:
+        return 'Türkçe';
+      case LocaleType.sw:
+        return 'Svenska';
+      case LocaleType.hu:
+        return 'Magyar';
+      case LocaleType.du:
+        return 'Nederlands';
+      case LocaleType.po:
+        return 'Polski';
+      case LocaleType.gr:
+        return 'Ελληνικά';
+      case LocaleType.cz:
+        return 'čeština';
+      case LocaleType.la:
+        return 'latviski';
+      case LocaleType.az:
+        return 'Azərbaycan';
+      case LocaleType.uk:
+        return 'украї́нська мо́ва';
+      case LocaleType.bu:
+        return 'български';
+      case LocaleType.ind:
+        return 'Bahasa Indonesia';
+      case LocaleType.est:
+        return 'Eesti keel';
+      case LocaleType.ta:
+        return 'தமிழ்';
+      case LocaleType.da:
+        return 'Dansk';//
+      case LocaleType.ca:
+        return 'Català';
     }
   }
 }

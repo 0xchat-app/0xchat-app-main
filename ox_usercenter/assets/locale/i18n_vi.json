@@ -76,5 +76,21 @@
   "benefits": "Lợi ích",
   "obtain": "Nhận",
   "obtained": " Đã nhận",
-  "not_yet_obtained": "Chưa nhận"
+  "not_yet_obtained": "Chưa nhận",
+  "enter_username_tips": "Vui lòng nhập tên người dùng",
+  "set_0xchat_dns_toast": "Địa chỉ DNS 0xchat không được nhận dạng",
+  "set_dns_legal_toast": "Không phải địa chỉ DNS hợp pháp",
+  "set_dns_failed_toast": "kiểm tra địa chỉ DNS không thành công",
+  "dns_checking": "Đang kiểm tra...",
+  "enter_lnurl_address_toast": "Vui lòng nhập đúng Địa chỉ chiếu sáng",
+  "enter_lnurl_toast": "Vui lòng nhập LNURL chính xác",
+  "not_allow_lnurl_tips": "LNURL không hỗ trợ giao thức Nostr, không thể xem lịch sử giao dịch",
+  "zap_status": "Trạng thái",
+  "zap_status_pending": "Đang chờ xử lý",
+  "zap_invoice": "Hóa đơn",
+  "zap_from": "Từ",
+  "zap_to": "Tới",
+  "zap_time": "Thời gian",
+  "zap_content": "Nội dung",
+  "zap_no_content": "Không có nội dung"
 }

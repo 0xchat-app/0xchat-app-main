@@ -76,5 +76,21 @@
   "benefits": "利点",
   "obtain": "取得",
   "obtained": " 取得済み",
-  "not_yet_obtained": "まだ取得していない"
+  "not_yet_obtained": "まだ取得していない",
+  "enter_username_tips": "ユーザー名を入力してください",
+  "set_0xchat_dns_toast": "認識できない 0xchat DNS アドレス",
+  "set_dns_legal_toast": "正当な DNS アドレスではありません",
+  "set_dns_failed_toast": "DNS アドレスのチェックに失敗しました",
+  "dns_checking": "チェック中...",
+  "enter_lnurl_address_toast": "正しい照明アドレスを入力してください",
+  "enter_lnurl_toast": "正しい LNURL を入力してください",
+  "not_allow_lnurl_tips": "LNURL は Nostr プロトコルをサポートしていないため、トランザクション履歴を表示できません",
+  "zap_status": "ステータス",
+  "zap_status_pending": "保留中",
+  "zap_invoice": "請求書",
+  "zap_from": "差出人",
+  "zap_to": "宛先",
+  "zap_time": "時間",
+  "zap_content": "コンテンツ",
+  "zap_no_content": "コンテンツがありません"
 }

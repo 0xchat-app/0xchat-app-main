@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_text.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ZapsRecordPage extends StatelessWidget {
   final ZapsRecordDetail zapsRecordDetail;
@@ -20,7 +21,7 @@ class ZapsRecordPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Zap Record',
+        title: Localized.text('ox_usercenter.zaps_record'),
         centerTitle: true,
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
@@ -54,7 +55,7 @@ class ZapsRecordPage extends StatelessWidget {
     if (value is bool) {
       if (value) {
         textWidget = Text(
-          'Confirmed',
+          Localized.text('ox_common.confirm'),
           style: TextStyle(
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
@@ -63,7 +64,7 @@ class ZapsRecordPage extends StatelessWidget {
         );
       } else {
         textWidget = Text(
-          'Pending',
+          Localized.text('ox_usercenter.zap_status_pending'),
           style: TextStyle(
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
@@ -157,7 +158,7 @@ class ZapsRecordPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildItem('Content'),
+          _buildItem(Localized.text('ox_usercenter.zap_content')),
           Divider(
             height: Adapt.px(0.5),
             color: ThemeColor.color160,
@@ -175,7 +176,7 @@ class ZapsRecordPage extends StatelessWidget {
                         color: ThemeColor.color10),
                   )
                 : Text(
-                    'No Content',
+                    Localized.text('ox_usercenter.zap_no_content'),
                     textAlign: TextAlign.left,
                     style: TextStyle(
                         fontSize: Adapt.px(16),

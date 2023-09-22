@@ -205,7 +205,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
     } else {
       if (_userNameTextEditingController.text.isEmpty) {
-        CommonToast.instance.show(context, 'Please Enter Username');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.enter_username_tips'));
       }
     }
   }
@@ -492,7 +492,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         return false;
       }
     } else {
-      CommonToast.instance.show(context, 'Unrecognized 0xchat DNS address');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.set_0xchat_dns_toast'));
       return false;
     }
   }
@@ -504,15 +504,16 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     String domain = temp[1];
     DNS dns = DNS(name, domain, pubKey, _relayNameList);
     try {
-      OXLoading.show(status: 'Checking...');
+      OXLoading.show(status: Localized.text('ox_usercenter.dns_checking'));
       bool result = await Account.checkDNS(dns);
       OXLoading.dismiss();
-      if (!result)
-        CommonToast.instance.show(context, 'Not a legal DNS address');
+      if (!result) {
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.set_dns_legal_toast'));
+      }
       return result;
     } catch (error, stack) {
       OXLoading.dismiss();
-      CommonToast.instance.show(context, 'check DNS address failed');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.set_dns_legal_toast'));
       LogUtil.e("check dns error:$error\r\n$stack");
       return false;
     }
@@ -528,7 +529,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
       } catch (error, stack) {
         CommonToast.instance
-            .show(context, 'Please enter the correct Lighting Address');
+            .show(context, Localized.text('ox_usercenter.enter_lnurl_address_toast'));
         LogUtil.d('LN Address parse fail::$error\r\n$stack');
         return false;
       }
@@ -543,7 +544,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
       return await _showNoAllowNostrTips();
     } catch (error, stack) {
-      CommonToast.instance.show(context, 'Please enter the correct LNURL');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.enter_lnurl_toast'));
       LogUtil.d('LNURL parse fail:$error\r\n$stack');
       return false;
     }
@@ -551,15 +552,14 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   Future<bool> _showNoAllowNostrTips() async {
     return await OXCommonHintDialog.show(context,
-        title: 'Tips',
-        content:
-            'The LNURL does not support the Nostr protocol, unable to view transaction history',
+        title: Localized.text('ox_common.tips'),
+        content: Localized.text('ox_usercenter.not_allow_lnurl_tips'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context, false);
           }),
           OXCommonHintAction.sure(
-              text: 'Confirm',
+              text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
               }),

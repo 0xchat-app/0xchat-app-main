@@ -76,6 +76,21 @@
   "benefits": "Преимущества",
   "obtain": "Получить",
   "obtained": " Получено",
-  "not_yet_obtained": "Еще не получено"
-
+  "not_yet_obtained": "Еще не получено",
+  "enter_username_tips": "Пожалуйста, введите имя пользователя",
+  "set_0xchat_dns_toast": "Нераспознанный DNS-адрес 0xchat",
+  "set_dns_legal_toast": "Недопустимый DNS-адрес",
+  "set_dns_failed_toast": "не удалось проверить DNS-адрес",
+  "dns_checking": "Проверка...",
+  "enter_lnurl_address_toast": "Пожалуйста, введите правильный адрес освещения",
+  "enter_lnurl_toast": "Пожалуйста, введите правильный LNURL",
+  "not_allow_lnurl_tips": "LNURL не поддерживает протокол Nostr и не может просматривать историю транзакций",
+  "zap_status": "Статус",
+  "zap_status_pending": "В ожидании",
+  "zap_invoice": "Счет",
+  "zap_from": "От",
+  "zap_to": "Кому",
+  "zap_time": "Время",
+  "zap_content": "Содержимое",
+  "zap_no_content": "Нет контента"
 }
