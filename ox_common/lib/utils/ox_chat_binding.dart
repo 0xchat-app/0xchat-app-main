@@ -45,6 +45,8 @@ abstract class OXChatObserver {
   void didSecretChatMessageCallBack(MessageDB message) {}
 
   void didPromptToneCallBack(MessageDB message, int type) {}
+
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {}
 }
 
 class OXChatBinding {
@@ -608,6 +610,12 @@ class OXChatBinding {
     print('noticePromptToneCallBack');
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);
+    }
+  }
+
+  void zapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    for (OXChatObserver observer in _observers) {
+      observer.didZapRecordsCallBack(zapRecordsDB);
     }
   }
 }
