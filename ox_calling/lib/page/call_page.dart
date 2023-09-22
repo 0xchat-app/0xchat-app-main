@@ -63,9 +63,11 @@ class CallPageState extends State<CallPage> {
     }
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
-      CallManager.instance.timeOutAutoHangUp();
-      if (mounted) {
-        OXNavigator.pop(context);
+      if (!CallManager.instance.getInCallIng) {
+        CallManager.instance.timeOutAutoHangUp();
+        if (mounted) {
+          OXNavigator.pop(context);
+        }
       }
     });
   }
@@ -77,9 +79,8 @@ class CallPageState extends State<CallPage> {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
-    } else {
-      super.dispose();
     }
+    super.dispose();
   }
 
   void _initData() async {
