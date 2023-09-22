@@ -5,6 +5,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class BadgeSelectorDialog extends StatefulWidget {
   List<BadgeModel> badgeList = [];
@@ -29,18 +30,18 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width / 3;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_common',
+      useTheme: true,
     );
     return Container(
       height: Adapt.px(390),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       child: ListView(
         children: [
@@ -92,9 +93,9 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
               },
             ),
           _buildConfirmButton(
-            "None",
+            Localized.text('ox_common.none'),
             onTap: () {
-              OXNavigator.pop(context, "None");
+              OXNavigator.pop(context, Localized.text('ox_common.none'));
             },
           ),
           Container(
@@ -102,7 +103,7 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
             color: ThemeColor.color190,
           ),
           _buildConfirmButton(
-            "Cancel",
+            Localized.text('ox_common.cancel'),
             onTap: () {
               OXNavigator.pop(context);
             },

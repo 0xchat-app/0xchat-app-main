@@ -4,8 +4,9 @@ import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:nostr_core_dart/src/nips/nip_100.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 
 import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
@@ -62,6 +63,7 @@ class SignalingManager {
   Function(Session session, RTCDataChannel dc, RTCDataChannelMessage data)?
       onDataChannelMessage;
   Function(Session session, RTCDataChannel dc)? onDataChannel;
+  bool _isDisconnected = false;
 
   String get sdpSemantics => 'unified-plan';
 
@@ -119,6 +121,13 @@ class SignalingManager {
     }
   }
 
+  void videoOnOff() {
+    if (_localStream != null) {
+      bool enabled = _localStream!.getVideoTracks()[0].enabled;
+      _localStream!.getVideoTracks()[0].enabled = !enabled;
+    }
+  }
+
   void muteMic() {
     if (_localStream != null) {
       bool enabled = _localStream!.getAudioTracks()[0].enabled;
@@ -137,7 +146,13 @@ class SignalingManager {
     if (media == 'data') {
       _createDataChannel(session);
     }
+    if (media == CallMessageType.audio.text) {
+      if (_localStream != null) {
+        _localStream!.getVideoTracks()[0].enabled = false;
+      }
+    }
     await _createOffer(session, media);
+    _isDisconnected = false;
     onCallStateChange?.call(session, CallState.CallStateNew);
     onCallStateChange?.call(session, CallState.CallStateInvite);
   }
@@ -156,6 +171,11 @@ class SignalingManager {
     if (session == null) {
       return;
     }
+    if (media == CallMessageType.audio.text) {
+      if (_localStream != null) {
+        _localStream!.getVideoTracks()[0].enabled = false;
+      }
+    }
     _createAnswer(session, media);
     onCallStateChange?.call(session, CallState.CallStateConnected);
   }
@@ -168,7 +188,7 @@ class SignalingManager {
     bye(session.sid);
   }
 
-  void _onMessage(String friend, SignalingState state, String content) async {
+  void onParseMessage(String friend, SignalingState state, String content) async {
     var data = jsonDecode(content);
 
     switch (state) {
@@ -195,7 +215,6 @@ class SignalingManager {
               sessionId: sessionId,
               media: media,
               screenSharing: false);
-          LogUtil.e('Michael: offer CallStateRinging media =${media}');
           _sessions[sessionId] = newSession;
           await newSession.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
@@ -207,6 +226,7 @@ class SignalingManager {
             });
             newSession.remoteCandidates.clear();
           }
+          _isDisconnected = false;
           onCallStateChange?.call(newSession, CallState.CallStateNew);
           onCallStateChange?.call(newSession, CallState.CallStateRinging);
         }
@@ -253,12 +273,14 @@ class SignalingManager {
       //   break;
       case SignalingState.disconnect:
         {
-          var sessionId = data['session_id'];
-          print('bye: ' + sessionId);
-          var session = _sessions.remove(sessionId);
-          if (session != null) {
-            onCallStateChange?.call(session, CallState.CallStateBye);
-            _closeSession(session);
+          if (!_isDisconnected){
+            _isDisconnected = true;
+            var sessionId = data['session_id'];
+            var session = _sessions.remove(sessionId);
+            if (session != null) {
+              onCallStateChange?.call(session, CallState.CallStateBye);
+              _closeSession(session);
+            }
           }
         }
         break;
@@ -296,10 +318,7 @@ class SignalingManager {
       } catch (e) {}
     }
 
-    Contacts.sharedInstance.onCallStateChange =
-        (String friend, SignalingState state, String data) {
-      _onMessage(friend, state, data);
-    };
+
   }
 
   Future<MediaStream> createStream(String media, bool userScreen,
@@ -450,7 +469,15 @@ class SignalingManager {
     };
 
     pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state');
+      print('onIceConnectionState: $state ');
+      if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
+        _isDisconnected = true;
+        var session = _sessions.remove(sessionId);
+        if (session != null) {
+          onCallStateChange?.call(session, CallState.CallStateBye);
+          _closeSession(session);
+        }
+      }
     };
 
     pc.onRemoveStream = (stream) {
@@ -491,15 +518,13 @@ class SignalingManager {
       RTCSessionDescription s =
           await session.pc!.createOffer(media == 'data' ? _dcConstraints : {});
       await session.pc!.setLocalDescription(_fixSdp(s));
-      print('Michael: s.sdp.length =${s.sdp?.length}');
-      print('Michael: s.sdp =${s.sdp}');
       Map map = {
         'description': {'sdp': s.sdp, 'type': s.type},
         'session_id': session.sid,
         'media': media
       };
       String jsonOfOfferContent = jsonEncode(map);
-      print('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
+      LogUtil.e('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
       await Contacts.sharedInstance.sendOffer(session.pid, jsonOfOfferContent);
     } catch (e) {
       print(e.toString());

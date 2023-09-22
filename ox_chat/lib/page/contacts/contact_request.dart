@@ -6,7 +6,7 @@ import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
-import 'package:ox_chat/widget/avatar.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -121,6 +121,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
             iconName: "icon_back_left_arrow.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
+            useTheme: true,
           ),
           onPressed: () {
             OXNavigator.pop(context);
@@ -159,7 +160,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
           CustomSlidableAction(
             onPressed: (BuildContext _) async {
               OXCommonHintDialog.show(context,
-                  content: 'Once deleted, secret messages cannot be recovered. Are you sure you want to proceed?',
+                  content: Localized.text('ox_chat.secret_message_delete_tips'),
                   actionList: [
                     OXCommonHintAction.cancel(onTap: () {
                       OXNavigator.pop(context);

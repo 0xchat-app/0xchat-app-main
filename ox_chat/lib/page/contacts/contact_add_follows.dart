@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -409,7 +410,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              'No Follows yet',
+              Localized.text('ox_chat.import_follows_no_data'),
               14,
               ThemeColor.gray02,
             ),
@@ -429,6 +430,10 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
         await Contacts.sharedInstance.addToContact(selectFollowPubKey);
     await OXLoading.dismiss();
     if (okEvent.status) {
+      OXChatBinding.sharedInstance.contactUpdatedCallBack();
+      for(var pubkey in selectFollowPubKey) {
+        OXChatBinding.sharedInstance.changeChatSessionTypeAll(pubkey, true);
+      }
       OXNavigator.pop(context, true);
     } else {
       CommonToast.instance.show(context, okEvent.message);

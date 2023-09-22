@@ -6,6 +6,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
 
 ///Title: relay_recommend_widget
@@ -30,7 +31,7 @@ class RelayCommendWidget extends StatelessWidget {
           height: Adapt.px(58),
           alignment: Alignment.centerLeft,
           child: Text(
-            'Recommend RELAY',
+            Localized.text('ox_usercenter.recommend_relay'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),

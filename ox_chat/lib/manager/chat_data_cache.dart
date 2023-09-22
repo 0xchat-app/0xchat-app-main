@@ -1,7 +1,6 @@
 
 import 'dart:async';
 
-import 'package:ox_chat/utils/chat_general_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -36,6 +35,7 @@ class ChatDataCache with OXChatObserver {
     }
 
     messageIdCache.clear();
+    _chatMessageMap = Map();
 
     await _setupChatMessages();
 
@@ -141,7 +141,11 @@ class ChatDataCache with OXChatObserver {
     }
     ChannelKey key = ChannelKey(groupId);
 
-    types.Message? msg = await message.toChatUIMessage();
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+      },
+    );
     if (msg == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -196,14 +200,10 @@ class ChatDataCache with OXChatObserver {
       text: text,
     );
 
-    if (isSendToRemote) {
-      sendSystemMessage(session, message);
-    } else {
-      addNewMessage(session, message);
-    }
+    sendSystemMessage(session, message, !isSendToRemote);
   }
 
-  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message) async {
+  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message, bool isLocal) async {
 
     final sessionId = session.chatId ?? '';
     final receiverPubkey = (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
@@ -246,6 +246,7 @@ class ChatDataCache with OXChatObserver {
       type,
       contentString,
       event: event,
+      local: isLocal,
     ).then((event) {
       sendFinish.value = true;
       final updatedMessage = sendMsg.copyWith(
@@ -363,7 +364,6 @@ extension ChatDataCacheObserverEx on ChatDataCache {
 
   Future<void> notifyChatObserverValueChanged(ChatTypeKey key) async {
     final callback = _valueChangedCallback[key];
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'notifyChatObserverValueChanged', message: 'callback: $callback');
     if (callback != null) {
       final msgList = await _getSessionMessage(key);
       callback(msgList);
@@ -425,7 +425,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
 extension ChatDataCacheEx on ChatDataCache {
 
   Future<void> _setupChatMessages() async {
-    List<ChatSessionModel> sessionList = await _chatSessionList();
+    List<ChatSessionModel> sessionList = OXChatBinding.sharedInstance.sessionMap.values.toList();
     Map<ChatTypeKey, List<types.Message>> privateChatMessagesMap = {};
     // Add Session message(Future)
     await Future.forEach(sessionList, (session) async {
@@ -442,7 +442,7 @@ extension ChatDataCacheEx on ChatDataCache {
       // Create completer
       final completer = Completer<List<types.Message>>();
       _chatMessageMap[key] = completer.future;
-      _loadChatMessages(key, session).then((msgList) {
+      await _loadChatMessages(key, session).then((msgList) {
         messageIdCache.addAll(msgList.map((e) => e.id));
         _chatMessageMap[key] = msgList;
         // Finish completer

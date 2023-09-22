@@ -1,27 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/utils/chat_general_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
-import 'package:ox_chat/widget/avatar.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -77,12 +71,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           _messages = messages;
         });
       },
-      sendMessageHandler: _sendMessage,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
-    chatGeneralHandler.messageResendHandler = _resendMessage;
-    chatGeneralHandler.imageMessageSendHandler = _onImageMessageSend;
-    chatGeneralHandler.videoMessageSendHandler = _onVideoMessageSend;
   }
 
   void setupUser() {
@@ -90,7 +80,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     channel = Channels.sharedInstance.channels[widget.communityItem.groupId];
     _user = types.User(
-      id: userDB!.pubKey!,
+      id: userDB!.pubKey,
       sourceObject: userDB,
     );
   }
@@ -99,6 +89,10 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
+
+    if (widget.communityItem.isMentioned) {
+      OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: false);
+    }
   }
 
   void addListener() {
@@ -145,6 +139,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         ),
       ),
       body: Chat(
+        theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
         isLastPage: !chatGeneralHandler.hasMoreMessage,
@@ -153,7 +148,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         },
         onMessageTap: chatGeneralHandler.messagePressHandler,
         onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: _handleSendPressed,
+        onSendPressed: (msg) async => await chatGeneralHandler.sendTextMessage(context, msg.text),
         avatarBuilder: (message) => OXUserAvatar(
           user: message.author.sourceObject,
           size: Adapt.px(40),
@@ -161,6 +156,11 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           isClickable: true,
           onReturnFromNextPage: () {
             setState(() { });
+          },
+          onLongPress: () {
+            final user = message.author.sourceObject;
+            if (user != null)
+              chatGeneralHandler.mentionHandler?.addMentionText(user);
           },
         ),
         showUserNames: showUserNames,
@@ -173,13 +173,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
         ],
-        onVoiceSend: (path, duration) {
-          LogUtil.e("onVoiceSend : ${path}");
-          _onVoiceSend(path, duration);
-        },
-        onGifSend: (value) {
-          _onGifImageMessageSend(value);
-        },
+        onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
+        onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
         onJoinChannelTap: () async {
@@ -200,6 +195,9 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
         inputOptions: chatGeneralHandler.inputOptions,
+        inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
       ),
     );
   }
@@ -254,142 +252,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
   }
 
-  Future _resendMessage(types.Message message) async {
-    final resendMsg = message.copyWith(
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      status: types.Status.sending,
-    );
-    ChatDataCache.shared.deleteMessage(widget.communityItem, resendMsg);
-    _sendMessage(resendMsg, isResend: true);
-  }
-
-  Future<types.Message?> _tryPrepareSendFileMessage(types.Message message) async {
-    types.Message? updatedMessage;
-    if (message is types.ImageMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendImageMessage(context, message);
-    } else if (message is types.AudioMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendAudioMessage(context, message);
-    } else if (message is types.VideoMessage) {
-      updatedMessage = await chatGeneralHandler.prepareSendVideoMessage(context, message);
-    } else {
-      return message;
-    }
-
-    return updatedMessage;
-  }
-
-  Future _onImageMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-      String message_id = const Uuid().v4();
-      String fileName = Path.basename(result.path);
-      fileName = fileName.substring(13);
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.ImageMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        name: fileName,
-        size: bytes.length,
-        uri: result.path.toString(),
-        // uri:uri,
-        width: image.width.toDouble(),
-      );
-
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      _sendMessage(sendMsg);
-    }
-  }
-
-  Future _onGifImageMessageSend(GiphyImage image) async {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.ImageMessage(
-      uri: image.url,
-      author: _user,
-      createdAt: tempCreateTime,
-      id: message_id,
-      name: image.name,
-      size: double.parse(image.size!),
-    );
-
-    final sendMsg = await _tryPrepareSendFileMessage(message);
-    if(sendMsg == null) return;
-    _sendMessage(sendMsg);
-  }
-
-  Future _onVoiceSend(String path, Duration duration) async {
-    File voiceFile = File(path);
-    final bytes = await voiceFile.readAsBytes();
-    String message_id = const Uuid().v4();
-    final fileName = '${message_id}.mp3';
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.AudioMessage(
-      // uri: 'http://music.163.com/song/media/outer/url?id=447925558.mp3',
-      // uri: uri,
-      uri: path,
-      id: message_id,
-      createdAt: tempCreateTime,
-      author: _user,
-      name: fileName,
-      duration: duration,
-      size: bytes.length,
-    );
-
-    final sendMsg = await _tryPrepareSendFileMessage(message);
-    if (sendMsg == null) return ;
-    _sendMessage(sendMsg);
-  }
-
-  Future _onVideoMessageSend(List<File> images) async {
-    for (final result in images) {
-      final bytes = await result.readAsBytes();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-          );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.VideoMessage(
-        author: _user,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
-        id: message_id,
-        name: fileName,
-        size: bytes.length,
-        metadata: {
-          "videoUrl": result.path.toString(),
-        },
-        // metadata:{"videoUrl" : uri ?? "","snapshotUrl":snapshotUrl},
-        uri: thumbnailPath,
-        // uri: snapshotUrl,
-        width: image.width.toDouble(),
-      );
-
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      _sendMessage(sendMsg);
-    }
-  }
-
   void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
     chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
@@ -404,77 +266,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     );
 
     ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _handleSendPressed(types.PartialText message) {
-
-    final mid = Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: tempCreateTime,
-      id: mid,
-      text: message.text,
-    );
-
-    _sendMessage(textMessage);
-  }
-
-  Future _sendMessage(types.Message message, {bool isResend = false}) async {
-
-    if (!isResend) {
-      final sendMsg = await _tryPrepareSendFileMessage(message);
-      if (sendMsg == null) return ;
-      message = sendMsg;
-    }
-
-    // send message
-    var sendFinish = OXValue(false);
-    final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
-    final contentString = message.contentString(message.content);
-
-    final event = Channels.sharedInstance.getSendChannelMessageEvent(channelId, type, contentString);
-    if (event == null) {
-      CommonToast.instance.show(context, 'send message fail');
-      return ;
-    }
-
-    final sendMsg = message.copyWith(
-      id: event.id,
-    );
-
-    Channels.sharedInstance.sendChannelMessage(
-      widget.communityItem.chatId!,
-      type,
-      contentString,
-      event: event,
-    ).then((event) {
-      sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
-      );
-      ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-    });
-
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg);
-  }
-
-  void _updateMessageStatus(types.Message message, types.Status status) {
-    final updatedMessage = message.copyWith(
-      status: status,
-    );
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
-  }
-
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending);
-      }
-    });
   }
 
   Future<void> _loadMoreMessages() async {

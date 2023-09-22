@@ -126,6 +126,7 @@ class ReportDialogState extends State<ReportDialog> {
         color: isEnable ? null : ThemeColor.color160,
         width: Adapt.px(24),
         height: Adapt.px(24),
+        useTheme: true,
       ),
       onPressed: isEnable ? () => _doneButtonPressHandler(context) : null,
     );

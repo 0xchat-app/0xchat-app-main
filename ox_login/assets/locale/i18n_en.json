@@ -1,6 +1,7 @@
 {
   "login_title": "Login",
   "login_button" : "LOGIN",
+  "login_tips": "Log in with the private key or create a new one.",
   "or" : "OR",
   "terms_of_service_privacy_policy": "By connecting your account you accept the Terms of Use and Privacy Policy.",
   "terms_of_service" : "Terms of Use",

@@ -167,7 +167,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
 
     await OXLoading.show();
     UserDB? tempUserDB =
-        await Account.sharedInstance.updateProfile(widget.userDB.privkey!, widget.userDB);
+        await Account.sharedInstance.updateProfile(widget.userDB);
     await OXLoading.dismiss();
 
     if (tempUserDB == null) {
@@ -189,7 +189,6 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
     String dnsText = _dnsTextEditingController.text;
     if (dnsText.length > 0) {
       String pubKey = widget.userDB.pubKey!;
-      String privateKey = widget.userDB.privkey!;
       String nip05Url = dnsText + dnsSuffix;
 
       Map<String, dynamic>? dnsParams = {
@@ -201,7 +200,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
           pubKey,
           nip05Url,
           [CommonConstant.oxChatRelay]
-        ], privateKey)
+        ], Account.sharedInstance.currentPrivkey)
       };
 
       Map<String, dynamic>? dnsResult = await OXModuleService.invoke(

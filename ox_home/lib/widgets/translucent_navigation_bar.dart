@@ -3,6 +3,7 @@ library dot_navigation_bar;
 export 'translucent_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -68,9 +69,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
   late double middleIndex;
   late List<TranslucentNavigationBarItem> updatedItems;
 
+  bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
+
   @override
   void initState() {
     super.initState();
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     middleIndex = (widget.tabBarList.length / 2).floorToDouble();
     updatedItems = [];
     updatedItems.addAll(widget.tabBarList);
@@ -137,22 +141,20 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
       blur: widget.blur,
       alignment: Alignment.bottomCenter,
       border: 0.5,
-      linearGradient: const gradient.LinearGradient(
+      linearGradient: gradient.LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             // Daytime pattern
-            // Color(0xB2FFFFFF),
-            // Color(0xB2FFFFFF),
-            // Dark mode
-            Color(0xB2444444),
-            Color(0xB2444444),
+            isDark ? Color(0xB2444444) : Color(0xB2FFFFFF),
+            isDark ? Color(0xB2444444) : Color(0xB2FFFFFF),
+         //    Color(isDark ? 0xB2444444 : 0xB2FFFFFF),
           ],
           stops: [
             0.1,
             1,
           ]),
-      borderGradient: const gradient.LinearGradient(
+      borderGradient: gradient.LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
@@ -167,11 +169,16 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
           // Color(0x66F5F5F5),
           // Color(0x66F5F5F5),
           // Color(0x66F5F5F5),
+
+          isDark ?  Color(0x0c595959) :  Color(0x66F5F5F5),
+          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
+          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
+          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
           // Dark mode
-          Color(0x0c595959),
-          Color(0x0c595959),
-          Color(0x0c595959),
-          Color(0x0c595959),
+          // Color(0x0c595959),
+          // Color(0x0c595959),
+          // Color(0x0c595959),
+          // Color(0x0c595959),
         ],
       ),
       height: widget.height,
@@ -257,5 +264,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
       style: TextStyle(
           fontSize: Adapt.px(10), fontWeight: FontWeight.w600,color: widget.tabBarList.indexOf(item) == widget.selectedIndex ? ThemeColor.gradientMainStart : ThemeColor.color100),
     );
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 }

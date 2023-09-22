@@ -2,6 +2,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/manager/signaling.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 
@@ -27,19 +28,22 @@ class OxCalling extends OXFlutterModule {
     switch (pageName) {
       case 'CallPage':
         CallManager.instance.callState = CallState.CallStateInvite;
-        LogUtil.e('Michael: OxCalling navigateToPage called CallPage');
-        return OXNavigator.pushPage(context, (context) => CallPage(params?['userDB'], params?['media'] ?? 'video'));
+        String mediaType = params?['media'] ?? 'video';
+        if (mediaType == CallMessageType.audio.text) {
+          CallManager.instance.callType = CallMessageType.audio;
+        } else if (mediaType == CallMessageType.video.text) {
+          CallManager.instance.callType = CallMessageType.video;
+        }
+        return OXNavigator.pushPage(context, (context) => CallPage(params?['userDB'], mediaType));
     }
     return null;
   }
 
   void initRTC() {
-    LogUtil.e('Michael: OxCalling interfaces initRTC');
     CallManager.instance.initRTC();
   }
 
   void closeRTC(BuildContext context) {
-    LogUtil.e('Michael: OxCalling interfaces closeRTC');
     CallManager.instance.closeRTC();
   }
 }

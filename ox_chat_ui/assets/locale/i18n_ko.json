@@ -1,0 +1,11 @@
+{
+"record_hint": "${durationInSeconds}초 후 보내려면 누르고 있음, 놓으면 전송",
+"input_more_album": "앨범",
+"input_more_camera": "카메라",
+"input_more_video": "비디오",
+"input_more_call": "통화",
+"input_more_zaps": "잡스",
+"channel_join": "채널 참여",
+"channel_badge_requirements": "이 채널에서 메시지를 보내려면 배지 필요",
+"friend_requirements": "더 이상 친구가 아니라 메시지를 보낼 수 없습니다"
+}

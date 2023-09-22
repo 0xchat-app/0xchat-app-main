@@ -51,18 +51,16 @@ class _AudioMessagePageState extends State<AudioMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = InheritedChatTheme.of(context).theme;
     final user = InheritedUser.of(context).user;
-    final color = user.id == widget.message.author.id
-        ? Colors.transparent
-        : ThemeColor.color180;
+    final isMe = user.id == widget.message.author.id;
     return VoiceMessage(
       // audioSrc: widget.audioSrc,
-      meBgColor:color,
+      meBgColor:Colors.transparent,
+      contactBgColor: ThemeColor.color180,
       duration: widget.message.duration,
       audioFile: fileCompleter.future,
       played: false, // To show played badge or not.
-      me: true, // Set message side.
+      me: isMe, // Set message side.
       onPlay: () {
         if(widget.onPlay != null){
           widget.onPlay!(widget.message);

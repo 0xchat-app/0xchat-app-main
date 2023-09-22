@@ -1,15 +1,19 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
-import 'package:flutter_chat_types/flutter_chat_types.dart' as ChatTypes;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class OXValue<T> {
   OXValue(this.value);
@@ -18,31 +22,25 @@ class OXValue<T> {
 
 class ChatMessageDBToUIHelper {
 
-  static Future<ChatTypes.User?> getUser(String messageSenderPubKey) async {
-    final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
-    return user?.toMessageModel();
+  static String? sessionMessageTextBuilder(MessageDB message) {
+    final type = MessageDB.stringtoMessageType(message.type ?? '');
+    final decryptContent = message.decryptContent ?? '';
+    if (type == MessageType.text && decryptContent.isNotEmpty) {
+      final mentionDecoderText = ChatMentionMessageEx.tryDecoder(decryptContent);
+      return mentionDecoderText;
+    }
+    return null;
   }
 
-  static String? getRoomId(MessageDB message) {
-    String? chatId;
-    final groupId = message.groupId ?? '';
-    final senderId = message.sender ?? '';
-    final receiverId = message.receiver ?? '';
-    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (groupId.isNotEmpty) {
-      chatId = groupId;
-    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
-      chatId = senderId;
-    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
-      chatId = receiverId;
-    }
-    return chatId;
+  static Future<types.User?> getUser(String messageSenderPubKey) async {
+    final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
+    return user?.toMessageModel();
   }
 }
 
 extension MessageDBToUIEx on MessageDB {
 
-  Future<ChatTypes.Message?> toChatUIMessage() async {
+  Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
     // Msg id
     final messageId = this.messageId;
@@ -127,7 +125,7 @@ extension MessageDBToUIEx on MessageDB {
     }
 
     // ChatId
-    final chatId = ChatMessageDBToUIHelper.getRoomId(this);
+    final chatId = getRoomId();
     if (chatId == null) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -153,6 +151,12 @@ extension MessageDBToUIEx on MessageDB {
     switch (messageType) {
       case MessageType.text:
         messageFactory = TextMessageFactory();
+        final initialText = contentModel.content ?? '';
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText);
+        if (mentionDecodeText != null) {
+          contentModel.content = mentionDecodeText;
+          isMentionMessageCallback?.call();
+        }
         break ;
       case MessageType.image:
       case MessageType.encryptedImage:
@@ -188,35 +192,63 @@ extension MessageDBToUIEx on MessageDB {
         fileEncryptionType = UIMessage.EncryptionType.none;
     }
 
+    // repliedMessage
+    types.Message? repliedMessage;
+    if (replyId.isNotEmpty && loadRepliedMessage) {
+      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
+      final messageList = result['messages'];
+      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
+        final repliedMessageDB = messageList.first;
+        repliedMessage = await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
+      }
+    }
+
     return messageFactory.createMessage(
       author: author,
       timestamp: messageTimestamp,
       roomId: chatId,
       remoteId: messageId,
-      sourceKey: originEvent,
+      sourceKey: plaintEvent,
       contentModel: contentModel,
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
+      repliedMessage: repliedMessage,
     );
+  }
+
+  String? getRoomId() {
+    String? chatId;
+    final groupId = this.groupId ?? '';
+    final senderId = this.sender ?? '';
+    final receiverId = this.receiver ?? '';
+    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (groupId.isNotEmpty) {
+      chatId = groupId;
+    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
+      chatId = senderId;
+    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
+      chatId = receiverId;
+    }
+    return chatId;
   }
 }
 
-extension MessageUIToDBEx on ChatTypes.Message {
+extension MessageUIToDBEx on types.Message {
   MessageType dbMessageType({bool encrypt = false}) {
     switch (type) {
-      case ChatTypes.MessageType.text:
+      case types.MessageType.text:
         return MessageType.text;
-      case ChatTypes.MessageType.image:
+      case types.MessageType.image:
         return encrypt ? MessageType.encryptedImage : MessageType.image;
-      case ChatTypes.MessageType.audio:
+      case types.MessageType.audio:
         return MessageType.audio;
-      case ChatTypes.MessageType.video:
+      case types.MessageType.video:
         return MessageType.video;
-      case ChatTypes.MessageType.file:
+      case types.MessageType.file:
         return MessageType.file;
-      case ChatTypes.MessageType.custom:
+      case types.MessageType.custom:
         return MessageType.template;
-      case ChatTypes.MessageType.system:
+      case types.MessageType.system:
         return MessageType.system;
       default:
         return MessageType.text;
@@ -229,14 +261,14 @@ extension MessageUIToDBEx on ChatTypes.Message {
     Map map = {
       'content': content,
     };
-    if (msg is ChatTypes.TextMessage ||
-        msg is ChatTypes.ImageMessage ||
-        msg is ChatTypes.AudioMessage ||
-        msg is ChatTypes.VideoMessage ||
-        msg is ChatTypes.SystemMessage
+    if (msg is types.TextMessage ||
+        msg is types.ImageMessage ||
+        msg is types.AudioMessage ||
+        msg is types.VideoMessage ||
+        msg is types.SystemMessage
     ) {
       return content;
-    } else if (msg is ChatTypes.CustomMessage) {
+    } else if (msg is types.CustomMessage) {
       return msg.customContentString;
     }
     return jsonEncode(map);
@@ -244,8 +276,8 @@ extension MessageUIToDBEx on ChatTypes.Message {
 }
 
 extension UserDBToUIEx on UserDB {
-  ChatTypes.User toMessageModel() {
-    ChatTypes.User _user = ChatTypes.User(
+  types.User toMessageModel() {
+    types.User _user = types.User(
       id: pubKey,
       updatedAt: lastUpdatedTime,
       sourceObject: this,
@@ -272,3 +304,41 @@ extension UserDBToUIEx on UserDB {
   }
 }
 
+
+extension UIMessageEx on types.Message {
+  String get replyDisplayContent {
+    final author = this.author.sourceObject;
+    if (author == null) {
+      return '';
+    }
+
+    final replyMessage = this;
+    final authorName = author.getUserShowName();
+    String? messageText;
+    if (replyMessage is types.TextMessage) {
+      messageText = replyMessage.text;
+    } else if (replyMessage is types.ImageMessage) {
+      messageText = Localized.text('ox_common.message_type_image');
+    } else if (replyMessage is types.AudioMessage) {
+      messageText = Localized.text('ox_common.message_type_audio');
+    } else if (replyMessage is types.VideoMessage) {
+      messageText = Localized.text('ox_common.message_type_video');
+    } else if (replyMessage is types.CustomMessage) {
+      final customType = replyMessage.customType;
+      switch (customType) {
+        case CustomMessageType.zaps:
+          messageText = Localized.text('ox_common.message_type_zaps');
+          break ;
+        case CustomMessageType.zaps:
+          messageText = Localized.text('ox_common.message_type_call');
+          break ;
+        default:
+          break ;
+      }
+    }
+    if (messageText == null) {
+      messageText = '[unknown type]';
+    }
+    return '$authorName: $messageText';
+  }
+}

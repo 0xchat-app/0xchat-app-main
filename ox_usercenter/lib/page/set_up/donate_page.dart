@@ -321,7 +321,7 @@ class _DonatePageState extends State<DonatePage> {
                 height: Adapt.px(180),
               ),
               Text(
-                'Open-source, built on Nostr\r\nNon-profit, only supported by donations💗',
+                Localized.text('ox_usercenter.donate_tips'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: Adapt.px(16),
@@ -333,7 +333,7 @@ class _DonatePageState extends State<DonatePage> {
                 height: Adapt.px(24),
               ),
               DonateSelectedList(
-                title: "Donate & Unlock Badges",
+                title: Localized.text('ox_usercenter.donate_title'),
                 customStasInputBox: Platform.isAndroid ? _buildCustomSatsItem() : null,
                 item: _buildDonateItem(),
                 currentIndex: _selectIndex,
@@ -449,7 +449,7 @@ class _DonatePageState extends State<DonatePage> {
                 end: Alignment.centerRight,
               )),
           child: Text(
-            'Donate',
+            Localized.text('ox_usercenter.donate'),
             style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0),
           ),
         ),

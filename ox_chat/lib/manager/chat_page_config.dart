@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_chat/utils/chat_general_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
@@ -23,8 +25,13 @@ class ChatPageConfig {
     menuList.addAll([
       ItemModel(
         Localized.text('ox_chat.message_menu_report'),
-        AssetImageData('assets/images/icon_report.png', package: 'ox_chat'),
+        AssetImageData('icon_report.png', package: 'ox_chat'),
         MessageLongPressEventType.report,
+      ),
+      ItemModel(
+        Localized.text('ox_chat.message_menu_quote'),
+        AssetImageData('icon_quote.png', package: 'ox_chat'),
+        MessageLongPressEventType.quote,
       ),
     ]);
 
@@ -33,7 +40,7 @@ class ChatPageConfig {
       menuList.insert(0,
         ItemModel(
           Localized.text('ox_chat.message_menu_delete'),
-          AssetImageData('assets/images/icon_delete.png', package: 'ox_chat'),
+          AssetImageData('icon_delete.png', package: 'ox_common'),
           MessageLongPressEventType.delete,
         ),
       );
@@ -44,7 +51,7 @@ class ChatPageConfig {
       menuList.insert(0,
         ItemModel(
           Localized.text('ox_chat.message_menu_copy'),
-          AssetImageData('assets/images/icon_copy.png', package: 'ox_chat'),
+          AssetImageData('icon_copy.png', package: 'ox_common'),
           MessageLongPressEventType.copy,
         ),
       );
@@ -59,6 +66,23 @@ class ChatPageConfig {
         maxScale: PhotoViewComputedScale.covered,
         minScale: PhotoViewComputedScale.contained,
         decryptionKey: decryptionKey,
+      );
+
+  ChatTheme get pageTheme =>
+      DefaultChatTheme(
+        sentMessageBodyTextStyle: TextStyle(
+          color: ThemeColor.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 1.5,
+        ),
+        receivedMessageBodyTextStyle: TextStyle(
+          color: ThemeColor.color0,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 1.5,
+        ),
+        inputTextColor: ThemeColor.color0,
       );
 }
 
@@ -80,7 +104,7 @@ extension InputMoreItemEx on InputMoreItem {
         title: () => Localized.text('ox_chat_ui.input_more_camera'),
         iconName: 'chat_camera_more.png',
         action: (context) {
-          handler.cameraPressHandler();
+          handler.cameraPressHandler(context);
         },
       );
 

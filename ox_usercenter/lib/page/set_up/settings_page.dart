@@ -1,23 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
+import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
+import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -25,7 +29,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 ///@author Michael
 ///CreateTime: 2023/5/4 15:20
 class SettingsPage extends StatefulWidget {
-  SettingsPage({super.key});
+  const SettingsPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -33,43 +37,61 @@ class SettingsPage extends StatefulWidget {
   }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
+
+  Future<bool>? _isShowZapBadge;
+
+  final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
   @override
   void initState() {
     super.initState();
+    OXChatBinding.sharedInstance.addObserver(this);
+    _isShowZapBadge = _getZapBadge();
+    _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
-      title: 'Notifications',
+      title: 'ox_usercenter.notifications',
       rightContent: '',
       settingItemType: SettingItemType.messageNotification,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_privacy.png',
-      title: 'Privacy',
+      title: 'ox_usercenter.privacy',
       rightContent: '',
       settingItemType: SettingItemType.privacy,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_relays.png',
-      title: 'Relays',
+      title: 'ox_usercenter.relays',
       rightContent: '',
       settingItemType: SettingItemType.relays,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_zaps.png',
-      title: 'Zaps',
+      title: 'ox_usercenter.zaps',
       rightContent: '',
       settingItemType: SettingItemType.zaps,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_keys.png',
-      title: 'Keys',
+      title: 'ox_usercenter.keys',
       rightContent: '',
       settingItemType: SettingItemType.keys,
     ));
-    _getPackageInfo();
+    _settingModelList.add(SettingModel(
+      iconName: 'icon_settings_language.png',
+      title: 'ox_usercenter.language',
+      rightContent: Localized.getCurrentLanguage().languageText,
+      settingItemType: SettingItemType.language,
+    ));
+    _settingModelList.add(SettingModel(
+        iconName: 'icon_settings_Theme.png',
+        title: 'ox_usercenter.theme',
+        rightContent: ThemeManager.getCurrentThemeStyle().value(),
+        settingItemType: SettingItemType.theme
+    ));
   }
 
   @override
@@ -86,7 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            OXNavigator.pushPage(context, (context) => DonatePage());
+            OXNavigator.pushPage(context, (context) => const DonatePage());
           },
           child: Container(
             width: double.infinity,
@@ -102,7 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 end: Alignment.centerRight,
               ),
             ),
-            child: _itemView('icon_settings_donate.png', 'Donate', '', false),
+            child: _itemView('icon_settings_donate.png', 'ox_usercenter.donate', '', false),
           ),
         ),
         SizedBox(
@@ -138,9 +160,9 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             alignment: Alignment.center,
             child: Text(
-              'Sign out',
+              Localized.text('ox_usercenter.sign_out'),
               style: TextStyle(
-                color: Colors.white,
+                color: ThemeColor.color0,
                 fontSize: Adapt.px(15),
               ),
             ),
@@ -163,7 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             alignment: Alignment.center,
             child: Text(
-              'Delete Account',
+              Localized.text('ox_usercenter.delete_account'),
               style: TextStyle(
                 color: ThemeColor.red1,
                 fontSize: Adapt.px(15),
@@ -175,7 +197,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _itemView(String iconName, String title, String rightContent, bool showDivider) {
+  Widget _itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge}) {
     return Column(
       children: [
         Container(
@@ -190,26 +212,36 @@ class _SettingsPageState extends State<SettingsPage> {
               package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
             ),
             title: Text(
-              title,
+              Localized.text(title),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
               ),
             ),
-            trailing: rightContent.isNotEmpty
-                ? Text(
-                    rightContent,
-                    style: TextStyle(
-                      color: ThemeColor.color100,
-                      fontSize: Adapt.px(16),
-                    ),
-                  )
-                : CommonImage(
-                    iconName: 'icon_arrow_more.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                  ),
-          ),
+              trailing: FutureBuilder(
+                future: _getZapBadge(),
+                builder: (context,snapshot) {
+                  final isShowZapBadge = snapshot.data ?? false;
+                    return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      isShowZapBadge ? badge ?? Container() : Container(),
+                      Text(
+                        rightContent,
+                        style: TextStyle(
+                          color: ThemeColor.color100,
+                          fontSize: Adapt.px(16),
+                        ),
+                      ),
+                      showArrow ? CommonImage(
+                        iconName: 'icon_arrow_more.png',
+                        width: Adapt.px(24),
+                        height: Adapt.px(24),
+                      ) : Container(),
+                    ],
+                  );
+                }
+              )),
         ),
         showDivider
             ? Divider(
@@ -223,9 +255,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
+    if(_settingModel.settingItemType == SettingItemType.language){
+      _settingModel.rightContent = Localized.getCurrentLanguage().languageText;
+    }
+    if( _settingModel.settingItemType == SettingItemType.theme){
+      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value();
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: () async{
         if (_settingModel.settingItemType == SettingItemType.messageNotification) {
           OXNavigator.pushPage(context, (context) => MessageNotificationPage()).then((value) {
             setState(() {});
@@ -237,19 +275,72 @@ class _SettingsPageState extends State<SettingsPage> {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
+          MsgNotification(noticeNum: 0).dispatch(context);
+          OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
+            setState(() {
+              _isShowZapBadge = _getZapBadge();
+            });
+          });
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
+        } else if (_settingModel.settingItemType == SettingItemType.language) {
+          OXNavigator.pushPage(context, (context) => LanguageSettingsPage());
+        } else if (_settingModel.settingItemType == SettingItemType.theme) {
+          await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
         }
       },
-      child: _itemView(_settingModel.iconName, _settingModel.title, _settingModel.rightContent, index == _settingModelList.length - 1 ? false : true),
+      child: _itemView(
+        _settingModel.iconName,
+        _settingModel.title,
+        _settingModel.rightContent,
+        index == _settingModelList.length - 1 ? false : true,
+        showArrow: _settingModel.settingItemType == SettingItemType.none
+            ? false
+            : true,
+        badge: _settingModel.settingItemType == SettingItemType.zaps
+            ? _buildZapBadgeWidget()
+            : Container(),
+      ),
+    );
+  }
+
+  @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true).then((value){
+      setState(() {
+        _isShowZapBadge = _getZapBadge();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    OXChatBinding.sharedInstance.removeObserver(this);
+  }
+
+  Future<bool> _getZapBadge() async {
+    return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.zap_badge',defaultValue: false);
+  }
+
+  Widget _buildZapBadgeWidget(){
+    return Container(
+      width: Adapt.px(20),
+      height: Adapt.px(20),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(10)
+      ),
+      child: Text('1',style: TextStyle(fontSize: Adapt.px(12)),),
     );
   }
 
   void _logout() async {
     OXCommonHintDialog.show(context,
-        title: 'Warning',
-        content: "Make sure you've backed up your private key. Otherwise, you risk losing access to your account.",
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -268,8 +359,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _deleteAccountHandler() {
     OXCommonHintDialog.show(context,
-      title: 'Warning',
-      content: 'This will sign an event that deletes this account.\n\nyou will no loger be able to log into 0xchat using this account key.\n\nAre you sure you want to continue?',
+      title: Localized.text('ox_usercenter.warn_title'),
+      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
       actionList: [
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
@@ -328,7 +419,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _settingModelList.add(SettingModel(
           iconName: 'icon_settings_version.png',
-          title: 'Version',
+          title: 'ox_usercenter.version',
           rightContent: version,
         ));
       });
@@ -339,7 +430,7 @@ class _SettingsPageState extends State<SettingsPage> {
 class SettingModel {
   final String iconName;
   final String title;
-  final String rightContent;
+  String rightContent;
   final SettingItemType settingItemType;
 
   SettingModel({
@@ -356,5 +447,7 @@ enum SettingItemType {
   zaps,
   keys,
   privacy,
+  language,
+  theme,
   none,
 }

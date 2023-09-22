@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/badge_model.dart';
@@ -103,8 +104,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         useLargeTitle: false,
         centerTitle: true,
         title: widget.channelCreateType == ChannelCreateType.create
-            ? "New Channel"
-            : "Edit Channel",
+            ? Localized.text('ox_chat.create_channel')
+            : Localized.text('ox_chat.edit_channel'),
         actions: [
           GestureDetector(
             child: Container(
@@ -120,8 +121,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                     ).createShader(Offset.zero & bounds.size);
                   },
                   child: widget.channelCreateType == ChannelCreateType.create
-                      ? Text("Create")
-                      : Text("Done")),
+                      ? Text(Localized.text('ox_common.create'))
+                      : Text(Localized.text('ox_common.complete'))),
             ),
             onTap: () {
               _createChannel();
@@ -139,18 +140,18 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             SizedBox(
               height: Adapt.px(12),
             ),
-            _listItem("Channel Name",
+            _listItem(Localized.text('ox_chat.channel_name'),
                 childView: _buildTextEditing(
                     controller: _channelNameController,
                     hintText: 'satoshi',
                     maxLines: 1)),
-            _listItem("Badge Requirements",
+            _listItem(Localized.text('ox_chat.badge_requirement'),
                 childView: _buildRequirementWidget()),
-            _listItem("Description",
+            _listItem(Localized.text('ox_chat.description'),
                 childView: _buildTextEditing(
                     controller: _descriptionController,
                     hintText:
-                        'Creator(s) of Bitcoin.\nAbsolute legend. (Optional)',
+                    Localized.text('ox_chat.description_hint_text'),
                     maxLines: null)),
           ],
         ),
@@ -159,14 +160,15 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   Widget _buildHeader() {
-    String localAvatarPath = 'assets/images/icon_default_channel.png';
-    Image placeholderImage = Image.asset(
-      localAvatarPath,
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_default_channel.png',
       fit: BoxFit.fill,
       width: Adapt.px(100),
       height: Adapt.px(100),
       package: 'ox_chat',
+      useTheme: true,
     );
+
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -228,7 +230,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             Adapt.px(16),
           ),
         ),
-        color: Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       height: height,
       child: TextField(
@@ -248,12 +250,13 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   Widget _buildRequirementWidget() {
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_common',
+      useTheme: true,
     );
 
     return Column(
@@ -261,7 +264,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         Container(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Only users who have met the badge requirements are authorized to send messages.',
+            Localized.text('ox_chat.badge_requirement_tips'),
             style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(14),
@@ -283,7 +286,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                 Adapt.px(16),
               ),
             ),
-            color: Color.fromRGBO(36, 37, 42, 1),
+            color: ThemeColor.color180,
           ),
           height: Adapt.px(48),
           width: MediaQuery.of(context).size.width,
@@ -292,7 +295,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             child: Row(
               children: [
                 _isNone
-                    ? Text("None")
+                    ? Text(Localized.text('ox_common.none'))
                     : Row(
                         children: [
                           CachedNetworkImage(

@@ -26,7 +26,7 @@ class RichTextColor extends StatelessWidget {
 
   Widget getHighlightText(String mainText, List<String> highlightTextList, {int? maxLines = 1}) {
     final normalTextStyle = TextStyle(
-      fontSize: 14,
+      fontSize: Adapt.px(12),
       fontWeight: FontWeight.w400,
       color: ThemeColor.color120,
       height: 1.5

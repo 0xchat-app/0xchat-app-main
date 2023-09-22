@@ -69,6 +69,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
                 );
               },
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.chatSessionModel.content ?? '',

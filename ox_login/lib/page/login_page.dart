@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
           fit: BoxFit.contain,
           width: Adapt.px(24),
           height: Adapt.px(24),
+          useTheme: true,
         ),
       ),
     );
@@ -88,13 +89,14 @@ class _LoginPageState extends State<LoginPage> {
                   fit: BoxFit.contain,
                   width: Adapt.px(180),
                   height: Adapt.px(180),
+                  useTheme: true,
                 ),
                 SizedBox(
                   height: Adapt.px(36),
                 ),
                 Container(
                   child: Text(
-                    'Log in with the private key or create a new one.',
+                    Localized.text('ox_login.login_tips'),
                     style: TextStyle(color: ThemeColor.titleColor, fontSize: Adapt.px(18)),
                     textAlign: TextAlign.center,
                   ),
@@ -241,11 +243,12 @@ class _LoginPageState extends State<LoginPage> {
     await OXLoading.show();
     Keychain keychain = Account.generateNewKeychain();
     await OXUserInfoManager.sharedInstance.initDB(keychain.public);
-    final UserDB userDB = await Account.newAccount(user: keychain);
-    LogUtil.e('Michael: pubKey =${userDB.pubKey}; privkey =${userDB.privkey}');
-    LogUtil.e('Michael: encodedPrivkey =${userDB.encodedPubkey}; encodedPrivkey =${userDB.encodedPrivkey}');
+    UserDB? userDB = await Account.newAccount(user: keychain);
+    userDB = await Account.sharedInstance.loginWithPriKey(keychain.private);
+    LogUtil.e('Michael: pubKey =${userDB?.pubKey}');
     await OXLoading.dismiss();
-    OXNavigator.pushPage(context, (context) => CreateAccountPage(userDB: userDB));
+    if(userDB != null)
+    OXNavigator.pushPage(context, (context) => CreateAccountPage(userDB: userDB!));
   }
 
   void _login() {

@@ -41,7 +41,7 @@ extension SearchDiscoverUI on SearchPageState{
         height: Adapt.px(22),
         alignment: Alignment.topCenter,
         child: Text(
-          'Try searching to discover channels',
+          Localized.text('ox_chat.search_channel_tips'),
           style: TextStyle(
             fontSize: Adapt.px(15),
             color: ThemeColor.color110,
@@ -131,7 +131,7 @@ extension SearchDiscoverUI on SearchPageState{
                       fit: BoxFit.fill,
                     ),
                   ),
-                  hintText: 'Search',
+                  hintText: Localized.text('ox_chat.search'),
                   border: InputBorder.none,
                 ),
               ),

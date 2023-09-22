@@ -16,6 +16,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsSendingPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
   final TextEditingController descriptionController = TextEditingController();
 
   final defaultSatsValue = '0';
-  final defaultDescription = 'Best wishes';
+  final defaultDescription = Localized.text('ox_chat.zap_default_description');
 
   String get zapsAmount => amountController.text.orDefault(defaultSatsValue);
   String get zapsDescription => descriptionController.text.orDefault(defaultDescription);
@@ -49,46 +50,57 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16.0),
-            topRight: Radius.circular(16.0),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());  // 移除焦点
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.color190,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16.0),
+              topRight: Radius.circular(16.0),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildNavBar(),
-            Column(
-              children: [
-                Text(
-                  'Zaps',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow(
-                  title: 'Amount',
-                  placeholder: defaultSatsValue,
-                  controller: amountController,
-                  suffix: 'Sats',
-                  maxLength: 9,
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildInputRow(
-                  title: 'Description',
-                  placeholder: defaultDescription,
-                  controller: descriptionController,
-                  maxLength: 50,
-                ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                _buildSatsText()
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-                CommonButton.themeButton(text: 'Send', onTap: _sendButtonOnPressed)
-                    .setPadding(EdgeInsets.only(top: Adapt.px(24))),
-              ],
-            ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
-          ],
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildNavBar(),
+                  Column(
+                    children: [
+                      Text(
+                        'Zaps',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildInputRow(
+                        title: Localized.text('ox_chat.zap_amount'),
+                        placeholder: defaultSatsValue,
+                        controller: amountController,
+                        suffix: 'Sats',
+                        maxLength: 9,
+                        keyboardType: TextInputType.number,
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildInputRow(
+                        title: Localized.text('ox_chat.description'),
+                        placeholder: defaultDescription,
+                        controller: descriptionController,
+                        maxLength: 50,
+                      ).setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      _buildSatsText()
+                          .setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                      CommonButton.themeButton(text: Localized.text('ox_chat.send'), onTap: _sendButtonOnPressed)
+                          .setPadding(EdgeInsets.only(top: Adapt.px(24))),
+                    ],
+                  ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(30))),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -100,9 +112,6 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
         useLargeTitle: false,
         centerTitle: true,
         isClose: true,
-        actions: [
-          _buildSettingIcon(),
-        ],
     );
 
   Widget _buildSettingIcon() =>
@@ -124,6 +133,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     required TextEditingController controller,
     String suffix = '',
     int? maxLength,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +155,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
               children: [
                 Expanded(
                   child: TextField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: keyboardType,
                     maxLength: maxLength,
                     controller: controller,
                     decoration: InputDecoration(
@@ -164,7 +174,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
                     suffix,
                     style: TextStyle(
                       fontSize: 16,
-                      color: ThemeColor.white,
+                      color: ThemeColor.color0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -199,7 +209,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     final description = zapsDescription;
     final lnurl = widget.otherUser.lnurl ?? '';
     if (amount < 1) {
-      CommonToast.instance.show(context, 'Zaps amount cannot be 0');
+      CommonToast.instance.show(context, Localized.text('ox_chat.zap_illegal_toast'));
       return ;
     }
 
@@ -243,7 +253,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': invoice,
       'walletOnPress': (WalletModel wallet) async {
-        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: 'Are you sure you want to send this zap?');
+        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: Localized.text('ox_chat.send_zap_tips'),);
         if (result) {
           widget.zapsInfoCallback({
             'zapper': zapper,
@@ -253,6 +263,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
           });
           OXNavigator.pop(context);
         }
+        isConfirm = result;
         return result;
       },
     });

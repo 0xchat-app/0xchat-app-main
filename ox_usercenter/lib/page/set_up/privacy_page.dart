@@ -6,6 +6,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/privacy_blocked_page.dart';
 
 class PrivacyPage extends StatefulWidget {
@@ -34,7 +35,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: 'Privacy',
+        title: Localized.text('ox_usercenter.privacy'),
         centerTitle: true,
         useLargeTitle: false,
       ),
@@ -53,7 +54,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             height: Adapt.px(32),
             package: 'ox_usercenter',
           ),
-          content: 'Blocked Users',
+          content: Localized.text('ox_usercenter.blocked_users_title'),
           actions: Row(
             children: [
               Text(

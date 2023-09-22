@@ -99,10 +99,10 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       child: Row(
         children: [
           SizedBox(width: Adapt.px(24),),
-          Text("Suggestion", style: TextStyle(fontWeight: FontWeight.w600, color: ThemeColor.color10, fontSize: 14),),
+          Text(Localized.text('ox_chat.add_contact_suggestion'), style: TextStyle(fontWeight: FontWeight.w600, color: ThemeColor.color10, fontSize: 14),),
           Spacer(),
           GestureDetector(
-            child: Text("Refresh", style: TextStyle(fontWeight: FontWeight.w600, color: ThemeManager.colors('ox_common.color_818CF8'), fontSize: 14),),
+            child: Text(Localized.text('ox_chat.refresh_text'), style: TextStyle(fontWeight: FontWeight.w600, color: ThemeManager.colors('ox_common.color_818CF8'), fontSize: 14),),
             onTap: (){
               getFindData();
             },
@@ -135,6 +135,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
                       iconName: 'icon_scan_qr.png',
                       width: Adapt.px(60),
                       height: Adapt.px(60),
+                      useTheme: true,
                   ),
                   SizedBox(height: Adapt.px(7),),
                   MyText(
@@ -160,6 +161,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
                       iconName: 'icon_business_card.png',
                       width: Adapt.px(60),
                       height: Adapt.px(60),
+                      useTheme: true,
                   ),
                   SizedBox(height: Adapt.px(7),),
                   MyText(

@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/permission_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -33,20 +34,20 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: const Color.fromRGBO(36, 37, 42, 1),
+        color: ThemeColor.color180,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildItem("Gallery", onTap: () async {
+          _buildItem(Localized.text('ox_usercenter.gallery'), onTap: () async {
             File? imgFile = await openGallery();
             OXNavigator.pop(context, imgFile);
           }),
           Divider(
-            color: ThemeColor.color170,
+            color: ThemeColor.color160,
             height: Adapt.px(0.5),
           ),
-          _buildItem("Camera", onTap: () async {
+          _buildItem(Localized.text('ox_usercenter.camera'), onTap: () async {
             File? imgFile = await openCamera();
             OXNavigator.pop(context, imgFile);
           }),
@@ -54,7 +55,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem("Cancel", onTap: () => OXNavigator.pop(context)),
+          _buildItem(Localized.text('ox_usercenter.cancel'), onTap: () => OXNavigator.pop(context)),
         ],
       ),
     );
@@ -70,6 +71,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
         child: Text(
           title,
           style: TextStyle(
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
           ),

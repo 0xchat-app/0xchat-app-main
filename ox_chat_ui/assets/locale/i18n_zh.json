@@ -1,0 +1,11 @@
+{
+  "record_hint": "按住以录制，${durationInSeconds}秒后松开以发送",
+  "input_more_album": "相册",
+  "input_more_camera": "相机",
+  "input_more_video": "视频",
+  "input_more_call": "呼叫",
+  "input_more_zaps": "打闪",
+  "channel_join": "加入频道",
+  "channel_badge_requirements": "在此频道内发送消息需要徽章要求",
+  "friend_requirements": "由于对方已不再是您的朋友，无法发送消息"
+}

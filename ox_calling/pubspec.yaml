@@ -23,6 +23,8 @@ dependencies:
     path: ../../base_framework/ox_module_service
   ox_common:
     path: ../../base_framework/ox_common
+  ox_localizable:
+    path: ../../base_framework/ox_localizable
   flutter_webrtc:
     path: ../../flutter-webrtc
 

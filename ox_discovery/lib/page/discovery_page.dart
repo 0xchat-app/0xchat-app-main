@@ -5,6 +5,7 @@ import 'package:avatar_stack/positions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -43,6 +44,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXRelayManager.sharedInstance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
     String localAvatarPath = 'assets/images/icon_group_default.png';
     _placeholderImage = Image.asset(
@@ -80,7 +83,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(Localized.text('ox_discovery.Discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
+    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -143,7 +146,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             ),
             Container(
               constraints: BoxConstraints(maxWidth: mm),
-              child: GradientText(Localized.text('ox_discovery.Discovery'),
+              child: GradientText(Localized.text('ox_discovery.discovery'),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor),
                   colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd]),
             ),
@@ -156,53 +159,38 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           ],
         ),
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              expandedHeight: Adapt.px(60),
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: Container(
-                  height: double.infinity,
-                  color: ThemeColor.color200,
-                  child: Column(
-                    children: <Widget>[
-                      _topSearch(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ];
-        },
-        body: commonStateViewWidget(context, bodyWidget()),
-      ),
-    );
-  }
-
-  Widget bodyWidget() {
-    return SafeArea(
-      bottom: false,
-      child: OXSmartRefresher(
+      body: OXSmartRefresher(
         controller: _refreshController,
         enablePullDown: true,
         enablePullUp: false,
         onRefresh: _onRefresh,
         onLoading: null,
-        child: ListView.builder(
-          padding: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
-          primary: false,
-          controller: null,
-          itemCount: 1,
-          itemBuilder: (context, index) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: hotChatViews(),
-            );
-          },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _topSearch(),
+              commonStateViewWidget(context, bodyWidget()),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget bodyWidget() {
+    return ListView.builder(
+      padding: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
+      primary: false,
+      controller: null,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 1,
+      itemBuilder: (context, index) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: hotChatViews(),
+        );
+      },
     );
   }
 
@@ -303,7 +291,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                 future: _getCreator(item?.owner ?? ''),
                                 builder: (context, snapshot) {
                                   return Text(
-                                    'By ${snapshot.data}',
+                                    '${Localized.text('ox_common.by')} ${snapshot.data}',
                                     style: TextStyle(
                                       color: ThemeColor.color100,
                                       fontSize: 14,
@@ -355,7 +343,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                   }),
                               item?.msgCount != null ? Expanded(
                                 child: Text(
-                                  '${item?.msgCount} Messages',
+                                  '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
                                   style: TextStyle(
                                     fontSize: Adapt.px(13),
                                     fontWeight: FontWeight.w400,
@@ -418,7 +406,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               width: Adapt.px(8),
             ),
             Text(
-              'Search channel',
+              Localized.text('ox_discovery.channel_search_hint_text'),
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(15),
@@ -534,13 +522,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: const Color.fromRGBO(36, 37, 42, 1),
+        color:  ThemeColor.color160,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildItem(
-            "Recommended",
+            Localized.text('ox_discovery.recommended_item'),
             index: 0,
             onTap: () {
               _currentIndex.value = 0;
@@ -553,7 +541,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            "Popular",
+            Localized.text('ox_discovery.popular_item'),
             index: 1,
             onTap: () {
               _currentIndex.value = 1;
@@ -566,7 +554,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            "Latest",
+            Localized.text('ox_discovery.latest_item'),
             index: 2,
             onTap: () {
               _currentIndex.value = 2;
@@ -579,7 +567,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem("Cancel", index: 3, onTap: () {
+          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
             OXNavigator.pop(context);
           }),
         ],
@@ -597,6 +585,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         child: Text(
           title,
           style: TextStyle(
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
             fontWeight: index == _currentIndex.value ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -643,5 +632,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   void didRelayStatusChange(String relay, int status) {
     setState(() {});
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
+  }
+
+  onLocaleChange() {
+    if (mounted) setState(() {});
   }
 }

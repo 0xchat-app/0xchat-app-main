@@ -58,7 +58,7 @@ class _KeysPageState extends State<KeysPage>{
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Keys',
+        title: Localized.text('ox_usercenter.keys'),
         centerTitle: true,
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
@@ -100,6 +100,8 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   Widget _itemView(KeyType keyType, String title, TextEditingController _textEditingController, bool isShowSwitch) {
+    bool isSuccessPic =  ((keyType == KeyType.PublicKey && _publicKeyCopyied) || (keyType == KeyType.PrivateKey && _privateKeyCopyied));
+    String picName = isSuccessPic ? 'icon_copyied_success.png'  : 'icon_copy.png';
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -113,7 +115,7 @@ class _KeysPageState extends State<KeysPage>{
                 title,
                 style: TextStyle(
                   fontSize: Adapt.px(16),
-                  color: Colors.white,
+                  color: ThemeColor.color0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -126,7 +128,7 @@ class _KeysPageState extends State<KeysPage>{
                 children: [
                   Container(
                     child: Text(
-                      'Show',
+                      Localized.text('ox_usercenter.show'),
                       style: TextStyle(
                         fontSize: Adapt.px(14),
                         color: ThemeColor.color100,
@@ -198,12 +200,11 @@ class _KeysPageState extends State<KeysPage>{
                   width: Adapt.px(48),
                   alignment: Alignment.center,
                   child: CommonImage(
-                    iconName: ((keyType == KeyType.PublicKey && _publicKeyCopyied) || (keyType == KeyType.PrivateKey && _privateKeyCopyied))
-                        ? 'icon_copyied_success.png'
-                        : 'icon_copy.png',
+                    iconName: picName,
                     width: Adapt.px(24),
                     height: Adapt.px(24),
                     fit: BoxFit.fill,
+                    useTheme: !isSuccessPic,
                   ),
                 ),
               ),

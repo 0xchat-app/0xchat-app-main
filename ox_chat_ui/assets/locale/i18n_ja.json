@@ -1,0 +1,11 @@
+{
+  "record_hint": "${durationInSeconds}秒間押して録音、離して送信",
+  "input_more_album": "アルバム",
+  "input_more_camera": "カメラ",
+  "input_more_video": "ビデオ",
+  "input_more_call": "通話",
+  "input_more_zaps": "ザップス",
+  "channel_join": "チャンネルに参加",
+  "channel_badge_requirements": "このチャンネルでメッセージを送るにはバッジが必要です",
+  "friend_requirements": "友達ではなくなったため、メッセージを送れません"
+}

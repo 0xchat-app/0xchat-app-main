@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 
 class InputMoreItem {
   const InputMoreItem({required this.id, required this.title, required this.iconName, required this.action,});
@@ -57,9 +58,10 @@ class _InputMorePageState extends State<InputMorePage> {
                         width: Adapt.px(48),
                         height: Adapt.px(48),
                         margin: EdgeInsets.only(bottom: Adapt.px(8)),
-                        child: Image.asset(
-                          'assets/images/${item.iconName}',
+                        child: CommonImage(
+                          iconName: item.iconName,
                           package: 'ox_chat_ui',
+                          useTheme: true,
                         ),
                       ),
                       Text(

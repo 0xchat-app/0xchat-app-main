@@ -12,6 +12,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class PrivacyBlockedPage extends StatefulWidget {
 
@@ -62,13 +63,13 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Blocked',
+        title: Localized.text('ox_usercenter.blocked'),
         backgroundColor: ThemeColor.color190,
         actions: [
           _isShowEdit ? _buildEditButton() : Container(),
         ],
       ),
-      body: commonStateViewWidget(context,_buildBody(),errorTip: 'No blocked user'),
+      body: commonStateViewWidget(context,_buildBody(),errorTip: Localized.text('ox_usercenter.no_blocked_user')),
     );
   }
 

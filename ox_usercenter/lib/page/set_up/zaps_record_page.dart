@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -7,20 +6,21 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_text.dart';
 
 class ZapsRecordPage extends StatelessWidget {
-
   final ZapsRecordDetail zapsRecordDetail;
 
-  const ZapsRecordPage({Key? key, required this.zapsRecordDetail}) : super(key: key);
+  const ZapsRecordPage({Key? key, required this.zapsRecordDetail})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Zaps record',
+        title: 'Zap Record',
         centerTitle: true,
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
@@ -39,14 +39,16 @@ class ZapsRecordPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildSummary(),
-          SizedBox(height: Adapt.px(12),),
+          SizedBox(
+            height: Adapt.px(12),
+          ),
           _buildDescription(),
         ],
       ),
     );
   }
 
-  Widget _buildItem(String label, { value }) {
+  Widget _buildItem(String label, {value}) {
     final text = value?.toString() ?? '';
     Widget? textWidget;
     if (value is bool) {
@@ -88,15 +90,16 @@ class ZapsRecordPage extends StatelessWidget {
           Expanded(
             child: Container(
               alignment: Alignment.centerRight,
-              child: textWidget ?? Text(
-                text,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: Adapt.px(16),
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.color10,
-                ),
-              ),
+              child: textWidget ??
+                  Text(
+                    text,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      fontWeight: FontWeight.w400,
+                      color: ThemeColor.color10,
+                    ),
+                  ),
             ),
           ),
         ],
@@ -105,7 +108,8 @@ class ZapsRecordPage extends StatelessWidget {
   }
 
   Widget _buildSummary() {
-    final List<MapEntry<String,dynamic>> zapsRecordDetailList = zapsRecordDetail.zapsRecordAttributes.entries.toList();
+    final List<MapEntry<String, dynamic>> zapsRecordDetailList =
+        zapsRecordDetail.zapsRecordAttributes.entries.toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -117,7 +121,7 @@ class ZapsRecordPage extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 0),
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          if (index == 1) {
+          if (index == 2) {
             return GestureDetector(
               behavior: HitTestBehavior.translucent,
               child: _buildItem(
@@ -125,7 +129,8 @@ class ZapsRecordPage extends StatelessWidget {
                 value: _formatString(zapsRecordDetailList[index].value),
               ),
               onTap: () async {
-                await TookKit.copyKey(context, zapsRecordDetailList[index].value);
+                await TookKit.copyKey(
+                    context, zapsRecordDetailList[index].value.toString());
               },
             );
           }
@@ -134,13 +139,16 @@ class ZapsRecordPage extends StatelessWidget {
             value: _formatString(zapsRecordDetailList[index].value),
           );
         },
-        separatorBuilder: (BuildContext context, int index) => Divider(height: Adapt.px(0.5), color: ThemeColor.color160,),
+        separatorBuilder: (BuildContext context, int index) => Divider(
+          height: Adapt.px(0.5),
+          color: ThemeColor.color160,
+        ),
         itemCount: zapsRecordDetailList.length,
       ),
     );
   }
 
-  Widget _buildDescription(){
+  Widget _buildDescription() {
     String description = zapsRecordDetail.description ?? '';
     return Container(
       decoration: BoxDecoration(
@@ -167,13 +175,13 @@ class ZapsRecordPage extends StatelessWidget {
                         color: ThemeColor.color10),
                   )
                 : Text(
-                'No Content',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                    fontSize: Adapt.px(16),
-                    fontWeight: FontWeight.w400,
-                    color: ThemeColor.color160),
-            ),
+                    'No Content',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        fontSize: Adapt.px(16),
+                        fontWeight: FontWeight.w400,
+                        color: ThemeColor.color160),
+                  ),
           ),
         ],
       ),
@@ -183,8 +191,19 @@ class ZapsRecordPage extends StatelessWidget {
   dynamic _formatString(value) {
     if (value is! String) return value;
     const halfMaxLength = 15;
-    if(value.length > halfMaxLength * 2) {
-      return value.substring(0, halfMaxLength - 2) + '...' + value.substring(value.length - halfMaxLength + 2);
+    if (value.startsWith('npub')) {
+      String? pubkey = UserDB.decodePubkey(value);
+      if (pubkey != null) {
+        UserDB? userDB = Account.sharedInstance.userCache[pubkey];
+        if (userDB != null) {
+          value = '${userDB.name}(${userDB.shortEncodedPubkey})';
+        }
+      }
+    }
+    if (value.length > halfMaxLength * 2) {
+      return value.substring(0, halfMaxLength - 2) +
+          '...' +
+          value.substring(value.length - halfMaxLength + 2);
     }
     return value;
   }

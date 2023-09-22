@@ -52,7 +52,7 @@ abstract class SystemMessage extends Message {
   final String text;
 
   @override
-  String get content => text;
+  String get content => metadata?['localTextKey'] ?? text;
 
   /// Equatable props.
   @override

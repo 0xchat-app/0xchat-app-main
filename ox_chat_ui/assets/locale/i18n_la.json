@@ -1,0 +1,11 @@
+{
+  "record_hint": "Turiet nuspaustą, kad įrašytumėte, paleiskite, kad galėtumėte siųsti po ${durationInSeconds} sekundžių",
+  "input_more_album": "Albumas",
+  "input_more_camera": "Fotoaparatas",
+  "input_more_video": "Vaizdas",
+  "input_more_call": "Skambutis",
+  "input_more_zaps": "Zaps",
+  "channel_join": "Prisijungti prie Kanalo",
+  "channel_badge_requirements": "Šiame kanale žinučių siuntimui reikia žymės reikalavimų",
+  "friend_requirements": "Negalima siųsti žinučių, nes jie daugiau nėra draugai"
+}

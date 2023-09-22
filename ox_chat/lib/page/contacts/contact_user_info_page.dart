@@ -9,7 +9,9 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/user_report.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/report_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -20,6 +22,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -51,15 +54,15 @@ extension OtherInfoItemStr on OtherInfoItemType {
   String get text {
     switch (this) {
       case OtherInfoItemType.Remark:
-        return 'Remark';
+        return Localized.text('ox_chat.remark');
       case OtherInfoItemType.Bio:
-        return 'Bio';
+        return Localized.text('ox_chat.bio');
       case OtherInfoItemType.Pubkey:
-        return 'Pubkey';
+        return Localized.text('ox_chat.public_key');
       case OtherInfoItemType.Badges:
-        return 'Badges';
+        return Localized.text('ox_chat.badges');
       case OtherInfoItemType.Mute:
-        return 'Mute';
+        return Localized.text('ox_chat.mute_item');
     }
   }
 }
@@ -73,12 +76,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     package: 'ox_chat',
   );
 
-  Image _badgePlaceholderImage = Image.asset(
-    'assets/images/icon_badge_default.png',
+  Widget _badgePlaceholderImage = CommonImage(
+    iconName: 'icon_badge_default.png',
     fit: BoxFit.cover,
     width: Adapt.px(32),
     height: Adapt.px(32),
-    package: 'ox_common',
+    useTheme: true,
   );
 
   bool _publicKeyCopied = false;
@@ -205,7 +208,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           _tabWidget(
             onTap: _sendMsg,
             iconName: 'icon_message.png',
-            content: 'Message',
+            content: Localized.text('ox_chat.send_message'),
           ),
           _tabWidget(
             onTap: () {
@@ -215,19 +218,19 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               );
             },
             iconName: 'icon_secret.png',
-            content: 'Secret Chat',
+            content: Localized.text('ox_chat.secret_chat'),
           ),
           _tabWidget(
-            onTap: () => {
-              // CommonToast.instance.show(context, "Don't call yourself")
+            onTap: () {
+              _clickCall();
             },
             iconName: 'icon_chat_call.png',
-            content: 'Call',
+            content: Localized.text('ox_chat.call'),
           ),
           _tabWidget(
             onTap: () => _onChangedMute(!_isMute),
             iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
-            content: _isMute ? 'Unmute' : 'Mute',
+            content: _isMute ? Localized.text('ox_chat.un_mute_item') : Localized.text('ox_chat.mute_item'),
           ),
         ],
       ),
@@ -361,6 +364,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                           width: Adapt.px(24),
                           height: Adapt.px(24),
                           fit: BoxFit.fill,
+                          useTheme: !_publicKeyCopied,
                         ),
                       ),
                     )
@@ -414,6 +418,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               iconName: "icon_copy.png",
               width: Adapt.px(16),
               height: Adapt.px(16),
+              useTheme: true,
             ) : Container(),
           ],
         ),
@@ -436,8 +441,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               ? null
               : LinearGradient(
                   colors: [
-                    ThemeColor.gradientMainEnd.withOpacity(0.24),
-                    ThemeColor.gradientMainStart.withOpacity(0.24),
+                    ThemeColor.gradientMainEnd,
+                    ThemeColor.gradientMainStart,
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -462,7 +467,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   Widget _blockStatusBtnView() {
     bool isInBlocklist = _isInBlockList();
     String btnContent = isInBlocklist
-        ? 'unblock'
+        ? Localized.text('ox_chat.message_menu_un_block')
         : Localized.text('ox_chat.message_menu_block');
     return GestureDetector(
       child: Container(
@@ -479,8 +484,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         child: Text(
           btnContent,
           style: TextStyle(
-            color: Colors.white,
+            color: ThemeColor.color0,
             fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -493,23 +499,22 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (_isInBlockList()) {
       OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
       if(!event.status){
-        CommonToast.instance.show(context, 'UnBlock fail !');
+        CommonToast.instance.show(context, Localized.text('ox_chat.un_block_fail'));
       }
     } else {
       OXCommonHintDialog.show(context,
-          title: 'Block this user ?',
-          content:
-              'After blocking, you will no longer receive messages from them.',
+          title: Localized.text('ox_chat.block_dialog_title'),
+          content: Localized.text('ox_chat.block_dialog_content'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context, false);
             }),
             OXCommonHintAction.sure(
-                text: 'Confirm',
+                text: Localized.text('ox_common.confirm'),
                 onTap: () async {
                   OKEvent event =  await Contacts.sharedInstance.addToBlockList(pubKey);
                   if(!event.status){
-                    CommonToast.instance.show(context, 'Block fail !');
+                    CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   }
                   OXNavigator.pop(context, true);
                 }),
@@ -606,13 +611,14 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _buildHeadImage() {
-    Image badgePlaceholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget badgePlaceholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.px(24),
       height: Adapt.px(24),
-      package: 'ox_common',
+      useTheme: true,
     );
+
     return InkWell(
       onTap: () {
         OXModuleService.pushPage(
@@ -656,6 +662,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(Adapt.px(91)),
                     border: Border.all(
+                      color: ThemeColor.color200,
                       width: Adapt.px(3),
                     ),
                   ),
@@ -672,8 +679,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                           imageUrl: snapshot.data?.thumb ?? '',
                           errorWidget: (context, url, error) =>
                               badgePlaceholderImage,
-                          width: Adapt.px(24),
-                          height: Adapt.px(24),
+                          width: Adapt.px(40),
+                          height: Adapt.px(40),
                           fit: BoxFit.cover,
                         )
                       : Container();
@@ -742,21 +749,21 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
     if (isFriend(widget.userDB.pubKey ?? '') == false) {
       OXCommonHintDialog.show(context,
-          content:
-              'Add to private contacts?',
+          content: Localized.text('ox_chat.add_contact_dialog_title'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context, false);
             }),
             OXCommonHintAction.sure(
-                text: 'confirm',
+                text: Localized.text('ox_common.confirm'),
                 onTap: () async {
                   await OXLoading.show();
                   final OKEvent okEvent = await Contacts.sharedInstance
-                      .addToContact([widget.userDB.pubKey!]);
+                      .addToContact([widget.userDB.pubKey]);
                   await OXLoading.dismiss();
                   if (okEvent.status) {
                     OXChatBinding.sharedInstance.contactUpdatedCallBack();
+                    OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.userDB.pubKey, true);
                     CommonToast.instance.show(
                         context, Localized.text('ox_chat.sent_successfully'));
                   } else {
@@ -789,9 +796,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       return;
     }
     OXCommonHintDialog.show(context,
-        title: 'Remove Contacts',
-        content:
-            'Are you sure you want to remove ${widget.userDB.name} from the contacts?',
+        title: Localized.text('ox_chat.remove_contacts'),
+        content: Localized.text('ox_chat.remove_contacts_dialog_content').replaceAll(r'${name}', '${widget.userDB.name}'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -806,7 +812,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 OXNavigator.pop(context);
                 if (okEvent.status) {
                   setState(() {});
-                  CommonToast.instance.show(context, 'Remove successfully');
+                  CommonToast.instance.show(context, Localized.text('ox_chat.remove_contacts_success_toast'));
                 } else {
                   CommonToast.instance.show(context, okEvent.message);
                 }
@@ -822,10 +828,37 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     final result = await ReportDialog.show(context,
         target: UserReportTarget(pubKey: widget.userDB.pubKey ?? ''));
     if (result != null) {
-      CommonToast.instance.show(context, 'Report Success');
+      CommonToast.instance.show(context, Localized.text('ox_chat.report_success_toast'));
     }
     OXNavigator.pop(context);
     return;
+  }
+
+  void _clickCall() async {
+    if (widget.userDB.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey){
+      CommonToast.instance.show(context,  "Don't call yourself");
+    } else {
+      OXActionModel? oxActionModel = await OXActionDialog.show(
+        context,
+        data: [
+          OXActionModel(identify: 0, text: 'str_video_call'.localized(), iconName: 'icon_call_video.png', package: 'ox_chat', isUseTheme:true),
+          OXActionModel(identify: 1, text: 'str_voice_call'.localized(), iconName: 'icon_call_voice.png', package: 'ox_chat', isUseTheme:true),
+        ],
+        backGroundColor: ThemeColor.color180,
+        separatorCancelColor: ThemeColor.color190,
+      );
+      if (oxActionModel != null) {
+        OXModuleService.pushPage(
+          context,
+          'ox_calling',
+          'CallPage',
+          {
+            'userDB': widget.userDB,
+            'media': oxActionModel.identify == 1 ? CallMessageType.audio.text : CallMessageType.video.text,
+          },
+        );
+      }
+    }
   }
 
   ///Determine if it's a friend
@@ -853,7 +886,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       });
     } else {
       CommonToast.instance
-          .show(context, 'Mute(Unmute) failed, please try again later.');
+          .show(context, Localized.text('ox_chat.mute_fail_toast'));
     }
   }
 
@@ -882,7 +915,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
+    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
     if (friendUserDB == null) {
@@ -912,3 +945,5 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     });
   }
 }
+
+

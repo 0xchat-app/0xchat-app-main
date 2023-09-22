@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Kestus: ${time}",
+  "str_call_canceled": "Tühistatud",
+  "str_call_rejected": "Väljaminev kõne"
+}

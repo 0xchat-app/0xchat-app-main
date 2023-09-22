@@ -1,7 +1,8 @@
 {
-  "Discovery": "Discovery",
-  "join" : "join >>",
-  "join_successfully" : "Join successfully",
-  "add_friend" : "Add friend",
-  "most_viewed" : "Top collections"
+  "discovery": "Discovery",
+  "msg_count": "Messages",
+  "recommended_item": "Recommended",
+  "popular_item": "Popular",
+  "latest_item": "Latest",
+  "channel_search_hint_text": "Search channel"
 }

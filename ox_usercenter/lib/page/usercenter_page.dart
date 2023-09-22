@@ -55,6 +55,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     imageCache.clear();
     imageCache.maximumSize = 10;
     OXUserInfoManager.sharedInstance.addObserver(this);
+    Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
 
     _addressStr =
@@ -122,6 +123,10 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     return null;
   }
 
+  onLocaleChange() {
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
@@ -145,7 +150,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     minWidth: Adapt.px(44),
                     height: Adapt.px(44),
                     child: Text(
-                      'Edit',
+                      Localized.text('ox_common.edit'),
                       style: TextStyle(
                         fontSize: Adapt.px(16),
                         color: ThemeColor.color0,
@@ -223,7 +228,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     },
                     child: _topItemBuild(
                         iconName: 'icon_settings_badges.png',
-                        title: 'Badges',
+                        title: Localized.text('ox_usercenter.badges'),
                         badgeImgUrl: snapshot.data?.thumb,
                         isShowDivider: true),
                   );
@@ -243,7 +248,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 },
                 child: _topItemBuild(
                     iconName: 'icon_settings_qrcode.png',
-                    title: Localized.text('ox_usercenter.my_qr_code'),
+                    title: Localized.text('ox_common.qr_code'),
                     isShowDivider: false),
               ),
             ],
@@ -265,12 +270,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       String? title,
       String? badgeImgUrl,
       bool isShowDivider = false}) {
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
-      width: Adapt.px(32),
-      height: Adapt.px(32),
-      package: 'ox_common',
+      width: Adapt.px(48),
+      height: Adapt.px(48),
+      useTheme: true,
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -378,6 +384,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(Adapt.px(111)),
                   border: Border.all(
+                    color: ThemeColor.color200,
                     width: Adapt.px(3),
                   ),
                 ),
@@ -476,6 +483,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                     iconName: "icon_copy.png",
                     width: Adapt.px(16),
                     height: Adapt.px(16),
+                    useTheme: true,
                   )
                 : Container(),
           ],

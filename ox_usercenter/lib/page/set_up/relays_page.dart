@@ -109,7 +109,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Relays',
+        title: Localized.text('ox_usercenter.relays'),
         titleTextColor: ThemeColor.color0,
         actions: [
           //icon_edit.png
@@ -127,6 +127,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
                 iconName: _isEditing ? 'icon_done.png' : 'icon_edit.png',
                 width: Adapt.px(24),
                 height: Adapt.px(24),
+                useTheme: true,
               ),
               onPressed: () {
                 setState(() {
@@ -153,7 +154,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             height: Adapt.px(46),
             alignment: Alignment.centerLeft,
             child: Text(
-              'CONNECT TO RELAY',
+              Localized.text('ox_usercenter.connect_relay'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
@@ -232,7 +233,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             height: Adapt.px(58),
             alignment: Alignment.centerLeft,
             child: Text(
-              'CONNECTED TO RELAY',
+              Localized.text('ox_usercenter.connected_relay'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
@@ -363,6 +364,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
               width: Adapt.px(24),
               height: Adapt.px(24),
               package: 'ox_usercenter',
+              useTheme: true,
             ),
           ),
           Expanded(
@@ -448,7 +450,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   void _deleteOnTap(RelayModel relayModel) async {
     if (relayModel.canDelete) {
       OXCommonHintDialog.show(context,
-          title: 'Tips',
+          title: Localized.text('ox_common.tips'),
           content: Localized.text('ox_usercenter.delete_relay_hint'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {

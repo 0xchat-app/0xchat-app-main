@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Тривалість: ${time}",
+  "str_call_canceled": "Скасовано",
+  "str_call_rejected": "Вихідний дзвінок"
+}

@@ -1,0 +1,5 @@
+{
+  "str_call_duration": "Durada: ${time}",
+  "str_call_canceled": "Cancel·lada",
+  "str_call_rejected": "Trucada sortint"
+}

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:pull_to_refresh_notification/pull_to_refresh_notification.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -57,13 +58,14 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: Adapt.screenW() * 0.6,
       height: Adapt.screenW() * 0.6,
-      package: 'ox_common',
+      useTheme: true,
     );
+
     return Scaffold(
       body: SafeArea(
         top: false,
@@ -191,7 +193,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                               Container(
                                 margin: EdgeInsets.only(top: Adapt.px(4)),
                                 child: Text(
-                                  widget.badgeModel.obtainedTime != null ? (OXDateUtils.formatTimestamp((widget.badgeModel.obtainedTime!) * 1000, pattern: 'yyyy.MM.dd') + ' obtained') : 'Not yet obtained',
+                                  widget.badgeModel.obtainedTime != null ? (OXDateUtils.formatTimestamp((widget.badgeModel.obtainedTime!) * 1000, pattern: 'yyyy.MM.dd') + Localized.text('ox_usercenter.obtained')) : Localized.text('ox_usercenter.not_yet_obtained'),
                                   style: TextStyle(
                                     fontSize: Adapt.px(14),
                                     color: ThemeColor.color100,
@@ -271,7 +273,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                               height: Adapt.px(4),
                             ),
                             Text(
-                              "by ${widget.badgeModel.creator ?? ''}",
+                              "${Localized.text('ox_common.by')} ${widget.badgeModel.creator ?? ''}",
                               style: TextStyle(
                                   fontSize: Adapt.px(15),
                                   color: ThemeColor.color0),
@@ -283,7 +285,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                             Container(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'Description',
+                                Localized.text('ox_usercenter.DESCRIPTION'),
                                 style: TextStyle(
                                     fontSize: Adapt.px(14),
                                     fontWeight: FontWeight.w600,
@@ -325,7 +327,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                                 height: Adapt.px(24),
                               ),
                               Text(
-                                'Benefits',
+                                Localized.text('ox_usercenter.benefits'),
                                 style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100),
                               ),
                               _getChildrenWidget(),
@@ -421,7 +423,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    widget.isHad ? widget.isSelected! ? 'Selected' : 'Select' : 'Obtain',
+                    widget.isHad ? widget.isSelected! ? Localized.text('ox_usercenter.selected') : Localized.text('ox_usercenter.select') : Localized.text('ox_usercenter.obtain'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: Adapt.px(16),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/contacts/contact_relay_page.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -10,8 +11,39 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../session/chat_secret_message_page.dart';
+
+enum ESecretChatTime { oneHour, twelveHours, twentyFourHours, seventyTwoHours }
+
+extension ESecretChatTimeToSecond on ESecretChatTime {
+  int hour() {
+    switch (this) {
+      case ESecretChatTime.oneHour:
+        return 1;
+      case ESecretChatTime.twelveHours:
+        return 12;
+      case ESecretChatTime.twentyFourHours:
+        return 24;
+      case ESecretChatTime.seventyTwoHours:
+        return 72;
+    }
+  }
+
+  String toText() {
+    switch (this) {
+      case ESecretChatTime.oneHour:
+        return '1' + Localized.text('ox_chat.hour');
+      case ESecretChatTime.twelveHours:
+        return '12' + Localized.text('ox_chat.hour');
+      case ESecretChatTime.twentyFourHours:
+        return '24' + Localized.text('ox_chat.hour');
+      case ESecretChatTime.seventyTwoHours:
+        return '72' + Localized.text('ox_chat.hour');
+    }
+  }
+}
 
 class ContactCreateSecret extends StatefulWidget {
   final UserDB userDB;
@@ -22,17 +54,14 @@ class ContactCreateSecret extends StatefulWidget {
 }
 
 class _ContactCreateSecret extends State<ContactCreateSecret> {
-  final TextEditingController _relayTextFieldController =
-      TextEditingController();
-  bool _isShowDelete = false;
-  List<String> _relaysList = [];
+  ESecretChatTime _keyUpdateTime = ESecretChatTime.oneHour;
+  ESecretChatTime _requestValidityPeriod = ESecretChatTime.twentyFourHours;
 
-  int? _selectRelayIndex = 0;
+  String _chatRelay = 'wss://relay.0xchat.com';
 
   @override
   void initState() {
     super.initState();
-    _getRelays();
   }
 
   @override
@@ -44,7 +73,12 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: ThemeColor.color190, borderRadius: BorderRadius.circular(20)),
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(Adapt.px(20)),
+          topLeft: Radius.circular(Adapt.px(20)),
+        ),
+      ),
       child: SafeArea(
         child: Container(
           child: _body(),
@@ -61,27 +95,12 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: Adapt.px(24),
-          ),
-          width: double.infinity,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'For enhanced privacy, you can select a specific relay for your secret chat; all secret chat messages will only be sent to this relay.',
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(12),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
             vertical: Adapt.px(12),
-            horizontal: Adapt.px(24),
           ),
+          width: double.infinity,
           alignment: Alignment.centerLeft,
           child: Text(
-            'PLEASE ENTER OR SELECT RELAY',
+            Localized.text('ox_chat.secret_chat_setting'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -89,25 +108,149 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             ),
           ),
         ),
-        _inputRelayView(),
-        SizedBox(
-          height: Adapt.px(12),
+        Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: Adapt.px(24),
+          ),
+          decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              _labelWidget(
+                title: Localized.text('ox_chat.request_validity_period'),
+                content: _requestValidityPeriod.toText(),
+                onTap: () => _selectTimeDialog(_selectValidityPeriodWidget),
+              ),
+              Container(
+                height: Adapt.px(0.5),
+                color: ThemeColor.color160,
+              ),
+              _labelWidget(
+                title: Localized.text('ox_chat.key_update_time'),
+                content: _keyUpdateTime.toText(),
+                onTap: () => _selectTimeDialog(_selectKeyUpdateWidget),
+              ),
+            ],
+          ),
         ),
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: Adapt.px(24),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Adapt.px(24),
+            vertical: Adapt.px(12),
+          ),
+          width: double.infinity,
+          alignment: Alignment.centerLeft,
+          child: Text(
+             Localized.text('ox_chat.select_relay'),
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: Adapt.px(16),
+              fontWeight: FontWeight.w600,
             ),
-            alignment: Alignment.center,
-            child: ListView.builder(
-              primary: false,
-              itemCount: _relaysList.length,
-              itemBuilder: (context, index) => _relayItemWidget(index),
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: Adapt.px(24),
+          ),
+          child: _labelWidget(
+            title:  Localized.text('ox_chat.relay'),
+            content: _chatRelay,
+            onTap: () async {
+              var result = await OXNavigator.presentPage(
+                context,
+                (context) => ContactRelayPage(userDB: widget.userDB),
+              );
+              if (result != null && _isWssWithValidURL(result as String)) {
+                _chatRelay = result;
+                setState(() {});
+              }
+            },
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(
+            vertical: Adapt.px(12),
+            horizontal: Adapt.px(24),
+          ),
+          width: double.infinity,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            Localized.text('ox_chat.create_secret_chat_tips'),
+            style: TextStyle(
+              color: ThemeColor.color100,
+              fontSize: Adapt.px(12),
+              fontWeight: FontWeight.w400,
             ),
           ),
         ),
       ],
     );
+  }
+
+  Widget _labelWidget({
+    required String title,
+    required String content,
+    required GestureTapCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          color: ThemeColor.color180,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color0,
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    _ellipsisText(content),
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      fontWeight: FontWeight.w400,
+                      color: ThemeColor.color100,
+                    ),
+                  ),
+                  CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _ellipsisText(String text) {
+    if (text.length > 30) {
+      return text.substring(0, 10) +
+          '...' +
+          text.substring(text.length - 10, text.length);
+    }
+    return text;
   }
 
   Widget _appBar() {
@@ -124,16 +267,15 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             },
             child: CommonImage(
               iconName: "title_close.png",
-              color: Colors.white,
               width: Adapt.px(24),
               height: Adapt.px(24),
-              useTheme: false,
+              useTheme: true,
             ),
           ),
           Expanded(
             child: Container(
               child: Text(
-                'Create Secret Chat',
+                Localized.text('ox_chat.create_secret_chat'),
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(17),
@@ -150,202 +292,33 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
                 iconName: 'icon_done.png',
                 width: Adapt.px(24),
                 height: Adapt.px(24),
-                useTheme: false,
+                useTheme: true,
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  Widget _inputRelayView() {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: Adapt.px(24),
-      ),
-      width: double.infinity,
-      height: Adapt.px(48),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: ThemeColor.color180,
-      ),
-      alignment: Alignment.center,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: EdgeInsets.only(left: Adapt.px(16)),
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-            child: CommonImage(
-              iconName: 'icon_relay_paste.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              package: 'ox_usercenter',
-            ),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _relayTextFieldController,
-              decoration: InputDecoration(
-                hintText: 'wss://some.relay.com',
-                hintStyle: TextStyle(
-                  color: ThemeColor.color100,
-                  fontSize: Adapt.px(15),
-                ),
-                suffixIcon: _delTextIconWidget(),
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (str) {
-                setState(() {
-                  if (str.isNotEmpty) {
-                    _isShowDelete = true;
-                    _selectRelayIndex = null;
-                  } else {
-                    _isShowDelete = false;
-                    _selectRelayIndex = 0;
-                  }
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget? _delTextIconWidget() {
-    if (!_isShowDelete) return null;
-    return IconButton(
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      onPressed: () {
-        setState(() {
-          _relayTextFieldController.text = '';
-          _isShowDelete = false;
-          _selectRelayIndex = 0;
-        });
-      },
-      icon: CommonImage(
-        iconName: 'icon_textfield_close.png',
-        width: Adapt.px(16),
-        height: Adapt.px(16),
-      ),
-    );
-  }
-
-  Widget _relayItemWidget(int index) {
-    String relay = _relaysList[index];
-
-    return GestureDetector(
-      onTap: () {
-        if (_selectRelayIndex == null) {
-          _selectRelayIndex = index;
-        } else {
-          _selectRelayIndex = _selectRelayIndex == index ? null : index;
-        }
-        setState(() {});
-      },
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: ThemeColor.color180,
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: Adapt.px(10),
-                horizontal: Adapt.px(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CommonImage(
-                        iconName: 'icon_settings_relays.png',
-                        width: Adapt.px(32),
-                        height: Adapt.px(32),
-                        package: 'ox_usercenter',
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          left: Adapt.px(12),
-                        ),
-                        child: Text(
-                          relay,
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _selectFollowsWidget(index),
-                ],
-              ),
-            ),
-            _dividerWidget(index),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _selectFollowsWidget(int index) {
-    bool isShowSelectIcon = _selectRelayIndex == index;
-    if (!isShowSelectIcon) return Container();
-    return CommonImage(
-      iconName: 'icon_select_follows.png',
-      width: Adapt.px(32),
-      height: Adapt.px(32),
-      package: 'ox_chat',
-    );
-  }
-
-  Widget _dividerWidget(int index) {
-    if (_relaysList.length - 1 == index) return Container();
-    return Divider(
-      height: Adapt.px(0.5),
-      color: ThemeColor.color160,
-    );
-  }
-
-  void _getRelays() {
-    _relaysList = Connect.sharedInstance.relays();
-    setState(() {});
   }
 
   void _createSecretChat() async {
-    String chatRelay = _relaysList[_selectRelayIndex ?? 0];
-    String inputText = _relayTextFieldController.text;
-    if (_selectRelayIndex == null && inputText.isNotEmpty) {
-      CommonToast.instance.show(context, 'Please select relay or enter relay');
-      return;
-    }
-
-    if (inputText.isNotEmpty) {
-      if (!_isWssWithValidURL(_relayTextFieldController.text)) {
-        CommonToast.instance.show(context, 'Please input the right wss');
-        return;
-      }
-      chatRelay = inputText;
-    }
     await OXLoading.show();
-    OKEvent okEvent =
-        await Contacts.sharedInstance.request(widget.userDB.pubKey, chatRelay);
+    OKEvent okEvent = await Contacts.sharedInstance.request(
+      widget.userDB.pubKey,
+      _chatRelay,
+      expiration: _changeTimeToSecond(
+        isNeedCurrentTime: true,
+        hourTime: _requestValidityPeriod.hour(),
+      ),
+      interval: _changeTimeToSecond(hourTime: _keyUpdateTime.hour()),
+    );
     await OXLoading.dismiss();
     if (okEvent.status) {
-      SecretSessionDB? db = Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
+      SecretSessionDB? db =
+          Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
       if (db != null) {
         ChatSessionModel? chatModel =
-        await OXChatBinding.sharedInstance.localCreateSecretChat(db);
+            await OXChatBinding.sharedInstance.localCreateSecretChat(db);
         if (chatModel != null) {
           OXNavigator.pop(context);
           OXNavigator.pushReplacement(
@@ -363,5 +336,126 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     RegExp regex = RegExp(
         r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
     return regex.hasMatch(input);
+  }
+
+  void _selectTimeDialog(Widget? Function(BuildContext, int) itemWidget) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Material(
+          type: MaterialType.transparency,
+          child: Opacity(
+            opacity: 1,
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              height: Adapt.px(290),
+              decoration: BoxDecoration(
+                color: ThemeColor.color180,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemBuilder: itemWidget,
+                        itemCount: ESecretChatTime.values.length,
+                        shrinkWrap: true,
+                      ),
+                    ),
+                    Container(
+                      height: Adapt.px(8),
+                      color: ThemeColor.color190,
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        OXNavigator.pop(context);
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: Adapt.px(56),
+                        color: ThemeColor.color180,
+                        child: Center(
+                          child: Text(
+                            Localized.text('ox_common.cancel'),
+                            style: TextStyle(
+                                fontSize: 16, color: ThemeColor.color0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _selectValidityPeriodWidget(BuildContext context, int index) {
+    ESecretChatTime time = ESecretChatTime.values[index];
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        _requestValidityPeriod = time;
+        setState(() {});
+        OXNavigator.pop(context);
+      },
+      child: _dialogItemWidget(time.toText(), index),
+    );
+  }
+
+  Widget _selectKeyUpdateWidget(BuildContext context, int index) {
+    ESecretChatTime time = ESecretChatTime.values[index];
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        _keyUpdateTime = time;
+        setState(() {});
+        OXNavigator.pop(context);
+      },
+      child: _dialogItemWidget(time.toText(), index),
+    );
+  }
+
+  Widget _dividerWidget(int index) {
+    return Divider(
+      height: Adapt.px(0.5),
+      color: ThemeColor.color160,
+    );
+  }
+
+  Widget _dialogItemWidget(String name, int index) {
+    return Column(
+      children: [
+        Container(
+          height: Adapt.px(56),
+          alignment: Alignment.center,
+          child: Text(
+            name,
+            style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
+          ),
+        ),
+        _dividerWidget(index)
+      ],
+    );
+  }
+
+  int _changeTimeToSecond(
+      {bool isNeedCurrentTime = false, required int hourTime}) {
+    int baseTime = hourTime * 60 * 60;
+    if (isNeedCurrentTime) return currentUnixTimestampSeconds() + baseTime;
+    return baseTime;
   }
 }

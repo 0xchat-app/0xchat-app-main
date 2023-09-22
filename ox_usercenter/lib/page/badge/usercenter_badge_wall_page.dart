@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_detail_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -132,7 +133,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   Future<void> _setUserProfileBadge(BadgeModel badgeModel) async {
     try{
       List<String> id = [badgeModel.badgeId!];
-      OKEvent okEvent = await BadgesHelper.setProfileBadges(id, _mUserInfo?.pubKey ?? '', _mUserInfo?.privkey ?? '');
+      OKEvent okEvent = await BadgesHelper.setProfileBadges(id);
       //after user set profile Badge complete, update profile database
       if(okEvent.status){
         setState(() {
@@ -140,7 +141,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         });
         String badges = '["${badgeModel.badgeId}"]';
         _mUserInfo?.badges = badges;
-        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!.privkey!, _mUserInfo!);
+        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
         if(tempUserDB == null){
           CommonToast.instance.show(context, 'Fail to update profile badge ');
         }
@@ -156,7 +157,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Badges',
+        title: Localized.text('ox_usercenter.badges'),
       ),
       backgroundColor: ThemeColor.color190,
       body: _body(),
@@ -188,7 +189,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    '0xchat Badges Collection',
+                    Localized.text('ox_usercenter.0xchat_badge_collection'),
                     style: TextStyle(
                       color: ThemeColor.color100,
                       fontSize: Adapt.px(14),
@@ -236,20 +237,22 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   Widget _itemBuilder(context, index) {
     BadgeModel _model = _defaultBadgeModelList[index];
     bool isHad = _currentUserBadgeModelList.where((element) => element.identifies == _model.identifies).toList().isNotEmpty;
-    Image placeholderImage = Image.asset(
-      'assets/images/icon_badge_default.png',
+
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
       width: _imageWH,
       height: _imageWH,
-      package: 'ox_common',
+      useTheme: true,
     );
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if(_mUserInfo == null) return;
-        if(_mUserInfo?.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey){
-          _onTapForBadge(index,isHad);
-        }
+        // if(_mUserInfo == null) return;
+        // if(_mUserInfo?.pubKey == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey){
+        //
+        // }
+        _onTapForBadge(index,isHad);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -307,6 +310,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       fit: BoxFit.cover,
       width: Adapt.px(80),
       height: Adapt.px(80),
+      useTheme: true,
     );
     return Container(
       height: Adapt.px(140),
@@ -324,7 +328,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  'Badge Awards',
+                  Localized.text('ox_usercenter.badge_award'),
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(14),
@@ -367,7 +371,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  'Profile Badge',
+                  Localized.text('ox_usercenter.profile_badge'),
                   style: TextStyle(
                     color: ThemeColor.color100,
                     fontSize: Adapt.px(14),

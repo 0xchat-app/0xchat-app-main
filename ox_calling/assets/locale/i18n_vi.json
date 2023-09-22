@@ -1,0 +1,7 @@
+{
+  "str_call_duration": "Thời gian: ${time}",
+  "str_call_canceled": "Đã hủy",
+  "str_call_other_canceled": "Đối tác đã hủy bỏ",
+  "str_call_rejected": "Cuộc gọi đi",
+  "str_call_other_rejected": "Đối tác đã từ chối"
+}

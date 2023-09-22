@@ -88,7 +88,7 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
               width: double.infinity,
               alignment: Alignment.topCenter,
               child: Text(
-                'Edit Remark',
+                Localized.text('ox_chat.remark_edit'),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: Adapt.px(24),
@@ -98,8 +98,8 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
             ),
             CommonTextField(
               controller: _editingController,
-              hintText: widget.userDB.nickName ?? 'Please enter a nickname',
-              title: 'Remark',
+              hintText: widget.userDB.nickName ?? Localized.text('ox_chat.remark_hint_text'),
+              title: Localized.text('ox_chat.remark'),
               type: TextFieldType.normal,
               keyboardType: TextInputType.text,
               inputFormatters: [LengthLimitingTextInputFormatter(30)],
@@ -128,7 +128,7 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
       return ;
     }
     if(pubKey == null){
-      CommonToast.instance.show(context, 'Account abnormally');
+      CommonToast.instance.show(context, Localized.text('ox_chat.remark_edit_toast'),);
       return;
     }
     await OXLoading.show();

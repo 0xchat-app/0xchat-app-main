@@ -164,15 +164,7 @@ class AlphaState extends State<Alpha> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onVerticalDragDown: (DragDownDetails details) {
-          if (_distance2Top == null) {
-            RenderBox? renderBox = context.findRenderObject() as RenderBox;
-            if (renderBox != null) {
-              _distance2Top = renderBox
-                  .localToGlobal(Offset.zero)
-                  .dy
-                  .toInt() + (renderBox.size.height - widget.alphaItemSize! * widget.alphas!.length) / 2;
-            }
-          }
+          _distance2Top = _getDistanceToTop();
 
           int touchOffset2Begin = details.globalPosition.dy.toInt() - _distance2Top!.toInt();
           String? tag = _getHitAlpha(touchOffset2Begin);
@@ -190,4 +182,16 @@ class AlphaState extends State<Alpha> {
         },
         child: _buildAlpha());
   }
+
+  double? _getDistanceToTop() {
+    RenderBox? renderBox = context.findRenderObject() as RenderBox;
+    if (renderBox != null) {
+      return renderBox
+          .localToGlobal(Offset.zero)
+          .dy
+          .toInt() + (renderBox.size.height - widget.alphaItemSize! * widget.alphas!.length) / 2;
+    }
+    return null;
+  }
+
 }
