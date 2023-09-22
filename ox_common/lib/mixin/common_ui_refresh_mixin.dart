@@ -7,7 +7,7 @@ export 'package:visibility_detector/visibility_detector.dart';
 
 /// A UI refresh optimization plug-in, to avoid page setState in the push process caused by animation stall
 /// To use this mixin, do not override the build method and put the UI presentation in the buildBody
-mixin YLUIRefreshMixin<T extends StatefulWidget> on State<T> {
+mixin OXUIRefreshMixin<T extends StatefulWidget> on State<T> {
 
   Completer allowSetStateCompleter = Completer();
 
