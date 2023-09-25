@@ -36,6 +36,7 @@ class Input extends StatefulWidget {
     this.textFieldHasFocus,
     this.onGifSend,
     this.inputBottomView,
+    this.onFocusNodeInitialized,
   });
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -55,6 +56,8 @@ class Input extends StatefulWidget {
   final void Function(String path, Duration duration)? onVoiceSend;
 
   final VoidCallback? textFieldHasFocus;
+
+  final ValueChanged<FocusNode>? onFocusNodeInitialized;
 
   /// Customisation options for the [Input].
   final InputOptions options;
@@ -157,6 +160,7 @@ class InputState extends State<Input>{
     _textController =
         widget.options.textEditingController ?? InputTextFieldController();
     _handleSendButtonVisibilityModeChange();
+    widget.onFocusNodeInitialized?.call(_inputFocusNode);
   }
 
 

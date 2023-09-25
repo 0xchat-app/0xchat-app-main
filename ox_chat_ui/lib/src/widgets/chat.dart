@@ -122,6 +122,7 @@ class Chat extends StatefulWidget {
     this.onGifSend,
     this.inputBottomView,
     this.mentionUserListWidget,
+    this.onFocusNodeInitialized,
   });
 
   final ChatStatus? chatStatus;
@@ -377,6 +378,8 @@ class Chat extends StatefulWidget {
 
   final Widget? inputBottomView;
 
+  final ValueChanged<FocusNode>? onFocusNodeInitialized;
+
   @override
   State<Chat> createState() => ChatState();
 }
@@ -557,9 +560,8 @@ class ChatState extends State<Chat> {
   double? _getBottomOffsetForMentionUserList() {
     if (_inputKey.currentContext != null) {
       final renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
-      // final position = renderBox.localToGlobal(Offset.zero);
-      // final pageHeight = MediaQuery.of(context).size.height;
-      // final inputViewY = position.dy;
+      // Do not delete this line of code, or you will mention that the user list view does not fit the keyboard
+      final _ = MediaQuery.of(context).size.height;
       final inputHeight = renderBox.size.height;
       return inputHeight + Adapt.px(16);
     } else {
@@ -631,6 +633,7 @@ class ChatState extends State<Chat> {
             }
           },
           inputBottomView: widget.inputBottomView,
+          onFocusNodeInitialized: widget.onFocusNodeInitialized,
         );
       }
     }
