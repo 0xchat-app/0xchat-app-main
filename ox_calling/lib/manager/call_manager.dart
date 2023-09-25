@@ -77,7 +77,7 @@ class CallManager {
 
     _signaling?.onAddRemoteStream = ((_, stream) {
       remoteRenderer.srcObject = stream;
-      // setState(() {});
+      callStateHandler?.call(null);
     });
 
     _signaling?.onRemoveRemoteStream = ((_, stream) {
