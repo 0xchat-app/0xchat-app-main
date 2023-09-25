@@ -85,11 +85,14 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    CallManager.instance.connectServer();
+    if (CallManager.instance.overlayEntry != null && CallManager.instance.overlayEntry!.mounted) {
+      CallManager.instance.overlayEntry!.remove();
+    }
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
+      CallManager.instance.connectServer();
       CallManager.instance.setSpeaker(true);
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
