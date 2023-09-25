@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_calling/ox_calling_platform_interface.dart';
@@ -210,7 +211,11 @@ class CallManager {
   }
 
   setSpeaker(bool isSpeakerOn) async {
-    final bool setResult = await OxCallingPlatform.instance.setSpeakerStatus(isSpeakerOn);
+    if (Platform.isAndroid) {
+      await OxCallingPlatform.instance.setSpeakerStatus(isSpeakerOn);
+    } else {
+      await Helper.setSpeakerphoneOn(isSpeakerOn);
+    }
   }
 
   muteMic() {
