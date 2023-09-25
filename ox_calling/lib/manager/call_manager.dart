@@ -42,7 +42,7 @@ class CallManager {
   DesktopCapturerSource? selected_source_;
   bool _waitAccept = false;
   late BuildContext _context;
-  ValueChanged<CallState>? callStateHandler;
+  ValueChanged<CallState?>? callStateHandler;
   CallMessageType callType = CallMessageType.video;
   String? callInitiator;
   String? callReceiver;
@@ -60,7 +60,7 @@ class CallManager {
     return _waitAccept;
   }
 
-  void initRTC({String? tHost}) {
+  void initRTC({String? tHost}) async {
     if (tHost != null) {
       host = tHost;
     }
@@ -69,10 +69,10 @@ class CallManager {
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
       _signaling?.onParseMessage(friend, state, data);
     };
-    initRenderers();
+    await initRenderers();
     _signaling?.onLocalStream = ((stream) {
       localRenderer.srcObject = stream;
-      // setState(() {});
+      callStateHandler?.call(null);
     });
 
     _signaling?.onAddRemoteStream = ((_, stream) {
@@ -86,7 +86,7 @@ class CallManager {
     initListener();
   }
 
-  void initRenderers() async {
+  Future<void> initRenderers() async {
     await localRenderer.initialize();
     await remoteRenderer.initialize();
   }
@@ -234,6 +234,7 @@ class CallManager {
   }
 
   void calledBye(bool isReceiverReject, {bool? isTomeOut}){
+    initiativeHangUp = true;
     String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     if (_waitAccept) {
       print('peer reject');
@@ -253,7 +254,6 @@ class CallManager {
     callInitiator = null;
     callReceiver = null;
     callState = null;
-    initiativeHangUp = true;
   }
 
   String _getCallHint(bool isReceiverReject, {bool? isTomeOut}){

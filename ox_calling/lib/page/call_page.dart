@@ -418,7 +418,7 @@ class CallPageState extends State<CallPage> {
     );
   }
 
-  void _callStateUpdate(CallState callState) {
+  void _callStateUpdate(CallState? callState) {
     if (callState == CallState.CallStateBye) {
       if (mounted) {
         OXNavigator.pop(context);

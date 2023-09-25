@@ -38,7 +38,7 @@ class _CallFloatingDraggableOverlayState extends State<CallFloatingDraggableOver
   }
 
   void counterValueChange(value) {
-    if (CallManager.instance.overlayEntry!.mounted){
+    if (CallManager.instance.overlayEntry != null && CallManager.instance.overlayEntry!.mounted){
       setState(() {});
     }
   }
