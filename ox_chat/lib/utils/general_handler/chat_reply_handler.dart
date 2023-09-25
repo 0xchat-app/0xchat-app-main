@@ -9,6 +9,11 @@ class ChatReplyHandler {
   final ValueNotifier<String?> replyMessageNotifier = ValueNotifier<String?>(null);
 
   types.Message? replyMessage;
+  FocusNode? focusNode;
+
+  void focusNodeSetter(FocusNode node) {
+    focusNode = node;
+  }
 
   void updateReplyMessage(types.Message? message) {
     if (replyMessage == message) return ;
@@ -17,6 +22,7 @@ class ChatReplyHandler {
   }
 
   void quoteMenuItemPressHandler(BuildContext context, types.Message message) {
+    focusNode?.requestFocus();
     updateReplyMessage(message);
   }
 

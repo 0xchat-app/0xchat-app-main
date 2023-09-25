@@ -196,6 +196,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
         mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
       ),

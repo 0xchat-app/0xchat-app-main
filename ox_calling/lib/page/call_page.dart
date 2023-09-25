@@ -108,94 +108,95 @@ class CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        top: false,
-        child: Stack(
-          children: [
-            _isVideoOn
-                ? Positioned(
-                    left: 0.0,
-                    right: 0.0,
-                    top: 0.0,
-                    bottom: 0.0,
-                    child: Container(
-                      margin: EdgeInsets.zero,
-                      width: Adapt.screenW(),
-                      height: Adapt.screenH(),
-                      child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          ThemeColor.gradientMainEnd.withOpacity(0.7),
-                          ThemeColor.gradientMainStart.withOpacity(0.7),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: Adapt.px(56),
-                  margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          icon: CommonImage(
-                            iconName: "icon_back_left_arrow.png",
-                            color: Colors.white,
-                            width: Adapt.px(24),
-                            height: Adapt.px(24),
-                            useTheme: true,
-                          ),
-                          onPressed: () {
-                            OXNavigator.pop(context);
-                          },
-                        ),
-                      ),
-                      if (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)
-                        Align(alignment: Alignment.center, child: _buildHint()),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: Adapt.px(24),
-                ),
-                Expanded(
+      backgroundColor: Colors.cyan,
+      extendBody: true,
+      body: Stack(
+        children: [
+          _isVideoOn
+              ? Positioned(
+                  left: 0.0,
+                  right: 0.0,
+                  top: 0.0,
+                  bottom: 0.0,
                   child: Container(
-                    width: double.infinity,
-                    height: Adapt.px(190),
-                    child: (CallManager.instance.callType == CallMessageType.audio ||
-                            (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState != CallState.CallStateConnected))
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildHeadImage(),
-                              SizedBox(
-                                height: Adapt.px(16),
-                              ),
-                              _buildHeadName(),
-                              SizedBox(
-                                height: Adapt.px(7),
-                              ),
-                              _buildHint(),
-                            ],
-                          )
-                        : SizedBox(),
+                    margin: EdgeInsets.zero,
+                    width: Adapt.screenW(),
+                    height: Adapt.screenH(),
+                    child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        ThemeColor.gradientMainEnd.withOpacity(0.7),
+                        ThemeColor.gradientMainStart.withOpacity(0.7),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
-                Container(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: Adapt.px(56),
+                margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        icon: CommonImage(
+                          iconName: "icon_back_left_arrow.png",
+                          color: Colors.white,
+                          width: Adapt.px(24),
+                          height: Adapt.px(24),
+                          useTheme: true,
+                        ),
+                        onPressed: () {
+                          OXNavigator.pop(context);
+                        },
+                      ),
+                    ),
+                    if (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)
+                      Align(alignment: Alignment.center, child: _buildHint()),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: Adapt.px(24),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: Adapt.px(190),
+                  child: (CallManager.instance.callType == CallMessageType.audio ||
+                          (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState != CallState.CallStateConnected))
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildHeadImage(),
+                            SizedBox(
+                              height: Adapt.px(16),
+                            ),
+                            _buildHeadName(),
+                            SizedBox(
+                              height: Adapt.px(7),
+                            ),
+                            _buildHint(),
+                          ],
+                        )
+                      : SizedBox(),
+                ),
+              ),
+              SafeArea(
+                child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.all(Radius.circular(Adapt.px(24))),
@@ -221,31 +222,31 @@ class CallPageState extends State<CallPage> {
                     children: _buildRowChild(),
                   ),
                 ),
-              ],
-            ),
-            if (_isVideoOn && CallManager.instance.callState == CallState.CallStateConnected)
-              Positioned(
-                top: top,
-                left: left,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    setState(() {
-                      top += details.delta.dy;
-                      left += details.delta.dx;
-                    });
-                  },
-                  child: Container(
-                    width: 90.0,
-                    height: 120.0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
-                    ),
+              ),
+            ],
+          ),
+          if (_isVideoOn && CallManager.instance.callState == CallState.CallStateConnected)
+            Positioned(
+              top: top,
+              left: left,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  setState(() {
+                    top += details.delta.dy;
+                    left += details.delta.dx;
+                  });
+                },
+                child: Container(
+                  width: 90.0,
+                  height: 120.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
