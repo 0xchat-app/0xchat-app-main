@@ -316,9 +316,9 @@ class _DonatePageState extends State<DonatePage> {
             children: [
               CommonImage(
                 iconName: 'logo_icon.png',
-                fit: BoxFit.contain,
                 width: Adapt.px(180),
                 height: Adapt.px(180),
+                useTheme: true,
               ),
               Text(
                 Localized.text('ox_usercenter.donate_tips'),
