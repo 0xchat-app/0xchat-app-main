@@ -259,7 +259,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       _settingModel.rightContent = Localized.getCurrentLanguage().languageText;
     }
     if( _settingModel.settingItemType == SettingItemType.theme){
-      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value();
+      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value() == ThemeSettingType.light.saveText ? Localized.text('ox_usercenter.theme_color_light') : Localized.text('ox_usercenter.theme_color_dart');
     }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
