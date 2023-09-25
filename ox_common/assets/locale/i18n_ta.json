@@ -99,5 +99,5 @@
   "secret_chat_received_tips": "आपने एक गुप्त चैट का अनुरोध प्राप्त किया है",
   "secret_chat_accepted_tips": "${name} ने आपका गुप्त चैट का अनुरोध स्वीकार किया है।",
   "secret_chat_rejected_tips": "${name} ने आपका गुप्त चैट का अनुरोध खारिज किया है",
-  "you": "คतुम",
+  "you": "คतुम"
 }
