@@ -103,5 +103,10 @@ class OXChat extends OXFlutterModule {
     required ChatSessionModel session,
     required String text,
     required CallMessageType type,
-  }) => ChatGeneralHandler(session: session).sendCallMessage(text: text, type: type, authorPubkey: session.sender);
+    String? authorPubkey,
+  }) => ChatGeneralHandler(session: session).sendCallMessage(
+    text: text,
+    type: type,
+    authorPubkey: authorPubkey,
+  );
 }
