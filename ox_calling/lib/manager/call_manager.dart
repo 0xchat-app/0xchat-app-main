@@ -295,7 +295,8 @@ class CallManager {
     OXChatInterface.sendCallMessage(
         chatSessionModel,
         decryptContent,
-        callType);
+        callType,
+        sender);
     return true;
   }
 
