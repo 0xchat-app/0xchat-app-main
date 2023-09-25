@@ -35,6 +35,7 @@ class Session {
   String pid;
   String sid;
   String media;
+  String offerId = '';
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
   List<RTCIceCandidate> remoteCandidates = [];
@@ -70,7 +71,6 @@ class SignalingManager {
   Map<String, dynamic> _iceServers = {
     'iceServers': [
       {'url': 'stun:stun.l.google.com:19302'},
-
     ]
   };
 
@@ -151,17 +151,21 @@ class SignalingManager {
         _localStream!.getVideoTracks()[0].enabled = false;
       }
     }
-    await _createOffer(session, media);
-    _isDisconnected = false;
-    onCallStateChange?.call(session, CallState.CallStateNew);
-    onCallStateChange?.call(session, CallState.CallStateInvite);
+    String? offerId = await _createOffer(session, media);
+    if (offerId != null) {
+      session.offerId = offerId;
+      _isDisconnected = false;
+      onCallStateChange?.call(session, CallState.CallStateNew);
+      onCallStateChange?.call(session, CallState.CallStateInvite);
+    }
   }
 
   void bye(String sessionId) {
     var sess = _sessions[sessionId];
     if (sess != null) {
       Map map = {'session_id': sessionId};
-      Contacts.sharedInstance.sendDisconnect(sess.pid, jsonEncode(map));
+      Contacts.sharedInstance
+          .sendDisconnect(sess.pid, jsonEncode(map), sess.offerId);
       _closeSession(sess);
     }
   }
@@ -188,7 +192,8 @@ class SignalingManager {
     bye(session.sid);
   }
 
-  void onParseMessage(String friend, SignalingState state, String content) async {
+  void onParseMessage(
+      String friend, SignalingState state, String content) async {
     var data = jsonDecode(content);
 
     switch (state) {
@@ -258,9 +263,10 @@ class SignalingManager {
               session.remoteCandidates.add(candidate);
             }
           } else {
-            if(media != null) {
-              _sessions[sessionId] = Session(pid: peerId, sid: sessionId, media: media)
-                ..remoteCandidates.add(candidate);
+            if (media != null) {
+              _sessions[sessionId] =
+                  Session(pid: peerId, sid: sessionId, media: media)
+                    ..remoteCandidates.add(candidate);
             }
           }
         }
@@ -273,7 +279,7 @@ class SignalingManager {
       //   break;
       case SignalingState.disconnect:
         {
-          if (!_isDisconnected){
+          if (!_isDisconnected) {
             _isDisconnected = true;
             var sessionId = data['session_id'];
             var session = _sessions.remove(sessionId);
@@ -318,8 +324,6 @@ class SignalingManager {
         };
       } catch (e) {}
     }
-
-
   }
 
   Future<MediaStream> createStream(String media, bool userScreen,
@@ -372,7 +376,8 @@ class SignalingManager {
     required String media,
     required bool screenSharing,
   }) async {
-    var newSession = session ?? Session(sid: sessionId, pid: peerId, media: media);
+    var newSession =
+        session ?? Session(sid: sessionId, pid: peerId, media: media);
     if (media != 'data')
       _localStream =
           await createStream(media, screenSharing, context: _context);
@@ -458,6 +463,7 @@ class SignalingManager {
       await Future.delayed(
           const Duration(seconds: 1),
           () => Contacts.sharedInstance.sendCandidate(
+              _sessions[sessionId]!.offerId,
               peerId,
               jsonEncode({
                 'candidate': {
@@ -471,7 +477,8 @@ class SignalingManager {
 
     pc.onIceConnectionState = (state) {
       print('onIceConnectionState: $state ');
-      if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected){
+      if (!_isDisconnected &&
+          state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
         _isDisconnected = true;
         var session = _sessions.remove(sessionId);
         if (session != null) {
@@ -514,7 +521,7 @@ class SignalingManager {
     _addDataChannel(session, channel);
   }
 
-  Future<void> _createOffer(Session session, String media) async {
+  Future<String?> _createOffer(Session session, String media) async {
     try {
       RTCSessionDescription s =
           await session.pc!.createOffer(media == 'data' ? _dcConstraints : {});
@@ -525,10 +532,14 @@ class SignalingManager {
         'media': media
       };
       String jsonOfOfferContent = jsonEncode(map);
-      LogUtil.e('Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
-      await Contacts.sharedInstance.sendOffer(session.pid, jsonOfOfferContent);
+      LogUtil.e(
+          'Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
+      OKEvent okEvent = await Contacts.sharedInstance
+          .sendOffer(session.pid, jsonOfOfferContent);
+      return okEvent.eventId;
     } catch (e) {
       print(e.toString());
+      return null;
     }
   }
 
@@ -548,7 +559,8 @@ class SignalingManager {
         'description': {'sdp': s.sdp, 'type': s.type},
         'session_id': session.sid
       };
-      Contacts.sharedInstance.sendAnswer(session.pid, jsonEncode(map));
+      Contacts.sharedInstance
+          .sendAnswer(session.pid, jsonEncode(map), session.offerId);
     } catch (e) {
       print(e.toString());
     }
