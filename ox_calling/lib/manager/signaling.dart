@@ -308,6 +308,7 @@ class SignalingManager {
         */
         _iceServers = {
           'iceServers': [
+            {'url': 'stun:stun.l.google.com:19302'},
             {
               'urls': _turnCredential['uris'][0],
               'username': _turnCredential['username'],
