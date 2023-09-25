@@ -433,7 +433,7 @@ class OXChatBinding {
           sender: sender,
           receiver: receiver,
         ),
-        chatType: ChatType.chatSecret,
+        chatType: ChatType.chatSingle,
       );
     }
     return chatSessionModel;
