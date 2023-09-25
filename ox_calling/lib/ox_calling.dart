@@ -27,12 +27,16 @@ class OxCalling extends OXFlutterModule {
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'CallPage':
-        CallManager.instance.callState = CallState.CallStateInvite;
         String mediaType = params?['media'] ?? 'video';
-        if (mediaType == CallMessageType.audio.text) {
-          CallManager.instance.callType = CallMessageType.audio;
-        } else if (mediaType == CallMessageType.video.text) {
-          CallManager.instance.callType = CallMessageType.video;
+        if (CallManager.instance.callState == null ) {
+          CallManager.instance.callState = CallState.CallStateInvite;
+          if (mediaType == CallMessageType.audio.text) {
+            CallManager.instance.callType = CallMessageType.audio;
+          } else if (mediaType == CallMessageType.video.text) {
+            CallManager.instance.callType = CallMessageType.video;
+          }
+        } else {
+          mediaType = CallManager.instance.callType.text;
         }
         return OXNavigator.pushPage(context, (context) => CallPage(params?['userDB'], mediaType));
     }

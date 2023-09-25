@@ -129,6 +129,7 @@ class CallManager {
             break;
           } else {
             if (!_inCalling && (session.media == CallMessageType.audio.text || session.media == CallMessageType.video.text)) {
+              LogUtil.e('Michael: session.media =${session.media}');
               if (session.media == CallMessageType.audio.text) {
                 callType = CallMessageType.audio;
               } else if (session.media == CallMessageType.video.text) {
@@ -145,6 +146,9 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
           calledBye(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
           break;
         case CallState.CallStateInvite:
@@ -158,9 +162,6 @@ class CallManager {
           startTimer();
           _inCalling = true;
           break;
-      }
-      if (callStateHandler != null && callState !=null) {
-        callStateHandler!.call(callState!);
       }
     };
   }
@@ -183,15 +184,16 @@ class CallManager {
   reject() {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
+      calledBye(true);
     }
-    calledBye(true);
+
   }
 
   hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
+      calledBye(false);
     }
-    calledBye(false);
   }
 
   timeOutAutoHangUp() {
@@ -248,6 +250,7 @@ class CallManager {
     CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     callInitiator = null;
     callReceiver = null;
+    callState = null;
   }
 
   String _getCallHint(bool isReceiverReject, {bool? isTomeOut}){

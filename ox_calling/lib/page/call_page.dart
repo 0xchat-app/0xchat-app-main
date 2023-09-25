@@ -272,50 +272,25 @@ class CallPageState extends State<CallPage> {
         } else {
           CallManager.instance.hangUp();
         }
-
-        ///TODO add end_call message
         OXNavigator.pop(context);
       },
       child: _buildItemImg('icon_call_end.png', 56, 56),
     ));
-    if (CallManager.instance.callState != CallState.CallStateRinging) {
-      if (CallManager.instance.callType == CallMessageType.audio ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
-        showButtons.insert(
-          0,
-          InkWell(
-            onTap: () {
-              _isMicOn = !_isMicOn;
-              CallManager.instance.muteMic();
-              setState(() {});
-            },
-            child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
-          ),
-        );
-      }
-      if (widget.mediaType == 'video') {
-        showButtons.add(
-          InkWell(
-            onTap: () {
-              CallManager.instance.switchCamera();
-            },
-            child: _buildItemImg('icon_call_camera_flip.png', 24, 48),
-          ),
-        );
-      }
-      if (CallManager.instance.callType == CallMessageType.audio ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
-        showButtons.add(
-          InkWell(
-            onTap: () {
-              _isSpeakerOn = !_isSpeakerOn;
-              setState(() {
-                CallManager.instance.setSpeaker(_isSpeakerOn);
-              });
-            },
-            child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
-          ),
-        );
-      }
-    } else {
+    if ((CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState != CallState.CallStateRinging)
+        ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
+      showButtons.insert(
+        0,
+        InkWell(
+          onTap: () {
+            _isMicOn = !_isMicOn;
+            CallManager.instance.muteMic();
+            setState(() {});
+          },
+          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
+        ),
+      );
+    }
+    if (CallManager.instance.callState == CallState.CallStateRinging) {
       showButtons.add(
         InkWell(
           onTap: () {
@@ -323,6 +298,30 @@ class CallPageState extends State<CallPage> {
             setState(() {});
           },
           child: _buildItemImg('icon_call_accept.png', 56, 56),
+        ),
+      );
+    }
+    if (widget.mediaType == CallMessageType.video.text) {
+      showButtons.add(
+        InkWell(
+          onTap: () {
+            CallManager.instance.switchCamera();
+          },
+          child: _buildItemImg('icon_call_camera_flip.png', 24, 48),
+        ),
+      );
+    }
+    if ((CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState != CallState.CallStateRinging)
+        ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
+      showButtons.add(
+        InkWell(
+          onTap: () {
+            _isSpeakerOn = !_isSpeakerOn;
+            setState(() {
+              CallManager.instance.setSpeaker(_isSpeakerOn);
+            });
+          },
+          child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
         ),
       );
     }
