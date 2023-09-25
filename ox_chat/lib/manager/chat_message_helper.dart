@@ -152,10 +152,15 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.text:
         messageFactory = TextMessageFactory();
         final initialText = contentModel.content ?? '';
-        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText);
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+          if (mentions.isEmpty) return ;
+          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+          if (hasCurrentUser) {
+            isMentionMessageCallback?.call();
+          }
+        });
         if (mentionDecodeText != null) {
           contentModel.content = mentionDecodeText;
-          isMentionMessageCallback?.call();
         }
         break ;
       case MessageType.image:
