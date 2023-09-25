@@ -146,25 +146,25 @@ class _ZapsPageState extends State<ZapsPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: double.infinity,
-          height: Adapt.px(52),
-          padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-          child: Row(
-          children: [
-            Text(
-              title ?? '',
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(52),
+            padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
+            child: Row(
+            children: [
+              Text(
+                title ?? '',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
+                ),
               ),
-            ),
-            Expanded(
-              child: SizedBox(
-                width: Adapt.px(122),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: onTap,
+              Expanded(
+                child: SizedBox(
+                  width: Adapt.px(122),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -187,8 +187,8 @@ class _ZapsPageState extends State<ZapsPage> {
                   ),
                 ),
               ),
+             ],
             ),
-           ],
           ),
         ),
         Visibility(
