@@ -110,7 +110,7 @@ class CallPageState extends State<CallPage> {
     return Scaffold(
       body: Stack(
         children: [
-          _isVideoOn //widget.mediaType == CallMessageType.video.text
+          widget.mediaType == CallMessageType.video.text
               ? Positioned(
                   left: 0.0,
                   right: 0.0,
@@ -223,7 +223,7 @@ class CallPageState extends State<CallPage> {
               ),
             ],
           ),
-          if (CallManager.instance.callState == CallState.CallStateConnected)
+          if (widget.mediaType == CallMessageType.video.text && CallManager.instance.callState == CallState.CallStateConnected)
             Positioned(
               top: top,
               left: left,
