@@ -50,6 +50,7 @@ class CallManager {
   int counter = 0;
   OverlayEntry? overlayEntry;
   final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
+  bool initiativeHangUp = false;
 
   bool get getInCallIng{
     return _inCalling;
@@ -135,6 +136,7 @@ class CallManager {
               } else if (session.media == CallMessageType.video.text) {
                 callType = CallMessageType.video;
               }
+              initiativeHangUp = false;
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               OXNavigator.pushPage(_context,
@@ -171,6 +173,7 @@ class CallManager {
       _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
       callReceiver = peerId;
+      initiativeHangUp = false;
     }
   }
 
@@ -186,7 +189,6 @@ class CallManager {
       _signaling?.reject(_session!.sid);
       calledBye(true);
     }
-
   }
 
   hangUp() {
@@ -251,6 +253,7 @@ class CallManager {
     callInitiator = null;
     callReceiver = null;
     callState = null;
+    initiativeHangUp = true;
   }
 
   String _getCallHint(bool isReceiverReject, {bool? isTomeOut}){

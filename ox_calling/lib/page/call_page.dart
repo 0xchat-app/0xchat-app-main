@@ -75,7 +75,7 @@ class CallPageState extends State<CallPage> {
   @override
   void dispose() {
     CallManager.instance.removeObserver(counterValueChange);
-    if (CallManager.instance.getInCallIng || CallManager.instance.getWaitAccept) {
+    if (!CallManager.instance.initiativeHangUp) {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
@@ -112,7 +112,7 @@ class CallPageState extends State<CallPage> {
       extendBody: true,
       body: Stack(
         children: [
-          _isVideoOn
+          _isVideoOn //widget.mediaType == CallMessageType.video.text
               ? Positioned(
                   left: 0.0,
                   right: 0.0,
@@ -225,7 +225,7 @@ class CallPageState extends State<CallPage> {
               ),
             ],
           ),
-          if (_isVideoOn && CallManager.instance.callState == CallState.CallStateConnected)
+          if (CallManager.instance.callState == CallState.CallStateConnected)
             Positioned(
               top: top,
               left: left,
