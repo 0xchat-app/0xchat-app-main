@@ -241,6 +241,7 @@ class OXUserInfoManager {
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
+    OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
   }
 
   void _initMessage() {

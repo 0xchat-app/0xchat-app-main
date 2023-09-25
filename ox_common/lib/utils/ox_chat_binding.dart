@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -46,7 +47,11 @@ abstract class OXChatObserver {
 
   void didPromptToneCallBack(MessageDB message, int type) {}
 
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {}
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
+    OXChatBinding.sharedInstance.isZapBadge = true;
+  }
 }
 
 class OXChatBinding {
@@ -62,6 +67,8 @@ class OXChatBinding {
     return sessionMap.values.where((session) => session.chatType == ChatType.chatStranger || session.chatType == ChatType.chatSecretStranger).toList();
   }
   int unReadStrangerSessionCount = 0;
+
+  bool isZapBadge = false;
 
   factory OXChatBinding() {
     return sharedInstance;
