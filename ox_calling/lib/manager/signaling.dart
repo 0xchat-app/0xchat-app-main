@@ -165,7 +165,7 @@ class SignalingManager {
     if (sess != null) {
       Map map = {'session_id': sessionId};
       Contacts.sharedInstance
-          .sendDisconnect(sess.pid, jsonEncode(map), sess.offerId);
+          .sendDisconnect(sess.offerId, sess.pid, jsonEncode(map));
       _closeSession(sess);
     }
   }
@@ -560,7 +560,7 @@ class SignalingManager {
         'session_id': session.sid
       };
       Contacts.sharedInstance
-          .sendAnswer(session.pid, jsonEncode(map), session.offerId);
+          .sendAnswer(session.offerId, session.pid, jsonEncode(map));
     } catch (e) {
       print(e.toString());
     }
