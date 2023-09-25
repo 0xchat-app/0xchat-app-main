@@ -144,7 +144,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
             title: riveFileNames[3],
             artboard: riveArtboards[3],
             animationController: riveControllers[3],
-            unreadMsgCount: 0),
+            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
       ];
     });
     if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -239,6 +239,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    super.didZapRecordsCallBack(zapRecordsDB);
     setState(() {
       tabBarList[3].unreadMsgCount = 1;
     });

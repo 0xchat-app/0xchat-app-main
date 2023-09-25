@@ -276,6 +276,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
           MsgNotification(noticeNum: 0).dispatch(context);
+          OXChatBinding.sharedInstance.isZapBadge = false;
           OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
             setState(() {
               _isShowZapBadge = _getZapBadge();
@@ -306,11 +307,10 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true).then((value){
-      setState(() {
-        _isShowZapBadge = _getZapBadge();
-      });
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+    super.didZapRecordsCallBack(zapRecordsDB);
+    setState(() {
+      _isShowZapBadge = _getZapBadge();
     });
   }
 
@@ -321,7 +321,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   Future<bool> _getZapBadge() async {
-    return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.zap_badge',defaultValue: false);
+    return OXChatBinding.sharedInstance.isZapBadge;
   }
 
   Widget _buildZapBadgeWidget(){
