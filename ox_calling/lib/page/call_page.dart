@@ -108,8 +108,6 @@ class CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.cyan,
-      extendBody: true,
       body: Stack(
         children: [
           _isVideoOn //widget.mediaType == CallMessageType.video.text
