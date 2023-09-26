@@ -68,9 +68,9 @@ class CallManager {
     }
     _context = OXNavigator.navigatorKey.currentContext!;
     _signaling ??= SignalingManager(host, port, _context);
-    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
+    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
       LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
-      _signaling?.onParseMessage(friend, state, data);
+      _signaling?.onParseMessage(friend, state, data, offerId);
     };
     await initRenderers();
     _signaling?.onLocalStream = ((stream) {

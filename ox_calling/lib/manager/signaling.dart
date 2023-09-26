@@ -192,8 +192,8 @@ class SignalingManager {
     bye(session.sid);
   }
 
-  void onParseMessage(
-      String friend, SignalingState state, String content) async {
+  void onParseMessage(String friend, SignalingState state, String content,
+      String? offerId) async {
     var data = jsonDecode(content);
 
     switch (state) {
@@ -220,7 +220,9 @@ class SignalingManager {
               sessionId: sessionId,
               media: media,
               screenSharing: false);
+          newSession.offerId = offerId ?? '';
           _sessions[sessionId] = newSession;
+
           await newSession.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
           // await _createAnswer(newSession, media);
