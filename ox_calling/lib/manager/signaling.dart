@@ -31,11 +31,11 @@ enum VideoSource {
 }
 
 class Session {
-  Session({required this.sid, required this.pid, required this.media});
+  Session({required this.sid, required this.pid, required this.media, required this.offerId});
   String pid;
   String sid;
   String media;
-  String offerId = '';
+  String offerId;
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
   List<RTCIceCandidate> remoteCandidates = [];
@@ -172,6 +172,8 @@ class SignalingManager {
 
   void accept(String sessionId, String media) {
     var session = _sessions[sessionId];
+    print('session.offerId: ${session?.offerId}');
+
     if (session == null) {
       return;
     }
@@ -221,6 +223,7 @@ class SignalingManager {
               media: media,
               screenSharing: false);
           newSession.offerId = offerId ?? '';
+          print('newSession.offerId: ${newSession.offerId}');
           _sessions[sessionId] = newSession;
 
           await newSession.pc?.setRemoteDescription(
@@ -267,7 +270,7 @@ class SignalingManager {
           } else {
             if (media != null) {
               _sessions[sessionId] =
-                  Session(pid: peerId, sid: sessionId, media: media)
+                  Session(pid: peerId, sid: sessionId, media: media, offerId: offerId ?? '')
                     ..remoteCandidates.add(candidate);
             }
           }
@@ -321,7 +324,7 @@ class SignalingManager {
             {
               'urls': 'turn:rtc.0xchat.com:5349',
               'username': '0xchat',
-              'credential': '0xchat_prettyvs511'
+              'credential': 'Prettyvs511'
             },
           ]
         };
@@ -380,7 +383,7 @@ class SignalingManager {
     required bool screenSharing,
   }) async {
     var newSession =
-        session ?? Session(sid: sessionId, pid: peerId, media: media);
+        session ?? Session(sid: sessionId, pid: peerId, media: media, offerId: '');
     if (media != 'data')
       _localStream =
           await createStream(media, screenSharing, context: _context);
