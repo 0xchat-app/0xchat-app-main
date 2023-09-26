@@ -219,9 +219,10 @@ class CallPageState extends State<CallPage> {
                   width: double.infinity,
                   height: Adapt.px(80),
                   margin: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
-                  padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
+                  padding: EdgeInsets.symmetric(horizontal: CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState == CallState.CallStateRinging ? Adapt.px(24) : 0,
+                      vertical: Adapt.px(10)),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: _buildRowChild(),
                   ),
