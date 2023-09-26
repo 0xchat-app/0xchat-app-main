@@ -30,8 +30,8 @@ class CallManager {
   }
 
   static String tag = 'call_sample';
-  String host = 'stun:rtc.0xchat.com';
-  int port = 5349;
+  String host = 'rtc.0xchat.com';
+  int port = 8086;
 
   SignalingManager? _signaling;
 
