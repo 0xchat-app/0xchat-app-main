@@ -165,6 +165,9 @@ class CallManager {
           }
           startTimer();
           _inCalling = true;
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
           break;
       }
     };
