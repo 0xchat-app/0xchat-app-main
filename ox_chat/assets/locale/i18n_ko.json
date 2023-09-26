@@ -131,5 +131,6 @@
   "enter_or_relay": "릴레이 입력 또는 선택",
   "screen_record_hint_message" :"${user}님이 화면을 녹화하려고 했습니다",
   "session_content_mentioned": "당신이 언급되었습니다",
-  "session_content_draft":"임시 저장"
+  "session_content_draft":"임시 저장",
+  "lightning_invoice": "라이트닝 인보이스"
 }

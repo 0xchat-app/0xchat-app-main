@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Join Channel",
   "channel_badge_requirements": "Sending messages in this channel has Badge requirements",
-  "friend_requirements": "Unable to message, as they're no longer a friend"
+  "friend_requirements": "Unable to message, as they're no longer a friend",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stickers",
+  "giphy_search": "Search",
+  "giphy_tips": "Powered By GIPHY",
+  "chat_input_hint_text": "Message"
 }

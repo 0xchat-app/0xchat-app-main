@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
@@ -310,7 +311,8 @@ class InputState extends State<Input>{
                 .withOpacity(0.5),
           ),
           hintText:
-          InheritedL10n.of(context).l10n.inputPlaceholder,
+          Localized.text('ox_chat_ui.chat_input_hint_text'),
+          // InheritedL10n.of(context).l10n.inputPlaceholder,
         ),
         focusNode: _inputFocusNode,
         keyboardType: widget.options.keyboardType,

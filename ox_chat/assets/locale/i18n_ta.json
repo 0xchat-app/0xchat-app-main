@@ -131,5 +131,6 @@
   "enter_or_relay": "रिले दर्ज करें या चयन करें",
   "screen_record_hint_message": "${user} ने स्क्रीन रिकॉर्ड करने की कोशिश की",
   "session_content_mentioned": "आपका उल्लेख किया गया है",
-  "session_content_draft": "मसौदा"
+  "session_content_draft": "मसौदा",
+  "lightning_invoice": "बिजली का इनवॉयस"
 }

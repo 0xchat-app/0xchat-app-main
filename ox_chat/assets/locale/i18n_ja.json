@@ -130,5 +130,6 @@
   "enter_or_relay": "リレーを入力または選択",
   "screen_record_hint_message" :"${user}が画面を録画しようとしました",
   "session_content_mentioned": "あなたが言及されました",
-  "session_content_draft":"ドラフト"
+  "session_content_draft":"ドラフト",
+  "lightning_invoice": "ライトニング請求書"
 }

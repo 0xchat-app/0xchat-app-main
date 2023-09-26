@@ -131,5 +131,6 @@
   "enter_or_relay": "RELAY EINGEBEN ODER AUSWÄHLEN",
   "screen_record_hint_message" :"${user} hat versucht, den Bildschirm aufzunehmen",
   "session_content_mentioned": "Sie wurden erwähnt",
-  "session_content_draft":"Entwurf"
+  "session_content_draft":"Entwurf",
+  "lightning_invoice": "Blitzrechnung"
 }

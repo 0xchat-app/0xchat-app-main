@@ -130,5 +130,6 @@
   "enter_or_relay": "أدخل أو اختر المحول",
   "screen_record_hint_message": "${user} حاول تسجيل الشاشة",
   "session_content_mentioned": "تمت الإشارة إليك",
-  "session_content_draft": "مسودة"
+  "session_content_draft": "مسودة",
+  "lightning_invoice": "فاتورة البرق"
 }

@@ -6,5 +6,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Připojit se ke kanálu",
   "channel_badge_requirements": "Pro odesílání zpráv v tomto kanálu jsou vyžadovány odznaky",
-  "friend_requirements": "Nelze odesílat zprávy, protože již nejsou přátelé"
+  "friend_requirements": "Nelze odesílat zprávy, protože již nejsou přátelé",
+  "giphy_emoji": "Emoji",
+  "giphy_gif": "GIFy",
+  "giphy_sticker": "Nálepky",
+  "giphy_search": "Hledat",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Zpráva"
 }

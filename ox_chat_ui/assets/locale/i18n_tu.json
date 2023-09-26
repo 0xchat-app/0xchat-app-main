@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Kanala Katıl",
   "channel_badge_requirements": "Bu kanala mesaj gönderme rozet gereksinimleri var",
-  "friend_requirements": "Daha fazla arkadaş olmadıkları için mesaj gönderilemiyor"
+  "friend_requirements": "Daha fazla arkadaş olmadıkları için mesaj gönderilemiyor",
+  "giphy_emoji": "Emojiler",
+  "giphy_gif": "GIF'ler",
+  "giphy_sticker": "Çıkartmalar",
+  "giphy_search": "Ara",
+  "giphy_tips": "GIPHY Tarafından Desteklenmektedir",
+  "chat_input_hint_text": "Mesaj yazın"
 }

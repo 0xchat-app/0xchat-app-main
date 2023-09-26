@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Kanaal Lid Worden",
   "channel_badge_requirements": "Berichten sturen in dit kanaal vereist een badge",
-  "friend_requirements": "Kan geen berichten sturen, omdat ze geen vrienden meer zijn"
+  "friend_requirements": "Kan geen berichten sturen, omdat ze geen vrienden meer zijn",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stickers",
+  "giphy_search": "Zoeken",
+  "giphy_tips": "Aangedreven door GIPHY",
+  "chat_input_hint_text": "Bericht"
 }

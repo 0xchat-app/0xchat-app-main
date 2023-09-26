@@ -131,5 +131,6 @@
   "enter_or_relay": "ADJA MEG VAGY VÁLASSZA KI A RELAY-T",
   "screen_record_hint_message": "${user} megpróbálta rögzíteni a képernyőt",
   "session_content_mentioned": "Megemlítettek",
-  "session_content_draft": "Piszkozat"
+  "session_content_draft": "Piszkozat",
+  "lightning_invoice": "Villám Számla"
 }

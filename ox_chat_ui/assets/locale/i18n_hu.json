@@ -6,5 +6,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Csatlakozás a Csoportba",
   "channel_badge_requirements": "Ehhez a csoportban üzenetek küldéséhez jelvénykövetelmények szükségesek",
-  "friend_requirements": "Nem lehet üzenetet küldeni, mivel már nem barátok"
+  "friend_requirements": "Nem lehet üzenetet küldeni, mivel már nem barátok",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Matricák",
+  "giphy_search": "Keresés",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Üzenet"
 }

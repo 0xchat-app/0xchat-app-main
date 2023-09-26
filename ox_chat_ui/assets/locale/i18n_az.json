@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Kanalə qoşul",
   "channel_badge_requirements": "Bu kanalda mesaj göndərmək üçün rozet tələbləri var",
-  "friend_requirements": "Onlar artıq dost deyillər, bu səbəbdən mesaj göndərmək mümkün deyil"
+  "friend_requirements": "Onlar artıq dost deyillər, bu səbəbdən mesaj göndərmək mümkün deyil",
+  "giphy_emoji": "Emoji",
+  "giphy_gif": "GIF-lər",
+  "giphy_sticker": "Stikerlər",
+  "giphy_search": "Axtarış",
+  "giphy_tips": "GIPHY tərəfindən dəstəklənir",
+  "chat_input_hint_text": "Mesaj"
 }

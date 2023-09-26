@@ -131,5 +131,6 @@
   "enter_or_relay": "ENTRA O SELECCIONA RELAY",
   "screen_record_hint_message": "${user} ha intentat gravar la pantalla",
   "session_content_mentioned": "T'han mencionat",
-  "session_content_draft": "Esborrany"
+  "session_content_draft": "Esborrany",
+  "lightning_invoice": "Factura Llampec"
 }

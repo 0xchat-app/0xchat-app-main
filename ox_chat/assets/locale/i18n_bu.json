@@ -131,5 +131,6 @@
   "enter_or_relay": "ВЪВЕДЕТЕ ИЛИ ИЗБЕРЕТЕ РЕЛЕ",
   "screen_record_hint_message": "${user} опита да записва екрана",
   "session_content_mentioned": "Бяхте споменати",
-  "session_content_draft": "Чернова"
+  "session_content_draft": "Чернова",
+  "lightning_invoice": "Фактура за Мълния"
 }

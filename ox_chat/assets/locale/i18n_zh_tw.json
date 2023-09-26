@@ -131,6 +131,6 @@
   "enter_or_relay": "輸入或選擇中繼",
   "screen_record_hint_message" :"${user}試圖錄屏",
   "session_content_mentioned": "你被提及",
-  "session_content_draft":"草稿"
-
+  "session_content_draft":"草稿",
+  "lightning_invoice": "閃電發票"
 }

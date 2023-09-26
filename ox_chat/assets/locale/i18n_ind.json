@@ -131,5 +131,6 @@
   "enter_or_relay": "MASUKKAN ATAU PILIH RELAY",
   "screen_record_hint_message": "${user} mencoba untuk merekam layar",
   "session_content_mentioned": "Anda disebut",
-  "session_content_draft": "Draf"
+  "session_content_draft": "Draf",
+  "lightning_invoice": "Faktur Kilat"
 }

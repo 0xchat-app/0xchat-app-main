@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Приєднатися до каналу",
   "channel_badge_requirements": "Відправлення повідомлень на цьому каналі вимагає значків",
-  "friend_requirements": "Неможливо відправити повідомлення, оскільки вони вже не є друзями"
+  "friend_requirements": "Неможливо відправити повідомлення, оскільки вони вже не є друзями",
+  "giphy_emoji": "Емодзі",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Наліпки",
+  "giphy_search": "Пошук",
+  "giphy_tips": "Підтримується GIPHY",
+  "chat_input_hint_text": "Повідомлення"
 }

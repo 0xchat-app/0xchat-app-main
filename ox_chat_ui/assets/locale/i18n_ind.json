@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Bergabung dengan Saluran",
   "channel_badge_requirements": "Mengirim pesan di saluran ini memiliki persyaratan badge",
-  "friend_requirements": "Tidak dapat mengirim pesan, karena mereka bukan teman lagi"
+  "friend_requirements": "Tidak dapat mengirim pesan, karena mereka bukan teman lagi",
+  "giphy_emoji": "Emoji",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stiker",
+  "giphy_search": "Cari",
+  "giphy_tips": "Didukung oleh GIPHY",
+  "chat_input_hint_text": "Pesan"
 }

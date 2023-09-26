@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Gå med i Kanalen",
   "channel_badge_requirements": "Det krävs badge för att skicka meddelanden i den här kanalen",
-  "friend_requirements": "Det går inte att skicka meddelanden, eftersom de inte längre är en vän"
+  "friend_requirements": "Det går inte att skicka meddelanden, eftersom de inte längre är en vän",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Stickers",
+  "giphy_search": "Sök",
+  "giphy_tips": "Drivs av GIPHY",
+  "chat_input_hint_text": "Meddelande"
 }
