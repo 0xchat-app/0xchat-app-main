@@ -30,7 +30,8 @@ class CallManager {
   }
 
   static String tag = 'call_sample';
-  String host = 'rtc.0xchat.com';
+  String host = 'stun:rtc.0xchat.com';
+  int port = 5349;
 
   SignalingManager? _signaling;
 
@@ -66,7 +67,7 @@ class CallManager {
       host = tHost;
     }
     _context = OXNavigator.navigatorKey.currentContext!;
-    _signaling ??= SignalingManager(host, _context);
+    _signaling ??= SignalingManager(host, port, _context);
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
       _signaling?.onParseMessage(friend, state, data);
     };

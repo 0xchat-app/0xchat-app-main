@@ -42,7 +42,7 @@ class Session {
 }
 
 class SignalingManager {
-  SignalingManager(this._host, this._context);
+  SignalingManager(this._host, this._port, this._context);
 
   String _selfId = Contacts.sharedInstance.pubkey;
   BuildContext? _context;

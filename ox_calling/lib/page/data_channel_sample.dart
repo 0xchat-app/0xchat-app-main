@@ -8,7 +8,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 class DataChannelSample extends StatefulWidget {
   static String tag = 'call_sample';
   final String host;
-  DataChannelSample({required this.host});
+  final int port;
+  DataChannelSample({required this.host, required this.port});
 
   @override
   _DataChannelSampleState createState() => _DataChannelSampleState();
@@ -90,7 +91,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
   }
 
   void _connect(BuildContext context) async {
-    _signaling ??= SignalingManager(widget.host, context)..connect();
+    _signaling ??= SignalingManager(widget.host, widget.port, context)..connect();
 
     _signaling?.onDataChannelMessage = (_, dc, RTCDataChannelMessage data) {
       setState(() {
