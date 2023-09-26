@@ -192,15 +192,15 @@ class CallManager {
   reject() {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
-      calledBye(true);
     }
+    calledBye(true);
   }
 
   hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
-      calledBye(false);
     }
+    calledBye(false);
   }
 
   timeOutAutoHangUp() {
