@@ -64,6 +64,7 @@ class CallPageState extends State<CallPage> {
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
       if (!CallManager.instance.getInCallIng) {
+        CallManager.instance.initiativeHangUp = true;
         CallManager.instance.timeOutAutoHangUp();
         if (mounted) {
           OXNavigator.pop(context);
@@ -85,7 +86,11 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    CallManager.instance.overlayEntry?.remove();
+    try {
+      CallManager.instance.overlayEntry?.remove();
+    } catch (e) {
+      print(e);
+    }
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
