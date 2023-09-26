@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
 import 'giphy_grid_view.dart';
+import 'giphy_picker.dart';
 import 'giphy_search_bar.dart';
 
 class GiphySearchPage extends StatefulWidget {
@@ -40,6 +42,7 @@ class _GiphySearchPageState extends State<GiphySearchPage> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: Adapt.px(12)),
             child: GiphySearchBar(
+              hintText: '${Localized.text('ox_chat_ui.giphy_search')} ${widget.category.label}',
               onSubmitted: (value) {
                 setState(() {
                   _queryString = value;
@@ -53,7 +56,7 @@ class _GiphySearchPageState extends State<GiphySearchPage> {
           Padding(
             padding: EdgeInsets.only(bottom: bottomPadding > 0 ? bottomPadding : Adapt.px(12), top: Adapt.px(12)),
             child: Text(
-              'Powered by GIPHY',
+              Localized.text('ox_chat_ui.giphy_tips'),
               style: TextStyle(
                   fontSize: Adapt.px(14),
                   fontWeight: FontWeight.w400,

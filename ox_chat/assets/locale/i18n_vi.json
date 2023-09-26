@@ -131,5 +131,6 @@
   "enter_or_relay": "NHẬP HOẶC CHỌN RELAY",
   "screen_record_hint_message" :"${user} đã cố gắng ghi hình màn hình",
   "session_content_mentioned": "Bạn đã được đề cập",
-  "session_content_draft":"Bản nháp"
+  "session_content_draft":"Bản nháp",
+  "lightning_invoice": "Hóa Đơn Lightning"
 }

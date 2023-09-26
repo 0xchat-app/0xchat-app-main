@@ -131,5 +131,6 @@
   "enter_or_relay": "INDTAST ELLER VÆLG RELAY",
   "screen_record_hint_message": "${user} forsøgte at optage skærmen",
   "session_content_mentioned": "Du er nævnt",
-  "session_content_draft": "Udkast"
+  "session_content_draft": "Udkast",
+  "lightning_invoice": "Lyn Faktura"
 }

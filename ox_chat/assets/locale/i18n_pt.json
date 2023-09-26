@@ -131,5 +131,6 @@
   "enter_or_relay": "ENTRAR OU SELECIONAR RELAY",
   "screen_record_hint_message" :"${user} tentou gravar a tela",
   "session_content_mentioned": "Você foi mencionado",
-  "session_content_draft":"Rascunho"
+  "session_content_draft":"Rascunho",
+  "lightning_invoice": "Fatura Lightning"
 }

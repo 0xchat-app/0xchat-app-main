@@ -131,5 +131,6 @@
   "enter_or_relay": "RELAY GİRİN YA DA SEÇİN",
   "screen_record_hint_message": "${user} ekran kaydı yapmayı denedi",
   "session_content_mentioned": "Bahsedildiniz",
-  "session_content_draft": "Taslak"
+  "session_content_draft": "Taslak",
+  "lightning_invoice": "Yıldırım Faturası"
 }

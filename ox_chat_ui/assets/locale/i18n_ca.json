@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Unir-se al Canal",
   "channel_badge_requirements": "L'enviament de missatges en aquest canal té requisits de distintiu",
-  "friend_requirements": "No es pot enviar missatges, ja que ja no són amics"
+  "friend_requirements": "No es pot enviar missatges, ja que ja no són amics",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Adhesius",
+  "giphy_search": "Cerca",
+  "giphy_tips": "Suportat per GIPHY",
+  "chat_input_hint_text": "Missatge"
 }

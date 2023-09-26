@@ -131,5 +131,6 @@
   "enter_or_relay": "DAXİL EDİN VƏ YA RELAY SEÇİN",
   "screen_record_hint_message": "${user} ekranı yazmağa cəhd etdi",
   "session_content_mentioned": "Siz xəbər verildiniz",
-  "session_content_draft": "Qaralama"
+  "session_content_draft": "Qaralama",
+  "lightning_invoice": "Yıldırım Fakturası"
 }

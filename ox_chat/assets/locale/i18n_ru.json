@@ -130,5 +130,6 @@
   "enter_or_relay": "Введите или выберите релей",
   "screen_record_hint_message" :"${user} пытался записать экран",
   "session_content_mentioned": "Вас упомянули",
-  "session_content_draft":"Черновик"
+  "session_content_draft":"Черновик",
+  "lightning_invoice": "Молния Счет-фактура"
 }

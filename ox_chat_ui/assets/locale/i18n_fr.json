@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Rejoindre le canal",
   "channel_badge_requirements": "Envoyer des messages dans ce canal nécessite un badge",
-  "friend_requirements": "Impossible d'envoyer un message, n'est plus un ami"
+  "friend_requirements": "Impossible d'envoyer un message, n'est plus un ami",
+  "giphy_emoji": "Émojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Autocollants",
+  "giphy_search": "Rechercher",
+  "giphy_tips": "Propulsé par GIPHY",
+  "chat_input_hint_text": "Message"
 }
