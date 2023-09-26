@@ -85,20 +85,18 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    if (CallManager.instance.overlayEntry != null && CallManager.instance.overlayEntry!.mounted) {
-      CallManager.instance.overlayEntry!.remove();
-    }
+    CallManager.instance.overlayEntry?.remove();
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
-      CallManager.instance.connectServer();
+      if (CallManager.instance.callState == CallState.CallStateInvite) {
+        await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+      }
       CallManager.instance.setSpeaker(true);
       PromptToneManager.sharedInstance.playCalling();
-      if (CallManager.instance.callState == CallState.CallStateInvite) {
-        CallManager.instance.invitePeer(widget.userDB!.pubKey!);
-      }
     }
+    if (mounted) setState(() {});
     CallManager.instance.addObserver(counterValueChange);
   }
 
@@ -274,6 +272,7 @@ class CallPageState extends State<CallPage> {
         } else {
           CallManager.instance.hangUp();
         }
+        CallManager.instance.initiativeHangUp = true;
         OXNavigator.pop(context);
       },
       child: _buildItemImg('icon_call_end.png', 56, 56),
@@ -420,7 +419,8 @@ class CallPageState extends State<CallPage> {
 
   void _callStateUpdate(CallState? callState) {
     if (callState == CallState.CallStateBye) {
-      OXNavigator.pop(context);
+      CallManager.instance.initiativeHangUp = true;
+      if (mounted) OXNavigator.pop(context);
     }
     if (mounted) {
       setState(() {});

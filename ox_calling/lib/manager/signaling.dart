@@ -135,7 +135,7 @@ class SignalingManager {
     }
   }
 
-  void invite(String peerId, String media, bool useScreen) async {
+  Future<void> invite(String peerId, String media, bool useScreen) async {
     var sessionId = _selfId + '-' + peerId;
     Session session = await _createSession(null,
         peerId: peerId,
@@ -533,8 +533,6 @@ class SignalingManager {
         'media': media
       };
       String jsonOfOfferContent = jsonEncode(map);
-      LogUtil.e(
-          'Michael: jsonOfOfferContent.length =${jsonOfOfferContent.length}');
       OKEvent okEvent = await Contacts.sharedInstance
           .sendOffer(session.pid, jsonOfOfferContent);
       return okEvent.eventId;

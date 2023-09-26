@@ -69,6 +69,7 @@ class CallManager {
     _context = OXNavigator.navigatorKey.currentContext!;
     _signaling ??= SignalingManager(host, port, _context);
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
+      LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
       _signaling?.onParseMessage(friend, state, data);
     };
     await initRenderers();
@@ -101,9 +102,8 @@ class CallManager {
     _timer = null;
   }
 
-  void connectServer() async {
-
-    _signaling?.connect();
+  Future<void> connectServer() async {
+    await _signaling?.connect();
   }
 
   void initListener() async {
@@ -132,7 +132,6 @@ class CallManager {
             break;
           } else {
             if (!_inCalling && (session.media == CallMessageType.audio.text || session.media == CallMessageType.video.text)) {
-              LogUtil.e('Michael: session.media =${session.media}');
               if (session.media == CallMessageType.audio.text) {
                 callType = CallMessageType.audio;
               } else if (session.media == CallMessageType.video.text) {
@@ -141,6 +140,7 @@ class CallManager {
               initiativeHangUp = false;
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+              await CallManager.instance.connectServer();
               OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
@@ -170,9 +170,9 @@ class CallManager {
     };
   }
 
-  invitePeer(String peerId, {bool useScreen = false}) async {
+  Future<void> invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
-      _signaling?.invite(peerId, callType.text, useScreen);
+      await _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
       callReceiver = peerId;
       initiativeHangUp = false;
@@ -212,11 +212,7 @@ class CallManager {
   }
 
   setSpeaker(bool isSpeakerOn) async {
-    if (Platform.isAndroid) {
-      await OxCallingPlatform.instance.setSpeakerStatus(isSpeakerOn);
-    } else {
-      await Helper.setSpeakerphoneOn(isSpeakerOn);
-    }
+    Helper.setSpeakerphoneOn(isSpeakerOn);
   }
 
   muteMic() {
@@ -240,8 +236,8 @@ class CallManager {
   }
 
   void calledBye(bool isReceiverReject, {bool? isTomeOut}){
-    initiativeHangUp = true;
-    String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
+    // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
+    // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     if (_waitAccept) {
       print('peer reject');
       _waitAccept = false;
@@ -256,7 +252,6 @@ class CallManager {
       overlayEntry?.remove();
       overlayEntry = null;
     }
-    CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     callInitiator = null;
     callReceiver = null;
     callState = null;
@@ -296,21 +291,21 @@ class CallManager {
     return content;
   }
 
-  Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
-    if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
-      return false;
-    }
-    ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
-    if (chatSessionModel == null) {
-      return false;
-    }
-    OXChatInterface.sendCallMessage(
-        chatSessionModel,
-        decryptContent,
-        callType,
-        sender);
-    return true;
-  }
+  // Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
+  //   if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
+  //     return false;
+  //   }
+  //   ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
+  //   if (chatSessionModel == null) {
+  //     return false;
+  //   }
+  //   OXChatInterface.sendCallMessage(
+  //       chatSessionModel,
+  //       decryptContent,
+  //       callType,
+  //       sender);
+  //   return true;
+  // }
 
   void stopTimer() {
     counter = 0;
