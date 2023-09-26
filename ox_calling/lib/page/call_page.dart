@@ -96,6 +96,7 @@ class CallPageState extends State<CallPage> {
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
       if (CallManager.instance.callState == CallState.CallStateInvite) {
+        CallManager.instance.initiativeHangUp = false;
         await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
       }
       CallManager.instance.setSpeaker(true);

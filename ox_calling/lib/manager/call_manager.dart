@@ -1,24 +1,19 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:core';
 
+import 'package:chatcore/chat-core.dart' as ChatCore;
 import 'package:flutter/material.dart';
-import 'package:ox_calling/ox_calling_platform_interface.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/page/call_page.dart';
-import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
-import 'dart:core';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:chatcore/chat-core.dart' as ChatCore;
-import 'package:nostr_core_dart/nostr.dart';
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -178,7 +173,6 @@ class CallManager {
       await _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
       callReceiver = peerId;
-      initiativeHangUp = false;
     }
   }
 
