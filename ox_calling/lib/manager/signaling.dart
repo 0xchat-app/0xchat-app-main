@@ -172,8 +172,6 @@ class SignalingManager {
 
   void accept(String sessionId, String media) {
     var session = _sessions[sessionId];
-    print('session.offerId: ${session?.offerId}');
-
     if (session == null) {
       return;
     }
@@ -197,7 +195,6 @@ class SignalingManager {
   void onParseMessage(String friend, SignalingState state, String content,
       String? offerId) async {
     var data = jsonDecode(content);
-
     switch (state) {
       // case 'peers':
       //   {
