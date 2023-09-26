@@ -316,12 +316,11 @@ class SignalingManager {
           'iceServers': [
             {'url': 'stun:stun.l.google.com:19302'},
             {'url': 'stun:rtc.0xchat.com:5349'},
-            {'url': 'turn:0xchat:0xchat_prettyvs511@rtc.0xchat.com:5349'},
-            // {
-            //   'urls': _turnCredential['uris'][0],
-            //   'username': _turnCredential['username'],
-            //   'credential': _turnCredential['password']
-            // },
+            {
+              'urls': 'turn:rtc.0xchat.com:5349',
+              'username': '0xchat',
+              'credential': '0xchat_prettyvs511'
+            },
           ]
         };
       } catch (e) {}
