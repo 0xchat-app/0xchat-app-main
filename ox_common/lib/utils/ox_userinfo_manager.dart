@@ -176,7 +176,7 @@ class OXUserInfoManager {
 
   Future<bool> setNotification() async {
     bool updateNotificatin = false;
-    if (!isLogin || !_initAllCompleted) return updateNotificatin;
+    if (!_initAllCompleted || !isLogin) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUSH_TOKEN, defaultValue: '');
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();

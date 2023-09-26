@@ -11,6 +11,9 @@ import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class OXPush extends OXFlutterModule {
+
+  static bool hasSetNotification = false;
+
   static const MethodChannel _channel = const MethodChannel('ox_push');
 
   @override
@@ -23,6 +26,7 @@ class OXPush extends OXFlutterModule {
     super.setup();
     if(Platform.isIOS){
       _channel.setMethodCallHandler(_platformCallHandler);
+      OXUserInfoManager.sharedInstance.initDataActions.add(_setNotification);
     }
   }
 
@@ -46,13 +50,17 @@ class OXPush extends OXFlutterModule {
     _channel.invokeMethod('unPushId', {'userId': userId});
   }
 
-
   //Set the push ID
   static Future<void> requestRegistrationID(String registrationID) async {
-    if(Platform.isIOS){
+    if(Platform.isIOS) {
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUSH_TOKEN, '${CommonConstant.bundleId}$registrationID');
-      OXUserInfoManager.sharedInstance.setNotification();
+      _setNotification();
     }
+  }
+
+  static _setNotification() async {
+    if (hasSetNotification) return ;
+    hasSetNotification = await OXUserInfoManager.sharedInstance.setNotification();
   }
 
   @override
