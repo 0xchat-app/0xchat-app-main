@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_home/ox_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_common/event_bus.dart';
@@ -115,6 +116,7 @@ Future<void> setupModules() async {
   OXChat().setup();
   OXChatUI().setup();
   OxCalling().setup();
+  OxChatHome().setup();
 }
 
 class MainApp extends StatefulWidget {
