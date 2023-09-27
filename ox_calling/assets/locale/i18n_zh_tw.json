@@ -2,7 +2,7 @@
   "str_call_duration": "時長：${time}",
   "str_call_canceled": "已取消",
   "str_call_other_canceled": "對方已取消",
-  "str_call_rejected": "撥出電話",
+  "str_call_rejected": "已拒絕",
   "str_call_other_rejected": "對方已拒絕",
   "str_call_not_answered": "未接電話",
   "str_call_other_not_answered": "對方未接",

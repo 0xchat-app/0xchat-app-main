@@ -2,7 +2,7 @@
   "str_call_duration": "المدة: ${time}",
   "str_call_canceled": "تم الإلغاء",
   "str_call_other_canceled": "الطرف الآخر قد ألغى",
-  "str_call_rejected": "مكالمة صادرة",
+  "str_call_rejected": "تم الرفض",
   "str_call_other_rejected": "الطرف الآخر قد رفض",
   "str_call_not_answered": "لم يتم الرد على المكالمة",
   "str_call_other_not_answered": "لم يتم الرد على المكالمة من الطرف الآخر",

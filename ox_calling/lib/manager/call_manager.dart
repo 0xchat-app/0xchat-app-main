@@ -112,17 +112,16 @@ class CallManager {
     };
 
     _signaling?.onCallStateChange = (Session session, CallState state) async {
-      callState = state;
+      if (_session == null || (_session != null && _session!.sid == session.sid) ) {
+        callState = state;
+      }
       switch (state) {
         case CallState.CallStateNew:
-          _session = session;
+          _session ??= session;
           break;
         case CallState.CallStateRinging:
-          if (_waitAccept || _inCalling) {
-            /// send reject when not free
-            _signaling?.inCalling(session.sid);
-            return;
-          }
+          _signaling?.isDisconnected(false);
+          _signaling?.isStreamConnected(false);
           ///lack of speech type
           ChatCore.UserDB? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
           if (userDB == null) {

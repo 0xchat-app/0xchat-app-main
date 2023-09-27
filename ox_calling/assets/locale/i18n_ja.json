@@ -2,7 +2,7 @@
   "str_call_duration": "通話時間：${time}",
   "str_call_canceled": "キャンセル",
   "str_call_other_canceled": "相手がキャンセルしました",
-  "str_call_rejected": "発信通話",
+  "str_call_rejected": "拒否されました",
   "str_call_other_rejected": "相手が拒否しました",
   "str_call_not_answered": "応答なし",
   "str_call_other_not_answered": "相手が応答しませんでした",

@@ -202,7 +202,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
   }
 
   _hangUp() {
-    _signaling?.bye(_session!.sid);
+    _signaling?.bye(_session!.sid, '');
   }
 
   _buildRow(context, peer) {

@@ -223,7 +223,7 @@ extension CallStateMessageEx on CallMessageState {
       case CallMessageState.reject:
         return isMe ? Localized.text('ox_calling.str_call_other_rejected') : Localized.text('ox_calling.str_call_rejected');
       case CallMessageState.timeout:
-        return isMe ? Localized.text('ox_calling.str_call_not_answered') : Localized.text('ox_calling.str_call_other_not_answered');
+        return isMe ? Localized.text('ox_calling.str_call_other_not_answered') : Localized.text('ox_calling.str_call_not_answered');
       case CallMessageState.disconnect:
         return Localized.text('ox_calling.str_call_duration').replaceAll(r'${time}', durationText);
       case CallMessageState.inCalling:

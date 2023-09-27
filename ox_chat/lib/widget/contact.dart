@@ -20,7 +20,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 const double headerHeight = 30.0;
 const double itemHeight = 62.0;
 
-typedef void CursorContactsChanged(Widget cursor);
+typedef void CursorContactsChanged(Widget cursor, int noteLength);
 
 class ContactWidget extends StatefulWidget {
   final List<UserDB> data;
@@ -98,7 +98,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     widget.onCursorContactsChanged?.call(Container(
       child: _buildAlphaBar(),
       width: 30,
-    ));
+    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -428,6 +428,7 @@ class _ContractListItemState extends State<ContractListItem> {
       child: Container(
         color: ThemeColor.color200,
         width: double.infinity,
+        height: itemHeight,
         padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
         child: Row(
           children: <Widget>[
