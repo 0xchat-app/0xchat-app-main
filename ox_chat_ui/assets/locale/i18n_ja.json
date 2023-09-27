@@ -7,5 +7,11 @@
   "input_more_zaps": "ザップス",
   "channel_join": "チャンネルに参加",
   "channel_badge_requirements": "このチャンネルでメッセージを送るにはバッジが必要です",
-  "friend_requirements": "友達ではなくなったため、メッセージを送れません"
+  "friend_requirements": "友達ではなくなったため、メッセージを送れません",
+  "giphy_emoji": "絵文字",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "ステッカー",
+  "giphy_search": "検索",
+  "giphy_tips": "GIPHYによって提供",
+  "chat_input_hint_text": "メッセージ"
 }

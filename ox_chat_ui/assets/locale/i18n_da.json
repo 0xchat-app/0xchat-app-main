@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Tilmeld dig kanalen",
   "channel_badge_requirements": "Kravene til at sende beskeder i denne kanal er badge-krav",
-  "friend_requirements": "Det er ikke muligt at sende beskeder, da de ikke længere er venner"
+  "friend_requirements": "Det er ikke muligt at sende beskeder, da de ikke længere er venner",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Klistermærker",
+  "giphy_search": "Søg",
+  "giphy_tips": "Leveret af GIPHY",
+  "chat_input_hint_text": "Besked"
 }

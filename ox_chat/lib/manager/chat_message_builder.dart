@@ -15,6 +15,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessageBuilder {
 
@@ -109,7 +110,7 @@ class ChatMessageBuilder {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Lightning Invoice',
+                Text(Localized.text('ox_chat.lightning_invoice'),
                   style: TextStyle(color: ThemeColor.white, fontSize: 12),),
                 CommonImage(iconName: 'icon_zaps_0xchat.png',
                   package: 'ox_chat',

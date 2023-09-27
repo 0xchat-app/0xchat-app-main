@@ -7,5 +7,11 @@
   "input_more_zaps": "打闪",
   "channel_join": "加入频道",
   "channel_badge_requirements": "在此频道内发送消息需要徽章要求",
-  "friend_requirements": "由于对方已不再是您的朋友，无法发送消息"
+  "friend_requirements": "由于对方已不再是您的朋友，无法发送消息",
+  "giphy_emoji": "表情符号",
+  "giphy_gif": "动图",
+  "giphy_sticker": "贴纸",
+  "giphy_search": "搜索",
+  "giphy_tips": "由GIPHY提供技术支持",
+  "chat_input_hint_text": "输入消息"
 }

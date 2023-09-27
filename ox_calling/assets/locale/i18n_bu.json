@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Продължителност: ${time}",
-  "str_call_canceled": "Анулирано",
-  "str_call_rejected": "Изходящо обаждане"
+  "str_call_canceled": "Отказано",
+  "str_call_other_canceled": "Другата страна отказа",
+  "str_call_rejected": "Изходящ разговор",
+  "str_call_other_rejected": "Другата страна отхвърли",
+  "str_call_not_answered": "Разговорът не е отговорен",
+  "str_call_other_not_answered": "Разговорът не е отговорен от другата страна",
+  "str_invite_you_to_a_voice_call": "Ви кани на разговор...",
+  "str_invite_you_to_a_video_call": "Ви кани на видеоразговор...",
+  "str_call_connecting": "Свързване...",
+  "str_call_busy": "Линията е заета"
 }

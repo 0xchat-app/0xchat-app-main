@@ -6,5 +6,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Dołącz do Kanału",
   "channel_badge_requirements": "Wysyłanie wiadomości na tym kanale wymaga odznaki",
-  "friend_requirements": "Nie można wysyłać wiadomości, ponieważ nie są już przyjaciółmi"
+  "friend_requirements": "Nie można wysyłać wiadomości, ponieważ nie są już przyjaciółmi",
+  "giphy_emoji": "Emotikony",
+  "giphy_gif": "GIFy",
+  "giphy_sticker": "Naklejki",
+  "giphy_search": "Szukaj",
+  "giphy_tips": "Zasilane przez GIPHY",
+  "chat_input_hint_text": "Napisz wiadomość"
 }

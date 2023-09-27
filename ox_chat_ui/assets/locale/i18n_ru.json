@@ -7,5 +7,11 @@
   "input_more_zaps": "Запсы",
   "channel_join": "Присоединиться к каналу",
   "channel_badge_requirements": "Отправка сообщений в этом канале требует наличия значка",
-  "friend_requirements": "Невозможно отправить сообщение, так как больше не является другом"
+  "friend_requirements": "Невозможно отправить сообщение, так как больше не является другом",
+  "giphy_emoji": "Эмодзи",
+  "giphy_gif": "GIFы",
+  "giphy_sticker": "Стикеры",
+  "giphy_search": "Поиск",
+  "giphy_tips": "Поддерживается GIPHY",
+  "chat_input_hint_text": "Сообщение"
 }

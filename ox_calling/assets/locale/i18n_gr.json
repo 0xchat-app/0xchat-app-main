@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Διάρκεια: ${time}",
   "str_call_canceled": "Ακυρώθηκε",
-  "str_call_rejected": "Εξερχόμενη κλήση"
+  "str_call_other_canceled": "Η άλλη πλευρά ακύρωσε",
+  "str_call_rejected": "Εξερχόμενη κλήση",
+  "str_call_other_rejected": "Η άλλη πλευρά απέρριψε",
+  "str_call_not_answered": "Η κλήση δεν απαντήθηκε",
+  "str_call_other_not_answered": "Η κλήση δεν απαντήθηκε από την άλλη πλευρά",
+  "str_invite_you_to_a_voice_call": "Σε προσκαλεί σε μια κλήση...",
+  "str_invite_you_to_a_video_call": "Σε προσκαλεί σε μια βιντεοκλήση...",
+  "str_call_connecting": "Συνδέεται...",
+  "str_call_busy": "Κατειλημμένη γραμμή"
 }

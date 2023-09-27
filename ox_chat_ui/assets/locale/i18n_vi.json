@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Tham gia kênh",
   "channel_badge_requirements": "Gửi tin nhắn trong kênh này cần phải có Huy hiệu",
-  "friend_requirements": "Không thể gửi tin nhắn, vì không còn là bạn nữa"
+  "friend_requirements": "Không thể gửi tin nhắn, vì không còn là bạn nữa",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Sticker",
+  "giphy_search": "Tìm kiếm",
+  "giphy_tips": "Hỗ trợ bởi GIPHY",
+  "chat_input_hint_text": "Tin nhắn"
 }

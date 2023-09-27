@@ -130,5 +130,6 @@
   "enter_or_relay": "INGRESAR O SELECCIONAR RELAY",
   "screen_record_hint_message" :"${user} intentó grabar la pantalla",
   "session_content_mentioned": "Te han mencionado",
-  "session_content_draft":"Borrador"
+  "session_content_draft":"Borrador",
+  "lightning_invoice": "Factura Lightning"
 }

@@ -131,5 +131,6 @@
   "enter_or_relay": "ANGIV ELLER VÄLJ RELAY",
   "screen_record_hint_message": "${user} försökte att spela in skärmen",
   "session_content_mentioned": "Du nämndes",
-  "session_content_draft": "Utkast"
+  "session_content_draft": "Utkast",
+  "lightning_invoice": "Blixtfaktura"
 }

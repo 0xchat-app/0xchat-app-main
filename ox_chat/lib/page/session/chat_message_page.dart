@@ -176,6 +176,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
+        onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
       ),
     );

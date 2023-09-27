@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
@@ -36,6 +37,7 @@ class Input extends StatefulWidget {
     this.textFieldHasFocus,
     this.onGifSend,
     this.inputBottomView,
+    this.onFocusNodeInitialized,
   });
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -55,6 +57,8 @@ class Input extends StatefulWidget {
   final void Function(String path, Duration duration)? onVoiceSend;
 
   final VoidCallback? textFieldHasFocus;
+
+  final ValueChanged<FocusNode>? onFocusNodeInitialized;
 
   /// Customisation options for the [Input].
   final InputOptions options;
@@ -157,6 +161,7 @@ class InputState extends State<Input>{
     _textController =
         widget.options.textEditingController ?? InputTextFieldController();
     _handleSendButtonVisibilityModeChange();
+    widget.onFocusNodeInitialized?.call(_inputFocusNode);
   }
 
 
@@ -192,34 +197,37 @@ class InputState extends State<Input>{
     }
 
     final animationDuration = Duration(milliseconds: 200);
-    final emojiHeight = 360;
+    var height = 0.0;
+    switch (inputType) {
+      case InputType.inputTypeEmoji:
+        height = 360;
+        break ;
+      case InputType.inputTypeMore:
+        height = 202;
+        break ;
+      case InputType.inputTypeVoice:
+        height = 202;
+        break ;
+      default:
+        break ;
+    }
+    height += safeAreaBottomInsets;
+
     if (contentWidget != null) {
-      if(inputType == InputType.inputTypeEmoji){
         return AnimatedContainer(
           duration: animationDuration,
           curve: Curves.ease,
-          height: emojiHeight + safeAreaBottomInsets, // Dynamic height adjustment
+          height: height,
           child: contentWidget,
           onEnd: () {
             _inputFocusNode.unfocus();
           },
         );
-      }else{
-        return AnimatedContainer(
-          duration: animationDuration,
-          curve: Curves.ease,
-          height: 260 + safeAreaBottomInsets, // Dynamic height adjustment
-          child: contentWidget,
-          onEnd: () {
-            _inputFocusNode.unfocus();
-          },
-        );
-      }
     } else {
       return AnimatedContainer(
         duration: animationDuration,
         curve: Curves.easeInOut,
-        height: 0 + safeAreaBottomInsets, // Dynamic height adjustment
+        height: height, // Dynamic height adjustment
         child:Container(),
         onEnd: () {
           if(inputType == InputType.inputTypeText){
@@ -303,7 +311,8 @@ class InputState extends State<Input>{
                 .withOpacity(0.5),
           ),
           hintText:
-          InheritedL10n.of(context).l10n.inputPlaceholder,
+          Localized.text('ox_chat_ui.chat_input_hint_text'),
+          // InheritedL10n.of(context).l10n.inputPlaceholder,
         ),
         focusNode: _inputFocusNode,
         keyboardType: widget.options.keyboardType,

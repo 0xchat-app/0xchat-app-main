@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Müddət: ${time}",
   "str_call_canceled": "Ləğv edildi",
-  "str_call_rejected": "Çıxış zəngi"
+  "str_call_other_canceled": "Digər tərəf ləğv etdi",
+  "str_call_rejected": "Gedən zəng",
+  "str_call_other_rejected": "Digər tərəf redd etdi",
+  "str_call_not_answered": "Zəng cavablandırılmadı",
+  "str_call_other_not_answered": "Zəng digər tərəf tərəfindən cavablandırılmadı",
+  "str_invite_you_to_a_voice_call": "Sizi zəngə dəvət edir...",
+  "str_invite_you_to_a_video_call": "Sizi video zəngə dəvət edir...",
+  "str_call_connecting": "Qoşulur...",
+  "str_call_busy": "Xətt məşğuldu"
 }

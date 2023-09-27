@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Varaktighet: ${time}",
   "str_call_canceled": "Avbruten",
-  "str_call_rejected": "Utgående samtal"
+  "str_call_other_canceled": "Den andra parten har avbrutit",
+  "str_call_rejected": "Utgående samtal",
+  "str_call_other_rejected": "Den andra parten har avvisat",
+  "str_call_not_answered": "Samtalet besvarades inte",
+  "str_call_other_not_answered": "Samtalet besvarades inte av den andra parten",
+  "str_invite_you_to_a_voice_call": "Bjuder in dig till ett samtal...",
+  "str_invite_you_to_a_video_call": "Bjuder in dig till ett videosamtal...",
+  "str_call_connecting": "Ansluter...",
+  "str_call_busy": "Upptagen"
 }

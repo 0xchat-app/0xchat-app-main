@@ -1,7 +1,13 @@
 {
-  "str_call_duration": "Длительность: ${time}",
+  "str_call_duration": "Продолжительность: ${time}",
   "str_call_canceled": "Отменено",
   "str_call_other_canceled": "Другая сторона отменила",
-  "str_call_rejected": "Исходящий вызов",
-  "str_call_other_rejected": "Другая сторона отклонила"
+  "str_call_rejected": "Исходящий звонок",
+  "str_call_other_rejected": "Другая сторона отклонила",
+  "str_call_not_answered": "Звонок без ответа",
+  "str_call_other_not_answered": "Звонок не отвечен",
+  "str_invite_you_to_a_voice_call": "Приглашает вас на звонок...",
+  "str_invite_you_to_a_video_call": "Приглашает вас на видеозвонок...",
+  "str_call_connecting": "Подключение...",
+  "str_call_busy": "Занято"
 }

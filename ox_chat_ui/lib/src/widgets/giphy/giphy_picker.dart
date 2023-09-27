@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
@@ -14,11 +15,11 @@ extension GiphyCategoryTab on GiphyCategory {
   String get label {
     switch (this) {
       case GiphyCategory.GIFS:
-        return 'GIFs';
+        return Localized.text('ox_chat_ui.giphy_gif');
       case GiphyCategory.STICKERS:
-        return 'Stickers';
+        return Localized.text('ox_chat_ui.giphy_sticker');
       case GiphyCategory.EMOJIS:
-        return 'Emojis';
+        return Localized.text('ox_chat_ui.giphy_emoji');
     }
   }
 }
@@ -81,6 +82,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
               padding: EdgeInsets.only(bottom: Adapt.px(12)),
               sliver: SliverToBoxAdapter(
                 child: GiphySearchBar(
+                  hintText: '${Localized.text('ox_chat_ui.giphy_search')} Giphy',
                   enable: false,
                   onTap: () {
                     showModalBottomSheet(

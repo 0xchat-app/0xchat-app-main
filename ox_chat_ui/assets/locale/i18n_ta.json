@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "चैनल में शामिल हों",
   "channel_badge_requirements": "इस चैनल में मैसेज भेजने के लिए बैज आवश्यकता है",
-  "friend_requirements": "वे अब दोस्त नहीं हैं, इसलिए मैसेज नहीं भेज सकते"
+  "friend_requirements": "वे अब दोस्त नहीं हैं, इसलिए मैसेज नहीं भेज सकते",
+  "giphy_emoji": "इमोजीज़",
+  "giphy_gif": "जीआईएफ",
+  "giphy_sticker": "स्टीकर्स",
+  "giphy_search": "खोजें",
+  "giphy_tips": "जीआईएफ़ द्वारा संचालित",
+  "chat_input_hint_text": "संदेश"
 }

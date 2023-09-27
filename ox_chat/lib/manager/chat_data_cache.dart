@@ -88,7 +88,7 @@ class ChatDataCache with OXChatObserver {
 
     types.Message? msg = await message.toChatUIMessage();
     if (msg == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'receivePrivateMessageHandler', message: 'message is null');
+      ChatLogUtils.info(className: 'ChatDataCache', funcName: 'receivePrivateMessageHandler', message: 'message is null');
       return ;
     }
 

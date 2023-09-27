@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Kestus: ${time}",
   "str_call_canceled": "Tühistatud",
-  "str_call_rejected": "Väljaminev kõne"
+  "str_call_other_canceled": "Teine pool on tühistanud",
+  "str_call_rejected": "Väljaminev kõne",
+  "str_call_other_rejected": "Teine pool on keeldunud",
+  "str_call_not_answered": "Kõnele ei vastatud",
+  "str_call_other_not_answered": "Teine pool ei vastanud kõnele",
+  "str_invite_you_to_a_voice_call": "Kutsub sind kõnele...",
+  "str_invite_you_to_a_video_call": "Kutsub sind videokõnele...",
+  "str_call_connecting": "Ühendamine...",
+  "str_call_busy": "Liin on hõivatud"
 }

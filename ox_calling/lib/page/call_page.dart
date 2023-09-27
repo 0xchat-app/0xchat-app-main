@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: call_page
 ///Description: TODO(Fill in by oneself)
@@ -64,6 +65,7 @@ class CallPageState extends State<CallPage> {
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
       if (!CallManager.instance.getInCallIng) {
+        CallManager.instance.initiativeHangUp = true;
         CallManager.instance.timeOutAutoHangUp();
         if (mounted) {
           OXNavigator.pop(context);
@@ -75,7 +77,7 @@ class CallPageState extends State<CallPage> {
   @override
   void dispose() {
     CallManager.instance.removeObserver(counterValueChange);
-    if (CallManager.instance.getInCallIng || CallManager.instance.getWaitAccept) {
+    if (!CallManager.instance.initiativeHangUp) {
       Future.delayed(const Duration(milliseconds: 10), () {
         CallManager.instance.toggleFloatingWindow(widget.userDB);
       });
@@ -85,7 +87,11 @@ class CallPageState extends State<CallPage> {
 
   void _initData() async {
     CallManager.instance.callStateHandler = _callStateUpdate;
-    CallManager.instance.connectServer();
+    try {
+      CallManager.instance.overlayEntry?.remove();
+    } catch (e) {
+      print(e);
+    }
     if (CallManager.instance.callType == CallMessageType.audio) {
       _isVideoOn = false;
     }
@@ -93,13 +99,11 @@ class CallPageState extends State<CallPage> {
       CallManager.instance.setSpeaker(true);
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
-        CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+        CallManager.instance.initiativeHangUp = false;
+        await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
       }
     }
-    if (CallManager.instance.overlayEntry != null && CallManager.instance.overlayEntry!.mounted) {
-      CallManager.instance.overlayEntry!.remove();
-    }
-    CallManager.instance.resetCounterCallBack();
+    if (mounted) setState(() {});
     CallManager.instance.addObserver(counterValueChange);
   }
 
@@ -112,94 +116,93 @@ class CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        top: false,
-        child: Stack(
-          children: [
-            _isVideoOn
-                ? Positioned(
-                    left: 0.0,
-                    right: 0.0,
-                    top: 0.0,
-                    bottom: 0.0,
-                    child: Container(
-                      margin: EdgeInsets.zero,
-                      width: Adapt.screenW(),
-                      height: Adapt.screenH(),
-                      child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          ThemeColor.gradientMainEnd.withOpacity(0.7),
-                          ThemeColor.gradientMainStart.withOpacity(0.7),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: Adapt.px(56),
-                  margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          icon: CommonImage(
-                            iconName: "icon_back_left_arrow.png",
-                            color: Colors.white,
-                            width: Adapt.px(24),
-                            height: Adapt.px(24),
-                            useTheme: true,
-                          ),
-                          onPressed: () {
-                            OXNavigator.pop(context);
-                          },
-                        ),
-                      ),
-                      if (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)
-                        Align(alignment: Alignment.center, child: _buildHint()),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: Adapt.px(24),
-                ),
-                Expanded(
+      body: Stack(
+        children: [
+          widget.mediaType == CallMessageType.video.text
+              ? Positioned(
+                  left: 0.0,
+                  right: 0.0,
+                  top: 0.0,
+                  bottom: 0.0,
                   child: Container(
-                    width: double.infinity,
-                    height: Adapt.px(190),
-                    child: (CallManager.instance.callType == CallMessageType.audio ||
-                            (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState != CallState.CallStateConnected))
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildHeadImage(),
-                              SizedBox(
-                                height: Adapt.px(16),
-                              ),
-                              _buildHeadName(),
-                              SizedBox(
-                                height: Adapt.px(7),
-                              ),
-                              _buildHint(),
-                            ],
-                          )
-                        : SizedBox(),
+                    margin: EdgeInsets.zero,
+                    width: Adapt.screenW(),
+                    height: Adapt.screenH(),
+                    child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        ThemeColor.gradientMainEnd.withOpacity(0.7),
+                        ThemeColor.gradientMainStart.withOpacity(0.7),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
-                Container(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: Adapt.px(56),
+                margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        icon: CommonImage(
+                          iconName: "icon_back_left_arrow.png",
+                          color: Colors.white,
+                          width: Adapt.px(24),
+                          height: Adapt.px(24),
+                          useTheme: true,
+                        ),
+                        onPressed: () {
+                          OXNavigator.pop(context);
+                        },
+                      ),
+                    ),
+                    if (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)
+                      Align(alignment: Alignment.center, child: _buildHint()),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: Adapt.px(24),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  height: Adapt.px(190),
+                  child: (CallManager.instance.callType == CallMessageType.audio ||
+                          (CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState != CallState.CallStateConnected))
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildHeadImage(),
+                            SizedBox(
+                              height: Adapt.px(16),
+                            ),
+                            _buildHeadName(),
+                            SizedBox(
+                              height: Adapt.px(7),
+                            ),
+                            _buildHint(),
+                          ],
+                        )
+                      : SizedBox(),
+                ),
+              ),
+              SafeArea(
+                child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.all(Radius.circular(Adapt.px(24))),
@@ -218,57 +221,45 @@ class CallPageState extends State<CallPage> {
                   width: double.infinity,
                   height: Adapt.px(80),
                   margin: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
-                  padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(10)),
+                  padding: EdgeInsets.symmetric(horizontal: CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState == CallState.CallStateRinging ? Adapt.px(24) : 0,
+                      vertical: Adapt.px(10)),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: _buildRowChild(),
                   ),
                 ),
-              ],
-            ),
-            if (_isVideoOn && CallManager.instance.callState == CallState.CallStateConnected)
-              Positioned(
-                top: top,
-                left: left,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    setState(() {
-                      top += details.delta.dy;
-                      left += details.delta.dx;
-                    });
-                  },
-                  child: Container(
-                    width: 90.0,
-                    height: 120.0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
-                    ),
+              ),
+            ],
+          ),
+          if (widget.mediaType == CallMessageType.video.text && CallManager.instance.callState == CallState.CallStateConnected)
+            Positioned(
+              top: top,
+              left: left,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  setState(() {
+                    top += details.delta.dy;
+                    left += details.delta.dx;
+                  });
+                },
+                child: Container(
+                  width: 90.0,
+                  height: 120.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: RTCVideoView(CallManager.instance.localRenderer, mirror: true, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
   List<Widget> _buildRowChild() {
     List<Widget> showButtons = [];
-    if (CallManager.instance.callState == CallState.CallStateConnected
-      || (widget.mediaType == CallMessageType.audio.text && CallManager.instance.callState == CallState.CallStateInvite)) {
-      showButtons.add(
-        InkWell(
-          onTap: () {
-            _isMicOn = !_isMicOn;
-            CallManager.instance.muteMic();
-            setState(() {});
-          },
-          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
-        ),
-      );
-    }
     if (widget.mediaType == CallMessageType.video.text) {
       showButtons.add(
         InkWell(
@@ -289,12 +280,25 @@ class CallPageState extends State<CallPage> {
         } else {
           CallManager.instance.hangUp();
         }
-
-        ///TODO add end_call message
+        CallManager.instance.initiativeHangUp = true;
         OXNavigator.pop(context);
       },
       child: _buildItemImg('icon_call_end.png', 56, 56),
     ));
+    if ((CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState != CallState.CallStateRinging)
+        ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
+      showButtons.insert(
+        0,
+        InkWell(
+          onTap: () {
+            _isMicOn = !_isMicOn;
+            CallManager.instance.muteMic();
+            setState(() {});
+          },
+          child: _buildItemImg(_isMicOn ? 'icon_call_mic_on.png' : 'icon_call_mic_off.png', 24, 48),
+        ),
+      );
+    }
     if (CallManager.instance.callState == CallState.CallStateRinging) {
       showButtons.add(
         InkWell(
@@ -316,8 +320,8 @@ class CallPageState extends State<CallPage> {
         ),
       );
     }
-    if (CallManager.instance.callState == CallState.CallStateConnected
-        || (widget.mediaType == CallMessageType.audio.text && CallManager.instance.callState == CallState.CallStateInvite)) {
+    if ((CallManager.instance.callType == CallMessageType.audio && CallManager.instance.callState != CallState.CallStateRinging)
+        ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
       showButtons.add(
         InkWell(
           onTap: () {
@@ -330,7 +334,6 @@ class CallPageState extends State<CallPage> {
         ),
       );
     }
-
     return showButtons;
   }
 
@@ -408,7 +411,9 @@ class CallPageState extends State<CallPage> {
   Widget _buildHint() {
     String showHint = 'Calling...';
     if (CallManager.instance.callState == CallState.CallStateRinging) {
-      showHint = widget.mediaType == CallMessageType.audio.text ? 'Invites you to a call...' : 'Invites you to a video call...';
+      showHint = widget.mediaType == CallMessageType.audio.text ? 'str_invite_you_to_a_voice_call'.localized() : 'str_invite_you_to_a_video_call'.localized();
+    } else if (CallManager.instance.callState == CallState.CallStateConnecting) {
+      showHint = 'str_call_connecting'.localized();
     } else if (CallManager.instance.callState == CallState.CallStateConnected) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
       String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -422,11 +427,10 @@ class CallPageState extends State<CallPage> {
     );
   }
 
-  void _callStateUpdate(CallState callState) {
+  void _callStateUpdate(CallState? callState) {
     if (callState == CallState.CallStateBye) {
-      if (mounted) {
-        OXNavigator.pop(context);
-      }
+      CallManager.instance.initiativeHangUp = true;
+      if (mounted) OXNavigator.pop(context);
     }
     if (mounted) {
       setState(() {});

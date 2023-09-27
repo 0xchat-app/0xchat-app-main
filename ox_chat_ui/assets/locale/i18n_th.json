@@ -7,5 +7,11 @@
   "input_more_zaps": "แซปส์",
   "channel_join": "เข้าร่วมช่อง",
   "channel_badge_requirements": "การส่งข้อความในช่องนี้ต้องมีเหรียญ",
-  "friend_requirements": "ไม่สามารถส่งข้อความ เนื่องจากไม่เป็นเพื่อนแล้ว"
+  "friend_requirements": "ไม่สามารถส่งข้อความ เนื่องจากไม่เป็นเพื่อนแล้ว",
+  "giphy_emoji": "อิโมจิ",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "สติ๊กเกอร์",
+  "giphy_search": "ค้นหา",
+  "giphy_tips": "สนับสนุนโดย GIPHY",
+  "chat_input_hint_text": "ข้อความ"
 }

@@ -5,6 +5,8 @@ import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 import 'ox_calling_platform_interface.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -24,19 +26,20 @@ class OxCalling extends OXFlutterModule {
       };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) async {
     switch (pageName) {
       case 'CallPage':
         String mediaType = params?['media'] ?? 'video';
-        if (CallManager.instance.callState != null) {
-          mediaType = CallManager.instance.callType.text;
-        } else {
+        if (CallManager.instance.callState == null ) {
+          CallManager.instance.connectServer();
           CallManager.instance.callState = CallState.CallStateInvite;
           if (mediaType == CallMessageType.audio.text) {
             CallManager.instance.callType = CallMessageType.audio;
           } else if (mediaType == CallMessageType.video.text) {
             CallManager.instance.callType = CallMessageType.video;
           }
+        } else {
+          mediaType = CallManager.instance.callType.text;
         }
         return OXNavigator.pushPage(context, (context) => CallPage(params?['userDB'], mediaType));
     }

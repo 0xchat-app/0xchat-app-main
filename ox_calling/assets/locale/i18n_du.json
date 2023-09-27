@@ -1,5 +1,13 @@
 {
   "str_call_duration": "Duur: ${time}",
   "str_call_canceled": "Geannuleerd",
-  "str_call_rejected": "Uitgaand gesprek"
+  "str_call_other_canceled": "De andere partij heeft geannuleerd",
+  "str_call_rejected": "Uitgaande oproep",
+  "str_call_other_rejected": "De andere partij heeft geweigerd",
+  "str_call_not_answered": "Oproep niet beantwoord",
+  "str_call_other_not_answered": "Oproep werd niet beantwoord",
+  "str_invite_you_to_a_voice_call": "Nodigt je uit voor een gesprek...",
+  "str_invite_you_to_a_video_call": "Nodigt je uit voor een videogesprek...",
+  "str_call_connecting": "Verbinden...",
+  "str_call_busy": "Lijn bezet"
 }

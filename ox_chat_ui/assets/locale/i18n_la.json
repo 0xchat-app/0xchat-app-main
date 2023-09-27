@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Prisijungti prie Kanalo",
   "channel_badge_requirements": "Šiame kanale žinučių siuntimui reikia žymės reikalavimų",
-  "friend_requirements": "Negalima siųsti žinučių, nes jie daugiau nėra draugai"
+  "friend_requirements": "Negalima siųsti žinučių, nes jie daugiau nėra draugai",
+  "giphy_emoji": "Emocijas",
+  "giphy_gif": "GIF",
+  "giphy_sticker": "Uzlīmes",
+  "giphy_search": "Meklēt",
+  "giphy_tips": "Powered by GIPHY",
+  "chat_input_hint_text": "Ziņa"
 }

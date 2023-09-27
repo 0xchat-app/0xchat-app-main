@@ -67,8 +67,7 @@
   "import_follows_tips": "İzləmələri idxal et və onları Əlaqə kimi əlavə et:",
   "import_follows_no_data": "Hələ izləmə yoxdur",
   "import_follows_success_dialog": "Uğurla əlavə edildi. 0xchat'ı Əlaqələrinizlə paylaşın.",
-  "str_secret_center_hint": "• Sonadək şifrləməni istifadə et (NIP-44)\n• Metadata sızıntısını qarş
-  ... (kəsilmiş mətn)",
+  "str_secret_center_hint": "Uçtan-uca şifrələmədan istifadə edin (NIP-44)\n• Metadata sizintilarını önleyin (NIP-59)\n• İrəli gizlilik (NIP-101)\n• Başqa cihazlarda bərpa ediləmez\n• Ekran şəkli tespiti\n• Mesajlar yalnız sizin/spərverin göstərdiyi röle göndəriləcək:",
   "str_other_rejected": "Rədd edildi",
   "str_other_expired": "Vaxtı bitdi",
   "str_waiting_other_join": "${username} qoşulana qədər gözləyin...",
@@ -132,5 +131,6 @@
   "enter_or_relay": "DAXİL EDİN VƏ YA RELAY SEÇİN",
   "screen_record_hint_message": "${user} ekranı yazmağa cəhd etdi",
   "session_content_mentioned": "Siz xəbər verildiniz",
-  "session_content_draft": "Qaralama"
+  "session_content_draft": "Qaralama",
+  "lightning_invoice": "Yıldırım Fakturası"
 }

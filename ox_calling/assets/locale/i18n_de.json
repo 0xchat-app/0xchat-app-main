@@ -1,7 +1,13 @@
 {
   "str_call_duration": "Dauer: ${time}",
   "str_call_canceled": "Abgebrochen",
-  "str_call_other_canceled": "Der andere hat storniert",
+  "str_call_other_canceled": "Der andere hat abgebrochen",
   "str_call_rejected": "Ausgehender Anruf",
-  "str_call_other_rejected": "Der andere hat abgelehnt"
+  "str_call_other_rejected": "Der andere hat abgelehnt",
+  "str_call_not_answered": "Anruf nicht beantwortet",
+  "str_call_other_not_answered": "Anruf wurde nicht beantwortet",
+  "str_invite_you_to_a_voice_call": "Lädt Sie zu einem Anruf ein...",
+  "str_invite_you_to_a_video_call": "Lädt Sie zu einem Videoanruf ein...",
+  "str_call_connecting": "Verbindung wird hergestellt...",
+  "str_call_busy": "Besetzt"
 }

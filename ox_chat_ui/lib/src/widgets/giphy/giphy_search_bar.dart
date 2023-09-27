@@ -11,7 +11,9 @@ class GiphySearchBar extends StatefulWidget {
 
   final GestureTapCallback? onTap;
 
-  const GiphySearchBar({super.key,this.enable,this.onSubmitted,this.onTap});
+  final String? hintText;
+
+  const GiphySearchBar({super.key,this.enable,this.onSubmitted,this.onTap,this.hintText});
 
   @override
   State<GiphySearchBar> createState() => _GiphySearchBarState();
@@ -71,8 +73,15 @@ class _GiphySearchBarState extends State<GiphySearchBar> {
                         fit: BoxFit.fill,
                       ),
                     ),
-                    hintText: 'Search Giphy',
+                    hintText: widget.hintText,
+                    hintStyle: TextStyle(
+                      fontSize: Adapt.px(14),
+                      fontWeight: FontWeight.w400,
+                      height: Adapt.px(22) / Adapt.px(14),
+                      color: ThemeColor.color100
+                    ),
                     border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(bottom: Adapt.px(13))
                   ),
                 ),
               ),

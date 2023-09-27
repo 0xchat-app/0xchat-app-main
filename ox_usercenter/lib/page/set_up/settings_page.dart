@@ -259,7 +259,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       _settingModel.rightContent = Localized.getCurrentLanguage().languageText;
     }
     if( _settingModel.settingItemType == SettingItemType.theme){
-      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value();
+      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value() == ThemeSettingType.light.saveText ? Localized.text('ox_usercenter.theme_color_light') : Localized.text('ox_usercenter.theme_color_dart');
     }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -275,12 +275,15 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
-          MsgNotification(noticeNum: 0).dispatch(context);
-          OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
-            setState(() {
-              _isShowZapBadge = _getZapBadge();
+          if(OXChatBinding.sharedInstance.isZapBadge){
+            MsgNotification(noticeNum: 0).dispatch(context);
+            OXChatBinding.sharedInstance.isZapBadge = false;
+            OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
+              setState(() {
+                _isShowZapBadge = _getZapBadge();
+              });
             });
-          });
+          }
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
@@ -306,11 +309,10 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true).then((value){
-      setState(() {
-        _isShowZapBadge = _getZapBadge();
-      });
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+    super.didZapRecordsCallBack(zapRecordsDB);
+    setState(() {
+      _isShowZapBadge = _getZapBadge();
     });
   }
 
@@ -321,7 +323,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   Future<bool> _getZapBadge() async {
-    return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.zap_badge',defaultValue: false);
+    return OXChatBinding.sharedInstance.isZapBadge;
   }
 
   Widget _buildZapBadgeWidget(){

@@ -1,23 +1,19 @@
 import 'dart:async';
+import 'dart:core';
 
+import 'package:chatcore/chat-core.dart' as ChatCore;
 import 'package:flutter/material.dart';
-import 'package:ox_calling/ox_calling_platform_interface.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/page/call_page.dart';
-import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
-import 'dart:core';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:chatcore/chat-core.dart' as ChatCore;
-import 'package:nostr_core_dart/nostr.dart';
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -30,6 +26,7 @@ class CallManager {
 
   static String tag = 'call_sample';
   String host = 'rtc.0xchat.com';
+  int port = 8086;
 
   SignalingManager? _signaling;
 
@@ -42,14 +39,15 @@ class CallManager {
   DesktopCapturerSource? selected_source_;
   bool _waitAccept = false;
   late BuildContext _context;
-  ValueChanged<CallState>? callStateHandler;
+  ValueChanged<CallState?>? callStateHandler;
   CallMessageType callType = CallMessageType.video;
   String? callInitiator;
   String? callReceiver;
   Timer? _timer;
   int counter = 0;
   OverlayEntry? overlayEntry;
-  final List<ValueChanged<int>> _valueChangedCallBack = <ValueChanged<int>>[];
+  final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
+  bool initiativeHangUp = false;
 
   bool get getInCallIng{
     return _inCalling;
@@ -59,28 +57,25 @@ class CallManager {
     return _waitAccept;
   }
 
-  void resetCounterCallBack(){
-    _valueChangedCallBack.clear();
-  }
-
-  void initRTC({String? tHost}) {
+  void initRTC({String? tHost}) async {
     if (tHost != null) {
       host = tHost;
     }
     _context = OXNavigator.navigatorKey.currentContext!;
-    _signaling ??= SignalingManager(host, _context);
-    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data) {
-      _signaling?.onParseMessage(friend, state, data);
+    _signaling ??= SignalingManager(host, port, _context);
+    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
+      LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
+      _signaling?.onParseMessage(friend, state, data, offerId);
     };
-    initRenderers();
+    await initRenderers();
     _signaling?.onLocalStream = ((stream) {
       localRenderer.srcObject = stream;
-      // setState(() {});
+      callStateHandler?.call(null);
     });
 
     _signaling?.onAddRemoteStream = ((_, stream) {
       remoteRenderer.srcObject = stream;
-      // setState(() {});
+      callStateHandler?.call(null);
     });
 
     _signaling?.onRemoveRemoteStream = ((_, stream) {
@@ -89,7 +84,7 @@ class CallManager {
     initListener();
   }
 
-  void initRenderers() async {
+  Future<void> initRenderers() async {
     await localRenderer.initialize();
     await remoteRenderer.initialize();
   }
@@ -103,7 +98,6 @@ class CallManager {
   }
 
   void connectServer() async {
-
     _signaling?.connect();
   }
 
@@ -118,15 +112,21 @@ class CallManager {
     };
 
     _signaling?.onCallStateChange = (Session session, CallState state) async {
-      callState = state;
+      if (_session == null || (_session != null && _session!.sid == session.sid) ) {
+        callState = state;
+      }
       switch (state) {
         case CallState.CallStateNew:
-          _session = session;
+          _session ??= session;
           break;
         case CallState.CallStateRinging:
           if (_waitAccept || _inCalling) {
+            /// send reject when not free
+            _signaling?.inCalling(session.sid);
             return;
           }
+          _signaling?.isDisconnected(false);
+          _signaling?.isStreamConnected(false);
           ///lack of speech type
           ChatCore.UserDB? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
           if (userDB == null) {
@@ -138,8 +138,10 @@ class CallManager {
               } else if (session.media == CallMessageType.video.text) {
                 callType = CallMessageType.video;
               }
+              initiativeHangUp = false;
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+              CallManager.instance.connectServer();
               OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
@@ -149,27 +151,35 @@ class CallManager {
           }
           break;
         case CallState.CallStateBye:
-          calledBye(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
+          resetStatus(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
           break;
+        case CallState.CallStateConnecting:
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
+          break;
         case CallState.CallStateConnected:
-          PromptToneManager.sharedInstance.stopPlay();
           if (_waitAccept) {
             _waitAccept = false;
           }
-          startTimer();
           _inCalling = true;
+          PromptToneManager.sharedInstance.stopPlay();
+          startTimer();
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
           break;
-      }
-      if (callStateHandler != null && callState !=null) {
-        callStateHandler!.call(callState!);
       }
     };
   }
 
-  invitePeer(String peerId, {bool useScreen = false}) async {
+  Future<void> invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
       _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
@@ -188,21 +198,21 @@ class CallManager {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
     }
-    calledBye(true);
+    resetStatus(true);
   }
 
   hangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid);
+      _signaling?.bye(_session!.sid, _inCalling ? 'disconnect' : 'hangUp');
     }
-    calledBye(false);
+    resetStatus(false);
   }
 
   timeOutAutoHangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid);
+      _signaling?.bye(_session!.sid, 'timeout');
     }
-    calledBye(false, isTomeOut: true);
+    resetStatus(false, isTomeOut: true);
   }
 
   switchCamera() {
@@ -210,7 +220,7 @@ class CallManager {
   }
 
   setSpeaker(bool isSpeakerOn) async {
-    final bool setResult = await OxCallingPlatform.instance.setSpeakerStatus(isSpeakerOn);
+    Helper.setSpeakerphoneOn(isSpeakerOn);
   }
 
   muteMic() {
@@ -233,9 +243,9 @@ class CallManager {
     return aspectRatio;
   }
 
-  void calledBye(bool isReceiverReject, {bool? isTomeOut}){
-    callState = null;
-    String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
+  void resetStatus(bool isReceiverReject, {bool? isTomeOut}){
+    // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
+    // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     if (_waitAccept) {
       print('peer reject');
       _waitAccept = false;
@@ -245,15 +255,14 @@ class CallManager {
     localRenderer.srcObject = null;
     remoteRenderer.srcObject = null;
     _session = null;
-    resetCounterCallBack();
     PromptToneManager.sharedInstance.stopPlay();
     if (overlayEntry != null && overlayEntry!.mounted) {
       overlayEntry?.remove();
       overlayEntry = null;
     }
-    CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     callInitiator = null;
     callReceiver = null;
+    callState = null;
   }
 
   String _getCallHint(bool isReceiverReject, {bool? isTomeOut}){
@@ -290,20 +299,21 @@ class CallManager {
     return content;
   }
 
-  Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
-    if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
-      return false;
-    }
-    ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
-    if (chatSessionModel == null) {
-      return false;
-    }
-    OXChatInterface.sendCallMessage(
-        chatSessionModel,
-        decryptContent,
-        callType);
-    return true;
-  }
+  // Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
+  //   if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
+  //     return false;
+  //   }
+  //   ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
+  //   if (chatSessionModel == null) {
+  //     return false;
+  //   }
+  //   OXChatInterface.sendCallMessage(
+  //       chatSessionModel,
+  //       decryptContent,
+  //       callType,
+  //       sender);
+  //   return true;
+  // }
 
   void stopTimer() {
     counter = 0;
@@ -327,11 +337,11 @@ class CallManager {
 }
 
 extension CallCacheObserverEx on CallManager {
-  void addObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallBack.add(valueChangedCallback);
-  bool removeObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallBack.remove(valueChangedCallback);
+  void addObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.add(valueChangedCallback);
+  bool removeObserver(ValueChanged<int> valueChangedCallback) => _valueChangedCallback.remove(valueChangedCallback);
 
   Future<void> notifyAllObserverValueChanged() async {
-    final valueChangedCallback = _valueChangedCallBack;
+    final valueChangedCallback = _valueChangedCallback;
     for (var callback in valueChangedCallback) {
       callback(counter);
     }

@@ -7,5 +7,11 @@
   "input_more_zaps": "Zaps",
   "channel_join": "Kanal beitreten",
   "channel_badge_requirements": "Nachrichten in diesem Kanal erfordern Abzeichen",
-  "friend_requirements": "Nachricht nicht möglich, da nicht mehr befreundet"
+  "friend_requirements": "Nachricht nicht möglich, da nicht mehr befreundet",
+  "giphy_emoji": "Emojis",
+  "giphy_gif": "GIFs",
+  "giphy_sticker": "Sticker",
+  "giphy_search": "Suche",
+  "giphy_tips": "Unterstützt von GIPHY",
+  "chat_input_hint_text": "Nachricht"
 }
