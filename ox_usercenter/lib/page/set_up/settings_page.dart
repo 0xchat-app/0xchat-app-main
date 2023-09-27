@@ -275,13 +275,15 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
-          MsgNotification(noticeNum: 0).dispatch(context);
-          OXChatBinding.sharedInstance.isZapBadge = false;
-          OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
-            setState(() {
-              _isShowZapBadge = _getZapBadge();
+          if(OXChatBinding.sharedInstance.isZapBadge){
+            MsgNotification(noticeNum: 0).dispatch(context);
+            OXChatBinding.sharedInstance.isZapBadge = false;
+            OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
+              setState(() {
+                _isShowZapBadge = _getZapBadge();
+              });
             });
-          });
+          }
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
