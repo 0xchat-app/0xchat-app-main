@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -177,12 +178,13 @@ class CallMessageFactory implements MessageFactory {
 
     final state = CallMessageState.values.cast<CallMessageState?>()
         .firstWhere((state) => state.toString() == contentMap['state'], orElse: () => null);
-    final duration = contentMap['duration'];
+    var duration = contentMap['duration'];
     final media = CallMessageTypeEx.fromValue(contentMap['media']);
     if (state is! CallMessageState || duration is! int || media == null) return null;
 
     if (!state.shouldShowMessage) return null;
 
+    duration = max(duration, 0);
     final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
     final durationText = Duration(milliseconds: duration).toString().substring(2, 7);
     return types.CustomMessage(
@@ -219,7 +221,7 @@ extension CallStateMessageEx on CallMessageState {
       case CallMessageState.cancel:
         return isMe ? Localized.text('ox_calling.str_call_canceled') : Localized.text('ox_calling.str_call_other_canceled');
       case CallMessageState.reject:
-        return isMe ? Localized.text('ox_calling.str_call_rejected') : Localized.text('ox_calling.str_call_other_rejected');
+        return isMe ? Localized.text('ox_calling.str_call_other_rejected') : Localized.text('ox_calling.str_call_rejected');
       case CallMessageState.timeout:
         return isMe ? Localized.text('ox_calling.str_call_not_answered') : Localized.text('ox_calling.str_call_other_not_answered');
       case CallMessageState.disconnect:
