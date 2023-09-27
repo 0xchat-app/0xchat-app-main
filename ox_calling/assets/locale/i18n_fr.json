@@ -2,7 +2,7 @@
   "str_call_duration": "Durée : ${time}",
   "str_call_canceled": "Annulé",
   "str_call_other_canceled": "L'autre partie a annulé",
-  "str_call_rejected": "Appel sortant",
+  "str_call_rejected": "Refusé",
   "str_call_other_rejected": "L'autre partie a refusé",
   "str_call_not_answered": "Appel non répondu",
   "str_call_other_not_answered": "L'appel n'a pas été répondu",
