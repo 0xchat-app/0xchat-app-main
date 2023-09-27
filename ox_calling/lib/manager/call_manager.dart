@@ -194,14 +194,14 @@ class CallManager {
 
   hangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid);
+      _signaling?.bye(_session!.sid, 'hangUp');
     }
     calledBye(false);
   }
 
   timeOutAutoHangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid);
+      _signaling?.bye(_session!.sid, 'timeout');
     }
     calledBye(false, isTomeOut: true);
   }
