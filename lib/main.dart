@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_home/ox_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_common/event_bus.dart';
@@ -115,6 +116,7 @@ Future<void> setupModules() async {
   OXChat().setup();
   OXChatUI().setup();
   OxCalling().setup();
+  OxChatHome().setup();
 }
 
 class MainApp extends StatefulWidget {
@@ -146,6 +148,7 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
+    doHandleJumpInfo();
   }
 
   void notNetworInitWow() async {
@@ -153,11 +156,6 @@ class MainState extends State<MainApp>
     prefs.setBool('isGuestLogin', false);
   }
 
-  UserDB getUser(String loginInfoStr) {
-    Map<String, dynamic> user = convert.jsonDecode(loginInfoStr);
-    UserDB userInfo = UserDB.fromMap(Map.from(user));
-    return userInfo;
-  }
 
   @override
   void didChangeMetrics() {
@@ -188,6 +186,16 @@ class MainState extends State<MainApp>
     // channel.invokeMethod('changeTheme', {
     //   'themeStyle': themeStyle,
     // });
+  }
+
+  void doHandleJumpInfo() async {
+    String jumpInfo = await channel.invokeMethod(
+      'getParamJumpInfo',
+    );
+    LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
+    if (jumpInfo.isNotEmpty) {
+      //TODO
+    }
   }
 
   onLocaleChange() {

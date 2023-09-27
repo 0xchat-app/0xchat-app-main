@@ -7,7 +7,7 @@
 <!--        <item name="android:windowContentTransitions">true</item>-->
         <item name="android:navigationBarColor">@color/yl_color_202630</item>
         <item name="custom_attr_theme_color">@color/yl_color_202630</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
@@ -19,7 +19,7 @@
 <!--        <item name="android:windowContentTransitions">true</item>-->
         <item name="android:navigationBarColor">@color/yl_color_202630</item>
         <item name="custom_attr_theme_color">@color/yl_color_202630</item>
-        <item name="android:windowBackground">@drawable/launch_background</item>
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
