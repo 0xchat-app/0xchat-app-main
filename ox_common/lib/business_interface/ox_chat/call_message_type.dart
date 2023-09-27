@@ -19,11 +19,11 @@ extension CallMessageTypeEx on CallMessageType {
   String get value {
     switch (this) {
       case CallMessageType.audio:
-        return '1';
+        return 'audio';
       case CallMessageType.video:
-        return '2';
+        return 'video';
       default:
-        return '-1';
+        return 'unknow';
     }
   }
 

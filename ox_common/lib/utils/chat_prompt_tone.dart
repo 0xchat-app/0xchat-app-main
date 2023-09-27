@@ -17,6 +17,7 @@ class PromptToneManager {
 
   void play() async {
     if (_player.state != PlayerState.playing) {
+      _player.setReleaseMode(ReleaseMode.release);
       _player.play(AssetSource('sounds/message_notice_sound.mp3'));
     }
   }
@@ -28,9 +29,6 @@ class PromptToneManager {
   }
 
   void stopPlay() async {
-    if ( _player.state == PlayerState.playing) {
-      _player.stop();
-      _player.setReleaseMode(ReleaseMode.release);
-    }
+    _player.stop();
   }
 }

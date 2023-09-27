@@ -41,8 +41,6 @@ class OXCommon extends OXFlutterModule {
   @override
   Map<String, Function> get interfaces =>{
     "gotoWebView": gotoWebView,
-//    'statisticsPageStart': statisticsPageStart,
-//    'statisticsPageEnd': statisticsPageEnd,
     'saveImageToGallery':saveImageToGallery
   };
 
@@ -80,18 +78,6 @@ class OXCommon extends OXFlutterModule {
   void gotoWebView(BuildContext context,String url){
     OXNavigator.pushPage(context, (context) => CommonWebView(url));
   }
-
-//  void statisticsPageStart(BuildContext context, String viewName){
-//    if(viewName!=null && viewName.isNotEmpty) {
-//      YLStatistics.pageStart(viewName);
-//    }
-//  }
-//
-//  void statisticsPageEnd(BuildContext context, String viewName){
-//    if(viewName!=null && viewName.isNotEmpty) {
-//      YLStatistics.pageEnd(viewName);
-//    }
-//  }
 
   Future<String?> saveImageToGallery(Map<String,dynamic> params) async{
     return await ImagePickerUtils.saveImageToGallery(imageBytes: params["imageBytes"]);
