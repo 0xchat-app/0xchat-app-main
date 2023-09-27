@@ -97,8 +97,8 @@ class CallManager {
     _timer = null;
   }
 
-  Future<void> connectServer() async {
-    await _signaling?.connect();
+  void connectServer() async {
+    _signaling?.connect();
   }
 
   void initListener() async {
@@ -155,16 +155,16 @@ class CallManager {
         case CallState.CallStateInvite:
           _waitAccept = true;
           break;
+        case CallState.CallStateConnecting:
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
+          break;
         case CallState.CallStateConnected:
           if (_waitAccept) {
             _waitAccept = false;
           }
           _inCalling = true;
-          if (callStateHandler != null && callState !=null) {
-            callStateHandler!.call(callState!);
-          }
-          break;
-        case CallState.CallStateStreamconnected:
           PromptToneManager.sharedInstance.stopPlay();
           startTimer();
           if (callStateHandler != null && callState !=null) {
@@ -175,7 +175,7 @@ class CallManager {
     };
   }
 
-  void invitePeer(String peerId, {bool useScreen = false}) async {
+  Future<void> invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
       _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;

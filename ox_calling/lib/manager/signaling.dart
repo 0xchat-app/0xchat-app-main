@@ -21,8 +21,8 @@ enum CallState {
   CallStateNew,
   CallStateRinging,
   CallStateInvite,
+  CallStateConnecting,
   CallStateConnected,
-  CallStateStreamconnected,
   CallStateBye,
 }
 
@@ -66,6 +66,7 @@ class SignalingManager {
       onDataChannelMessage;
   Function(Session session, RTCDataChannel dc)? onDataChannel;
   bool _isDisconnected = false;
+  bool _isStreamConnected = false;
 
   String get sdpSemantics => 'unified-plan';
 
@@ -156,6 +157,7 @@ class SignalingManager {
     if (offerId != null) {
       session.offerId = offerId;
       _isDisconnected = false;
+      _isStreamConnected = false;
       onCallStateChange?.call(session, CallState.CallStateNew);
       onCallStateChange?.call(session, CallState.CallStateInvite);
     }
@@ -182,7 +184,7 @@ class SignalingManager {
       }
     }
     _createAnswer(session, media);
-    onCallStateChange?.call(session, CallState.CallStateConnected);
+    onCallStateChange?.call(session, CallState.CallStateConnecting);
   }
 
   void reject(String sessionId) {
@@ -243,6 +245,7 @@ class SignalingManager {
             newSession.remoteCandidates.clear();
           }
           _isDisconnected = false;
+          _isStreamConnected = false;
           onCallStateChange?.call(newSession, CallState.CallStateNew);
           onCallStateChange?.call(newSession, CallState.CallStateRinging);
         }
@@ -254,7 +257,7 @@ class SignalingManager {
           var session = _sessions[sessionId];
           session?.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
-          onCallStateChange?.call(session!, CallState.CallStateConnected);
+          onCallStateChange?.call(session!, CallState.CallStateConnecting);
         }
         break;
       case SignalingState.candidate:
@@ -398,7 +401,6 @@ class SignalingManager {
     if (media != 'data')
       _localStream =
           await createStream(media, screenSharing, context: _context);
-    print(_iceServers);
     RTCPeerConnection pc = await createPeerConnection({
       ..._iceServers,
       ...{'sdpSemantics': sdpSemantics}
@@ -449,19 +451,20 @@ class SignalingManager {
     };
 
     pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state ');
+      print('onIceConnectionState: $state }');
+      if (!_isStreamConnected && state == RTCIceConnectionState.RTCIceConnectionStateConnected) {
+        _isStreamConnected = true;
+        var session = _sessions[sessionId];
+        if (session != null) {
+          onCallStateChange?.call(session, CallState.CallStateConnected);
+        }
+      }
       if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
         _isDisconnected = true;
         var session = _sessions.remove(sessionId);
         if (session != null) {
           onCallStateChange?.call(session, CallState.CallStateBye);
           _closeSession(session);
-        }
-      }
-      if (state == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
-        var session = _sessions[sessionId];
-        if (session != null) {
-          onCallStateChange?.call(session, CallState.CallStateStreamconnected);
         }
       }
     };

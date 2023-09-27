@@ -65,7 +65,6 @@ class CallPageState extends State<CallPage> {
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
       if (!CallManager.instance.getInCallIng) {
-        LogUtil.e('Michael: timeOutAutoHangUp=======');
         CallManager.instance.initiativeHangUp = true;
         CallManager.instance.timeOutAutoHangUp();
         if (mounted) {
@@ -97,12 +96,12 @@ class CallPageState extends State<CallPage> {
       _isVideoOn = false;
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
-      if (CallManager.instance.callState == CallState.CallStateInvite) {
-        CallManager.instance.initiativeHangUp = false;
-        CallManager.instance.invitePeer(widget.userDB!.pubKey!);
-      }
       CallManager.instance.setSpeaker(true);
       PromptToneManager.sharedInstance.playCalling();
+      if (CallManager.instance.callState == CallState.CallStateInvite) {
+        CallManager.instance.initiativeHangUp = false;
+        await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+      }
     }
     if (mounted) setState(() {});
     CallManager.instance.addObserver(counterValueChange);
@@ -413,9 +412,9 @@ class CallPageState extends State<CallPage> {
     String showHint = 'Calling...';
     if (CallManager.instance.callState == CallState.CallStateRinging) {
       showHint = widget.mediaType == CallMessageType.audio.text ? 'str_invite_you_to_a_voice_call'.localized() : 'str_invite_you_to_a_video_call'.localized();
-    } else if (CallManager.instance.callState == CallState.CallStateConnected) {
+    } else if (CallManager.instance.callState == CallState.CallStateConnecting) {
       showHint = 'str_call_connecting'.localized();
-    } else if (CallManager.instance.callState == CallState.CallStateStreamconnected) {
+    } else if (CallManager.instance.callState == CallState.CallStateConnected) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
       String twoDigits(int n) => n.toString().padLeft(2, "0");
       String twoDigitMinutes = twoDigits(duration.inMinutes);
