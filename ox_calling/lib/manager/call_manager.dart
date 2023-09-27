@@ -199,7 +199,7 @@ class CallManager {
 
   hangUp() {
     if (_session != null) {
-      _signaling?.bye(_session!.sid, 'hangUp');
+      _signaling?.bye(_session!.sid, _inCalling ? 'disconnect' : 'hangUp');
     }
     resetStatus(false);
   }
