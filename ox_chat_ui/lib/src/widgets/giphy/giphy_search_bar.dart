@@ -74,7 +74,14 @@ class _GiphySearchBarState extends State<GiphySearchBar> {
                       ),
                     ),
                     hintText: widget.hintText,
+                    hintStyle: TextStyle(
+                      fontSize: Adapt.px(14),
+                      fontWeight: FontWeight.w400,
+                      height: Adapt.px(22) / Adapt.px(14),
+                      color: ThemeColor.color100
+                    ),
                     border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(bottom: Adapt.px(13))
                   ),
                 ),
               ),
