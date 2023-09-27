@@ -13,6 +13,9 @@ import ox_push
         if let navController = self.window.rootViewController as? UINavigationController,
            let flutterController = navController.viewControllers.first as? FlutterViewController {
             GeneratedPluginRegistrant.register(with: flutterController)
+            if let plugin = flutterController.registrar(forPlugin: "OXPerference") {
+                OXPerferencePlugin.register(with:plugin)
+            }
             OXCNavigator.register(with: flutterController.engine)
         }
         
@@ -78,12 +81,10 @@ import ox_push
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let urlStr = url.absoluteString
         let prefix = "oxChat";
-        if (urlStr .hasPrefix("\(prefix)://?")) {
-            let url = urlStr.replacingOccurrences(of: "\(prefix)://?", with: "")
+        if (urlStr.hasPrefix("\(prefix)://?")) {
             let userDefault = UserDefaults.standard
-            userDefault .setValue(url, forKey: "\(prefix).openurl")
+            userDefault.setValue(urlStr, forKey: OPENURLAPP)
             userDefault.synchronize()
-
         }
         return  true
     }
