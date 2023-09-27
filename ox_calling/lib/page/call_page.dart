@@ -64,12 +64,10 @@ class CallPageState extends State<CallPage> {
     }
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
-      if (!CallManager.instance.getInCallIng) {
+      if (!CallManager.instance.getInCallIng && mounted) {
         CallManager.instance.initiativeHangUp = true;
         CallManager.instance.timeOutAutoHangUp();
-        if (mounted) {
-          OXNavigator.pop(context);
-        }
+        OXNavigator.pop(context);
       }
     });
   }
