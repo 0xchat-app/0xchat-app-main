@@ -2,7 +2,7 @@
   "str_call_duration": "Thời gian: ${time}",
   "str_call_canceled": "Đã hủy",
   "str_call_other_canceled": "Đối phương đã hủy",
-  "str_call_rejected": "Cuộc gọi đi",
+  "str_call_rejected": "Đã từ chối",
   "str_call_other_rejected": "Đối phương đã từ chối",
   "str_call_not_answered": "Cuộc gọi không được trả lời",
   "str_call_other_not_answered": "Cuộc gọi không được đối phương trả lời",

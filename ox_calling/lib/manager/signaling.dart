@@ -204,12 +204,10 @@ class SignalingManager {
     bye(session.sid, 'reject');
   }
 
-  void inCalling(String sessionId) {
-    var session = _sessions[sessionId];
-    if (session == null) {
-      return;
-    }
-    bye(session.sid, 'inCalling');
+  void inCalling(String sessionId, String offerId, String friendPubkey) {
+    Map map = {'session_id': sessionId, 'reason': 'inCalling'};
+    Contacts.sharedInstance
+        .sendDisconnect(offerId, friendPubkey, jsonEncode(map));
   }
 
   void onParseMessage(String friend, SignalingState state, String content,
@@ -233,6 +231,11 @@ class SignalingManager {
           var description = data['description'];
           var media = data['media'];
           var sessionId = data['session_id'];
+          if (_localStream != null) {
+            /// send reject when not free
+            inCalling(sessionId, offerId ?? '', friend);
+            return;
+          }
           var session = _sessions[sessionId];
           var newSession = await _createSession(session,
               peerId: peerId,

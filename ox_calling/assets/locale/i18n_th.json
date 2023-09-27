@@ -2,7 +2,7 @@
   "str_call_duration": "ระยะเวลา: ${time}",
   "str_call_canceled": "ยกเลิกแล้ว",
   "str_call_other_canceled": "ฝ่ายอื่นได้ยกเลิก",
-  "str_call_rejected": "การโทรออก",
+  "str_call_rejected": "ถูกปฏิเสธ",
   "str_call_other_rejected": "ฝ่ายอื่นได้ปฏิเสธ",
   "str_call_not_answered": "ไม่ตอบรับสาย",
   "str_call_other_not_answered": "ไม่มีการตอบรับสาย",

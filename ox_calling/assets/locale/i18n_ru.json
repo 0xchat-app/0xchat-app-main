@@ -2,7 +2,7 @@
   "str_call_duration": "Продолжительность: ${time}",
   "str_call_canceled": "Отменено",
   "str_call_other_canceled": "Другая сторона отменила",
-  "str_call_rejected": "Исходящий звонок",
+  "str_call_rejected": "Отклонено",
   "str_call_other_rejected": "Другая сторона отклонила",
   "str_call_not_answered": "Звонок без ответа",
   "str_call_other_not_answered": "Звонок не отвечен",
