@@ -276,9 +276,9 @@ class Localized {
         
         Map<String, String> _cache = localized.cache;
         {
-          if (_cache[key] != null) {
-            return _cache[key]!;
-          }
+          // if (_cache[key] != null) {
+          //   return _cache[key]!;
+          // }
           bool found = true;
           Map<dynamic, dynamic> _values = _localizedValues;
           List<String> _keyParts = key.split('.');
@@ -305,9 +305,9 @@ class Localized {
 
         //If the corresponding translation key is not found in the translation JSON, the default translation JSON (en) will be used
         {
-            if (_cache[key] != null){
-                return _cache[key]!;
-            }
+            // if (_cache[key] != null){
+            //     return _cache[key]!;
+            // }
             bool found = true;
             Map<dynamic,dynamic>_defaultValues = _defaultLocalizedValues;
             List<String> _keyParts = key.split('.');
@@ -368,6 +368,9 @@ class Localized {
 
 
     static Future<void> registerLocale(String moduleName,String assetPath) async{
+        if (moduleName == 'ox_push') {
+            return;
+        }
 
         localized.moduleAssetPaths[moduleName] = assetPath;
 
