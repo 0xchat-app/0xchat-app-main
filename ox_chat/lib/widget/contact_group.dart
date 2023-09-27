@@ -19,7 +19,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 const double headerHeight = 30.0;
 const double itemHeight = 62.0;
 
-typedef void CursorChannelsChanged(Widget cursor);
+typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 
 class GroupContact extends StatefulWidget {
   final List<ChannelDB> data;
@@ -83,7 +83,7 @@ class GroupContactState extends State<GroupContact> {
     widget.onCursorChannelsChanged?.call(Container(
       child: _buildAlphaBar(),
       width: 30,
-    ));
+    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -374,7 +374,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
       child: Container(
         color: ThemeColor.color200,
         width: double.infinity,
-        // height: itemHeight,
+        height: itemHeight,
         padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
         child: Row(
           children: <Widget>[

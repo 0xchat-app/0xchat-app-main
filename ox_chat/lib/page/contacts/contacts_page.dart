@@ -40,6 +40,8 @@ class _ContractsPageState extends State<ContractsPage>
   Widget? _cursorContactsWidget;
   Widget? _cursorChannelsWidget;
   bool _isShowTools = false;
+  int _contactNotelength = 0;
+  int _channelNotelength = 0;
 
   @override
   void initState() {
@@ -72,7 +74,8 @@ class _ContractsPageState extends State<ContractsPage>
         unSelectedIconName: '',
       ),
     ];
-    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * Adapt.px(96);
+    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * 62
+     + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * 30;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -215,13 +218,15 @@ class _ContractsPageState extends State<ContractsPage>
     );
   }
 
-  void _setCursorContactsWidget(Widget widget) {
+  void _setCursorContactsWidget(Widget widget, int noteLength) {
+    _contactNotelength = noteLength;
     setState(() {
       _cursorContactsWidget = widget;
     });
   }
 
-  void _setCursorChannelsWidget(Widget widget) {
+  void _setCursorChannelsWidget(Widget widget, int noteLength) {
+    _channelNotelength = noteLength;
     setState(() {
       _cursorChannelsWidget = widget;
     });
