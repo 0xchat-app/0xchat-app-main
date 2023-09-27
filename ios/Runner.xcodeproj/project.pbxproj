@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C3F4E902AC41D180059FC01 /* OXPerferencePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
@@ -38,6 +39,8 @@
 
 /* Begin PBXFileReference section */
 		04CC841A88E489CC26B16769 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OXPerferencePlugin.m; sourceTree = "<group>"; };
+		0C3F4E8F2AC41D180059FC01 /* OXPerferencePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OXPerferencePlugin.h; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3B1CB4F3D472658B95EB84A6 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -156,6 +159,8 @@
 		CF8DE50E2673384500EF6C1B /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				0C3F4E8F2AC41D180059FC01 /* OXPerferencePlugin.h */,
+				0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */,
 				CF0086EC267CCAD0006C7ED7 /* OXCNavigator.h */,
 				CF0086ED267CCAD1006C7ED7 /* OXCNavigator.m */,
 				CF8DE51226733D7200EF6C1B /* OXCFlutterViewController.h */,
@@ -318,6 +323,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF8DE51426733D7300EF6C1B /* OXCFlutterViewController.m in Sources */,
+				0C3F4E902AC41D180059FC01 /* OXPerferencePlugin.m in Sources */,
 				CF0086EE267CCAD1006C7ED7 /* OXCNavigator.m in Sources */,
 				CF8DE5112673386100EF6C1B /* OXCFlutterEngineManager.m in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
