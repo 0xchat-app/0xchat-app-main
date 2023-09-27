@@ -16,6 +16,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: call_page
 ///Description: TODO(Fill in by oneself)
@@ -411,9 +412,9 @@ class CallPageState extends State<CallPage> {
   Widget _buildHint() {
     String showHint = 'Calling...';
     if (CallManager.instance.callState == CallState.CallStateRinging) {
-      showHint = widget.mediaType == CallMessageType.audio.text ? 'Invites you to a call...' : 'Invites you to a video call...';
+      showHint = widget.mediaType == CallMessageType.audio.text ? 'str_invite_you_to_a_voice_call'.localized() : 'str_invite_you_to_a_video_call'.localized();
     } else if (CallManager.instance.callState == CallState.CallStateConnected) {
-      showHint = 'Connecting...';
+      showHint = 'str_call_connecting'.localized();
     } else if (CallManager.instance.callState == CallState.CallStateStreamconnected) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
       String twoDigits(int n) => n.toString().padLeft(2, "0");

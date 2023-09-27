@@ -5,5 +5,8 @@
   "str_call_rejected": "Outgoing Call",
   "str_call_other_rejected": "The other party has declined",
   "str_call_not_answered": "Call not ansered",
-  "str_call_other_not_answered": "Call wasn't answered"
+  "str_call_other_not_answered": "Call wasn't answered",
+  "str_invite_you_to_a_voice_call": "Invites you to a call...",
+  "str_invite_you_to_a_video_call": "Invites you to a video call...",
+  "str_call_connecting": "Connecting..."
 }
