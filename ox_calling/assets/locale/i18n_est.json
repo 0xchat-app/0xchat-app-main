@@ -1,5 +1,7 @@
 {
   "str_call_duration": "Kestus: ${time}",
   "str_call_canceled": "Tühistatud",
-  "str_call_rejected": "Väljaminev kõne"
+  "str_call_rejected": "Väljaminev kõne",
+  "str_call_busy": "Occupé",
+  "str_call_busy": "Liin on hõivatud"
 }

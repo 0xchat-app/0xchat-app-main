@@ -1,5 +1,6 @@
 {
   "str_call_duration": "Varaktighet: ${time}",
   "str_call_canceled": "Avbruten",
-  "str_call_rejected": "Utgående samtal"
+  "str_call_rejected": "Utgående samtal",
+  "str_call_busy": "Upptagen"
 }

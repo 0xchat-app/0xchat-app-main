@@ -1,5 +1,6 @@
 {
   "str_call_duration": "Müddət: ${time}",
   "str_call_canceled": "Ləğv edildi",
-  "str_call_rejected": "Çıxış zəngi"
+  "str_call_rejected": "Çıxış zəngi",
+  "str_call_busy": "Xətt məşğuldu"
 }

@@ -3,5 +3,6 @@
   "str_call_canceled": "ยกเลิก",
   "str_call_other_canceled": "ฝ่ายตรงข้ามได้ยกเลิก",
   "str_call_rejected": "โทรออก",
-  "str_call_other_rejected": "ฝ่ายตรงข้ามได้ปฏิเสธแล้ว"
+  "str_call_other_rejected": "ฝ่ายตรงข้ามได้ปฏิเสธแล้ว",
+  "str_call_busy": "สายติด"
 }

@@ -1,5 +1,6 @@
 {
   "str_call_duration": "Időtartam: ${time}",
   "str_call_canceled": "Törölve",
-  "str_call_rejected": "Kimenő hívás"
+  "str_call_rejected": "Kimenő hívás",
+  "str_call_busy": "Foglalt"
 }

@@ -3,5 +3,6 @@
   "str_call_canceled": "已取消",
   "str_call_other_canceled": "對方已取消",
   "str_call_rejected": "對方已掛斷",
-  "str_call_other_rejected": "對方已拒絕"
+  "str_call_other_rejected": "對方已拒絕",
+  "str_call_busy": "忙線未接聽"
 }

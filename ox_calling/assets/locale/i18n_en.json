@@ -8,5 +8,6 @@
   "str_call_other_not_answered": "Call wasn't answered",
   "str_invite_you_to_a_voice_call": "Invites you to a call...",
   "str_invite_you_to_a_video_call": "Invites you to a video call...",
-  "str_call_connecting": "Connecting..."
+  "str_call_connecting": "Connecting...",
+  "str_call_busy": "Line busy"
 }

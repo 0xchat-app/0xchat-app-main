@@ -37,7 +37,6 @@ class OXChat extends OXFlutterModule {
     'showMyIdCardDialog': _showMyIdCardDialog,
     'chatSessionListPageWidget': _chatSessionListPageWidget,
     'contractsPageWidget': _contractsPageWidget,
-    'sendCallMessage': _sendCallMessage,
   };
 
   @override
@@ -98,15 +97,4 @@ class OXChat extends OXFlutterModule {
   Widget _contractsPageWidget(BuildContext context) {
     return ContractsPage();
   }
-
-  void _sendCallMessage({
-    required ChatSessionModel session,
-    required String text,
-    required CallMessageType type,
-    String? authorPubkey,
-  }) => ChatGeneralHandler(session: session).sendCallMessage(
-    text: text,
-    type: type,
-    authorPubkey: authorPubkey,
-  );
 }

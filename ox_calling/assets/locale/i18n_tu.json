@@ -1,5 +1,6 @@
 {
   "str_call_duration": "Süre: ${time}",
   "str_call_canceled": "İptal edildi",
-  "str_call_rejected": "Giden arama"
+  "str_call_rejected": "Giden arama",
+  "str_call_busy": "Hat meşgul"
 }

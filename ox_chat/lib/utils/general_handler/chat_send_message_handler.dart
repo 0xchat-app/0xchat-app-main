@@ -90,29 +90,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context);
   }
 
-  void sendCallMessage({BuildContext? context, required String text, required CallMessageType type, String? authorPubkey}) async {
-
-    var sender = this.author;
-    if (authorPubkey != null) {
-      final author = await ChatMessageDBToUIHelper.getUser(authorPubkey);
-      if (author == null) return ;
-      sender = author;
-    }
-
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = CustomMessageFactory().createCallMessage(
-      author: sender,
-      timestamp: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId ?? '',
-      text: text,
-      type: type,
-    );
-
-    _sendMessageHandler(message, context: context, isLocal: true);
-  }
-
   Future sendImageMessage(BuildContext context, List<File> images) async {
     for (final result in images) {
       final bytes = await result.readAsBytes();

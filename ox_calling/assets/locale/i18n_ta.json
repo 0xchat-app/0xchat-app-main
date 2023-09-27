@@ -1,5 +1,6 @@
 {
   "str_call_duration": "काल: ${time}",
   "str_call_canceled": "रद्द किया गया",
-  "str_call_rejected": "निर्वाचित कॉल"
+  "str_call_rejected": "निर्वाचित कॉल",
+  "str_call_busy": "लाइन व्यस्त है"
 }

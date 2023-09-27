@@ -1,5 +1,7 @@
 
 import 'dart:convert';
+
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -9,8 +11,6 @@ import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
-import 'general_handler/chat_mention_handler.dart';
 
 abstract class MessageFactory {
   types.Message? createMessage({
@@ -154,6 +154,85 @@ class VideoMessageFactory implements MessageFactory {
   }
 }
 
+class CallMessageFactory implements MessageFactory {
+  types.Message? createMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String remoteId,
+    required dynamic sourceKey,
+    required MessageContentModel contentModel,
+    required Status status,
+    EncryptionType fileEncryptionType = EncryptionType.none,
+    types.Message? repliedMessage,
+  }) {
+    final contentString = contentModel.content;
+    if (contentString == null) return null;
+
+    var contentMap;
+    try {
+      contentMap = json.decode(contentString);
+      if (contentMap is! Map) return null;
+    } catch(_) { }
+
+    final state = CallMessageState.values.cast<CallMessageState?>()
+        .firstWhere((state) => state.toString() == contentMap['state'], orElse: () => null);
+    final duration = contentMap['duration'];
+    final media = CallMessageTypeEx.fromValue(contentMap['media']);
+    if (state is! CallMessageState || duration is! int || media == null) return null;
+
+    if (!state.shouldShowMessage) return null;
+
+    final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
+    final durationText = Duration(milliseconds: duration).toString().substring(2, 7);
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: remoteId,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.callMetaData(
+        text: state.messageText(isMe, durationText),
+        type: media,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
+}
+
+extension CallStateMessageEx on CallMessageState {
+  bool get shouldShowMessage {
+    switch (this) {
+      case CallMessageState.cancel:
+      case CallMessageState.reject:
+      case CallMessageState.timeout:
+      case CallMessageState.disconnect:
+      case CallMessageState.inCalling:
+        return true;
+      default:
+        return false;
+    }
+  }
+  String messageText(bool isMe, String durationText) {
+    switch (this) {
+      case CallMessageState.cancel:
+        return isMe ? Localized.text('ox_calling.str_call_canceled') : Localized.text('ox_calling.str_call_other_canceled');
+      case CallMessageState.reject:
+        return isMe ? Localized.text('ox_calling.str_call_rejected') : Localized.text('ox_calling.str_call_other_rejected');
+      case CallMessageState.timeout:
+        return isMe ? Localized.text('ox_calling.str_call_not_answered') : Localized.text('ox_calling.str_call_other_not_answered');
+      case CallMessageState.disconnect:
+        return Localized.text('ox_calling.str_call_duration').replaceAll(r'${time}', durationText);
+      case CallMessageState.inCalling:
+        return Localized.text('ox_calling.str_call_busy');
+      default:
+        return '';
+    }
+  }
+}
+
+
 class SystemMessageFactory implements MessageFactory {
   types.Message? createMessage({
     required types.User author,
@@ -227,20 +306,6 @@ class CustomMessageFactory implements MessageFactory {
             amount: amount,
             description: description,
           );
-        case CustomMessageType.call:
-          final text = content['text'];
-          final type = CallMessageTypeEx.fromValue(content['type']);
-          if (type == null) return null;
-          return createCallMessage(
-            author: author,
-            timestamp: timestamp,
-            id: remoteId,
-            roomId: roomId,
-            remoteId: remoteId,
-            sourceKey: sourceKey,
-            text: text,
-            type: type,
-          );
         default :
           return null;
       }
@@ -273,31 +338,6 @@ class CustomMessageFactory implements MessageFactory {
         invoice: invoice,
         amount: amount,
         description: description,
-      ),
-      type: types.MessageType.custom,
-    );
-  }
-
-  types.CustomMessage createCallMessage({
-    required types.User author,
-    required int timestamp,
-    required String roomId,
-    required String id,
-    String? remoteId,
-    dynamic sourceKey,
-    required String text,
-    required CallMessageType type,
-  }) {
-    return types.CustomMessage(
-      author: author,
-      createdAt: timestamp,
-      id: id,
-      sourceKey: sourceKey,
-      remoteId: remoteId,
-      roomId: roomId,
-      metadata: CustomMessageEx.callMetaData(
-        text: text,
-        type: type,
       ),
       type: types.MessageType.custom,
     );

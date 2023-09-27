@@ -175,6 +175,9 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.encryptedAudio:
         messageFactory = AudioMessageFactory();
         break ;
+      case MessageType.call:
+        messageFactory = CallMessageFactory();
+        break ;
       case MessageType.system:
         messageFactory = SystemMessageFactory();
         break ;

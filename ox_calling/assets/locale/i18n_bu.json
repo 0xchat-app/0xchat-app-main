@@ -1,5 +1,6 @@
 {
   "str_call_duration": "Продължителност: ${time}",
   "str_call_canceled": "Анулирано",
-  "str_call_rejected": "Изходящо обаждане"
+  "str_call_rejected": "Изходящо обаждане",
+  "str_call_busy": "Линията е заета"
 }
