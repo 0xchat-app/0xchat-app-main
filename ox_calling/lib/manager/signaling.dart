@@ -22,6 +22,7 @@ enum CallState {
   CallStateRinging,
   CallStateInvite,
   CallStateConnected,
+  CallStateStreamconnected,
   CallStateBye,
 }
 
@@ -415,50 +416,6 @@ class SignalingManager {
           });
           break;
       }
-
-      // Unified-Plan: Simuclast
-      /*
-      await pc.addTransceiver(
-        track: _localStream.getAudioTracks()[0],
-        init: RTCRtpTransceiverInit(
-            direction: TransceiverDirection.SendOnly, streams: [_localStream]),
-      );
-
-      await pc.addTransceiver(
-        track: _localStream.getVideoTracks()[0],
-        init: RTCRtpTransceiverInit(
-            direction: TransceiverDirection.SendOnly,
-            streams: [
-              _localStream
-            ],
-            sendEncodings: [
-              RTCRtpEncoding(rid: 'f', active: true),
-              RTCRtpEncoding(
-                rid: 'h',
-                active: true,
-                scaleResolutionDownBy: 2.0,
-                maxBitrate: 150000,
-              ),
-              RTCRtpEncoding(
-                rid: 'q',
-                active: true,
-                scaleResolutionDownBy: 4.0,
-                maxBitrate: 100000,
-              ),
-            ]),
-      );*/
-      /*
-        var sender = pc.getSenders().find(s => s.track.kind == "video");
-        var parameters = sender.getParameters();
-        if(!parameters)
-          parameters = {};
-        parameters.encodings = [
-          { rid: "h", active: true, maxBitrate: 900000 },
-          { rid: "m", active: true, maxBitrate: 300000, scaleResolutionDownBy: 2 },
-          { rid: "l", active: true, maxBitrate: 100000, scaleResolutionDownBy: 4 }
-        ];
-        sender.setParameters(parameters);
-      */
     }
     pc.onIceCandidate = (candidate) async {
       if (candidate == null) {
@@ -485,13 +442,18 @@ class SignalingManager {
 
     pc.onIceConnectionState = (state) {
       print('onIceConnectionState: $state ');
-      if (!_isDisconnected &&
-          state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+      if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
         _isDisconnected = true;
         var session = _sessions.remove(sessionId);
         if (session != null) {
           onCallStateChange?.call(session, CallState.CallStateBye);
           _closeSession(session);
+        }
+      }
+      if (state == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+        var session = _sessions[sessionId];
+        if (session != null) {
+          onCallStateChange?.call(session, CallState.CallStateStreamconnected);
         }
       }
     };

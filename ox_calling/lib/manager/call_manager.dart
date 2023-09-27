@@ -137,7 +137,7 @@ class CallManager {
               initiativeHangUp = false;
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
-              await CallManager.instance.connectServer();
+              CallManager.instance.connectServer();
               OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
@@ -150,18 +150,23 @@ class CallManager {
           if (callStateHandler != null && callState !=null) {
             callStateHandler!.call(callState!);
           }
-          calledBye(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
+          resetStatus(callInitiator == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? true: false);
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
           break;
         case CallState.CallStateConnected:
-          PromptToneManager.sharedInstance.stopPlay();
           if (_waitAccept) {
             _waitAccept = false;
           }
-          startTimer();
           _inCalling = true;
+          if (callStateHandler != null && callState !=null) {
+            callStateHandler!.call(callState!);
+          }
+          break;
+        case CallState.CallStateStreamconnected:
+          PromptToneManager.sharedInstance.stopPlay();
+          startTimer();
           if (callStateHandler != null && callState !=null) {
             callStateHandler!.call(callState!);
           }
@@ -170,9 +175,9 @@ class CallManager {
     };
   }
 
-  Future<void> invitePeer(String peerId, {bool useScreen = false}) async {
+  void invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
-      await _signaling?.invite(peerId, callType.text, useScreen);
+      _signaling?.invite(peerId, callType.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
       callReceiver = peerId;
     }
@@ -189,21 +194,21 @@ class CallManager {
     if (_session != null) {
       _signaling?.reject(_session!.sid);
     }
-    calledBye(true);
+    resetStatus(true);
   }
 
   hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
     }
-    calledBye(false);
+    resetStatus(false);
   }
 
   timeOutAutoHangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
     }
-    calledBye(false, isTomeOut: true);
+    resetStatus(false, isTomeOut: true);
   }
 
   switchCamera() {
@@ -234,7 +239,7 @@ class CallManager {
     return aspectRatio;
   }
 
-  void calledBye(bool isReceiverReject, {bool? isTomeOut}){
+  void resetStatus(bool isReceiverReject, {bool? isTomeOut}){
     // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
     if (_waitAccept) {

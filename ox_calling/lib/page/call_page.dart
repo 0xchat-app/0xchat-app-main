@@ -64,6 +64,7 @@ class CallPageState extends State<CallPage> {
     _initData();
     Future.delayed(const Duration(seconds: 60), (){
       if (!CallManager.instance.getInCallIng) {
+        LogUtil.e('Michael: timeOutAutoHangUp=======');
         CallManager.instance.initiativeHangUp = true;
         CallManager.instance.timeOutAutoHangUp();
         if (mounted) {
@@ -97,7 +98,7 @@ class CallPageState extends State<CallPage> {
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.initiativeHangUp = false;
-        await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+        CallManager.instance.invitePeer(widget.userDB!.pubKey!);
       }
       CallManager.instance.setSpeaker(true);
       PromptToneManager.sharedInstance.playCalling();
@@ -412,6 +413,8 @@ class CallPageState extends State<CallPage> {
     if (CallManager.instance.callState == CallState.CallStateRinging) {
       showHint = widget.mediaType == CallMessageType.audio.text ? 'Invites you to a call...' : 'Invites you to a video call...';
     } else if (CallManager.instance.callState == CallState.CallStateConnected) {
+      showHint = 'Connecting...';
+    } else if (CallManager.instance.callState == CallState.CallStateStreamconnected) {
       Duration duration = Duration(seconds: CallManager.instance.counter);
       String twoDigits(int n) => n.toString().padLeft(2, "0");
       String twoDigitMinutes = twoDigits(duration.inMinutes);
