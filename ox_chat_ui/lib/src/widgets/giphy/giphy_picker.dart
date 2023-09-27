@@ -82,7 +82,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
               padding: EdgeInsets.only(bottom: Adapt.px(12)),
               sliver: SliverToBoxAdapter(
                 child: GiphySearchBar(
-                  hintText: '${Localized.text('ox_chat_ui.giphy_search')} ${GiphyCategory.values[_selectedIndex].label}',
+                  hintText: '${Localized.text('ox_chat_ui.giphy_search')} Giphy',
                   enable: false,
                   onTap: () {
                     showModalBottomSheet(
