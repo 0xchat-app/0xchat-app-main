@@ -1,6 +1,13 @@
 {
   "str_call_duration": "Тривалість: ${time}",
   "str_call_canceled": "Скасовано",
+  "str_call_other_canceled": "Інша сторона скасувала",
   "str_call_rejected": "Вихідний дзвінок",
+  "str_call_other_rejected": "Інша сторона відхилила",
+  "str_call_not_answered": "Дзвінок не прийнято",
+  "str_call_other_not_answered": "Інша сторона не відповіла на дзвінок",
+  "str_invite_you_to_a_voice_call": "Запрошує вас до дзвінка...",
+  "str_invite_you_to_a_video_call": "Запрошує вас до відеодзвінка...",
+  "str_call_connecting": "Підключення...",
   "str_call_busy": "Лінія зайнята"
 }

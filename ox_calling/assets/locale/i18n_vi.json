@@ -1,8 +1,13 @@
 {
   "str_call_duration": "Thời gian: ${time}",
   "str_call_canceled": "Đã hủy",
-  "str_call_other_canceled": "Đối tác đã hủy bỏ",
+  "str_call_other_canceled": "Đối phương đã hủy",
   "str_call_rejected": "Cuộc gọi đi",
-  "str_call_other_rejected": "Đối tác đã từ chối",
+  "str_call_other_rejected": "Đối phương đã từ chối",
+  "str_call_not_answered": "Cuộc gọi không được trả lời",
+  "str_call_other_not_answered": "Cuộc gọi không được đối phương trả lời",
+  "str_invite_you_to_a_voice_call": "Mời bạn tham gia cuộc gọi...",
+  "str_invite_you_to_a_video_call": "Mời bạn tham gia cuộc gọi video...",
+  "str_call_connecting": "Đang kết nối...",
   "str_call_busy": "Đường bận"
 }

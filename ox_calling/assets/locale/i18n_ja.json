@@ -2,7 +2,12 @@
   "str_call_duration": "通話時間：${time}",
   "str_call_canceled": "キャンセル",
   "str_call_other_canceled": "相手がキャンセルしました",
-  "str_call_rejected": "発信",
+  "str_call_rejected": "発信通話",
   "str_call_other_rejected": "相手が拒否しました",
+  "str_call_not_answered": "応答なし",
+  "str_call_other_not_answered": "相手が応答しませんでした",
+  "str_invite_you_to_a_voice_call": "通話に招待します...",
+  "str_invite_you_to_a_video_call": "ビデオ通話に招待します...",
+  "str_call_connecting": "接続中...",
   "str_call_busy": "話し中"
 }

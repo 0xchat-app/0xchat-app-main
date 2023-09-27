@@ -2,7 +2,12 @@
   "str_call_duration": "Duração: ${time}",
   "str_call_canceled": "Cancelado",
   "str_call_other_canceled": "A outra parte cancelou",
-  "str_call_rejected": "Chamada Realizada",
+  "str_call_rejected": "Chamada efetuada",
   "str_call_other_rejected": "A outra parte recusou",
+  "str_call_not_answered": "Chamada não atendida",
+  "str_call_other_not_answered": "Chamada não foi atendida",
+  "str_invite_you_to_a_voice_call": "Convida você para uma chamada...",
+  "str_invite_you_to_a_video_call": "Convida você para uma chamada de vídeo...",
+  "str_call_connecting": "Conectando...",
   "str_call_busy": "Linha ocupada"
 }

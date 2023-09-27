@@ -1,6 +1,13 @@
 {
-  "str_call_duration": "काल: ${time}",
-  "str_call_canceled": "रद्द किया गया",
-  "str_call_rejected": "निर्वाचित कॉल",
+  "str_call_duration": "अवधि: ${time}",
+  "str_call_canceled": "रद्द कर दिया गया",
+  "str_call_other_canceled": "दूसरा पक्ष रद्द कर दिया है",
+  "str_call_rejected": "आउटगोइंग कॉल",
+  "str_call_other_rejected": "दूसरा पक्ष ने इनकार कर दिया है",
+  "str_call_not_answered": "कॉल का उत्तर नहीं मिला",
+  "str_call_other_not_answered": "कॉल का उत्तर नहीं मिला दूसरे पक्ष से",
+  "str_invite_you_to_a_voice_call": "आपको कॉल पर आमंत्रित करता है...",
+  "str_invite_you_to_a_video_call": "आपको वीडियो कॉल पर आमंत्रित करता है...",
+  "str_call_connecting": "जुड़ रहा है...",
   "str_call_busy": "लाइन व्यस्त है"
 }

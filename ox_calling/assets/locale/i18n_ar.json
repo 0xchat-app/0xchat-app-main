@@ -1,8 +1,13 @@
 {
   "str_call_duration": "المدة: ${time}",
-  "str_call_canceled": "ملغى",
-  "str_call_other_canceled": "تم الإلغاء من قبل الطرف الآخر",
+  "str_call_canceled": "تم الإلغاء",
+  "str_call_other_canceled": "الطرف الآخر قد ألغى",
   "str_call_rejected": "مكالمة صادرة",
-  "str_call_other_rejected": "تم الرفض من قبل الطرف الآخر",
+  "str_call_other_rejected": "الطرف الآخر قد رفض",
+  "str_call_not_answered": "لم يتم الرد على المكالمة",
+  "str_call_other_not_answered": "لم يتم الرد على المكالمة من الطرف الآخر",
+  "str_invite_you_to_a_voice_call": "يدعوك لمكالمة...",
+  "str_invite_you_to_a_video_call": "يدعوك لمكالمة فيديو...",
+  "str_call_connecting": "جارٍ الاتصال...",
   "str_call_busy": "الخط مشغول"
 }

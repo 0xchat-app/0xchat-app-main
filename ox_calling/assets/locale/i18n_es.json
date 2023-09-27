@@ -4,5 +4,10 @@
   "str_call_other_canceled": "La otra parte ha cancelado",
   "str_call_rejected": "Llamada saliente",
   "str_call_other_rejected": "La otra parte ha rechazado",
+  "str_call_not_answered": "Llamada no contestada",
+  "str_call_other_not_answered": "La llamada no fue contestada",
+  "str_invite_you_to_a_voice_call": "Te invita a una llamada...",
+  "str_invite_you_to_a_video_call": "Te invita a una llamada de video...",
+  "str_call_connecting": "Conectando...",
   "str_call_busy": "Línea ocupada"
 }

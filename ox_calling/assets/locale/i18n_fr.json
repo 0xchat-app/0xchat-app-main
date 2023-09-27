@@ -4,5 +4,10 @@
   "str_call_other_canceled": "L'autre partie a annulé",
   "str_call_rejected": "Appel sortant",
   "str_call_other_rejected": "L'autre partie a refusé",
+  "str_call_not_answered": "Appel non répondu",
+  "str_call_other_not_answered": "L'appel n'a pas été répondu",
+  "str_invite_you_to_a_voice_call": "Vous invite à un appel...",
+  "str_invite_you_to_a_video_call": "Vous invite à un appel vidéo...",
+  "str_call_connecting": "Connexion...",
   "str_call_busy": "Occupé"
 }

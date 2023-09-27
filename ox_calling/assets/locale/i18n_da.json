@@ -1,6 +1,13 @@
 {
   "str_call_duration": "Varighed: ${time}",
-  "str_call_canceled": "Annulleret",
+  "str_call_canceled": "Aflyst",
+  "str_call_other_canceled": "Den anden part har aflyst",
   "str_call_rejected": "Udgående opkald",
+  "str_call_other_rejected": "Den anden part har afvist",
+  "str_call_not_answered": "Opkaldet blev ikke besvaret",
+  "str_call_other_not_answered": "Den anden part besvarede ikke opkaldet",
+  "str_invite_you_to_a_voice_call": "Inviterer dig til et opkald...",
+  "str_invite_you_to_a_video_call": "Inviterer dig til et videoopkald...",
+  "str_call_connecting": "Forbinder...",
   "str_call_busy": "Optaget"
 }

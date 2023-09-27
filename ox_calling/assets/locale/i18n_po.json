@@ -1,6 +1,13 @@
 {
   "str_call_duration": "Czas trwania: ${time}",
-  "str_call_canceled": "Anulowane",
-  "str_call_rejected": "Wychodzący połączenie",
+  "str_call_canceled": "Anulowano",
+  "str_call_other_canceled": "Druga strona anulowała",
+  "str_call_rejected": "Rozmowa wychodząca",
+  "str_call_other_rejected": "Druga strona odrzuciła",
+  "str_call_not_answered": "Rozmowa nie została odebrana",
+  "str_call_other_not_answered": "Rozmowa nie została odebrana przez drugą stronę",
+  "str_invite_you_to_a_voice_call": "Zaprasza cię do rozmowy...",
+  "str_invite_you_to_a_video_call": "Zaprasza cię do rozmowy wideo...",
+  "str_call_connecting": "Łączenie...",
   "str_call_busy": "Linia zajęta"
 }
