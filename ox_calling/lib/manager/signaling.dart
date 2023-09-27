@@ -161,10 +161,10 @@ class SignalingManager {
     }
   }
 
-  void bye(String sessionId) {
+  void bye(String sessionId, String reason) {
     var sess = _sessions[sessionId];
     if (sess != null) {
-      Map map = {'session_id': sessionId};
+      Map map = {'session_id': sessionId, 'reason': reason};
       Contacts.sharedInstance
           .sendDisconnect(sess.offerId, sess.pid, jsonEncode(map));
       _closeSession(sess);
@@ -190,7 +190,15 @@ class SignalingManager {
     if (session == null) {
       return;
     }
-    bye(session.sid);
+    bye(session.sid, 'reject');
+  }
+
+  void inCalling(String sessionId) {
+    var session = _sessions[sessionId];
+    if (session == null) {
+      return;
+    }
+    bye(session.sid, 'inCalling');
   }
 
   void onParseMessage(String friend, SignalingState state, String content,
@@ -306,7 +314,7 @@ class SignalingManager {
   Future<void> connect() async {
     if (_turnCredential == null) {
       try {
-        _turnCredential = await getTurnCredential(_host, _port);
+        // _turnCredential = await getTurnCredential(_host, _port);
         /*{
             "username": "1584195784:mbzrxpgjys",
             "password": "isyl6FF6nqMTB9/ig5MrMRUXqZg",
@@ -318,17 +326,17 @@ class SignalingManager {
         _iceServers = {
           'iceServers': [
             {'url': 'stun:stun.l.google.com:19302'},
-            {
-              'urls': _turnCredential['uris'][0],
-              'username': _turnCredential['username'],
-              'credential': _turnCredential['password']
-            },
-            // {'url': 'stun:rtc.0xchat.com:5349'},
             // {
-            //   'urls': 'turn:rtc.0xchat.com:5349',
-            //   'username': '0xchat',
-            //   'credential': 'Prettyvs511'
+            //   'urls': _turnCredential['uris'][0],
+            //   'username': _turnCredential['username'],
+            //   'credential': _turnCredential['password']
             // },
+            {'url': 'stun:rtc.0xchat.com:5349'},
+            {
+              'urls': 'turn:rtc.0xchat.com:5349',
+              'username': '0xchat',
+              'credential': 'Prettyvs511'
+            },
           ]
         };
       } catch (e) {}
