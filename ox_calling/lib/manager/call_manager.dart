@@ -120,7 +120,7 @@ class CallManager {
         case CallState.CallStateRinging:
           if (_waitAccept || _inCalling) {
             /// send reject when not free
-            _signaling?.reject(session.sid);
+            _signaling?.inCalling(session.sid);
             return;
           }
           ///lack of speech type

@@ -192,6 +192,14 @@ class SignalingManager {
     bye(session.sid, 'reject');
   }
 
+  void inCalling(String sessionId) {
+    var session = _sessions[sessionId];
+    if (session == null) {
+      return;
+    }
+    bye(session.sid, 'inCalling');
+  }
+
   void onParseMessage(String friend, SignalingState state, String content,
       String? offerId) async {
     var data = jsonDecode(content);
