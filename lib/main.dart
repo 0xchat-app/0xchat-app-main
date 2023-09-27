@@ -148,6 +148,7 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
+    doHandleJumpInfo();
   }
 
   void notNetworInitWow() async {
@@ -155,11 +156,6 @@ class MainState extends State<MainApp>
     prefs.setBool('isGuestLogin', false);
   }
 
-  UserDB getUser(String loginInfoStr) {
-    Map<String, dynamic> user = convert.jsonDecode(loginInfoStr);
-    UserDB userInfo = UserDB.fromMap(Map.from(user));
-    return userInfo;
-  }
 
   @override
   void didChangeMetrics() {
@@ -190,6 +186,16 @@ class MainState extends State<MainApp>
     // channel.invokeMethod('changeTheme', {
     //   'themeStyle': themeStyle,
     // });
+  }
+
+  void doHandleJumpInfo() async {
+    String jumpInfo = await channel.invokeMethod(
+      'getParamJumpInfo',
+    );
+    LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
+    if (jumpInfo.isNotEmpty) {
+      //TODO
+    }
   }
 
   onLocaleChange() {
