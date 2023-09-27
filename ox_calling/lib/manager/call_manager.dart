@@ -138,6 +138,7 @@ class CallManager {
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               await CallManager.instance.connectServer();
+              _waitAccept = true;
               OXNavigator.pushPage(_context,
                   (context) => CallPage(
                         userDB,
