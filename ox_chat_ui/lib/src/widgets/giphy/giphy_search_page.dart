@@ -42,7 +42,7 @@ class _GiphySearchPageState extends State<GiphySearchPage> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: Adapt.px(12)),
             child: GiphySearchBar(
-              hintText: '${Localized.text('ox_chat_ui.giphy_search')} ${widget.category.label}',
+              hintText: '${Localized.text('ox_chat_ui.giphy_search')} Giphy',
               onSubmitted: (value) {
                 setState(() {
                   _queryString = value;
@@ -56,7 +56,7 @@ class _GiphySearchPageState extends State<GiphySearchPage> {
           Padding(
             padding: EdgeInsets.only(bottom: bottomPadding > 0 ? bottomPadding : Adapt.px(12), top: Adapt.px(12)),
             child: Text(
-              Localized.text('ox_chat_ui.giphy_tips'),
+              'Powered by GIPHY',
               style: TextStyle(
                   fontSize: Adapt.px(14),
                   fontWeight: FontWeight.w400,
