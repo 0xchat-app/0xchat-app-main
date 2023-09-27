@@ -38,7 +38,7 @@ class OXUserInfoManager {
 
   bool get isLogin => (currentUserInfo != null);
 
-  UserDB? get currentUserInfo => Account.sharedInstance.me;
+  UserDB? currentUserInfo;
 
   bool _initAllCompleted = false;
 
@@ -64,6 +64,7 @@ class OXUserInfoManager {
       await initDB(pubkey);
       final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
+        currentUserInfo = Account.sharedInstance.me;
         _initDatas();
         await OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', tempUserDB.pubKey);
         await OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', tempUserDB.defaultPassword);
@@ -72,6 +73,7 @@ class OXUserInfoManager {
       await initDB(localPubKey);
       final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
       if (tempUserDB != null) {
+        currentUserInfo = tempUserDB;
         _initDatas();
       }
     } else {
@@ -84,6 +86,7 @@ class OXUserInfoManager {
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
   Future<void> loginSuccess(UserDB userDB) async {
+    currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', userDB.defaultPassword);
     LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
@@ -163,6 +166,7 @@ class OXUserInfoManager {
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
+    currentUserInfo = null;
     _initAllCompleted = false;
     OXChatBinding.sharedInstance.clearSession();
     for (OXUserInfoObserver observer in _observers) {
@@ -176,7 +180,7 @@ class OXUserInfoManager {
 
   Future<bool> setNotification() async {
     bool updateNotificatin = false;
-    if (!_initAllCompleted || !isLogin) return updateNotificatin;
+    if (!isLogin || !_initAllCompleted) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUSH_TOKEN, defaultValue: '');
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
