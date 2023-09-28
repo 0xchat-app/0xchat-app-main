@@ -70,8 +70,8 @@ class ChannelModel {
       name: channelName,
       picture: picture,
       about: about,
-      creator: owner,
-      createTime: createTimeMs,
+      creator: owner ?? '',
+      createTime: createTimeMs ?? 0,
     );
   }
 
