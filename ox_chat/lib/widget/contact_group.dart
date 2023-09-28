@@ -16,8 +16,8 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-const double headerHeight = 30.0;
-const double itemHeight = 62.0;
+double headerHeight = Adapt.px(24);
+double itemHeight = Adapt.px(68.0);
 
 typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 

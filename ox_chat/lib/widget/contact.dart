@@ -17,8 +17,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-const double headerHeight = 30.0;
-const double itemHeight = 62.0;
+double headerHeight = Adapt.px(24);
+double itemHeight = Adapt.px(68.0);
 
 typedef void CursorContactsChanged(Widget cursor, int noteLength);
 
