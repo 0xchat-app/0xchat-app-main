@@ -69,6 +69,7 @@ class ScanUtils {
           content: 'scan_find_not_same_hint'
               .commonLocalized()
               .replaceAll(r'${relay}', willAddRelay),
+          isRowAction: true,
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context);
