@@ -455,9 +455,9 @@ class OXChatBinding {
     final ChatSessionModel chatSessionModel = await syncChatSessionTable(
       MessageDB(
         decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB?.name ?? ''}),
-        createTime: ssDB.lastUpdateTime ?? 0,
-        sender: ssDB.toPubkey ?? '',
-        receiver: ssDB.myPubkey ?? '',
+        createTime: ssDB.lastUpdateTime,
+        sender: ssDB.toPubkey,
+        receiver: ssDB.myPubkey,
         sessionId: ssDB.sessionId,
       ),
       chatType: ChatType.chatSecret,
@@ -473,9 +473,9 @@ class OXChatBinding {
     }
     syncChatSessionTable(MessageDB(
       decryptContent: Localized.text('ox_common.secret_chat_received_tips'),
-      createTime: ssDB.lastUpdateTime ?? 0,
-      sender: ssDB.toPubkey ?? '',
-      receiver: ssDB.myPubkey ?? '',
+      createTime: ssDB.lastUpdateTime,
+      sender: ssDB.toPubkey,
+      receiver: ssDB.myPubkey,
       sessionId: ssDB.sessionId,
     ));
   }
@@ -485,7 +485,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    await updateChatSession(ssDB.sessionId, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
+    await updateChatSession(ssDB.sessionId!, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
