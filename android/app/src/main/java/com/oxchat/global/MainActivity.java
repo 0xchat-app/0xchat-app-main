@@ -91,11 +91,6 @@ public class MainActivity extends FlutterActivity {
                 return;
             }
             String param = uridata.toString();
-            try {
-                param = URLDecoder.decode(param, "UTF-8");
-            } catch (Exception e) {
-                param = "";
-            }
             if(!TextUtils.isEmpty(param)) {
                 try {
                     android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
