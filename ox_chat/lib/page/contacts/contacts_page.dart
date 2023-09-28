@@ -74,8 +74,8 @@ class _ContractsPageState extends State<ContractsPage>
         unSelectedIconName: '',
       ),
     ];
-    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * 62
-     + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * 30;
+    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * Adapt.px(68)
+     + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * Adapt.px(24);
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
