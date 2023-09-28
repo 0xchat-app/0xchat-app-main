@@ -70,7 +70,7 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
         if (call.arguments != null && call.arguments instanceof HashMap) {
             paramsMap = (HashMap) call.arguments;
         }
-        if (call.method.equals("getParamJumpInfo")) {
+        if (call.method.equals("getAppOpenURL")) {
             SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
             String jumpInfo = preferences.getString(SharedPreUtils.PARAM_JUMP_INFO, "");
             result.success(jumpInfo);

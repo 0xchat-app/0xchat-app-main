@@ -90,7 +90,7 @@ public class MainActivity extends FlutterActivity {
             if (uridata==null){
                 return;
             }
-            String param = uridata.getQueryParameter("param");
+            String param = uridata.toString();
             try {
                 param = URLDecoder.decode(param, "UTF-8");
             } catch (Exception e) {
