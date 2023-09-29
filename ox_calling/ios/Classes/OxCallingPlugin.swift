@@ -22,8 +22,8 @@ public class OxCallingPlugin: NSObject, FlutterPlugin {
         
         let currentPortType = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType
         
-        if (previousPortType == .builtInSpeaker && currentPortType != previousPortType) {
-            let _ = setSpeaker(true)
+        if (currentPortType != previousPortType) {
+            let _ = setSpeaker(previousPortType == .builtInSpeaker)
         }
     }
     
