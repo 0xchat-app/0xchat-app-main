@@ -15,13 +15,19 @@ public class OxCallingPlugin: NSObject, FlutterPlugin {
     }
     
     @objc func handleAudioSessionRouteChange(notification: Notification) {
+        
+        guard let reasonValue = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue),
+              reason == .categoryChange else {
+            return
+        }
+        
         guard let description = notification.userInfo?[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
-        let previousPortType = description.outputs.first?.portType else {
+              let previousPortType = description.outputs.first?.portType else {
             return
         }
         
         let currentPortType = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType
-        
         if (currentPortType != previousPortType) {
             let _ = setSpeaker(previousPortType == .builtInSpeaker)
         }
