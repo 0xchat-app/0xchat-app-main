@@ -6,7 +6,25 @@ public class OxCallingPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "ox_calling", binaryMessenger: registrar.messenger())
         let instance = OxCallingPlugin()
+        instance.setup()
         registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+    
+    func setup() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAudioSessionRouteChange(notification:)), name: AVAudioSession.routeChangeNotification, object: nil)
+    }
+    
+    @objc func handleAudioSessionRouteChange(notification: Notification) {
+        guard let description = notification.userInfo?[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
+        let previousPortType = description.outputs.first?.portType else {
+            return
+        }
+        
+        let currentPortType = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType
+        
+        if (previousPortType == .builtInSpeaker && currentPortType != previousPortType) {
+            let _ = setSpeaker(true)
+        }
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -29,14 +47,18 @@ public class OxCallingPlugin: NSObject, FlutterPlugin {
         guard let arguments = call.arguments as? [String: Any], let isSpeakerOn = arguments["isSpeakerOn"] as? Bool else {
             return
         }
+        result(setSpeaker(isSpeakerOn))
+    }
+    
+    private func setSpeaker(_ isSpeakerOn: Bool) -> Bool {
         let audioSession = AVAudioSession.sharedInstance()
         let audioPort: AVAudioSession.PortOverride = isSpeakerOn ? .speaker : .none
         do {
             try audioSession.overrideOutputAudioPort(audioPort)
-            result(true)
+            return true
         } catch {
             print("setSpeakerStatus error: \(error)")
-            result(false)
+            return false
         }
     }
     
