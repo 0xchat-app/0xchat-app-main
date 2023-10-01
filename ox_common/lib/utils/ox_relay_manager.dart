@@ -142,12 +142,18 @@ class OXRelayManager {
   }
 
   Future<List<RelayModel>> getRelayList() async {
+    Set<String> uniqueSet = Set<String>();
     List<dynamic> dynamicList = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_RELAY, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
     List<RelayModel> objectList = jsonStringList.map((jsonString) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
-      return relayModelFomJson(jsonMap);
-    }).toList();
+      final model = relayModelFomJson(jsonMap);
+      if (uniqueSet.add(model.identify)) {
+        return model;
+      } else {
+        return null;
+      }
+    }).where((s) => s != null).cast<RelayModel>().toList();
 
     return objectList;
   }
