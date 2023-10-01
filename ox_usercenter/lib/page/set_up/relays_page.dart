@@ -67,8 +67,8 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             ))
         .toList();
     for (RelayModel model in _relayList) {
-      _relayAddressList.add(model.relayName);
-      _relayConnectStatusMap[model.relayName] = model;
+      _relayAddressList.add(model.identify);
+      _relayConnectStatusMap[model.identify] = model;
     }
     bool containsDamusIo = _relayAddressList.contains('wss://relay.damus.io');
     _commendRelayList.add(RelayModel(
@@ -335,7 +335,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
               ),
       );
     } else {
-      if (_relayConnectStatusMap[relayModel.relayName]!.connectStatus == RelayConnectStatus.open) {
+      if (_relayConnectStatusMap[relayModel.identify]?.connectStatus == RelayConnectStatus.open) {
         return CommonImage(
           iconName: 'icon_pic_selected.png',
           width: Adapt.px(24),
@@ -431,6 +431,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
 
   void _addOnTap({String? upcomingRelay}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
+    upcomingRelay = RelayModel.identifyWithAddress(upcomingRelay);
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
