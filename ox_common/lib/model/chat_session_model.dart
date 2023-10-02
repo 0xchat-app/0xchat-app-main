@@ -9,14 +9,14 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 @reflector
 class ChatSessionModel extends DBObject {
-  String? chatId;
+  String chatId;
   String? chatName;
 
   // pubkey
-  String? sender;
+  String sender;
 
   // receiver pubkey
-  String? receiver;
+  String receiver;
 
   // channel or group id
   String? groupId;
@@ -24,7 +24,7 @@ class ChatSessionModel extends DBObject {
   int unreadCount;
 
   //last message timestamp
-  int? createTime;
+  int createTime;
 
   // 0 Chat  1 Normal Group  2 Channel Group  3 Secret Chat 4 Stranger Chat  5 Stranger secret Chat
   int? chatType;
@@ -43,16 +43,16 @@ class ChatSessionModel extends DBObject {
   int? messageKind;
 
   ChatSessionModel({
-    this.chatId,
+    this.chatId = '',
     this.chatName,
-    this.sender,
-    this.receiver,
+    this.sender = '',
+    this.receiver = '',
     this.groupId,
     this.content,
     this.unreadCount = 0,
     this.createTime = 0,
     this.chatType,
-    this.messageType,
+    this.messageType = 'text',
     this.avatar,
     this.alwaysTop = false,
     this.draft,

@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -36,6 +37,7 @@ class OXCommon extends OXFlutterModule {
   @override
   Future<void> setup() async {
     await super.setup();
+    PromptToneManager.sharedInstance.setup();
   }
 
   @override

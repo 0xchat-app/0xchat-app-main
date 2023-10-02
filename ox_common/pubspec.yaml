@@ -25,7 +25,7 @@ dependencies:
   json_annotation: ^4.0.1
   intl: ^0.17.0
   flutter_card_swipper : ^0.4.0
-  permission_handler: ^10.3.0
+  permission_handler: ^11.0.0
   flutter_easyloading: ^3.0.0
   archive: ^3.1.2
   fl_chart: ^0.35.0
