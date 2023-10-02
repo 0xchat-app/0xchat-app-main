@@ -335,7 +335,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         color: Colors.red,
         borderRadius: BorderRadius.circular(10)
       ),
-      child: Text('1',style: TextStyle(fontSize: Adapt.px(12)),),
+      child: Text('1',style: TextStyle(fontSize: Adapt.px(12), color: Colors.white),),
     );
   }
 

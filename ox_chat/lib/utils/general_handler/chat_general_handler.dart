@@ -363,7 +363,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   // type: 1 - image, 2 - video
   Future albumPressHandler(BuildContext context, int type) async {
-    final storagePermission = await PermissionUtils.getPhotosPermission();
+    final storagePermission = await PermissionUtils.getPhotosPermission(type: type);
     if(storagePermission){
       await _goToPhoto(context, type);
     } else {

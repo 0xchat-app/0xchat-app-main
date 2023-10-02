@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -66,8 +67,8 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             ))
         .toList();
     for (RelayModel model in _relayList) {
-      _relayAddressList.add(model.relayName);
-      _relayConnectStatusMap[model.relayName] = model;
+      _relayAddressList.add(model.identify);
+      _relayConnectStatusMap[model.identify] = model;
     }
     bool containsDamusIo = _relayAddressList.contains('wss://relay.damus.io');
     _commendRelayList.add(RelayModel(
@@ -77,13 +78,23 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       isAddedCommend: containsDamusIo ? true : false,
       relayName: 'wss://relay.damus.io',
     ));
-    bool containsNostrBand = _relayAddressList.contains('wss://relay.nostr.band');
+    bool containsNostrBand = _relayAddressList.contains(''
+        'wss://relay.nostr.band');
     _commendRelayList.add(RelayModel(
       canDelete: true,
       connectStatus: 3,
       isSelected: false,
       isAddedCommend: containsNostrBand ? true : false,
       relayName: 'wss://relay.nostr.band',
+    ));
+    bool containsOxChatRelay = _relayAddressList.contains(CommonConstant.oxChatRelay);
+    _commendRelayList.add(RelayModel(
+      relayName: CommonConstant.oxChatRelay,
+      canDelete: true,
+      connectStatus: 3,
+      isSelected: true,
+      isAddedCommend: containsOxChatRelay ? true : false,
+      createTime: DateTime.now().millisecondsSinceEpoch,
     ));
     setState(() {});
     _relayConnectStatusMap.forEach((key, value) {
@@ -324,7 +335,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
               ),
       );
     } else {
-      if (_relayConnectStatusMap[relayModel.relayName]!.connectStatus == RelayConnectStatus.open) {
+      if (_relayConnectStatusMap[relayModel.identify]?.connectStatus == RelayConnectStatus.open) {
         return CommonImage(
           iconName: 'icon_pic_selected.png',
           width: Adapt.px(24),
@@ -420,6 +431,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
 
   void _addOnTap({String? upcomingRelay}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
+    upcomingRelay = RelayModel.identifyWithAddress(upcomingRelay);
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;

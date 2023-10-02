@@ -188,7 +188,7 @@ class SignalingManager {
       return;
     }
     if (media == CallMessageType.audio.text) {
-      if (_localStream != null) {
+      if (_localStream != null && _localStream!.getVideoTracks().isNotEmpty) {
         _localStream!.getVideoTracks()[0].enabled = false;
       }
     }
