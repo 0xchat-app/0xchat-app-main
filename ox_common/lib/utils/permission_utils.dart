@@ -34,7 +34,7 @@ class PermissionUtils{
     }
   }
 
-  static Future<bool> getPhotosPermission() async {
+  static Future<bool> getPhotosPermission({int type = 1}) async {
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool permissionGranted = false;
     if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt < 33) {
@@ -46,7 +46,10 @@ class PermissionUtils{
         permissionGranted = false;
       }
     } else {
-      final status = await Permission.photos.request();
+      PermissionStatus status = await Permission.photos.request();
+      if (Platform.isAndroid && type == 2 ) {
+        status = await Permission.videos.request();
+      }
       if (status.isGranted || status.isLimited) {
         permissionGranted = true;
       } else if (status.isPermanentlyDenied) {
@@ -57,4 +60,5 @@ class PermissionUtils{
     }
     return permissionGranted;
   }
+
 }
