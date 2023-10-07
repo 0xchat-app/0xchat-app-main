@@ -182,7 +182,6 @@ class MainState extends State<MainApp>
 
   void changeTheme(int themeStyle) {
     print("******  changeTheme int $themeStyle");
-
     // channel.invokeMethod('changeTheme', {
     //   'themeStyle': themeStyle,
     // });
@@ -257,8 +256,12 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
+        NotificationHelper.sharedInstance.setOnline();
         break;
       case AppLifecycleState.paused:
+        NotificationHelper.sharedInstance.setOffline();
+        break;
+      default:
         break;
     }
   }
