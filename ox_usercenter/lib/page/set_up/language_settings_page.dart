@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
@@ -7,8 +6,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'dart:ui' as ui;
 
 
 extension OXLanguageType on LocaleType {
@@ -101,7 +100,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   }
 
   void _getCurrentLocaleType() async {
-    String currentLanguage = await OXCacheManager.defaultOXCacheManager.getData('userLanguage') as String;
+    String defaultLanguage = ui.window.locale.languageCode;
+    String currentLanguage = await OXCacheManager.defaultOXCacheManager.getData('userLanguage',defaultValue: defaultLanguage) as String;
     LocaleType localeType = Localized.getLocaleTypeByString(currentLanguage);
     setState(() {
       _selectedIndex = localeType.index;
