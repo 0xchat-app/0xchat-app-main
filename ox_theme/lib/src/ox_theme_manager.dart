@@ -31,7 +31,6 @@ extension ThemeStyleExtension on ThemeStyle{
 
 }
 
-
 const String _keyThemeStyle = "themeStyle";
 
 class ThemeManager {
