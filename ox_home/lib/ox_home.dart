@@ -10,7 +10,6 @@ class OxChatHome extends OXFlutterModule {
   @override
   Future<void> setup() async {
     super.setup();
-    OXModuleService.registerFlutterModule(moduleName, this);
   }
 
   @override

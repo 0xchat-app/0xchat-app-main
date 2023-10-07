@@ -26,9 +26,7 @@ class OXUserCenter extends OXFlutterModule {
 
   @override
   Future<void> setup() async {
-    // TODO: implement setup
-    super.setup();
-    OXModuleService.registerFlutterModule(moduleName, this);
+    await super.setup();
     // ChatBinding.instance.setup();
   }
 

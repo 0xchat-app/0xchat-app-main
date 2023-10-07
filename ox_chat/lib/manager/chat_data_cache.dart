@@ -414,7 +414,6 @@ extension ChatDataCacheEx on ChatDataCache {
     }
   }
 
-
   FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key, { bool waitSetup = true }) async {
     if (waitSetup) {
       await setupCompleter;
