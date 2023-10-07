@@ -21,7 +21,7 @@ class ChatDataCache with OXChatObserver {
     OXChatBinding.sharedInstance.addObserver(this);
   }
 
-  Map<ChatTypeKey, FutureOr<List<types.Message>>> _chatMessageMap = Map();
+  Map<ChatTypeKey, List<types.Message>> _chatMessageMap = Map();
 
   Map<ChatTypeKey, ValueChanged<List<types.Message>>> _valueChangedCallback = {};
 
@@ -374,40 +374,51 @@ extension ChatDataCacheSessionEx on ChatDataCache {
 extension ChatDataCacheEx on ChatDataCache {
 
   Future<void> _setupChatMessages() async {
-    List<ChatSessionModel> sessionList = OXChatBinding.sharedInstance.sessionMap.values.toList();
-    Map<ChatTypeKey, List<types.Message>> privateChatMessagesMap = {};
-    // Add Session message(Future)
-    await Future.forEach(sessionList, (session) async {
-      final key = _getChatTypeKey(session);
-      if (key == null) {
-        ChatLogUtils.error(
-          className: 'ChatDataCache',
-          funcName: '_setupChatMessages',
-          message: 'privateChatKey is null',
-        );
-        return ;
-      }
 
-      // Create completer
-      final completer = Completer<List<types.Message>>();
-      _chatMessageMap[key] = completer.future;
-      await _loadChatMessages(key, session).then((msgList) {
-        messageIdCache.addAll(msgList.map((e) => e.id));
-        _chatMessageMap[key] = msgList;
-        // Finish completer
-        completer.complete(msgList);
-      });
+    final result = (await Messages.loadMessagesFromDB(
+      orderBy: "createTime desc",
+    ))['messages'];
+    if (result is! List<MessageDB>) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: '_setupChatMessages',
+        message: 'result is not List<MessageDB>',
+      );
+      return ;
+    }
+
+    List<MessageDB> allMessage = result;
+    await Future.forEach(allMessage, (message) async {
+      final key = _getChatTypeKeyWithMessage(message);
+      if (key == null) return ;
+      await _distributeMessageToChatKey(key, message);
     });
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: '_setupChatMessages',
-      message: 'setup complete, session length: ${privateChatMessagesMap.keys.length}',
-    );
   }
 
-  FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key) async {
-    await setupCompleter;
+  Future _distributeMessageToChatKey(ChatTypeKey key, MessageDB message) async {
+    try {
+      var uiMsg = await message.toChatUIMessage();
+      if (uiMsg == null) return ;
+      if (uiMsg.status == types.Status.sending) {
+        uiMsg = uiMsg.copyWith(
+          status: types.Status.error,
+        );
+      }
+      await _addChatMessages(key, uiMsg, waitSetup: false);
+    } catch(e) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: '_setupChatMessages',
+        message: 'MessageDB to cache error: $e, messageId: ${message.messageId}, messageType: ${message.type}',
+      );
+    }
+  }
+
+
+  FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key, { bool waitSetup = true }) async {
+    if (waitSetup) {
+      await setupCompleter;
+    }
     final msgList = _chatMessageMap[key];
     if (msgList == null) {
       List<types.Message> emptyList = [];
@@ -417,47 +428,9 @@ extension ChatDataCacheEx on ChatDataCache {
     return msgList;
   }
 
-  Future<List<types.Message>> _loadChatMessages(
-      ChatTypeKey key, ChatSessionModel session) async {
-    final Map<dynamic, dynamic> tempMap = await Messages.loadMessagesFromDB(
-      where: key.getSQLFilter(),
-      whereArgs: key.getSQLFilterArgs(),
-      orderBy: "createTime desc",
-    );
-    List<MessageDB> messages = tempMap['messages'];
-    List<types.Message?> convertedMessages = [];
-    await Future.forEach(messages, (msg) async {
-      var uiMsg = await msg.toChatUIMessage();
-      if (uiMsg?.status == types.Status.sending) {
-        uiMsg = uiMsg?.copyWith(
-          status: types.Status.error,
-        );
-      }
-      convertedMessages.add(uiMsg);
-    });
+  Future<void> _addChatMessages(ChatTypeKey key, types.Message message,  { bool waitSetup = true }) async {
 
-    // try add message kind
-    if (key is! ChannelKey) {
-      try {
-        final minePubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-        final lastMessage = messages.firstWhere((element) => element.sender != minePubkey);
-        OXChatBinding.sharedInstance.updateChatSession(session.chatId, messageKind: lastMessage.kind);
-      } catch (e) { }
-
-    }
-    return convertedMessages.where((message) => message != null).cast<
-        types.Message>().toList();
-  }
-
-  Future<void> _addChatMessages(ChatTypeKey key, types.Message message) async {
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: '_addChatMessages',
-      message: 'begin',
-    );
-
-    final msgList = await _getSessionMessage(key);
+    final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
 
     if (!messageIdCache.add(message.id)) return ;
 
@@ -494,6 +467,29 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
         ChatLogUtils.error(className: 'ChatDataCache', funcName: '_getChatTypeKey', message: 'unknown chatType');
         return null;
     }
+  }
+
+  ChatTypeKey? _getChatTypeKeyWithMessage(MessageDB message) {
+
+    if (message.sessionId.isNotEmpty) {
+      return SecretChatKey(message.sessionId);
+    }
+
+    if (message.groupId.isNotEmpty) {
+      return ChannelKey(message.groupId);
+    }
+
+    if (message.sender.isNotEmpty && message.receiver.isNotEmpty) {
+      return PrivateChatKey(message.sender, message.receiver);
+    }
+
+    ChatLogUtils.error(
+      className: 'ChatDataCache',
+      funcName: '_getChatTypeKeyWithMessage',
+      message: 'result is null: messageId: ${message.messageId}, messageType: ${message.type}',
+    );
+
+    return null;
   }
 
   void _addMessageToList(List<types.Message> messageList, types.Message newMessage) {
