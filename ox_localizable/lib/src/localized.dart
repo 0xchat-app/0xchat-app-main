@@ -452,7 +452,7 @@ class Localized {
             }
         }
 
-        return LocaleType.zh;
+        return LocaleType.en;
 
     }
 
