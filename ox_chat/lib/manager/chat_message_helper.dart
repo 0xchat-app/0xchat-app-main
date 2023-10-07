@@ -49,7 +49,7 @@ extension MessageDBToUIEx on MessageDB {
     final decryptContent = this.decryptContent;
     if (decryptContent == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'message.decryptContent is null',
       );
@@ -77,7 +77,7 @@ extension MessageDBToUIEx on MessageDB {
     final senderId = this.sender;
     if (senderId == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'message.sender is null',
       );
@@ -86,7 +86,7 @@ extension MessageDBToUIEx on MessageDB {
     final author = await ChatMessageDBToUIHelper.getUser(senderId);
     if (author == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'author is null',
       );
@@ -117,7 +117,7 @@ extension MessageDBToUIEx on MessageDB {
     final messageTimestamp = createTime != null ? createTime * 1000: null;
     if (messageTimestamp == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'messageTimestamp is null',
       );
@@ -128,7 +128,7 @@ extension MessageDBToUIEx on MessageDB {
     final chatId = getRoomId();
     if (chatId == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'chatId is null',
       );
@@ -140,7 +140,7 @@ extension MessageDBToUIEx on MessageDB {
     final messageType = contentModel.contentType;
     if (mid == null || mid.isEmpty) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'messageType: $messageType, mid: $mid',
       );
@@ -185,7 +185,11 @@ extension MessageDBToUIEx on MessageDB {
         messageFactory = CustomMessageFactory();
         break ;
       default:
-        ChatLogUtils.error(className: 'ChatDataCache', funcName: 'convertMessageDBToUIModel', message: 'unknown message type');
+        ChatLogUtils.error(
+          className: 'MessageDBToUIEx',
+          funcName: 'convertMessageDBToUIModel',
+          message: 'unknown message type',
+        );
         return null;
     }
 
@@ -232,6 +236,8 @@ extension MessageDBToUIEx on MessageDB {
     final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (groupId.isNotEmpty) {
       chatId = groupId;
+    } else if (senderId.isNotEmpty && senderId == receiverId) {
+      chatId = senderId;
     } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
       chatId = senderId;
     } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
