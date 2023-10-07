@@ -62,11 +62,6 @@ class ChatDataCache with OXChatObserver {
     receivePrivateMessageHandler(message);
   }
 
-  @override
-  void didStrangerPrivateMessageCallBack(MessageDB message) {
-    receivePrivateMessageHandler(message);
-  }
-
   Future receivePrivateMessageHandler(MessageDB message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
@@ -76,14 +71,6 @@ class ChatDataCache with OXChatObserver {
 
     final senderId = message.sender;
     final receiverId = message.receiver;
-    if (senderId == null || receiverId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'receivePrivateMessageHandler',
-        message: 'senderId($senderId) or receiverId($receiverId) is null',
-      );
-      return ;
-    }
     final key = PrivateChatKey(senderId, receiverId);
 
     types.Message? msg = await message.toChatUIMessage();
@@ -109,14 +96,6 @@ class ChatDataCache with OXChatObserver {
     );
 
     final sessionId = message.sessionId;
-    if (sessionId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'didSecretChatMessageCallBack',
-        message: 'sessionId($sessionId) is null',
-      );
-      return ;
-    }
     final key = SecretChatKey(sessionId);
 
     types.Message? msg = await message.toChatUIMessage();
@@ -131,14 +110,6 @@ class ChatDataCache with OXChatObserver {
   @override
   void didChannalMessageCallBack(MessageDB message) async {
     final groupId = message.groupId;
-    if (groupId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'didChannalMessageCallBack',
-        message: 'groupId is null',
-      );
-      return ;
-    }
     ChannelKey key = ChannelKey(groupId);
 
     types.Message? msg = await message.toChatUIMessage(
@@ -205,11 +176,10 @@ class ChatDataCache with OXChatObserver {
 
   Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message, bool isLocal) async {
 
-    final sessionId = session.chatId ?? '';
-    final receiverPubkey = (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+    final sessionId = session.chatId;
+    final receiverPubkey = session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
         ? session.receiver
-        : session.sender) ??
-        '';
+        : session.sender;
 
     // send message
     var sendFinish = OXValue(false);
@@ -372,25 +342,9 @@ extension ChatDataCacheObserverEx on ChatDataCache {
 }
 
 extension ChatDataCacheSessionEx on ChatDataCache {
-  Future<List<ChatSessionModel>> _chatSessionList() async {
-    final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
-      orderBy: "createTime desc",
-    );
-    return sessionList;
-  }
 
   ChatTypeKey? _convertSessionToPrivateChatKey(ChatSessionModel session) {
-    final senderId = session.sender;
-    final receiverId = session.receiver;
-    if (senderId == null || receiverId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: '_convertSessionToPrivateChatKey',
-        message: 'senderId:$senderId, receiverId: $receiverId',
-      );
-      return null;
-    }
-    return PrivateChatKey(senderId, receiverId);
+    return PrivateChatKey(session.sender, session.receiver);
   }
 
   ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
@@ -403,12 +357,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
   }
 
   ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModel session) {
-    final sessionId = session.chatId;
-    if (sessionId == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToSecretChatKey', message: 'session is null');
-      return null;
-    }
-    return SecretChatKey(sessionId);
+    return SecretChatKey(session.chatId);
   }
 
   Future setSessionAllMessageIsRead(ChatSessionModel session) async {
@@ -492,7 +441,7 @@ extension ChatDataCacheEx on ChatDataCache {
       try {
         final minePubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
         final lastMessage = messages.firstWhere((element) => element.sender != minePubkey);
-        OXChatBinding.sharedInstance.updateChatSession(session.chatId ?? '', messageKind: lastMessage.kind);
+        OXChatBinding.sharedInstance.updateChatSession(session.chatId, messageKind: lastMessage.kind);
       } catch (e) { }
 
     }
@@ -584,10 +533,10 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
   }
 
   bool isContainMessage(ChatSessionModel session, MessageDB message) {
-    final sessionId = message.sessionId ?? '';
-    final groupId = message.groupId ?? '';
-    final senderId = message.sender ?? '';
-    final receiverId = message.receiver ?? '';
+    final sessionId = message.sessionId;
+    final groupId = message.groupId;
+    final senderId = message.sender;
+    final receiverId = message.receiver;
     if (sessionId.isNotEmpty) {
       // Secret Chat
       return sessionId == session.chatId;
