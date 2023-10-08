@@ -16,7 +16,7 @@ class CommonImage extends StatelessWidget{
   final double? width;
   final BoxFit? fit;
   ///plugin name
-  final String package;
+  final String? package;
 
   CommonImage({
     required this.iconName,
