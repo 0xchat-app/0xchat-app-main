@@ -130,7 +130,7 @@ class OXChatBinding {
               showContent = decryptedContent.toString();
             }
           } catch (e) {
-            LogUtil.e('Michael：MessageType.text =${e.toString()}');
+            LogUtil.e('showContentByMsgType：MessageType.text =${e.toString()}');
           }
         }
         if (showContent == null) showContent = decryptContent ?? '';
@@ -298,7 +298,6 @@ class OXChatBinding {
         noticePromptToneCallBack(messageDB, tempModel.chatType);
       }
       if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
-      LogUtil.e('Michael: syncSingleChat chatId= ${tempModel.chatId}, tempModel.chatType =${tempModel.chatType}; messageDB.sessionId.isEmpty =${messageDB.sessionId.isEmpty};chatType=${chatType}, content =${sessionModel.content}');
       sessionMap[chatId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {
@@ -308,7 +307,6 @@ class OXChatBinding {
       } else {
         sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatSingle : ChatType.chatSecret;
       }
-      LogUtil.e('Michael: syncSingleChat chatId= ${chatId}; name= ${userDB?.name}, sessionModel.chatType =${sessionModel.chatType}; messageDB.sessionId.isEmpty =${messageDB.sessionId.isEmpty};chatType=${chatType}}, content =${sessionModel.content}');
       if (chatType != null) {
         sessionModel.chatType = chatType;
       }
