@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
@@ -61,20 +62,15 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
     initAudio();
   }
 
-  void _onLongPressStart(LongPressStartDetails details) {
+  void _onLongPressStart(LongPressStartDetails details) async {
     setState(() {
       _isLongPressing = true;
     });
-    _hasEnded = false; // Reset flag bit
+    _hasEnded = false;
     _progressController.reset();
-    _progressController.forward();
-    // Triggers the slide up event callback
-    // widget.onSlideUpToCancel();
-    print('===> About to start recording 1');
+    await _startRecorder();
+    unawaited(_progressController.forward());
     _startTimer();
-    print('===> About to start recording 2');
-    _startRecorder();
-    print('===> About to start recording 3');
   }
 
   void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
@@ -176,81 +172,78 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
         color: ThemeColor.color190,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: GestureDetector(
-        onTap: (){},
-        child: GestureDetector(
-          onLongPressStart: _onLongPressStart,
-          onLongPressMoveUpdate: _onLongPressMoveUpdate,
-          onLongPressEnd: _onLongPressEnd,
-          child: Stack(
-            children: [
-              if (_showCancelText) Positioned.fill(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: Text('Release to Cancel'),
-                  ),
-                ),
+      child: Stack(
+        children: [
+          if (_showCancelText) Positioned.fill(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Text('Release to Cancel'),
               ),
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  color: Colors.transparent,
-                  child: SizedBox(
-                    width: Adapt.px(366),
-                    height: Adapt.px(236),
-                    child: Image.asset(
-                      'assets/images/recorder_bg_color.png',
-                      package: 'ox_chat_ui',
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: SizedBox(
-                  width: Adapt.px(101),
-                  height: Adapt.px(101),
-                  child: CircularProgressIndicator(
-                    value: _progressAnimation.value,
-                    strokeWidth: Adapt.px(4.0),
-                    backgroundColor: ThemeColor.gradientMainStart.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(ThemeColor.gradientMainStart),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  color: Colors.transparent,
-                  child: SizedBox(
-                    width: Adapt.px(90),
-                    height: Adapt.px(90),
-                    child: Image.asset(
-                      'assets/images/recorder_btn_active.png',
-                      package: 'ox_chat_ui',
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: Adapt.px(30)),
-                    child: Text(
-                      Localized.text('ox_chat_ui.record_hint').replaceAll(r'${durationInSeconds}', '${durationInSeconds}'),
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: Adapt.px(366),
+                height: Adapt.px(236),
+                child: Image.asset(
+                  'assets/images/recorder_bg_color.png',
+                  package: 'ox_chat_ui',
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: Adapt.px(101),
+              height: Adapt.px(101),
+              child: CircularProgressIndicator(
+                value: _progressAnimation.value,
+                strokeWidth: Adapt.px(4.0),
+                backgroundColor: ThemeColor.gradientMainStart.withOpacity(0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(ThemeColor.gradientMainStart),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onLongPressStart: _onLongPressStart,
+              onLongPressMoveUpdate: _onLongPressMoveUpdate,
+              onLongPressEnd: _onLongPressEnd,
+              child: Container(
+                color: Colors.transparent,
+                child: SizedBox(
+                  width: Adapt.px(90),
+                  height: Adapt.px(90),
+                  child: Image.asset(
+                    'assets/images/recorder_btn_active.png',
+                    package: 'ox_chat_ui',
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            child: Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: EdgeInsets.only(top: Adapt.px(150)),
+                child: Text(
+                  Localized.text('ox_chat_ui.record_hint').replaceAll(r'${durationInSeconds}', '${durationInSeconds}'),
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -313,7 +306,6 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
 
   /// Start recording
   Future _startRecorder() async {
-    print('===> About to start recording');
     await _stopRecorder();
     try {
       final status = await getPermissionStatus();
@@ -332,14 +324,13 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
       final time = DateTime.now().millisecondsSinceEpoch;
       final path = Platform.isAndroid ? '${tempDir.path}/$time.aac' : '${tempDir.path}/$time.wav';
       _path = path;
-      print('===>  Preparing to start recording');
+
       await recorderModule.startRecorder(
           toFile: path,
           codec: Platform.isIOS ? Codec.pcm16WAV : Codec.aacADTS,
           bitRate: 1411200,
           sampleRate: 44100,
           audioSource: AudioSource.microphone);
-      print('===>  Begin recording');
 
       /// Monitor the recording
       recorderModule.onProgress!.listen((e) {
@@ -351,28 +342,6 @@ class _InputVoicePageState extends State<InputVoicePage> with SingleTickerProvid
           print('===>  Stop recording upon reaching the specified duration.');
           _stopRecorder();
         }
-        // setState(() {
-        //   print('time：${date.second}');
-        //   print('Current amplitude：${e.decibels}');
-        //   // num = date.second;
-        //   setState(() {
-        //     // if (e.decibels! > 0 && e.decibels! < 10) {
-        //     //   voiceIco = 'Asset/message/icon_diyinliang.png';
-        //     // } else if (e.decibels! > 20 && e.decibels! < 30) {
-        //     //   voiceIco = 'Asset/message/icon_zhongyinliang.png';
-        //     // } else if (e.decibels! > 30 && e.decibels! < 40) {
-        //     //   voiceIco = 'Asset/message/icon_gaoyinliang.png';
-        //     // } else if (e.decibels! > 40 && e.decibels! < 50) {
-        //     //   voiceIco = 'Asset/message/icon_zhongyinliang.png';
-        //     // } else if (e.decibels! > 50 && e.decibels! < 60) {
-        //     //   voiceIco = 'Asset/message/icon_diyinliang.png';
-        //     // } else if (e.decibels! > 70 && e.decibels! < 100) {
-        //     //   voiceIco = 'Asset/message/icon_gaoyinliang.png';
-        //     // } else {
-        //     //   voiceIco = 'Asset/message/icon_diyinliang.png';
-        //     // }
-        //   });
-        // });
       });
 
       this.setState(() {

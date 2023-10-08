@@ -96,6 +96,7 @@ class Chat extends StatefulWidget {
     this.onMessageTap,
     this.onMessageVisibilityChanged,
     this.onPreviewDataFetched,
+    this.onAudioDataFetched,
     required this.onSendPressed,
     required this.inputMoreItems,
     this.scrollController,
@@ -296,6 +297,8 @@ class Chat extends StatefulWidget {
   /// See [Message.onPreviewDataFetched].
   final void Function(types.TextMessage, types.PreviewData)?
       onPreviewDataFetched;
+
+  final Function(types.AudioMessage)? onAudioDataFetched;
 
   /// See [Input.onSendPressed].
   final Future Function(types.PartialText) onSendPressed;
@@ -744,6 +747,7 @@ class ChatState extends State<Chat> {
               },
               onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
               onPreviewDataFetched: _onPreviewDataFetched,
+              onAudioDataFetched: widget.onAudioDataFetched,
               roundBorder: map['nextMessageInGroup'] == true,
               showAvatar: map['nextMessageInGroup'] == false,
               // showName: map['showName'] == true,

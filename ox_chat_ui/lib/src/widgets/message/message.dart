@@ -59,6 +59,7 @@ class Message extends StatefulWidget {
     this.onMessageTap,
     this.onMessageVisibilityChanged,
     this.onPreviewDataFetched,
+    this.onAudioDataFetched,
     required this.roundBorder,
     required this.showAvatar,
     required this.showName,
@@ -161,6 +162,8 @@ class Message extends StatefulWidget {
   /// See [TextMessage.onPreviewDataFetched].
   final void Function(types.TextMessage, types.PreviewData)?
   onPreviewDataFetched;
+
+  final Function(types.AudioMessage)? onAudioDataFetched;
 
   /// Rounds border of the message to visually group messages together.
   final bool roundBorder;
@@ -387,10 +390,7 @@ class _MessageState extends State<Message> {
             children: menuItems
                 .map((item) => GestureDetector(
               onTap: () {
-                if (widget.onMessageLongPressEvent != null) {
-                  widget.onMessageLongPressEvent!(
-                      widget.message, item.type);
-                }
+                widget.onMessageLongPressEvent?.call(widget.message, item.type);
                 _popController.hideMenu();
               },
               child: SizedBox(
@@ -403,7 +403,7 @@ class _MessageState extends State<Message> {
                       fit: BoxFit.fill,
                       width: _LayoutConstant.menuIconSize,
                       height: _LayoutConstant.menuIconSize,
-                      package: item.icon.package!,
+                      package: item.icon.package,
                       useTheme: true,
                     ),
                     Container(
@@ -488,9 +488,8 @@ class _MessageState extends State<Message> {
                   widget.onMessageStatusTap?.call(context, widget.message);
                 }
               },
-              child: widget.customStatusBuilder != null
-                  ? widget.customStatusBuilder!(widget.message, context: context)
-                  : MessageStatus(status: widget.message.status),
+              child: widget.customStatusBuilder?.call(widget.message, context: context)
+                  ?? MessageStatus(status: widget.message.status),
             ),
           ),
         if (widget.message.repliedMessage == null)
@@ -518,63 +517,55 @@ class _MessageState extends State<Message> {
     switch (widget.message.type) {
       case types.MessageType.audio:
         final audioMessage = widget.message as types.AudioMessage;
-        return widget.audioMessageBuilder != null
-            ? widget.audioMessageBuilder!(audioMessage, messageWidth: widget.messageWidth)
-            : AudioMessagePage(
-          //When the voice message is clicked for playback, emit the event to refresh the interface
-          audioSrc: audioMessage.uri,
-          message: audioMessage,
-          onPlay: (message) {
-            widget.onMessageTap?.call(context, message);
-          },
-        );
+        return widget.audioMessageBuilder?.call(audioMessage, messageWidth: widget.messageWidth)
+            ?? AudioMessagePage(
+              message: audioMessage,
+              fetchAudioFile: widget.onAudioDataFetched,
+              onPlay: (message) {
+                widget.onMessageTap?.call(context, message);
+              },
+            );
       case types.MessageType.custom:
         final customMessage = widget.message as types.CustomMessage;
-        return widget.customMessageBuilder != null
-            ? widget.customMessageBuilder!(customMessage, messageWidth: widget.messageWidth)
-            : const SizedBox();
+        return widget.customMessageBuilder?.call(customMessage, messageWidth: widget.messageWidth)
+            ?? const SizedBox();
       case types.MessageType.file:
         final fileMessage = widget.message as types.FileMessage;
-        return widget.fileMessageBuilder != null
-            ? widget.fileMessageBuilder!(fileMessage, messageWidth: widget.messageWidth)
-            : FileMessage(message: fileMessage);
+        return widget.fileMessageBuilder?.call(fileMessage, messageWidth: widget.messageWidth)
+            ?? FileMessage(message: fileMessage);
       case types.MessageType.image:
         final imageMessage = widget.message as types.ImageMessage;
-        return widget.imageMessageBuilder != null
-            ? widget.imageMessageBuilder!(imageMessage, messageWidth: widget.messageWidth)
-            : ImageMessage(
-          imageHeaders: widget.imageHeaders,
-          message: imageMessage,
-          messageWidth: widget.messageWidth,
-        );
+        return widget.imageMessageBuilder?.call(imageMessage, messageWidth: widget.messageWidth)
+            ?? ImageMessage(
+              imageHeaders: widget.imageHeaders,
+              message: imageMessage,
+              messageWidth: widget.messageWidth,
+            );
       case types.MessageType.text:
         final textMessage = widget.message as types.TextMessage;
-        return widget.textMessageBuilder != null
-            ? widget.textMessageBuilder!(
+        return widget.textMessageBuilder?.call(
           textMessage,
           messageWidth: widget.messageWidth,
           showName: widget.showName,
-        )
-          : TextMessage(
-              emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
-              hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
-              message: textMessage,
-              nameBuilder: widget.nameBuilder,
-              onPreviewDataFetched: widget.onPreviewDataFetched,
-              options: widget.textMessageOptions,
-              showName: widget.showName,
-              usePreviewData: widget.usePreviewData,
-              userAgent: widget.userAgent,
-            );
+        ) ?? TextMessage(
+          emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
+          hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
+          message: textMessage,
+          nameBuilder: widget.nameBuilder,
+          onPreviewDataFetched: widget.onPreviewDataFetched,
+          options: widget.textMessageOptions,
+          showName: widget.showName,
+          usePreviewData: widget.usePreviewData,
+          userAgent: widget.userAgent,
+        );
       case types.MessageType.video:
         final videoMessage = widget.message as types.VideoMessage;
-        return widget.videoMessageBuilder != null
-            ? widget.videoMessageBuilder!(videoMessage, messageWidth: widget.messageWidth)
-            : VideoMessage(
-          imageHeaders: widget.imageHeaders,
-          message: videoMessage,
-          messageWidth: widget.messageWidth,
-        );
+        return widget.videoMessageBuilder?.call(videoMessage, messageWidth: widget.messageWidth)
+            ?? VideoMessage(
+              imageHeaders: widget.imageHeaders,
+              message: videoMessage,
+              messageWidth: widget.messageWidth,
+            );
       default:
         return const SizedBox();
     }

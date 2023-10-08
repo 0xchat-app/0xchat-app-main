@@ -6,13 +6,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
-import 'package:just_audio/just_audio.dart' as jsAudio;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
-import './noises.dart';
-import 'contact_noises.dart';
 import 'helpers/audio_player_singleton.dart';
 import 'helpers/colors.dart';
 import 'helpers/utils.dart';
@@ -21,47 +18,23 @@ import 'helpers/utils.dart';
 // ignore: must_be_immutable
 class VoiceMessage extends StatefulWidget {
   VoiceMessage({
-    Key? key,
+    super.key,
     required this.me,
-    this.audioSrc,
     this.audioFile,
     this.duration,
-    this.formatDuration,
-    this.showDuration = false,
-    this.waveForm,
-    this.noiseCount = 27,
+    String Function(Duration duration)? formatDuration,
     this.meBgColor = AppColors.pink,
     this.contactBgColor = const Color(0xffffffff),
-    this.contactFgColor = AppColors.pink,
-    this.contactCircleColor = Colors.red,
-    this.mePlayIconColor = Colors.black,
-    this.contactPlayIconColor = Colors.black26,
-    this.radius = 12,
-    this.contactPlayIconBgColor = Colors.grey,
-    this.meFgColor = const Color(0xffffffff),
-    this.played = false,
     this.onPlay,
-  }) : super(key: key);
+  }) : this.formatDuration = formatDuration ?? ((Duration? duration) => duration?.toString().substring(2, 7) ?? '00:00');
 
-  final String? audioSrc;
-  Future<File>? audioFile;
+  final File? audioFile;
   final Duration? duration;
-  final bool showDuration;
-  final List<double>? waveForm;
-  final double radius;
 
-  final int noiseCount;
-  final Color meBgColor,
-      meFgColor,
-      contactBgColor,
-      contactFgColor,
-      contactCircleColor,
-      mePlayIconColor,
-      contactPlayIconColor,
-      contactPlayIconBgColor;
-  final bool played, me;
+  final Color meBgColor, contactBgColor;
+  final bool me;
   Function()? onPlay;
-  String Function(Duration duration)? formatDuration;
+  String Function(Duration duration) formatDuration;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -70,85 +43,90 @@ class VoiceMessage extends StatefulWidget {
 
 class _VoiceMessageState extends State<VoiceMessage>
     with TickerProviderStateMixin {
-  late StreamSubscription stream;
-
-  String Function(Duration duration)? formatDuration;
+  List<StreamSubscription> subscriptions = [];
 
   final AudioPlayerSingleton audioPlayerSingleton = AudioPlayerSingleton();
   late AudioPlayer _player = audioPlayerSingleton.audioPlayer;
 
-  final double maxNoiseHeight = 6.w(), noiseWidth = 28.5.w();
-  Duration? _audioDuration;
-  bool _isPlaying = false, x2 = false, _audioConfigurationDone = false;
+  final double radius = 12;
+  PlayerState state = PlayerState.completed;
   String _remainingTime = '';
   AnimationController? _controller;
-  String? _playUrl;
+  String? get _playUrl => widget.audioFile?.path;
 
   Color? themeColor;
 
   @override
   void initState() {
     themeColor = widget.me ? ThemeColor.white : ThemeColor.color0;
-    formatDuration = widget.formatDuration ?? (Duration? duration) => duration?.toString().substring(2, 7) ?? '00:00';
     _player = audioPlayerSingleton.audioPlayer;
-    _remainingTime = formatDuration!(Duration());
-    getPlayUri();
     super.initState();
-    stream = _player.onPlayerStateChanged.listen((event) {
-      switch (event) {
-        case PlayerState.stopped:
-          break;
-        case PlayerState.playing:
-          final currentPlayingUrl = audioPlayerSingleton.getCurrentPlayingUrl();
-          if(currentPlayingUrl == _playUrl) {//Used to determine if the current item is being played
-            _controller?.forward();
-            if(mounted){
-              setState(() => _isPlaying = true);
-            }
 
-          }else{
-            _controller?.reset();
-            if(mounted){
-              setState(() => _isPlaying = false);
-            }
-          }
+    setAudioInfo();
+    setupStream();
+  }
+
+  @override
+  void didUpdateWidget(covariant VoiceMessage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setAudioInfo();
+  }
+
+  void setupStream() {
+    final stateChangedSubscription = _player.onPlayerStateChanged.listen((event) {
+      if (!mounted) return ;
+
+      if (event == PlayerState.completed) {
+        setState(() { state = event; });
+        setAudioUIToDefault();
+        return ;
+      }
+
+      final isCurrentPlayingUrl = audioPlayerSingleton.getCurrentPlayingUrl() == _playUrl;
+      if (!isCurrentPlayingUrl) {
+        if (state != PlayerState.completed) {
+          setAudioUIToDefault();
+        }
+        return ;
+      }
+
+      setState(() { state = event; });
+
+      switch (event) {
+        case PlayerState.playing:
+          _startPlayingHandler();
           break;
         case PlayerState.paused:
-          if(mounted){
-            setState(() => _isPlaying = false);
-          }
-          break;
-        case PlayerState.completed:
-          _player.seek(Duration.zero);
-          if(mounted){
-            setState(() {
-              if(formatDuration != null) {
-                _remainingTime = formatDuration!(_audioDuration!);
-              }
-            });
-          }
+          _pausePlayingHandler();
           break;
         default:
           break;
       }
     });
 
-    _player.onPositionChanged.listen((Duration p){
-      if(_isPlaying){
-        if(mounted){
-          setState(() {
-            _remainingTime = formatDuration!(p);
-          });
-        }
-
-      }else{
-        if(mounted){
-          setState(() {
-            _remainingTime = formatDuration!(_audioDuration!);
-          });
-        }
+    final positionChangedSubscription = _player.onPositionChanged.listen((Duration p) {
+      if (!mounted) return ;
+      if (state == PlayerState.playing) {
+        setState(() {
+          _remainingTime = widget.formatDuration(p);
+        });
       }
     });
+
+    subscriptions.add(stateChangedSubscription);
+    subscriptions.add(positionChangedSubscription);
+  }
+
+  void setAudioUIToDefault() {
+    if (mounted) {
+      final duration = widget.duration;
+      if (duration == null) return ;
+      _controller?.reset();
+      setState(() {
+        state = PlayerState.completed;
+        _remainingTime = widget.formatDuration(duration);
+      });
+    }
   }
 
   @override
@@ -161,13 +139,13 @@ class _VoiceMessageState extends State<VoiceMessage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: widget.me ?
-            Radius.circular(widget.radius)
+            Radius.circular(radius)
                 : Radius.circular(0),
             bottomLeft: widget.me
-                ? Radius.circular(widget.radius)
+                ? Radius.circular(radius)
                 : const Radius.circular(4),
             bottomRight: !widget.me
-                ? Radius.circular(widget.radius)
+                ? Radius.circular(radius)
                 : const Radius.circular(4),
             topRight: Radius.circular(0),
           ),
@@ -177,7 +155,7 @@ class _VoiceMessageState extends State<VoiceMessage>
       );
 
   Widget _buildContentView() {
-    if (_audioDuration == null) {
+    if (widget.duration == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 35.0),
         child: CupertinoActivityIndicator(),
@@ -201,9 +179,8 @@ class _VoiceMessageState extends State<VoiceMessage>
   Widget _playButton(BuildContext context) => InkWell(
         child: Container(
           child: InkWell(
-            onTap: () =>
-                !_audioConfigurationDone ? null : _changePlayingStatus(),
-            child: _isPlaying ? _buildPauseIcon() : _buildPlayIcon(),
+            onTap: _changePlayingStatus,
+            child: state == PlayerState.playing ? _buildPauseIcon() : _buildPlayIcon(),
           ),
         ),
       );
@@ -228,8 +205,9 @@ class _VoiceMessageState extends State<VoiceMessage>
 
   Widget _buildProgressView() {
 
-    final duration = _audioDuration;
-    if (duration == null) {
+    final duration = widget.duration;
+    final controller = _controller;
+    if (duration == null || controller == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: CupertinoActivityIndicator(),
@@ -248,12 +226,12 @@ class _VoiceMessageState extends State<VoiceMessage>
             Padding(
               padding: const EdgeInsets.all(2.5),
               child: AnimatedBuilder(
-                animation: CurvedAnimation(parent: _controller!, curve: Curves.ease),
+                animation: CurvedAnimation(parent: controller, curve: Curves.ease),
                 builder: (context, child) {
                   final itemProgress = (index + 1) / dotCount;
                   var dotColor = themeColor;
-                  if (_controller?.status == AnimationStatus.forward) {
-                    dotColor = itemProgress <= _controller!.value ? Colors.white
+                  if (controller.status == AnimationStatus.forward) {
+                    dotColor = itemProgress <= controller.value ? Colors.white
                         : Colors.white.withOpacity(0.2);
                   }
                   return Container(
@@ -294,109 +272,45 @@ class _VoiceMessageState extends State<VoiceMessage>
 
   Future _startPlaying() async {
     final playUrl = _playUrl;
-    if (playUrl == null || _audioDuration == null) return;
+    if (playUrl == null ||widget.duration == null) return;
     await audioPlayerSingleton.play(playUrl, (url) {
       if (url == playUrl) {
         _stopPlayingHandler();
       }
     });
-    setState(() {
-      _isPlaying = true;
-    });
-
-    await _controller?.forward();
   }
 
-  Future getPlayUri() async {
-    var uri = '';
-    final audioFile = widget.audioFile;
-    final audioSrc = widget.audioSrc;
-    if (audioFile != null) {
-      final path = (await audioFile).path;
-      uri = path;
-    } else if (audioSrc != null) {
-      uri = audioSrc;
-    }
+  void setAudioInfo() {
+    final duration = widget.duration;
 
-    _playUrl = uri;
+    _remainingTime = widget.formatDuration(duration ?? Duration());
 
-    _setDuration();
-  }
-
-  Future _pausePlaying() async {
-    await _player.pause();
-    _controller?.stop();
-    setState(() {
-      _isPlaying = false;
-    });
-  }
-
-  Future _stopPlayingHandler() async {
-    _controller?.reset();
-    setState(() {
-      _isPlaying = false;
-    });
-  }
-
-  void _setDuration() async {
-    final playUrl = _playUrl;
-    if (widget.duration != null) {
-      _audioDuration = widget.duration;
-    } else if (playUrl != null && playUrl.isNotEmpty) {
-      final player =  AudioPlayer();
-      await player.setSource(UrlSource(playUrl));
-      _audioDuration = await player.getDuration();
-    }
-
-    if (!this.mounted) return ;
-    _controller = AnimationController(
+    final aniController = AnimationController(
       vsync: this,
       lowerBound: 0,
       upperBound: 1,
-      duration: _audioDuration,
+      duration: duration,
     );
-
-    ///
-    _controller?.addListener(() {
-      if (_controller!.isCompleted) {
-        _controller?.reset();
-        _isPlaying = false;
-        x2 = false;
-        setState(() {});
-      }
-    });
-    _setAnimationConfiguration(_audioDuration!);
+    _controller = aniController;
   }
 
-  void _setAnimationConfiguration(Duration audioDuration) async {
-    setState(() {
-      _remainingTime = formatDuration!(audioDuration);
-    });
-    _completeAnimationConfiguration();
+  void _startPlayingHandler() {
+    _controller?.forward();
   }
 
-  void _completeAnimationConfiguration() =>
-      setState(() => _audioConfigurationDone = true);
+  void _pausePlayingHandler() {
+    _controller?.stop();
+  }
 
-  // void _toggle2x() {
-  //   x2 = !x2;
-  //   _controller?.duration = Duration(seconds: x2 ? duration ~/ 2 : duration);
-  //   if (_controller?.isAnimating) _controller?.forward();
-  //   _player.setPlaybackRate(x2 ? 2 : 1);
-  //   setState(() {});
-  // }
-
-  // void _changePlayingStatus() async {
-  //   if (widget.onPlay != null) widget.onPlay!();
-  //   _isPlaying ? _pausePlaying() : _startPlaying();
-  //   setState(() => _isPlaying = !_isPlaying);
-  // }
+  void _stopPlayingHandler() {
+    _controller?.reset();
+  }
 
   void _changePlayingStatus() async {
     if (widget.onPlay != null) widget.onPlay!();
 
-    if (_isPlaying) {
-      await _pausePlaying();
+    if (state == PlayerState.playing) {
+      await _player.pause();
     } else {
       await _startPlaying();
     }
@@ -404,8 +318,7 @@ class _VoiceMessageState extends State<VoiceMessage>
 
   @override
   void dispose() {
-    stream.cancel();
-    _player.dispose();
+    subscriptions.forEach((e) { e.cancel(); });
     _controller?.dispose();
     super.dispose();
   }

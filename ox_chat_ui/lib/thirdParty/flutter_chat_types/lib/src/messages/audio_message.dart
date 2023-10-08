@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
@@ -31,6 +33,7 @@ abstract class AudioMessage extends Message {
     super.updatedAt,
     required this.uri,
     this.waveForm,
+    this.audioFile,
     EncryptionType? fileEncryptionType,
   }) : super(
     type: type ?? MessageType.audio,
@@ -56,6 +59,7 @@ abstract class AudioMessage extends Message {
     int? updatedAt,
     required String uri,
     List<double>? waveForm,
+    File? audioFile,
     EncryptionType? fileEncryptionType,
   }) = _AudioMessage;
 
@@ -117,6 +121,8 @@ abstract class AudioMessage extends Message {
   /// Wave form represented as a list of decibel levels.
   final List<double>? waveForm;
 
+  final File? audioFile;
+
   @override
   String get content => uri;
 
@@ -161,6 +167,7 @@ abstract class AudioMessage extends Message {
     int? updatedAt,
     String? uri,
     List<double>? waveForm,
+    File? audioFile,
     EncryptionType? fileEncryptionType,
   });
 
@@ -190,6 +197,7 @@ class _AudioMessage extends AudioMessage {
     super.updatedAt,
     required super.uri,
     super.waveForm,
+    super.audioFile,
     super.fileEncryptionType,
   }) : super._();
 
@@ -212,6 +220,7 @@ class _AudioMessage extends AudioMessage {
     dynamic updatedAt = _Unset,
     String? uri,
     dynamic waveForm = _Unset,
+    File? audioFile,
     dynamic fileEncryptionType = _Unset,
   }) =>
       _AudioMessage(
@@ -238,6 +247,7 @@ class _AudioMessage extends AudioMessage {
         uri: uri ?? this.uri,
         waveForm:
             waveForm == _Unset ? this.waveForm : waveForm as List<double>?,
+        audioFile: audioFile ?? this.audioFile,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
       );
 }

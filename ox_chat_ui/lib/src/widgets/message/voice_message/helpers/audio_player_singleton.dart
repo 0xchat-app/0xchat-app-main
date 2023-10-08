@@ -1,5 +1,6 @@
- import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ox_common/utils/string_utils.dart';
 
 // class AudioPlayerSingleton {
 //   static final AudioPlayerSingleton _singleton = AudioPlayerSingleton._internal();
@@ -96,7 +97,7 @@ import 'package:flutter/foundation.dart';
 
        _currentPlayingUrl = url;
 
-       if (RegExp(r'https?:\/\/').hasMatch(url)) {
+       if (url.isRemoteURL) {
          // If it's a network file, play it directly
          await audioPlayer.play(UrlSource(url));
        } else {

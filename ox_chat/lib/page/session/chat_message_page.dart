@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -178,6 +179,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
       ),
     );
   }
