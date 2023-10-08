@@ -3,7 +3,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
@@ -84,28 +83,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement initState
     super.initState();
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
-    tabBarList = [
-      TranslucentNavigationBarItem(
-          title: Localized.text('ox_home.${riveFileNames[0]}'),
-          artboard: riveArtboards[0],
-          animationController: riveControllers[0],
-          unreadMsgCount: 0),
-      TranslucentNavigationBarItem(
-          title: Localized.text('ox_home.${riveFileNames[1]}'),
-          artboard: riveArtboards[1],
-          animationController: riveControllers[1],
-          unreadMsgCount: 0),
-      TranslucentNavigationBarItem(
-          title: Localized.text('ox_home.${riveFileNames[2]}'),
-          artboard: riveArtboards[2],
-          animationController: riveControllers[2],
-          unreadMsgCount: 0),
-      TranslucentNavigationBarItem(
-          title: Localized.text('ox_home.${riveFileNames[3]}'),
-          artboard: riveArtboards[3],
-          animationController: riveControllers[3],
-          unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
-    ];
+
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
@@ -147,6 +125,30 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       if (input != null) input.value = true;
     }
 
+    setState(() {
+      tabBarList = [
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[0]}'),
+            artboard: riveArtboards[0],
+            animationController: riveControllers[0],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[1]}'),
+            artboard: riveArtboards[1],
+            animationController: riveControllers[1],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[2]}'),
+            artboard: riveArtboards[2],
+            animationController: riveControllers[2],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[3]}'),
+            artboard: riveArtboards[3],
+            animationController: riveControllers[3],
+            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
+      ];
+    });
     if (OXUserInfoManager.sharedInstance.isLogin) {
       fetchUnreadCount();
     }
@@ -205,7 +207,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   @override
   void didPromptToneCallBack(MessageDB message, int type) {
     if(message.read! || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
-    LogUtil.e('Michael: tabBarList =${tabBarList.length}');
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;
     } else {
