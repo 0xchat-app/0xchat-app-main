@@ -295,9 +295,10 @@ class OXChatBinding {
         if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
           unReadStrangerSessionCount += 1;
         }
-        noticePromptToneCallBack(messageDB, tempModel.chatType!);
+        noticePromptToneCallBack(messageDB, tempModel.chatType);
       }
-      if (messageDB.createTime >= sessionMap[chatId]!.createTime) tempModel = sessionModel;
+      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
+      LogUtil.e('Michael: syncSingleChat chatId= ${tempModel.chatId}, tempModel.chatType =${tempModel.chatType}; messageDB.sessionId.isEmpty =${messageDB.sessionId.isEmpty};chatType=${chatType}, content =${sessionModel.content}');
       sessionMap[chatId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {
@@ -307,15 +308,16 @@ class OXChatBinding {
       } else {
         sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatSingle : ChatType.chatSecret;
       }
+      LogUtil.e('Michael: syncSingleChat chatId= ${chatId}; name= ${userDB?.name}, sessionModel.chatType =${sessionModel.chatType}; messageDB.sessionId.isEmpty =${messageDB.sessionId.isEmpty};chatType=${chatType}}, content =${sessionModel.content}');
       if (chatType != null) {
         sessionModel.chatType = chatType;
       }
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
+      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         sessionModel.unreadCount = 1;
         if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
           unReadStrangerSessionCount += 1;
         }
-        noticePromptToneCallBack(messageDB, sessionModel.chatType!);
+        noticePromptToneCallBack(messageDB, sessionModel.chatType);
       }
       sessionMap[chatId] = sessionModel;
       DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
@@ -518,26 +520,24 @@ class OXChatBinding {
       if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
         continue;
       }
-      if (csModel.sender == pubkey || csModel.receiver == pubkey) {
-        isChange = true;
-        int? tempChatType = csModel.chatType;
-        if(isBecomeContact){
-          if (csModel.chatType == ChatType.chatSecretStranger) {
-            tempChatType = ChatType.chatSecret;
-          } else if (csModel.chatType == ChatType.chatStranger){
-            tempChatType = ChatType.chatSingle;
-          }
-        } else {
-          if (csModel.chatType == ChatType.chatSecret) {
-            tempChatType = ChatType.chatSecretStranger;
-          } else if (csModel.chatType == ChatType.chatSingle){
-            tempChatType = ChatType.chatStranger;
-          }
+      isChange = true;
+      int? tempChatType = csModel.chatType;
+      if (isBecomeContact) {
+        if (csModel.chatType == ChatType.chatSecretStranger && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
+          tempChatType = ChatType.chatSecret;
+        } else if (csModel.chatType == ChatType.chatStranger && csModel.chatId == pubkey) {
+          tempChatType = ChatType.chatSingle;
         }
-        csModel.chatType = tempChatType;
-        sessionMap[csModel.chatId!] = csModel;
-        final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
+      } else {
+        if (csModel.chatType == ChatType.chatSecret && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
+          tempChatType = ChatType.chatSecretStranger;
+        } else if (csModel.chatType == ChatType.chatSingle && csModel.chatId == pubkey) {
+          tempChatType = ChatType.chatStranger;
+        }
       }
+      csModel.chatType = tempChatType;
+      sessionMap[csModel.chatId!] = csModel;
+      DB.sharedInstance.insert<ChatSessionModel>(csModel);
     }
     if (isChange) {
       _updateUnReadStrangerSessionCount();
