@@ -107,7 +107,7 @@
   "block_dialog_content": "Blokkolás után nem fog tőlük üzeneteket kapni.",
   "block_fail": "Blokkolás sikertelen!",
   "un_block_fail": "Blokkolás feloldása sikertelen!",
-  "message_menu_quote": "Idézet",
+  "message_menu_quote": "Válasz",
   "message_delete_tips": "Biztosan törölni szeretné ezt a beszélgetést és a helyi üzeneteket?",
   "secret_message_delete_tips": "Ha törölt, a titkos üzenetek nem állíthatók vissza. Biztosan folytatni szeretné?",
   "secret_message_reject_tips": "Biztosan elutasítja és törli?",

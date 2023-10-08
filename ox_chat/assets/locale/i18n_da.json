@@ -107,7 +107,7 @@
   "block_dialog_content": "Efter blokering vil du ikke længere modtage beskeder fra dem.",
   "block_fail": "Bloker mislykkedes!",
   "un_block_fail": "UnBlock mislykkedes!",
-  "message_menu_quote": "Citer",
+  "message_menu_quote": "Svar",
   "message_delete_tips": "Er du sikker på, at du vil slette denne samtale og lokale beskeder?",
   "secret_message_delete_tips": "Når det er slettet, kan hemmelige beskeder ikke gendannes. Er du sikker på, at du vil fortsætte?",
   "secret_message_reject_tips": "Er du sikker på at afvise og slette?",

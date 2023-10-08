@@ -107,7 +107,7 @@
   "block_dialog_content": "Nach dem Blockieren erhalten Sie keine Nachrichten mehr von dieser Person.",
   "block_fail": "Blockieren fehlgeschlagen!",
   "un_block_fail": "Entblocken fehlgeschlagen!",
-  "message_menu_quote": "Zitat",
+  "message_menu_quote": "Antworten",
   "message_delete_tips": "Möchten Sie dieses Gespräch und die lokalen Nachrichten wirklich löschen?",
   "secret_message_delete_tips": "Einmal gelöscht, können geheime Nachrichten nicht wiederhergestellt werden. Sind Sie sicher, dass Sie fortfahren möchten?",
   "secret_message_reject_tips": "Sind Sie sicher, ablehnen und löschen?",

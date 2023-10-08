@@ -106,7 +106,7 @@
   "block_dialog_content": "ブロック後、このユーザーからのメッセージは受信されません。",
   "block_fail": "ブロック失敗！",
   "un_block_fail": "ブロック解除失敗！",
-  "message_menu_quote": "引用",
+  "message_menu_quote": "返信",
   "message_delete_tips": "この会話とローカルのメッセージを削除してもよろしいですか？",
   "secret_message_delete_tips": "一度削除すると、秘密のメッセージは復元できません。続行してもよろしいですか？",
   "secret_message_reject_tips": "拒否して削除してもよろしいですか？",

@@ -107,7 +107,7 @@
   "block_dialog_content": "Po zablokowaniu nie będziesz już otrzymywać od nich wiadomości.",
   "block_fail": "Blokowanie nieudane!",
   "un_block_fail": "Odblokowanie nieudane!",
-  "message_menu_quote": "Cytuj",
+  "message_menu_quote": "Odpowiedz",
   "message_delete_tips": "Czy na pewno chcesz usunąć tę rozmowę i lokalne wiadomości?",
   "secret_message_delete_tips": "Po usunięciu, tajne wiadomości nie mogą być odzyskane. Czy na pewno chcesz kontynuować?",
   "secret_message_reject_tips": "Czy na pewno chcesz odrzucić i usunąć?",

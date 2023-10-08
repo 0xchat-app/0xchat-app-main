@@ -107,7 +107,7 @@
   "block_dialog_content": "屏蔽后，您将不再收到来自他们的消息。",
   "block_fail": "屏蔽失败",
   "un_block_fail": "解除屏蔽失败",
-  "message_menu_quote": "引用",
+  "message_menu_quote": "回复",
   "message_delete_tips": "确定要删除这个对话和本地消息吗？",
   "secret_message_delete_tips": "一旦删除，加密消息无法恢复。确定要继续吗？",
   "secret_message_reject_tips": "确定要拒绝并删除吗？",

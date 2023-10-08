@@ -107,7 +107,7 @@
   "block_dialog_content": "Pēc bloķēšanas jūs vairs nesaņemsiet ziņas no viņiem.",
   "block_fail": "Bloķēšana neizdevās!",
   "un_block_fail": "Atbloķēšana neizdevās!",
-  "message_menu_quote": "Citēt",
+  "message_menu_quote": "Atbildēt",
   "message_delete_tips": "Vai tiešām vēlaties dzēst šo sarunu un lokālās ziņas?",
   "secret_message_delete_tips": "Kad dzēsts, slepenās ziņas nevar atgūt. Vai tiešām vēlaties turpināt?",
   "secret_message_reject_tips": "Vai tiešām noraidīt un dzēst?",

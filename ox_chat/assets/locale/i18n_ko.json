@@ -107,7 +107,7 @@
   "block_dialog_content": "차단 후에는 이 사용자로부터 메시지를 받지 않습니다.",
   "block_fail": "차단 실패!",
   "un_block_fail": "차단 해제 실패!",
-  "message_menu_quote": "인용",
+  "message_menu_quote": "답장",
   "message_delete_tips": "이 대화와 로컬 메시지를 삭제하시겠습니까?",
   "secret_message_delete_tips": "삭제한 후에는 비밀 메시지를 복구할 수 없습니다. 계속하시겠습니까?",
   "secret_message_reject_tips": "거절하고 삭제하시겠습니까?",
