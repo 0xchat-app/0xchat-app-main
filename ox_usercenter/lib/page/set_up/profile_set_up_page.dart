@@ -502,7 +502,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     List<String> temp = dnsStr.split('@');
     String name = temp[0];
     String domain = temp[1];
-    DNS dns = DNS(name, domain, pubKey, _relayNameList);
+    DNS dns = DNS(name, domain, pubKey, []);
     try {
       OXLoading.show(status: Localized.text('ox_usercenter.dns_checking'));
       bool result = await Account.checkDNS(dns);
