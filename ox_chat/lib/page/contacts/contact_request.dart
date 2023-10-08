@@ -169,7 +169,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                         text: Localized.text('ox_common.confirm'),
                         onTap: () async {
                           OXNavigator.pop(context);
-                          final int count = await OXChatBinding.sharedInstance.deleteSession(item, isStranger: true);
+                          final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId, isStranger: true);
                           Contacts.sharedInstance.close(item.chatId!);
                           if (count > 0) {
                             _initData();
@@ -524,10 +524,10 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
+                final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
-                  OXChatBinding.sharedInstance.deleteSession(item);
+                  OXChatBinding.sharedInstance.deleteSession(item.chatId);
                   CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
                   OXNavigator.pop(context);
                   setState(() {});

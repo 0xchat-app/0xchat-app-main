@@ -459,7 +459,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 if (okEvent.status) {
                   UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
                   await OXChatBinding.sharedInstance.deleteSession(
-                    widget.communityItem,
+                    widget.communityItem.chatId,
                     isStranger: toPubkeyUserDB == null,
                   );
                   OXNavigator.pop(context); //pop dialog

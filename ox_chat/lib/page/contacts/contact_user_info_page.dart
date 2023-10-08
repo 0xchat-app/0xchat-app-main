@@ -516,6 +516,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   if(!event.status){
                     CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   }
+                  OXChatBinding.sharedInstance.deleteSession(pubKey);
                   OXNavigator.pop(context, true);
                 }),
           ],

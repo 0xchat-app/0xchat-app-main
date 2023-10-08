@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -122,7 +123,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
 
   void _confirmOnTap(ChatSessionModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.getOtherPubkey!]);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.getOtherPubkey]);
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
@@ -137,12 +138,12 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
 
   void _blockOnTap(ChatSessionModel item) async {
     await OXLoading.show();
-    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
+    final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId);
     await OXLoading.dismiss();
     if (okEvent.status) {
-      OXChatBinding.sharedInstance.deleteSession(item);
+      OXChatBinding.sharedInstance.deleteSession(item.chatId);
       CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
-      setState(() {});
+      OXNavigator.pop(context);
     } else {
       CommonToast.instance.show(context, okEvent.message);
     }
