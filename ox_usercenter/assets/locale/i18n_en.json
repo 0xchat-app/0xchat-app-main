@@ -92,5 +92,10 @@
   "zap_to": "To",
   "zap_time": "Time",
   "zap_content": "Content",
-  "zap_no_content": "No Content"
+  "zap_no_content": "No Content",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "CONNECT TO ICE Server",
+  "connected_ice_server": "CONNECTED To ICE Server",
+  "recommend_ice_server": "Recommend ICE Server",
+  "add": "Add"
 }
