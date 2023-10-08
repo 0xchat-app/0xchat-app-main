@@ -63,15 +63,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     _strangerSessionModelList.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
       var session1CreatedTime = session1.createTime;
-      if (session2CreatedTime == null && session1CreatedTime == null) {
-        return 0;
-      } else if (session1CreatedTime == null) {
-        return 1;
-      } else if (session2CreatedTime == null) {
-        return -1;
-      } else {
-        return session2CreatedTime.compareTo(session1CreatedTime);
-      }
+      return session2CreatedTime.compareTo(session1CreatedTime);
     });
     if (_strangerSessionModelList.length > 0) {
       setState(() {

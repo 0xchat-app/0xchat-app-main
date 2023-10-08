@@ -299,6 +299,8 @@ class _ContractsPageState extends State<ContractsPage>
     } else if (_unReadStrangerSessionCount >= 100) {
       return Container(
         alignment: Alignment.center,
+        width: Adapt.px(28),
+        height: Adapt.px(20),
         decoration: BoxDecoration(
           color: ThemeColor.red1,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),
