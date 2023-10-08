@@ -303,10 +303,6 @@ class OXChatBinding {
     } else {
       userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
       if (userDB == null) {
-        if (otherUserPubkey.isNotEmpty) {
-          var result = Account.sharedInstance.getUserInfo(otherUserPubkey);
-          userDB = result is Future ? null : result;
-        }
         sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatStranger : ChatType.chatSecretStranger;
       } else {
         sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatSingle : ChatType.chatSecret;
@@ -334,9 +330,7 @@ class OXChatBinding {
     } else {
       chatId = messageDB.sessionId;
       SecretSessionDB? ssDB = Contacts.sharedInstance.secretSessionMap[messageDB.sessionId];
-      if (ssDB != null) {
-        otherUserPubkey = ssDB.toPubkey ?? '';
-      }
+      otherUserPubkey = ssDB?.toPubkey ?? '';
     }
     return {'ChatId': chatId, 'otherUserPubkey': otherUserPubkey};
   }
