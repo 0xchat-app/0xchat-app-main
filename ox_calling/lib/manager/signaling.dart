@@ -246,18 +246,22 @@ class SignalingManager {
           print('newSession.offerId: ${newSession.offerId}');
           _sessions[sessionId] = newSession;
 
-          await newSession.pc?.setRemoteDescription(
-              RTCSessionDescription(description['sdp'], description['type']));
-          // await _createAnswer(newSession, media);
+          try {
+            await newSession.pc?.setRemoteDescription(
+                          RTCSessionDescription(description['sdp'], description['type']));
+            // await _createAnswer(newSession, media);
 
-          if (newSession.remoteCandidates.length > 0) {
-            newSession.remoteCandidates.forEach((candidate) async {
-              await newSession.pc?.addCandidate(candidate);
-            });
-            newSession.remoteCandidates.clear();
+            if (newSession.remoteCandidates.length > 0) {
+                        newSession.remoteCandidates.forEach((candidate) async {
+                          await newSession.pc?.addCandidate(candidate);
+                        });
+                        newSession.remoteCandidates.clear();
+                      }
+            onCallStateChange?.call(newSession, CallState.CallStateNew);
+            onCallStateChange?.call(newSession, CallState.CallStateRinging);
+          } catch (e) {
+            print(e.toString());
           }
-          onCallStateChange?.call(newSession, CallState.CallStateNew);
-          onCallStateChange?.call(newSession, CallState.CallStateRinging);
         }
         break;
       case SignalingState.answer:
@@ -265,9 +269,13 @@ class SignalingManager {
           var description = data['description'];
           var sessionId = data['session_id'];
           var session = _sessions[sessionId];
-          session?.pc?.setRemoteDescription(
-              RTCSessionDescription(description['sdp'], description['type']));
-          onCallStateChange?.call(session!, CallState.CallStateConnecting);
+          try {
+            session?.pc?.setRemoteDescription(
+                          RTCSessionDescription(description['sdp'], description['type']));
+            onCallStateChange?.call(session!, CallState.CallStateConnecting);
+          } catch (e) {
+            print(e.toString());
+          }
         }
         break;
       case SignalingState.candidate:
@@ -282,7 +290,11 @@ class SignalingManager {
 
           if (session != null) {
             if (session.pc != null) {
-              await session.pc?.addCandidate(candidate);
+              try {
+                await session.pc?.addCandidate(candidate);
+              } catch (e) {
+                print(e.toString());
+              }
             } else {
               session.remoteCandidates.add(candidate);
             }
@@ -505,11 +517,15 @@ class SignalingManager {
 
   Future<void> _createDataChannel(Session session,
       {label: 'fileTransfer'}) async {
-    RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
-      ..maxRetransmits = 30;
-    RTCDataChannel channel =
-        await session.pc!.createDataChannel(label, dataChannelDict);
-    _addDataChannel(session, channel);
+    try {
+      RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
+            ..maxRetransmits = 30;
+      RTCDataChannel channel =
+              await session.pc!.createDataChannel(label, dataChannelDict);
+      _addDataChannel(session, channel);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<String?> _createOffer(Session session, String media) async {
@@ -556,17 +572,21 @@ class SignalingManager {
   }
 
   Future<void> _cleanSessions() async {
-    if (_localStream != null) {
-      _localStream!.getTracks().forEach((element) async {
-        await element.stop();
-      });
-      await _localStream!.dispose();
-      _localStream = null;
+    try {
+      if (_localStream != null) {
+            _localStream!.getTracks().forEach((element) async {
+              await element.stop();
+            });
+            await _localStream!.dispose();
+            _localStream = null;
+          }
+      _sessions.forEach((key, sess) async {
+            await sess.pc?.close();
+            await sess.dc?.close();
+          });
+    } catch (e) {
+      print(e.toString());
     }
-    _sessions.forEach((key, sess) async {
-      await sess.pc?.close();
-      await sess.dc?.close();
-    });
     _sessions.clear();
   }
 
@@ -584,14 +604,18 @@ class SignalingManager {
   }
 
   Future<void> _closeSession(Session session) async {
-    _localStream?.getTracks().forEach((element) async {
-      await element.stop();
-    });
-    await _localStream?.dispose();
-    _localStream = null;
+    try {
+      _localStream?.getTracks().forEach((element) async {
+            await element.stop();
+          });
+      await _localStream?.dispose();
+      _localStream = null;
 
-    await session.pc?.close();
-    await session.dc?.close();
+      await session.pc?.close();
+      await session.dc?.close();
+    } catch (e) {
+      print(e.toString());
+    }
     _senders.clear();
     _videoSource = VideoSource.Camera;
   }
