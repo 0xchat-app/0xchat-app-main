@@ -6,6 +6,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'dart:convert';
@@ -17,42 +18,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2023/5/17 14:45
-
-abstract class OXChatObserver {
-  void didSecretChatRequestCallBack() {}
-
-  void didPrivateMessageCallBack(MessageDB message) {}
-
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatUpdateCallBack(SecretSessionDB ssDB) {}
-
-  void didContactUpdatedCallBack() {}
-
-  void didCreateChannel(ChannelDB? channelDB) {}
-
-  void didDeleteChannel(ChannelDB? channelDB) {}
-
-  void didChannalMessageCallBack(MessageDB message) {}
-
-  void didChannelsUpdatedCallBack() {}
-
-  void didSessionUpdate() {}
-
-  void didSecretChatMessageCallBack(MessageDB message) {}
-
-  void didPromptToneCallBack(MessageDB message, int type) {}
-
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
-    final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
-    OXChatBinding.sharedInstance.isZapBadge = true;
-  }
-}
 
 class OXChatBinding {
   static final OXChatBinding sharedInstance = OXChatBinding._internal();
