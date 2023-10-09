@@ -206,7 +206,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void didPromptToneCallBack(MessageDB message, int type) {
-    if(message.read! || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+    if(message.read || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;
     } else {

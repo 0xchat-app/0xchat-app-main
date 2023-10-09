@@ -43,6 +43,7 @@ import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_common/utils/throttle_utils.dart';
 
 const ListViewHorizontalPadding = 20.0;
 final String ServiceListItemCreateTime = 'ServiceListItemCreateTime';
@@ -67,6 +68,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, bool> _muteCache = {};
 
   GlobalKey? _latestGlobalKey;
+
+  final throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
 
   @override
   void initState() {
@@ -170,7 +173,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if(message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
     if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = await _checkIsMute(message,type);
-    if(!isMute) PromptToneManager.sharedInstance.play();
+    if(!isMute) throttle(() {PromptToneManager.sharedInstance.play();});
   }
 
 
