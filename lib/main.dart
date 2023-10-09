@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orientation/orientation.dart';
+import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
@@ -117,7 +119,7 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
-    doHandleJumpInfo();
+    getOpenAppSchemeInfo();
   }
 
   void notNetworInitWow() async {
@@ -156,18 +158,17 @@ class MainState extends State<MainApp>
     // });
   }
 
-  void doHandleJumpInfo() async {
+  void getOpenAppSchemeInfo() async {
     String jumpInfo = await channel.invokeMethod(
-      'getParamJumpInfo',
+      'getAppOpenURL',
     );
     LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
     if (jumpInfo.isNotEmpty) {
-      //TODO
+      ScanUtils.analysis(OXNavigator.navigatorKey.currentContext!, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
     }
   }
 
   onLocaleChange() {
-
     if (mounted) setState(() {});
   }
 
@@ -226,6 +227,7 @@ class MainState extends State<MainApp>
     switch (state) {
       case AppLifecycleState.resumed:
         NotificationHelper.sharedInstance.setOnline();
+        getOpenAppSchemeInfo();
         break;
       case AppLifecycleState.paused:
         NotificationHelper.sharedInstance.setOffline();

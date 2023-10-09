@@ -245,7 +245,7 @@
 			<string>ox</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>oxChat</string>
+				<string>oxchat</string>
 			</array>
 		</dict>
 	</array>
