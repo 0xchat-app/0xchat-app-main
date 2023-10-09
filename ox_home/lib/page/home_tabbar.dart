@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rive/rive.dart';

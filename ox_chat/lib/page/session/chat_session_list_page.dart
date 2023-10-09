@@ -5,6 +5,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
