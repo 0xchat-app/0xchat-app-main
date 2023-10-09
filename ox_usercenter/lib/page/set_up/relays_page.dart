@@ -98,8 +98,8 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
     ));
     setState(() {});
     _relayConnectStatusMap.forEach((key, value) {
-      if (Connect.sharedInstance.connectStatus[key] != null) {
-        value.connectStatus = Connect.sharedInstance.connectStatus[key]!;
+      if (Connect.sharedInstance.webSockets[key]?.connectStatus != null) {
+        value.connectStatus = Connect.sharedInstance.webSockets[key]!.connectStatus;
       }
     });
   }
