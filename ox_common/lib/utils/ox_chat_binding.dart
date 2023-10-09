@@ -423,8 +423,8 @@ class OXChatBinding {
   void secretChatRequestCallBack(SecretSessionDB ssDB) async {
     final toPubkey = ssDB.toPubkey;
     final myPubkey = ssDB.myPubkey;
-    if (toPubkey == null || toPubkey.isEmpty) return null;
-    if (myPubkey == null || myPubkey.isEmpty) return null;
+    if (toPubkey == null || toPubkey.isEmpty) return;
+    if (myPubkey == null || myPubkey.isEmpty) return;
     UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
@@ -439,20 +439,24 @@ class OXChatBinding {
   }
 
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
+    String toPubkey = ssDB.toPubkey ?? '';
+    if (toPubkey.isEmpty) return;
+    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey!);
+      user = UserDB(pubKey: toPubkey);
     }
-    await updateChatSession(ssDB.sessionId!, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
+    await updateChatSession(ssDB.sessionId, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
   }
 
   void secretChatRejectCallBack(SecretSessionDB ssDB) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
+    String toPubkey = ssDB.toPubkey ?? '';
+    if (toPubkey.isEmpty) return;
+    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey!);
+      user = UserDB(pubKey: toPubkey);
     }
     await updateChatSession(ssDB.sessionId, content: 'secret_chat_rejected_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
