@@ -10,6 +10,9 @@ enum GiphyCategory {
   /// System Emoji
   EMOJIS,
 
+  /// Common expressions
+  COLLECT,
+
   /// Giphy Gif Endpoint
   GIFS,
 
@@ -26,6 +29,8 @@ extension GiphyCategoryPath on GiphyCategory{
         return 'stickers';
       case GiphyCategory.EMOJIS:
         return 'emoji';
+      case GiphyCategory.COLLECT:
+        return 'collect';
     }
   }
 }

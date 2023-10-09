@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 
+import '../../giphy_usage_recorder.dart';
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
 
@@ -50,6 +51,10 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
     // if(_giphyImage.length >= _totalCount){
     //   return;
     // }
+    if(type == GiphyCategory.COLLECT){
+      _giphyImage = await GiphyUsageRecorder.getUsedGiphyList();
+      return;
+    }
 
     if(isRefresh){
       setState(() {
@@ -105,6 +110,7 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
                 onTap: () {
                   if (widget.onSelected != null) {
                     widget.onSelected!(_giphyImage[index]);
+                    GiphyUsageRecorder.recordGiphyUsage(_giphyImage[index]);
                   }
                 },
               ),
