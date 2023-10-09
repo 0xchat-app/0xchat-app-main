@@ -339,7 +339,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     _refreshController.refreshCompleted();
   }
 
-  void _merge() async {
+  void _merge() {
     msgDatas.clear();
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {
@@ -530,7 +530,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     _gotoAddFriend();
                     break;
                   case 'join a channel':
-                    await OXNavigator.pushPage(
+                    OXNavigator.pushPage(
                         context,
                             (context) =>
                             SearchPage(
