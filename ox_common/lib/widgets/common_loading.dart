@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -11,7 +13,14 @@ import 'package:ox_theme/ox_theme.dart';
 ///@author George
 ///CreateTime: 2021/4/27 3:20 PM
 class OXLoading extends State<StatefulWidget> with TickerProviderStateMixin {
+
+  static Completer initCompleter = Completer();
+  static Future get initComplete => initCompleter.future;
+
   static TransitionBuilder init() {
+    if (!initCompleter.isCompleted) {
+      initCompleter.complete();
+    }
     return EasyLoading.init();
   }
 
