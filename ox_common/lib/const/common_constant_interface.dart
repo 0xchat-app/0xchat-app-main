@@ -16,6 +16,11 @@ abstract class ConstantInterface {
 
   String get baseUrl => 'https://www.0xchat.com';
 
+  String get APP_SCHEME => 'oxchat://';
+
+  /// share app link domain
+  String get SHARE_APP_LINK_DOMAIN => 'https://www.0xchat.com/link/';
+
   /// Push Notifications
   int get NOTIFICATION_PUSH_NOTIFICATIONS => 0;
   /// Private Messages
@@ -39,10 +44,4 @@ abstract class ConstantInterface {
 
   /// Giphy API Key
   String get giphyApiKey;
-
-  /// App scheme
-  String get APP_SCHEME;
-
-  /// share app link domain
-  String get SHARE_APP_LINK_DOMAIN;
 }
