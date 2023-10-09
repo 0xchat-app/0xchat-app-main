@@ -29,6 +29,12 @@ class ScanUtils {
       CommonToast.instance.show(context, 'please_sign_in'.commonLocalized());
       return;
     }
+
+    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
+    if(url.startsWith(shareAppLinkDomain)){
+      url = url.substring(shareAppLinkDomain.length);
+    }
+
     Map<String, dynamic>? tempMap;
     int type = CommonConstant.qrCodeUser;
     if (url.startsWith('nprofile') ||

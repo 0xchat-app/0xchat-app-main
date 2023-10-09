@@ -18,4 +18,8 @@ class OXConstantImpl extends ConstantInterface {
   final bundleId = '';
 
   final String giphyApiKey = '';
+
+  final String APP_SCHEME = '';
+
+  final String SHARE_APP_LINK_DOMAIN = '';
 }

@@ -257,6 +257,7 @@ class OXChatBinding {
 
   void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
     sessionModel.chatId = messageDB.groupId;
+    sessionModel.chatType = ChatType.chatChannel;
     ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
@@ -271,7 +272,6 @@ class OXChatBinding {
       if (channelDB != null) {
         sessionModel.avatar = channelDB.picture;
         sessionModel.chatName = channelDB.name;
-        sessionModel.chatType = ChatType.chatChannel;
         if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
           sessionModel.unreadCount = 1;
           noticePromptToneCallBack(messageDB, sessionModel.chatType!);
@@ -290,6 +290,7 @@ class OXChatBinding {
     sessionModel.chatId = chatId;
     ChatSessionModel? tempModel = sessionMap[chatId];
     if (tempModel != null) {
+      sessionModel.chatType = tempModel.chatType;
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         sessionModel.unreadCount = tempModel.unreadCount += 1;
         if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {

@@ -38,11 +38,12 @@ class PermissionUtils{
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool permissionGranted = false;
     if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt < 33) {
-      if (await Permission.storage.request().isGranted) {
+      PermissionStatus storageStatus =await Permission.storage.request();
+      if (storageStatus.isGranted) {
         permissionGranted = true;
-      } else if (await Permission.storage.request().isPermanentlyDenied) {
+      } else if (storageStatus.isPermanentlyDenied) {
         await openAppSettings();
-      } else if (await Permission.audio.request().isDenied) {
+      } else if (storageStatus.isDenied) {
         permissionGranted = false;
       }
     } else {
@@ -61,4 +62,39 @@ class PermissionUtils{
     return permissionGranted;
   }
 
+  static Future<bool> getAudioFilesPermission() async {
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool permissionGranted = false;
+    if (Platform.isIOS){
+      return true;
+    } else if (Platform.isAndroid) {
+      if ((await plugin.androidInfo).version.sdkInt < 33) {
+        PermissionStatus storageStatus = await Permission.storage.request();
+        if (storageStatus.isGranted) {
+          permissionGranted = true;
+        } else if (storageStatus.isPermanentlyDenied) {
+          await openAppSettings();
+        } else if (storageStatus.isDenied) {
+          permissionGranted = false;
+        }
+      } else {
+        PermissionStatus status = await Permission.audio.request();
+        if (status.isGranted || status.isLimited) {
+          permissionGranted = true;
+        } else if (status.isPermanentlyDenied) {
+          await openAppSettings();
+        } else if (status.isDenied) {
+          permissionGranted = false;
+        }
+      }
+    }
+    return permissionGranted;
+  }
+
+  static void requestPermission(Permission permission) async {
+    final status = await permission.request();
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
+  }
 }

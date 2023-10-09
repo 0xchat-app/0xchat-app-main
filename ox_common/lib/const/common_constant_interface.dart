@@ -39,4 +39,10 @@ abstract class ConstantInterface {
 
   /// Giphy API Key
   String get giphyApiKey;
+
+  /// App scheme
+  String get APP_SCHEME;
+
+  /// share app link domain
+  String get SHARE_APP_LINK_DOMAIN;
 }
