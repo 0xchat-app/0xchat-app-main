@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -159,5 +160,6 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
+    AppInitializationManager.shared.showInitializationLoading();
   }
 }
