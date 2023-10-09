@@ -111,6 +111,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
+    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
+    String showName = channelDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -119,7 +121,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         child: CommonAppBar(
           useLargeTitle: false,
           centerTitle: true,
-          title: widget.communityItem.chatName!,
+          title: showName,
           backgroundColor: ThemeColor.color200,
           backCallback: () {
             OXNavigator.popToRoot(context);
