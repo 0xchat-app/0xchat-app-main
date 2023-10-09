@@ -138,15 +138,15 @@ class SearchPageState extends State<SearchPage> {
     } else {
       _loadHistory();
     }
-    if (isInput && searchQuery.trim().isNotEmpty) {
-      _updateSearchHistory(null);
-    }
+    // if (isInput && searchQuery.trim().isNotEmpty) {
+    //   _updateSearchHistory(null);
+    // }
   }
 
   void _loadHistory() async {
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
-    _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
+    // _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
 
     final userList = await DB.sharedInstance.objects<RecentSearchUser>();
     Future.forEach(userList, (e) async {
