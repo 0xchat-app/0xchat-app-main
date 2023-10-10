@@ -9,7 +9,6 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -31,6 +30,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
   List<ICEServerModel> _recommendICEServerList = [];
   bool _isEditing = false;
   bool _isShowDelete = false;
+  bool _isShowAdd = false;
 
   @override
   void initState() {
@@ -102,7 +102,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
             ),
             _buildAddButton(),
             _connectICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.connected_ice_server'), _buildICEServerList(_connectICEServerList,)) : Container(),
-            // _recommendICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.recommend_ice_server'), _buildICEServerList(_recommendICEServerList,type: ICEServerType.recommend)) : Container(),
+            _recommendICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.recommend_ice_server'), _buildICEServerList(_recommendICEServerList,type: ICEServerType.recommend)) : Container(),
           ],
         ),
       ),
@@ -158,7 +158,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
             child: TextField(
               controller: _iceServerTextFieldController,
               decoration: InputDecoration(
-                hintText: '',
+                hintText: Localized.text('ox_usercenter.enter_ice_server_hint'),
                 hintStyle: TextStyle(
                   color: ThemeColor.color100,
                   fontSize: Adapt.px(15),
@@ -299,7 +299,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
             title: Container(
               margin: EdgeInsets.only(left: Adapt.px(12)),
               child: Text(
-                model.url,
+                model.host,
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(16),
@@ -332,15 +332,16 @@ class _ICEServerPageState extends State<ICEServerPage> {
             width: Adapt.px(24),
             height: Adapt.px(24),
           ),
-        ) : CommonImage(
-          iconName: 'icon_pic_selected.png',
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-        );
+        ) : const SizedBox(height: 10,width: 10,);
       case ICEServerType.recommend:
-        return GestureDetector(
+        _isShowAdd = !_connectICEServerList.any((element) => element.url == _recommendICEServerList[index].url);
+        return _isShowAdd ? GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {
+          onTap: () async {
+            await OXServerManager.sharedInstance.addServer(_recommendICEServerList[index]);
+            setState(() {
+              _connectICEServerList.add(_recommendICEServerList[index]);
+            });
           },
           child: CommonImage(
             iconName: 'icon_bar_add.png',
@@ -348,7 +349,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
             height: Adapt.px(24),
             package: 'ox_usercenter',
           ),
-        );
+        ) : const SizedBox(height: 10,width: 10,);
     }
   }
 
@@ -358,7 +359,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
     List<String> _iCEServerAddressList =_connectICEServerList.map((item) => item.url).toList();
 
     if (_iCEServerAddressList.contains(iceServerAddress)) {
-      CommonToast.instance.show(context, 'This ICE Server already exists');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.add_ice_server_exist_tips'));
     } else {
       ICEServerModel tempICEServerModel = ICEServerModel(
         url: iceServerAddress,
@@ -378,7 +379,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
     if (iceServerModel.canDelete) {
       OXCommonHintDialog.show(context,
           title: Localized.text('ox_common.tips'),
-          content: 'Are you sure you want to delete it? After deletion, you can connect it with the link again.',
+          content: Localized.text('ox_usercenter.delete_server_tips'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context);
@@ -389,7 +390,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
                   OXNavigator.pop(context);
                   await OXServerManager.sharedInstance.deleteServer(iceServerModel);
                   _initData();
-                  CommonToast.instance.show(context, 'success');
+                  CommonToast.instance.show(context, Localized.text('ox_usercenter.delete_server_success_tips'));
                 }),
           ],
           isRowAction: true);

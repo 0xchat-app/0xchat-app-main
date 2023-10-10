@@ -92,5 +92,14 @@
   "zap_to": "Naar",
   "zap_time": "Tijd",
   "zap_content": "Inhoud",
-  "zap_no_content": "Geen inhoud"
+  "zap_no_content": "Geen inhoud",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "Verbind met ICE Server",
+  "connected_ice_server": "Verbonden met ICE Server",
+  "recommend_ice_server": "Beveel ICE Server aan",
+  "enter_ice_server_hint": "Voer het adres van de ICE-server in",
+  "add_ice_server_exist_tips": "Deze ICE Server bestaat al",
+  "delete_server_tips": "Weet je zeker dat je het wilt verwijderen?",
+  "delete_server_success_tips": "Succesvol verwijderd",
+  "add": "Toevoegen"
 }

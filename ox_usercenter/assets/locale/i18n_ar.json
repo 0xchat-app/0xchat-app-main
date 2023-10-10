@@ -92,5 +92,14 @@
   "zap_to": "إلى",
   "zap_time": "الوقت",
   "zap_content": "المحتوى",
-  "zap_no_content": "لا يوجد محتوى"
+  "zap_no_content": "لا يوجد محتوى",
+  "ice_server_title": "خادم ICE",
+  "connect_ice_server": "الاتصال بخادم ICE",
+  "connected_ice_server": "متصل بخادم ICE",
+  "recommend_ice_server": "توصية خادم ICE",
+  "enter_ice_server_hint": "يرجى إدخال عنوان خادم ICE",
+  "add_ice_server_exist_tips": "خادم ICE هذا موجود بالفعل",
+  "delete_server_tips": "هل أنت متأكد أنك تريد حذفه؟",
+  "delete_server_success_tips": "تم الحذف بنجاح",
+  "add": "إضافة"
 }

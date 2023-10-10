@@ -92,5 +92,14 @@
   "zap_to": "A",
   "zap_time": "Temps",
   "zap_content": "Contingut",
-  "zap_no_content": "Sense contingut"
+  "zap_no_content": "Sense contingut",
+  "ice_server_title": "Servidor ICE",
+  "connect_ice_server": "Connecta al servidor ICE",
+  "connected_ice_server": "Connectat al servidor ICE",
+  "recommend_ice_server": "Recomana el servidor ICE",
+  "enter_ice_server_hint": "Si us plau, introdueix l'adreça del servidor ICE",
+  "add_ice_server_exist_tips": "Aquest servidor ICE ja existeix",
+  "delete_server_tips": "Estàs segur que vols suprimir-ho?",
+  "delete_server_success_tips": "S'ha suprimit correctament",
+  "add": "Afegeix"
 }

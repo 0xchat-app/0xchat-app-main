@@ -92,5 +92,14 @@
   "zap_to": "Кому",
   "zap_time": "Время",
   "zap_content": "Содержимое",
-  "zap_no_content": "Нет контента"
+  "zap_no_content": "Нет контента",
+  "ice_server_title": "Сервер ICE",
+  "connect_ice_server": "Подключиться к серверу ICE",
+  "connected_ice_server": "Подключено к серверу ICE",
+  "recommend_ice_server": "Рекомендовать сервер ICE",
+  "enter_ice_server_hint": "Пожалуйста, введите адрес сервера ICE",
+  "add_ice_server_exist_tips": "Этот сервер ICE уже существует",
+  "delete_server_tips": "Вы уверены, что хотите его удалить?",
+  "delete_server_success_tips": "Успешно удалено",
+  "add": "Добавить"
 }

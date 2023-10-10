@@ -92,5 +92,14 @@
   "zap_to": "받는 사람",
   "zap_time": "시간",
   "zap_content": "콘텐츠",
-  "zap_no_content": "콘텐츠 없음"
+  "zap_no_content": "콘텐츠 없음",
+  "ice_server_title": "ICE 서버",
+  "connect_ice_server": "ICE 서버에 연결",
+  "connected_ice_server": "ICE 서버에 연결됨",
+  "recommend_ice_server": "ICE 서버 추천",
+  "enter_ice_server_hint": "ICE 서버 주소를 입력해주세요",
+  "add_ice_server_exist_tips": "이 ICE 서버는 이미 존재합니다",
+  "delete_server_tips": "삭제하시겠습니까?",
+  "delete_server_success_tips": "삭제 성공",
+  "add": "추가"
 }

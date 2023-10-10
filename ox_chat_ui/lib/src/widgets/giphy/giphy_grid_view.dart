@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_image.dart';
 
 import '../../giphy_usage_recorder.dart';
 import '../../models/giphy_general_model.dart';
@@ -86,9 +87,19 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
     super.build(context);
 
     if(_giphyImage.isEmpty){
-      return Center(
-        child: const CircularProgressIndicator(),
-      );
+      if(widget.category == GiphyCategory.COLLECT){
+        return Center(
+          child: CommonImage(
+            iconName: 'icon_no_data.png',
+            width: Adapt.px(90),
+            height: Adapt.px(90),
+          ),
+        );
+      }else{
+        return Center(
+          child: const CircularProgressIndicator(),
+        );
+      }
     }
 
     return Column(

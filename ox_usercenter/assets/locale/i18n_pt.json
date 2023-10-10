@@ -92,5 +92,9 @@
   "zap_to": "Para",
   "zap_time": "Hora",
   "zap_content": "Conteúdo",
-  "zap_no_content": "Sem conteúdo"
+  "zap_no_content": "Sem conteúdo",
+  "connect_ice_server": "Conectar ao servidor ICE",
+  "connected_ice_server": "Conectado ao servidor ICE",
+  "recommend_ice_server": "Recomendar servidor ICE",
+  "add": "Adicionar"
 }

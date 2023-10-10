@@ -92,5 +92,14 @@
   "zap_to": "Till",
   "zap_time": "Tid",
   "zap_content": "Innehåll",
-  "zap_no_content": "Inget Innehåll"
+  "zap_no_content": "Inget Innehåll",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "Anslut till ICE-server",
+  "connected_ice_server": "Ansluten till ICE-server",
+  "recommend_ice_server": "Rekommendera ICE-server",
+  "enter_ice_server_hint": "Vänligen ange ICE-serveradressen",
+  "add_ice_server_exist_tips": "Denna ICE-server finns redan",
+  "delete_server_tips": "Är du säker på att du vill radera den?",
+  "delete_server_success_tips": "Raderad framgångsrikt",
+  "add": "Lägg till"
 }

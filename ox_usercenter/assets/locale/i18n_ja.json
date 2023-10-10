@@ -92,5 +92,14 @@
   "zap_to": "宛先",
   "zap_time": "時間",
   "zap_content": "コンテンツ",
-  "zap_no_content": "コンテンツがありません"
+  "zap_no_content": "コンテンツがありません",
+  "ice_server_title": "ICE サーバー",
+  "connect_ice_server": "ICE サーバーに接続",
+  "connected_ice_server": "ICE サーバーに接続済み",
+  "recommend_ice_server": "ICE サーバーを推奨",
+  "enter_ice_server_hint": "ICE サーバーのアドレスを入力してください",
+  "add_ice_server_exist_tips": "この ICE サーバーはすでに存在します",
+  "delete_server_tips": "削除してもよろしいですか？",
+  "delete_server_success_tips": "正常に削除されました",
+  "add": "追加"
 }

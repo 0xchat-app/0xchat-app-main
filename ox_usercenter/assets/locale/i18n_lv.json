@@ -92,5 +92,14 @@
   "zap_to": "Uz",
   "zap_time": "Laiks",
   "zap_content": "Saturs",
-  "zap_no_content": "Nav satura"
+  "zap_no_content": "Nav satura",
+  "ice_server_title": "ICE Serveris",
+  "connect_ice_server": "Savienoties ar ICE serveri",
+  "connected_ice_server": "Savienots ar ICE serveri",
+  "recommend_ice_server": "Ieteikt ICE serveri",
+  "enter_ice_server_hint": "Lūdzu, ievadiet ICE servera adresi",
+  "add_ice_server_exist_tips": "Šis ICE serveris jau pastāv",
+  "delete_server_tips": "Vai tiešām vēlaties to dzēst?",
+  "delete_server_success_tips": "Veiksmīgi dzēsts",
+  "add": "Pievienot"
 }

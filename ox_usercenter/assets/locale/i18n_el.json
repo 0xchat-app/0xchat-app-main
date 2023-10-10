@@ -92,5 +92,14 @@
   "zap_to": "Προς",
   "zap_time": "Χρόνος",
   "zap_content": "Περιεχόμενο",
-  "zap_no_content": "Κανένα Περιεχόμενο"
+  "zap_no_content": "Κανένα Περιεχόμενο",
+  "ice_server_title": "Διακομιστής ICE",
+  "connect_ice_server": "Σύνδεση στον διακομιστή ICE",
+  "connected_ice_server": "Συνδεδεμένος στον διακομιστή ICE",
+  "recommend_ice_server": "Προτείνετε διακομιστή ICE",
+  "enter_ice_server_hint": "Παρακαλώ εισάγετε τη διεύθυνση του διακομιστή ICE",
+  "add_ice_server_exist_tips": "Αυτός ο διακομιστής ICE υπάρχει ήδη",
+  "delete_server_tips": "Είστε σίγουροι ότι θέλετε να το διαγράψετε;",
+  "delete_server_success_tips": "Επιτυχής διαγραφή",
+  "add": "Προσθέστε"
 }

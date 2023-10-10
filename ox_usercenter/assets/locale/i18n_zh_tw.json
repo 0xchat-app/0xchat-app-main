@@ -92,5 +92,14 @@
   "zap_to": "到",
   "zap_time": "時間",
   "zap_content": "內容",
-  "zap_no_content": "沒有內容"
+  "zap_no_content": "沒有內容",
+  "ice_server_title": "ICE伺服器",
+  "connect_ice_server": "連線到ICE伺服器",
+  "connected_ice_server": "已連線至ICE伺服器",
+  "recommend_ice_server": "推薦ICE伺服器",
+  "enter_ice_server_hint": "請輸入 ICE 伺服器地址",
+  "add_ice_server_exist_tips": "該 ICE 伺服器已存在",
+  "delete_server_tips": "確定要刪除嗎？",
+  "delete_server_success_tips": "刪除成功",
+  "add": "添加"
 }

@@ -92,5 +92,14 @@
   "zap_to": "को",
   "zap_time": "समय",
   "zap_content": "सामग्री",
-  "zap_no_content": "कोई सामग्री नहीं"
+  "zap_no_content": "कोई सामग्री नहीं",
+  "ice_server_title": "ICE सर्वर",
+  "connect_ice_server": "ICE सर्वर से कनेक्ट करें",
+  "connected_ice_server": "ICE सर्वर से जुड़े हैं",
+  "recommend_ice_server": "ICE सर्वर की सिफारिश करें",
+  "enter_ice_server_hint": "कृपया ICE सर्वर का पता डालें",
+  "add_ice_server_exist_tips": "यह ICE सर्वर पहले ही मौजूद है",
+  "delete_server_tips": "क्या आप वाकई इसे हटाना चाहते हैं?",
+  "delete_server_success_tips": "सफलतापूर्वक हटा दिया गया",
+  "add": "जोड़ें"
 }

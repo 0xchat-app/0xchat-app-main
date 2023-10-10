@@ -92,5 +92,14 @@
   "zap_to": "Do",
   "zap_time": "Čas",
   "zap_content": "Obsah",
-  "zap_no_content": "Žádný obsah"
+  "zap_no_content": "Žádný obsah",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "Připojit k ICE serveru",
+  "connected_ice_server": "Připojeno k ICE serveru",
+  "recommend_ice_server": "Doporučit ICE server",
+  "enter_ice_server_hint": "Zadejte prosím adresu ICE serveru",
+  "add_ice_server_exist_tips": "Tento ICE server již existuje",
+  "delete_server_tips": "Opravdu chcete smazat?",
+  "delete_server_success_tips": "Úspěšně smazáno",
+  "add": "Přidat"
 }

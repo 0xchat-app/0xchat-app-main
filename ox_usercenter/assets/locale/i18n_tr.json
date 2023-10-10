@@ -92,5 +92,14 @@
   "zap_to": "Alıcı",
   "zap_time": "Zaman",
   "zap_content": "İçerik",
-  "zap_no_content": "İçerik Yok"
+  "zap_no_content": "İçerik Yok",
+  "ice_server_title": "ICE Sunucusu",
+  "connect_ice_server": "ICE Sunucusuna Bağlan",
+  "connected_ice_server": "ICE Sunucusuna Bağlandı",
+  "recommend_ice_server": "ICE Sunucusu Öner",
+  "enter_ice_server_hint": "Lütfen ICE sunucusu adresini giriniz",
+  "add_ice_server_exist_tips": "Bu ICE sunucusu zaten var",
+  "delete_server_tips": "Silmek istediğinizden emin misiniz?",
+  "delete_server_success_tips": "Başarıyla silindi",
+  "add": "Ekle"
 }
