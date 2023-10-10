@@ -69,6 +69,7 @@ class AppInitializationManager with OXChatObserver {
   }
 
   void showInitializationLoading() async {
+    return ;
     await OXLoading.initComplete;
     final shouldShowLoading = await shouldShowLoadingCompleter.future;
     if (!shouldShowLoading) return ;
