@@ -74,4 +74,10 @@ class OXServerManager {
 
     return iCEServerList;
   }
+
+  Future<List<Map<String, String>>> getICEServerConfigList() async {
+    List<ICEServerModel>  iCEServerList = await getICEServerList();
+    List<Map<String, String>> serverConfigList = iCEServerList.map((item) => item.serverConfig).toList();
+    return serverConfigList;
+  }
 }
