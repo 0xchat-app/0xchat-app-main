@@ -92,5 +92,14 @@
   "zap_to": "Tới",
   "zap_time": "Thời gian",
   "zap_content": "Nội dung",
-  "zap_no_content": "Không có nội dung"
+  "zap_no_content": "Không có nội dung",
+  "ice_server_title": "Máy chủ ICE",
+  "connect_ice_server": "Kết nối đến máy chủ ICE",
+  "connected_ice_server": "Đã kết nối đến máy chủ ICE",
+  "recommend_ice_server": "Giới thiệu máy chủ ICE",
+  "enter_ice_server_hint": "Vui lòng nhập địa chỉ máy chủ ICE",
+  "add_ice_server_exist_tips": "Máy chủ ICE này đã tồn tại",
+  "delete_server_tips": "Bạn có chắc chắn muốn xóa không?",
+  "delete_server_success_tips": "Đã xóa thành công",
+  "add": "Thêm"
 }

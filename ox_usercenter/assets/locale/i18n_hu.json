@@ -92,5 +92,14 @@
   "zap_to": "Címzett",
   "zap_time": "Idő",
   "zap_content": "Tartalom",
-  "zap_no_content": "Nincs Tartalom"
+  "zap_no_content": "Nincs Tartalom",
+  "ice_server_title": "ICE Szerver",
+  "connect_ice_server": "Csatlakozás az ICE szerverhez",
+  "connected_ice_server": "Csatlakozva az ICE szerverhez",
+  "recommend_ice_server": "ICE szerver ajánlása",
+  "enter_ice_server_hint": "Kérjük, adja meg az ICE szerver címét",
+  "add_ice_server_exist_tips": "Ez az ICE szerver már létezik",
+  "delete_server_tips": "Biztosan törölni szeretné?",
+  "delete_server_success_tips": "Sikeresen törölve",
+  "add": "Hozzáad"
 }

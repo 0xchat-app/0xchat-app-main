@@ -92,5 +92,14 @@
   "zap_to": "Kimə",
   "zap_time": "Vaxt",
   "zap_content": "Məzmun",
-  "zap_no_content": "Məzmun Yox"
+  "zap_no_content": "Məzmun Yox",
+  "ice_server_title": "ICE Serveri",
+  "connect_ice_server": "ICE serverinə bağlan",
+  "connected_ice_server": "ICE serverinə bağlanıldı",
+  "recommend_ice_server": "ICE serverini tövsiyə edin",
+  "enter_ice_server_hint": "Zəhmət olmasa, ICE serverinin ünvanını daxil edin",
+  "add_ice_server_exist_tips": "Bu ICE serveri artıq mövcuddur",
+  "delete_server_tips": "Bunu silmək istədiyinizə əminsinizmi?",
+  "delete_server_success_tips": "Uğurla silindi",
+  "add": "Əlavə et"
 }

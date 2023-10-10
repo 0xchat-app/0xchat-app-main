@@ -92,5 +92,14 @@
   "zap_to": "Ke",
   "zap_time": "Waktu",
   "zap_content": "Konten",
-  "zap_no_content": "Tidak ada Konten"
+  "zap_no_content": "Tidak ada Konten",
+  "ice_server_title": "Server ICE",
+  "connect_ice_server": "Sambungkan ke Server ICE",
+  "connected_ice_server": "Tersambung ke Server ICE",
+  "recommend_ice_server": "Rekomendasikan Server ICE",
+  "enter_ice_server_hint": "Silakan masukkan alamat server ICE",
+  "add_ice_server_exist_tips": "Server ICE ini sudah ada",
+  "delete_server_tips": "Apakah Anda yakin ingin menghapusnya?",
+  "delete_server_success_tips": "Berhasil dihapus",
+  "add": "Tambah"
 }

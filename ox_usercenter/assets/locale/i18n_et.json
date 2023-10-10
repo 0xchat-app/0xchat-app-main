@@ -92,5 +92,14 @@
   "zap_to": "Kuni",
   "zap_time": "Aeg",
   "zap_content": "Sisu",
-  "zap_no_content": "Pole sisu"
+  "zap_no_content": "Pole sisu",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "Ühenda ICE serveriga",
+  "connected_ice_server": "Ühendatud ICE serveriga",
+  "recommend_ice_server": "Soovita ICE serverit",
+  "enter_ice_server_hint": "Palun sisestage ICE serveri aadress",
+  "add_ice_server_exist_tips": "See ICE server on juba olemas",
+  "delete_server_tips": "Olete kindel, et soovite selle kustutada?",
+  "delete_server_success_tips": "Edukalt kustutatud",
+  "add": "Lisa"
 }

@@ -92,5 +92,14 @@
   "zap_to": "Til",
   "zap_time": "Tid",
   "zap_content": "Indhold",
-  "zap_no_content": "Intet Indhold"
+  "zap_no_content": "Intet Indhold",
+  "ice_server_title": "ICE Server",
+  "connect_ice_server": "Forbind til ICE-server",
+  "connected_ice_server": "Forbundet til ICE-server",
+  "recommend_ice_server": "Anbefal ICE-server",
+  "enter_ice_server_hint": "Indtast venligst ICE serveradressen",
+  "add_ice_server_exist_tips": "Denne ICE-server findes allerede",
+  "delete_server_tips": "Er du sikker på, at du vil slette det?",
+  "delete_server_success_tips": "Slettet med succes",
+  "add": "Tilføj"
 }

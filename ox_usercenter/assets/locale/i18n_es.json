@@ -92,5 +92,14 @@
   "zap_to": "Para",
   "zap_time": "Hora",
   "zap_content": "Contenido",
-  "zap_no_content": "Sin contenido"
+  "zap_no_content": "Sin contenido",
+  "ice_server_title": "Servidor ICE",
+  "connect_ice_server": "Conectar al servidor ICE",
+  "connected_ice_server": "Conectado al servidor ICE",
+  "recommend_ice_server": "Recomendar servidor ICE",
+  "enter_ice_server_hint": "Por favor, introduce la dirección del servidor ICE",
+  "add_ice_server_exist_tips": "Este servidor ICE ya existe",
+  "delete_server_tips": "¿Estás seguro de que quieres borrarlo?",
+  "delete_server_success_tips": "Borrado exitosamente",
+  "add": "Añadir"
 }

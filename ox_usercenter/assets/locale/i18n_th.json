@@ -92,5 +92,14 @@
   "zap_to": "ถึง",
   "zap_time": "เวลา",
   "zap_content": "เนื้อหา",
-  "zap_no_content": "ไม่มีเนื้อหา"
+  "zap_no_content": "ไม่มีเนื้อหา",
+  "ice_server_title": "เซิร์ฟเวอร์ ICE",
+  "connect_ice_server": "เชื่อมต่อไปยังเซิร์ฟเวอร์ ICE",
+  "connected_ice_server": "เชื่อมต่อกับเซิร์ฟเวอร์ ICE แล้ว",
+  "recommend_ice_server": "แนะนำเซิร์ฟเวอร์ ICE",
+  "enter_ice_server_hint": "โปรดป้อนที่อยู่ของเซิร์ฟเวอร์ ICE",
+  "add_ice_server_exist_tips": "เซิร์ฟเวอร์ ICE นี้มีอยู่แล้ว",
+  "delete_server_tips": "คุณแน่ใจหรือไม่ว่าต้องการลบ",
+  "delete_server_success_tips": "ลบสำเร็จ",
+  "add": "เพิ่ม"
 }
