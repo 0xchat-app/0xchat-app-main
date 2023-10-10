@@ -41,6 +41,10 @@ class ICEServerModel {
 
   static List<ICEServerModel> get defaultICEServers => List.from([
         ICEServerModel(
+          url: 'stun:stun.l.google.com:19302',
+          createTime: DateTime.now().millisecondsSinceEpoch,
+        ),
+        ICEServerModel(
           url: 'turn:0xchat:Prettyvs511@rtc.0xchat.com:5349',
           createTime: DateTime.now().millisecondsSinceEpoch,
         ),
