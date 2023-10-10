@@ -8,6 +8,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 
 import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
 
@@ -336,33 +337,17 @@ class SignalingManager {
     }
   }
 
-  Future<void> connect() async {
+  void connect() {
     if (_turnCredential == null) {
       try {
-        // _turnCredential = await getTurnCredential(_host, _port);
-        /*{
-            "username": "1584195784:mbzrxpgjys",
-            "password": "isyl6FF6nqMTB9/ig5MrMRUXqZg",
-            "ttl": 86400,
-            "uris": ["turn:127.0.0.1:19302?transport=udp"]
-          }
-          {"username":"1689161060:flutter-webrtc","password":"8AEbjPEDBbvplBGO0V/c+H0uQGg","ttl":86400,"uris":["turn:127.0.0.1:19302?transport=udp"]}
-        */
+        final List<Map<String, String>> serverList = OXServerManager.sharedInstance.iCEServerConfigList;
+        // List<Map<String, String>> serverList = [
+          // {'url': 'stun:stun.l.google.com:19302'},
+          // {'url': 'stun:rtc.0xchat.com:5349'},
+          // {'urls': 'turn:rtc.0xchat.com:5349', 'username': '0xchat', 'credential': 'Prettyvs511'},
+        // ];
         _iceServers = {
-          'iceServers': [
-            {'url': 'stun:stun.l.google.com:19302'},
-            // {
-            //   'urls': _turnCredential['uris'][0],
-            //   'username': _turnCredential['username'],
-            //   'credential': _turnCredential['password']
-            // },
-            {'url': 'stun:rtc.0xchat.com:5349'},
-            {
-              'urls': 'turn:rtc.0xchat.com:5349',
-              'username': '0xchat',
-              'credential': 'Prettyvs511'
-            },
-          ]
+          'iceServers': serverList,
         };
       } catch (e) {}
     }
