@@ -408,84 +408,90 @@ class SignalingManager {
     if (media != 'data')
       _localStream =
           await createStream(media, screenSharing, context: _context);
-    RTCPeerConnection pc = await createPeerConnection({
+    RTCPeerConnection? pc = await createPeerConnection({
       ..._iceServers,
       ...{'sdpSemantics': sdpSemantics}
     }, _config);
-    if (media != 'data') {
-      switch (sdpSemantics) {
-        case 'plan-b':
-          pc.onAddStream = (MediaStream stream) {
-            onAddRemoteStream?.call(newSession, stream);
-            _remoteStreams.add(stream);
+    try {
+      if (media != 'data') {
+            switch (sdpSemantics) {
+              case 'plan-b':
+                pc.onAddStream = (MediaStream stream) {
+                  onAddRemoteStream?.call(newSession, stream);
+                  _remoteStreams.add(stream);
+                };
+                await pc.addStream(_localStream!);
+                break;
+              case 'unified-plan':
+                // Unified-Plan
+                pc.onTrack = (event) {
+                  if (event.track.kind == 'video') {
+                    onAddRemoteStream?.call(newSession, event.streams[0]);
+                  }
+                };
+                _localStream!.getTracks().forEach((track) async {
+                  RTCRtpSender? rtcRtpSender = await pc?.addTrack(track, _localStream!);
+                  if (rtcRtpSender != null) _senders.add(rtcRtpSender);
+                });
+                break;
+            }
+          }
+      pc.onIceCandidate = (candidate) async {
+            if (candidate == null) {
+              print('onIceCandidate: complete!');
+              return;
+            }
+            // This delay is needed to allow enough time to try an ICE candidate
+            // before skipping to the next one. 1 second is just an heuristic value
+            // and should be thoroughly tested in your own environment.
+            await Future.delayed(
+                const Duration(seconds: 1),
+                () => Contacts.sharedInstance.sendCandidate(
+                    _sessions[sessionId]!.offerId,
+                    peerId,
+                    jsonEncode({
+                      'candidate': {
+                        'sdpMLineIndex': candidate.sdpMLineIndex,
+                        'sdpMid': candidate.sdpMid,
+                        'candidate': candidate.candidate,
+                      },
+                      'session_id': sessionId
+                    })));
           };
-          await pc.addStream(_localStream!);
-          break;
-        case 'unified-plan':
-          // Unified-Plan
-          pc.onTrack = (event) {
-            if (event.track.kind == 'video') {
-              onAddRemoteStream?.call(newSession, event.streams[0]);
+
+      pc.onIceConnectionState = (state) {
+            print('onIceConnectionState: $state }');
+            if (!_isStreamConnected && state == RTCIceConnectionState.RTCIceConnectionStateConnected) {
+              _isStreamConnected = true;
+              var session = _sessions[sessionId];
+              if (session != null) {
+                onCallStateChange?.call(session, CallState.CallStateConnected);
+              }
+            }
+            if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
+              _isDisconnected = true;
+              var session = _sessions.remove(sessionId);
+              if (session != null) {
+                onCallStateChange?.call(session, CallState.CallStateBye);
+                _closeSession(session);
+              }
             }
           };
-          _localStream!.getTracks().forEach((track) async {
-            _senders.add(await pc.addTrack(track, _localStream!));
-          });
-          break;
-      }
+
+      pc.onRemoveStream = (stream) {
+            onRemoveRemoteStream?.call(newSession, stream);
+            _remoteStreams.removeWhere((it) {
+              return (it.id == stream.id);
+            });
+          };
+
+      pc.onDataChannel = (channel) {
+            _addDataChannel(newSession, channel);
+          };
+    } catch (e) {
+      pc = null;
+      print(e.toString());
     }
-    pc.onIceCandidate = (candidate) async {
-      if (candidate == null) {
-        print('onIceCandidate: complete!');
-        return;
-      }
-      // This delay is needed to allow enough time to try an ICE candidate
-      // before skipping to the next one. 1 second is just an heuristic value
-      // and should be thoroughly tested in your own environment.
-      await Future.delayed(
-          const Duration(seconds: 1),
-          () => Contacts.sharedInstance.sendCandidate(
-              _sessions[sessionId]!.offerId,
-              peerId,
-              jsonEncode({
-                'candidate': {
-                  'sdpMLineIndex': candidate.sdpMLineIndex,
-                  'sdpMid': candidate.sdpMid,
-                  'candidate': candidate.candidate,
-                },
-                'session_id': sessionId
-              })));
-    };
-
-    pc.onIceConnectionState = (state) {
-      print('onIceConnectionState: $state }');
-      if (!_isStreamConnected && state == RTCIceConnectionState.RTCIceConnectionStateConnected) {
-        _isStreamConnected = true;
-        var session = _sessions[sessionId];
-        if (session != null) {
-          onCallStateChange?.call(session, CallState.CallStateConnected);
-        }
-      }
-      if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
-        _isDisconnected = true;
-        var session = _sessions.remove(sessionId);
-        if (session != null) {
-          onCallStateChange?.call(session, CallState.CallStateBye);
-          _closeSession(session);
-        }
-      }
-    };
-
-    pc.onRemoveStream = (stream) {
-      onRemoveRemoteStream?.call(newSession, stream);
-      _remoteStreams.removeWhere((it) {
-        return (it.id == stream.id);
-      });
-    };
-
-    pc.onDataChannel = (channel) {
-      _addDataChannel(newSession, channel);
-    };
 
     newSession.pc = pc;
     return newSession;
