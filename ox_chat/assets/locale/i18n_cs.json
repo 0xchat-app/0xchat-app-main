@@ -107,7 +107,7 @@
   "block_dialog_content": "Po zablokování od nich již nebudete dostávat zprávy.",
   "block_fail": "Blokování se nezdařilo!",
   "un_block_fail": "Odblokování se nezdařilo!",
-  "message_menu_quote": "Citace",
+  "message_menu_quote": "Odpovědět",
   "message_delete_tips": "Opravdu chcete smazat tento rozhovor a lokální zprávy?",
   "secret_message_delete_tips": "Jakmile budou smazány, tajné zprávy nelze obnovit. Opravdu chcete pokračovat?",
   "secret_message_reject_tips": "Opravdu odmítnout a smazat?",

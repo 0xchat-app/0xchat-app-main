@@ -23,8 +23,8 @@ class OXValue<T> {
 class ChatMessageDBToUIHelper {
 
   static String? sessionMessageTextBuilder(MessageDB message) {
-    final type = MessageDB.stringtoMessageType(message.type ?? '');
-    final decryptContent = message.decryptContent ?? '';
+    final type = MessageDB.stringtoMessageType(message.type);
+    final decryptContent = message.decryptContent;
     if (type == MessageType.text && decryptContent.isNotEmpty) {
       final mentionDecoderText = ChatMentionMessageEx.tryDecoder(decryptContent);
       return mentionDecoderText;
@@ -47,18 +47,10 @@ extension MessageDBToUIEx on MessageDB {
 
     // ContentModel
     final decryptContent = this.decryptContent;
-    if (decryptContent == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'message.decryptContent is null',
-      );
-      return null;
-    }
 
     MessageContentModel contentModel = MessageContentModel();
     contentModel.mid = messageId;
-    contentModel.contentType = MessageDB.stringtoMessageType(this.type ?? '');
+    contentModel.contentType = MessageDB.stringtoMessageType(this.type);
     try {
       final decryptedContent = json.decode(decryptContent);
       if (decryptedContent is Map) {
@@ -75,18 +67,10 @@ extension MessageDBToUIEx on MessageDB {
 
     // Author
     final senderId = this.sender;
-    if (senderId == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'message.sender is null',
-      );
-      return null;
-    }
     final author = await ChatMessageDBToUIHelper.getUser(senderId);
     if (author == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'author is null',
       );
@@ -113,22 +97,13 @@ extension MessageDBToUIEx on MessageDB {
     }
 
     // MessageTime
-    final createTime = this.createTime;
-    final messageTimestamp = createTime != null ? createTime * 1000: null;
-    if (messageTimestamp == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'messageTimestamp is null',
-      );
-      return null;
-    }
+    final messageTimestamp = this.createTime * 1000;
 
     // ChatId
     final chatId = getRoomId();
     if (chatId == null) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'chatId is null',
       );
@@ -140,7 +115,7 @@ extension MessageDBToUIEx on MessageDB {
     final messageType = contentModel.contentType;
     if (mid == null || mid.isEmpty) {
       ChatLogUtils.error(
-        className: 'ChatDataCache',
+        className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'messageType: $messageType, mid: $mid',
       );
@@ -185,7 +160,11 @@ extension MessageDBToUIEx on MessageDB {
         messageFactory = CustomMessageFactory();
         break ;
       default:
-        ChatLogUtils.error(className: 'ChatDataCache', funcName: 'convertMessageDBToUIModel', message: 'unknown message type');
+        ChatLogUtils.error(
+          className: 'MessageDBToUIEx',
+          funcName: 'convertMessageDBToUIModel',
+          message: 'unknown message type',
+        );
         return null;
     }
 
@@ -226,12 +205,14 @@ extension MessageDBToUIEx on MessageDB {
 
   String? getRoomId() {
     String? chatId;
-    final groupId = this.groupId ?? '';
-    final senderId = this.sender ?? '';
-    final receiverId = this.receiver ?? '';
+    final groupId = this.groupId;
+    final senderId = this.sender;
+    final receiverId = this.receiver;
     final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (groupId.isNotEmpty) {
       chatId = groupId;
+    } else if (senderId.isNotEmpty && senderId == receiverId) {
+      chatId = senderId;
     } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
       chatId = senderId;
     } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {

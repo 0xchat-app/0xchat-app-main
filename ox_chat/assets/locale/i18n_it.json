@@ -107,7 +107,7 @@
   "block_dialog_content": "Dopo aver bloccato, non riceverai più messaggi da loro.",
   "block_fail": "Blocco fallito!",
   "un_block_fail": "Sblocco fallito!",
-  "message_menu_quote": "Cita",
+  "message_menu_quote": "Rispondi",
   "message_delete_tips": "Sei sicuro di voler eliminare questa conversazione e i messaggi locali?",
   "secret_message_delete_tips": "Una volta eliminati, i messaggi segreti non possono essere recuperati. Sei sicuro di voler procedere?",
   "secret_message_reject_tips": "Sei sicuro di rifiutare ed eliminare?",

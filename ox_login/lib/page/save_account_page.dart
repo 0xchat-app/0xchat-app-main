@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -270,6 +271,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
   void _login() async {
     await OXUserInfoManager.sharedInstance.loginSuccess(widget.userDB);
     OXNavigator.popToRoot(context);
+    AppInitializationManager.shared.showInitializationLoading();
   }
 
   void _clickKey(KeyType keyType) async {

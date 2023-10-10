@@ -20,6 +20,8 @@ extension GiphyCategoryTab on GiphyCategory {
         return Localized.text('ox_chat_ui.giphy_sticker');
       case GiphyCategory.EMOJIS:
         return Localized.text('ox_chat_ui.giphy_emoji');
+      case GiphyCategory.COLLECT:
+        return Localized.text('ox_chat_ui.giphy_collect');
     }
   }
 }
@@ -48,7 +50,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: GiphyCategory.values.length, vsync: this);
 
     _tabController.addListener(() {
       setState(() {
@@ -78,7 +80,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
                 height: Adapt.px(12),
               ),
             ),
-          GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS ? SliverPadding(
+          GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS && GiphyCategory.values[_selectedIndex] != GiphyCategory.COLLECT ? SliverPadding(
               padding: EdgeInsets.only(bottom: Adapt.px(12)),
               sliver: SliverToBoxAdapter(
                 child: GiphySearchBar(

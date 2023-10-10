@@ -17,7 +17,7 @@ class OXLogin extends OXFlutterModule {
 
   @override
   Future<void> setup() async {
-    super.setup();
+    await super.setup();
   }
 
   @override

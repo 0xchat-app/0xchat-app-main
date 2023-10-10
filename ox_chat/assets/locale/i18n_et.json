@@ -107,7 +107,7 @@
   "block_dialog_content": "Pärast blokeerimist ei saa te neilt enam sõnumeid.",
   "block_fail": "Blokeerimine ebaõnnestus!",
   "un_block_fail": "Blokeerimise tühistamine ebaõnnestus!",
-  "message_menu_quote": "Tsiteeri",
+  "message_menu_quote": "Vasta",
   "message_delete_tips": "Kas olete kindel, et soovite selle vestluse ja kohalikud sõnumid kustutada?",
   "secret_message_delete_tips": "Kui on kustutatud, ei saa salajasi sõnumeid taastada. Kas olete kindel, et soovite jätkata?",
   "secret_message_reject_tips": "Kas olete kindel, et soovite keelduda ja kustutada?",

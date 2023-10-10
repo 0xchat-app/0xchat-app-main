@@ -2,6 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_common/mixin/common_ui_refresh_mixin.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/utils/widget_tool.dart';

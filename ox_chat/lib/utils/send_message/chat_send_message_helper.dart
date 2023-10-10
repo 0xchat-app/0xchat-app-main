@@ -68,6 +68,8 @@ class ChatSendMessageHelper {
 
     OXChatBinding.sharedInstance.changeChatSessionType(session, true);
 
+    ChatDataCache.shared.addNewMessage(session, sendMsg);
+
     senderStrategy.doSendMessageAction(
       messageType: type,
       contentString: contentString,

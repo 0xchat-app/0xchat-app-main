@@ -5,6 +5,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -110,6 +111,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
+    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
+    String showName = channelDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -118,7 +121,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         child: CommonAppBar(
           useLargeTitle: false,
           centerTitle: true,
-          title: widget.communityItem.chatName!,
+          title: showName,
           backgroundColor: ThemeColor.color200,
           backCallback: () {
             OXNavigator.popToRoot(context);
@@ -199,6 +202,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
         mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
+        onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
       ),
     );
   }

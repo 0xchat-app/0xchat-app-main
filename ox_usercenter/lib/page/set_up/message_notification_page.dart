@@ -253,6 +253,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         url,
         title: '0xchat',
       ),
+      fullscreenDialog: true,
     );
   }
 

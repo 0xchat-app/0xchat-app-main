@@ -11,6 +11,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
@@ -299,6 +300,8 @@ class _ContractsPageState extends State<ContractsPage>
     } else if (_unReadStrangerSessionCount >= 100) {
       return Container(
         alignment: Alignment.center,
+        width: Adapt.px(28),
+        height: Adapt.px(20),
         decoration: BoxDecoration(
           color: ThemeColor.red1,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(13.5))),

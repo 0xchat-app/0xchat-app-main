@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
@@ -7,8 +6,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'dart:ui' as ui;
 
 
 extension OXLanguageType on LocaleType {
@@ -42,36 +41,36 @@ extension OXLanguageType on LocaleType {
         return '繁體中文(中國台灣)';
       case LocaleType.it:
         return 'Italiano';
-      case LocaleType.tu:
+      case LocaleType.tr:
         return 'Türkçe';
-      case LocaleType.sw:
+      case LocaleType.sv:
         return 'Svenska';
       case LocaleType.hu:
         return 'Magyar';
-      case LocaleType.du:
+      case LocaleType.nl:
         return 'Nederlands';
-      case LocaleType.po:
+      case LocaleType.pl:
         return 'Polski';
-      case LocaleType.gr:
+      case LocaleType.el:
         return 'Ελληνικά';
-      case LocaleType.cz:
+      case LocaleType.cs:
         return 'čeština';
-      case LocaleType.la:
+      case LocaleType.lv:
         return 'latviski';
       case LocaleType.az:
         return 'Azərbaycan';
       case LocaleType.uk:
         return 'украї́нська мо́ва';
-      case LocaleType.bu:
+      case LocaleType.bg:
         return 'български';
-      case LocaleType.ind:
+      case LocaleType.id:
         return 'Bahasa Indonesia';
-      case LocaleType.est:
+      case LocaleType.et:
         return 'Eesti keel';
-      case LocaleType.ta:
+      case LocaleType.hi:
         return 'தமிழ்';
       case LocaleType.da:
-        return 'Dansk';//
+        return 'Dansk';
       case LocaleType.ca:
         return 'Català';
     }
@@ -101,7 +100,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   }
 
   void _getCurrentLocaleType() async {
-    String currentLanguage = await OXCacheManager.defaultOXCacheManager.getData('userLanguage') as String;
+    String defaultLanguage = ui.window.locale.languageCode;
+    String currentLanguage = await OXCacheManager.defaultOXCacheManager.getData('userLanguage',defaultValue: defaultLanguage) as String;
     LocaleType localeType = Localized.getLocaleTypeByString(currentLanguage);
     setState(() {
       _selectedIndex = localeType.index;

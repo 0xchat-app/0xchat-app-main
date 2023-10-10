@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rive/rive.dart';
@@ -82,6 +84,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   void initState() {
     // TODO: implement initState
     super.initState();
+    AppInitializationManager.shared.showInitializationLoading();
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
 
     OXUserInfoManager.sharedInstance.addObserver(this);
@@ -206,7 +209,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void didPromptToneCallBack(MessageDB message, int type) {
-    if(message.read! || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
+    if(message.read || message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;
     } else {

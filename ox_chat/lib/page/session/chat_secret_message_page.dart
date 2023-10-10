@@ -5,12 +5,14 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -275,6 +277,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
       ),
     );
   }
@@ -291,6 +294,11 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     setState(() {
       _secretSessionDB = ssDB;
     });
+  }
+
+  @override
+  void didContactUpdatedCallBack() {
+    _updateChatStatus();
   }
 
   void _hideContactMenu() {
@@ -459,7 +467,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 if (okEvent.status) {
                   UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
                   await OXChatBinding.sharedInstance.deleteSession(
-                    widget.communityItem,
+                    widget.communityItem.chatId,
                     isStranger: toPubkeyUserDB == null,
                   );
                   OXNavigator.pop(context); //pop dialog

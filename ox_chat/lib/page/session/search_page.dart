@@ -138,15 +138,15 @@ class SearchPageState extends State<SearchPage> {
     } else {
       _loadHistory();
     }
-    if (isInput && searchQuery.trim().isNotEmpty) {
-      _updateSearchHistory(null);
-    }
+    // if (isInput && searchQuery.trim().isNotEmpty) {
+    //   _updateSearchHistory(null);
+    // }
   }
 
   void _loadHistory() async {
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
-    _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
+    // _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
 
     final userList = await DB.sharedInstance.objects<RecentSearchUser>();
     Future.forEach(userList, (e) async {
@@ -164,42 +164,31 @@ class SearchPageState extends State<SearchPage> {
   void loadOnlineChannelsData() async {
     dataGroups.clear();
     final requestId = ++lastRequestId;
-    if (searchQuery.startsWith('nevent') ||
-        searchQuery.startsWith('nostr:') ||
-        searchQuery.startsWith('note')) {
+    if (searchQuery.startsWith('nevent') || searchQuery.startsWith('nostr:') || searchQuery.startsWith('note')) {
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
       if (map != null && map.containsKey('channelId')) {
         String decodeNote = map['channelId'].toString();
         List<ChannelDB> channelDBList = [];
         ChannelDB? c = Channels.sharedInstance.channels[decodeNote];
         if (c == null) {
-          channelDBList = await Channels.sharedInstance
-              .getChannelsFromRelay(channelIds: [decodeNote]);
+          channelDBList = await Channels.sharedInstance.getChannelsFromRelay(channelIds: [decodeNote]);
         } else {
           channelDBList = [c];
         }
         if (channelDBList.isNotEmpty) {
           dataGroups.add(
-            Group(
-                title: 'Online Channels',
-                type: SearchItemType.channel,
-                items: channelDBList),
+            Group(title: 'Online Channels', type: SearchItemType.channel, items: channelDBList),
           );
         }
       }
     } else {
-      List<ChannelModel?> channelModels = await getHotChannels(
-          queryCode: searchQuery, context: context, showLoading: false);
+      List<ChannelModel?> channelModels = await getHotChannels(queryCode: searchQuery, context: context, showLoading: false);
       LogUtil.d('Search Result: ${channelModels.length} ${channelModels}');
       if (requestId == lastRequestId) {
         if (channelModels.length > 0) {
-          List<ChannelDB>? tempChannelList =
-              channelModels.map((element) => element!.toChannelDB()).toList();
+          List<ChannelDB>? tempChannelList = channelModels.map((element) => element!.toChannelDB()).toList();
           dataGroups.add(
-            Group(
-                title: 'Online Channels',
-                type: SearchItemType.channel,
-                items: tempChannelList),
+            Group(title: 'Online Channels', type: SearchItemType.channel, items: tempChannelList),
           );
         }
       }
@@ -214,10 +203,7 @@ class SearchPageState extends State<SearchPage> {
     List<ChannelDB>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
     if (tempChannelList != null && tempChannelList.length > 0) {
       dataGroups.add(
-        Group(
-            title: 'Channels',
-            type: SearchItemType.channel,
-            items: tempChannelList),
+        Group(title: 'Channels', type: SearchItemType.channel, items: tempChannelList),
       );
     }
     if (mounted) {
@@ -229,10 +215,7 @@ class SearchPageState extends State<SearchPage> {
     List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
     if (tempFriendList != null && tempFriendList.length > 0) {
       dataGroups.add(
-        Group(
-            title: 'Friends',
-            type: SearchItemType.friend,
-            items: tempFriendList),
+        Group(title: 'Friends', type: SearchItemType.friend, items: tempFriendList),
       );
     }
     if (mounted) {
@@ -241,12 +224,9 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadMessagesData({String? chatId}) async {
-    List<ChatMessage> chatMessageList =
-        await loadChatMessagesWithSymbol(searchQuery, chatId: chatId);
+    List<ChatMessage> chatMessageList = await loadChatMessagesWithSymbol(searchQuery, chatId: chatId);
     if (chatMessageList.isNotEmpty) {
-      final type = chatId == null
-          ? SearchItemType.messagesGroup
-          : SearchItemType.message;
+      final type = chatId == null ? SearchItemType.messagesGroup : SearchItemType.message;
       dataGroups.add(
         Group(title: 'Messages', type: type, items: chatMessageList),
       );
@@ -259,9 +239,7 @@ class SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = ThemeColor.color200;
-    return widget.searchPageType == SearchPageType.discover
-        ? discoverPage()
-        : normalPage();
+    return widget.searchPageType == SearchPageType.discover ? discoverPage() : normalPage();
   }
 
   Widget normalPage() {
@@ -280,8 +258,7 @@ class SearchPageState extends State<SearchPage> {
         children: [
           isShowAppBar ? Container() : _topSearchView(),
           Expanded(
-            child: _contentView()
-                .setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24))),
+            child: _contentView().setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24))),
           ),
         ],
       ),
@@ -321,10 +298,7 @@ class SearchPageState extends State<SearchPage> {
                       Container(
                         child: Text(
                           element.title,
-                          style: TextStyle(
-                              fontSize: Adapt.px(14),
-                              color: ThemeColor.color100,
-                              fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, fontWeight: FontWeight.w600),
                         ),
                       ),
                       !hasMoreItems
@@ -370,8 +344,7 @@ class SearchPageState extends State<SearchPage> {
                 );
               }).toList(),
             );
-          } else if (element.type == SearchItemType.channel &&
-              items is List<ChannelDB>) {
+          } else if (element.type == SearchItemType.channel && items is List<ChannelDB>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -383,9 +356,7 @@ class SearchPageState extends State<SearchPage> {
                 );
               }).toList(),
             );
-          } else if ((element.type == SearchItemType.messagesGroup ||
-                  element.type == SearchItemType.message) &&
-              items is List<ChatMessage>) {
+          } else if ((element.type == SearchItemType.messagesGroup || element.type == SearchItemType.message) && items is List<ChatMessage>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -424,9 +395,7 @@ class SearchPageState extends State<SearchPage> {
     String? subTitle,
     VoidCallback? onTap,
   }) {
-    final avatarWidget = isUser
-        ? OXUserAvatar(imageUrl: avatarURL)
-        : OXChannelAvatar(imageUrl: avatarURL);
+    final avatarWidget = isUser ? OXUserAvatar(imageUrl: avatarURL) : OXChannelAvatar(imageUrl: avatarURL);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -434,8 +403,7 @@ class SearchPageState extends State<SearchPage> {
         height: Adapt.px(72),
         child: Row(
           children: [
-            avatarWidget.setPadding(
-                EdgeInsets.only(left: Adapt.px(0), right: Adapt.px(16))),
+            avatarWidget.setPadding(EdgeInsets.only(left: Adapt.px(0), right: Adapt.px(16))),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -470,8 +438,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildEmptySearchView() {
-    final hasHistory =
-        _selectedHistoryList.length > 0 || _txtHistoryList.length > 0;
+    final hasHistory = _selectedHistoryList.length > 0 || _txtHistoryList.length > 0;
     if (!hasHistory) {
       String hintStr = Localized.text('ox_chat.search_tips_prefix') +
           '${widget.searchPageType == SearchPageType.all ? Localized.text('ox_chat.search_tips_suffix_all') : ''}' +
@@ -649,8 +616,7 @@ class SearchPageState extends State<SearchPage> {
 
       if (i < splitText.length - 1) {
         spans.add(TextSpan(
-          text: mainText.substring(
-              endIndexOfToken, endIndexOfToken + searchText.length),
+          text: mainText.substring(endIndexOfToken, endIndexOfToken + searchText.length),
           style: highlightTextStyle,
         ));
       }
@@ -665,9 +631,7 @@ class SearchPageState extends State<SearchPage> {
 
   List showingItems(List items) {
     final searchPageType = widget.searchPageType;
-    if (searchPageType == SearchPageType.friendSeeMore ||
-        searchPageType == SearchPageType.channelSeeMore ||
-        searchPageType == SearchPageType.messagesSeeMore) {
+    if (searchPageType == SearchPageType.friendSeeMore || searchPageType == SearchPageType.channelSeeMore || searchPageType == SearchPageType.messagesSeeMore) {
       return items;
     }
 
@@ -756,8 +720,7 @@ class SearchPageState extends State<SearchPage> {
         pubKey: userPubkey,
       ));
     } else {
-      final int count =
-          await DB.sharedInstance.insert<SearchHistoryModel>(SearchHistoryModel(
+      final int count = await DB.sharedInstance.insert<SearchHistoryModel>(SearchHistoryModel(
         searchTxt: searchQuery,
         pubKey: userDB?.pubKey ?? null,
         name: userDB?.name ?? null,
@@ -775,91 +738,73 @@ class SearchPageState extends State<SearchPage> {
 
   //Queries the list of Channels to see if each Channel name contains a search character
   List<ChannelDB>? loadChatChannelsWithSymbol(String symbol) {
-    final List<ChannelDB>? channelList =
-        Channels.sharedInstance.fuzzySearch(symbol);
+    final List<ChannelDB>? channelList = Channels.sharedInstance.fuzzySearch(symbol);
     return channelList;
   }
 
-  Future<List<ChatMessage>> loadChatMessagesWithSymbol(String symbol,
-      {String? chatId}) async {
+  Future<List<ChatMessage>> loadChatMessagesWithSymbol(String symbol, {String? chatId}) async {
     List<ChatMessage> chatMessageList = [];
     String originalSearchTxt = symbol;
     originalSearchTxt = originalSearchTxt.replaceFirst("/", "//");
     originalSearchTxt = originalSearchTxt.replaceFirst("_", "/_");
     originalSearchTxt = originalSearchTxt.replaceFirst("%", "/%");
     originalSearchTxt = originalSearchTxt.replaceFirst(" ", "%");
-    final List<ChatMessage> channelMsgList =
-        await loadChannelMsgWithSearchTxt(originalSearchTxt, chatId: chatId);
-    final List<ChatMessage> privateChatMsgList =
-        await loadPrivateChatMsgWithSearchTxt(originalSearchTxt,
-            chatId: chatId);
+    final List<ChatMessage> channelMsgList = await loadChannelMsgWithSearchTxt(originalSearchTxt, chatId: chatId);
+    final List<ChatMessage> privateChatMsgList = await loadPrivateChatMsgWithSearchTxt(originalSearchTxt, chatId: chatId);
     chatMessageList.addAll(channelMsgList);
     chatMessageList.addAll(privateChatMsgList);
     return chatMessageList;
   }
 
-  Future<List<ChatMessage>> loadChannelMsgWithSearchTxt(String orignalSearchTxt,
-      {String? chatId}) async {
+  Future<List<ChatMessage>> loadChannelMsgWithSearchTxt(String orignalSearchTxt, {String? chatId}) async {
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
       if (chatId == null) {
         tempMap = await Messages.loadMessagesFromDB(
-          where:
-              'groupId IS NOT NULL AND groupId != ? AND content COLLATE NOCASE LIKE ?',
-          whereArgs: ['', "%\"content\":\"%${orignalSearchTxt}%\",%"],
+          where: 'groupId IS NOT NULL AND groupId != ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
+          whereArgs: ['', '%{%}%', "%${orignalSearchTxt}%"],
         );
       } else {
         tempMap = await Messages.loadMessagesFromDB(
-          where: 'groupId = ? AND content COLLATE NOCASE LIKE ?',
-          whereArgs: [chatId, "%\"content\":\"%${orignalSearchTxt}%\",%"],
+          where: 'groupId = ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
+          whereArgs: [chatId, '%{%}%', "%${orignalSearchTxt}%"],
         );
       }
       List<MessageDB> messages = tempMap['messages'];
-      LogUtil.e(
-          'Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
+      LogUtil.e('Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
           messages.forEach((item) {
             if (messageInduceMap[item.groupId] == null) {
-              Map<String, dynamic> tempMap = jsonDecode(item.content!);
-              Map<String, dynamic> rightContentMap =
-                  jsonDecode(tempMap['content']);
-              String subTitle = rightContentMap['content'].toString();
-              messageInduceMap[item.groupId!] = ChatMessage(
-                item.groupId!,
+              messageInduceMap[item.groupId] = ChatMessage(
+                item.groupId,
                 item.messageId ?? '',
-                Channels.sharedInstance.myChannels[item.groupId!]?.name ?? '',
-                subTitle,
-                Channels.sharedInstance.myChannels[item.groupId!]?.picture ??
-                    '',
+                Channels.sharedInstance.myChannels[item.groupId]?.name ?? '',
+                item.decryptContent,
+                Channels.sharedInstance.myChannels[item.groupId]?.picture ?? '',
                 ChatType.chatChannel,
                 1,
               );
             } else {
-              messageInduceMap[item.groupId!]!.relatedCount =
-                  messageInduceMap[item.groupId!]!.relatedCount + 1;
-              messageInduceMap[item.groupId!]!.subtitle =
-                  '${messageInduceMap[item.groupId!]!.relatedCount} related messages';
+              messageInduceMap[item.groupId]!.relatedCount = messageInduceMap[item.groupId]!.relatedCount + 1;
+              messageInduceMap[item.groupId]!.subtitle = '${messageInduceMap[item.groupId]!.relatedCount} related messages';
             }
           });
-          LogUtil.e(
-              'Michael: messageInduceMap.length =${messageInduceMap.length}');
+          LogUtil.e('Michael: messageInduceMap.length =${messageInduceMap.length}');
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
             Map<String, dynamic> tempMap = jsonDecode(element.content!);
-            Map<String, dynamic> rightContentMap =
-                jsonDecode(tempMap['content']);
+            Map<String, dynamic> rightContentMap = jsonDecode(tempMap['content']);
             String subTitle = rightContentMap['content'].toString();
             chatMessageList.add(ChatMessage(
               element.groupId!,
               element.messageId ?? '',
               Channels.sharedInstance.myChannels[element.groupId!]?.name ?? '',
               subTitle,
-              Channels.sharedInstance.myChannels[element.groupId!]?.picture ??
-                  '',
+              Channels.sharedInstance.myChannels[element.groupId!]?.picture ?? '',
               ChatType.chatChannel,
               1,
             ));
@@ -872,76 +817,61 @@ class SearchPageState extends State<SearchPage> {
     return chatMessageList;
   }
 
-  Future<List<ChatMessage>> loadPrivateChatMsgWithSearchTxt(
-      String orignalSearchTxt,
-      {String? chatId}) async {
+  Future<List<ChatMessage>> loadPrivateChatMsgWithSearchTxt(String orignalSearchTxt, {String? chatId}) async {
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
       if (chatId == null) {
         tempMap = await Messages.loadMessagesFromDB(
-          where:
-              "sender IS NOT NULL AND sender != ? AND receiver IS NOT NULL AND receiver != ? AND decryptContent COLLATE NOCASE LIKE ?",
-          whereArgs: ['', '', "%\"content\":\"%${orignalSearchTxt}%\",%"],
+          where: "sender IS NOT NULL AND sender != ? AND receiver IS NOT NULL AND receiver != ? AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
+          whereArgs: ['', '', '%{%}%', "%${orignalSearchTxt}%"],
         );
       } else {
         tempMap = await Messages.loadMessagesFromDB(
-          where:
-              "(sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? ) AND decryptContent COLLATE NOCASE LIKE ?",
+          where: "(sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? ) AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
           whereArgs: [
             chatId,
             OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
             OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
             chatId,
-            "%\"content\":\"%${orignalSearchTxt}%\",%",
+            '%{%}%',
+            "%${orignalSearchTxt}%",
           ],
         );
       }
       List<MessageDB> messages = tempMap['messages'];
-      LogUtil.e(
-          'Michael: loadPrivateChatMsgWithSearchTxt messages.length =${messages.length}');
+      LogUtil.e('Michael: loadPrivateChatMsgWithSearchTxt messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
           messages.forEach((item) {
             String chatId = '';
-            if (item.sender ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            if (item.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
+                item.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.sender!;
-            } else if (item.sender ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver !=
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            } else if (item.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
+                item.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.receiver!;
-            } else if (item.sender !=
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            } else if (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
+                item.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.sender!;
             }
             if (messageInduceMap[chatId] == null) {
-              Map<String, dynamic> tempMap = jsonDecode(item.decryptContent!);
-              String subTitle = tempMap['content'].toString();
               messageInduceMap[chatId] = ChatMessage(
                 chatId,
                 item.messageId ?? '',
                 Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
-                subTitle,
+                item.decryptContent,
                 Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
                 ChatType.chatSingle,
                 1,
               );
             } else {
-              messageInduceMap[chatId]!.relatedCount =
-                  messageInduceMap[chatId]!.relatedCount + 1;
-              messageInduceMap[chatId]!.subtitle =
-                  '${messageInduceMap[chatId]!.relatedCount} related messages';
+              messageInduceMap[chatId]!.relatedCount = messageInduceMap[chatId]!.relatedCount + 1;
+              messageInduceMap[chatId]!.subtitle = '${messageInduceMap[chatId]!.relatedCount} related messages';
             }
           });
-          LogUtil.e(
-              'Michael: messageInduceMap.length =${messageInduceMap.length}');
+          LogUtil.e('Michael: messageInduceMap.length =${messageInduceMap.length}');
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
@@ -966,9 +896,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   Image placeholderImage(bool isUser, double wh) {
-    String localAvatarPath = isUser
-        ? 'assets/images/user_image.png'
-        : 'assets/images/icon_group_default.png';
+    String localAvatarPath = isUser ? 'assets/images/user_image.png' : 'assets/images/icon_group_default.png';
     return Image.asset(
       localAvatarPath,
       fit: BoxFit.cover,
@@ -986,8 +914,7 @@ class SearchPageState extends State<SearchPage> {
               communityItem: ChatSessionModel(
                 chatId: userDB.pubKey,
                 chatName: userDB.name,
-                sender:
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+                sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
                 receiver: userDB.pubKey,
                 chatType: ChatType.chatSingle,
               ),
@@ -1116,8 +1043,7 @@ class ChatMessage {
   int chatType;
   int relatedCount;
 
-  ChatMessage(this.chatId, this.msgId, this.name, this.subtitle, this.picture,
-      this.chatType, this.relatedCount);
+  ChatMessage(this.chatId, this.msgId, this.name, this.subtitle, this.picture, this.chatType, this.relatedCount);
 
   @override
   String toString() {

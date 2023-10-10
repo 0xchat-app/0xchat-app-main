@@ -107,7 +107,7 @@
   "block_dialog_content": "Engelledikten sonra, bu kişiden daha fazla mesaj almayacaksınız.",
   "block_fail": "Engelleme başarısız!",
   "un_block_fail": "Engellemeyi kaldırma başarısız!",
-  "message_menu_quote": "Alıntı",
+  "message_menu_quote": "Yanıtla",
   "message_delete_tips": "Bu konuşmayı ve yerel mesajları silmek istediğinizden emin misiniz?",
   "secret_message_delete_tips": "Bir kere silindiğinde, gizli mesajlar geri alınamaz. Devam etmek istediğinizden emin misiniz?",
   "secret_message_reject_tips": "Reddetmek ve silmek istediğinize emin misiniz?",

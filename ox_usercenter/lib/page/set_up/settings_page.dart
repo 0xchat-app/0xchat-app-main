@@ -5,6 +5,7 @@ import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -13,6 +14,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
+import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
@@ -79,6 +81,12 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       title: 'ox_usercenter.keys',
       rightContent: '',
       settingItemType: SettingItemType.keys,
+    ));
+    _settingModelList.add(SettingModel(
+      iconName: 'icon_settings_ice_server.png',
+      title: 'ox_usercenter.ice_server_title',
+      rightContent: '',
+      settingItemType: SettingItemType.ice,
     ));
     _settingModelList.add(SettingModel(
       iconName: 'icon_settings_language.png',
@@ -291,6 +299,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           OXNavigator.pushPage(context, (context) => LanguageSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.theme) {
           await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
+        } else if (_settingModel.settingItemType == SettingItemType.ice) {
+          OXNavigator.pushPage(context, (context) => ICEServerPage());
         }
       },
       child: _itemView(
@@ -328,14 +338,12 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   Widget _buildZapBadgeWidget(){
     return Container(
-      width: Adapt.px(20),
-      height: Adapt.px(20),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(10)
+      color: Colors.transparent,
+      width: Adapt.px(6),
+      height: Adapt.px(6),
+      child: const Image(
+        image: AssetImage("assets/images/unread_dot.png"),
       ),
-      child: Text('1',style: TextStyle(fontSize: Adapt.px(12), color: Colors.white),),
     );
   }
 
@@ -449,6 +457,7 @@ enum SettingItemType {
   zaps,
   keys,
   privacy,
+  ice,
   language,
   theme,
   none,

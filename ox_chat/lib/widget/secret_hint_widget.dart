@@ -66,6 +66,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
                     'https://github.com/0xchat-app/0xchat-core/blob/main/doc/secretChat.md',
                     title: '0xchat',
                   ),
+                  fullscreenDialog: true,
                 );
               },
               child: Column(

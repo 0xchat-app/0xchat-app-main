@@ -97,7 +97,7 @@ class CallManager {
     _timer = null;
   }
 
-  void connectServer() async {
+  void connectServer() {
     _signaling?.connect();
   }
 

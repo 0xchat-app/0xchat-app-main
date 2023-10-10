@@ -107,7 +107,7 @@
   "block_dialog_content": "Efter blockering kommer du inte längre att mottaga meddelanden från dem.",
   "block_fail": "Blockering misslyckades!",
   "un_block_fail": "Avblockering misslyckades!",
-  "message_menu_quote": "Citera",
+  "message_menu_quote": "Svara",
   "message_delete_tips": "Är du säker på att du vill radera denna konversation och lokala meddelanden?",
   "secret_message_delete_tips": "När de raderats kan hemliga meddelanden inte återställas. Är du säker på att du vill fortsätta?",
   "secret_message_reject_tips": "Är du säker på att du vill avvisa och radera?",

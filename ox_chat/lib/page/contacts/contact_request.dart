@@ -6,6 +6,7 @@ import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
@@ -63,15 +64,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     _strangerSessionModelList.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
       var session1CreatedTime = session1.createTime;
-      if (session2CreatedTime == null && session1CreatedTime == null) {
-        return 0;
-      } else if (session1CreatedTime == null) {
-        return 1;
-      } else if (session2CreatedTime == null) {
-        return -1;
-      } else {
-        return session2CreatedTime.compareTo(session1CreatedTime);
-      }
+      return session2CreatedTime.compareTo(session1CreatedTime);
     });
     if (_strangerSessionModelList.length > 0) {
       setState(() {
@@ -169,7 +162,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                         text: Localized.text('ox_common.confirm'),
                         onTap: () async {
                           OXNavigator.pop(context);
-                          final int count = await OXChatBinding.sharedInstance.deleteSession(item, isStranger: true);
+                          final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId, isStranger: true);
                           Contacts.sharedInstance.close(item.chatId!);
                           if (count > 0) {
                             _initData();
@@ -524,10 +517,10 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 await OXLoading.show();
-                final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId!);
+                final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
-                  OXChatBinding.sharedInstance.deleteSession(item);
+                  OXChatBinding.sharedInstance.deleteSession(item.chatId);
                   CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
                   OXNavigator.pop(context);
                   setState(() {});

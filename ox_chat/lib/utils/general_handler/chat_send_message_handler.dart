@@ -80,7 +80,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       author: author,
       timestamp: tempCreateTime,
       id: message_id,
-      roomId: session.chatId ?? '',
+      roomId: session.chatId,
       zapper: zapper,
       invoice: invoice,
       amount: amount,
@@ -104,7 +104,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         createdAt: tempCreateTime,
         height: image.height.toDouble(),
         id: message_id,
-        roomId: session.chatId ?? '',
+        roomId: session.chatId,
         name: fileName,
         size: bytes.length,
         uri: result.path.toString(),
@@ -125,7 +125,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       author: author,
       createdAt: tempCreateTime,
       id: message_id,
-      roomId: session.chatId ?? '',
+      roomId: session.chatId,
       name: image.name,
       size: double.parse(image.size!),
     );
@@ -134,8 +134,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
-    File voiceFile = File(path);
-    final bytes = await voiceFile.readAsBytes();
+    File audioFile = File(path);
+    final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
+    final bytes = await audioFile.readAsBytes();
     String message_id = const Uuid().v4();
     final fileName = '${message_id}.mp3';
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
@@ -146,6 +147,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       createdAt: tempCreateTime,
       author: author,
       name: fileName,
+      audioFile: audioFile,
       duration: duration,
       size: bytes.length,
     );

@@ -107,7 +107,7 @@
   "block_dialog_content": "Setelah memblokir, Anda tidak akan lagi menerima pesan dari mereka.",
   "block_fail": "Blokir gagal!",
   "un_block_fail": "Buka blokir gagal!",
-  "message_menu_quote": "Kutip",
+  "message_menu_quote": "Balas",
   "message_delete_tips": "Apakah Anda yakin ingin menghapus percakapan ini dan pesan lokal?",
   "secret_message_delete_tips": "Setelah dihapus, pesan rahasia tidak dapat dipulihkan. Apakah Anda yakin ingin melanjutkan?",
   "secret_message_reject_tips": "Apakah Anda yakin menolak dan menghapus?",

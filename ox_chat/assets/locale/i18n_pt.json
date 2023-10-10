@@ -107,7 +107,7 @@
   "block_dialog_content": "Após bloquear, você não receberá mais mensagens deste usuário.",
   "block_fail": "Falha ao bloquear!",
   "un_block_fail": "Falha ao desbloquear!",
-  "message_menu_quote": "citação",
+  "message_menu_quote": "Responder",
   "message_delete_tips": "Tem certeza de que deseja excluir esta conversa e as mensagens locais?",
   "secret_message_delete_tips": "Uma vez excluídas, as mensagens secretas não podem ser recuperadas. Tem certeza de que deseja prosseguir?",
   "secret_message_reject_tips": "Tem certeza de que deseja rejeitar e excluir?",

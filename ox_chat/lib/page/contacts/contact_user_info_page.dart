@@ -516,6 +516,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   if(!event.status){
                     CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   }
+                  OXChatBinding.sharedInstance.deleteSession(pubKey);
                   OXNavigator.pop(context, true);
                 }),
           ],
@@ -811,6 +812,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {
+                  OXChatBinding.sharedInstance.contactUpdatedCallBack();
                   setState(() {});
                   CommonToast.instance.show(context, Localized.text('ox_chat.remove_contacts_success_toast'));
                 } else {

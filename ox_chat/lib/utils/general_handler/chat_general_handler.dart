@@ -5,11 +5,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -49,6 +47,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import '../custom_message_utils.dart';
 import 'chat_reply_handler.dart';
+import '../chat_voice_helper.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -202,7 +201,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       );
 
   void _onLinkTextPressed(BuildContext context, String text) {
-    OXNavigator.presentPage(context, (context) => CommonWebView(text));
+    OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text));
   }
 
   Future messagePressHandler(BuildContext context, types.Message message) async {

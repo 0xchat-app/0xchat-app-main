@@ -107,7 +107,7 @@
   "block_dialog_content": "Després de bloquejar, ja no rebràs missatges d'ells.",
   "block_fail": "Bloquejar ha fallat!",
   "un_block_fail": "Desbloquejar ha fallat!",
-  "message_menu_quote": "Citar",
+  "message_menu_quote": "Respon",
   "message_delete_tips": "Estàs segur que vols esborrar aquesta conversa i missatges locals?",
   "secret_message_delete_tips": "Un cop esborrats, els missatges secrets no es poden recuperar. Estàs segur que vols procedir?",
   "secret_message_reject_tips": "Estàs segur de rebutjar i esborrar?",
