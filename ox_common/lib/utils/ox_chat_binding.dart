@@ -521,11 +521,6 @@ class OXChatBinding {
   }
 
   void syncSessionTypesByContact(){
-    Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
-    tempList.forEach ((userDB) {
-      OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
-    });
-
     //strangerSession to chatSession
     bool isChange = false;
     List<ChatSessionModel> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
