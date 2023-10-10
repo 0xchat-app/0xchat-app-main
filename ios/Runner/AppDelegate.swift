@@ -80,8 +80,8 @@ import ox_push
     
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         let urlStr = url.absoluteString
-        let prefix = "oxChat";
-        if (urlStr.hasPrefix("\(prefix)://?")) {
+        let prefix = "oxchat";
+        if (urlStr.hasPrefix("\(prefix)://")) {
             let userDefault = UserDefaults.standard
             userDefault.setValue(urlStr, forKey: OPENURLAPP)
             userDefault.synchronize()

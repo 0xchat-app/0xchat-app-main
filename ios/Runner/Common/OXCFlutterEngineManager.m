@@ -1,5 +1,6 @@
 #import "OXCFlutterEngineManager.h"
 #import "GeneratedPluginRegistrant.h"
+#import "OXPerferencePlugin.h"
 #import "OXCNavigator.h"
 
 #if __has_include(<scan/ScanPlugin.h>)
@@ -119,6 +120,7 @@ static NSString *_kReloadChannelName = @"reload";
                                                              binaryMessenger:_engine
                                                                        codec:[FlutterStringCodec sharedInstance]];
     [OXCNavigator registerWithRegistry:_engine];
+    [OXPerferencePlugin registerWithRegistrar:[_engine registrarForPlugin:@"OXPerference"]];
     [GeneratedPluginRegistrant registerWithRegistry:_engine];
     [ScanPlugin registerWithRegistrar:[_engine registrarForPlugin:@"ScanPlugin"]];
     [SqflitePlugin registerWithRegistrar:[_engine registrarForPlugin:@"SqflitePlugin"]];

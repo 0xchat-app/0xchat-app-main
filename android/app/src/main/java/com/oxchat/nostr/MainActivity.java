@@ -90,12 +90,7 @@ public class MainActivity extends FlutterActivity {
             if (uridata==null){
                 return;
             }
-            String param = uridata.getQueryParameter("param");
-            try {
-                param = URLDecoder.decode(param, "UTF-8");
-            } catch (Exception e) {
-                param = "";
-            }
+            String param = uridata.toString();
             if(!TextUtils.isEmpty(param)) {
                 try {
                     android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);

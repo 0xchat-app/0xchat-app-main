@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert' as convert;
 import 'dart:io';
 import 'dart:ui';
 
@@ -9,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
@@ -38,9 +39,6 @@ import 'main.reflectable.dart';
 
 const MethodChannel channel = const MethodChannel('com.oxchat.nostr/perferences');
 const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
-const String _kReloadChannelName = 'reload';
-const BasicMessageChannel<String?> _kReloadChannel =
-BasicMessageChannel<String?>(_kReloadChannelName, StringCodec());
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -60,40 +58,21 @@ void main() async {
   await Localized.init();
   await setupModules();
   OXRelayManager.sharedInstance.loadConnectRelay();
+  OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
   await OrientationPlugin.setEnabledSystemUIOverlays(
       [SystemUiOverlay.top, SystemUiOverlay.bottom]);
   await OrientationPlugin.setPreferredOrientations(
       [DeviceOrientation.portraitUp]);
 
-  ThemeStyle _themeStyle = ThemeManager.getCurrentThemeStyle();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      systemNavigationBarIconBrightness:
-      _themeStyle == ThemeStyle.dark ? Brightness.light : Brightness.dark,
-      systemNavigationBarColor: _themeStyle == ThemeStyle.dark
-          ? ThemeColor.dark02
-          : ThemeColor.white01,
-      statusBarIconBrightness:
-      ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark
-          ? Brightness.light
-          : Brightness.dark, // status bar icon color
-      statusBarBrightness:
-      ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark
-          ? Brightness.light
-          : Brightness.dark,
-      statusBarColor: _themeStyle == ThemeStyle.dark
-          ? ThemeColor.dark01
-          : Colors.transparent // status bar color
-  ));
-  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle());
+  SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
 
   getApplicationDocumentsDirectory().then((value) {
     LogUtil.log(content: '[App start] Application Documents Path: $value');
   });
 
   if (Platform.isIOS) {
-    _kReloadChannel.setMessageHandler(run);
-    run(window.defaultRouteName);
+    runApp(MainApp(window.defaultRouteName));
   } else {
     await FirebaseMessageManager.initFirebase();
     FirebaseMessageManager.instance;
@@ -101,22 +80,16 @@ void main() async {
   }
 }
 
-Future<String> run(String? name) async {
-  LogUtil.log(content: "run===========>$name");
-  runApp(new MainApp(name ?? "/"));
-  return "";
-}
-
 Future<void> setupModules() async {
   await OXCommon().setup();
-  OXLogin().setup();
-  OXUserCenter().setup();
-  OXPush().setup();
-  OXDiscovery().setup();
-  OXChat().setup();
-  OXChatUI().setup();
-  OxCalling().setup();
-  OxChatHome().setup();
+  await OXLogin().setup();
+  await OXUserCenter().setup();
+  await OXPush().setup();
+  await OXDiscovery().setup();
+  await OXChat().setup();
+  await OXChatUI().setup();
+  await OxCalling().setup();
+  await OxChatHome().setup();
 }
 
 class MainApp extends StatefulWidget {
@@ -148,7 +121,7 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
-    doHandleJumpInfo();
+    getOpenAppSchemeInfo();
   }
 
   void notNetworInitWow() async {
@@ -182,24 +155,22 @@ class MainState extends State<MainApp>
 
   void changeTheme(int themeStyle) {
     print("******  changeTheme int $themeStyle");
-
     // channel.invokeMethod('changeTheme', {
     //   'themeStyle': themeStyle,
     // });
   }
 
-  void doHandleJumpInfo() async {
+  void getOpenAppSchemeInfo() async {
     String jumpInfo = await channel.invokeMethod(
-      'getParamJumpInfo',
+      'getAppOpenURL',
     );
     LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
     if (jumpInfo.isNotEmpty) {
-      //TODO
+      ScanUtils.analysis(OXNavigator.navigatorKey.currentContext!, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
     }
   }
 
   onLocaleChange() {
-
     if (mounted) setState(() {});
   }
 
@@ -257,8 +228,17 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
+        if (OXUserInfoManager.sharedInstance.isLogin) {
+          NotificationHelper.sharedInstance.setOnline();
+        }
+        getOpenAppSchemeInfo();
         break;
       case AppLifecycleState.paused:
+        if (OXUserInfoManager.sharedInstance.isLogin) {
+          NotificationHelper.sharedInstance.setOffline();
+        }
+        break;
+      default:
         break;
     }
   }
@@ -315,4 +295,30 @@ class MyObserver extends NavigatorObserver {
       await navigatorChannel.invokeMethod("didPop", {"canPop": canPop});
     }
   }
+}
+
+extension ThemeStyleOverlayEx on ThemeStyle {
+  SystemUiOverlayStyle toOverlayStyle() =>
+    SystemUiOverlayStyle(
+        systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
+        systemNavigationBarColor: systemNavigationBarColor,
+        statusBarIconBrightness: statusBarIconBrightness,
+        statusBarBrightness: statusBarBrightness,
+        statusBarColor: statusBarColor,
+    );
+
+  Brightness get systemNavigationBarIconBrightness =>
+      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
+
+  Color get systemNavigationBarColor =>
+      this == ThemeStyle.dark ? ThemeColor.dark02 : ThemeColor.white01;
+
+  Brightness get statusBarIconBrightness =>
+      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
+
+  Brightness get statusBarBrightness =>
+      this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
+
+  Color get statusBarColor =>
+      this == ThemeStyle.dark ? ThemeColor.dark01 : Colors.transparent;
 }
