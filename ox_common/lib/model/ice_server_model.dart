@@ -5,21 +5,26 @@ class ICEServerModel {
 
   ICEServerModel({
     this.url = '',
-    this.canDelete = false,
+    this.canDelete = true,
     this.createTime = 0,
   });
 
-  Map<String, String> get serverConfig {
+  List<Map<String, String>> get serverConfig {
     if(isTurnAddress){
-      return <String, String>{
-        'urls': 'turn:$host',
-        'username':this.username,
-        'credential':this.credential
-      };
+      return [
+        {
+          'urls': 'turn:$domain',
+          'username': this.username,
+          'credential': this.credential
+        },
+        {
+          'url': 'stun:$domain',
+        },
+      ];
     }else {
-      return <String, String>{
+      return [{
         'url': this.url,
-      };
+      }];
     }
   }
 
@@ -43,20 +48,14 @@ class ICEServerModel {
     }
   }
 
-  String get host {
-    //turn
-    if (isTurnAddress && url.contains('@')) {
-      return url.split('@')[1];
-    } else {
-      //stun
-      return url.split(':')[1];
-    }
-  }
+  String get host => isTurnAddress ? domain.split(':')[0] : url;
+
+  String get domain => (isTurnAddress && url.contains('@')) ? url.split('@')[1] : url;
 
   factory ICEServerModel.fromJson(Map<String, dynamic> json) {
     return ICEServerModel(
       url: json['url'] ?? '',
-      canDelete: json['canDelete'] ?? false,
+      canDelete: json['canDelete'] ?? true,
       createTime: json['createTime'] ?? 0,
     );
   }

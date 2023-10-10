@@ -28,7 +28,7 @@ class OXServerManager {
 
   List<ICEServerModel> iCESeverModelList = [];
 
-  List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.map((item) => item.serverConfig).toList();
+  List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
@@ -42,7 +42,7 @@ class OXServerManager {
   Future<void> addServer(ICEServerModel iceServerModel) async {
     iCESeverModelList.add(iceServerModel);
     await saveICEServerList(iCESeverModelList);
-    List<Map<String,String>> serverConfigList = iCESeverModelList.map((item) => item.serverConfig).toList();
+    List<Map<String,String>> serverConfigList = iCESeverModelList.expand((item) => item.serverConfig).toList();
     for (OXServerObserver observer in _observers) {
       observer.didAddICEServer(serverConfigList);
     }
@@ -51,7 +51,7 @@ class OXServerManager {
   Future<void> deleteServer(ICEServerModel iceServerModel) async {
     iCESeverModelList.remove(iceServerModel);
     await saveICEServerList(iCESeverModelList);
-    List<Map<String,String>> serverConfigList = iCESeverModelList.map((item) => item.serverConfig).toList();
+    List<Map<String,String>> serverConfigList = iCESeverModelList.expand((item) => item.serverConfig).toList();
     for (OXServerObserver observer in _observers) {
       observer.didDeleteICEServer(serverConfigList);
     }
@@ -79,7 +79,7 @@ class OXServerManager {
 
   Future<List<Map<String, String>>> getICEServerConfigList() async {
     List<ICEServerModel>  iCEServerList = await getICEServerList();
-    List<Map<String, String>> serverConfigList = iCEServerList.map((item) => item.serverConfig).toList();
+    List<Map<String, String>> serverConfigList = iCEServerList.expand((item) => item.serverConfig).toList();
     return serverConfigList;
   }
 }
