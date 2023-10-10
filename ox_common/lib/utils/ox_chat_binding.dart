@@ -513,6 +513,13 @@ class OXChatBinding {
     }
   }
 
+  void syncSessionTypesByContact(){
+    Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
+    tempList.forEach ((userDB) {
+      OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
+    });
+  }
+
   void noticeFriendRequest() {
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatRequestCallBack();
@@ -548,6 +555,25 @@ class OXChatBinding {
   void zapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
     for (OXChatObserver observer in _observers) {
       observer.didZapRecordsCallBack(zapRecordsDB);
+    }
+  }
+
+  void offlinePrivateMessageFinishCallBack() {
+    syncSessionTypesByContact();
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflinePrivateMessageFinishCallBack();
+    }
+  }
+
+  void offlineSecretMessageFinishCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflineSecretMessageFinishCallBack();
+    }
+  }
+
+  void offlineChannelMessageFinishCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflineChannelMessageFinishCallBack();
     }
   }
 }

@@ -42,4 +42,8 @@ abstract class OXChatObserver {
     OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
     OXChatBinding.sharedInstance.isZapBadge = true;
   }
+
+  void didOfflinePrivateMessageFinishCallBack() {}
+  void didOfflineSecretMessageFinishCallBack() {}
+  void didOfflineChannelMessageFinishCallBack() {}
 }

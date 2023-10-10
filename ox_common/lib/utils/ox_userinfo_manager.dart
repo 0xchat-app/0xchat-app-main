@@ -131,11 +131,7 @@ class OXUserInfoManager {
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.e("Michael: init contactUpdatedCallBack");
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
-      tempList.forEach ((userDB) {
-        OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
-      });
-
+      OXChatBinding.sharedInstance.syncSessionTypesByContact();
     };
     Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
       LogUtil.e('Michael: init  channelMessageCallBack');
@@ -146,6 +142,16 @@ class OXUserInfoManager {
       LogUtil.e('Michael: init  myChannelsUpdatedCallBack');
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
       _initMessage();
+    };
+
+    Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
+      OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
+    };
+    Contacts.sharedInstance.offlineSecretMessageFinishCallBack = () {
+      OXChatBinding.sharedInstance.offlineSecretMessageFinishCallBack();
+    };
+    Channels.sharedInstance.offlineChannelMessageFinishCallBack = () {
+      OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
