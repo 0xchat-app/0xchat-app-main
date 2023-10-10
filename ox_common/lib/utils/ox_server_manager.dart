@@ -28,6 +28,8 @@ class OXServerManager {
 
   List<ICEServerModel> iCESeverModelList = [];
 
+  List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.map((item) => item.serverConfig).toList();
+
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
     if(connectICEServerList.isEmpty){
