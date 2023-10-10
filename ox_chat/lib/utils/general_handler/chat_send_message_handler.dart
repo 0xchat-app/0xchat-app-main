@@ -52,7 +52,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       status: types.Status.sending,
     );
     ChatDataCache.shared.deleteMessage(session, resendMsg);
-    _sendMessageHandler(message, context: context, isResend: true);
+    _sendMessageHandler(resendMsg, context: context, isResend: true);
   }
 
   Future sendTextMessage(BuildContext context, String text) async {
