@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
@@ -554,27 +555,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      String showPicUrl = '';
-      if (item.chatType == ChatType.chatChannel) {
-        ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
-        showPicUrl = channelDB?.picture ?? '';
-      } else {
-        UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
-        showPicUrl = otherDB?.picture ?? '';
-      }
-      String localAvatarPath = '';
-      if (item.chatType == ChatType.chatChannel) {
-        localAvatarPath = 'assets/images/icon_group_default.png';
-      } else {
-        localAvatarPath = 'assets/images/user_image.png';
-      }
-      Image placeholderImage = Image.asset(
-        localAvatarPath,
-        fit: BoxFit.cover,
-        width: Adapt.px(60),
-        height: Adapt.px(60),
-        package: 'ox_chat',
-      );
+      String showPicUrl = item.chatType == ChatType.chatChannel
+          ? Channels.sharedInstance.channels[item.chatId]?.picture ?? ''
+          : Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
+      String localAvatarPath = item.chatType == ChatType.chatChannel ? 'icon_group_default.png' : 'user_image.png';
       return Container(
         width: Adapt.px(60),
         height: Adapt.px(60),
@@ -582,13 +566,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(60)),
-              child: CachedNetworkImage(
+              child: BaseAvatarWidget(
                 imageUrl: '${showPicUrl}',
-                fit: BoxFit.cover,
-                placeholder: (context, url) => placeholderImage,
-                errorWidget: (context, url, error) => placeholderImage,
-                width: Adapt.px(60),
-                height: Adapt.px(60),
+                defaultImageName: localAvatarPath,
+                size: Adapt.px(60),
               ),
             ),
             (item.chatType == ChatType.chatSingle)
@@ -618,14 +599,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModel item) {
-    String showName = '';
-    if (item.chatType == ChatType.chatChannel){
-      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
-      showName = channelDB?.name ?? '';
-    } else {
-      UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
-      showName = otherDB?.getUserShowName() ?? '';
-    }
+    String showName = item.chatType == ChatType.chatChannel
+        ? Channels.sharedInstance.channels[item.chatId]?.name ?? ''
+        : Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret
