@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +58,7 @@ void main() async {
   await Localized.init();
   await setupModules();
   OXRelayManager.sharedInstance.loadConnectRelay();
+  OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
   await OrientationPlugin.setEnabledSystemUIOverlays(
       [SystemUiOverlay.top, SystemUiOverlay.bottom]);
