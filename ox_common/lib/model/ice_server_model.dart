@@ -21,6 +21,17 @@ class ICEServerModel {
     );
   }
 
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ICEServerModel &&
+          runtimeType == other.runtimeType &&
+          url == other.url;
+
+  @override
+  int get hashCode => url.hashCode;
+
   Map<String, dynamic> toJson(ICEServerModel iceServerModel) =>
       <String, dynamic>{
         'url': iceServerModel.url,
