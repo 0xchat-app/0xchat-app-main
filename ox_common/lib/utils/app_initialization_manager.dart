@@ -1,7 +1,8 @@
 
 import 'dart:async';
 
-import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -11,7 +12,7 @@ enum _MessageType {
   channel,
 }
 
-class AppInitializationManager {
+class AppInitializationManager with OXChatObserver {
 
   static final AppInitializationManager shared = AppInitializationManager._internal();
 
@@ -30,12 +31,7 @@ class AppInitializationManager {
   Completer<bool> shouldShowLoadingCompleter = Completer();
 
   void setup() {
-    Contacts.sharedInstance.offlinePrivateMessageFinishCallBack =
-        () => _offlineMessageFinishHandler(_MessageType.private);
-    Contacts.sharedInstance.offlineSecretMessageFinishCallBack =
-        () => _offlineMessageFinishHandler(_MessageType.secret);
-    Channels.sharedInstance.offlineChannelMessageFinishCallBack =
-        () => _offlineMessageFinishHandler(_MessageType.channel);
+    OXChatBinding.sharedInstance.addObserver(this);
   }
 
   void reset() {
@@ -46,6 +42,21 @@ class AppInitializationManager {
     _messageFinishFlags = _messageFinishFlags.map((key, value) => MapEntry(key, false));
     isDismissLoading = false;
     shouldShowLoadingCompleter = Completer();
+  }
+
+  @override
+  void didOfflinePrivateMessageFinishCallBack() {
+    _offlineMessageFinishHandler(_MessageType.private);
+  }
+
+  @override
+  void didOfflineSecretMessageFinishCallBack() {
+    _offlineMessageFinishHandler(_MessageType.secret);
+  }
+
+  @override
+  void didOfflineChannelMessageFinishCallBack() {
+    _offlineMessageFinishHandler(_MessageType.channel);
   }
 
   set shouldShowInitializationLoading(bool value) {
