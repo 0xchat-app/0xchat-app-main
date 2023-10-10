@@ -228,11 +228,15 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
-        NotificationHelper.sharedInstance.setOnline();
+        if (OXUserInfoManager.sharedInstance.isLogin) {
+          NotificationHelper.sharedInstance.setOnline();
+        }
         getOpenAppSchemeInfo();
         break;
       case AppLifecycleState.paused:
-        NotificationHelper.sharedInstance.setOffline();
+        if (OXUserInfoManager.sharedInstance.isLogin) {
+          NotificationHelper.sharedInstance.setOffline();
+        }
         break;
       default:
         break;
