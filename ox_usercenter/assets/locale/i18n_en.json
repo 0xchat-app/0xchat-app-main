@@ -97,5 +97,9 @@
   "connect_ice_server": "CONNECT TO ICE Server",
   "connected_ice_server": "CONNECTED To ICE Server",
   "recommend_ice_server": "Recommend ICE Server",
+  "enter_ice_server_hint": "Please enter the ICE server address",
+  "add_ice_server_exist_tips": "This ICE Server already exists",
+  "delete_server_tips": "Are you sure you want to delete it?",
+  "delete_server_success_tips": "Successfully deleted",
   "add": "Add"
 }
