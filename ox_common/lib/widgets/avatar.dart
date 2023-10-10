@@ -10,8 +10,8 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 
-class _BaseAvatarWidget extends StatelessWidget {
-  _BaseAvatarWidget({
+class BaseAvatarWidget extends StatelessWidget {
+  BaseAvatarWidget({
     required this.imageUrl,
     required this.defaultImageName,
     required this.size,
@@ -98,7 +98,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
   @override
   Widget build(BuildContext context) {
     final imageUrl = widget.user?.picture ?? widget.imageUrl ?? '';
-    return _BaseAvatarWidget(
+    return BaseAvatarWidget(
       imageUrl: imageUrl,
       defaultImageName: defaultImageName,
       size: widget.size,
@@ -151,7 +151,7 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
   @override
   Widget build(BuildContext context) {
     final imageUrl = widget.channel?.picture ?? widget.imageUrl ?? '';
-    return _BaseAvatarWidget(
+    return BaseAvatarWidget(
       imageUrl: imageUrl,
       defaultImageName: defaultImageName,
       size: widget.size,

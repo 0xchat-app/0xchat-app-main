@@ -6,6 +6,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'dart:convert';
@@ -17,42 +18,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2023/5/17 14:45
-
-abstract class OXChatObserver {
-  void didSecretChatRequestCallBack() {}
-
-  void didPrivateMessageCallBack(MessageDB message) {}
-
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
-
-  void didSecretChatUpdateCallBack(SecretSessionDB ssDB) {}
-
-  void didContactUpdatedCallBack() {}
-
-  void didCreateChannel(ChannelDB? channelDB) {}
-
-  void didDeleteChannel(ChannelDB? channelDB) {}
-
-  void didChannalMessageCallBack(MessageDB message) {}
-
-  void didChannelsUpdatedCallBack() {}
-
-  void didSessionUpdate() {}
-
-  void didSecretChatMessageCallBack(MessageDB message) {}
-
-  void didPromptToneCallBack(MessageDB message, int type) {}
-
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
-    final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
-    OXChatBinding.sharedInstance.isZapBadge = true;
-  }
-}
 
 class OXChatBinding {
   static final OXChatBinding sharedInstance = OXChatBinding._internal();
@@ -130,7 +95,7 @@ class OXChatBinding {
               showContent = decryptedContent.toString();
             }
           } catch (e) {
-            LogUtil.e('Michael：MessageType.text =${e.toString()}');
+            LogUtil.e('showContentByMsgType：MessageType.text =${e.toString()}');
           }
         }
         if (showContent == null) showContent = decryptContent ?? '';
@@ -234,9 +199,7 @@ class OXChatBinding {
     return changeCount;
   }
 
-  Future<ChatSessionModel> syncChatSessionTable(MessageDB messageDB, {int? chatType}) async {
-    String secretSessionId = messageDB.sessionId ?? '';
-    int changeCount = 0;
+  ChatSessionModel syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
     String showContent = showContentByMsgType(messageDB);
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContent,
@@ -248,149 +211,103 @@ class OXChatBinding {
     );
     if (messageDB.receiver.isNotEmpty) {
       //single chat
-      String chatId = '';
-      String? otherUserPubkey;
-      if (secretSessionId.isEmpty) {
-        if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey &&
-            messageDB.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-          chatId = messageDB.sender!;
-          otherUserPubkey = messageDB.sender;
-        } else if (messageDB.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey &&
-            messageDB.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-          chatId = messageDB.receiver!;
-          otherUserPubkey = messageDB.receiver;
-        } else {
-          chatId = messageDB.sender!;
-          otherUserPubkey = messageDB.sender;
-        }
-      } else {
-        chatId = secretSessionId;
-        SecretSessionDB? ssDB = Contacts.sharedInstance.secretSessionMap[secretSessionId];
-        if (ssDB != null) {
-          otherUserPubkey = ssDB.toPubkey;
-        }
-      }
-      sessionModel.chatId = chatId;
-      UserDB? userDB;
-      if (sessionMap[chatId] != null) {
-        sessionModel.chatType = sessionMap[chatId]!.chatType;
-        if (messageDB.createTime >= sessionMap[chatId]!.createTime) {
-          if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-            if (!messageDB.read) {
-              sessionModel.unreadCount = sessionMap[chatId]!.unreadCount + 1;
-              if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
-                unReadStrangerSessionCount += 1;
-              }
-              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
-            }
-          }
-          sessionMap[chatId] = sessionModel;
-          final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-          if (count > 0) {
-            changeCount = count;
-          }
-        } else {
-          // old message don't update
-        }
-      } else {
-        userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
-        if (userDB == null) {
-          if (otherUserPubkey != null) {
-            userDB = await Account.sharedInstance.getUserInfo(otherUserPubkey);
-          }
-          if (secretSessionId.isEmpty) {
-            sessionModel.chatType = ChatType.chatStranger;
-          } else {
-            sessionModel.chatType = ChatType.chatSecretStranger;
-          }
-        } else {
-          if (secretSessionId.isEmpty) {
-            sessionModel.chatType = ChatType.chatSingle;
-          } else {
-            sessionModel.chatType = ChatType.chatSecret;
-          }
-        }
-        if (chatType != null){
-          sessionModel.chatType = chatType;
-        }
-        if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey!) {
-          if (!messageDB.read) {
-            sessionModel.unreadCount = 1;
-            if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
-              unReadStrangerSessionCount += 1;
-            }
-            noticePromptToneCallBack(messageDB, sessionModel.chatType!);
-          }
-        }
-        sessionMap[chatId] = sessionModel;
-        final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-        if (count > 0) {
-          changeCount = count;
-        }
-      }
+      _syncSingleChat(sessionModel, messageDB, chatType: chatType);
     } else if (messageDB.groupId.isNotEmpty) {
       //group chat
-      sessionModel.chatId = messageDB.groupId;
-      if (sessionMap[messageDB.groupId] != null) {
-        if (messageDB.createTime >= sessionMap[messageDB.groupId]!.createTime) {
-          ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
-          if (channelDB != null) {
-            //is channel
-            sessionModel.avatar = channelDB.picture;
-            sessionModel.chatName = channelDB.name;
-            sessionModel.chatType = ChatType.chatChannel;
-            sessionMap[messageDB.groupId] = sessionModel;
-            if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              if (!messageDB.read) {
-                sessionModel.unreadCount = sessionMap[messageDB.groupId]!.unreadCount + 1;
-                noticePromptToneCallBack(messageDB, sessionModel.chatType!);
-              }
-            }
-            final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-            if (count > 0) {
-              changeCount = count;
-            }
-          } else {
-            // is group or other chat
-          }
-        } else {
-          // old message don't update
-        }
-      } else {
-        ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
-        if (channelDB != null) {
-          sessionModel.avatar = channelDB.picture;
-          sessionModel.chatName = channelDB.name;
-          sessionModel.chatType = ChatType.chatChannel;
-          if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-            if (!messageDB.read) {
-              sessionModel.unreadCount = 1;
-              noticePromptToneCallBack(messageDB, sessionModel.chatType!);
-            }
-          }
-          sessionMap[messageDB.groupId] = sessionModel;
-          final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-          if (count > 0) {
-            changeCount = count;
-          }
-        } else {
-          // group's pic or other chat's pic
-        }
-      }
+      _syncGroupChat(sessionModel, messageDB);
     }
-    if (changeCount > 0) {
-      sessionUpdate();
-    }
+    sessionUpdate();
     return sessionModel;
   }
 
-  Future<int> deleteSession(ChatSessionModel sessionModel, {bool isStranger = false}) async {
-    sessionMap.remove(sessionModel.chatId);
+  void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
+    sessionModel.chatId = messageDB.groupId;
+    sessionModel.chatType = ChatType.chatChannel;
+    ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
+    if (tempModel != null) {
+      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        sessionModel.unreadCount = tempModel.unreadCount += 1;
+        noticePromptToneCallBack(messageDB, tempModel.chatType!);
+      }
+      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
+      sessionMap[messageDB.groupId] = tempModel;
+      DB.sharedInstance.insert<ChatSessionModel>(tempModel);
+    } else {
+      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      if (channelDB != null) {
+        sessionModel.avatar = channelDB.picture;
+        sessionModel.chatName = channelDB.name;
+        if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+          sessionModel.unreadCount = 1;
+          noticePromptToneCallBack(messageDB, sessionModel.chatType!);
+        }
+        sessionMap[messageDB.groupId] = sessionModel;
+        DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+      }
+    }
+  }
+
+  void _syncSingleChat(ChatSessionModel sessionModel, MessageDB messageDB, {int? chatType}) {
+    Map<String, String> tempMap = getChatIdAndOtherPubkey(messageDB);
+    String chatId = tempMap['ChatId'] ?? '';
+    String otherUserPubkey = tempMap['otherUserPubkey'] ?? '';
+    UserDB? userDB;
+    sessionModel.chatId = chatId;
+    ChatSessionModel? tempModel = sessionMap[chatId];
+    if (tempModel != null) {
+      sessionModel.chatType = tempModel.chatType;
+      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        sessionModel.unreadCount = tempModel.unreadCount += 1;
+        if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
+          unReadStrangerSessionCount += 1;
+        }
+        noticePromptToneCallBack(messageDB, tempModel.chatType);
+      }
+      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
+      sessionMap[chatId] = tempModel;
+      DB.sharedInstance.insert<ChatSessionModel>(tempModel);
+    } else {
+      userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
+      if (userDB == null) {
+        sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatStranger : ChatType.chatSecretStranger;
+      } else {
+        sessionModel.chatType = messageDB.sessionId.isEmpty ? ChatType.chatSingle : ChatType.chatSecret;
+      }
+      if (chatType != null) {
+        sessionModel.chatType = chatType;
+      }
+      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        sessionModel.unreadCount = 1;
+        if (sessionModel.chatType == ChatType.chatStranger || sessionModel.chatType == ChatType.chatSecretStranger) {
+          unReadStrangerSessionCount += 1;
+        }
+        noticePromptToneCallBack(messageDB, sessionModel.chatType);
+      }
+      sessionMap[chatId] = sessionModel;
+      DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+    }
+  }
+
+  Map<String, String> getChatIdAndOtherPubkey(MessageDB messageDB) {
+    String chatId = '';
+    String otherUserPubkey = '';
+    if (messageDB.sessionId.isEmpty) {
+      chatId = otherUserPubkey = messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? messageDB.sender : messageDB.receiver;
+    } else {
+      chatId = messageDB.sessionId;
+      SecretSessionDB? ssDB = Contacts.sharedInstance.secretSessionMap[messageDB.sessionId];
+      otherUserPubkey = ssDB?.toPubkey ?? '';
+    }
+    return {'ChatId': chatId, 'otherUserPubkey': otherUserPubkey};
+  }
+
+  Future<int> deleteSession(String chatId, {bool isStranger = false}) async {
+    sessionMap.remove(chatId);
     if(isStranger) {
       _updateUnReadStrangerSessionCount();
     }
     int changeCount = 0;
-    final int count = await DB.sharedInstance.delete<ChatSessionModel>(where: "chatId = ?", whereArgs: [sessionModel.chatId]);
+    final int count = await DB.sharedInstance.delete<ChatSessionModel>(where: "chatId = ?", whereArgs: [chatId]);
     if (count > 0) {
       changeCount = count;
       OXChatBinding.sharedInstance.sessionUpdate();
@@ -471,8 +388,8 @@ class OXChatBinding {
   void secretChatRequestCallBack(SecretSessionDB ssDB) async {
     final toPubkey = ssDB.toPubkey;
     final myPubkey = ssDB.myPubkey;
-    if (toPubkey == null || toPubkey.isEmpty) return null;
-    if (myPubkey == null || myPubkey.isEmpty) return null;
+    if (toPubkey == null || toPubkey.isEmpty) return;
+    if (myPubkey == null || myPubkey.isEmpty) return;
     UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
@@ -487,20 +404,24 @@ class OXChatBinding {
   }
 
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
+    String toPubkey = ssDB.toPubkey ?? '';
+    if (toPubkey.isEmpty) return;
+    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey!);
+      user = UserDB(pubKey: toPubkey);
     }
-    await updateChatSession(ssDB.sessionId!, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
+    await updateChatSession(ssDB.sessionId, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatAcceptCallBack(ssDB);
     }
   }
 
   void secretChatRejectCallBack(SecretSessionDB ssDB) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(ssDB.toPubkey!);
+    String toPubkey = ssDB.toPubkey ?? '';
+    if (toPubkey.isEmpty) return;
+    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey!);
+      user = UserDB(pubKey: toPubkey);
     }
     await updateChatSession(ssDB.sessionId, content: 'secret_chat_rejected_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
@@ -567,31 +488,36 @@ class OXChatBinding {
       if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
         continue;
       }
-      if (csModel.sender == pubkey || csModel.receiver == pubkey) {
-        isChange = true;
-        int? tempChatType = csModel.chatType;
-        if(isBecomeContact){
-          if (csModel.chatType == ChatType.chatSecretStranger) {
-            tempChatType = ChatType.chatSecret;
-          } else if (csModel.chatType == ChatType.chatStranger){
-            tempChatType = ChatType.chatSingle;
-          }
-        } else {
-          if (csModel.chatType == ChatType.chatSecret) {
-            tempChatType = ChatType.chatSecretStranger;
-          } else if (csModel.chatType == ChatType.chatSingle){
-            tempChatType = ChatType.chatStranger;
-          }
+      isChange = true;
+      int? tempChatType = csModel.chatType;
+      if (isBecomeContact) {
+        if (csModel.chatType == ChatType.chatSecretStranger && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
+          tempChatType = ChatType.chatSecret;
+        } else if (csModel.chatType == ChatType.chatStranger && csModel.chatId == pubkey) {
+          tempChatType = ChatType.chatSingle;
         }
-        csModel.chatType = tempChatType;
-        sessionMap[csModel.chatId!] = csModel;
-        final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
+      } else {
+        if (csModel.chatType == ChatType.chatSecret && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
+          tempChatType = ChatType.chatSecretStranger;
+        } else if (csModel.chatType == ChatType.chatSingle && csModel.chatId == pubkey) {
+          tempChatType = ChatType.chatStranger;
+        }
       }
+      csModel.chatType = tempChatType;
+      sessionMap[csModel.chatId!] = csModel;
+      DB.sharedInstance.insert<ChatSessionModel>(csModel);
     }
     if (isChange) {
       _updateUnReadStrangerSessionCount();
       sessionUpdate();
     }
+  }
+
+  void syncSessionTypesByContact(){
+    Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
+    tempList.forEach ((userDB) {
+      OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
+    });
   }
 
   void noticeFriendRequest() {
@@ -629,6 +555,25 @@ class OXChatBinding {
   void zapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
     for (OXChatObserver observer in _observers) {
       observer.didZapRecordsCallBack(zapRecordsDB);
+    }
+  }
+
+  void offlinePrivateMessageFinishCallBack() {
+    syncSessionTypesByContact();
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflinePrivateMessageFinishCallBack();
+    }
+  }
+
+  void offlineSecretMessageFinishCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflineSecretMessageFinishCallBack();
+    }
+  }
+
+  void offlineChannelMessageFinishCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflineChannelMessageFinishCallBack();
     }
   }
 }

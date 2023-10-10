@@ -161,5 +161,7 @@ extension StringUtil on String {
     }
     return this[0].toUpperCase() + this.substring(1);
   }
+
+  bool get isRemoteURL => RegExp(r'https?:\/\/').hasMatch(this);
 }
 

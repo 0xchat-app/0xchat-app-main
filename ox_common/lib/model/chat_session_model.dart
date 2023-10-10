@@ -27,7 +27,7 @@ class ChatSessionModel extends DBObject {
   int createTime;
 
   // 0 Chat  1 Normal Group  2 Channel Group  3 Secret Chat 4 Stranger Chat  5 Stranger secret Chat
-  int? chatType;
+  int chatType;
 
   //text, image, video, audio, file, template
   String? messageType;
@@ -51,7 +51,7 @@ class ChatSessionModel extends DBObject {
     this.content,
     this.unreadCount = 0,
     this.createTime = 0,
-    this.chatType,
+    this.chatType = 0,
     this.messageType = 'text',
     this.avatar,
     this.alwaysTop = false,

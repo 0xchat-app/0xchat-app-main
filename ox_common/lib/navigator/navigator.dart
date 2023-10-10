@@ -126,8 +126,14 @@ class OXNavigator extends Navigator {
     );
   }
 
-  static Future<T?> presentPage<T extends Object?>(BuildContext context, Widget Function(BuildContext? context) builder,
-      {String? pageName, Object? pageId, bool fullscreenDialog = false}) {
+  static Future<T?> presentPage<T extends Object?>(
+      BuildContext context,
+      Widget Function(BuildContext? context) builder, {
+        String? pageName,
+        Object? pageId,
+        bool fullscreenDialog = false,
+        bool allowPageScroll = false,
+      }) {
     pageName ??= builder(null).runtimeType.toString();
     if (fullscreenDialog) {
       return OXNavigator.push(
@@ -143,10 +149,11 @@ class OXNavigator extends Navigator {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        enableDrag: !allowPageScroll,
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) =>
             Container(
-              height: MediaQuery.of(context).size.height * 0.96,
+              height: MediaQuery.of(context).size.height * 0.9,
               child: builder(context),
             ),
       );

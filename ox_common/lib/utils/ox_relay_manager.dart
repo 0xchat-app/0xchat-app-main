@@ -77,7 +77,7 @@ class OXRelayManager {
       Connect.sharedInstance.connectRelays([CommonConstant.oxChatRelay, defaultRelayName2, defaultRelayName3]);
       await saveRelayList(relayModelList);
     }
-    connectedCount = relayAddressList.where((item) => Connect.sharedInstance.connectStatus[item] != null && Connect.sharedInstance.connectStatus[item] == RelayConnectStatus.open ).length;
+    connectedCount = relayAddressList.where((item) => Connect.sharedInstance.webSockets[item]?.connectStatus != null && Connect.sharedInstance.webSockets[item]?.connectStatus == RelayConnectStatus.open ).length;
     connectStatusUpdate();
   }
 
@@ -88,7 +88,7 @@ class OXRelayManager {
   }
 
   void changeRelayStatus(String relay, int status) {
-    connectedCount = relayAddressList.where((item) => Connect.sharedInstance.connectStatus[item] != null && Connect.sharedInstance.connectStatus[item] == RelayConnectStatus.open ).length;
+    connectedCount = relayAddressList.where((item) => Connect.sharedInstance.webSockets[item]?.connectStatus != null && Connect.sharedInstance.webSockets[item]?.connectStatus == RelayConnectStatus.open ).length;
     for (OXRelayObserver observer in _observers) {
       observer.didRelayStatusChange(relay, status);
     }

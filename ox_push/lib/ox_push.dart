@@ -23,7 +23,7 @@ class OXPush extends OXFlutterModule {
   @override
   Future<void> setup() async {
     // TODO: implement setup
-    super.setup();
+    await super.setup();
     if(Platform.isIOS){
       _channel.setMethodCallHandler(_platformCallHandler);
       OXUserInfoManager.sharedInstance.initDataActions.add(_setNotification);

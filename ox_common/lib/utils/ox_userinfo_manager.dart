@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
@@ -43,6 +44,7 @@ class OXUserInfoManager {
   bool _initAllCompleted = false;
 
   Future initDB(String pubkey) async {
+    AppInitializationManager.shared.shouldShowInitializationLoading = true;
     DB.sharedInstance.deleteDBIfNeedMirgration = false;
     await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
   }
@@ -77,6 +79,7 @@ class OXUserInfoManager {
         _initDatas();
       }
     } else {
+      AppInitializationManager.shared.shouldShowInitializationLoading = false;
       return;
     }
   }
@@ -128,11 +131,7 @@ class OXUserInfoManager {
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.e("Michael: init contactUpdatedCallBack");
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
-      tempList.forEach ((userDB) {
-        OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
-      });
-
+      OXChatBinding.sharedInstance.syncSessionTypesByContact();
     };
     Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
       LogUtil.e('Michael: init  channelMessageCallBack');
@@ -143,6 +142,19 @@ class OXUserInfoManager {
       LogUtil.e('Michael: init  myChannelsUpdatedCallBack');
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
       _initMessage();
+    };
+
+    Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlinePrivateMessageFinishCallBack');
+      OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
+    };
+    Contacts.sharedInstance.offlineSecretMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlineSecretMessageFinishCallBack');
+      OXChatBinding.sharedInstance.offlineSecretMessageFinishCallBack();
+    };
+    Channels.sharedInstance.offlineChannelMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlineChannelMessageFinishCallBack');
+      OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
@@ -169,6 +181,7 @@ class OXUserInfoManager {
     currentUserInfo = null;
     _initAllCompleted = false;
     OXChatBinding.sharedInstance.clearSession();
+    AppInitializationManager.shared.reset();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLogout();
     }
