@@ -493,19 +493,20 @@ class OXChatBinding {
       if (isBecomeContact) {
         if (csModel.chatType == ChatType.chatSecretStranger && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecret;
+          updateChatSessionDB(csModel, tempChatType);
         } else if (csModel.chatType == ChatType.chatStranger && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatSingle;
+          updateChatSessionDB(csModel, tempChatType);
         }
       } else {
         if (csModel.chatType == ChatType.chatSecret && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecretStranger;
+          updateChatSessionDB(csModel, tempChatType);
         } else if (csModel.chatType == ChatType.chatSingle && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatStranger;
+          updateChatSessionDB(csModel, tempChatType);
         }
       }
-      csModel.chatType = tempChatType;
-      sessionMap[csModel.chatId!] = csModel;
-      DB.sharedInstance.insert<ChatSessionModel>(csModel);
     }
     if (isChange) {
       _updateUnReadStrangerSessionCount();
@@ -513,11 +514,46 @@ class OXChatBinding {
     }
   }
 
+  void updateChatSessionDB(ChatSessionModel csModel, int tempChatType){
+    csModel.chatType = tempChatType;
+    sessionMap[csModel.chatId!] = csModel;
+    DB.sharedInstance.insert<ChatSessionModel>(csModel);
+  }
+
   void syncSessionTypesByContact(){
     Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
     tempList.forEach ((userDB) {
       OXChatBinding.sharedInstance.changeChatSessionTypeAll(userDB.pubKey, true);
     });
+
+    //strangerSession to chatSession
+    bool isChange = false;
+    List<ChatSessionModel> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
+    for (ChatSessionModel csModel in list) {
+      if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
+        continue;
+      }
+      isChange = true;
+      int? tempChatType = csModel.chatType;
+      if (csModel.chatType == ChatType.chatSecretStranger) {
+        UserDB? senderUserDB = Contacts.sharedInstance.allContacts[csModel.sender];
+        UserDB? receiverUserDB = Contacts.sharedInstance.allContacts[csModel.receiver];
+        if (senderUserDB != null || receiverUserDB != null) {
+          tempChatType = ChatType.chatSecret;
+          updateChatSessionDB(csModel, tempChatType);
+        }
+      } else if (csModel.chatType == ChatType.chatStranger) {
+        UserDB? chatIdUserDB = Contacts.sharedInstance.allContacts[csModel.chatId];
+        if (chatIdUserDB != null) {
+          tempChatType = ChatType.chatSingle;
+          updateChatSessionDB(csModel, tempChatType);
+        }
+      }
+    }
+    if (isChange) {
+      _updateUnReadStrangerSessionCount();
+      sessionUpdate();
+    }
   }
 
   void noticeFriendRequest() {
@@ -559,7 +595,6 @@ class OXChatBinding {
   }
 
   void offlinePrivateMessageFinishCallBack() {
-    syncSessionTypesByContact();
     for (OXChatObserver observer in _observers) {
       observer.didOfflinePrivateMessageFinishCallBack();
     }
