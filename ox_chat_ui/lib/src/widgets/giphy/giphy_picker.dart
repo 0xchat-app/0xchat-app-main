@@ -80,7 +80,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
                 height: Adapt.px(12),
               ),
             ),
-          GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS ? SliverPadding(
+          GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS && GiphyCategory.values[_selectedIndex] != GiphyCategory.COLLECT ? SliverPadding(
               padding: EdgeInsets.only(bottom: Adapt.px(12)),
               sliver: SliverToBoxAdapter(
                 child: GiphySearchBar(

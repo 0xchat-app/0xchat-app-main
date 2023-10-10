@@ -29,12 +29,17 @@ class GiphyImage {
         'size': giphyImage.size,
       };
 
+  String get uniqueUrl {
+    final index = this.url.indexOf('?');
+    return index == -1 ? this.url : this.url.substring(0, index);
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is GiphyImage &&
           runtimeType == other.runtimeType &&
-          url == other.url;
+          uniqueUrl == other.uniqueUrl;
 
   @override
   int get hashCode => url.hashCode;
