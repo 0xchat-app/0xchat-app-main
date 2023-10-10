@@ -145,12 +145,15 @@ class OXUserInfoManager {
     };
 
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlinePrivateMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
     };
     Contacts.sharedInstance.offlineSecretMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlineSecretMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlineSecretMessageFinishCallBack();
     };
     Channels.sharedInstance.offlineChannelMessageFinishCallBack = () {
+      LogUtil.e('Michael: init  offlineChannelMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
