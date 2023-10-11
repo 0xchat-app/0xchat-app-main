@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../giphy_usage_recorder.dart';
 import '../../models/giphy_general_model.dart';
@@ -88,12 +90,25 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
 
     if(_giphyImage.isEmpty){
       if(widget.category == GiphyCategory.COLLECT){
-        return Center(
-          child: CommonImage(
-            iconName: 'icon_no_data.png',
-            width: Adapt.px(90),
-            height: Adapt.px(90),
-          ),
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: CommonImage(
+                iconName: 'icon_no_data.png',
+                width: Adapt.px(90),
+                height: Adapt.px(90),
+              ),
+            ),
+            SizedBox(height: Adapt.px(24),),
+            Text(
+              Localized.text('ox_common.status_empty'),
+              style: TextStyle(
+                  color: ThemeColor.color100,
+                  fontSize: Adapt.px(16),
+                  fontWeight: FontWeight.w400),
+            )
+          ],
         );
       }else{
         return Center(
