@@ -33,6 +33,6 @@ class GiphyUsageRecorder {
       for (var json in usedGiphyImageJsonList) GiphyImage.fromJson(json)
     ];
 
-    return usedGiphyImageList;
+    return usedGiphyImageList.reversed.toList();
   }
 }
