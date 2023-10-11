@@ -7,6 +7,7 @@ import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/search_history_model.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
@@ -950,6 +951,16 @@ class SearchPageState extends State<SearchPage> {
         OXNavigator.pushPage(
           context,
           (context) => ChatGroupMessagePage(
+            communityItem: sessionModel,
+            anchorMsgId: item.msgId,
+          ),
+        );
+        break;
+      case ChatType.chatSecret:
+        OXNavigator.pushPage(
+          context,
+          (context) =>
+          ChatSecretMessagePage(
             communityItem: sessionModel,
             anchorMsgId: item.msgId,
           ),
