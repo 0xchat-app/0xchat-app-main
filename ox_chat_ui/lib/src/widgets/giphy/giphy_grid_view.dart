@@ -107,6 +107,7 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
       children: [
         Expanded(
           child: GridView.builder(
+            padding: EdgeInsets.only(bottom: Adapt.px(35)),
             controller: _scrollController,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
@@ -128,12 +129,13 @@ class _GiphyGridViewState extends State<GiphyGridView> with AutomaticKeepAliveCl
             itemCount: _giphyImage.length,
           ),
         ),
-        // _isLoading ? _buildIndicator() : Container(),
+        _isLoading ? _buildIndicator() : Container(),
       ],
     );
   }
 
   Widget _buildIndicator()=> Container(
+    margin: EdgeInsets.symmetric(vertical: Adapt.px(5)),
     alignment: Alignment.center,
     width: Adapt.px(24),
     height: Adapt.px(24),
