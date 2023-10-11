@@ -406,7 +406,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       widget.channelDB?.name = _channelNameController.text;
       widget.channelDB?.about = _descriptionController.text;
       widget.channelDB?.picture = _avatarAliyunUrl;
-      widget.channelDB?.badges = requirementBadgeIdList.toString();
+      widget.channelDB?.badges = jsonEncode(requirementBadgeIdList);
 
       OKEvent okEvent =
           await Channels.sharedInstance.setChannel(widget.channelDB!);

@@ -203,6 +203,7 @@ class _ZapsPageState extends State<ZapsPage> {
   }
 
   void _walletSelectorDialog(){
+    final height = MediaQuery.of(context).size.height - Adapt.px(56) - MediaQuery.of(context).padding.top;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -213,8 +214,8 @@ class _ZapsPageState extends State<ZapsPage> {
             child: Opacity(
               opacity: 1,
               child: Container(
-                alignment: Alignment.bottomCenter,
-                height: Adapt.px(401),
+                alignment: Alignment.topCenter,
+                height: Adapt.px(height),
                 decoration: BoxDecoration(
                   color: ThemeColor.color180,
                   borderRadius: BorderRadius.circular(12),
