@@ -26,7 +26,7 @@ class AppInitializationManager with OXChatObserver {
 
   bool get isReceiveMessageFinish => _messageFinishFlags.values.every((v) => v);
 
-  bool isDismissLoading = false;
+  bool isDismissLoading = true;
 
   Completer<bool> shouldShowLoadingCompleter = Completer();
 
@@ -40,7 +40,7 @@ class AppInitializationManager with OXChatObserver {
   
   void setDefaultValue() {
     _messageFinishFlags = _messageFinishFlags.map((key, value) => MapEntry(key, false));
-    isDismissLoading = false;
+    isDismissLoading = true;
     shouldShowLoadingCompleter = Completer();
   }
 
@@ -74,6 +74,7 @@ class AppInitializationManager with OXChatObserver {
     final shouldShowLoading = await shouldShowLoadingCompleter.future;
     if (!shouldShowLoading) return ;
     if (isReceiveMessageFinish) return ;
+    isDismissLoading = false;
     OXLoading.show(maskType: EasyLoadingMaskType.black);
     Future.delayed(const Duration(minutes: 1), () {
       if (!isDismissLoading) {
@@ -83,7 +84,7 @@ class AppInitializationManager with OXChatObserver {
   }
 
   void tryDismissInitializationLoading() {
-    if (isReceiveMessageFinish) {
+    if (isReceiveMessageFinish && !isDismissLoading) {
       _dismissInitializationLoading();
     }
   }
