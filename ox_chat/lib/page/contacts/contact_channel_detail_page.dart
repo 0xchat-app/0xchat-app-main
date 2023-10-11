@@ -146,183 +146,218 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         .isCurrentUser(widget.channelDB.creator!);
     return Scaffold(
       backgroundColor: ThemeColor.color190,
-      body: SafeArea(
-        top: false,
-        child: CustomScrollView(
-          ///in case,list is not full screen and remove ios Bouncing
-          physics: ClampingScrollPhysics(),
-          slivers: <Widget>[
-            ExtendedSliverAppbar(
-              toolBarColor: Colors.transparent,
-              title: Text(
-                widget.channelDB.name!,
-                style: const TextStyle(color: Colors.white),
+      body: CustomScrollView(
+        ///in case,list is not full screen and remove ios Bouncing
+        physics: ClampingScrollPhysics(),
+        slivers: <Widget>[
+          ExtendedSliverAppbar(
+            toolBarColor: Colors.transparent,
+            title: Text(
+              widget.channelDB.name!,
+              style: const TextStyle(color: Colors.white),
+            ),
+            leading: IconButton(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              icon: CommonImage(
+                iconName: "icon_back_left_arrow.png",
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
               ),
-              leading: IconButton(
-                splashColor: Colors.transparent,
+              onPressed: () {
+                OXNavigator.pop(context);
+              },
+            ),
+            background: Container(
+              color: ThemeColor.color190,
+              height: Adapt.px(390),
+              child: Stack(
+                children: <Widget>[
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      imageUrl: widget.channelDB.picture!,
+                      placeholder: (context, url) => _placeholderImage,
+                      errorWidget: (context, url, error) => _placeholderImage,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          SizedBox(
+                            height: Adapt.px(268),
+                          ),
+                          Container(
+                            height: Adapt.px(20),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
+                                ),
+                                color: ThemeColor.color190),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: isCreator
+                ? Container(
+              margin: EdgeInsets.only(
+                right: Adapt.px(14),
+              ),
+              color: Colors.transparent,
+              child: OXButton(
                 highlightColor: Colors.transparent,
-                icon: CommonImage(
-                  iconName: "icon_back_left_arrow.png",
+                color: Colors.transparent,
+                minWidth: Adapt.px(44),
+                height: Adapt.px(44),
+                child: CommonImage(
+                  iconName: 'icon_edit.png',
                   width: Adapt.px(24),
                   height: Adapt.px(24),
                   useTheme: true,
                 ),
                 onPressed: () {
-                  OXNavigator.pop(context);
+                  OXNavigator.pushPage(
+                      context,
+                          (context) => ChatChannelCreate(
+                        channelCreateType: ChannelCreateType.edit,
+                        channelDB: widget.channelDB,
+                      ));
                 },
               ),
-              background: Container(
-                color: ThemeColor.color190,
-                height: Adapt.px(390),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned.fill(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.channelDB.picture!,
-                        placeholder: (context, url) => _placeholderImage,
-                        errorWidget: (context, url, error) => _placeholderImage,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        width: double.infinity,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: Adapt.px(268),
-                            ),
-                            Container(
-                              height: Adapt.px(20),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                  color: ThemeColor.color190),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: isCreator
-                  ? Container(
-                      margin: EdgeInsets.only(
-                        right: Adapt.px(14),
-                      ),
-                      color: Colors.transparent,
-                      child: OXButton(
-                        highlightColor: Colors.transparent,
-                        color: Colors.transparent,
-                        minWidth: Adapt.px(44),
-                        height: Adapt.px(44),
-                        child: CommonImage(
-                          iconName: 'icon_edit.png',
-                          width: Adapt.px(24),
-                          height: Adapt.px(24),
-                          useTheme: true,
-                        ),
-                        onPressed: () {
-                          OXNavigator.pushPage(
-                              context,
-                              (context) => ChatChannelCreate(
-                                    channelCreateType: ChannelCreateType.edit,
-                                    channelDB: widget.channelDB,
-                                  ));
-                        },
-                      ),
-                    )
-                  : Container(),
+            )
+                : Container(),
+          ),
+          SliverPinnedToBoxAdapter(
+            child: Container(
+              color: ThemeColor.color190,
+              height: Adapt.px(2),
             ),
-            SliverPinnedToBoxAdapter(
-              child: Container(
-                color: ThemeColor.color190,
-                height: Adapt.px(2),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  Widget returnWidget = Container();
-                  if (index == 0) {
-                    returnWidget = Container(
-                      color: ThemeColor.color190,
-                      padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-                      child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              widget.channelDB.name!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: Adapt.px(20),
-                                  color: ThemeColor.titleColor),
-                            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                Widget returnWidget = Container();
+                if (index == 0) {
+                  returnWidget = Container(
+                    color: ThemeColor.color190,
+                    padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            widget.channelDB.name!,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: Adapt.px(20),
+                                color: ThemeColor.titleColor),
                           ),
-                          SizedBox(
-                            height: Adapt.px(10),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  Localized.text('ox_common.by'),
+                        ),
+                        SizedBox(
+                          height: Adapt.px(10),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                Localized.text('ox_common.by'),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: Adapt.px(15),
+                                    color: ThemeColor.color0),
+                                maxLines: 1,
+                              ),
+                              SizedBox(
+                                width: Adapt.px(4),
+                              ),
+                              _showCreator == null
+                                  ? Container(
+                                width: Adapt.px(12),
+                                height: Adapt.px(12),
+                                margin: EdgeInsets.only(
+                                    left: Adapt.px(2),
+                                    top: Adapt.px(4)),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: Adapt.px(2),
+                                  backgroundColor: Colors.transparent,
+                                  valueColor:
+                                  AlwaysStoppedAnimation<Color>(
+                                      Colors.red),
+                                ),
+                              )
+                                  : SizedBox(
+                                width: Adapt.screenW() - Adapt.px(100),
+                                child: Text(
+                                  _showCreator!,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w400,
                                       fontSize: Adapt.px(15),
                                       color: ThemeColor.color0),
-                                  maxLines: 1,
                                 ),
-                                SizedBox(
-                                  width: Adapt.px(4),
-                                ),
-                                _showCreator == null
-                                    ? Container(
-                                        width: Adapt.px(12),
-                                        height: Adapt.px(12),
-                                        margin: EdgeInsets.only(
-                                            left: Adapt.px(2),
-                                            top: Adapt.px(4)),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: Adapt.px(2),
-                                          backgroundColor: Colors.transparent,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  Colors.red),
-                                        ),
-                                      )
-                                    : SizedBox(
-                                        width: Adapt.screenW() - Adapt.px(100),
-                                        child: Text(
-                                          _showCreator!,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: Adapt.px(15),
-                                              color: ThemeColor.color0),
-                                        ),
-                                      ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                        ),
+                        SizedBox(
+                          height: Adapt.px(20),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            Localized.text("ox_usercenter.DESCRIPTION"),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: Adapt.px(14),
+                                color: ThemeColor.color100),
+                          ),
+                        ),
+                        SizedBox(
+                          height: Adapt.px(8),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            widget.channelDB.about!,
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: Adapt.px(14),
+                                color: ThemeColor.color100),
+                            maxLines: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (index == 1) {
+                  returnWidget = Container(
+                      color: ThemeColor.color190,
+                      padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           SizedBox(
-                            height: Adapt.px(20),
+                            height: Adapt.px(24),
                           ),
                           Container(
-                            alignment: Alignment.centerLeft,
                             child: Text(
-                              Localized.text("ox_usercenter.DESCRIPTION"),
+                              Localized.text('ox_chat.badge_requirement'),
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: Adapt.px(14),
@@ -335,159 +370,121 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                           Container(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              widget.channelDB.about!,
+                              _badgeRequirementsHint,
                               style: TextStyle(
-                                  fontWeight: FontWeight.normal,
+                                  fontWeight: FontWeight.w400,
                                   fontSize: Adapt.px(14),
                                   color: ThemeColor.color100),
                               maxLines: 2,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  } else if (index == 1) {
-                    returnWidget = Container(
-                        color: ThemeColor.color190,
-                        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: Adapt.px(24),
+                          SizedBox(
+                            height: Adapt.px(8),
+                          ),
+                          _getChildrenWidget(),
+                          SizedBox(
+                            height: Adapt.px(24),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: ThemeColor.color180,
                             ),
-                            Container(
-                              child: Text(
-                                Localized.text('ox_chat.badge_requirement'),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: Adapt.px(14),
-                                    color: ThemeColor.color100),
-                              ),
-                            ),
-                            SizedBox(
-                              height: Adapt.px(8),
-                            ),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                _badgeRequirementsHint,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: Adapt.px(14),
-                                    color: ThemeColor.color100),
-                                maxLines: 2,
-                              ),
-                            ),
-                            SizedBox(
-                              height: Adapt.px(8),
-                            ),
-                            _getChildrenWidget(),
-                            SizedBox(
-                              height: Adapt.px(24),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: ThemeColor.color180,
-                              ),
-                              child: Column(
-                                children: [
-                                  _itemView(
-                                    iconName: 'icon_channel_id.png',
-                                    iconPackage: 'ox_chat',
-                                    type: OtherInfoItemType.ChannelID,
-                                    rightHint: Channels.encodeChannel(
-                                        widget.channelDB.channelId,
-                                        widget.channelDB.relayURL != null
-                                            ? [widget.channelDB.relayURL!]
-                                            : null,
-                                        widget.channelDB.creator),
-                                  ),
-                                  Divider(
-                                    height: Adapt.px(0.5),
-                                    color: ThemeColor.color160,
-                                  ),
-                                  _itemView(
-                                    iconName: 'icon_settings_qrcode.png',
-                                    iconPackage: 'ox_usercenter',
-                                    type: OtherInfoItemType.QRCode,
-                                  ),
-                                  Divider(
-                                    height: Adapt.px(0.5),
-                                    color: ThemeColor.color160,
-                                  ),
-                                  _itemView(
-                                    iconName: 'icon_settings_relays.png',
-                                    iconPackage: 'ox_usercenter',
-                                    type: OtherInfoItemType.Relay,
-                                    rightHint: widget.channelDB
-                                        .relayURL, // widget.channelDB.fromRelay
-                                  ),
-                                  Visibility(
-                                    visible: _isJoinChannel,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Divider(
-                                          height: Adapt.px(0.5),
-                                          color: ThemeColor.color160,
-                                        ),
-                                        _itemView(
-                                          iconName: 'icon_mute.png',
-                                          iconPackage: 'ox_common',
-                                          type: OtherInfoItemType.Mute,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: Adapt.px(24),
-                            ),
-                            Visibility(
-                              visible: _isJoinChannel,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: () {
-                                  _leaveChannel();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: ThemeColor.color180,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  width: double.infinity,
-                                  height: Adapt.px(48),
-                                  child: Text(
-                                    Localized.text('ox_chat.leave_item'),
-                                    style: TextStyle(
-                                        fontSize: Adapt.px(16),
-                                        color: ThemeColor.color100),
-                                  ),
-                                  alignment: Alignment.center,
+                            child: Column(
+                              children: [
+                                _itemView(
+                                  iconName: 'icon_channel_id.png',
+                                  iconPackage: 'ox_chat',
+                                  type: OtherInfoItemType.ChannelID,
+                                  rightHint: Channels.encodeChannel(
+                                      widget.channelDB.channelId,
+                                      widget.channelDB.relayURL != null
+                                          ? [widget.channelDB.relayURL!]
+                                          : null,
+                                      widget.channelDB.creator),
                                 ),
+                                Divider(
+                                  height: Adapt.px(0.5),
+                                  color: ThemeColor.color160,
+                                ),
+                                _itemView(
+                                  iconName: 'icon_settings_qrcode.png',
+                                  iconPackage: 'ox_usercenter',
+                                  type: OtherInfoItemType.QRCode,
+                                ),
+                                Divider(
+                                  height: Adapt.px(0.5),
+                                  color: ThemeColor.color160,
+                                ),
+                                _itemView(
+                                  iconName: 'icon_settings_relays.png',
+                                  iconPackage: 'ox_usercenter',
+                                  type: OtherInfoItemType.Relay,
+                                  rightHint: widget.channelDB
+                                      .relayURL, // widget.channelDB.fromRelay
+                                ),
+                                Visibility(
+                                  visible: _isJoinChannel,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Divider(
+                                        height: Adapt.px(0.5),
+                                        color: ThemeColor.color160,
+                                      ),
+                                      _itemView(
+                                        iconName: 'icon_mute.png',
+                                        iconPackage: 'ox_common',
+                                        type: OtherInfoItemType.Mute,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: Adapt.px(24),
+                          ),
+                          Visibility(
+                            visible: _isJoinChannel,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onTap: () {
+                                _leaveChannel();
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ThemeColor.color180,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                width: double.infinity,
+                                height: Adapt.px(48),
+                                child: Text(
+                                  Localized.text('ox_chat.leave_item'),
+                                  style: TextStyle(
+                                      fontSize: Adapt.px(16),
+                                      color: ThemeColor.color100),
+                                ),
+                                alignment: Alignment.center,
                               ),
                             ),
-                          ],
-                        ));
-                  } else if (index == 2) {
-                    returnWidget = Container(
-                      height: Adapt.px(300),
-                      color: ThemeColor.color190,
-                    );
-                  }
-                  return returnWidget;
-                },
-                childCount: 3,
-              ),
+                          ),
+                        ],
+                      ));
+                } else if (index == 2) {
+                  returnWidget = Container(
+                    height: Adapt.px(300),
+                    color: ThemeColor.color190,
+                  );
+                }
+                return returnWidget;
+              },
+              childCount: 3,
             ),
-          ],
-        ),
-      ),
+          ),
+        ],
+      )
     );
   }
 
