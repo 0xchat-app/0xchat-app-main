@@ -49,8 +49,8 @@ class OXChatBinding {
     );
     bool isRefreshSession = false;
     sessionList.forEach((e) {
-      if (sessionMap[e.chatId!] == null || (sessionMap[e.chatId!] != null && (sessionMap[e.chatId!]!.createTime ?? 0) < (e.createTime ?? 0))) {
-        sessionMap[e.chatId!] = e;
+      if (sessionMap[e.chatId] == null || (sessionMap[e.chatId] != null && (sessionMap[e.chatId]!.createTime ?? 0) < (e.createTime ?? 0))) {
+        sessionMap[e.chatId] = e;
         isRefreshSession = true;
       }
     });
@@ -82,11 +82,11 @@ class OXChatBinding {
     final text = sessionMessageTextBuilder?.call(messageDB);
     if (text != null) return text;
 
-    switch (MessageDB.stringtoMessageType(messageDB.type!)) {
+    switch (MessageDB.stringtoMessageType(messageDB.type)) {
       case MessageType.text:
         String? showContent;
         final decryptContent = messageDB.decryptContent;
-        if (decryptContent != null && decryptContent.isNotEmpty) {
+        if (decryptContent.isNotEmpty) {
           try {
             final decryptedContent = json.decode(decryptContent);
             if (decryptedContent is Map) {
@@ -118,7 +118,7 @@ class OXChatBinding {
         return Localized.text('ox_common.message_type_call');
       case MessageType.template:
         final decryptContent = messageDB.decryptContent;
-        if (decryptContent != null && decryptContent.isNotEmpty) {
+        if (decryptContent.isNotEmpty) {
           try {
             final decryptedContent = json.decode(decryptContent);
             if (decryptedContent is Map) {
@@ -473,7 +473,7 @@ class OXChatBinding {
       }
       csModel.chatType = tempChatType;
     }
-    sessionMap[csModel.chatId!] = csModel;
+    sessionMap[csModel.chatId] = csModel;
     final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
     _updateUnReadStrangerSessionCount();
     sessionUpdate();
@@ -516,7 +516,7 @@ class OXChatBinding {
 
   void updateChatSessionDB(ChatSessionModel csModel, int tempChatType){
     csModel.chatType = tempChatType;
-    sessionMap[csModel.chatId!] = csModel;
+    sessionMap[csModel.chatId] = csModel;
     DB.sharedInstance.insert<ChatSessionModel>(csModel);
   }
 
