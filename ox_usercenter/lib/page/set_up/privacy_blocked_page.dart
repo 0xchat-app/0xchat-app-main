@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 class PrivacyBlockedPage extends StatefulWidget {
 
@@ -139,13 +140,17 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: (){
+      onTap: () async {
         if(_isEdit){
           if(!_selectedUserList.contains(widget.blockedUsers[index])){
             _selectedUserList.add(widget.blockedUsers[index]);
           }else{
             _selectedUserList.remove(widget.blockedUsers[index]);
           }
+          setState(() {
+          });
+        }else {
+          await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {'userDB': widget.blockedUsers[index],});
           setState(() {
           });
         }
