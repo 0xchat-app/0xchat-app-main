@@ -145,6 +145,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     bool isCreator = OXUserInfoManager.sharedInstance
         .isCurrentUser(widget.channelDB.creator!);
     return Scaffold(
+      backgroundColor: ThemeColor.color190,
       body: SafeArea(
         top: false,
         child: CustomScrollView(
