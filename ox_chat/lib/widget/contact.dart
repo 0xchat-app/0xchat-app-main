@@ -239,7 +239,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     return Center(
       child: Card(
         elevation: 0,
-        color: ThemeColor.gray6,
+        color: ThemeColor.color180,
         child: Container(
           alignment: Alignment.center,
           width: 60.0,
