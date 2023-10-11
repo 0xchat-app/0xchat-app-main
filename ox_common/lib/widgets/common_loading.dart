@@ -62,8 +62,8 @@ class OXLoading extends State<StatefulWidget> with TickerProviderStateMixin {
 
   static Future<void> dismiss({
     bool animation = true,
-  }) async {
-   await EasyLoading.dismiss(animation: animation);
+  }) {
+   return EasyLoading.dismiss(animation: animation);
   }
 
   @override
