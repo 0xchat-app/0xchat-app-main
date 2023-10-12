@@ -172,7 +172,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void didPromptToneCallBack (MessageDB message, int type) async {
-    if(message.sender == OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey) return;
     if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = await _checkIsMute(message,type);
     if(!isMute) throttle(() {PromptToneManager.sharedInstance.play();});
