@@ -239,7 +239,6 @@ class SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = ThemeColor.color200;
     return widget.searchPageType == SearchPageType.discover ? discoverPage() : normalPage();
   }
 
@@ -797,15 +796,12 @@ class SearchPageState extends State<SearchPage> {
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
-            Map<String, dynamic> tempMap = jsonDecode(element.content!);
-            Map<String, dynamic> rightContentMap = jsonDecode(tempMap['content']);
-            String subTitle = rightContentMap['content'].toString();
             chatMessageList.add(ChatMessage(
-              element.groupId!,
+              element.groupId,
               element.messageId ?? '',
-              Channels.sharedInstance.myChannels[element.groupId!]?.name ?? '',
-              subTitle,
-              Channels.sharedInstance.myChannels[element.groupId!]?.picture ?? '',
+              Channels.sharedInstance.myChannels[element.groupId]?.name ?? '',
+              element.decryptContent,
+              Channels.sharedInstance.myChannels[element.groupId]?.picture ?? '',
               ChatType.chatChannel,
               1,
             ));
@@ -876,13 +872,11 @@ class SearchPageState extends State<SearchPage> {
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
-            Map<String, dynamic> tempMap = jsonDecode(element.decryptContent!);
-            String subTitle = tempMap['content'].toString();
             chatMessageList.add(ChatMessage(
               chatId,
               element.messageId ?? '',
               Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
-              subTitle,
+              element.decryptContent,
               Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
               ChatType.chatSingle,
               1,
@@ -1001,6 +995,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void gotoChatGroupSession(ChannelDB channelDB) {
+    LogUtil.e('Michael: channelDB =${channelDB.toString()}');
     OXNavigator.pushPage(
         context,
         (context) => ChatGroupMessagePage(
