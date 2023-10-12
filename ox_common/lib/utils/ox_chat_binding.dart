@@ -42,6 +42,7 @@ class OXChatBinding {
   final List<OXChatObserver> _observers = <OXChatObserver>[];
 
   String? Function(MessageDB messageDB)? sessionMessageTextBuilder;
+  bool Function(MessageDB messageDB)? msgIsReaded;
 
   Future<void> initLocalSession() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
@@ -200,6 +201,7 @@ class OXChatBinding {
   }
 
   ChatSessionModel syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
+    updateMessageDB(messageDB);
     String showContent = showContentByMsgType(messageDB);
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContent,
@@ -455,6 +457,20 @@ class OXChatBinding {
     }
   }
 
+  void channalMessageCallBack(MessageDB messageDB) async {
+    syncChatSessionTable(messageDB);
+    for (OXChatObserver observer in _observers) {
+      observer.didChannalMessageCallBack(messageDB);
+    }
+  }
+
+  void updateMessageDB(MessageDB messageDB) async {
+    if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
+      messageDB.read = true;
+      Messages.updateMessageReadStatus(messageDB);
+    }
+  }
+
   Future<int> changeChatSessionType(ChatSessionModel csModel, bool isBecomeContact) async {
     //strangerSession to chatSession
     int? tempChatType = csModel.chatType;
@@ -560,13 +576,6 @@ class OXChatBinding {
   void channelsUpdatedCallBack() {
     for (OXChatObserver observer in _observers) {
       observer.didChannelsUpdatedCallBack();
-    }
-  }
-
-  void channalMessageCallBack(MessageDB messageDB) async {
-    OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
-    for (OXChatObserver observer in _observers) {
-      observer.didChannalMessageCallBack(messageDB);
     }
   }
 
