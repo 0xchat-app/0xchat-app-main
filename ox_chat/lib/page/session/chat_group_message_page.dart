@@ -56,6 +56,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   void initState() {
     setupUser();
+    setupChannel();
     setupChatGeneralHandler();
     super.initState();
 
@@ -79,11 +80,26 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   void setupUser() {
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
-    channel = Channels.sharedInstance.channels[widget.communityItem.groupId];
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
+  }
+
+  void setupChannel() {
+    final channelId = widget.communityItem.groupId;
+    if (channelId == null) return ;
+    channel = Channels.sharedInstance.channels[channelId];
+    if (channel == null) {
+      Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]).then((channels) {
+        if (!mounted) return ;
+        if (channels.isNotEmpty) {
+          setState(() {
+            channel = channels.first;
+          });
+        }
+      });
+    }
   }
 
   void prepareData() {
