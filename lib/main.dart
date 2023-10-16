@@ -6,8 +6,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/ox_call_keep_manager.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
@@ -57,25 +57,22 @@ void main() async {
   await ThemeManager.init();
   await Localized.init();
   await setupModules();
+
   OXRelayManager.sharedInstance.loadConnectRelay();
   OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
-  await OrientationPlugin.setEnabledSystemUIOverlays(
-      [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-  await OrientationPlugin.setPreferredOrientations(
-      [DeviceOrientation.portraitUp]);
-
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
 
   getApplicationDocumentsDirectory().then((value) {
     LogUtil.log(content: '[App start] Application Documents Path: $value');
   });
-
   if (Platform.isIOS) {
     runApp(MainApp(window.defaultRouteName));
   } else {
     await FirebaseMessageManager.initFirebase();
-    FirebaseMessageManager.instance;
+    FirebaseMessageManager.instance.loadListener();
     runApp(MainApp(window.defaultRouteName));
   }
 }
@@ -122,6 +119,7 @@ class MainState extends State<MainApp>
     }
     BootConfig.instance.batchUpdateUserBadges();
     getOpenAppSchemeInfo();
+    OXCalllKeepManager.checkAndNavigationCallingPage();
   }
 
   void notNetworInitWow() async {
@@ -180,7 +178,6 @@ class MainState extends State<MainApp>
         navigatorKey: OXNavigator.navigatorKey,
         navigatorObservers: [MyObserver()],
         theme: ThemeData(
-          primaryColorBrightness: ThemeManager.brightness(),
           brightness: ThemeManager.brightness(),
           fontFamily: 'Lato', //use regular for ios / thin for android
           // fontFamily: 'OX Font',
@@ -230,6 +227,7 @@ class MainState extends State<MainApp>
       case AppLifecycleState.resumed:
         if (OXUserInfoManager.sharedInstance.isLogin) {
           NotificationHelper.sharedInstance.setOnline();
+          OXCalllKeepManager.checkAndNavigationCallingPage();
         }
         getOpenAppSchemeInfo();
         break;
