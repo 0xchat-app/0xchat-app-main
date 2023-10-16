@@ -81,15 +81,18 @@ void main() async {
 }
 
 Future<void> setupModules() async {
-  await OXCommon().setup();
-  await OXLogin().setup();
-  await OXUserCenter().setup();
-  await OXPush().setup();
-  await OXDiscovery().setup();
-  await OXChat().setup();
-  await OXChatUI().setup();
-  await OxCalling().setup();
-  await OxChatHome().setup();
+  final setupAction = [
+    OXCommon().setup(),
+    OXLogin().setup(),
+    OXUserCenter().setup(),
+    OXPush().setup(),
+    OXDiscovery().setup(),
+    OXChat().setup(),
+    OXChatUI().setup(),
+    OxCalling().setup(),
+    OxChatHome().setup(),
+  ];
+  await Future.wait(setupAction);
 }
 
 class MainApp extends StatefulWidget {
