@@ -13,7 +13,7 @@ dependencies:
 
 
   keframe: ^3.0.0
-  pull_to_refresh_notification: any
+  pull_to_refresh_notification: ^3.1.0
   awesome_select: ^6.0.0
 
   ox_module_service:
