@@ -40,8 +40,8 @@ class OXCommon extends OXFlutterModule {
     await super.setup();
     PromptToneManager.sharedInstance.setup();
     AppInitializationManager.shared.setup();
-    LogUtil.e('Michael: OXCalllKeepManager.instance.uuid.v4() =${OXCalllKeepManager.instance.uuid.v4()}');
-    OXCacheManager.defaultOXCacheManager.saveData('uuid_v4', OXCalllKeepManager.instance.uuid.v4());
+    // LogUtil.e('Michael: OXCalllKeepManager.instance.uuid.v4() =${OXCalllKeepManager.uuid?.v4()}');
+    OXCacheManager.defaultOXCacheManager.saveData('uuid_v4', OXCalllKeepManager.uuid?.v4());
   }
 
   @override
