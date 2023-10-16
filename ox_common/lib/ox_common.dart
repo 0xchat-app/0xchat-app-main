@@ -1,19 +1,19 @@
-
-
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/ox_call_keep_manager.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
-import 'const/common_constant.dart';
+import 'package:uuid/uuid.dart';
 
 const CommonModule = 'ox_common';
 
@@ -40,6 +40,9 @@ class OXCommon extends OXFlutterModule {
     await super.setup();
     PromptToneManager.sharedInstance.setup();
     AppInitializationManager.shared.setup();
+    OXCalllKeepManager.instance.setup();
+    LogUtil.e('Michael: OXCalllKeepManager.instance.uuid.v4() =${OXCalllKeepManager.instance.uuid.v4()}');
+    OXCacheManager.defaultOXCacheManager.saveData('uuid_v4', OXCalllKeepManager.instance.uuid.v4());
   }
 
   @override
