@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class DecryptedCacheManager extends CacheManager {
-  static const key = "encryptedCache";
+  static const key = "decryptCache";
   final String pubkey;
 
   DecryptedCacheManager(this.pubkey) : super(Config(key));
@@ -64,9 +64,8 @@ class DecryptedCacheManager extends CacheManager {
   }
 
   static Future<File> decryptFile(io.File file, String pubkey,{ Function(List<int>)? bytesCallback }) async {
-    String directoryPath = (await getTemporaryDirectory()).path;
     String fileName = path.basename(file.path);
-    final decryptedFile = LocalFileSystem().file(FileUtils.createFolderAndFile(directoryPath + '/decryptCache', fileName).path);
+    final decryptedFile = await DecryptedCacheManager('').store.fileSystem.createFile(fileName);
     AesEncryptUtils.decryptFile(
       file,
       decryptedFile,
