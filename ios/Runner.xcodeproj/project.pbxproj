@@ -202,7 +202,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					97C146ED1CF9000F007C117D = {
@@ -275,6 +275,7 @@
 			files = (
 			);
 			inputPaths = (
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Thin Binary";
 			outputPaths = (
@@ -431,7 +432,6 @@
 					"\"${PODS_ROOT}/Headers/Public/image_gallery_saver\"",
 					"\"${PODS_ROOT}/Headers/Public/image_picker_ios\"",
 					"\"${PODS_ROOT}/Headers/Public/in_app_purchase_storekit\"",
-					"\"${PODS_ROOT}/Headers/Public/orientation\"",
 					"\"${PODS_ROOT}/Headers/Public/package_info_plus\"",
 					"\"${PODS_ROOT}/Headers/Public/scan\"",
 					"\"${PODS_ROOT}/Headers/Public/sqflite\"",
@@ -460,7 +460,6 @@
 					"-framework",
 					"\"in_app_purchase_storekit\"",
 					"-framework",
-					"\"orientation\"",
 					"-framework",
 					"\"package_info_plus\"",
 					"-framework",
@@ -625,7 +624,6 @@
 					"\"${PODS_ROOT}/Headers/Public/image_gallery_saver\"",
 					"\"${PODS_ROOT}/Headers/Public/image_picker_ios\"",
 					"\"${PODS_ROOT}/Headers/Public/in_app_purchase_storekit\"",
-					"\"${PODS_ROOT}/Headers/Public/orientation\"",
 					"\"${PODS_ROOT}/Headers/Public/package_info_plus\"",
 					"\"${PODS_ROOT}/Headers/Public/scan\"",
 					"\"${PODS_ROOT}/Headers/Public/sqflite\"",
@@ -661,7 +659,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/images_picker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/in_app_purchase_storekit\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/just_audio\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/orientation\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/package_info_plus\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/scan\"",
@@ -689,7 +686,6 @@
 					"-framework",
 					"\"in_app_purchase_storekit\"",
 					"-framework",
-					"\"orientation\"",
 					"-framework",
 					"\"package_info_plus\"",
 					"-framework",
@@ -744,7 +740,6 @@
 					"\"${PODS_ROOT}/Headers/Public/image_gallery_saver\"",
 					"\"${PODS_ROOT}/Headers/Public/image_picker_ios\"",
 					"\"${PODS_ROOT}/Headers/Public/in_app_purchase_storekit\"",
-					"\"${PODS_ROOT}/Headers/Public/orientation\"",
 					"\"${PODS_ROOT}/Headers/Public/package_info_plus\"",
 					"\"${PODS_ROOT}/Headers/Public/scan\"",
 					"\"${PODS_ROOT}/Headers/Public/sqflite\"",
@@ -773,7 +768,6 @@
 					"-framework",
 					"\"in_app_purchase_storekit\"",
 					"-framework",
-					"\"orientation\"",
 					"-framework",
 					"\"package_info_plus\"",
 					"-framework",
