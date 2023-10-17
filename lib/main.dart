@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/utils/ox_call_keep_manager.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
@@ -122,7 +121,6 @@ class MainState extends State<MainApp>
     }
     BootConfig.instance.batchUpdateUserBadges();
     getOpenAppSchemeInfo();
-    OXCalllKeepManager.checkAndNavigationCallingPage();
   }
 
   void notNetworInitWow() async {
@@ -230,7 +228,6 @@ class MainState extends State<MainApp>
       case AppLifecycleState.resumed:
         if (OXUserInfoManager.sharedInstance.isLogin) {
           NotificationHelper.sharedInstance.setOnline();
-          OXCalllKeepManager.checkAndNavigationCallingPage();
         }
         getOpenAppSchemeInfo();
         break;
