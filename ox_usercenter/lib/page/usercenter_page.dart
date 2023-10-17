@@ -77,6 +77,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
+  void dispose() {
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   stateViewCallBack(CommonStateView commonStateView) {
     switch (commonStateView) {
       case CommonStateView.CommonStateView_None:
