@@ -10,7 +10,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:ox_common/utils/ox_call_keep_manager.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
@@ -40,8 +39,6 @@ class OXCommon extends OXFlutterModule {
     await super.setup();
     PromptToneManager.sharedInstance.setup();
     AppInitializationManager.shared.setup();
-    // LogUtil.e('Michael: OXCalllKeepManager.instance.uuid.v4() =${OXCalllKeepManager.uuid?.v4()}');
-    OXCacheManager.defaultOXCacheManager.saveData('uuid_v4', OXCalllKeepManager.uuid?.v4());
   }
 
   @override

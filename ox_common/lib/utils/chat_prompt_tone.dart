@@ -37,12 +37,12 @@ class PromptToneManager {
 
   void playCalling() async {
     _player.stop();
-    final audioContext = AudioContextConfig(
-      forceSpeaker: false,
-      duckAudio: true,
-      respectSilence: false,
-      stayAwake: false,
-    ).build();
+    // final audioContext = AudioContextConfig(
+    //   forceSpeaker: false,
+    //   duckAudio: true,
+    //   respectSilence: false,
+    //   stayAwake: false,
+    // ).build();
     _player.setReleaseMode(ReleaseMode.loop);
     // There is no need to set AudioContext because WebRTC has its own playback type control
     // await AudioPlayer.global.setGlobalAudioContext(audioContext);
