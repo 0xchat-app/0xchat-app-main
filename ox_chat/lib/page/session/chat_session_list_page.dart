@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:ox_chat/page/contacts/contact_create_group_chat.dart';
+import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -914,6 +916,24 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
   }
 
+  void _gotoCreateGroup() {
+    final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+    List<UserDB> userList = Contacts.sharedInstance.allContacts.values.toList();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => Container(
+        height: height,
+        child: ContactCreateGroupChat(
+          userList: userList,
+          groupListAction: GroupListAction.select,
+          searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
+        ),
+      ),
+    );
+  }
+
   Widget _topSearch() {
     return InkWell(
       onTap: () {
@@ -1005,6 +1025,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       _gotoScan();
     } else if (optionModel == OptionModel.RecommenderTools) {
       CommonToast.instance.show(context, 'str_stay_tuned'.localized());
+    } else if (optionModel == OptionModel.AddGroup) {
+      _gotoCreateGroup();
     }
   }
 

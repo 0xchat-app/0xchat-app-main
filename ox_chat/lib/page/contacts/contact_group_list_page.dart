@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
@@ -17,28 +18,30 @@ enum GroupListAction {
 class ContactGroupListPage extends StatefulWidget {
   final List<UserDB> userList;
   final GroupListAction? groupListAction;
-  final String title;
-  final bool? isShowUserCount;
+  final String? title;
+  final String? searchBarHintText;
 
   const ContactGroupListPage(
       {super.key,
       required this.userList,
       required this.title,
       this.groupListAction = GroupListAction.view,
-      this.isShowUserCount = true});
+      this.searchBarHintText});
 
   @override
-  State<ContactGroupListPage> createState() => _ContactGroupListPageState();
+  State<ContactGroupListPage> createState() => ContactGroupListPageState();
 }
 
-class _ContactGroupListPageState extends State<ContactGroupListPage> {
+class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T> {
 
   List<UserDB> _userList = [];
   List<UserDB> _selectedUserList = [];
-  ValueNotifier<int> _selectedUserCount = ValueNotifier(0);
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
   Map<String, List<UserDB>> _groupedUserList = {};
+
+  List<UserDB> get selectedUserList=> _selectedUserList;
+  List<UserDB> get userList=> _userList;
 
   @override
   void initState() {
@@ -84,54 +87,17 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
       onTap: (){
         FocusScope.of(context).requestFocus(FocusNode());
       },
-      child: Scaffold(
-        backgroundColor: ThemeColor.color190,
-        appBar: CommonAppBar(
-          useLargeTitle: false,
-          centerTitle: true,
-          titleWidget: ValueListenableBuilder(
-            valueListenable: _selectedUserCount,
-            builder: (context,value,child) {
-              return Text(
-                "${widget.title} ${_selectedUserCount.value == 0 ? '' : ' (${_selectedUserCount.value})'}",
-                  style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(17),
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            }
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(Adapt.px(20)),
+            topLeft: Radius.circular(Adapt.px(20)),
           ),
-          backgroundColor: ThemeColor.color190,
-          actions: [
-            _buildEditButton(),
-          ],
         ),
-        body: _buildBody(),
-      ),
-    );
-  }
-
-  Widget _buildEditButton() {
-    return Container(
-      margin: EdgeInsets.only(right: Adapt.px(24)),
-      child: IconButton(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        icon: widget.groupListAction == GroupListAction.select
-            ? CommonImage(
-                iconName: 'title_done.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-              )
-            : CommonImage(
-                iconName: 'add_icon.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                package: 'ox_chat',
-              ),
-        onPressed: () {
-        },
+        child: Container(
+          child: _buildBody(),
+        ),
       ),
     );
   }
@@ -139,9 +105,9 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
   Widget _buildBody() {
     return Column(
       children: [
-        buildSearchBar(),
+        _buildAppBar(),
+        _buildSearchBar(),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: Adapt.px(24),vertical: Adapt.px(16)),
           child: widget.groupListAction == GroupListAction.select
               ? ListView.builder(
                   shrinkWrap: true,
@@ -158,7 +124,7 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
                               color: ThemeColor.color0,
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w600),
-                        )),
+                        ),margin: EdgeInsets.only(bottom: Adapt.px(4)),),
                         ..._groupedUserList[key]!.map((user) => _buildUserItem(user)),
                       ],
                     );
@@ -173,22 +139,88 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
                 ),
         ),
       ],
+    ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24)));
+  }
+
+  String buildTitle() {
+    return widget.title ?? '';
+  }
+
+  Widget _buildTitleWidget() {
+    return Text(
+      buildTitle(),
+      style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: Adapt.px(16),
+          color: ThemeColor.color0),
     );
   }
 
-  Widget buildSearchBar() {
+  Widget buildEditButton() {
+    return IconButton(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      icon: widget.groupListAction == GroupListAction.select
+          ? CommonImage(
+        iconName: 'title_done.png',
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+      )
+          : CommonImage(
+        iconName: 'add_icon.png',
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+        package: 'ox_chat',
+      ),
+      onPressed: () {
+      },
+    );
+  }
+
+  Widget _buildAppBar(){
+    return Container(
+      height: Adapt.px(57),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            child: CommonImage(
+              iconName: "title_close.png",
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: true,
+            ),
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+          ),
+          _buildTitleWidget(),
+          buildEditButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
     return Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           color: ThemeColor.color180,
         ),
-        height: Adapt.px(38),
-        padding: EdgeInsets.symmetric(horizontal: Adapt.px(12)),
+        height: Adapt.px(48),
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
+        margin: EdgeInsets.symmetric(vertical: Adapt.px(16)),
         child: Row(
           children: [
             Expanded(
               child: TextField(
                 controller: _controller,
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  fontWeight: FontWeight.w600,
+                  height: Adapt.px(22.4) / Adapt.px(16),
+                  color: ThemeColor.color0,
+                ),
                 decoration: InputDecoration(
                     icon: Container(
                       child: CommonImage(
@@ -198,14 +230,13 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
                         fit: BoxFit.fill,
                       ),
                     ),
-                    hintText: 'Search Member',
+                    hintText: widget.searchBarHintText ?? 'search'.localized(),
                     hintStyle: TextStyle(
-                        fontSize: Adapt.px(14),
+                        fontSize: Adapt.px(16),
                         fontWeight: FontWeight.w400,
-                        height: Adapt.px(22) / Adapt.px(14),
-                        color: ThemeColor.color100),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(bottom: Adapt.px(13))),
+                        height: Adapt.px(22.4) / Adapt.px(16),
+                        color: ThemeColor.color160,),
+                    border: InputBorder.none,),
               ),
             ),
             ValueListenableBuilder(
@@ -226,7 +257,7 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
               valueListenable: _isClear,
             ),
           ],
-        )).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24)));
+        ));
   }
 
   Widget _buildUserItem(UserDB user){
@@ -238,10 +269,8 @@ class _ContactGroupListPageState extends State<ContactGroupListPage> {
         if (widget.groupListAction == GroupListAction.select) {
           if (!isSelected) {
             _selectedUserList.add(user);
-            _selectedUserCount.value = _selectedUserList.length;
           } else {
             _selectedUserList.remove(user);
-            _selectedUserCount.value = _selectedUserList.length;
           }
           setState(() {
           });

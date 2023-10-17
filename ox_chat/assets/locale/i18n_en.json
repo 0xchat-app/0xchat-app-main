@@ -132,5 +132,8 @@
   "screen_record_hint_message" :"${user} attempted to screen record",
   "session_content_mentioned": "You're mentioned",
   "session_content_draft":"Draft",
-  "lightning_invoice": "Lightning Invoice"
+  "lightning_invoice": "Lightning Invoice",
+  "str_new_group": "New Group",
+  "create_group_search_hint_text": "Who would you like to add？",
+  "next": "Next"
 }
