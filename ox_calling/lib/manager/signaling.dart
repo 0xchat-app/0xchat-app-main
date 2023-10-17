@@ -179,7 +179,7 @@ class SignalingManager {
       Map map = {'session_id': sessionId, 'reason': reason};
       Contacts.sharedInstance
           .sendDisconnect(sess.offerId, sess.pid, jsonEncode(map));
-      _closeSession(sess);
+      _closeSession(sess, sessionId);
     }
   }
 
@@ -237,8 +237,7 @@ class SignalingManager {
             inCalling(sessionId, offerId ?? '', friend);
             return;
           }
-          var session = _sessions[sessionId];
-          var newSession = await _createSession(session,
+          var newSession = await _createSession(null,
               peerId: peerId,
               sessionId: sessionId,
               media: media,
@@ -308,30 +307,19 @@ class SignalingManager {
           }
         }
         break;
-      // case 'leave':
-      //   {
-      //     var peerId = data as String;
-      //     _closeSessionByPeerId(peerId);
-      //   }
-      //   break;
       case SignalingState.disconnect:
         {
           if (!_isDisconnected) {
             _isDisconnected = true;
             var sessionId = data['session_id'];
-            var session = _sessions.remove(sessionId);
+            var session = _sessions[sessionId];
             if (session != null) {
               onCallStateChange?.call(session, CallState.CallStateBye);
-              _closeSession(session);
+              _closeSession(session, sessionId);
             }
           }
         }
         break;
-      // case 'keepalive':
-      //   {
-      //     print('keepalive response!');
-      //   }
-      //   break;
       default:
         break;
     }
@@ -470,10 +458,10 @@ class SignalingManager {
             }
             if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
               _isDisconnected = true;
-              var session = _sessions.remove(sessionId);
+              var session = _sessions[sessionId];
               if (session != null) {
                 onCallStateChange?.call(session, CallState.CallStateBye);
-                _closeSession(session);
+                _closeSession(session, sessionId);
               }
             }
           };
@@ -581,20 +569,7 @@ class SignalingManager {
     _sessions.clear();
   }
 
-  void _closeSessionByPeerId(String peerId) {
-    var session;
-    _sessions.removeWhere((String key, Session sess) {
-      var ids = key.split('-');
-      session = sess;
-      return peerId == ids[0] || peerId == ids[1];
-    });
-    if (session != null) {
-      _closeSession(session);
-      onCallStateChange?.call(session, CallState.CallStateBye);
-    }
-  }
-
-  Future<void> _closeSession(Session session) async {
+  Future<void> _closeSession(Session session, String sessionId) async {
     try {
       _localStream?.getTracks().forEach((element) async {
             await element.stop();
@@ -604,6 +579,7 @@ class SignalingManager {
 
       await session.pc?.close();
       await session.dc?.close();
+      _sessions.remove(sessionId);
     } catch (e) {
       print(e.toString());
     }

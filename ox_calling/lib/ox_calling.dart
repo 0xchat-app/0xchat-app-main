@@ -39,7 +39,7 @@ class OxCalling extends OXFlutterModule {
             CallManager.instance.callType = CallMessageType.video;
           }
         } else {
-          mediaType = CallManager.instance.callType.text;
+          mediaType = CallManager.instance.callType?.text ?? mediaType;
         }
         return OXNavigator.pushPage(context, (context) => CallPage(params?['userDB'], mediaType));
     }
