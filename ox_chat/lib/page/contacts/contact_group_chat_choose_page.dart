@@ -6,8 +6,8 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-class ContactGroupChatCreatePage extends ContactGroupListPage {
-  const ContactGroupChatCreatePage({super.key, required super.userList, super.title,super.groupListAction,super.searchBarHintText});
+class ContactGroupChatChoosePage extends ContactGroupListPage {
+  const ContactGroupChatChoosePage({super.key, required super.userList, super.title,super.groupListAction,super.searchBarHintText});
 
   @override
   _ContactCreateGroupChatState createState() => _ContactCreateGroupChatState();
@@ -22,12 +22,11 @@ class _ContactCreateGroupChatState extends ContactGroupListPageState {
 
   @override
   Widget buildEditButton() {
-    final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     return GestureDetector(
       onTap: (){
         OXNavigator.presentPage(
           context,
-          (context) => ContactGroupChatChoosePage(
+          (context) => ContactGroupChatCreatePage(
             userList: selectedUserList,
           ),
         );

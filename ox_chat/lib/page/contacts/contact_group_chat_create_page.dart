@@ -9,15 +9,15 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
-class ContactGroupChatChoosePage extends StatefulWidget {
+class ContactGroupChatCreatePage extends StatefulWidget {
   final List<UserDB> userList;
-  const ContactGroupChatChoosePage({super.key, required this.userList});
+  const ContactGroupChatCreatePage({super.key, required this.userList});
 
   @override
-  State<ContactGroupChatChoosePage> createState() => _ContactGroupChatChoosePageState();
+  State<ContactGroupChatCreatePage> createState() => _ContactGroupChatCreatePageState();
 }
 
-class _ContactGroupChatChoosePageState extends State<ContactGroupChatChoosePage> {
+class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage> {
 
   TextEditingController _controller = TextEditingController();
 
@@ -55,6 +55,7 @@ class _ContactGroupChatChoosePageState extends State<ContactGroupChatChoosePage>
   Widget _buildAppBar(){
     return Container(
       height: Adapt.px(57),
+      margin: EdgeInsets.only(bottom: Adapt.px(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -925,7 +925,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => Container(
         height: height,
-        child: ContactGroupChatCreatePage(
+        child: ContactGroupChatChoosePage(
           userList: userList,
           groupListAction: GroupListAction.select,
           searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
