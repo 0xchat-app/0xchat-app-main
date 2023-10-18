@@ -211,21 +211,20 @@ class OXChatBinding {
       sender: messageDB.sender,
       groupId: messageDB.groupId,
     );
-    if (messageDB.chatType != null) chatType = messageDB.chatType;
     if (messageDB.receiver.isNotEmpty) {
       //single chat
       _syncSingleChat(sessionModel, messageDB, chatType: chatType);
     } else if (messageDB.groupId.isNotEmpty) {
       //group chat
-      _syncGroupChat(sessionModel, messageDB, chatType: chatType);
+      _syncGroupChat(sessionModel, messageDB);
     }
     sessionUpdate();
     return sessionModel;
   }
 
-  void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB, {int? chatType}) {
+  void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
     sessionModel.chatId = messageDB.groupId;
-    sessionModel.chatType = chatType ?? ChatType.chatChannel;
+    sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
     ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
@@ -236,7 +235,7 @@ class OXChatBinding {
       sessionMap[messageDB.groupId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {
-      if (messageDB.chatType == null) {
+      if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
         ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
         sessionModel.avatar = channelDB?.picture ?? '';
         sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
@@ -263,12 +262,16 @@ class OXChatBinding {
     ChatSessionModel? tempModel = sessionMap[chatId];
     if (tempModel != null) {
       sessionModel.chatType = tempModel.chatType;
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-        sessionModel.unreadCount = tempModel.unreadCount += 1;
-        if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
-          unReadStrangerSessionCount += 1;
+      if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        if (!messageDB.read) {
+          sessionModel.unreadCount = tempModel.unreadCount += 1;
+          if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
+            unReadStrangerSessionCount += 1;
+          }
+          noticePromptToneCallBack(messageDB, tempModel.chatType);
         }
-        noticePromptToneCallBack(messageDB, tempModel.chatType);
+      } else {
+        sessionModel.chatType = (sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
       }
       if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
       sessionMap[chatId] = tempModel;
