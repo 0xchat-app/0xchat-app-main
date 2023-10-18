@@ -718,8 +718,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       type = 'text',
                       status = 1,
                       plaintEvent = '',
-                      chatType = 0,
-                      subType = ''}) =>
+                      chatType,
+                      subType}) =>
                   b
                       ? prefix6.MessageDB(
                           chatType: chatType,
@@ -5189,7 +5189,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             #plaintEvent),
         r.ParameterMirrorImpl(
             r'chatType',
-            67255302,
+            67253254,
             403,
             const prefix0.Reflector(),
             -1,
@@ -5197,11 +5197,11 @@ final _data = <r.Reflectable, r.ReflectorData>{
             24,
             const <int>[],
             const [],
-            0,
+            null,
             #chatType),
         r.ParameterMirrorImpl(
             r'subType',
-            67255302,
+            67253254,
             403,
             const prefix0.Reflector(),
             -1,
@@ -5209,7 +5209,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             16,
             const <int>[],
             const [],
-            '',
+            null,
             #subType),
         r.ParameterMirrorImpl(
             r'_messageId',
