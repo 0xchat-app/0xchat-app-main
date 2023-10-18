@@ -29,7 +29,11 @@ abstract class OXChatObserver {
 
   void didChannalMessageCallBack(MessageDB message) {}
 
+  void didGroupMessageCallBack(MessageDB message) {}
+
   void didChannelsUpdatedCallBack() {}
+
+  void didGroupsUpdatedCallBack() {}
 
   void didSessionUpdate() {}
 
