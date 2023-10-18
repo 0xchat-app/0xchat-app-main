@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
+import 'package:ox_chat/widget/group_member_item.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:lpinyin/lpinyin.dart';
 
@@ -107,10 +107,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       children: [
         _buildAppBar(),
         _buildSearchBar(),
-        Container(
+        Expanded(
           child: widget.groupListAction == GroupListAction.select
               ? ListView.builder(
-                  shrinkWrap: true,
                   itemCount: _groupedUserList.keys.length,
                   itemBuilder: (BuildContext context, int index) {
                     String key = _groupedUserList.keys.elementAt(index);
@@ -131,7 +130,6 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                   },
                 )
               : ListView.builder(
-                  shrinkWrap: true,
                   itemCount: widget.userList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return _buildUserItem(widget.userList[index]);
@@ -185,7 +183,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         children: [
           GestureDetector(
             child: CommonImage(
-              iconName: "title_close.png",
+              iconName: "icon_back_left_arrow.png",
               width: Adapt.px(24),
               height: Adapt.px(24),
               useTheme: true,
@@ -263,95 +261,25 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
   Widget _buildUserItem(UserDB user){
     bool isSelected = _selectedUserList.contains(user);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () async {
+    return GroupMemberItem(
+      user: user,
+      action: widget.groupListAction == GroupListAction.select
+          ? CommonImage(
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              iconName: isSelected ? 'icon_select_follows.png' : 'icon_unSelect_follows.png',
+              package: 'ox_chat',) : Container(),
+      titleColor: isSelected ? ThemeColor.color0 : ThemeColor.color100,
+      onTap: () {
         if (widget.groupListAction == GroupListAction.select) {
           if (!isSelected) {
             _selectedUserList.add(user);
           } else {
             _selectedUserList.remove(user);
           }
-          setState(() {
-          });
+          setState(() {});
         }
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildUserAvatar(user.picture ?? ''),
-          _buildUserInfo(user),
-          const Spacer(),
-          widget.groupListAction == GroupListAction.select ? CommonImage(
-            width: Adapt.px(24),
-            height:  Adapt.px(24),
-            iconName: isSelected ? 'icon_select_follows.png' : 'icon_unSelect_follows.png',
-            package: 'ox_chat',
-          ): Container(),
-        ],
-      ).setPadding(EdgeInsets.only(bottom: Adapt.px(8))),
-    );
-  }
-
-  Widget _buildUserAvatar(String picture) {
-    Image placeholderImage = Image.asset(
-      'assets/images/user_image.png',
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_common',
-    );
-
-    return ClipOval(
-      child: Container(
-        width: Adapt.px(40),
-        height: Adapt.px(40),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Adapt.px(40)),
-        ),
-        child: CachedNetworkImage(
-          imageUrl: picture,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => placeholderImage,
-          errorWidget: (context, url, error) => placeholderImage,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserInfo(UserDB user) {
-    String? nickName = user.nickName;
-    String name = (nickName != null && nickName.isNotEmpty) ? nickName : user.name ?? '';
-    String encodedPubKey = user.encodedPubkey;
-    int pubKeyLength = encodedPubKey.length;
-    String encodedPubKeyShow = '${encodedPubKey.substring(0, 10)}...${encodedPubKey.substring(pubKeyLength - 10, pubKeyLength)}';
-
-    return Container(
-      padding: EdgeInsets.only(
-        left: Adapt.px(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            name,
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            encodedPubKeyShow,
-            style: TextStyle(
-              color: ThemeColor.color120,
-              fontSize: Adapt.px(14),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:ox_chat/page/contacts/contact_create_group_chat.dart';
+import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
@@ -925,7 +925,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => Container(
         height: height,
-        child: ContactCreateGroupChat(
+        child: ContactGroupChatCreatePage(
           userList: userList,
           groupListAction: GroupListAction.select,
           searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
