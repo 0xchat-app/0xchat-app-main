@@ -8,7 +8,7 @@ package com.ox.ox_common.utils;
  * @CheckItem Fill in by oneself
  * @since JDK1.8
  */
-public class Const {
+public class LocalConst {
     public final static String DIR_YLNEW_WORK_RELATIVE_ROOT = ".oxwork";//Hide folder
     public final static String DIR_YLNEW_ROOT = "OX";//Show folder normally
 
