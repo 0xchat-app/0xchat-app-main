@@ -7,7 +7,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_chat/widget/contact_group.dart';
+import 'package:ox_chat/widget/contact_channel.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -32,7 +32,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
     AutomaticKeepAliveClientMixin, WidgetsBindingObserver, CommonStateViewMixin, OXChatObserver, OXUserInfoObserver {
   List<ChannelDB> channels = [];
   RefreshController _refreshController = RefreshController();
-  GlobalKey<GroupContactState> channelsWidgetKey = new GlobalKey<GroupContactState>();
+  GlobalKey<ChannelContactState> channelsWidgetKey = new GlobalKey<ChannelContactState>();
   num imageV = 0;
 
   @override
@@ -81,7 +81,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
             _loadData();
           }
         },
-        child: GroupContact(
+        child: ChannelContact(
           key: channelsWidgetKey,
           data: channels,
           chatType:  ChatType.chatChannel,

@@ -21,7 +21,7 @@ double itemHeight = Adapt.px(68.0);
 
 typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 
-class GroupContact extends StatefulWidget {
+class ChannelContact extends StatefulWidget {
   final List<ChannelDB> data;
   final int chatType;
   final bool shrinkWrap;
@@ -29,7 +29,7 @@ class GroupContact extends StatefulWidget {
   ScrollController? scrollController;
   CursorChannelsChanged? onCursorChannelsChanged;
 
-  GroupContact({
+  ChannelContact({
     Key? key,
     required this.data,
     required this.chatType,
@@ -41,7 +41,7 @@ class GroupContact extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return GroupContactState();
+    return ChannelContactState();
   }
 }
 
@@ -52,7 +52,7 @@ class Note {
   Note(this.tag, this.childList);
 }
 
-class GroupContactState extends State<GroupContact> {
+class ChannelContactState extends State<ChannelContact> {
   List<String> indexTagList = [];
   late List<ChannelDB> channelList;
   int defaultIndex = 0;
