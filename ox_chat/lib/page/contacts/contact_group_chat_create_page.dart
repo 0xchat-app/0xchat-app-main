@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
+import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -192,5 +196,21 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     List<String> members = widget.userList.map((user) => user.pubKey).toList();
     GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, members);
+    if (groupDB != null) {
+      OXNavigator.pushReplacement(
+        context,
+        ChatGroupMessagePage(
+          communityItem: ChatSessionModel(
+            groupId: groupDB.groupId,
+            chatType: ChatType.chatGroup,
+            chatName: groupDB.name,
+            createTime: groupDB.updateTime,
+            avatar: groupDB.picture,
+          ),
+        ),
+      );
+    }else{
+      CommonToast.instance.show(context, 'create group failed');
+    }
   }
 }
