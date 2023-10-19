@@ -174,3 +174,55 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
   }
 
 }
+
+class OXGroupAvatar extends StatefulWidget {
+
+  OXGroupAvatar({
+    this.group,
+    this.imageUrl,
+    double? size,
+    this.isCircular = true,
+    this.isClickable = false,
+    this.onReturnFromNextPage,
+  }) : this.size = size ?? Adapt.px(48);
+
+  final GroupDB? group;
+  final String? imageUrl;
+  final double size;
+  final bool isCircular;
+  final bool isClickable;
+  final VoidCallback? onReturnFromNextPage;
+
+  @override
+  State<StatefulWidget> createState() => OXGroupAvatarState();
+}
+
+class OXGroupAvatarState extends State<OXGroupAvatar> {
+
+  final defaultImageName = 'icon_group_default.png';
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = widget.group?.picture ?? widget.imageUrl ?? '';
+    return BaseAvatarWidget(
+      imageUrl: imageUrl,
+      defaultImageName: defaultImageName,
+      size: widget.size,
+      isCircular: widget.isCircular,
+      isClickable: widget.isClickable,
+      onTap: () async {
+        final group = widget.group;
+        final channelId = group;
+        // if (channelId != null && channel != null) {
+        //   await OXModuleService.pushPage(context, 'ox_chat', 'ContactChanneDetailsPage', {
+        //     'channelDB': channel,
+        //   });
+        //   final onReturnFromNextPage = widget.onReturnFromNextPage;
+        //   if (onReturnFromNextPage != null) onReturnFromNextPage();
+        // } else {
+        //   CommonToast.instance.show(context, 'The Group Detail load failed.');
+        // }
+      },
+    );
+  }
+}
