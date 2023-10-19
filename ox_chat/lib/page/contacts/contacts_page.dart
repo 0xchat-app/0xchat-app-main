@@ -5,6 +5,7 @@ import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
+import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
@@ -40,9 +41,12 @@ class _ContractsPageState extends State<ContractsPage>
   ScrollController _scrollController = ScrollController();
   Widget? _cursorContactsWidget;
   Widget? _cursorChannelsWidget;
+  Widget? _cursorGroupsWidget;
   bool _isShowTools = false;
   int _contactNotelength = 0;
   int _channelNotelength = 0;
+  int _groupNoteLength = 0;
+
 
   @override
   void initState() {
@@ -71,6 +75,11 @@ class _ContractsPageState extends State<ContractsPage>
       ),
       CommonCategoryTitleItem(
         title: Localized.text('ox_chat.contract_title_channels'),
+        selectedIconName: '',
+        unSelectedIconName: '',
+      ),
+      CommonCategoryTitleItem(
+        title: Localized.text('ox_chat.contract_title_groups'),
         selectedIconName: '',
         unSelectedIconName: '',
       ),
@@ -203,6 +212,12 @@ class _ContractsPageState extends State<ContractsPage>
                         scrollController: _scrollController,
                         onCursorChannelsChanged: _setCursorChannelsWidget,
                       ),
+                      ContactViewGroups(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: false,
+                        scrollController: _scrollController,
+                        onCursorGroupsChanged: _setCursorGroupsWidget,
+                      ),
                     ],
                   ),
                 ),
@@ -230,6 +245,13 @@ class _ContractsPageState extends State<ContractsPage>
     _channelNotelength = noteLength;
     setState(() {
       _cursorChannelsWidget = widget;
+    });
+  }
+
+  void _setCursorGroupsWidget(Widget widget, int noteLength) {
+    _groupNoteLength = noteLength;
+    setState(() {
+      _cursorGroupsWidget = widget;
     });
   }
 
