@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io' show Platform;
 
+import 'package:ox_common/log_util.dart';
+
 class Adapt {
   static MediaQueryData? mediaQuery;
   static double? _width;
@@ -47,7 +49,7 @@ class Adapt {
   }
 
   static sp(number, {bool allowFontScaling = false}) {
-    return allowFontScaling ? px(number) : px(number) / _textScaleFactor;
+    return allowFontScaling ? px(number) * _textScaleFactor : px(number);
   }
 
   static py(number) {
