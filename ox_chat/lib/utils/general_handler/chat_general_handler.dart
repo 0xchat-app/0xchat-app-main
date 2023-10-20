@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -40,7 +41,6 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:images_picker/images_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -59,7 +59,7 @@ class ChatGeneralHandler {
     this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
   }) : author = author ?? _defaultAuthor(),
-       otherUser = _defaultOtherUser(session) {
+        otherUser = _defaultOtherUser(session) {
     setupOtherUserIfNeeded();
     setupMentionHandlerIfNeeded();
   }
@@ -368,11 +368,11 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     } else {
       await OXCommonHintDialog.show(context, content: 'Please grant permission to access the photo', actionList: [
         OXCommonHintAction(
-          text: () => 'Go to settings',
-          onTap: () {
-            openAppSettings();
-            OXNavigator.pop(context);
-          }),
+            text: () => 'Go to settings',
+            onTap: () {
+              openAppSettings();
+              OXNavigator.pop(context);
+            }),
       ], isRowAction: true, showCancelButton: true,);
     }
   }
@@ -403,35 +403,33 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future zapsPressHandler(BuildContext context, UserDB user) async {
     await OXNavigator.presentPage<Map<String, String>>(
       context, (_) => ZapsSendingPage(user, (zapsInfo) {
-        final zapper = zapsInfo['zapper'] ?? '';
-        final invoice = zapsInfo['invoice'] ?? '';
-        final amount = zapsInfo['amount'] ?? '';
-        final description = zapsInfo['description'] ?? '';
-        if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-          sendZapsMessage(context, zapper, invoice, amount, description);
-        } else {
-          ChatLogUtils.error(
-            className: 'ChatGeneralHandler',
-            funcName: 'zapsPressHandler',
-            message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-          );
-        }
-      }),
+      final zapper = zapsInfo['zapper'] ?? '';
+      final invoice = zapsInfo['invoice'] ?? '';
+      final amount = zapsInfo['amount'] ?? '';
+      final description = zapsInfo['description'] ?? '';
+      if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+        sendZapsMessage(context, zapper, invoice, amount, description);
+      } else {
+        ChatLogUtils.error(
+          className: 'ChatGeneralHandler',
+          funcName: 'zapsPressHandler',
+          message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+        );
+      }
+    }),
     );
   }
 
   Future<void> _goToPhoto(BuildContext context, int type) async {
-
+    // type: 1 - image, 2 - video
     final isVideo = type == 2;
-    final pickType = isVideo ? PickType.video : PickType.image;
     final messageSendHandler = isVideo ? this.sendVideoMessageSend : this.sendImageMessage;
 
-    final res = await ImagesPicker.pick(
-      count: 1, // Maximum selectable quantity
-      pickType: pickType, // Select media type, default is image
-      quality: 0.8, // only for android
-      maxSize: 1024,
-      gif: false,
+    final res = await ImagePickerUtils.pickerPaths(
+      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
+      selectCount: 1,
+      showGif: false,
+      compressSize: 1024,
     );
 
     if(res == null) return;
@@ -439,7 +437,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     List<File> fileList = [];
     await Future.forEach(res, (element) async {
       final entity = element;
-      final file = File(entity.path);
+      final file = File(entity.path ?? '');
       fileList.add(file);
     });
 
@@ -448,15 +446,12 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   Future<void> _goToCamera(BuildContext context) async {
     //Open the camera or gallery based on the status indicator
-    List<Media>? res = await ImagesPicker.openCamera(
-      pickType: PickType.image,
-      quality: 0.8, // only for android
-      maxSize: 1024,
+    Media? res = await ImagePickerUtils.openCamera(
+      cameraMimeType: CameraMimeType.photo,
+      compressSize: 1024,
     );
-    if(res == null || res.isEmpty) return;
-
-    final media = res.first;
-    final file = File(media.path);
+    if(res == null) return;
+    final file = File(res.path ?? '');
     sendImageMessage(context, [file]);
   }
 }
