@@ -39,6 +39,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
   Map<String, List<UserDB>> _groupedUserList = {};
+  Map<String, List<UserDB>> _filteredUserList = {};
 
   List<UserDB> get selectedUserList=> _selectedUserList;
   List<UserDB> get userList=> _userList;
@@ -75,6 +76,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     });
 
     _groupedUserList.removeWhere((key, value) => value.isEmpty);
+    _filteredUserList = _groupedUserList;
   }
 
   String _getFirstWord(UserDB user){
@@ -110,9 +112,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         Expanded(
           child: widget.groupListAction == GroupListAction.select
               ? ListView.builder(
-                  itemCount: _groupedUserList.keys.length,
+                  itemCount: _filteredUserList.keys.length,
                   itemBuilder: (BuildContext context, int index) {
-                    String key = _groupedUserList.keys.elementAt(index);
+                    String key = _filteredUserList.keys.elementAt(index);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -124,7 +126,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w600),
                         ),margin: EdgeInsets.only(bottom: Adapt.px(4)),),
-                        ..._groupedUserList[key]!.map((user) => _buildUserItem(user)),
+                        ..._filteredUserList[key]!.map((user) => _buildUserItem(user)),
                       ],
                     );
                   },
@@ -235,6 +237,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                         height: Adapt.px(22.4) / Adapt.px(16),
                         color: ThemeColor.color160,),
                     border: InputBorder.none,),
+                onChanged: _handlingSearch,
               ),
             ),
             ValueListenableBuilder(
@@ -243,6 +246,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                     ? GestureDetector(
                         onTap: () {
                           _controller.clear();
+                          setState(() {
+                            _filteredUserList = _groupedUserList;
+                          });
                         },
                         child: CommonImage(
                           iconName: 'icon_textfield_close.png',
@@ -281,5 +287,17 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         }
       },
     );
+  }
+
+  void _handlingSearch(String searchQuery){
+    setState(() {
+      Map<String, List<UserDB>> searchResult = {};
+      _groupedUserList.forEach((key, value) {
+        List<UserDB> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+        searchResult[key] = tempList;
+      });
+      searchResult.removeWhere((key, value) => value.isEmpty);
+      _filteredUserList = searchResult;
+    });
   }
 }
