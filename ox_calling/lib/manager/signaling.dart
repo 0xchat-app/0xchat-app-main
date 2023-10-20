@@ -8,6 +8,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 
 import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
@@ -44,7 +45,7 @@ class Session {
 }
 
 class SignalingManager {
-  SignalingManager(this._host, this._port, this._context);
+  SignalingManager(this._host, this._port);
 
   String _selfId = Contacts.sharedInstance.pubkey;
   BuildContext? _context;
@@ -361,18 +362,21 @@ class SignalingManager {
     late MediaStream stream;
     if (userScreen) {
       if (WebRTC.platformIsDesktop) {
-        final source = await showDialog<DesktopCapturerSource>(
-          context: context!,
-          builder: (context) => ScreenSelectDialog(),
-        );
-        stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-          'video': source == null
-              ? true
-              : {
-                  'deviceId': {'exact': source.id},
-                  'mandatory': {'frameRate': 30.0}
-                }
-        });
+        _context ??= OXNavigator.navigatorKey.currentContext;
+        if (_context != null) {
+          final source = await showDialog<DesktopCapturerSource>(
+            context: context!,
+            builder: (context) => ScreenSelectDialog(),
+          );
+          stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
+            'video': source == null
+                ? true
+                : {
+              'deviceId': {'exact': source.id},
+              'mandatory': {'frameRate': 30.0}
+            }
+          });
+        }
       } else {
         stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
       }

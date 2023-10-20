@@ -36,9 +36,8 @@ class CallManager {
   bool _inCalling = false;
   CallState? callState;
   Session? _session;
-  DesktopCapturerSource? selected_source_;
   bool _waitAccept = false;
-  late BuildContext _context;
+  BuildContext? _context;
   ValueChanged<CallState?>? callStateHandler;
   CallMessageType? callType;
   String? callInitiator;
@@ -61,8 +60,7 @@ class CallManager {
     if (tHost != null) {
       host = tHost;
     }
-    _context = OXNavigator.navigatorKey.currentContext!;
-    _signaling ??= SignalingManager(host, port, _context);
+    _signaling ??= SignalingManager(host, port);
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
       LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
       _signaling?.onParseMessage(friend, state, data, offerId);
@@ -137,7 +135,8 @@ class CallManager {
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               CallManager.instance.connectServer();
-              OXNavigator.pushPage(_context,
+              _context ??= OXNavigator.navigatorKey.currentContext!;
+              OXNavigator.pushPage(_context!,
                   (context) => CallPage(
                         userDB,
                         session.media,
