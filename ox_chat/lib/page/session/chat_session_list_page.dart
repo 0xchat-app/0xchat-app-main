@@ -299,7 +299,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
             ),
             Text(
               model.content,
-              style: TextStyle(fontSize: 12, color: ThemeColor.color40),
+              style: TextStyle(fontSize: Adapt.sp(12), color: ThemeColor.color40),
             ),
             SizedBox(
               height: Adapt.px(5),

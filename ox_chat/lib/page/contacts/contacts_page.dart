@@ -46,7 +46,11 @@ class _ContractsPageState extends State<ContractsPage>
   int _contactNotelength = 0;
   int _channelNotelength = 0;
   int _groupNoteLength = 0;
-
+  final tabItems = [
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_msg')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_channels')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_groups')),
+  ];
 
   @override
   void initState() {
@@ -67,23 +71,6 @@ class _ContractsPageState extends State<ContractsPage>
 
   @override
   Widget build(BuildContext context) {
-    final tabItems = [
-      CommonCategoryTitleItem(
-        title: Localized.text('ox_chat.contract_title_msg'),
-        selectedIconName: '',
-        unSelectedIconName: '',
-      ),
-      CommonCategoryTitleItem(
-        title: Localized.text('ox_chat.contract_title_channels'),
-        selectedIconName: '',
-        unSelectedIconName: '',
-      ),
-      CommonCategoryTitleItem(
-        title: Localized.text('ox_chat.contract_title_groups'),
-        selectedIconName: '',
-        unSelectedIconName: '',
-      ),
-    ];
     num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * Adapt.px(68)
      + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * Adapt.px(24);
     return Scaffold(
@@ -103,8 +90,8 @@ class _ContractsPageState extends State<ContractsPage>
               ThemeColor.gradientMainEnd
             ],
             unselectedGradientColors: [ThemeColor.color120, ThemeColor.color120],
-            selectedFontSize: Adapt.px(20),
-            unSelectedFontSize: Adapt.px(20),
+            selectedFontSize: Adapt.sp(20),
+            unSelectedFontSize: Adapt.sp(20),
             items: tabItems,
             onTap: (int value) {
               setState(() {
