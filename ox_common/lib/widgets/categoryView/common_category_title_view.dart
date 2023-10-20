@@ -1,6 +1,8 @@
 library dot_navigation_bar;
 export 'common_category_title_item.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_item.dart';
@@ -99,25 +101,15 @@ class CommonCategoryTitleView extends StatelessWidget {
                       SizedBox(
                         height: Adapt.px(12),
                       ),
-                      item.selectedIconName.isNotEmpty
+                      item.selectedIconName != null
                           ? Container(
-                        child: Image(
-                          image: items.indexOf(item) == selectedIndex
-                              ? AssetImage(
-                              'assets/images/${item.selectedIconName}')
-                              : AssetImage(
-                              'assets/images/${item.unSelectedIconName}'),
-                        ),
-                        width: Adapt.px(29),
-                        height: Adapt.px(29),
-                      )
-                          : Container(),
-                      // Icon(z
-                      //   item.iconData,
-                      //   color: items.indexOf(item) == selectedIndex
-                      //     ? selectedColor
-                      //     : unselectedColor,
-                      // ),
+                              child: items.indexOf(item) == selectedIndex
+                                  ? CommonImage(iconName: item.selectedIconName ?? '',)
+                                  : CommonImage(iconName: item.unSelectedIconName ?? '',),
+                              width: Adapt.px(29),
+                              height: Adapt.px(29),
+                            )
+                          : SizedBox(),
                       SizedBox(
                         height: Adapt.px(2),
                       ),
