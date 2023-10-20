@@ -13,7 +13,7 @@ import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-abstract class OXUserInfoObserver {
+abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDB? userInfo);
 
   void didSwitchUser(UserDB? userInfo);
