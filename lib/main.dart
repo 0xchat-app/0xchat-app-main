@@ -60,7 +60,6 @@ void main() async {
   OXRelayManager.sharedInstance.loadConnectRelay();
   OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
 
