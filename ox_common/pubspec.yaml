@@ -17,7 +17,7 @@ dependencies:
 
   visibility_detector: ^0.3.3
   encrypt: ^5.0.1
-  cached_network_image: ^3.2.1
+  cached_network_image: 3.3.0
   package_info_plus: ^4.2.0
   pull_to_refresh: ^2.0.0
   lottie: ^2.0.0
