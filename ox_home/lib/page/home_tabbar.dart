@@ -163,13 +163,11 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     updateLocaleStatus();
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: SafeArea(
-        child: TranslucentNavigationBar(
-          onTap: (value) => _tabClick(value),
-          selectedIndex: selectedIndex,
-          tabBarList: tabBarList,
-          height: Adapt.px(72),
-        ),
+      bottomNavigationBar: TranslucentNavigationBar(
+        onTap: (value) => _tabClick(value),
+        selectedIndex: selectedIndex,
+        tabBarList: tabBarList,
+        height: Adapt.px(72),
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
