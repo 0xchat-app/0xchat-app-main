@@ -54,8 +54,6 @@ class BaseAvatarWidget extends StatelessWidget {
         imageUrl: imageUrl,
         width: size,
         height: size,
-        memCacheWidth: resize,
-        memCacheHeight: resize,
         maxWidthDiskCache: resize,
         maxHeightDiskCache: resize,
       );
