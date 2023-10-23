@@ -80,6 +80,14 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   void initState() {
     super.initState();
     _initData();
+    _syncChannelInfo();
+  }
+
+  void _syncChannelInfo() async {
+    ChannelDB? channelDB = await Channels.sharedInstance.syncChannelMetadataFromRelay(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ??'', widget.channelDB.channelId);
+    if (channelDB != null){
+      _initData();
+    }
   }
 
   void _initData() async {
@@ -90,12 +98,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         widget.channelDB.creator!.isNotEmpty) {
       final UserDB? userFromDB =
           await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
-      if (userFromDB != null) {
-        _showCreator = userFromDB.name!;
-      } else {
-        _showCreator = widget.channelDB.creator!;
-      }
-      setState(() {});
+      _showCreator = userFromDB != null ? userFromDB.name! : widget.channelDB.creator;
+      if (mounted) setState(() {});
     } else {
       _showCreator = '';
     }
@@ -113,16 +117,14 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
             }
           });
           _badgeRequirementsHint = badgeRequirementsHint;
-          setState(() {});
+          if (mounted) setState(() {});
         } else {
           List<BadgeDB> badgeDB =
               await BadgesHelper.getBadgesInfoFromRelay(badgeList);
           if (badgeDB.length > 0) {
             _badgeDBList = badgeDB;
             _badgeRequirementsHint = badgeRequirementsHint;
-            if (mounted) {
-              setState(() {});
-            }
+            if (mounted) setState(() {});
           }
         }
       }
@@ -652,10 +654,11 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     await OXLoading.dismiss();
     if (result) {
       OXChatBinding.sharedInstance.sessionUpdate();
-      setState(() {
-        _isMute = value;
-        widget.channelDB.mute = value;
-      });
+      if (mounted)
+        setState(() {
+          _isMute = value;
+          widget.channelDB.mute = value;
+        });
     } else {
       CommonToast.instance
           .show(context, 'Mute(Unmute) failed, please try again later.');
