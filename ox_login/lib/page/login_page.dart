@@ -194,6 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                             BaseRichText(
                               Localized.text("ox_login.terms_of_service"),
                               style: TextStyle(
+                                fontSize: Adapt.px(14),
                                 foreground: Paint()
                                   ..shader = LinearGradient(
                                     colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
@@ -206,6 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                             BaseRichText(
                               Localized.text("ox_login.privacy_policy"),
                               style: TextStyle(
+                                fontSize: Adapt.px(14),
                                 foreground: Paint()
                                   ..shader = LinearGradient(
                                     colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
