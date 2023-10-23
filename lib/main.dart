@@ -62,7 +62,6 @@ void main() async {
   await OXUserInfoManager.sharedInstance.initLocalData();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
-
   getApplicationDocumentsDirectory().then((value) {
     LogUtil.log(content: '[App start] Application Documents Path: $value');
   });
@@ -298,7 +297,7 @@ extension ThemeStyleOverlayEx on ThemeStyle {
   SystemUiOverlayStyle toOverlayStyle() =>
     SystemUiOverlayStyle(
         systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
-        systemNavigationBarColor: systemNavigationBarColor,
+        systemNavigationBarColor: Colors.transparent,
         statusBarIconBrightness: statusBarIconBrightness,
         statusBarBrightness: statusBarBrightness,
         statusBarColor: statusBarColor,
