@@ -5,7 +5,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/search_history_model.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
@@ -944,7 +944,7 @@ class SearchPageState extends State<SearchPage> {
       case ChatType.chatChannel:
         OXNavigator.pushPage(
           context,
-          (context) => ChatGroupMessagePage(
+          (context) => ChatChannelMessagePage(
             communityItem: sessionModel,
             anchorMsgId: item.msgId,
           ),
@@ -998,7 +998,7 @@ class SearchPageState extends State<SearchPage> {
     LogUtil.e('Michael: channelDB =${channelDB.toString()}');
     OXNavigator.pushPage(
         context,
-        (context) => ChatGroupMessagePage(
+        (context) => ChatChannelMessagePage(
               communityItem: ChatSessionModel(
                 chatId: channelDB.channelId,
                 chatName: channelDB.name,

@@ -110,12 +110,12 @@ class ChatDataCache with OXChatObserver {
 
   @override
   void didChannalMessageCallBack(MessageDB message) async {
-    final groupId = message.groupId;
-    ChannelKey key = ChannelKey(groupId);
+    final channelId = message.groupId;
+    ChannelKey key = ChannelKey(channelId);
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
-        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+        OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: true);
       },
     );
     if (msg == null) {
@@ -348,13 +348,22 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return PrivateChatKey(session.sender, session.receiver);
   }
 
-  ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
+  GroupKey? _convertSessionToGroupKey(ChatSessionModel session) {
     final groupId = session.groupId;
     if (groupId == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'groupId is null');
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToGroupKey', message: 'groupId is null');
       return null;
     }
-    return ChannelKey(groupId);
+    return GroupKey(groupId);
+  }
+
+  ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
+    final channelId = session.groupId;
+    if (channelId == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'channelId is null');
+      return null;
+    }
+    return ChannelKey(channelId);
   }
 
   ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModel session) {
@@ -458,6 +467,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       case ChatType.chatSingle:
       case ChatType.chatStranger:
         return _convertSessionToPrivateChatKey(session);
+      case ChatType.chatGroup:
+        return _convertSessionToGroupKey(session);
       case ChatType.chatChannel:
         return _convertSessionToChannelKey(session);
       case ChatType.chatSecret:
@@ -471,15 +482,20 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
   ChatTypeKey? _getChatTypeKeyWithMessage(MessageDB message) {
 
-    if (message.sessionId.isNotEmpty) {
+    final type = message.chatType;
+    if (type == 3 || message.sessionId.isNotEmpty) {
       return SecretChatKey(message.sessionId);
     }
 
-    if (message.groupId.isNotEmpty) {
+    if (type == 1) {
+      return GroupKey(message.groupId);
+    }
+
+    if (type == 2 || message.groupId.isNotEmpty) {
       return ChannelKey(message.groupId);
     }
 
-    if (message.sender.isNotEmpty && message.receiver.isNotEmpty) {
+    if (type == 0 || message.sender.isNotEmpty && message.receiver.isNotEmpty) {
       return PrivateChatKey(message.sender, message.receiver);
     }
 
@@ -537,7 +553,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       // Secret Chat
       return sessionId == session.chatId;
     } else if (groupId.isNotEmpty) {
-      // Channel
+      // Channel & Group
       return groupId == session.groupId;
     } else if (senderId.isNotEmpty && receiverId.isNotEmpty) {
       // Private

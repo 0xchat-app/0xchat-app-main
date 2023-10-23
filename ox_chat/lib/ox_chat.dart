@@ -7,7 +7,7 @@ import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -47,7 +47,7 @@ class OXChat extends OXFlutterModule {
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
           context,
-              (context) => ChatGroupMessagePage(
+              (context) => ChatChannelMessagePage(
             communityItem: ChatSessionModel(
               chatId: params?['chatId'] ?? '',
               chatName: params?['chatName'] ?? '',

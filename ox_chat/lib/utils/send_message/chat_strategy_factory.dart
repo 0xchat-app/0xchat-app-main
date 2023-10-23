@@ -9,6 +9,8 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 class ChatStrategyFactory {
   static ChatStrategy getStrategy(ChatSessionModel session) {
     switch (session.chatType) {
+      case ChatType.chatGroup:
+        return GroupChatStrategy(session);
       case ChatType.chatChannel:
         return ChannelChatStrategy(session);
       case ChatType.chatSecret:
@@ -65,7 +67,7 @@ class ChannelChatStrategy extends ChatStrategy {
 
   @override
   String get encryptedKey => '';
-  
+
   @override
   Future getSendMessageEvent({
     required MessageType messageType,
@@ -79,7 +81,7 @@ class ChannelChatStrategy extends ChatStrategy {
       replyMessage: replayId,
     );
   }
-  
+
   @override
   Future doSendMessageAction({
     required MessageType messageType,
@@ -89,6 +91,48 @@ class ChannelChatStrategy extends ChatStrategy {
     Event? event,
   }) async {
     return Channels.sharedInstance.sendChannelMessage(
+      receiverId,
+      replyMessage: replayId,
+      messageType,
+      contentString,
+      event: event,
+      local: isLocal,
+    );
+  }
+}
+
+class GroupChatStrategy extends ChatStrategy {
+
+  final ChatSessionModel session;
+
+  GroupChatStrategy(this.session);
+
+  @override
+  String get encryptedKey => '';
+
+  @override
+  Future getSendMessageEvent({
+    required MessageType messageType,
+    required String contentString,
+    required String replayId,
+  }) async {
+    return Groups.sharedInstance.getSendGroupMessageEvent(
+      receiverId,
+      messageType,
+      contentString,
+      replyMessage: replayId,
+    );
+  }
+
+  @override
+  Future doSendMessageAction({
+    required MessageType messageType,
+    required String contentString,
+    required String replayId,
+    bool isLocal = false,
+    Event? event,
+  }) async {
+    return Groups.sharedInstance.sendGroupMessage(
       receiverId,
       replyMessage: replayId,
       messageType,

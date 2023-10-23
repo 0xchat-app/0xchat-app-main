@@ -10,7 +10,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_chat/widget/badge_selector_dialog.dart';
@@ -392,7 +392,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         OXChatBinding.sharedInstance.createChannelSuccess(channelDB);
         OXNavigator.pushReplacement(
           context,
-          ChatGroupMessagePage(
+          ChatChannelMessagePage(
             communityItem: ChatSessionModel(
               chatId: channelDB.channelId!,
               groupId: channelDB.channelId!,

@@ -25,27 +25,27 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
-class ChatGroupMessagePage extends StatefulWidget {
+class ChatChannelMessagePage extends StatefulWidget {
 
   final ChatSessionModel communityItem;
   final String? anchorMsgId;
 
-  ChatGroupMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  ChatChannelMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
 
   @override
-  State<ChatGroupMessagePage> createState() => _ChatGroupMessagePageState();
+  State<ChatChannelMessagePage> createState() => _ChatChannelMessagePageState();
 }
 
-class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
+class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
 
   List<types.Message> _messages = [];
-
+  
   late types.User _user;
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  GroupDB? group;
-  String get groupId => group?.groupId ?? widget.communityItem.groupId ?? '';
+  ChannelDB? channel;
+  String get channelId => channel?.channelId ?? widget.communityItem.groupId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
@@ -56,7 +56,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   void initState() {
     setupUser();
-    setupGroup();
+    setupChannel();
     setupChatGeneralHandler();
     super.initState();
 
@@ -86,10 +86,20 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     );
   }
 
-  void setupGroup() {
-    final groupId = widget.communityItem.groupId;
-    if (groupId == null) return ;
-    group = Groups.sharedInstance.groups[groupId];
+  void setupChannel() {
+    final channelId = widget.communityItem.groupId;
+    if (channelId == null) return ;
+    channel = Channels.sharedInstance.channels[channelId];
+    if (channel == null) {
+      Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]).then((channels) {
+        if (!mounted) return ;
+        if (channels.isNotEmpty) {
+          setState(() {
+            channel = channels.first;
+          });
+        }
+      });
+    }
   }
 
   void prepareData() {
@@ -98,7 +108,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
 
     if (widget.communityItem.isMentioned) {
-      OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: false);
+      OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: false);
     }
   }
 
@@ -117,8 +127,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    GroupDB? group = Groups.sharedInstance.groups[widget.communityItem.chatId];
-    String showName = group?.name ?? '';
+    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
+    String showName = channelDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -133,8 +143,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         actions: [
           Container(
             alignment: Alignment.center,
-            child: OXGroupAvatar(
-              group: group,
+            child: OXChannelAvatar(
+              channel: channel,
               size: 36,
               isClickable: true,
               onReturnFromNextPage: () {
@@ -185,10 +195,10 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onMessageLongPressEvent: _handleMessageLongPress,
         onJoinChannelTap: () async {
           await OXLoading.show();
-          final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '');
+          final OKEvent okEvent = await Channels.sharedInstance.joinChannel(channelId);
           await OXLoading.dismiss();
           if (okEvent.status) {
-            OXChatBinding.sharedInstance.groupsUpdatedCallBack();
+            OXChatBinding.sharedInstance.channelsUpdatedCallBack();
             setState(() {
               _updateChatStatus();
             });
@@ -212,20 +222,48 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
 
   void _updateChatStatus() {
 
-    if (!Groups.sharedInstance.myGroups.containsKey(groupId)) {
+    if (!Channels.sharedInstance.myChannels.containsKey(channelId)) {
       chatStatus = ChatStatus.NotJoined;
       return ;
     }
 
     final userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
 
-    if (groupId.isEmpty || userDB == null) {
-      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'groupId: $groupId, userDB: $userDB');
+    if (channelId.isEmpty || userDB == null) {
+      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'channelId: $channelId, userDB: $userDB');
       chatStatus = ChatStatus.Unknown;
       return ;
     }
 
-    chatStatus = ChatStatus.Normal;
+    final channelBadgesJsonString = Channels.sharedInstance.channels[channelId]?.badges ?? '[]';
+    List<String> channelBadgesList;
+    try {
+      final list = JsonDecoder().convert(channelBadgesJsonString) as List? ?? [];
+      channelBadgesList = list.cast<String>();
+    } catch (e) {
+      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'error: $e');
+      chatStatus = ChatStatus.Unknown;
+      return ;
+    }
+
+    final badgesList = userDB.badgesList ?? [];
+
+    ChatLogUtils.info(
+      className: 'ChatGroupMessagePage',
+      funcName: '_initializeChatStatus',
+      message: 'my badgesList: ${badgesList}, channelBadges: $channelBadgesList',
+    );
+
+    chatStatus = ChatStatus.InsufficientBadge;
+    if (channelBadgesList.length > 0) {
+      channelBadgesList.forEach((channelBadges) {
+        if (badgesList.contains(channelBadges)) {
+          chatStatus = ChatStatus.Normal;
+        }
+      });
+    } else {
+      chatStatus = ChatStatus.Normal;
+    }
   }
 
   void _removeMessage(types.Message message) {
@@ -237,9 +275,9 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   }
 
   void _handlePreviewDataFetched(
-      types.TextMessage message,
-      types.PreviewData previewData,
-      ) {
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
       previewData: previewData,

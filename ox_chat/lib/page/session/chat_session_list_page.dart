@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
+import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -15,7 +16,7 @@ import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
@@ -719,11 +720,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           _setAllRead(item);
           if (item.chatType == 9999) {
             _routeCustomService();
-          } else if (item.chatType == ChatType.chatChannel) {
+          } else if (item.chatType == ChatType.chatGroup) {
             OXNavigator.pushPage(
                 context,
                     (context) =>
                     ChatGroupMessagePage(
+                      communityItem: item,
+                    ));
+          } else if (item.chatType == ChatType.chatChannel) {
+            OXNavigator.pushPage(
+                context,
+                    (context) =>
+                    ChatChannelMessagePage(
                       communityItem: item,
                     ));
           } else if (item.chatType == ChatType.chatSecret) {
