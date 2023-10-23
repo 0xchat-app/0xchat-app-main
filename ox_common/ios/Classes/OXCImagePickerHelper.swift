@@ -36,7 +36,7 @@ class OXCImagePickerHelper {
         
         configuration.maxSelectCount = selectCount
         configuration.allowTakePhotoInLibrary = showCamera
-        configuration.allowSelectOriginal = false
+        configuration.allowSelectOriginal = true
         configuration.downloadVideoBeforeSelecting = true
         configuration.allowSelectGif = isShowGif
         configurationUI.cellCornerRadio = 5
@@ -69,9 +69,9 @@ class OXCImagePickerHelper {
         let ratio = ZLImageClipRatio(title: "", whRatio: Double(width) / Double(height), isCircle: false)
         configuration.editImageConfiguration.clipRatios = [ratio]
         
-        if let colorString = params?["uiColor"] as? [String: Any] {
-            self.colorChange(colorString: colorString, configuration: configurationUI)
-        }
+//        if let colorString = params?["uiColor"] as? [String: Any] {
+//            self.colorChange(colorString: colorString, configuration: configurationUI)
+//        }
         
         if !cameraMimeType.isEmpty {
             if cameraMimeType == "photo" {
@@ -292,7 +292,7 @@ class OXCImagePickerHelper {
             
             let manage = PHImageManager()
             manage.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, info in
-                guard let imageData = imageData, let path = info?["PHImageFileURLKey"] as? URL else {
+                guard let imageData = imageData else {
                     return
                 }
                 
