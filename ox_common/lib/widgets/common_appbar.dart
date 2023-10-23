@@ -214,8 +214,8 @@ class BaseAppBarState extends State<CommonAppBar> {
             highlightColor: Colors.transparent,
             icon: CommonImage(
               iconName: "title_close.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
+              width: 24,
+              height: 24,
               useTheme: true,
             ),
             onPressed: widget.backCallback ??
@@ -234,8 +234,8 @@ class BaseAppBarState extends State<CommonAppBar> {
             highlightColor: Colors.transparent,
             icon: CommonImage(
               iconName: "icon_back_left_arrow.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
+              width: 24,
+              height: 24,
               useTheme: true,
             ),
             onPressed: widget.backCallback ??
