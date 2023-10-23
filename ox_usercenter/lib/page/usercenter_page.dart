@@ -148,8 +148,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         actions: <Widget>[
           isLogin
               ? Container(
-                  margin:
-                      EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
+                  margin: EdgeInsets.only(right: Adapt.px(5)),
                   color: Colors.transparent,
                   child: OXButton(
                     highlightColor: Colors.transparent,
@@ -160,6 +159,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                       Localized.text('ox_common.edit'),
                       style: TextStyle(
                         fontSize: Adapt.px(16),
+                        fontWeight: FontWeight.w600,
                         color: ThemeColor.color0,
                       ),
                     ),
@@ -264,7 +264,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         SizedBox(
           height: Adapt.px(24),
         ),
-        SettingsPage(),
+        const SettingsPage(),
         SizedBox(
           height: Adapt.px(130),
         ),
@@ -292,6 +292,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         Container(
           width: double.infinity,
           height: Adapt.px(52),
+          alignment: Alignment.center,
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
             leading: CommonImage(

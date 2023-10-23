@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
@@ -162,10 +163,13 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     updateLocaleStatus();
     return Scaffold(
       extendBody: true,
-      bottomNavigationBar: TranslucentNavigationBar(
-        onTap: (value) => _tabClick(value),
-        selectedIndex: selectedIndex,
-        tabBarList: tabBarList,
+      bottomNavigationBar: SafeArea(
+        child: TranslucentNavigationBar(
+          onTap: (value) => _tabClick(value),
+          selectedIndex: selectedIndex,
+          tabBarList: tabBarList,
+          height: Adapt.px(72),
+        ),
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),

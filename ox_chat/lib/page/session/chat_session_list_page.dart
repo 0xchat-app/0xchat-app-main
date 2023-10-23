@@ -78,6 +78,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void initState() {
     super.initState();
+    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.addObserver(this);
@@ -183,7 +184,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     return WillPopScope(
       onWillPop: () async {
         if (OXLoading.isShow) {
@@ -256,9 +256,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               children: [
                 _topSearch(),
                 Container(
-                  alignment: Alignment.centerLeft,
-                  height: Adapt.px(92),
+                  height: Adapt.px(105),
                   color: ThemeColor.color200,
+                  padding: EdgeInsets.symmetric(vertical: Adapt.px(10)),
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
                     shrinkWrap: true,
@@ -289,20 +289,15 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         highlightColor: Colors.transparent,
         hoverColor: Colors.transparent,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              height: Adapt.px(5),
-            ),
             Container(width: Adapt.px(60), height: Adapt.px(60), child: CommonImage(iconName:model.iconName,useTheme:true),),
             SizedBox(
-              height: Adapt.px(5),
+              height: Adapt.px(4),
             ),
             Text(
               model.content,
-              style: TextStyle(fontSize: Adapt.sp(12), color: ThemeColor.color40),
-            ),
-            SizedBox(
-              height: Adapt.px(5),
+              style: TextStyle(fontSize: Adapt.sp(12), color: ThemeColor.color40, fontWeight: FontWeight.w400),
             ),
           ],
         ),
