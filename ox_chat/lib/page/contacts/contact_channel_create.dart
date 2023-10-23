@@ -295,15 +295,21 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             child: Row(
               children: [
                 _isNone
-                    ? Text(Localized.text('ox_common.none'))
+                    ? Text(
+                        Localized.text('ox_common.none'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: Adapt.px(16),
+                          color: ThemeColor.color100,
+                        ),
+                      )
                     : Row(
                         children: [
                           CachedNetworkImage(
                             imageUrl: _requirementModel.badgeImageUrl ?? '',
                             fit: BoxFit.contain,
                             placeholder: (context, url) => placeholderImage,
-                            errorWidget: (context, url, error) =>
-                                placeholderImage,
+                            errorWidget: (context, url, error) => placeholderImage,
                             width: Adapt.px(32),
                             height: Adapt.px(32),
                           ),
@@ -311,8 +317,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                             width: Adapt.px(6),
                           ),
                           Text(
-                            _requirementModel.badgeName ??
-                                'Badge Name and above',
+                            _requirementModel.badgeName ?? 'Badge Name and above',
                             style: TextStyle(
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w400,

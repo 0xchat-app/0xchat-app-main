@@ -543,71 +543,73 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     OtherInfoItemType type = OtherInfoItemType.Remark,
     String? rightHint,
   }) {
-    return ListTile(
-      leading: CommonImage(
-        iconName: iconName ?? '',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
-        package: iconPackage ?? 'ox_chat',
-      ),
-      title: Text(
-        type.text,
-        style: TextStyle(
-          fontSize: Adapt.px(16),
-          color: ThemeColor.color0,
+    return Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      alignment: Alignment.center,
+      child: ListTile(
+        leading: CommonImage(
+          iconName: iconName ?? '',
+          width: Adapt.px(32),
+          height: Adapt.px(32),
+          package: iconPackage ?? 'ox_chat',
         ),
+        title: Text(
+          type.text,
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+          ),
+        ),
+        trailing: type == OtherInfoItemType.Mute
+            ? Switch(
+                value: _isMute,
+                activeColor: Colors.white,
+                activeTrackColor: ThemeColor.gradientMainStart,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: ThemeColor.color160,
+                onChanged: _onChangedMute,
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  type == OtherInfoItemType.Badges
+                      ? Container(
+                          width: Adapt.px(100),
+                          child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: ListView.separated(
+                                itemCount: _badgeDBList.length,
+                                scrollDirection: Axis.horizontal,
+                                separatorBuilder: (context, index) => Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  BadgeDB tempItem = _badgeDBList[index];
+                                  LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
+                                  return CachedNetworkImage(
+                                    imageUrl: tempItem.thumb ?? '',
+                                    fit: BoxFit.contain,
+                                    placeholder: (context, url) => _badgePlaceholderImage,
+                                    errorWidget: (context, url, error) => _badgePlaceholderImage,
+                                    width: Adapt.px(32),
+                                    height: Adapt.px(32),
+                                  );
+                                }),
+                          ),
+                        )
+                      : Container(),
+                  CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ),
+                ],
+              ),
+        onTap: () {
+          _itemClick(type);
+        },
       ),
-      trailing: type == OtherInfoItemType.Mute
-          ? Switch(
-              value: _isMute,
-              activeColor: Colors.white,
-              activeTrackColor: ThemeColor.gradientMainStart,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: ThemeColor.color160,
-              onChanged: _onChangedMute,
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                type == OtherInfoItemType.Badges
-                    ? Container(
-                        width: Adapt.px(100),
-                        child: Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: ListView.separated(
-                              itemCount: _badgeDBList.length,
-                              scrollDirection: Axis.horizontal,
-                              separatorBuilder: (context, index) =>
-                                  Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                BadgeDB tempItem = _badgeDBList[index];
-                                LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
-                                return CachedNetworkImage(
-                                  imageUrl: tempItem.thumb ?? '',
-                                  fit: BoxFit.contain,
-                                  placeholder: (context, url) =>
-                                  _badgePlaceholderImage,
-                                  errorWidget: (context, url, error) =>
-                                  _badgePlaceholderImage,
-                                  width: Adapt.px(32),
-                                  height: Adapt.px(32),
-                                );
-                              }),
-                        ),
-                      )
-                    : Container(),
-                CommonImage(
-                  iconName: 'icon_arrow_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                ),
-              ],
-            ),
-      onTap: () {
-        _itemClick(type);
-      },
     );
   }
 

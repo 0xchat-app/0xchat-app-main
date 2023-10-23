@@ -83,7 +83,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
+    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor)).width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -147,7 +147,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             Container(
               constraints: BoxConstraints(maxWidth: mm),
               child: GradientText(Localized.text('ox_discovery.discovery'),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor),
                   colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd]),
             ),
             SizedBox(

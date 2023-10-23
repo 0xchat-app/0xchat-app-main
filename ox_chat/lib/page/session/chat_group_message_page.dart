@@ -132,30 +132,27 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56),
-        child: CommonAppBar(
-          useLargeTitle: false,
-          centerTitle: true,
-          title: showName,
-          backgroundColor: ThemeColor.color200,
-          backCallback: () {
-            OXNavigator.popToRoot(context);
-          },
-          actions: [
-            Container(
-              alignment: Alignment.center,
-              child: OXChannelAvatar(
-                channel: channel,
-                size: Adapt.px(36),
-                isClickable: true,
-                onReturnFromNextPage: () {
-                  setState(() { });
-                },
-              ),
-            ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-          ],
-        ),
+      appBar: CommonAppBar(
+        useLargeTitle: false,
+        centerTitle: true,
+        title: showName,
+        backgroundColor: ThemeColor.color200,
+        backCallback: () {
+          OXNavigator.popToRoot(context);
+        },
+        actions: [
+          Container(
+            alignment: Alignment.center,
+            child: OXChannelAvatar(
+              channel: channel,
+              size: 36,
+              isClickable: true,
+              onReturnFromNextPage: () {
+                setState(() { });
+              },
+            ),
+          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ],
       ),
       body: Chat(
         theme: pageConfig.pageTheme,

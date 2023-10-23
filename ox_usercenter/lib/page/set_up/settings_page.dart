@@ -211,6 +211,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         Container(
           width: double.infinity,
           height: Adapt.px(52),
+          alignment: Alignment.center,
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
             leading: CommonImage(

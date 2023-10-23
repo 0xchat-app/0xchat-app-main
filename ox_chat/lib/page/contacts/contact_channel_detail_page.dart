@@ -494,54 +494,59 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     OtherInfoItemType type = OtherInfoItemType.ChannelID,
     String? rightHint,
   }) {
-    return ListTile(
-      leading: CommonImage(
-        iconName: iconName ?? '',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
-        package: iconPackage ?? 'ox_chat',
-      ),
-      title: Text(
-        type.text,
-        style: TextStyle(
-          fontSize: Adapt.px(16),
-          color: ThemeColor.color0,
+    return Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      alignment: Alignment.center,
+      child: ListTile(
+        leading: CommonImage(
+          iconName: iconName ?? '',
+          width: Adapt.px(32),
+          height: Adapt.px(32),
+          package: iconPackage ?? 'ox_chat',
         ),
-      ),
-      trailing: type == OtherInfoItemType.Mute
-          ? _switchMute()
-          : type == OtherInfoItemType.QRCode
-              ? CommonImage(
-                  iconName: 'icon_arrow_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                )
-              : Container(
-                  width: Adapt.px(100),
-                  child: Text(
-                    truncateString(rightHint ?? '', 8),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: Adapt.px(16),
-                      color: ThemeColor.color100,
+        title: Text(
+          type.text,
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+          ),
+        ),
+        trailing: type == OtherInfoItemType.Mute
+            ? _switchMute()
+            : type == OtherInfoItemType.QRCode
+                ? CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  )
+                : Container(
+                    width: Adapt.px(100),
+                    child: Text(
+                      truncateString(rightHint ?? '', 8),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: Adapt.px(16),
+                        color: ThemeColor.color100,
+                      ),
                     ),
                   ),
-                ),
-      onTap: () async {
-        if (type == OtherInfoItemType.QRCode) {
-          showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return MyIdCardDialog(
-                  type: CommonConstant.qrCodeChannel,
-                  channelDB: widget.channelDB,
-                );
-              });
-        } else if (type == OtherInfoItemType.ChannelID) {
-          await TookKit.copyKey(context, rightHint ?? '');
-        }
-      },
+        onTap: () async {
+          if (type == OtherInfoItemType.QRCode) {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) {
+                  return MyIdCardDialog(
+                    type: CommonConstant.qrCodeChannel,
+                    channelDB: widget.channelDB,
+                  );
+                });
+          } else if (type == OtherInfoItemType.ChannelID) {
+            await TookKit.copyKey(context, rightHint ?? '');
+          }
+        },
+      ),
     );
   }
 
