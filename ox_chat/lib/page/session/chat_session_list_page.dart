@@ -251,32 +251,27 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           enablePullUp: false,
           onRefresh: _onRefresh,
           onLoading: null,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _topSearch(),
-                Container(
-                  height: Adapt.px(105),
-                  color: ThemeColor.color200,
-                  padding: EdgeInsets.symmetric(vertical: Adapt.px(10)),
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _menuOptionModelList.length,
-                    itemBuilder: (context, index) {
-                      return _getTopWidget(index);
-                    },
-                  ),
-                ),
-                commonStateViewWidget(
-                  context,
-                  _listView(),
-                ),
-              ],
-            ),
+          child: commonStateViewWidget(
+            context,
+            _listView(),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _menueWidget() {
+    return Container(
+      height: Adapt.px(105),
+      color: ThemeColor.color200,
+      padding: EdgeInsets.symmetric(vertical: Adapt.px(10)),
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+        scrollDirection: Axis.horizontal,
+        itemCount: _menuOptionModelList.length,
+        itemBuilder: (context, index) {
+          return _getTopWidget(index);
+        },
       ),
     );
   }
@@ -309,21 +304,16 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _listView() {
-    if (itemCount() > 0) {
-      return ListView.builder(
-        padding: EdgeInsets.only(bottom: Adapt.px(120)),
-        physics: NeverScrollableScrollPhysics(),
-        shrinkWrap: true, // Important!
-        itemCount: itemCount(),
-        itemBuilder: _buildListViewItem,
-      );
-    } else {
-      return Container();
-    }
+    return ListView.builder(
+      padding: EdgeInsets.only(bottom: Adapt.px(120)),
+      physics: AlwaysScrollableScrollPhysics(),
+      itemCount: itemCount(),
+      itemBuilder: _buildListViewItem,
+    );
   }
 
   int itemCount() {
-    return msgDatas.length;
+    return msgDatas.length + 2;
   }
 
   void _onRefresh() async {
@@ -414,97 +404,103 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildListViewItem(context, int index) {
-    ChatSessionModel item = msgDatas[index];
-    GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
-    // ChatLogUtils.info(
-    //     className: 'ChatSessionListPage',
-    //     funcName: '_buildListViewItem',
-    //     message: 'chatID: ${announceItem.chatId}, chatName: ${announceItem.chatName}, createTime: ${announceItem.createTime}');
-    return GestureDetector(
-      onHorizontalDragDown: (details) {
-        _dismissSlidable();
-        _latestGlobalKey = tempKey;
-      },
-      child: Container(
-        color: ThemeColor.color200,
-        child: Column(
-          children: <Widget>[
-            Slidable(
-              key: ValueKey("$index"),
-              endActionPane: ActionPane(
-                extentRatio: 0.23,
-                motion: const ScrollMotion(),
-                children: [
-                  CustomSlidableAction(
-                    onPressed: (BuildContext _) async {
-                      OXCommonHintDialog.show(context,
-                          content: item.chatType == ChatType.chatSecret
-                              ? Localized.text('ox_chat.secret_message_delete_tips')
-                              : Localized.text('ox_chat.message_delete_tips'),
-                          actionList: [
-                            OXCommonHintAction.cancel(onTap: () {
-                              OXNavigator.pop(context);
-                            }),
-                            OXCommonHintAction.sure(
-                                text: Localized.text('ox_common.confirm'),
-                                onTap: () async {
-                                  OXNavigator.pop(context);
-                                  final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId);
-                                  if (item.chatType == ChatType.chatSecret) {
-                                    Contacts.sharedInstance.close(item.chatId!);
-                                  } else if (item.chatType == ChatType.chatSingle) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ',
-                                      whereArgs: [item.sender, item.receiver, item.receiver, item.sender],
-                                    );
-                                  } else if (item.chatType == ChatType.chatChannel) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: ' groupId = ? ',
-                                      whereArgs: [item.groupId],
-                                    );
-                                  }
-                                  if (count > 0) {
-                                    setState(() {
-                                      _merge();
-                                    });
-                                  }
-                                }),
-                          ],
-                          isRowAction: true);
-                    },
-                    backgroundColor: ThemeColor.red1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        assetIcon('icon_chat_delete.png', 32, 32),
-                        Text(
-                          'delete'.localized(),
-                          style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
-                        ),
-                      ],
+    if (index == 0) {
+      return _topSearch();
+    } else if (index == 1) {
+      return _menueWidget();
+    } else {
+      ChatSessionModel item = msgDatas[index - 2];
+      GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
+      // ChatLogUtils.info(
+      //     className: 'ChatSessionListPage',
+      //     funcName: '_buildListViewItem',
+      //     message: 'chatID: ${announceItem.chatId}, chatName: ${announceItem.chatName}, createTime: ${announceItem.createTime}');
+      return GestureDetector(
+        onHorizontalDragDown: (details) {
+          _dismissSlidable();
+          _latestGlobalKey = tempKey;
+        },
+        child: Container(
+          color: ThemeColor.color200,
+          child: Column(
+            children: <Widget>[
+              Slidable(
+                key: ValueKey("$index"),
+                endActionPane: ActionPane(
+                  extentRatio: 0.23,
+                  motion: const ScrollMotion(),
+                  children: [
+                    CustomSlidableAction(
+                      onPressed: (BuildContext _) async {
+                        OXCommonHintDialog.show(context,
+                            content: item.chatType == ChatType.chatSecret
+                                ? Localized.text('ox_chat.secret_message_delete_tips')
+                                : Localized.text('ox_chat.message_delete_tips'),
+                            actionList: [
+                              OXCommonHintAction.cancel(onTap: () {
+                                OXNavigator.pop(context);
+                              }),
+                              OXCommonHintAction.sure(
+                                  text: Localized.text('ox_common.confirm'),
+                                  onTap: () async {
+                                    OXNavigator.pop(context);
+                                    final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId);
+                                    if (item.chatType == ChatType.chatSecret) {
+                                      Contacts.sharedInstance.close(item.chatId!);
+                                    } else if (item.chatType == ChatType.chatSingle) {
+                                      Messages.deleteMessagesFromDB(
+                                        where: '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ',
+                                        whereArgs: [item.sender, item.receiver, item.receiver, item.sender],
+                                      );
+                                    } else if (item.chatType == ChatType.chatChannel) {
+                                      Messages.deleteMessagesFromDB(
+                                        where: ' groupId = ? ',
+                                        whereArgs: [item.groupId],
+                                      );
+                                    }
+                                    if (count > 0) {
+                                      setState(() {
+                                        _merge();
+                                      });
+                                    }
+                                  }),
+                            ],
+                            isRowAction: true);
+                      },
+                      backgroundColor: ThemeColor.red1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          assetIcon('icon_chat_delete.png', 32, 32),
+                          Text(
+                            'delete'.localized(),
+                            style: TextStyle(color: Colors.white, fontSize: Adapt.px(12)),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Stack(
+                  key: tempKey,
+                  // key: _slidableGlobalKey,
+                  children: [
+                    _buildBusinessInfo(item),
+                    item.alwaysTop
+                        ? Container(
+                      alignment: Alignment.topRight,
+                      child: assetIcon('icon_red_always_top.png', 12, 12),
+                    )
+                        : Container(),
+                  ],
+                ),
               ),
-              child: Stack(
-                key: tempKey,
-                // key: _slidableGlobalKey,
-                children: [
-                  _buildBusinessInfo(item),
-                  item.alwaysTop
-                      ? Container(
-                    alignment: Alignment.topRight,
-                    child: assetIcon('icon_red_always_top.png', 12, 12),
-                  )
-                      : Container(),
-                ],
-              ),
-            ),
-            // _buildSeparetor(index),
-          ],
+              // _buildSeparetor(index),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
