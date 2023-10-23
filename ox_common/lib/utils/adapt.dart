@@ -14,7 +14,7 @@ class Adapt {
   static num statusBarHeight = 0.0;
   static double? _ratioW;
   static var _ratioH;
-  static double? _textScaleFactor;
+  static double _textScaleFactor = 1.0;
 
   static get isInitialized => _ratioW != null;
 
@@ -25,7 +25,7 @@ class Adapt {
     _topbarH = mediaQuery?.padding.top;
     _botbarH = mediaQuery?.padding.bottom;
     _pixelRatio = mediaQuery?.devicePixelRatio;
-    _textScaleFactor = mediaQuery?.textScaleFactor;
+    _textScaleFactor = mediaQuery?.textScaleFactor ?? _textScaleFactor;
 
     int uiwidth = standardW is int ? standardW : 375;
     if (_width != null) {
@@ -41,15 +41,16 @@ class Adapt {
     }
   }
 
-  static px(number) {
+  static double px(number) {
     if (!(_ratioW is double || _ratioW is int)) {
       Adapt.init(standardW: 375, standardH: 812);
     }
     return number * _ratioW;
   }
 
-  static sp(number, {bool allowFontScaling = false}) {
-    return allowFontScaling ? px(number) * _textScaleFactor : px(number);
+  static double sp(number, {bool allowFontScaling = false}) {
+    final fontSize = allowFontScaling ? px(number) * _textScaleFactor : px(number);
+    return fontSize.floorToDouble();
   }
 
   static py(number) {

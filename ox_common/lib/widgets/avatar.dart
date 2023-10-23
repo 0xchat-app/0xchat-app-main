@@ -32,19 +32,21 @@ class BaseAvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = isCircular ? size : 5.0;
+    double scaleRatio = MediaQuery.of(context).devicePixelRatio;
     return GestureDetector(
       onTap: isClickable ? onTap : null,
       onLongPress: onLongPress,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: _buildAvatar(),
+        child: _buildAvatar(scaleRatio),
       ),
     );
   }
 
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(double scaleRatio) {
     if (imageUrl.isNotEmpty) {
+      final resize = (size * scaleRatio).ceil();
       return CachedNetworkImage(
         errorWidget: (context, url, error) => _defaultImage(defaultImageName, size),
         placeholder: (context, url) => _defaultImage(defaultImageName, size),
@@ -52,6 +54,10 @@ class BaseAvatarWidget extends StatelessWidget {
         imageUrl: imageUrl,
         width: size,
         height: size,
+        memCacheWidth: resize,
+        memCacheHeight: resize,
+        maxWidthDiskCache: resize,
+        maxHeightDiskCache: resize,
       );
     } else {
       return _defaultImage(defaultImageName, size);
