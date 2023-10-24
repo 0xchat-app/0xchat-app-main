@@ -548,9 +548,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      String showPicUrl = item.chatType == ChatType.chatChannel
-          ? Channels.sharedInstance.channels[item.chatId]?.picture ?? ''
-          : Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
+      String showPicUrl = '';
+      switch(item.chatType){
+        case ChatType.chatChannel:
+          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
+          break;
+        case ChatType.chatSingle:
+          showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
+          break;
+        case ChatType.chatGroup:
+          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
+          break;
+      }
       String localAvatarPath = item.chatType == ChatType.chatChannel ? 'icon_group_default.png' : 'user_image.png';
       return Container(
         width: Adapt.px(60),
@@ -592,9 +601,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModel item) {
-    String showName = item.chatType == ChatType.chatChannel
-        ? Channels.sharedInstance.channels[item.chatId]?.name ?? ''
-        : Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
+    String showName = '';
+    switch(item.chatType){
+      case ChatType.chatChannel:
+        showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
+        break;
+      case ChatType.chatSingle:
+        showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
+        break;
+      case ChatType.chatGroup:
+        showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
+        break;
+    }
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret
@@ -1064,15 +1082,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 }
 
 class _Style {
-  static TextStyle newsTitleLight() {
-    return new TextStyle(
-      fontSize: Adapt.px(12),
-      fontWeight: FontWeight.w600,
-      color: ThemeColor.white01,
-      background: Paint()
-        ..color = ThemeColor.red,
-    );
-  }
 
   static TextStyle newsTitle() {
     return new TextStyle(
