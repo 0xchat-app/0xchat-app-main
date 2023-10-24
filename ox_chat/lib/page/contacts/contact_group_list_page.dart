@@ -12,18 +12,19 @@ import 'package:lpinyin/lpinyin.dart';
 
 enum GroupListAction {
   view,
-  select
+  add,
+  remove
 }
 
 class ContactGroupListPage extends StatefulWidget {
-  final List<UserDB> userList;
+  final List<UserDB>? userList;
   final GroupListAction? groupListAction;
   final String? title;
   final String? searchBarHintText;
 
   const ContactGroupListPage(
       {super.key,
-      required this.userList,
+      this.userList,
       required this.title,
       this.groupListAction = GroupListAction.view,
       this.searchBarHintText});
@@ -34,7 +35,7 @@ class ContactGroupListPage extends StatefulWidget {
 
 class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T> {
 
-  List<UserDB> _userList = [];
+  List<UserDB> userList = [];
   List<UserDB> _selectedUserList = [];
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
@@ -42,13 +43,14 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
   Map<String, List<UserDB>> _filteredUserList = {};
 
   List<UserDB> get selectedUserList=> _selectedUserList;
-  List<UserDB> get userList=> _userList;
 
   @override
   void initState() {
     super.initState();
-    _userList = widget.userList;
-    _groupedUser();
+    if(widget.userList != null){
+      userList = widget.userList!;
+      groupedUser();
+    }
     _controller.addListener(() {
       if (_controller.text.isNotEmpty) {
         _isClear.value = true;
@@ -58,16 +60,16 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     });
   }
 
-  _groupedUser(){
+  groupedUser(){
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
 
-    _userList.sort((v1, v2) {
+    userList.sort((v1, v2) {
       return _getFirstWord(v1).compareTo(_getFirstWord(v2));
     });
 
-    _userList.forEach((item) {
+    userList.forEach((item) {
       var firstLetter = _getFirstWord(item)[0].toUpperCase();
       if (!ALPHAS_INDEX.contains(firstLetter)) {
         firstLetter = '#';
@@ -110,7 +112,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         _buildAppBar(),
         _buildSearchBar(),
         Expanded(
-          child: widget.groupListAction == GroupListAction.select
+          child: widget.groupListAction != GroupListAction.view
               ? ListView.builder(
                   itemCount: _filteredUserList.keys.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -132,9 +134,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
                   },
                 )
               : ListView.builder(
-                  itemCount: widget.userList.length,
+                  itemCount: userList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return _buildUserItem(widget.userList[index]);
+                    return _buildUserItem(userList[index]);
                   },
                 ),
         ),
@@ -160,7 +162,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     return IconButton(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      icon: widget.groupListAction == GroupListAction.select
+      icon: widget.groupListAction != GroupListAction.view
           ? CommonImage(
         iconName: 'title_done.png',
         width: Adapt.px(24),
@@ -173,7 +175,8 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         package: 'ox_chat',
       ),
       onPressed: () {
-      },
+        widget.groupListAction == GroupListAction.view ? buildViewPressed() : widget.groupListAction == GroupListAction.add ? buildAddPressed() : buildRemovePressed();
+      }
     );
   }
 
@@ -269,7 +272,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
 
     return GroupMemberItem(
       user: user,
-      action: widget.groupListAction == GroupListAction.select
+      action: widget.groupListAction != GroupListAction.view
           ? CommonImage(
               width: Adapt.px(24),
               height: Adapt.px(24),
@@ -277,7 +280,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
               package: 'ox_chat',) : Container(),
       titleColor: isSelected ? ThemeColor.color0 : ThemeColor.color100,
       onTap: () {
-        if (widget.groupListAction == GroupListAction.select) {
+        if (widget.groupListAction != GroupListAction.view) {
           if (!isSelected) {
             _selectedUserList.add(user);
           } else {
@@ -300,4 +303,12 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       _filteredUserList = searchResult;
     });
   }
+
+  buildViewPressed() {}
+
+  buildAddPressed() {}
+
+  buildRemovePressed() {}
+
 }
+

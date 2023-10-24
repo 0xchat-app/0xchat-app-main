@@ -944,7 +944,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         height: height,
         child: ContactGroupChatChoosePage(
           userList: userList,
-          groupListAction: GroupListAction.select,
+          groupListAction: GroupListAction.add,
           searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
         ),
       ),
