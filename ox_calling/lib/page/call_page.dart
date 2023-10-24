@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -361,7 +361,7 @@ class CallPageState extends State<CallPage> {
             alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(100)),
-              child: CachedNetworkImage(
+              child: OXCachedNetworkImage(
                 imageUrl: widget.userDB.picture ?? '',
                 fit: BoxFit.cover,
                 placeholder: (context, url) => _avatarPlaceholderImage,

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
@@ -12,6 +11,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/model/badge_model.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_detail_page.dart';
@@ -263,7 +263,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                 borderRadius: BorderRadius.circular(_imageWH / 2),
                 child: Opacity(
                   opacity: isHad ? 1 : 0.36,
-                  child: CachedNetworkImage(
+                  child: OXCachedNetworkImage(
                     imageUrl: _model.thumbUrl ?? '',
                     fit: BoxFit.contain,
                     placeholder: (context, url) => placeholderImage,
@@ -382,7 +382,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(Adapt.px(80)),
                     child: _selectedBadgeModel != null
-                        ? CachedNetworkImage(
+                        ? OXCachedNetworkImage(
                             imageUrl: _selectedBadgeModel?.thumbUrl ?? '',
                             fit: BoxFit.contain,
                             placeholder: (context, url) => defaultProfileBadge,

@@ -7,10 +7,10 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -222,7 +222,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     UserDB userDB = userInfo.db;
     Widget picWidget;
     if ((userDB.picture != null && userDB.picture!.isNotEmpty)) {
-      picWidget = CachedNetworkImage(
+      picWidget = OXCachedNetworkImage(
         imageUrl: userInfo.db.picture ?? '',
         fit: BoxFit.contain,
         placeholder: (context, url) => _badgePlaceholderImage,

@@ -14,6 +14,7 @@ import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -319,7 +320,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 children: [
                   badgeImgUrl == null
                       ? Container()
-                      : CachedNetworkImage(
+                      : OXCachedNetworkImage(
                           imageUrl: badgeImgUrl!,
                           placeholder: (context, url) => placeholderImage,
                           errorWidget: (context, url, error) =>
@@ -371,7 +372,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(120)),
-              child: CachedNetworkImage(
+              child: OXCachedNetworkImage(
                 imageUrl: headImgUrl!,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => placeholderImage,

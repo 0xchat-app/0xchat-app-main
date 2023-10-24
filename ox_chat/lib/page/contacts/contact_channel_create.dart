@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/log_util.dart';
@@ -176,7 +176,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Adapt.px(100)),
-        child: CachedNetworkImage(
+        child: OXCachedNetworkImage(
           errorWidget: (context, url, error) => placeholderImage,
           placeholder: (context, url) => placeholderImage,
           fit: BoxFit.fill,
@@ -305,7 +305,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                       )
                     : Row(
                         children: [
-                          CachedNetworkImage(
+                          OXCachedNetworkImage(
                             imageUrl: _requirementModel.badgeImageUrl ?? '',
                             fit: BoxFit.contain,
                             placeholder: (context, url) => placeholderImage,

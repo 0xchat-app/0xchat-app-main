@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +16,7 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
@@ -292,7 +292,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                           width: Adapt.px(120),
                         )
                       : headerUrl.isNotEmpty
-                          ? CachedNetworkImage(
+                          ? OXCachedNetworkImage(
                               height: Adapt.px(120),
                               width: Adapt.px(120),
                               imageUrl: headerUrl,

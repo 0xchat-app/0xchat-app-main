@@ -4,7 +4,7 @@ import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class BadgeSelectorDialog extends StatefulWidget {
@@ -66,7 +66,7 @@ class _BadgeSelectorDialogState extends State<BadgeSelectorDialog> {
                     SizedBox(
                       width: width,
                     ),
-                    CachedNetworkImage(
+                    OXCachedNetworkImage(
                       imageUrl: tempItem.badgeImageUrl ?? '',
                       fit: BoxFit.contain,
                       placeholder: (context, url) => placeholderImage,

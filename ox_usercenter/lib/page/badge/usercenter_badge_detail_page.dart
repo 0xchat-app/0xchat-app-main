@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pull_to_refresh_notification/pull_to_refresh_notification.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -160,7 +160,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              CachedNetworkImage(
+                              OXCachedNetworkImage(
                                 imageUrl: widget.badgeModel.badgeImageUrl ?? '',
                                 placeholder: (context, url) => placeholderImage,
                                 errorWidget: (context, url, error) => placeholderImage,
@@ -490,7 +490,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                   height: _imageWH,
                   // color: Colors.purple,
                   alignment: Alignment.center,
-                  child: CachedNetworkImage(
+                  child: OXCachedNetworkImage(
                     fit: BoxFit.cover,
                     height: Adapt.px(36),
                     width: Adapt.px(36),

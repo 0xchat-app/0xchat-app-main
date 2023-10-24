@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
@@ -15,6 +14,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -177,7 +177,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
               child: Stack(
                 children: <Widget>[
                   Positioned.fill(
-                    child: CachedNetworkImage(
+                    child: OXCachedNetworkImage(
                       imageUrl: widget.channelDB.picture!,
                       placeholder: (context, url) => _placeholderImage,
                       errorWidget: (context, url, error) => _placeholderImage,
@@ -596,7 +596,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
+          OXCachedNetworkImage(
             fit: BoxFit.cover,
             height: Adapt.px(36),
             width: Adapt.px(36),

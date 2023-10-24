@@ -13,8 +13,8 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 double headerHeight = Adapt.px(24);
@@ -446,7 +446,7 @@ class _ContractListItemState extends State<ContractListItem> {
                   right: 0,
                   child: FutureBuilder<BadgeDB?>(
                     builder: (context, snapshot) {
-                      return (snapshot.data !=null && snapshot.data!.thumb != null) ? CachedNetworkImage(
+                      return (snapshot.data !=null && snapshot.data!.thumb != null) ? OXCachedNetworkImage(
                         imageUrl: snapshot.data?.thumb ?? '',
                         errorWidget: (context, url, error) => badgePlaceholderImage,
                         width: Adapt.px(20),
