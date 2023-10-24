@@ -1,11 +1,12 @@
 import 'dart:core';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+
+import 'common_network_image.dart';
 
 enum TextFieldType { normal, phone, email, password }
 
@@ -273,7 +274,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
           Container(
               margin: EdgeInsets.only(left: 10),
               child: ClipOval(
-                child: CachedNetworkImage(
+                child: OXCachedNetworkImage(
                   imageUrl: widget.countryImage ?? "",
                   placeholder: (context, url) => widget.palceholderName ?? palceholder('', wh: wh),
                   errorWidget: (context, url, error) => widget.palceholderName ?? palceholder('', wh: wh),

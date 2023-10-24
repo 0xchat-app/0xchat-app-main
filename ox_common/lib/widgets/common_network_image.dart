@@ -1,6 +1,7 @@
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class OXCachedNetworkImage extends StatelessWidget {
 
@@ -16,6 +17,9 @@ class OXCachedNetworkImage extends StatelessWidget {
   /// See [CachedNetworkImage.height]
   final double? height;
 
+  /// See [CachedNetworkImage.placeholder]
+  final PlaceholderWidgetBuilder? placeholder;
+
   /// See [CachedNetworkImage.errorWidget]
   final LoadingErrorWidgetBuilder? errorWidget;
 
@@ -24,6 +28,7 @@ class OXCachedNetworkImage extends StatelessWidget {
     this.fit,
     this.width,
     this.height,
+    this.placeholder,
     this.errorWidget,
   });
 
@@ -49,6 +54,7 @@ class OXCachedNetworkImage extends StatelessWidget {
       height: height,
       memCacheWidth: memCacheWidth,
       memCacheHeight: memCacheHeight,
+      placeholder: placeholder,
       errorWidget: errorWidget,
     );
   }
@@ -58,6 +64,8 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
   static ImageProvider create(BuildContext context, String url, {
     double? width,
     double? height,
+    Map<String, String>? headers,
+    BaseCacheManager? cacheManager,
   }) {
     final ratio = MediaQuery.of(context).devicePixelRatio;
 
@@ -80,6 +88,8 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
       resizeHeight,
       CachedNetworkImageProvider(
         url,
+        headers: headers,
+        cacheManager: cacheManager,
       ),
     );
   }

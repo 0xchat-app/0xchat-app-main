@@ -1,14 +1,11 @@
-import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
 
 class BaseAvatarWidget extends StatelessWidget {
   BaseAvatarWidget({
@@ -32,30 +29,26 @@ class BaseAvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = isCircular ? size : 5.0;
-    double scaleRatio = MediaQuery.of(context).devicePixelRatio;
     return GestureDetector(
       onTap: isClickable ? onTap : null,
       onLongPress: onLongPress,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: _buildAvatar(scaleRatio),
+        child: _buildAvatar(),
       ),
     );
   }
 
 
-  Widget _buildAvatar(double scaleRatio) {
+  Widget _buildAvatar() {
     if (imageUrl.isNotEmpty) {
-      final resize = (size * scaleRatio).ceil();
-      return CachedNetworkImage(
+      return OXCachedNetworkImage(
         errorWidget: (context, url, error) => _defaultImage(defaultImageName, size),
         placeholder: (context, url) => _defaultImage(defaultImageName, size),
         fit: BoxFit.cover,
         imageUrl: imageUrl,
         width: size,
         height: size,
-        maxWidthDiskCache: resize,
-        maxHeightDiskCache: resize,
       );
     } else {
       return _defaultImage(defaultImageName, size);
