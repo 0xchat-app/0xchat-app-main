@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chatcore/chat-core.dart';
@@ -15,8 +16,8 @@ class PromptToneManager {
 
   static AudioContext get _defaultAudioContext => AudioContextConfig(
     forceSpeaker: false,
-    duckAudio: false,
-    respectSilence: true,
+    duckAudio: Platform.isAndroid ? true : false,
+    respectSilence: Platform.isIOS ? true : false,
     stayAwake: false,
   ).build();
 
