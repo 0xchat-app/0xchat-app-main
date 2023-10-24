@@ -109,6 +109,28 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
+  void didGroupMessageCallBack(MessageDB message) async {
+    final groupId = message.groupId;
+    final key = GroupKey(groupId);
+
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+      },
+    );
+    if (msg == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didGroupMessageCallBack',
+        message: 'message is null',
+      );
+      return ;
+    }
+
+    await _addChatMessages(key, msg);
+  }
+
+  @override
   void didChannalMessageCallBack(MessageDB message) async {
     final channelId = message.groupId;
     ChannelKey key = ChannelKey(channelId);
