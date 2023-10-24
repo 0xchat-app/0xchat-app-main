@@ -96,7 +96,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildAddPressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, '添加成员', members);
+    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, 'add member', members);
     if(okEvent.status){
       await CommonToast.instance.show(context, 'add success');
       OXNavigator.pop(context,true);
@@ -108,7 +108,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildRemovePressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '移除群聊', members);
+    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, 'remove member', members);
     if(okEvent.status){
       await CommonToast.instance.show(context, 'remove success');
       OXNavigator.pop(context,true);
