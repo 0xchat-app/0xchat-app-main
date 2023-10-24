@@ -37,6 +37,8 @@ import 'dart:io';
 enum ChatStatus {
   Unknown,
   NotJoined,
+  NotJoinedGroup,
+  RequestGroup,
   NotContact,
   InsufficientBadge,
   Normal,
@@ -119,6 +121,8 @@ class Chat extends StatefulWidget {
     this.onMessageLongPressEvent,
     this.chatStatus,
     this.onJoinChannelTap,
+    this.onJoinGroupTap,
+    this.onRequestGroupTap,
     this.longPressMenuItemsCreator,
     this.onGifSend,
     this.inputBottomView,
@@ -128,6 +132,8 @@ class Chat extends StatefulWidget {
 
   final ChatStatus? chatStatus;
   final void Function()? onJoinChannelTap;
+  final void Function()? onJoinGroupTap;
+  final void Function()? onRequestGroupTap;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})?
@@ -600,7 +606,40 @@ class ChatState extends State<Chat> {
             widget.onJoinChannelTap?.call();
           },
         );
-      } else if (chatStatus == ChatStatus.InsufficientBadge) {
+      }
+      else if (chatStatus == ChatStatus.NotJoinedGroup) {
+        return GestureDetector(
+          child: container(
+            child: Container(
+              alignment:Alignment.center,
+              child: Text(
+                Localized.text('ox_chat_ui.group_join'),
+                style: TextStyle(color: ThemeColor.gradientMainStart),
+              ),
+            ),
+          ),
+          onTap: (){
+            widget.onJoinGroupTap?.call();
+          },
+        );
+      }
+      else if (chatStatus == ChatStatus.RequestGroup) {
+        return GestureDetector(
+          child: container(
+            child: Container(
+              alignment:Alignment.center,
+              child: Text(
+                Localized.text('ox_chat_ui.group_request'),
+                style: TextStyle(color: ThemeColor.gradientMainStart),
+              ),
+            ),
+          ),
+          onTap: (){
+            widget.onRequestGroupTap?.call();
+          },
+        );
+      }
+      else if (chatStatus == ChatStatus.InsufficientBadge) {
         final text = chatStatus == ChatStatus.InsufficientBadge ?
         Localized.text('ox_chat_ui.channel_badge_requirements') :
         Localized.text('ox_chat_ui.friend_requirements');

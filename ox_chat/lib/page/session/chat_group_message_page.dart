@@ -183,7 +183,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
-        onJoinChannelTap: () async {
+        onJoinGroupTap: () async {
           await OXLoading.show();
           final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '');
           await OXLoading.dismiss();
@@ -192,6 +192,16 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
             setState(() {
               _updateChatStatus();
             });
+          } else {
+            CommonToast.instance.show(context, okEvent.message);
+          }
+        },
+        onRequestGroupTap: () async {
+          await OXLoading.show();
+          final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, '');
+          await OXLoading.dismiss();
+          if (okEvent.status) {
+            CommonToast.instance.show(context, 'Request Sent!');
           } else {
             CommonToast.instance.show(context, okEvent.message);
           }
@@ -213,7 +223,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   void _updateChatStatus() {
 
     if (!Groups.sharedInstance.myGroups.containsKey(groupId)) {
-      chatStatus = ChatStatus.NotJoined;
+      chatStatus = ChatStatus.NotJoinedGroup;
       return ;
     }
 
