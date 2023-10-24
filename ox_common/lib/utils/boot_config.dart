@@ -15,9 +15,6 @@ class BootConfig {
 
   void batchUpdateUserBadges(){
     if (OXUserInfoManager.sharedInstance.isLogin) {
-
-       BadgesHelper.sharedInstance.init();
-
       // _getUserGrantBadges().then((value){
       //   _syncBadgesToUserDB(value);
       // }).catchError((onError) {

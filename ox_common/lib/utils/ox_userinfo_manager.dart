@@ -277,12 +277,13 @@ class OXUserInfoManager {
       fn();
     });
     Relays.sharedInstance.init().then((value) {
+      BadgesHelper.sharedInstance.init();
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
       _initMessage();
     });
-    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
+    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
