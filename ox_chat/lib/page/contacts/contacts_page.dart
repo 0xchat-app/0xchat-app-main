@@ -48,8 +48,8 @@ class _ContractsPageState extends State<ContractsPage>
   int _groupNoteLength = 0;
   final tabItems = [
     CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_msg')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_channels')),
     CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_groups')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_channels')),
   ];
 
   @override
@@ -71,8 +71,18 @@ class _ContractsPageState extends State<ContractsPage>
 
   @override
   Widget build(BuildContext context) {
-    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * Adapt.px(68)
-     + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * Adapt.px(24);
+    num itemHeight = 0;
+    switch (_selectedIndex) {
+      case 0:
+        itemHeight = Contacts.sharedInstance.allContacts.values.length * Adapt.px(68) + _contactNotelength * Adapt.px(24);
+        break;
+      case 1:
+        itemHeight = Groups.sharedInstance.myGroups.length * Adapt.px(68) + _groupNoteLength * Adapt.px(24);
+        break;
+      case 2:
+        itemHeight = Channels.sharedInstance.myChannels.length * Adapt.px(68) + _channelNotelength * Adapt.px(24);
+        break;
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -193,17 +203,17 @@ class _ContractsPageState extends State<ContractsPage>
                         scrollController: _scrollController,
                         onCursorContactsChanged: _setCursorContactsWidget,
                       ),
-                      ContactViewChannels(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: false,
-                        scrollController: _scrollController,
-                        onCursorChannelsChanged: _setCursorChannelsWidget,
-                      ),
                       ContactViewGroups(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: false,
                         scrollController: _scrollController,
                         onCursorGroupsChanged: _setCursorGroupsWidget,
+                      ),
+                      ContactViewChannels(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: false,
+                        scrollController: _scrollController,
+                        onCursorChannelsChanged: _setCursorChannelsWidget,
                       ),
                     ],
                   ),
@@ -211,10 +221,10 @@ class _ContractsPageState extends State<ContractsPage>
               ],
             ),
           ),
-          if (_isShowTools && (_cursorContactsWidget != null || _cursorChannelsWidget != null))
+          if (_isShowTools && (_cursorContactsWidget != null || _cursorChannelsWidget != null || _cursorGroupsWidget != null))
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: _selectedIndex == 0 ? _cursorContactsWidget : _cursorChannelsWidget,
+              child: _selectedIndex == 0 ? _cursorContactsWidget : _selectedIndex == 1 ? _cursorGroupsWidget : _cursorChannelsWidget,
             ),
         ],
       ),
