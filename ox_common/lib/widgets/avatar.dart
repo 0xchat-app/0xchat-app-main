@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -215,6 +216,80 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
           });
         }
       },
+    );
+  }
+}
+
+class GroupedAvatar extends StatelessWidget {
+  final List<String> avatars;
+  final double size;
+  final bool isCircular;
+
+  const GroupedAvatar({super.key, required this.avatars, required this.size,this.isCircular = true,});
+
+  @override
+  Widget build(BuildContext context) {
+    double smallSize = 0;
+    List<String> avatarList = avatars;
+    List<Widget> avatarWidgetList = [];
+
+    if (avatarList.length <= 4) {
+      smallSize = avatarList.length <= 2 ? size * 0.66 : size * 0.5;
+    } else {
+      smallSize = size / 3;
+      avatarList = avatarList.length > 9 ? avatarList.sublist(0, 9) : avatarList;
+    }
+    avatarWidgetList = avatars.map((element) => _buildAvatar(smallSize, element)).toList();
+
+    if (avatars.length == 2) {
+      return Container(
+        width: size,
+        height: size,
+        child: Stack(
+          children: [
+            Positioned(left: 0, bottom: 0, child: avatarWidgetList[0]),
+            Positioned(right: 0, top: 0, child: avatarWidgetList[1]),
+          ],
+        ),
+      );
+    } else if (avatars.length <= 4) {
+      return Container(
+        width: size,
+        height: size,
+        child: Wrap(
+          children: avatarWidgetList,
+        ),
+      );
+    } else {
+      return Container(
+        alignment: Alignment.center,
+        width: size,
+        height: size,
+        child: Wrap(
+          children: avatarWidgetList,
+        ),
+      );
+    }
+  }
+
+  Widget _buildAvatar(double size, String imageUrl) {
+    final defaultImageName = 'icon_user_default.png';
+    return BaseAvatarWidget(
+      imageUrl: imageUrl,
+      defaultImageName: defaultImageName,
+      size: size,
+      isCircular: isCircular,
+    );
+  }
+
+  Widget _buildDefault(double size){
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: ThemeColor.color180,
+        borderRadius: BorderRadius.circular(size / 2),
+      ),
     );
   }
 }
