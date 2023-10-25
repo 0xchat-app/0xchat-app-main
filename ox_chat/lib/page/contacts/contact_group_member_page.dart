@@ -32,6 +32,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     List<UserDB> users = await fetchUserList();
     setState(() {
       userList = users;
+      super.groupedUser();
     });
   }
 
@@ -84,7 +85,6 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
           width: Adapt.px(24),
           child: CircularProgressIndicator());
     }
-    super.groupedUser();
     return super.build(context);
   }
 
