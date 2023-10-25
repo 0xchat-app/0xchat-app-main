@@ -221,8 +221,11 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   }
 
   void _updateChatStatus() {
-
-    if (!Groups.sharedInstance.myGroups.containsKey(groupId)) {
+    if(!Groups.sharedInstance.checkInGroup(groupId)){
+      chatStatus = ChatStatus.RequestGroup;
+      return ;
+    }
+    else if (!Groups.sharedInstance.checkInMyGroupList(groupId)) {
       chatStatus = ChatStatus.NotJoinedGroup;
       return ;
     }
