@@ -108,7 +108,3 @@ class SecretChatKey implements ChatTypeKey {
   @override
   int get hashCode => sessionId.hashCode;
 }
-
-abstract class ChatDataManagerObserver  {
-
-}

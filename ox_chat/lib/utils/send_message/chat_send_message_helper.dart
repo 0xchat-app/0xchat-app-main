@@ -9,7 +9,6 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 
 typedef MessageContentEncoder = FutureOr<String?> Function(types.Message message);
 
@@ -23,6 +22,7 @@ class ChatSendMessageHelper {
     bool isLocal = false,
     MessageContentEncoder? contentEncoder,
   }) async {
+
     // prepare data
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(encrypt: message.fileEncryptionType != types.EncryptionType.none);
@@ -66,9 +66,7 @@ class ChatSendMessageHelper {
       message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
     );
 
-    OXChatBinding.sharedInstance.changeChatSessionType(session, true);
-
-    ChatDataCache.shared.addNewMessage(session, sendMsg);
+    ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
 
     senderStrategy.doSendMessageAction(
       messageType: type,
@@ -82,7 +80,7 @@ class ChatSendMessageHelper {
         remoteId: event.eventId,
         status: event.status ? types.Status.sent : types.Status.error,
       );
-      ChatDataCache.shared.updateMessage(session, updatedMessage);
+      ChatDataCache.shared.updateMessage(session:session, message: updatedMessage);
     });
 
     // If the message is not sent within a short period of time, change the status to the sending state
@@ -96,7 +94,7 @@ class ChatSendMessageHelper {
     final updatedMessage = message.copyWith(
       status: status,
     );
-    ChatDataCache.shared.updateMessage(session, updatedMessage);
+    ChatDataCache.shared.updateMessage(session: session, message: updatedMessage);
   }
 
   static void _setMessageSendingStatusIfNeeded(ChatSessionModel session, OXValue<bool> sendFinish, types.Message message) {

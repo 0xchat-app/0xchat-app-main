@@ -15,6 +15,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessageBuilder {
@@ -58,14 +59,16 @@ class ChatMessageBuilder {
         return _buildZapsMessage(message);
       case CustomMessageType.call:
         return _buildCallMessage(message, isMe);
+      case CustomMessageType.template:
+        return _buildTemplateMessage(message, isMe);
       default:
         return SizedBox();
     }
   }
 
   static Widget _buildZapsMessage(types.CustomMessage message) {
-    final amount = message.amount.formatWithCommas();
-    final description = message.description;
+    final amount = ZapsMessageEx(message).amount.formatWithCommas();
+    final description = ZapsMessageEx(message).description;
     return Container(
       width: Adapt.px(240),
       height: Adapt.px(86),
@@ -124,8 +127,8 @@ class ChatMessageBuilder {
   }
 
   static Widget _buildCallMessage(types.CustomMessage message, bool isMe) {
-    final text = message.callText;
-    final type = message.callType;
+    final text = CallMessageEx(message).callText;
+    final type = CallMessageEx(message).callType;
     final tintColor = isMe ? ThemeColor.white : ThemeColor.color0;
     return Container(
       padding: EdgeInsets.all(Adapt.px(10)),
@@ -144,6 +147,54 @@ class ChatMessageBuilder {
             size: Adapt.px(20),
             color: tintColor,
             package: OXChatInterface.moduleName,
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildTemplateMessage(types.CustomMessage message, bool isMe) {
+    final title = TemplateMessageEx(message).title;
+    final content = TemplateMessageEx(message).content;
+    final icon = TemplateMessageEx(message).icon;
+    Widget iconWidget = icon.isEmpty ?
+        SizedBox() :
+        OXCachedNetworkImage(imageUrl: icon, height: 48.px, width: 48.px,).setPadding(EdgeInsets.only(left: 10.px));
+    return Container(
+      width: 266.px,
+      padding: EdgeInsets.all(10.px),
+      color: ThemeColor.color180,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: ThemeColor.color0,
+              height: 1.4,
+            ),
+          ),
+          Container(color: ThemeColor.color160, height: 0.5,)
+              .setPadding(EdgeInsets.symmetric(vertical: 4.px)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  content,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: ThemeColor.color60,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              iconWidget,
+            ],
           ),
         ],
       ),

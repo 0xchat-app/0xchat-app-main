@@ -231,6 +231,11 @@ class ChatDataCache with OXChatObserver {
       message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
     );
 
+    final chatKey = _getChatTypeKey(session);
+    if (chatKey == null) {
+      return;
+    }
+
     Contacts.sharedInstance
         .sendSecretMessage(
       sessionId,
@@ -246,24 +251,24 @@ class ChatDataCache with OXChatObserver {
         remoteId: event.eventId,
         status: event.status ? types.Status.sent : types.Status.error,
       );
-      ChatDataCache.shared.updateMessage(session, updatedMessage);
+      ChatDataCache.shared.updateMessage(chatKey: chatKey, message: updatedMessage);
     });
 
     // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, session);
+    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, chatKey);
   }
 
-  void _updateMessageStatus(types.Message message, types.Status status, ChatSessionModel session) {
+  void _updateMessageStatus(types.Message message, types.Status status, ChatTypeKey key) {
     final updatedMessage = message.copyWith(
       status: status,
     );
-    updateMessage(session, updatedMessage);
+    updateMessage(chatKey: key, message: updatedMessage);
   }
 
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message, ChatSessionModel session) {
+  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message, ChatTypeKey key) {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending, session);
+        _updateMessageStatus(message, types.Status.sending, key);
       }
     });
   }
@@ -271,14 +276,20 @@ class ChatDataCache with OXChatObserver {
 
 extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
-  Future<void> addNewMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
+  Future<void> addNewMessage({
+      ChatTypeKey? key,
+      ChatSessionModel? session,
+      required types.Message message,
+  }) async {
+    if (session != null) {
+      key ??= _getChatTypeKey(session);
+    }
     if (key == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'ChatTypeKey is null');
       return ;
     }
 
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session.chatId}, key: $key');
+    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session?.chatId}, key: $key');
     await _addChatMessages(key, message);
   }
 
@@ -294,38 +305,27 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     await notifyChatObserverValueChanged(key);
   }
 
-  Future<void> resendMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
-    if (key == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'resendMessage',
-        message: 'ChatTypeKey is null',
-      );
-      return ;
-    }
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: 'resendMessage',
-      message: 'session: ${session.chatId}, key: $key',
-    );
-
+  Future<void> resendMessage(ChatTypeKey key, types.Message message) async {
     await _removeChatMessages(key, message);
     await _addChatMessages(key, message);
     await notifyChatObserverValueChanged(key);
-
   }
 
-  Future<void> updateMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
-    if (key == null) {
+  Future<void> updateMessage({
+    ChatTypeKey? chatKey,
+    ChatSessionModel? session,
+    required types.Message message,
+  }) async {
+    if (session != null) {
+      chatKey ??= _getChatTypeKey(session);
+    }
+    if (chatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
       return ;
     }
 
-    await _updatePrivateChatMessages(key, message);
-    await notifyChatObserverValueChanged(key);
+    await _updatePrivateChatMessages(chatKey, message);
+    await notifyChatObserverValueChanged(chatKey);
   }
 }
 

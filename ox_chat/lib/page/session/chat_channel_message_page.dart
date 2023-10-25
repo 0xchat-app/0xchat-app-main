@@ -283,7 +283,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
       previewData: previewData,
     );
 
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
+    ChatDataCache.shared.updateMessage(session: widget.communityItem, message: updatedMessage);
   }
 
   Future<void> _loadMoreMessages() async {

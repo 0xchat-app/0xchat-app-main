@@ -9,8 +9,11 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -38,6 +41,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -215,6 +219,9 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.call:
           callMessagePressHandler(context, message);
           break ;
+        case CustomMessageType.template:
+          templateMessagePressHandler(context, message);
+          break ;
         default:
           break ;
       }
@@ -239,9 +246,9 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     final receiverPubkey = senderPubkey == myPubkey
         ? (session.chatId ?? '' ): myPubkey;
-    final invoice = message.invoice;
-    final zapper = message.zapper;
-    final description = message.description;
+    final invoice = ZapsMessageEx(message).invoice;
+    final zapper = ZapsMessageEx(message).zapper;
+    final description = ZapsMessageEx(message).description;
 
     final requestInfo = Zaps.getPaymentRequestInfo(invoice);
 
@@ -266,7 +273,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void callMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final otherUser = this.otherUser;
     CallMessageType? pageType;
-    switch (message.callType) {
+    switch (CallMessageEx(message).callType) {
       case CallMessageType.audio:
         pageType = CallMessageType.audio;
         break ;
@@ -282,6 +289,31 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       otherUser,
       pageType,
     );
+  }
+
+  void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
+    final link = TemplateMessageEx(message).link;
+    final result = link.getModuleActionValue();
+    if (result == null) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: 'templateMessagePressHandler',
+        message: 'result is null. messageId: ${message.id}, link: $link',
+      );
+      return ;
+    }
+    final module = result.module;
+    final action = result.action;
+    final params = result.params.map((key, value) => MapEntry(Symbol(key), value));
+    try {
+      OXModuleService.invoke(module, action, [context], params);
+    } catch(e) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: 'templateMessagePressHandler',
+        message: 'OXModuleService.invoke error. message: $e',
+      );
+    }
   }
 }
 

@@ -344,4 +344,33 @@ class CustomMessageFactory implements MessageFactory {
       type: types.MessageType.custom,
     );
   }
+
+  types.CustomMessage createTemplateMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    required String title,
+    required String content,
+    required String icon,
+    required String link,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.templateMetaData(
+        title: title,
+        content: content,
+        icon: icon,
+        link: link,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
 }
