@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +9,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -23,7 +22,6 @@ import 'group_setting_qrcode_page.dart';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'group_share_page.dart';
 
@@ -51,14 +49,19 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     super.dispose();
   }
 
+  String get _getGroupNotice {
+    String groupNotice = groupDBInfo?.pinned?[0] ?? '';
+    return groupNotice.isEmpty ? 'no content' : groupNotice;
+  }
+
   void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    String groupId = widget.groupId;
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
     List<UserDB>? groupList =
-        await Groups.sharedInstance.getAllGroupMembers(widget.groupId);
+        await Groups.sharedInstance.getAllGroupMembers(groupId);
 
     if (groupDB != null) {
       groupDBInfo = groupDB;
-
       groupMember = groupList;
       setState(() {});
     }
@@ -89,6 +92,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             children: [
               _optionMemberWidget(),
               _groupBaseOptionView(),
+              _muteWidget(),
               _groupLocationView(),
               _leaveBtnWidget(),
             ],
@@ -161,14 +165,15 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   Widget _memberAvatarWidget() {
-    if (groupMember.length == 0) return Container();
+    int groupMemberNum = groupMember.length;
+    if (groupMemberNum == 0) return Container();
+    int renderCount = groupMemberNum > 8 ? 8 : groupMemberNum;
     return Container(
       margin: EdgeInsets.only(
         right: Adapt.px(0),
       ),
       constraints: BoxConstraints(
-          maxWidth: Adapt.px(24 * groupMember.length + 24),
-          minWidth: Adapt.px(48)),
+          maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
       child: AvatarStack(
         settings: RestrictedPositions(
             // maxCoverage: 0.1,
@@ -178,9 +183,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         borderColor: ThemeColor.color180,
         height: Adapt.px(48),
         avatars: [
-          for (var n = 0; n < groupMember.length; n++)
+          for (var n = 0; n < renderCount; n++)
             if (groupMember[n].picture?.isNotEmpty != null)
-              CachedNetworkImageProvider(groupMember[n].picture!)
+              OXCachedNetworkImageProviderEx.create(
+                context,
+                groupMember[n].picture!,
+                // height: Adapt.px(26),
+              )
+            // CachedNetworkImageProvider()
             else
               const AssetImage('assets/images/user_image.png',
                   package: 'ox_common'),
@@ -234,11 +244,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               title: 'Group Name',
               subTitle: groupDBInfo?.name ?? '--',
               onTap: _updateGroupNameFn,
-              isShowMoreIcon: _isGroupMember),
+              isShowMoreIcon: _isGroupMember,
+          ),
           _topItemBuild(
-              title: 'Members',
-              subTitle: groupMember.length.toString(),
-              isShowMoreIcon: false),
+            title: 'Members',
+            subTitle: groupMember.length.toString(),
+            onTap: () => _groupMemberOptionFn(GroupListAction.view),
+            isShowMoreIcon: _isGroupMember,
+          ),
           _topItemBuild(
             title: 'Group QR Code',
             actionWidget: CommonImage(
@@ -251,7 +264,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           ),
           _topItemBuild(
             title: 'Group Notice',
-            titleDes: groupDBInfo?.pinned?[0] ?? '--',
+            titleDes: _getGroupNotice,
             onTap: _updateGroupNoticeFn,
             isShowMoreIcon: _isGroupMember,
           ),
@@ -259,14 +272,28 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             title: 'Join requests',
             onTap: () =>
                 OXNavigator.pushPage(context, (context) => GroupJoinRequests()),
-          ),
-          _topItemBuild(
-            title: 'Mute',
             isShowDivider: false,
-            actionWidget: _muteSwitchWidget(),
-            isShowMoreIcon: false,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _muteWidget() {
+    return Container(
+      margin: EdgeInsets.only(
+        top: Adapt.px(16),
+      ),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      child: _topItemBuild(
+        title: 'Mute',
+        isShowDivider: false,
+        actionWidget: _muteSwitchWidget(),
+        isShowMoreIcon: false,
       ),
     );
   }
@@ -409,7 +436,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Widget _leaveBtnWidget() {
     if (!_isGroupMember) return Container();
-    String content = _isGroupOwner() ? 'Delete and leave' : 'Leave';
+    String content = _isGroupOwner ? 'Delete and leave' : 'Leave';
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
@@ -437,10 +464,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _leaveConfirmWidget() {
-    String tips = _isGroupOwner()
+    String tips = _isGroupOwner
         ? 'Delete and remove all group members? ?'
         : 'Leave this group?';
-    String content = _isGroupOwner() ? 'Delete and leave' : 'Leave';
+    String content = _isGroupOwner ? 'Delete and leave' : 'Leave';
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -481,15 +508,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
-                    onTap: () async {
-                      OKEvent event = await Groups.sharedInstance.leaveGroup(
-                          widget.groupId, 'Leave group chat success');
-                      if (event.status) {
-                        CommonToast.instance
-                            .show(context, 'Leave group chat success');
-                        OXNavigator.popToRoot(context);
-                      }
-                    },
+                    onTap: _isGroupOwner ? _disbandGroupFn : _leaveGroupFn,
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(
@@ -539,7 +558,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     );
   }
 
-  bool _isGroupOwner() {
+  bool get _isGroupOwner {
     UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null || groupDBInfo == null) return false;
 
@@ -549,9 +568,9 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   bool get _isGroupMember {
     UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null || groupMember.length == 0) return false;
-    UserDB? userDB =
-        groupMember.firstWhere((userDB) => userDB.pubKey == userInfo.pubKey);
-    return userDB != null;
+    bool hasMember =
+        groupMember.any((userDB) => userDB.pubKey == userInfo.pubKey);
+    return hasMember;
   }
 
   void _updateGroupNameFn() async {
@@ -630,7 +649,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     });
   }
 
-  void _groupMemberOptionFn(GroupListAction action) async{
+  void _groupMemberOptionFn(GroupListAction action) async {
+    if(!_isGroupMember) return;
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
@@ -638,6 +658,24 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         groupListAction: action,
       ),
     );
-    if(result != null && result) _groupInfoInit();
+    if (result != null && result) _groupInfoInit();
+  }
+
+  void _leaveGroupFn() async {
+    OKEvent event = await Groups.sharedInstance
+        .leaveGroup(widget.groupId, 'Leave group chat success');
+    if (event.status) {
+      CommonToast.instance.show(context, 'Leave group chat success');
+      OXNavigator.popToRoot(context);
+    }
+  }
+
+  void _disbandGroupFn() async {
+    OKEvent event = await Groups.sharedInstance
+        .deleteAndLeave(widget.groupId, 'Disband group chat success');
+    if (event.status) {
+      CommonToast.instance.show(context, 'Disband group chat success');
+      OXNavigator.popToRoot(context);
+    }
   }
 }

@@ -153,6 +153,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                                   groupDBInfo?.name ?? '--',
                                   16,
                                   ThemeColor.color10,
+                                  fontWeight:FontWeight.w600,
                                 ),
                               ),
                               Container(
@@ -160,8 +161,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                                     left: Adapt.px(16), top: Adapt.px(2)),
                                 child: MyText(
                                   _dealWithGroupId,
-                                  16,
-                                  ThemeColor.color10,
+                                  14,
+                                  ThemeColor.color120,
                                 ),
                               ),
                             ],

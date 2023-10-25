@@ -22,6 +22,11 @@ class GroupNoticePage extends StatefulWidget {
 class _GroupNoticePageState extends State<GroupNoticePage> {
   GroupDB? groupDBInfo = null;
 
+  String get _getGroupNotice {
+    String groupNotice = groupDBInfo?.pinned?[0] ?? '';
+    return groupNotice.isEmpty ? 'no content' : groupNotice;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -148,6 +153,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                             groupDBInfo?.name ?? '--',
                             16,
                             ThemeColor.color10,
+                            fontWeight:FontWeight.w600,
                           ),
                         ),
                         Container(
@@ -155,8 +161,8 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                               left: Adapt.px(16), top: Adapt.px(2)),
                           child: MyText(
                             '${groupDBInfo?.updateTime}' ?? '--',
-                            16,
-                            ThemeColor.color10,
+                            14,
+                            ThemeColor.color120,
                           ),
                         ),
                       ],
@@ -182,7 +188,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
             ),
             height: Adapt.px(110),
             child: Text(
-              groupDBInfo?.pinned?[0] ?? '',
+              _getGroupNotice,
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontWeight: FontWeight.w400,
