@@ -208,17 +208,12 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
       isCircular: widget.isCircular,
       isClickable: widget.isClickable,
       onTap: () async {
-        final group = widget.group;
-        final channelId = group;
-        // if (channelId != null && channel != null) {
-        //   await OXModuleService.pushPage(context, 'ox_chat', 'ContactChanneDetailsPage', {
-        //     'channelDB': channel,
-        //   });
-        //   final onReturnFromNextPage = widget.onReturnFromNextPage;
-        //   if (onReturnFromNextPage != null) onReturnFromNextPage();
-        // } else {
-        //   CommonToast.instance.show(context, 'The Group Detail load failed.');
-        // }
+        final groupDB = widget.group;
+        if(groupDB != null && groupDB.groupId != null) {
+          await OXModuleService.pushPage(context, 'ox_chat', 'GroupInfoPage', {
+            'groupId': groupDB.groupId,
+          });
+        }
       },
     );
   }
