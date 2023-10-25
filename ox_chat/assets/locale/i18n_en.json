@@ -140,5 +140,13 @@
   "group_name_item":"Group Name",
   "group_member": "Members",
   "group_enter_hint_text": "Please Enter a Group Name",
-  "contract_title_groups": "Groups"
+  "contract_title_groups": "Groups",
+  "add_member_title": "Add members",
+  "remove_member_title": "Remove members",
+  "select_chat": "Select a chat",
+  "add_member_success_tips": "Add members successful",
+  "add_member_fail_tips": "Add members failed",
+  "remove_member_success_tips": "Remove members successful",
+  "remove_member_fail_tips": "Remove members failed",
+  "group_share_tips": "Are you sure you want to share a group chat link with your friends"
 }

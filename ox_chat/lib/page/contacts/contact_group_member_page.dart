@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ContactGroupMemberPage extends ContactGroupListPage {
   final String groupId;
@@ -38,6 +42,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   Future<List<UserDB>> fetchUserList() async {
     List<UserDB> allGroupMembers = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
     GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
     String owner = '';
     if(groupDB != null) owner = groupDB.owner;
@@ -45,7 +50,6 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       case GroupListAction.view:
         return allGroupMembers;
       case GroupListAction.add:
-        List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
         for(int index =0;index <allGroupMembers.length;index ++){
           allContacts.removeWhere((element) => element.pubKey == allGroupMembers[index].pubKey);
         }
@@ -53,6 +57,8 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       case GroupListAction.remove:
         allGroupMembers.removeWhere((element) => element.pubKey == owner);
         return allGroupMembers;
+      case GroupListAction.send:
+        return allContacts;
       default:
         return [];
     }
@@ -65,11 +71,13 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     if (widget.title == null) {
       switch (widget.groupListAction) {
         case GroupListAction.view:
-          return 'Members ${userCount > 0 ? '($userCount)' : ''}';
+          return '${Localized.text('ox_chat.group_member')} ${userCount > 0 ? '($userCount)' : ''}';
         case GroupListAction.add:
-          return 'Add members ${selectedUserCount > 0 ? '($selectedUserCount)' : ''}';
+          return '${Localized.text('ox_chat.add_member_title')} ${selectedUserCount > 0 ? '($selectedUserCount)' : ''}';
         case GroupListAction.remove:
-          return 'Remove members ${selectedUserCount > 0 ? '($selectedUserCount)' : ''}';
+          return '${Localized.text('ox_chat.remove_member_title')} ${selectedUserCount > 0 ? '($selectedUserCount)' : ''}';
+        case GroupListAction.send:
+          return '${Localized.text('ox_chat.select_chat')}';
         default:
           return '';
       }
@@ -96,24 +104,53 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildAddPressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, 'add member', members);
+    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, '${Localized.text('ox_chat.add_member_title')}', members);
     if(okEvent.status){
-      await CommonToast.instance.show(context, 'add success');
+      await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
       return;
     }
-    return CommonToast.instance.show(context, 'add failed');
+    return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
   }
 
   @override
   buildRemovePressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, 'remove member', members);
+    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('remove_member_title')}', members);
     if(okEvent.status){
-      await CommonToast.instance.show(context, 'remove success');
+      await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
       OXNavigator.pop(context,true);
       return;
     }
-    return CommonToast.instance.show(context, 'remove failed');
+    return CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_fail_tips'));
+  }
+
+  @override
+  buildSendPressed() {
+    GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
+    final groupName = groupDB?.name;
+    final invited = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_common.tips'),
+        content: Localized.text('ox_chat.group_share_tips'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context, false);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context, true);
+                selectedUserList.forEach((element) {
+                  ChatMessageSendEx.sendTemplatePrivateMessage(
+                      receiverPubkey: element.pubKey,
+                      icon: 'icon_group_default.png',
+                      title: 'Group Chat Invitation',
+                      subTitle: '${invited} invited you to join this Group "${groupName}"');
+                });
+                OXNavigator.pop(context, true);
+              }),
+        ],
+        isRowAction: true);
   }
 }

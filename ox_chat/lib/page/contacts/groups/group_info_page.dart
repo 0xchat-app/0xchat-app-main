@@ -624,12 +624,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _shareGroupFn() {
     if (!_isGroupMember) return _DisableShareDialog();
-    OXNavigator.pushPage(
-      context,
-      (context) => GroupSharePage(
-        groupId: widget.groupId,
-      ),
-    );
+    OXNavigator.presentPage(
+        context,
+        (context) => ContactGroupMemberPage(
+              groupId: widget.groupId,
+              groupListAction: GroupListAction.send,
+            ));
   }
 
   void _changeMuteFn(bool value) async {

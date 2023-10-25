@@ -13,7 +13,8 @@ import 'package:lpinyin/lpinyin.dart';
 enum GroupListAction {
   view,
   add,
-  remove
+  remove,
+  send
 }
 
 class ContactGroupListPage extends StatefulWidget {
@@ -175,7 +176,23 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         package: 'ox_chat',
       ),
       onPressed: () {
-        widget.groupListAction == GroupListAction.view ? buildViewPressed() : widget.groupListAction == GroupListAction.add ? buildAddPressed() : buildRemovePressed();
+        // widget.groupListAction == GroupListAction.view ? buildViewPressed() : widget.groupListAction == GroupListAction.add ? buildAddPressed() : buildRemovePressed();
+        switch (widget.groupListAction) {
+          case GroupListAction.view:
+            buildViewPressed();
+            break;
+          case GroupListAction.add:
+            buildAddPressed();
+            break;
+          case GroupListAction.remove:
+            buildRemovePressed();
+            break;
+          case GroupListAction.send:
+            buildSendPressed();
+            break;
+          default:
+            break;
+        }
       }
     );
   }
@@ -310,5 +327,6 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
 
   buildRemovePressed() {}
 
+  buildSendPressed() {}
 }
 
