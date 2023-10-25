@@ -60,7 +60,7 @@ class BaseAvatarWidget extends StatelessWidget {
     fit: BoxFit.contain,
     width: size,
     height: size,
-    package: 'ox_chat',
+    package: 'ox_common',
   );
 }
 
