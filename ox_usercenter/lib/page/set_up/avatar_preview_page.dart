@@ -93,18 +93,20 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
   }
 
   Widget createBody() {
+    final imageWidth = MediaQuery.of(context).size.width;
+    final imageHeight = MediaQuery.of(context).size.height;
     String localAvatarPath = 'assets/images/user_image.png';
     Image placeholderImage = Image.asset(
       localAvatarPath,
       fit: BoxFit.cover,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
+      width: imageWidth,
+      height: imageHeight,
       package: 'ox_common',
     );
     return Container(
       color: ThemeColor.color200,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
+      width: imageWidth,
+      height: imageHeight,
       child: Align(
           alignment: Alignment(1, -0.5),
           child: imageFile != null
@@ -114,7 +116,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                     return placeholderImage;
                   })
               : PhotoView(
-                  imageProvider: OXCachedNetworkImageProviderEx.create(context, '${mUserDB?.picture}'),
+                  imageProvider: OXCachedNetworkImageProviderEx.create(context, '${mUserDB?.picture}', width: imageWidth),
                   errorBuilder: (_, __, ___) {
                     return placeholderImage;
                   })),
