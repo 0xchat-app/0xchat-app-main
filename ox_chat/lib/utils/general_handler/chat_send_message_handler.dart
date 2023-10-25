@@ -82,10 +82,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendTextMessage(BuildContext context, String text) async {
-
-    // sendTemplateMessage(context, 'title: $text', 'content: $text', '', '');
-    // return ;
-
+    
     final mid = Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
