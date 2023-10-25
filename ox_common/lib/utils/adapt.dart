@@ -27,17 +27,15 @@ class Adapt {
     _pixelRatio = mediaQuery?.devicePixelRatio;
     _textScaleFactor = mediaQuery?.textScaleFactor ?? _textScaleFactor;
 
-    int uiwidth = standardW is int ? standardW : 375;
     if (_width != null) {
       if (Platform.isIOS && _width! > 375.0)
         _ratioW = 1;
       else
-        _ratioW = _width! / uiwidth;
+        _ratioW = _width! / standardW;
     }
 
-    int uiheight = standardH is int ? standardH : 812;
     if (_height != null) {
-      _ratioH = _height! / uiheight;
+      _ratioH = _height! / standardH;
     }
   }
 
@@ -82,4 +80,9 @@ class Adapt {
   static padBotH() {
     return _botbarH;
   }
+}
+
+extension AdaptEx on num {
+  double get px => Adapt.px(this);
+  double get sp => Adapt.sp(this);
 }

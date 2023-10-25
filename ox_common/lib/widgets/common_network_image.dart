@@ -80,7 +80,7 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
     }
 
     if (resizeWidth == null && resizeHeight == null) {
-      assert(false);
+      resizeWidth = (MediaQuery.of(context).size.width * ratio).round();
     }
 
     return ResizeImage.resizeIfNeeded(
