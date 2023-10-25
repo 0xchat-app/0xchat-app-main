@@ -48,7 +48,15 @@ class ScanUtils {
         url.startsWith('nostr:note') ||
         url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
-      type = CommonConstant.qrCodeChannel;
+      ChannelDB? channelDB = Channels.sharedInstance.channels[tempMap?['channelId']];
+      if(channelDB != null){
+        type = CommonConstant.qrCodeChannel;
+      }
+      else{
+        GroupDB? groupDB = Groups.sharedInstance.groups[tempMap?['channelId']];
+        if(groupDB != null) type = CommonConstant.qrCodeGroup;
+        else return;
+      }
     }
     if (tempMap == null) {
       return;
@@ -94,6 +102,8 @@ class ScanUtils {
                     _showFriendInfo(context, tempMap!['pubkey']);
                   } else if (type == CommonConstant.qrCodeChannel) {
                     _gotoChannel(context, tempMap!['channelId']);
+                  } else if( type == CommonConstant.qrCodeGroup){
+                    _gotoGroup(context, tempMap!['channelId']);
                   }
                 }),
           ]);
@@ -119,6 +129,10 @@ class ScanUtils {
         });
       }
     }
+  }
+
+  static Future<void> _gotoGroup( BuildContext context, String groupId) async {
+     // TODO: goto group
   }
 
   static Future<void> _gotoChannel(
