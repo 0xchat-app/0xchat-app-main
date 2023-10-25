@@ -1,25 +1,20 @@
-import 'dart:io';
-
-import 'package:avatar_stack/avatar_stack.dart';
-import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_localizable/ox_localizable.dart';
-import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
-enum EGroupEditType { remark, alias, groupName,notice }
+enum EGroupEditType { groupName,notice }
 
 extension EGroupEditTypeStr on EGroupEditType {
   String get title {
     switch (this) {
-      case EGroupEditType.remark:
-        return 'Edit Remark';
-      case EGroupEditType.alias:
-        return 'My Alias in Group';
       case EGroupEditType.groupName:
         return 'Edit Group Name';
       case EGroupEditType.notice:
@@ -29,10 +24,6 @@ extension EGroupEditTypeStr on EGroupEditType {
 
   String get subTitle {
     switch (this) {
-      case EGroupEditType.remark:
-        return 'Remark';
-      case EGroupEditType.alias:
-        return 'My Alias';
       case EGroupEditType.groupName:
         return 'Group Name';
       case EGroupEditType.notice:
@@ -43,45 +34,53 @@ extension EGroupEditTypeStr on EGroupEditType {
 
   String get hintText {
     switch (this) {
-      case EGroupEditType.remark:
-        return 'satoshi';
-      case EGroupEditType.alias:
-        return 'satoshi';
       case EGroupEditType.groupName:
         return 'This is Group Name';
       case EGroupEditType.notice:
-        return 'This is Group Name';
+        return 'This is Group Notice';
     }
   }
-
-
 }
 
 class GroupEditPage extends StatefulWidget {
   final EGroupEditType pageType;
+  final String groupId;
 
-  GroupEditPage({required this.pageType});
+  GroupEditPage({required this.pageType,required this.groupId});
   @override
   _GroupEditPageState createState() => new _GroupEditPageState();
 }
 
 class _GroupEditPageState extends State<GroupEditPage> {
 
-  TextEditingController _remarkController = TextEditingController();
-  TextEditingController _aliasController = TextEditingController();
   TextEditingController _groupNameController = TextEditingController();
-  TextEditingController _noticeNameController = TextEditingController();
+  TextEditingController _groupNoticeController = TextEditingController();
 
   bool _isShowDelete = false;
+
+
+  GroupDB? groupDBInfo = null;
 
   @override
   void initState() {
     super.initState();
+    _groupInfoInit();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _groupInfoInit() async {
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+
+
+    if (groupDB != null) {
+      groupDBInfo = groupDB;
+
+      setState(() {});
+    }
   }
 
   @override
@@ -119,7 +118,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
                 ),
               ),
             ),
-            _EditGroupName(),
+            _EditGroupInfoWidget(),
           ],
         ),
       ),
@@ -128,7 +127,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
 
   Widget _appBarActionWidget() {
     return GestureDetector(
-      onTap: () { },
+      onTap: _submitFn,
       child: Center(
         child: ShaderMask(
           shaderCallback: (Rect bounds) {
@@ -153,7 +152,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
   }
 
 
-  Widget _EditGroupName() {
+  Widget _EditGroupInfoWidget() {
     EGroupEditType type = widget.pageType;
     return Container(
       padding: EdgeInsets.only(
@@ -180,7 +179,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
           ),
           _buildTextEditing(
               controller: _getTextController(),
-              hintText: type.hintText,
+              hintText: _getTextHintText(),
               maxLines: null,
             height: type == EGroupEditType.notice ? Adapt.px(110) : null,
           )
@@ -189,16 +188,25 @@ class _GroupEditPageState extends State<GroupEditPage> {
     );
   }
 
+  String _getTextHintText() {
+    String textHint = '';
+    switch(widget.pageType){
+      case EGroupEditType.groupName:
+         textHint = groupDBInfo?.name ?? '';
+         break;
+      case EGroupEditType.notice:
+         textHint = groupDBInfo?.pinned?[0] ?? '';
+         break;
+    }
+    return textHint.isEmpty ? widget.pageType.hintText : textHint;
+  }
+
   TextEditingController _getTextController(){
     switch(widget.pageType){
-      case EGroupEditType.remark:
-        return _remarkController;
-      case EGroupEditType.alias:
-        return _aliasController;
       case EGroupEditType.groupName:
         return _groupNameController;
       case EGroupEditType.notice:
-        return _noticeNameController;
+        return _groupNoticeController;
     }
   }
 
@@ -210,7 +218,6 @@ class _GroupEditPageState extends State<GroupEditPage> {
     int? maxLines,
   }) {
     return Container(
-      // alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -227,7 +234,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
         decoration: InputDecoration(
           hintText: hintText ?? "Please enter...",
           hintStyle: TextStyle(
-            color: ThemeColor.color100,
+            color: ThemeColor.color0,
             fontSize: Adapt.px(15),
           ),
           suffixIcon:_delTextIconWidget(controller),
@@ -266,5 +273,31 @@ class _GroupEditPageState extends State<GroupEditPage> {
         height: Adapt.px(16),
       ),
     );
+  }
+
+  void _submitFn(){
+    switch(widget.pageType){
+      case EGroupEditType.groupName:
+        return  _updateGroupName();
+      case EGroupEditType.notice:
+        return _updateGroupNotice();
+    }
+  }
+
+
+  void _updateGroupName() async{
+    String groupNameContent = _groupNameController.text;
+    if(groupNameContent.isEmpty) return CommonToast.instance.show(context, 'The group name cannot be empty');
+    OKEvent event = await Groups.sharedInstance.updateGroupName(widget.groupId,'', groupNameContent);
+    if(!event.status) return  CommonToast.instance.show(context, event.message);
+    OXNavigator.pop(context,true);
+  }
+
+  void _updateGroupNotice()async {
+    String groupNoticeContent = _groupNoticeController.text;
+    if(groupNoticeContent.isEmpty) return CommonToast.instance.show(context, 'The notice cannot be empty');
+    OKEvent event = await Groups.sharedInstance.updateGroupPinned(widget.groupId,'', groupNoticeContent);
+    if(!event.status) return  CommonToast.instance.show(context, event.message);
+    OXNavigator.pop(context,true);
   }
 }

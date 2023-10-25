@@ -1,35 +1,44 @@
-import 'dart:io';
-
-import 'package:avatar_stack/avatar_stack.dart';
-import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:flutter/services.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
-import '../../utils/widget_tool.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'group_edit_page.dart';
 
 class GroupNoticePage extends StatefulWidget {
+  final String groupId;
+
+  GroupNoticePage({required this.groupId});
+
   @override
   _GroupNoticePageState createState() => new _GroupNoticePageState();
 }
 
 class _GroupNoticePageState extends State<GroupNoticePage> {
-  TextEditingController _noticeNameController = TextEditingController();
+  GroupDB? groupDBInfo = null;
+
   @override
   void initState() {
     super.initState();
+    _groupInfoInit();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _groupInfoInit() async {
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    if (groupDB == null) return;
+    setState(() {
+      groupDBInfo = groupDB;
+    });
   }
 
   @override
@@ -54,12 +63,14 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
 
   Widget _appBarActionWidget() {
     return GestureDetector(
-      onTap: () => OXNavigator.pushPage(
-        context,
-        (context) => GroupEditPage(
-          pageType: EGroupEditType.notice,
-        ),
-      ),
+      onTap: () async {
+        bool? result = await OXNavigator.pushPage(
+          context,
+          (context) => GroupEditPage(
+              pageType: EGroupEditType.notice, groupId: widget.groupId),
+        );
+        if (result != null && result) _groupInfoInit();
+      },
       child: Center(
         child: ShaderMask(
           shaderCallback: (Rect bounds) {
@@ -84,6 +95,11 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
   }
 
   Widget _EditGroupName() {
+    Widget placeholderImage = CommonImage(
+      iconName: 'user_image.png',
+      width: Adapt.px(76),
+      height: Adapt.px(76),
+    );
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: Adapt.px(30),
@@ -110,23 +126,15 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                       height: Adapt.px(48),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(Adapt.px(48)),
-                        child: Image.asset(
-                          'assets/images/user_image.png',
+                        child: CachedNetworkImage(
+                          imageUrl: groupDBInfo?.picture ?? '',
                           fit: BoxFit.cover,
+                          placeholder: (context, url) => placeholderImage,
+                          errorWidget: (context, url, error) =>
+                              placeholderImage,
                           width: Adapt.px(76),
                           height: Adapt.px(76),
-                          package: 'ox_common',
                         ),
-                        // OXCachedNetworkImage(
-                        //   imageUrl: _imgUrl,
-                        //   fit: BoxFit.cover,
-                        //   placeholder: (context, url) =>
-                        //   placeholderImage,
-                        //   errorWidget: (context, url, error) =>
-                        //   placeholderImage,
-                        //   width: Adapt.px(48),
-                        //   height: Adapt.px(48),
-                        // ),
                       ),
                     ),
                     Column(
@@ -137,7 +145,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                           margin: EdgeInsets.only(
                               left: Adapt.px(16), top: Adapt.px(2)),
                           child: MyText(
-                            'Channel',
+                            groupDBInfo?.name ?? '--',
                             16,
                             ThemeColor.color10,
                           ),
@@ -146,7 +154,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                           margin: EdgeInsets.only(
                               left: Adapt.px(16), top: Adapt.px(2)),
                           child: MyText(
-                            '12312',
+                            '${groupDBInfo?.updateTime}' ?? '--',
                             16,
                             ThemeColor.color10,
                           ),
@@ -158,46 +166,31 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
               ),
             ],
           ),
-          _buildTextEditing(
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: Adapt.px(16),
+              vertical: Adapt.px(12),
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  Adapt.px(16),
+                ),
+              ),
+              color: ThemeColor.color180,
+            ),
             height: Adapt.px(110),
-            controller: _noticeNameController,
-            hintText: 'This is Group Name',
-            maxLines: null,
+            child: Text(
+              groupDBInfo?.pinned?[0] ?? '',
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontWeight: FontWeight.w400,
+                fontSize: Adapt.px(16),
+              ),
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextEditing({
-    String? hintText,
-    required TextEditingController controller,
-    double? height,
-    int? maxLines,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            Adapt.px(16),
-          ),
-        ),
-        color: ThemeColor.color180,
-      ),
-      height: height,
-      child: TextField(
-        // focusNode: _focusNode,
-        controller: controller,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hintText ?? "Please enter...",
-          hintStyle: TextStyle(
-              color: ThemeColor.color0,
-              fontWeight: FontWeight.w400,
-              fontSize: Adapt.px(16)),
-          border: InputBorder.none,
-        ),
       ),
     );
   }

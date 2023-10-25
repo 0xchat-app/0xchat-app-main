@@ -68,8 +68,10 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   void _getFollowList() async {
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if(userInfo == null) return;
     await OXLoading.show();
-    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
+    String pubKey = userInfo.pubKey;
     List userMap = await Account.sharedInstance.syncFollowListFromRelay(pubKey);
     await OXLoading.dismiss();
     List<DiyUserDB> db = [];

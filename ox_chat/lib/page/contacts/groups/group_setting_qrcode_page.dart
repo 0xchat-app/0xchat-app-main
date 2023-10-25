@@ -17,8 +17,14 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:chatcore/chat-core.dart';
 
 class GroupSettingQrcodePage extends StatefulWidget {
+
+  final String groupId;
+
+  GroupSettingQrcodePage({required this.groupId});
+
   @override
   State<StatefulWidget> createState() {
     return _GroupSettingQrcodePageState();
@@ -27,13 +33,15 @@ class GroupSettingQrcodePage extends StatefulWidget {
 
 class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   String _imgUrl = '';
-  String _userQrCodeUrl = '';
+  String _groupQrCodeUrl = '';
   GlobalKey _globalKey = new GlobalKey();
+
+  GroupDB? groupDBInfo = null;
 
   @override
   void initState() {
     super.initState();
-    _initData();
+    _groupInfoInit();
   }
 
   @override
@@ -41,27 +49,22 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     return _body();
   }
 
-  void _initData() async {
-    _userQrCodeUrl = 'fagsjhdfgjsghsdfgf';
-    // List<String> relayList = OXRelayManager.sharedInstance.relayAddressList.take(5).toList();
-    // String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-    // if (widget.type == CommonConstant.qrCodeUser) {
-    //   _showName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
-    //   _imgUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
-    //   _showScanHint = 'str_scan_user_qrcode_hint'.localized();
-    //   _userQrCodeUrl = shareAppLinkDomain + Account.encodeProfile(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '', relayList);
-    //   setState(() {});
-    // } else if (widget.type == CommonConstant.qrCodeChannel) {
-    //   if (widget.channelDB == null) {
-    //     CommonToast.instance.show(context, 'Unable to recognize the QR code.');
-    //   } else {
-    //     _showName = widget.channelDB!.name ?? '';
-    //     _imgUrl = widget.channelDB!.picture ?? '';
-    //     _showScanHint = 'str_scan_channel_qrcode_hint'.localized();
-    //     _userQrCodeUrl = shareAppLinkDomain + Channels.encodeChannel(widget.channelDB!.channelId ?? '', relayList, widget.channelDB!.creator);
-    //     setState(() {});
-    //   }
-    // }
+  void _groupInfoInit() async {
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+
+    if (groupDB != null) {
+      groupDBInfo = groupDB;
+      _getGroupQrcode(groupDB);
+      setState(() {});
+    }
+  }
+
+  void _getGroupQrcode(GroupDB groupDB){
+    String relay = groupDB.relay ?? '';
+    String groupOwner = groupDB.owner;
+    String groupId = groupDB.groupId;
+    _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
+    print('[=_groupQrCodeUrl====${_groupQrCodeUrl}');
   }
 
   Widget _body() {
@@ -127,7 +130,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                             child: ClipRRect(
                               borderRadius:
                                   BorderRadius.circular(Adapt.px(48)),
-                              child: OXCachedNetworkImage(
+                              child: CachedNetworkImage(
                                 imageUrl: _imgUrl,
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) =>
@@ -147,7 +150,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                                 margin: EdgeInsets.only(
                                     left: Adapt.px(16), top: Adapt.px(2)),
                                 child: MyText(
-                                  'Channel',
+                                  groupDBInfo?.name ?? '--',
                                   16,
                                   ThemeColor.color10,
                                 ),
@@ -156,7 +159,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                                 margin: EdgeInsets.only(
                                     left: Adapt.px(16), top: Adapt.px(2)),
                                 child: MyText(
-                                  '12312',
+                                  _dealWithGroupId,
                                   16,
                                   ThemeColor.color10,
                                 ),
@@ -186,7 +189,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                         padding: EdgeInsets.all(
                           Adapt.px(8),
                         ),
-                        child: _userQrCodeUrl!.isEmpty
+                        child: _groupQrCodeUrl!.isEmpty
                             ? Container()
                             : _qrCodeWidget(),
                       ),
@@ -201,17 +204,21 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                 ),
               ),
             ),
-            Container(
-              child:Text(
-                'Save Image',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: ThemeColor.purple2,
-                  fontSize: Adapt.px(18),
+            //
+           GestureDetector(
+             onTap: _widgetShotAndSave,
+             child:  Container(
+               child:Text(
+                 'Save Image',
+                 style: TextStyle(
+                   fontWeight: FontWeight.w600,
+                   color: ThemeColor.purple2,
+                   fontSize: Adapt.px(18),
 
-                ),
-              ),
-            ),
+                 ),
+               ),
+             ),
+           ),
           ],
         ),
       ),
@@ -231,18 +238,9 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   }
 
   Widget _qrCodeWidget() {
-    // LogUtil.e('Michael : _userQrCodeUrl = ${_userQrCodeUrl}  headUrl:${mCurrentUserInfo?.headUrl}');
     return PrettyQr(
-      // image: NetworkImage(
-      //   '${mCurrentUserInfo?.headUrl}&v=0' ?? '',
-      // ),
-      // image: CachedNetworkImageProvider(
-      //   '${mCurrentUserInfo?.headUrl}',
-      //   maxWidth: (Adapt.px(50) as double).toInt() ,
-      //   maxHeight: (Adapt.px(50) as double).toInt(),
-      // ),
       size: Adapt.px(240),
-      data: _userQrCodeUrl,
+      data: _groupQrCodeUrl,
       errorCorrectLevel: QrErrorCorrectLevel.M,
       typeNumber: null,
       roundEdges: true,
@@ -339,7 +337,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
             await ImageGallerySaver.saveImage(Uint8List.fromList(pngBytes));
         if (result != null && result != "") {
           // LogUtil.e('Michael : result = ${result.toString()}');
-          Navigator.pop(context);
+          // Navigator.pop(context);
           //Return the path
           // String str = Uri.decodeComponent(result);
           CommonToast.instance.show(
@@ -347,14 +345,14 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
             "str_saved_to_album".localized(),
           );
         } else {
-          Navigator.pop(context);
+          // Navigator.pop(context);
           CommonToast.instance.show(
             context,
             "str_save_failed".localized(),
           );
         }
       } else {
-        Navigator.pop(context);
+        // Navigator.pop(context);
         CommonToast.instance.show(
           context,
           "str_save_failed".localized(),
@@ -373,5 +371,11 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
           ]);
       return;
     }
+  }
+
+  String get _dealWithGroupId {
+    String? groupId = groupDBInfo?.groupId;
+    if(groupId == null) return '--';
+    return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
   }
 }

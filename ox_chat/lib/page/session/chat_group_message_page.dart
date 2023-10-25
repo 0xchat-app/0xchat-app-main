@@ -117,7 +117,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    GroupDB? group = Groups.sharedInstance.groups[widget.communityItem.chatId];
+    GroupDB? group = Groups.sharedInstance.groups[widget.communityItem.groupId];
     String showName = group?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,

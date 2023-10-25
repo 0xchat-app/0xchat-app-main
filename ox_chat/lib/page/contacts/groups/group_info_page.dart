@@ -5,34 +5,63 @@ import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import '../contact_group_list_page.dart';
+import '../contact_group_member_page.dart';
 import 'group_edit_page.dart';
+import 'group_join_requests.dart';
 import 'group_notice_page.dart';
 import 'group_setting_qrcode_page.dart';
 
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+import 'group_share_page.dart';
+
 class GroupInfoPage extends StatefulWidget {
+  final String groupId;
+
+  GroupInfoPage({Key? key, required this.groupId}) : super(key: key);
+
   @override
   _GroupInfoPageState createState() => new _GroupInfoPageState();
 }
 
 class _GroupInfoPageState extends State<GroupInfoPage> {
-  // full follows
-  List avatars = [1, 2, 1, 1, 1, 1, 1];
   bool _isMute = false;
-
+  List<UserDB> groupMember = [];
+  GroupDB? groupDBInfo = null;
   @override
   void initState() {
     super.initState();
+    _groupInfoInit();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _groupInfoInit() async {
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    List<UserDB>? groupList =
+        await Groups.sharedInstance.getAllGroupMembers(widget.groupId);
+
+    if (groupDB != null) {
+      groupDBInfo = groupDB;
+
+      groupMember = groupList;
+      setState(() {});
+    }
   }
 
   @override
@@ -61,7 +90,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               _optionMemberWidget(),
               _groupBaseOptionView(),
               _groupLocationView(),
-              _groupHistoryView(),
               _leaveBtnWidget(),
             ],
           ),
@@ -72,7 +100,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Widget _appBarActionWidget() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _shareGroupFn,
       child: CommonImage(
         iconName: 'share_icon.png',
         width: Adapt.px(24),
@@ -96,32 +124,35 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               _addOrDelMember(),
             ],
           ),
-          Container(
-            margin: EdgeInsets.symmetric(
-              vertical: Adapt.px(16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  height: Adapt.px(20),
-                  child: Text(
-                    'View All 248 Members',
-                    style: TextStyle(
-                      fontSize: Adapt.px(14),
-                      color: ThemeColor.color100,
+          GestureDetector(
+            onTap: () => _groupMemberOptionFn(GroupListAction.view),
+            child: Container(
+              margin: EdgeInsets.symmetric(
+                vertical: Adapt.px(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    height: Adapt.px(20),
+                    child: Text(
+                      'View All ${groupMember.length} Members',
+                      style: TextStyle(
+                        fontSize: Adapt.px(14),
+                        color: ThemeColor.color100,
+                      ),
                     ),
                   ),
-                ),
-                CommonImage(
-                  iconName: 'icon_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                  package: 'ox_chat',
-                  useTheme: true,
-                ),
-              ],
+                  CommonImage(
+                    iconName: 'icon_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                    package: 'ox_chat',
+                    useTheme: true,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -130,13 +161,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   Widget _memberAvatarWidget() {
-    // return Container();
+    if (groupMember.length == 0) return Container();
     return Container(
       margin: EdgeInsets.only(
         right: Adapt.px(0),
       ),
       constraints: BoxConstraints(
-          maxWidth: Adapt.px(24 * avatars.length + 24), minWidth: Adapt.px(48)),
+          maxWidth: Adapt.px(24 * groupMember.length + 24),
+          minWidth: Adapt.px(48)),
       child: AvatarStack(
         settings: RestrictedPositions(
             // maxCoverage: 0.1,
@@ -146,12 +178,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         borderColor: ThemeColor.color180,
         height: Adapt.px(48),
         avatars: [
-          for (var n = 0; n < avatars.length; n++)
-            // if (avatars[n] != null && avatars[n]!.isNotEmpty)
-            //   CachedNetworkImageProvider(avatars[n]!)
-            // else
-            const AssetImage('assets/images/user_image.png',
-                package: 'ox_common'),
+          for (var n = 0; n < groupMember.length; n++)
+            if (groupMember[n].picture?.isNotEmpty != null)
+              CachedNetworkImageProvider(groupMember[n].picture!)
+            else
+              const AssetImage('assets/images/user_image.png',
+                  package: 'ox_common'),
         ],
       ),
     );
@@ -161,21 +193,27 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     return Container(
       child: Row(
         children: [
-          CommonImage(
-            iconName: 'add_circle_icon.png',
-            width: Adapt.px(48),
-            height: Adapt.px(48),
-            useTheme: true,
-          ),
-          Container(
-            margin: EdgeInsets.only(
-              left: Adapt.px(12),
-            ),
+          GestureDetector(
+            onTap: () => _groupMemberOptionFn(GroupListAction.add),
             child: CommonImage(
-              iconName: 'del_circle_icon.png',
+              iconName: 'add_circle_icon.png',
               width: Adapt.px(48),
               height: Adapt.px(48),
               useTheme: true,
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _groupMemberOptionFn(GroupListAction.remove),
+            child: Container(
+              margin: EdgeInsets.only(
+                left: Adapt.px(12),
+              ),
+              child: CommonImage(
+                iconName: 'del_circle_icon.png',
+                width: Adapt.px(48),
+                height: Adapt.px(48),
+                useTheme: true,
+              ),
             ),
           ),
         ],
@@ -193,15 +231,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       child: Column(
         children: [
           _topItemBuild(
-            title: 'Group Name',
-            subTitle: 'This is Group Name',
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) => GroupEditPage(pageType: EGroupEditType.groupName),
-            ),
-          ),
+              title: 'Group Name',
+              subTitle: groupDBInfo?.name ?? '--',
+              onTap: _updateGroupNameFn,
+              isShowMoreIcon: _isGroupMember),
           _topItemBuild(
-              title: 'Members', subTitle: '500', isShowMoreIcon: false),
+              title: 'Members',
+              subTitle: groupMember.length.toString(),
+              isShowMoreIcon: false),
           _topItemBuild(
             title: 'Group QR Code',
             actionWidget: CommonImage(
@@ -210,23 +247,24 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               height: Adapt.px(24),
               useTheme: true,
             ),
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) => GroupSettingQrcodePage(),
-            ),
+            onTap: _groupQrCodeFn,
           ),
           _topItemBuild(
             title: 'Group Notice',
-            titleDes:
-                '0xnoub1t0w642zyacycew3szjjhtszzarwf63mg62ehvj4zunn3gmcu4fqprypcuqpqpryrypc...',
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) => GroupNoticePage(),
-            ),
+            titleDes: groupDBInfo?.pinned?[0] ?? '--',
+            onTap: _updateGroupNoticeFn,
+            isShowMoreIcon: _isGroupMember,
           ),
           _topItemBuild(
             title: 'Join requests',
+            onTap: () =>
+                OXNavigator.pushPage(context, (context) => GroupJoinRequests()),
+          ),
+          _topItemBuild(
+            title: 'Mute',
             isShowDivider: false,
+            actionWidget: _muteSwitchWidget(),
+            isShowMoreIcon: false,
           ),
         ],
       ),
@@ -244,71 +282,26 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         color: ThemeColor.color180,
       ),
       child: Column(
-        children: [
-          _topItemBuild(
-            title: 'Remark',
-            subTitle: 'This is Remark',
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) => GroupEditPage(pageType: EGroupEditType.remark),
-            ),
-          ),
-          _topItemBuild(
-            title: 'My Alias in Group',
-            subTitle: 'Painter',
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) => GroupEditPage(pageType: EGroupEditType.groupName),
-            ),
-          ),
-          _topItemBuild(
-            title: 'Mute',
-            isShowDivider: false,
-            actionWidget: _muteSwitchWidget(),
-            isShowMoreIcon: false,
-          ),
-        ],
+        children: [],
       ),
     );
   }
 
   Widget _muteSwitchWidget() {
-    return Switch(
-      value: _isMute,
-      activeColor: Colors.white,
-      activeTrackColor: ThemeColor.gradientMainStart,
-      inactiveThumbColor: Colors.white,
-      inactiveTrackColor: ThemeColor.color160,
-      onChanged: (value) => {
-        setState(() {
-          _isMute = value;
-        })
-      },
-      materialTapTargetSize: MaterialTapTargetSize.padded,
-    );
-  }
-
-  Widget _groupHistoryView() {
     return Container(
-      margin: EdgeInsets.only(
-        top: Adapt.px(12),
-      ),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color180,
-      ),
-      child: Column(
+      height: Adapt.px(25),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _topItemBuild(
-            title: 'Clear Chat History',
-            onTap: () => _optionDialogView(
-                title:
-                    'Clear chat history? \n Chat history will be cleared on all of your devices.',
-                optionContent: 'Clear',
-                height: 192),
+          Switch(
+            value: _isMute,
+            activeColor: Colors.white,
+            activeTrackColor: ThemeColor.gradientMainStart,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: ThemeColor.color160,
+            onChanged: (value) => _changeMuteFn(value),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
           ),
-          _topItemBuild(title: 'Report', isShowDivider: false),
         ],
       ),
     );
@@ -415,6 +408,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   Widget _leaveBtnWidget() {
+    if (!_isGroupMember) return Container();
+    String content = _isGroupOwner() ? 'Delete and leave' : 'Leave';
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
@@ -429,7 +424,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Leave',
+          content,
           style: TextStyle(
             color: ThemeColor.red,
             fontSize: Adapt.px(16),
@@ -437,13 +432,15 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           ),
         ),
       ),
-      onTap: () =>
-          _optionDialogView(title: 'Leave this group?', optionContent: 'Leave'),
+      onTap: _leaveConfirmWidget,
     );
   }
 
-  void _optionDialogView(
-      {String title = '', String optionContent = '', int height = 175}) {
+  void _leaveConfirmWidget() {
+    String tips = _isGroupOwner()
+        ? 'Delete and remove all group members? ?'
+        : 'Leave this group?';
+    String content = _isGroupOwner() ? 'Delete and leave' : 'Leave';
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -455,7 +452,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             opacity: 1,
             child: Container(
               alignment: Alignment.bottomCenter,
-              height: Adapt.px(height),
+              height: Adapt.px(175),
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
                 borderRadius: BorderRadius.circular(12),
@@ -469,7 +466,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                       vertical: Adapt.px(8),
                     ),
                     child: Text(
-                      title,
+                      tips,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: Adapt.px(14),
@@ -482,16 +479,30 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                     height: Adapt.px(0.5),
                     color: ThemeColor.color160,
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: Adapt.px(17),
-                    ),
-                    child: Text(
-                      optionContent,
-                      style: TextStyle(
-                        fontSize: Adapt.px(16),
-                        fontWeight: FontWeight.w400,
-                        color: ThemeColor.red,
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () async {
+                      OKEvent event = await Groups.sharedInstance.leaveGroup(
+                          widget.groupId, 'Leave group chat success');
+                      if (event.status) {
+                        CommonToast.instance
+                            .show(context, 'Leave group chat success');
+                        OXNavigator.popToRoot(context);
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        vertical: Adapt.px(17),
+                      ),
+                      child: Text(
+                        content,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: Adapt.px(16),
+                          fontWeight: FontWeight.w400,
+                          color: ThemeColor.red,
+                        ),
                       ),
                     ),
                   ),
@@ -526,5 +537,107 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         );
       },
     );
+  }
+
+  bool _isGroupOwner() {
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userInfo == null || groupDBInfo == null) return false;
+
+    return userInfo.pubKey == groupDBInfo?.owner;
+  }
+
+  bool get _isGroupMember {
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userInfo == null || groupMember.length == 0) return false;
+    UserDB? userDB =
+        groupMember.firstWhere((userDB) => userDB.pubKey == userInfo.pubKey);
+    return userDB != null;
+  }
+
+  void _updateGroupNameFn() async {
+    if (!_isGroupMember) return;
+
+    bool? result = await OXNavigator.pushPage(
+      context,
+      (context) => GroupEditPage(
+        pageType: EGroupEditType.groupName,
+        groupId: widget.groupId,
+      ),
+    );
+
+    if (result != null && result) _groupInfoInit();
+  }
+
+  void _updateGroupNoticeFn() async {
+    if (!_isGroupMember) return;
+    await OXNavigator.pushPage(
+      context,
+      (context) => GroupNoticePage(
+        groupId: widget.groupId,
+      ),
+    );
+    _groupInfoInit();
+  }
+
+  void _groupQrCodeFn() {
+    if (!_isGroupMember) return _DisableShareDialog();
+    OXNavigator.pushPage(
+      context,
+      (context) => GroupSettingQrcodePage(groupId: widget.groupId),
+    );
+  }
+
+  void _DisableShareDialog() {
+    OXCommonHintDialog.show(
+      context,
+      title: "",
+      content:
+          'This Group has enabled group-join verification. An invitation by a current group admin is required to join.',
+      actionList: [
+        OXCommonHintAction.sure(
+          text: Localized.text('ox_common.confirm'),
+          onTap: () => OXNavigator.pop(context),
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
+  void _shareGroupFn() {
+    if (!_isGroupMember) return _DisableShareDialog();
+    OXNavigator.pushPage(
+      context,
+      (context) => GroupSharePage(
+        groupId: widget.groupId,
+      ),
+    );
+  }
+
+  void _changeMuteFn(bool value) async {
+    if (!_isGroupMember) {
+      CommonToast.instance.show(context, 'Not group members cannot operate');
+      return;
+    }
+    if (value) {
+      await Groups.sharedInstance.muteGroup(widget.groupId);
+      CommonToast.instance.show(context, 'Successful operation');
+    } else {
+      await Groups.sharedInstance.unMuteGroup(widget.groupId);
+      CommonToast.instance.show(context, 'Successful operation');
+    }
+    setState(() {
+      _isMute = value;
+    });
+  }
+
+  void _groupMemberOptionFn(GroupListAction action) async{
+    bool? result = await OXNavigator.presentPage(
+      context,
+      (context) => ContactGroupMemberPage(
+        groupId: widget.groupId,
+        groupListAction: action,
+      ),
+    );
+    if(result != null && result) _groupInfoInit();
   }
 }

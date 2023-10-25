@@ -6,6 +6,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
+import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
@@ -74,6 +75,13 @@ class OXChat extends OXFlutterModule {
           context,
           (context) => ContactChanneDetailsPage(
             channelDB: params?['channelDB'],
+          ),
+        );
+      case 'GroupInfoPage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => GroupInfoPage(
+            groupId: params?['groupId'],
           ),
         );
     }
