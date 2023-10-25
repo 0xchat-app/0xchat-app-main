@@ -13,14 +13,14 @@ extension CustomURIHelper on String {
     return isOXChatURI && uri.host == moduleAction.toLowerCase();
   }
 
-  ({String module, String action, Map<String, String> params})? getModuleActionValue() {
+  ({String module, String action, Map<String, dynamic> params})? getModuleActionValue() {
     if (!isModuleActionURI) return null;
 
     final uri = Uri.parse(this);
     final query = uri.queryParameters;
     final moduleValue = query['module'] ?? '';
     final actionValue = query['action'] ?? '';
-    Map<String, String> paramsValue = {};
+    Map<String, dynamic> paramsValue = {};
     try {
       paramsValue = json.decode(Uri.decodeFull(query['params'] ?? ''));
     } catch(_) { }
@@ -31,10 +31,10 @@ extension CustomURIHelper on String {
     return (module: moduleValue, action: actionValue, params: paramsValue);
   }
 
-  static createModuleActionURI({
+  static String createModuleActionURI({
     required String module,
     required String action,
-    Map<String, String> params = const {},
+    Map<String, dynamic> params = const {},
   }) {
     final queryParameters = {
       'module': module,
@@ -48,7 +48,7 @@ extension CustomURIHelper on String {
     return _createURI(host: moduleAction, queryParameters: queryParameters);
   }
 
-  static _createURI({required String host, Map<String, String>? queryParameters}) {
-    return Uri(scheme: scheme, host: host, queryParameters: queryParameters);
+  static String _createURI({required String host, Map<String, String>? queryParameters}) {
+    return Uri(scheme: scheme, host: host, queryParameters: queryParameters).toString();
   }
 }
