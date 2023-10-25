@@ -141,7 +141,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
 
     bool isCreator = OXUserInfoManager.sharedInstance

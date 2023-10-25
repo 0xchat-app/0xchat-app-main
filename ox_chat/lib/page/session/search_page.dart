@@ -897,7 +897,7 @@ class SearchPageState extends State<SearchPage> {
       fit: BoxFit.cover,
       width: Adapt.px(wh),
       height: Adapt.px(wh),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
   }
 

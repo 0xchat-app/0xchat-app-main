@@ -41,7 +41,7 @@ class CallPageState extends State<CallPage> {
     fit: BoxFit.contain,
     width: Adapt.px(60),
     height: Adapt.px(60),
-    package: 'ox_chat',
+    package: 'ox_common',
   );
 
   bool _isMicOn = true;

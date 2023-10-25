@@ -56,7 +56,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       fit: BoxFit.cover,
       width: Adapt.px(76),
       height: Adapt.px(76),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
     _getHotChannels(type: _currentIndex.value + 1,context: context);
   }

@@ -12,6 +12,7 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -157,9 +158,25 @@ class ChatMessageBuilder {
     final title = TemplateMessageEx(message).title;
     final content = TemplateMessageEx(message).content;
     final icon = TemplateMessageEx(message).icon;
-    Widget iconWidget = icon.isEmpty ?
-        SizedBox() :
-        OXCachedNetworkImage(imageUrl: icon, height: 48.px, width: 48.px,).setPadding(EdgeInsets.only(left: 10.px));
+    Widget iconWidget = SizedBox();
+    if (icon.isNotEmpty) {
+      if (icon.isRemoteURL) {
+        iconWidget = OXCachedNetworkImage(
+          imageUrl: icon,
+          height: 48.px,
+          width: 48.px,
+        ).setPadding(EdgeInsets.only(left: 10.px));
+      }
+      else {
+        iconWidget = CommonImage(
+          iconName: icon,
+          fit: BoxFit.contain,
+          height: 48.px,
+          width: 48.px,
+          package: 'ox_common',
+        ).setPadding(EdgeInsets.only(left: 10.px));
+      }
+    }
     return Container(
       width: 266.px,
       padding: EdgeInsets.all(10.px),

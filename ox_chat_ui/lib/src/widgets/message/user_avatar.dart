@@ -44,7 +44,7 @@ class UserAvatar extends StatelessWidget {
       fit: BoxFit.contain,
       width: Adapt.px(60),
       height: Adapt.px(60),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
 
     return Container(

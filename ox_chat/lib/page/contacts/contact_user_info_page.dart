@@ -73,7 +73,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     fit: BoxFit.contain,
     width: Adapt.px(60),
     height: Adapt.px(60),
-    package: 'ox_chat',
+    package: 'ox_common',
   );
 
   Widget _badgePlaceholderImage = CommonImage(

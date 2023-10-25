@@ -260,7 +260,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
       fit: BoxFit.cover,
       width: Adapt.px(60),
       height: Adapt.px(60),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
     return Container(
       height: Adapt.px(98),
