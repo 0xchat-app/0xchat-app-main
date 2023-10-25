@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 
 import '../../models/bubble_rtl_alignment.dart';
 import '../../util.dart';
 import '../state/inherited_chat_theme.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 /// Renders user's avatar or initials next to a message.
 class UserAvatar extends StatelessWidget {
@@ -59,7 +59,7 @@ class UserAvatar extends StatelessWidget {
           child: ClipRRect(
             borderRadius:
             const BorderRadius.all(Radius.circular(5.0)),
-            child: CachedNetworkImage(
+            child: OXCachedNetworkImage(
               imageUrl: author.imageUrl ?? '',
               fit: BoxFit.cover,
               width: Adapt.px(40),

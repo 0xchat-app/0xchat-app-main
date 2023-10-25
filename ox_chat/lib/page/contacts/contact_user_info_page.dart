@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +25,7 @@ import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -587,7 +587,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                                 itemBuilder: (context, index) {
                                   BadgeDB tempItem = _badgeDBList[index];
                                   LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
-                                  return CachedNetworkImage(
+                                  return OXCachedNetworkImage(
                                     imageUrl: tempItem.thumb ?? '',
                                     fit: BoxFit.contain,
                                     placeholder: (context, url) => _badgePlaceholderImage,
@@ -644,7 +644,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               alignment: Alignment.center,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(Adapt.px(100)),
-                child: CachedNetworkImage(
+                child: OXCachedNetworkImage(
                   imageUrl: widget.userDB.picture ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => _avatarPlaceholderImage,
@@ -678,7 +678,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               child: FutureBuilder<BadgeDB?>(
                 builder: (context, snapshot) {
                   return (snapshot.data != null && snapshot.data!.thumb != null)
-                      ? CachedNetworkImage(
+                      ? OXCachedNetworkImage(
                           imageUrl: snapshot.data?.thumb ?? '',
                           errorWidget: (context, url, error) =>
                               badgePlaceholderImage,

@@ -4,11 +4,11 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -114,7 +114,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                     return placeholderImage;
                   })
               : PhotoView(
-                  imageProvider: CachedNetworkImageProvider('${mUserDB?.picture}'),
+                  imageProvider: OXCachedNetworkImageProviderEx.create(context, '${mUserDB?.picture}'),
                   errorBuilder: (_, __, ___) {
                     return placeholderImage;
                   })),

@@ -127,7 +127,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                             child: ClipRRect(
                               borderRadius:
                                   BorderRadius.circular(Adapt.px(48)),
-                              child: CachedNetworkImage(
+                              child: OXCachedNetworkImage(
                                 imageUrl: _imgUrl,
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) =>

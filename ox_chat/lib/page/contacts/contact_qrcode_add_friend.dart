@@ -1,5 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/page/contacts/contact_add_friend.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
@@ -272,7 +273,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
             margin: EdgeInsets.only(top: Adapt.px(19)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(60)),
-              child: CachedNetworkImage(
+              child: OXCachedNetworkImage(
                 imageUrl:
                 homeModel?.relatedFriendList?[index].headerUrl ?? "",
                 fit: BoxFit.cover,

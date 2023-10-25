@@ -117,7 +117,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                           height: Adapt.px(76),
                           package: 'ox_common',
                         ),
-                        // CachedNetworkImage(
+                        // OXCachedNetworkImage(
                         //   imageUrl: _imgUrl,
                         //   fit: BoxFit.cover,
                         //   placeholder: (context, url) =>
