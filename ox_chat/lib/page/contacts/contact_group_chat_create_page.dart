@@ -197,7 +197,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     List<String> members = widget.userList.map((user) => user.pubKey).toList();
     String owner = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, [...members,owner]);
+    GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, [...members,owner], 'Create New Group: $name');
     if (groupDB != null) {
       OXNavigator.pushReplacement(
         context,
