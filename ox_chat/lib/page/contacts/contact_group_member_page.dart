@@ -116,7 +116,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildRemovePressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('remove_member_title')}', members);
+    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('remove_member_title')}', List.from(members));
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
       OXNavigator.pop(context,true);
