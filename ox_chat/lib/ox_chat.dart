@@ -7,6 +7,7 @@ import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
+import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
@@ -37,6 +38,7 @@ class OXChat extends OXFlutterModule {
     'showMyIdCardDialog': _showMyIdCardDialog,
     'chatSessionListPageWidget': _chatSessionListPageWidget,
     'contractsPageWidget': _contractsPageWidget,
+    'groupSharePage': _jumpGroupSharePage,
   };
 
   @override
@@ -104,4 +106,9 @@ class OXChat extends OXFlutterModule {
   Widget _contractsPageWidget(BuildContext context) {
     return ContractsPage();
   }
+
+  Widget _jumpGroupSharePage(BuildContext context,{required String groupId,required String inviterPubKey}){
+    return GroupSharePage(groupId: groupId);
+  }
+
 }
