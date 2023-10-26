@@ -54,8 +54,8 @@ class ScanUtils {
       }
       else{
         GroupDB? groupDB = Groups.sharedInstance.groups[tempMap?['channelId']];
-        if(groupDB != null) type = CommonConstant.qrCodeGroup;
-        else return;
+        if(groupDB == null) return;
+        type = CommonConstant.qrCodeGroup;
       }
     }
     if (tempMap == null) {
@@ -103,7 +103,7 @@ class ScanUtils {
                   } else if (type == CommonConstant.qrCodeChannel) {
                     _gotoChannel(context, tempMap!['channelId']);
                   } else if( type == CommonConstant.qrCodeGroup){
-                    _gotoGroup(context, tempMap!['channelId']);
+                    _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
                   }
                 }),
           ]);
@@ -131,8 +131,17 @@ class ScanUtils {
     }
   }
 
-  static Future<void> _gotoGroup( BuildContext context, String groupId) async {
+  static Future<void> _gotoGroup( BuildContext context, String groupId,String author) async {
      // TODO: goto group
+    OXModuleService.invoke('ox_chat', 'groupSharePage',[context],
+        {
+          Symbol('groupPic'):'',
+          Symbol('groupName'):groupId,
+          Symbol('groupOwner'): author,
+          Symbol('groupId'):groupId,
+          Symbol('inviterPubKey'):'--',
+        }
+    );
   }
 
   static Future<void> _gotoChannel(
