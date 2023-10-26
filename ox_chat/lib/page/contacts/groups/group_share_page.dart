@@ -217,6 +217,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   Widget _joinBtnWidget() {
+    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: confirmJoin,
@@ -241,7 +242,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Join Group Chat',
+          _getBtnContent(status),
           style: TextStyle(
             color: Colors.white,
             fontSize: Adapt.px(16),
@@ -251,7 +252,23 @@ class _GroupSharePageState extends State<GroupSharePage> {
     );
   }
 
+  String _getBtnContent(int status){
+      switch(status){
+        case 0:
+          return 'request Group Chat';
+        case 1:
+          return 'join Group Chat';
+        case 2:
+          return 'Jump Group Chat';
+        default:
+          return '--';
+      }
+  }
+
   void confirmJoin() async {
+    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
+    if(status == 2) return CommonToast.instance.show(context, 'Not open');;
+    if(status == 1) return _joinGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
         contentView: Container(
@@ -304,16 +321,30 @@ class _GroupSharePageState extends State<GroupSharePage> {
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: 'Send', onTap: () async {
-            OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
-            if(event.status) {
-              CommonToast.instance.show(context, 'The application is successful');
-              OXNavigator.pop(context);
-            }
-          }),
+          OXCommonHintAction.sure(text: 'Send', onTap: _requestGroupFn),
         ],
         isRowAction: true,
     );
+  }
+
+  void _requestGroupFn()async{
+    OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
+    if(event.status) {
+      CommonToast.instance.show(context, 'The application is successful');
+      OXNavigator.pop(context);
+    }else{
+      CommonToast.instance.show(context, event.message);
+    }
+  }
+
+  void _joinGroupFn()async{
+    OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'');
+    if(event.status) {
+      CommonToast.instance.show(context, 'The application is successful');
+      OXNavigator.pop(context);
+    }else{
+      CommonToast.instance.show(context, event.message);
+    }
   }
 
   String get _dealWithGroupId {
