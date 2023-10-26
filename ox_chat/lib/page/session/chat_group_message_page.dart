@@ -185,7 +185,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onMessageLongPressEvent: _handleMessageLongPress,
         onJoinGroupTap: () async {
           await OXLoading.show();
-          final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '');
+          final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '${_user.firstName} join the group');
           await OXLoading.dismiss();
           if (okEvent.status) {
             OXChatBinding.sharedInstance.groupsUpdatedCallBack();

@@ -664,10 +664,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _leaveGroupFn() async {
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     OKEvent event = await Groups.sharedInstance
-        .leaveGroup(widget.groupId, 'Leave group chat success');
+        .leaveGroup(widget.groupId, '${userInfo?.name} leave group');
     if (event.status) {
-      CommonToast.instance.show(context, 'Leave group chat success');
+      CommonToast.instance.show(context, 'Leave group success');
       OXNavigator.popToRoot(context);
     }
   }

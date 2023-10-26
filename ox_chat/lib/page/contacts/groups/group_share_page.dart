@@ -335,7 +335,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   void _requestGroupFn()async{
     OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
     if(event.status) {
-      CommonToast.instance.show(context, 'The application is successful');
+      CommonToast.instance.show(context, 'Request to join the group successful');
       OXNavigator.pop(context);
     }else{
       CommonToast.instance.show(context, event.message);
@@ -345,7 +345,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   void _joinGroupFn()async{
     OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'');
     if(event.status) {
-      CommonToast.instance.show(context, 'The application is successful');
+      CommonToast.instance.show(context, 'Join the group successful');
       OXNavigator.pop(context);
     }else{
       CommonToast.instance.show(context, event.message);
