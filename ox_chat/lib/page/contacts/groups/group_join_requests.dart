@@ -1,14 +1,21 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 class GroupJoinRequests extends StatefulWidget {
+
+  final String groupId;
+
+  GroupJoinRequests({required this.groupId});
   @override
   _GroupJoinRequestsState createState() => new _GroupJoinRequestsState();
 }
@@ -17,11 +24,19 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   @override
   void initState() {
     super.initState();
+    _getRequestList();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _getRequestList() async{
+    print('====widget.groupId===${widget.groupId}');
+    List<MessageDB> requestJoinList = await Groups.sharedInstance.getRequestList(groupId: widget.groupId);
+    print('====requestJoinList=====$requestJoinList');
+
   }
 
   @override

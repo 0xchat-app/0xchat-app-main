@@ -107,8 +107,8 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  Widget _jumpGroupSharePage(BuildContext context,{required String groupId,required String inviterPubKey}){
-    return GroupSharePage(groupId: groupId);
+  void _jumpGroupSharePage(BuildContext? context,{required String groupId,required String inviterPubKey}){
+    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupId: groupId,inviterPubKey:inviterPubKey));
   }
 
 }

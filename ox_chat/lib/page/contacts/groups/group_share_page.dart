@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -8,26 +9,41 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 class GroupSharePage extends StatefulWidget {
   final String groupId;
-  GroupSharePage({required this.groupId});
+  final String inviterPubKey;
+  GroupSharePage({required this.groupId,required this.inviterPubKey});
+
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
 }
 
 class _GroupSharePageState extends State<GroupSharePage> {
-  TextEditingController _groupJoinInfo = TextEditingController();
+  TextEditingController _groupJoinInfoText = TextEditingController();
   GroupDB? groupDBInfo = null;
+  UserDB? inviterUserDB = null;
+
   @override
   void initState() {
     super.initState();
     _groupInfoInit();
+    _getInviterInfo();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _getInviterInfo()async {
+    UserDB? userDB = await Account.sharedInstance.getUserInfo(widget.inviterPubKey);
+    if(userDB != null){
+      setState(() {
+        inviterUserDB = userDB;
+      });
+    }
   }
 
   void _groupInfoInit() async {
@@ -119,7 +135,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
           ),
         ),
         Text(
-          'Elon Musk invited you to join the Group',
+          '${inviterUserDB?.name ?? '--'} invited you to join the Group',
           style: TextStyle(
             color: ThemeColor.color60,
             fontSize: Adapt.px(12),
@@ -272,7 +288,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
                   ),
                 ),
                 child: TextField(
-                  controller: _groupJoinInfo,
+                  controller: _groupJoinInfoText,
                   maxLines: 1,
                   decoration: InputDecoration(
                     hintText: "Please enter...",
@@ -296,7 +312,13 @@ class _GroupSharePageState extends State<GroupSharePage> {
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: 'Send', onTap: () async {}),
+          OXCommonHintAction.sure(text: 'Send', onTap: () async {
+            OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId, _groupJoinInfoText.text);
+            if(event.status) {
+              CommonToast.instance.show(context, 'The application is successful');
+              OXNavigator.pop(context);
+            }
+          }),
         ],
         isRowAction: true,
     );
@@ -307,4 +329,6 @@ class _GroupSharePageState extends State<GroupSharePage> {
     if(groupId == null) return '--';
     return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
   }
+
+//
 }

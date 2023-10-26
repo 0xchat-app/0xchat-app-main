@@ -271,7 +271,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           _topItemBuild(
             title: 'Join requests',
             onTap: () =>
-                OXNavigator.pushPage(context, (context) => GroupJoinRequests()),
+                OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId:groupDBInfo?.groupId ?? ''),),
             isShowDivider: false,
           ),
         ],
