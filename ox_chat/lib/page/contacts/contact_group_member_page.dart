@@ -5,6 +5,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -129,7 +130,9 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   buildSendPressed() {
     GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
     final groupName = groupDB?.name;
-    final invited = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
+    final inviterName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
+    final inviterPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupId': groupId,'inviterPubKey':inviterPubKey});
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
         content: Localized.text('ox_chat.group_share_tips'),
@@ -146,7 +149,9 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
                       receiverPubkey: element.pubKey,
                       icon: 'icon_group_default.png',
                       title: 'Group Chat Invitation',
-                      subTitle: '${invited} invited you to join this Group "${groupName}"');
+                      subTitle: '${inviterName} invited you to join this Group "${groupName}"',
+                      link: link,
+                  );
                 });
                 OXNavigator.pop(context, true);
               }),
