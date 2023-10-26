@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -211,6 +211,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
           ),
         ),
       );
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(widget.userList,groupDB.groupId);
     }else{
       CommonToast.instance.show(context, 'create group failed');
     }

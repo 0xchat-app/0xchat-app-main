@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
+import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/custom_uri_helper.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -109,6 +107,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId);
       return;
     }
     return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
@@ -128,11 +127,6 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   @override
   buildSendPressed() {
-    GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
-    final groupName = groupDB?.name;
-    final inviterName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
-    final inviterPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupId': groupId,'inviterPubKey':inviterPubKey});
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
         content: Localized.text('ox_chat.group_share_tips'),
@@ -144,15 +138,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
-                selectedUserList.forEach((element) {
-                  ChatMessageSendEx.sendTemplatePrivateMessage(
-                      receiverPubkey: element.pubKey,
-                      icon: 'icon_group_default.png',
-                      title: 'Group Chat Invitation',
-                      subTitle: '${inviterName} invited you to join this Group "${groupName}"',
-                      link: link,
-                  );
-                });
+                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId);
                 OXNavigator.pop(context, true);
               }),
         ],
