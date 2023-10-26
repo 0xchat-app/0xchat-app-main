@@ -14,7 +14,8 @@ import 'package:ox_common/widgets/common_toast.dart';
 class GroupSharePage extends StatefulWidget {
   final String groupId;
   final String inviterPubKey;
-  GroupSharePage({required this.groupId,required this.inviterPubKey});
+  final String groupOwner;
+  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner});
 
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
@@ -313,7 +314,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             OXNavigator.pop(context);
           }),
           OXCommonHintAction.sure(text: 'Send', onTap: () async {
-            OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId, _groupJoinInfoText.text);
+            OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
             if(event.status) {
               CommonToast.instance.show(context, 'The application is successful');
               OXNavigator.pop(context);

@@ -9,7 +9,8 @@ class ChatSendInvitedTemplateHelper {
     final groupName = groupDB?.name;
     final inviterName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
     final inviterPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupId': groupId,'inviterPubKey':inviterPubKey});
+    final groupOwner =groupDB?.owner;
+    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupId': groupId,'inviterPubKey':inviterPubKey,'groupOwner':groupOwner});
     selectedUserList.forEach((element) {
       ChatMessageSendEx.sendTemplatePrivateMessage(
         receiverPubkey: element.pubKey,
