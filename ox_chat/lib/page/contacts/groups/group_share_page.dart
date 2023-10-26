@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -10,6 +13,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+
+import '../../session/chat_group_message_page.dart';
 
 class GroupSharePage extends StatefulWidget {
   final String groupId;
@@ -267,7 +272,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
 
   void confirmJoin() async {
     int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
-    if(status == 2) return CommonToast.instance.show(context, 'Not open');;
+    if(status == 2) return _createGroup();
     if(status == 1) return _joinGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
@@ -345,6 +350,25 @@ class _GroupSharePageState extends State<GroupSharePage> {
     }else{
       CommonToast.instance.show(context, event.message);
     }
+  }
+
+  Future<void> _createGroup() async {
+    ChatSessionModel? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
+    if(session == null){
+      session = ChatSessionModel(
+        groupId: widget.groupId,
+        chatType: ChatType.chatGroup,
+        chatName: widget.groupName,
+        createTime: 11111111111,
+        avatar: widget.groupPic,
+      );
+    }
+      OXNavigator.pushReplacement(
+        context,
+        ChatGroupMessagePage(
+          communityItem: session,
+        ),
+      );
   }
 
   String get _dealWithGroupId {
