@@ -231,8 +231,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
       onTap: () {},
       child: CommonImage(
         iconName: 'share_icon.png',
-        width: Adapt.px(24),
-        height: Adapt.px(24),
+        width: Adapt.px(20),
+        height: Adapt.px(20),
         useTheme: true,
       ),
     );

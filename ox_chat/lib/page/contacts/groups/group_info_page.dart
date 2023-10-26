@@ -105,11 +105,13 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   Widget _appBarActionWidget() {
     return GestureDetector(
       onTap: _shareGroupFn,
-      child: CommonImage(
-        iconName: 'share_icon.png',
-        width: Adapt.px(24),
-        height: Adapt.px(24),
-        useTheme: true,
+      child: Container(
+        child: CommonImage(
+          iconName: 'share_icon.png',
+          width: Adapt.px(20),
+          height: Adapt.px(20),
+          useTheme: true,
+        ),
       ),
     );
   }

@@ -15,21 +15,20 @@ class GroupSharePage extends StatefulWidget {
   final String groupId;
   final String inviterPubKey;
   final String groupOwner;
-  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner});
-
+  final String groupPic;
+  final String groupName;
+  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic});
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
 }
 
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
-  GroupDB? groupDBInfo = null;
   UserDB? inviterUserDB = null;
 
   @override
   void initState() {
     super.initState();
-    _groupInfoInit();
     _getInviterInfo();
   }
 
@@ -47,15 +46,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     }
   }
 
-  void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
 
-    if (groupDB != null) {
-      groupDBInfo = groupDB;
-
-      setState(() {});
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +170,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(48)),
               child: CachedNetworkImage(
-                imageUrl: groupDBInfo?.picture ?? '',
+                imageUrl: widget.groupPic ?? '',
                 fit: BoxFit.cover,
                 placeholder: (context, url) => placeholderImage,
                 errorWidget: (context, url, error) =>
@@ -201,7 +192,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
                     bottom: Adapt.px(2),
                   ),
                   child: Text(
-                    groupDBInfo?.name ?? '',
+                    _dealWithGroupName,
                     style: TextStyle(
                       color: ThemeColor.color0,
                       fontSize: Adapt.px(16),
@@ -326,10 +317,16 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   String get _dealWithGroupId {
-    String? groupId = groupDBInfo?.groupId;
-    if(groupId == null) return '--';
+    String groupId = widget.groupId;
     return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
   }
 
-//
+  String get _dealWithGroupName {
+    String name = widget.groupName;
+    if(name.length > 15){
+      return name.substring(0,5) + '...' +  name.substring(name.length - 5);
+    }
+    return name;
+  }
+
 }
