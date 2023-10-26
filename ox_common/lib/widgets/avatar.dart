@@ -199,18 +199,29 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
 
   final defaultImageName = 'icon_group_default.png';
 
+  List<String> _avatars = [];
+
+  @override
+  void initState() {
+    _getMembers();
+  }
+
+  void _getMembers() async {
+    List<UserDB>? groupList = await Groups.sharedInstance.getAllGroupMembers(widget.group?.groupId ?? '');
+    setState(() {
+      _avatars = groupList.map((element) => element.picture ?? '').toList();
+      _avatars.removeWhere((element) => element.isEmpty);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final imageUrl = widget.group?.picture ?? widget.imageUrl ?? '';
-    return BaseAvatarWidget(
-      imageUrl: imageUrl,
-      defaultImageName: defaultImageName,
-      size: widget.size,
-      isCircular: widget.isCircular,
-      isClickable: widget.isClickable,
+    return GestureDetector(
+      child: GroupedAvatar(avatars: _avatars, size: 48.px),
       onTap: () async {
         final groupDB = widget.group;
-        if(groupDB != null && groupDB.groupId != null) {
+        if (groupDB != null) {
           await OXModuleService.pushPage(context, 'ox_chat', 'GroupInfoPage', {
             'groupId': groupDB.groupId,
           });
