@@ -198,7 +198,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         },
         onRequestGroupTap: () async {
           await OXLoading.show();
-          final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, '');
+          final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, group?.owner ?? '','');
           await OXLoading.dismiss();
           if (okEvent.status) {
             CommonToast.instance.show(context, 'Request Sent!');
