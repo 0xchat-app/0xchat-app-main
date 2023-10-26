@@ -293,27 +293,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = TemplateMessageEx(message).link;
-    final result = link.getModuleActionValue();
-    if (result == null) {
-      ChatLogUtils.error(
-        className: 'ChatGeneralHandler',
-        funcName: 'templateMessagePressHandler',
-        message: 'result is null. messageId: ${message.id}, link: $link',
-      );
-      return ;
-    }
-    final module = result.module;
-    final action = result.action;
-    final params = result.params.map((key, value) => MapEntry(Symbol(key), value));
-    try {
-      OXModuleService.invoke(module, action, [context], params);
-    } catch(e) {
-      ChatLogUtils.error(
-        className: 'ChatGeneralHandler',
-        funcName: 'templateMessagePressHandler',
-        message: 'OXModuleService.invoke error. message: $e',
-      );
-    }
+    link.tryHandleCustomUri(context: context);
   }
 }
 
