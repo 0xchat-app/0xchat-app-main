@@ -43,7 +43,9 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   void _getInviterInfo()async {
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(widget.inviterPubKey);
+    String pubKey = widget.inviterPubKey;
+    if(pubKey.isEmpty) return;
+    UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if(userDB != null){
       setState(() {
         inviterUserDB = userDB;
@@ -90,7 +92,9 @@ class _GroupSharePageState extends State<GroupSharePage> {
 
   Widget _appBarActionWidget() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        OXNavigator.pop(context);
+      },
       child: Center(
         child: ShaderMask(
           shaderCallback: (Rect bounds) {
@@ -102,7 +106,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            '',
+            'Done',
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,
@@ -354,12 +358,13 @@ class _GroupSharePageState extends State<GroupSharePage> {
 
   Future<void> _createGroup() async {
     ChatSessionModel? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     if(session == null){
       session = ChatSessionModel(
         groupId: widget.groupId,
         chatType: ChatType.chatGroup,
         chatName: widget.groupName,
-        createTime: 11111111111,
+        createTime: tempCreateTime,
         avatar: widget.groupPic,
       );
     }
