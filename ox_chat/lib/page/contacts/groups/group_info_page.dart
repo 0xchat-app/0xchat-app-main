@@ -205,30 +205,39 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     return Container(
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => _groupMemberOptionFn(GroupListAction.add),
-            child: CommonImage(
-              iconName: 'add_circle_icon.png',
-              width: Adapt.px(48),
-              height: Adapt.px(48),
-              useTheme: true,
-            ),
-          ),
-          GestureDetector(
-            onTap: () => _groupMemberOptionFn(GroupListAction.remove),
-            child: Container(
-              margin: EdgeInsets.only(
-                left: Adapt.px(12),
-              ),
-              child: CommonImage(
-                iconName: 'del_circle_icon.png',
-                width: Adapt.px(48),
-                height: Adapt.px(48),
-                useTheme: true,
-              ),
-            ),
-          ),
+          _addMemberBtnWidget(),
+          _removeMemberBtnWidget(),
         ],
+      ),
+    );
+  }
+
+  Widget _addMemberBtnWidget(){
+   return  GestureDetector(
+      onTap: () => _groupMemberOptionFn(GroupListAction.add),
+      child: CommonImage(
+        iconName: 'add_circle_icon.png',
+        width: Adapt.px(48),
+        height: Adapt.px(48),
+        useTheme: true,
+      ),
+    );
+  }
+
+  Widget _removeMemberBtnWidget(){
+    if(!_isGroupOwner) return Container();
+    return GestureDetector(
+      onTap: () => _groupMemberOptionFn(GroupListAction.remove),
+      child: Container(
+        margin: EdgeInsets.only(
+          left: Adapt.px(12),
+        ),
+        child: CommonImage(
+          iconName: 'del_circle_icon.png',
+          width: Adapt.px(48),
+          height: Adapt.px(48),
+          useTheme: true,
+        ),
       ),
     );
   }
@@ -631,7 +640,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         (context) => ContactGroupMemberPage(
               groupId: widget.groupId,
               groupListAction: GroupListAction.send,
-            ));
+            ),);
   }
 
   void _changeMuteFn(bool value) async {
@@ -653,6 +662,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _groupMemberOptionFn(GroupListAction action) async {
     if(!_isGroupMember) return;
+    if(GroupListAction.add == action && !_isGroupOwner) return _shareGroupFn();
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(

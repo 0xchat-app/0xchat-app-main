@@ -15,6 +15,8 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
+import '../../../utils/widget_tool.dart';
+
 enum ERequestsOption { accept, ignore }
 
 class UserRequestInfo {
@@ -102,12 +104,18 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
       ),
       body: Container(
         child: Column(
-          children: requestUserList
-              .map((userModel) => _userRequestItem(userModel))
-              .toList(),
+          children: _showRequestsListView(),
         ),
       ),
     );
+  }
+  // _emptyWidget
+
+  List<Widget> _showRequestsListView(){
+    if(requestUserList.length == 0) return [_emptyWidget()].toList();
+    return  requestUserList
+        .map((userModel) => _userRequestItem(userModel))
+        .toList();
   }
 
   Widget _userRequestItem(UserRequestInfo userInfo) {
@@ -237,6 +245,30 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           ),
         ),
       );
+  }
+
+  Widget _emptyWidget() {
+    return Container(
+      alignment: Alignment.topCenter,
+      margin: EdgeInsets.only(top: 87.0),
+      child: Column(
+        children: <Widget>[
+          CommonImage(
+            iconName: 'icon_no_login.png',
+            width: Adapt.px(90),
+            height: Adapt.px(90),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 20.0),
+            child: MyText(
+              'no requests',
+              14,
+              ThemeColor.gray02,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _optionBtnWidget(UserRequestInfo userInfo) {

@@ -19,6 +19,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
+import '../contact_group_list_page.dart';
+import '../contact_group_member_page.dart';
+
 class GroupSettingQrcodePage extends StatefulWidget {
 
   final String groupId;
@@ -64,7 +67,6 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     String groupOwner = groupDB.owner;
     String groupId = groupDB.groupId;
     _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
-    print('[=_groupQrCodeUrl====${_groupQrCodeUrl}');
   }
 
   Widget _body() {
@@ -226,9 +228,18 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     );
   }
 
+  void _shareGroupFn() {
+    OXNavigator.presentPage(
+      context,
+          (context) => ContactGroupMemberPage(
+        groupId: widget.groupId,
+        groupListAction: GroupListAction.send,
+      ),);
+  }
+
   Widget _appBarActionWidget() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _shareGroupFn,
       child: CommonImage(
         iconName: 'share_icon.png',
         width: Adapt.px(20),

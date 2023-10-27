@@ -102,7 +102,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            'Done',
+            '',
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,

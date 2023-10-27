@@ -3,6 +3,7 @@ import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
+import 'package:ox_chat_ui/thirdParty/flutter_chat_types/lib/flutter_chat_types.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -103,7 +104,9 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildAddPressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, '${Localized.text('ox_chat.add_member_title')}', members);
+    Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
+    String names = users.values.map((user) => user.name).join(', ');
+    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, '${Localized.text('ox_chat.add_member_title')}: $names', List.from(members));
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
@@ -116,7 +119,9 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   @override
   buildRemovePressed() async {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('remove_member_title')}', List.from(members));
+    Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
+    String names = users.values.map((user) => user.name).join(', ');
+    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('ox_chat.remove_member_title')}: $names', List.from(members));
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
       OXNavigator.pop(context,true);
