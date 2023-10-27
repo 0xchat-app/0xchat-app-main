@@ -53,8 +53,6 @@ class ScanUtils {
         type = CommonConstant.qrCodeChannel;
       }
       else{
-        GroupDB? groupDB = Groups.sharedInstance.groups[tempMap?['channelId']];
-        if(groupDB == null) return;
         type = CommonConstant.qrCodeGroup;
       }
     }
