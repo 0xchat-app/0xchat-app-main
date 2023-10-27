@@ -23,6 +23,13 @@ class CommunityMenuOptionModel {
     );
     list.add(
       CommunityMenuOptionModel(
+        content: Localized.text('ox_chat.str_new_group'),
+        iconName: 'icon_new_group.png',
+        optionModel: OptionModel.AddGroup,
+      ),
+    );
+    list.add(
+      CommunityMenuOptionModel(
         content: Localized.text('ox_common.str_new_channel'),
         iconName: 'icon_new_channel.png',
         optionModel: OptionModel.NewChannel,

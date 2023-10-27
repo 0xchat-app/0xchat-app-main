@@ -39,13 +39,13 @@ class ChatGroupMessagePage extends StatefulWidget {
 class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
 
   List<types.Message> _messages = [];
-  
+
   late types.User _user;
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  ChannelDB? channel;
-  String get channelId => channel?.channelId ?? widget.communityItem.groupId ?? '';
+  GroupDB? group;
+  String get groupId => group?.groupId ?? widget.communityItem.groupId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
   final pageConfig = ChatPageConfig();
@@ -56,6 +56,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   void initState() {
     setupUser();
+    setupGroup();
     setupChatGeneralHandler();
     super.initState();
 
@@ -79,11 +80,16 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   void setupUser() {
     // Mine
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
-    channel = Channels.sharedInstance.channels[widget.communityItem.groupId];
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
+  }
+
+  void setupGroup() {
+    final groupId = widget.communityItem.groupId;
+    if (groupId == null) return ;
+    group = Groups.sharedInstance.groups[groupId];
   }
 
   void prepareData() {
@@ -92,7 +98,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
 
     if (widget.communityItem.isMentioned) {
-      OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: false);
+      OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: false);
     }
   }
 
@@ -111,35 +117,32 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
-    String showName = channelDB?.name ?? '';
+    GroupDB? group = Groups.sharedInstance.groups[widget.communityItem.groupId];
+    String showName = group?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56),
-        child: CommonAppBar(
-          useLargeTitle: false,
-          centerTitle: true,
-          title: showName,
-          backgroundColor: ThemeColor.color200,
-          backCallback: () {
-            OXNavigator.popToRoot(context);
-          },
-          actions: [
-            Container(
-              alignment: Alignment.center,
-              child: OXChannelAvatar(
-                channel: channel,
-                size: Adapt.px(36),
-                isClickable: true,
-                onReturnFromNextPage: () {
-                  setState(() { });
-                },
-              ),
-            ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
-          ],
-        ),
+      appBar: CommonAppBar(
+        useLargeTitle: false,
+        centerTitle: true,
+        title: showName,
+        backgroundColor: ThemeColor.color200,
+        backCallback: () {
+          OXNavigator.popToRoot(context);
+        },
+        actions: [
+          Container(
+            alignment: Alignment.center,
+            child: OXGroupAvatar(
+              group: group,
+              size: 36,
+              isClickable: true,
+              onReturnFromNextPage: () {
+                setState(() { });
+              },
+            ),
+          ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
+        ],
       ),
       body: Chat(
         theme: pageConfig.pageTheme,
@@ -180,15 +183,25 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
         onMessageLongPressEvent: _handleMessageLongPress,
-        onJoinChannelTap: () async {
+        onJoinGroupTap: () async {
           await OXLoading.show();
-          final OKEvent okEvent = await Channels.sharedInstance.joinChannel(channelId);
+          final OKEvent okEvent = await Groups.sharedInstance.joinGroup(groupId, '${_user.firstName} join the group');
           await OXLoading.dismiss();
           if (okEvent.status) {
-            OXChatBinding.sharedInstance.channelsUpdatedCallBack();
+            OXChatBinding.sharedInstance.groupsUpdatedCallBack();
             setState(() {
               _updateChatStatus();
             });
+          } else {
+            CommonToast.instance.show(context, okEvent.message);
+          }
+        },
+        onRequestGroupTap: () async {
+          await OXLoading.show();
+          final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, group?.owner ?? '','');
+          await OXLoading.dismiss();
+          if (okEvent.status) {
+            CommonToast.instance.show(context, 'Request Sent!');
           } else {
             CommonToast.instance.show(context, okEvent.message);
           }
@@ -208,49 +221,24 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   }
 
   void _updateChatStatus() {
-
-    if (!Channels.sharedInstance.myChannels.containsKey(channelId)) {
-      chatStatus = ChatStatus.NotJoined;
+    if(!Groups.sharedInstance.checkInGroup(groupId)){
+      chatStatus = ChatStatus.RequestGroup;
+      return ;
+    }
+    else if (!Groups.sharedInstance.checkInMyGroupList(groupId)) {
+      chatStatus = ChatStatus.NotJoinedGroup;
       return ;
     }
 
     final userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
 
-    if (channelId.isEmpty || userDB == null) {
-      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'channelId: $channelId, userDB: $userDB');
+    if (groupId.isEmpty || userDB == null) {
+      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'groupId: $groupId, userDB: $userDB');
       chatStatus = ChatStatus.Unknown;
       return ;
     }
 
-    final channelBadgesJsonString = Channels.sharedInstance.channels[channelId]?.badges ?? '[]';
-    List<String> channelBadgesList;
-    try {
-      final list = JsonDecoder().convert(channelBadgesJsonString) as List? ?? [];
-      channelBadgesList = list.cast<String>();
-    } catch (e) {
-      ChatLogUtils.error(className: 'ChatGroupMessagePage', funcName: '_initializeChatStatus', message: 'error: $e');
-      chatStatus = ChatStatus.Unknown;
-      return ;
-    }
-
-    final badgesList = userDB.badgesList ?? [];
-
-    ChatLogUtils.info(
-      className: 'ChatGroupMessagePage',
-      funcName: '_initializeChatStatus',
-      message: 'my badgesList: ${badgesList}, channelBadges: $channelBadgesList',
-    );
-
-    chatStatus = ChatStatus.InsufficientBadge;
-    if (channelBadgesList.length > 0) {
-      channelBadgesList.forEach((channelBadges) {
-        if (badgesList.contains(channelBadges)) {
-          chatStatus = ChatStatus.Normal;
-        }
-      });
-    } else {
-      chatStatus = ChatStatus.Normal;
-    }
+    chatStatus = ChatStatus.Normal;
   }
 
   void _removeMessage(types.Message message) {
@@ -262,15 +250,15 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   }
 
   void _handlePreviewDataFetched(
-    types.TextMessage message,
-    types.PreviewData previewData,
-  ) {
+      types.TextMessage message,
+      types.PreviewData previewData,
+      ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
       previewData: previewData,
     );
 
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
+    ChatDataCache.shared.updateMessage(session: widget.communityItem, message: updatedMessage);
   }
 
   Future<void> _loadMoreMessages() async {

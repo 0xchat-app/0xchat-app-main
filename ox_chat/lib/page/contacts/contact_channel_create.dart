@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_chat/widget/badge_selector_dialog.dart';
@@ -176,7 +176,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(Adapt.px(100)),
-        child: CachedNetworkImage(
+        child: OXCachedNetworkImage(
           errorWidget: (context, url, error) => placeholderImage,
           placeholder: (context, url) => placeholderImage,
           fit: BoxFit.fill,
@@ -295,15 +295,21 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
             child: Row(
               children: [
                 _isNone
-                    ? Text(Localized.text('ox_common.none'))
+                    ? Text(
+                        Localized.text('ox_common.none'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: Adapt.px(16),
+                          color: ThemeColor.color100,
+                        ),
+                      )
                     : Row(
                         children: [
-                          CachedNetworkImage(
+                          OXCachedNetworkImage(
                             imageUrl: _requirementModel.badgeImageUrl ?? '',
                             fit: BoxFit.contain,
                             placeholder: (context, url) => placeholderImage,
-                            errorWidget: (context, url, error) =>
-                                placeholderImage,
+                            errorWidget: (context, url, error) => placeholderImage,
                             width: Adapt.px(32),
                             height: Adapt.px(32),
                           ),
@@ -311,8 +317,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                             width: Adapt.px(6),
                           ),
                           Text(
-                            _requirementModel.badgeName ??
-                                'Badge Name and above',
+                            _requirementModel.badgeName ?? 'Badge Name and above',
                             style: TextStyle(
                               fontSize: Adapt.px(16),
                               fontWeight: FontWeight.w400,
@@ -387,7 +392,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         OXChatBinding.sharedInstance.createChannelSuccess(channelDB);
         OXNavigator.pushReplacement(
           context,
-          ChatGroupMessagePage(
+          ChatChannelMessagePage(
             communityItem: ChatSessionModel(
               chatId: channelDB.channelId!,
               groupId: channelDB.channelId!,

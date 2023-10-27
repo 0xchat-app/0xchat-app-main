@@ -6,8 +6,10 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
+import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
+import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -36,6 +38,7 @@ class OXChat extends OXFlutterModule {
     'showMyIdCardDialog': _showMyIdCardDialog,
     'chatSessionListPageWidget': _chatSessionListPageWidget,
     'contractsPageWidget': _contractsPageWidget,
+    'groupSharePage': _jumpGroupSharePage,
   };
 
   @override
@@ -47,7 +50,7 @@ class OXChat extends OXFlutterModule {
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
           context,
-              (context) => ChatGroupMessagePage(
+              (context) => ChatChannelMessagePage(
             communityItem: ChatSessionModel(
               chatId: params?['chatId'] ?? '',
               chatName: params?['chatName'] ?? '',
@@ -76,6 +79,13 @@ class OXChat extends OXFlutterModule {
             channelDB: params?['channelDB'],
           ),
         );
+      case 'GroupInfoPage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => GroupInfoPage(
+            groupId: params?['groupId'],
+          ),
+        );
     }
     return null;
   }
@@ -95,5 +105,9 @@ class OXChat extends OXFlutterModule {
 
   Widget _contractsPageWidget(BuildContext context) {
     return ContractsPage();
+  }
+
+  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
+    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
   }
 }

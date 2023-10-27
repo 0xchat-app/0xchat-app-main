@@ -135,7 +135,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                     ChatSessionModel item = _strangerSessionModelList[index];
                     return _buildItemView(item, index);
                   }, childCount: _strangerSessionModelList.length),
-                  itemExtent: 106),
+                  itemExtent: Adapt.px(106)),
             ],
           ),
         ),

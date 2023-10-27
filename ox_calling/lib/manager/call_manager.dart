@@ -36,11 +36,10 @@ class CallManager {
   bool _inCalling = false;
   CallState? callState;
   Session? _session;
-  DesktopCapturerSource? selected_source_;
   bool _waitAccept = false;
-  late BuildContext _context;
+  BuildContext? _context;
   ValueChanged<CallState?>? callStateHandler;
-  CallMessageType callType = CallMessageType.video;
+  CallMessageType? callType;
   String? callInitiator;
   String? callReceiver;
   Timer? _timer;
@@ -61,8 +60,7 @@ class CallManager {
     if (tHost != null) {
       host = tHost;
     }
-    _context = OXNavigator.navigatorKey.currentContext!;
-    _signaling ??= SignalingManager(host, port, _context);
+    _signaling ??= SignalingManager(host, port);
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
       LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
       _signaling?.onParseMessage(friend, state, data, offerId);
@@ -137,7 +135,8 @@ class CallManager {
               callInitiator = userDB.pubKey;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               CallManager.instance.connectServer();
-              OXNavigator.pushPage(_context,
+              _context ??= OXNavigator.navigatorKey.currentContext!;
+              OXNavigator.pushPage(_context!,
                   (context) => CallPage(
                         userDB,
                         session.media,
@@ -176,7 +175,7 @@ class CallManager {
 
   Future<void> invitePeer(String peerId, {bool useScreen = false}) async {
     if (_signaling != null && peerId != _selfId) {
-      _signaling?.invite(peerId, callType.text, useScreen);
+      _signaling?.invite(peerId, callType?.text ?? CallMessageType.video.text, useScreen);
       callInitiator = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
       callReceiver = peerId;
     }
@@ -185,7 +184,7 @@ class CallManager {
   accept() {
     if (_session != null) {
       _inCalling = true;
-      _signaling?.accept(_session!.sid, callType.text);
+      _signaling?.accept(_session!.sid, _session!.media);
     }
   }
 
@@ -241,19 +240,24 @@ class CallManager {
   void resetStatus(bool isReceiverReject, {bool? isTomeOut}){
     // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    callType = null;
     if (_waitAccept) {
       print('peer reject');
       _waitAccept = false;
     }
     _inCalling = false;
-    stopTimer();
     localRenderer.srcObject = null;
     remoteRenderer.srcObject = null;
     _session = null;
-    PromptToneManager.sharedInstance.stopPlay();
-    if (overlayEntry != null && overlayEntry!.mounted) {
-      overlayEntry?.remove();
-      overlayEntry = null;
+    try {
+      stopTimer();
+      PromptToneManager.sharedInstance.stopPlay();
+      if (overlayEntry != null && overlayEntry!.mounted) {
+            overlayEntry?.remove();
+            overlayEntry = null;
+          }
+    } catch (e) {
+      print(e.toString());
     }
     callInitiator = null;
     callReceiver = null;

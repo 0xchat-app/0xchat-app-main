@@ -8,6 +8,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 
 import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
@@ -44,7 +45,7 @@ class Session {
 }
 
 class SignalingManager {
-  SignalingManager(this._host, this._port, this._context);
+  SignalingManager(this._host, this._port);
 
   String _selfId = Contacts.sharedInstance.pubkey;
   BuildContext? _context;
@@ -179,7 +180,7 @@ class SignalingManager {
       Map map = {'session_id': sessionId, 'reason': reason};
       Contacts.sharedInstance
           .sendDisconnect(sess.offerId, sess.pid, jsonEncode(map));
-      _closeSession(sess);
+      _closeSession(sess, sessionId);
     }
   }
 
@@ -237,8 +238,7 @@ class SignalingManager {
             inCalling(sessionId, offerId ?? '', friend);
             return;
           }
-          var session = _sessions[sessionId];
-          var newSession = await _createSession(session,
+          var newSession = await _createSession(null,
               peerId: peerId,
               sessionId: sessionId,
               media: media,
@@ -308,30 +308,19 @@ class SignalingManager {
           }
         }
         break;
-      // case 'leave':
-      //   {
-      //     var peerId = data as String;
-      //     _closeSessionByPeerId(peerId);
-      //   }
-      //   break;
       case SignalingState.disconnect:
         {
           if (!_isDisconnected) {
             _isDisconnected = true;
             var sessionId = data['session_id'];
-            var session = _sessions.remove(sessionId);
+            var session = _sessions[sessionId];
             if (session != null) {
               onCallStateChange?.call(session, CallState.CallStateBye);
-              _closeSession(session);
+              _closeSession(session, sessionId);
             }
           }
         }
         break;
-      // case 'keepalive':
-      //   {
-      //     print('keepalive response!');
-      //   }
-      //   break;
       default:
         break;
     }
@@ -373,18 +362,21 @@ class SignalingManager {
     late MediaStream stream;
     if (userScreen) {
       if (WebRTC.platformIsDesktop) {
-        final source = await showDialog<DesktopCapturerSource>(
-          context: context!,
-          builder: (context) => ScreenSelectDialog(),
-        );
-        stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-          'video': source == null
-              ? true
-              : {
-                  'deviceId': {'exact': source.id},
-                  'mandatory': {'frameRate': 30.0}
-                }
-        });
+        _context ??= OXNavigator.navigatorKey.currentContext;
+        if (_context != null) {
+          final source = await showDialog<DesktopCapturerSource>(
+            context: context!,
+            builder: (context) => ScreenSelectDialog(),
+          );
+          stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
+            'video': source == null
+                ? true
+                : {
+              'deviceId': {'exact': source.id},
+              'mandatory': {'frameRate': 30.0}
+            }
+          });
+        }
       } else {
         stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
       }
@@ -470,10 +462,10 @@ class SignalingManager {
             }
             if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
               _isDisconnected = true;
-              var session = _sessions.remove(sessionId);
+              var session = _sessions[sessionId];
               if (session != null) {
                 onCallStateChange?.call(session, CallState.CallStateBye);
-                _closeSession(session);
+                _closeSession(session, sessionId);
               }
             }
           };
@@ -581,20 +573,7 @@ class SignalingManager {
     _sessions.clear();
   }
 
-  void _closeSessionByPeerId(String peerId) {
-    var session;
-    _sessions.removeWhere((String key, Session sess) {
-      var ids = key.split('-');
-      session = sess;
-      return peerId == ids[0] || peerId == ids[1];
-    });
-    if (session != null) {
-      _closeSession(session);
-      onCallStateChange?.call(session, CallState.CallStateBye);
-    }
-  }
-
-  Future<void> _closeSession(Session session) async {
+  Future<void> _closeSession(Session session, String sessionId) async {
     try {
       _localStream?.getTracks().forEach((element) async {
             await element.stop();
@@ -604,6 +583,7 @@ class SignalingManager {
 
       await session.pc?.close();
       await session.dc?.close();
+      _sessions.remove(sessionId);
     } catch (e) {
       print(e.toString());
     }

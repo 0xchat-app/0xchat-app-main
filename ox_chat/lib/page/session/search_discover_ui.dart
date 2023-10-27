@@ -8,7 +8,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -71,7 +71,7 @@ extension SearchDiscoverUI on SearchPageState{
                   }
                 },
                 leading: CircleAvatar(
-                  child: CachedNetworkImage(
+                  child: OXCachedNetworkImage(
                     errorWidget: (context, url, error) => placeholderImage(false, 48),
                     placeholder: (context, url) => placeholderImage(false, 48),
                     fit: BoxFit.fill,

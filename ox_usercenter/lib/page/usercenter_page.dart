@@ -14,6 +14,7 @@ import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -74,6 +75,13 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       });
     _initInterface();
     _verifiedDNS();
+  }
+
+  @override
+  void dispose() {
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -141,8 +149,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         actions: <Widget>[
           isLogin
               ? Container(
-                  margin:
-                      EdgeInsets.only(right: Adapt.px(5), top: Adapt.px(12)),
+                  margin: EdgeInsets.only(right: Adapt.px(5)),
                   color: Colors.transparent,
                   child: OXButton(
                     highlightColor: Colors.transparent,
@@ -153,6 +160,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                       Localized.text('ox_common.edit'),
                       style: TextStyle(
                         fontSize: Adapt.px(16),
+                        fontWeight: FontWeight.w600,
                         color: ThemeColor.color0,
                       ),
                     ),
@@ -257,7 +265,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         SizedBox(
           height: Adapt.px(24),
         ),
-        SettingsPage(),
+        const SettingsPage(),
         SizedBox(
           height: Adapt.px(130),
         ),
@@ -285,6 +293,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         Container(
           width: double.infinity,
           height: Adapt.px(52),
+          alignment: Alignment.center,
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
             leading: CommonImage(
@@ -311,7 +320,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 children: [
                   badgeImgUrl == null
                       ? Container()
-                      : CachedNetworkImage(
+                      : OXCachedNetworkImage(
                           imageUrl: badgeImgUrl!,
                           placeholder: (context, url) => placeholderImage,
                           errorWidget: (context, url, error) =>
@@ -363,7 +372,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(120)),
-              child: CachedNetworkImage(
+              child: OXCachedNetworkImage(
                 imageUrl: headImgUrl!,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => placeholderImage,

@@ -26,7 +26,7 @@ class ChatVoiceMessageHelper {
     }
     final duration = await getAudioDuration(sourceFile.path);
     if (duration != null && duration.inMilliseconds > 0) {
-      ChatDataCache.shared.updateMessage(session, message.copyWith(
+      ChatDataCache.shared.updateMessage(session: session, message: message.copyWith(
         audioFile: sourceFile,
         duration: duration,
       ));

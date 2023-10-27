@@ -443,7 +443,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
       previewData: previewData,
     );
-    ChatDataCache.shared.updateMessage(widget.communityItem, updatedMessage);
+    ChatDataCache.shared.updateMessage(session: widget.communityItem, message: updatedMessage);
   }
 
   Future<void> _loadMoreMessages() async {

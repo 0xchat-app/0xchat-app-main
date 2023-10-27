@@ -318,8 +318,12 @@ extension UIMessageEx on types.Message {
         case CustomMessageType.zaps:
           messageText = Localized.text('ox_common.message_type_zaps');
           break ;
-        case CustomMessageType.zaps:
+        case CustomMessageType.call:
           messageText = Localized.text('ox_common.message_type_call');
+          break ;
+        case CustomMessageType.template:
+          final title = TemplateMessageEx(replyMessage).title;
+          messageText = Localized.text('ox_common.message_type_template') + title;
           break ;
         default:
           break ;

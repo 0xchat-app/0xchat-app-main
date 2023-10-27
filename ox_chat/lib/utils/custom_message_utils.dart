@@ -38,6 +38,23 @@ extension CustomMessageEx on types.CustomMessage {
     };
   }
 
+  static Map<String, dynamic> templateMetaData({
+    required String title,
+    required String content,
+    required String icon,
+    required String link,
+  }) {
+    return {
+      'type': CustomMessageType.template.value,
+      'content': {
+        'title': title,
+        'content': content,
+        'icon': icon,
+        'link': link,
+      },
+    };
+  }
+
   String get customContentString {
     try {
       return jsonEncode(metadata ?? {});
@@ -57,4 +74,11 @@ extension ZapsMessageEx on types.CustomMessage {
 extension CallMessageEx on types.CustomMessage {
   String get callText => metadata?['content']?['text'] ?? '';
   CallMessageType? get callType => CallMessageTypeEx.fromValue(metadata?['content']?['type']);
+}
+
+extension TemplateMessageEx on types.CustomMessage {
+  String get title => metadata?['content']?['title'] ?? '';
+  String get content => metadata?['content']?['content'] ?? '';
+  String get icon => metadata?['content']?['icon'] ?? '';
+  String get link => metadata?['content']?['link'] ?? '';
 }

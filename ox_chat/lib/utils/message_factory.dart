@@ -299,14 +299,31 @@ class CustomMessageFactory implements MessageFactory {
           return createZapsMessage(
             author: author,
             timestamp: timestamp,
-            id: remoteId,
             roomId: roomId,
+            id: remoteId,
             remoteId: remoteId,
             sourceKey: sourceKey,
             zapper: zapper,
             invoice: invoice,
             amount: amount,
             description: description,
+          );
+        case CustomMessageType.template:
+          final title = content['title'];
+          final contentStr = content['content'];
+          final icon = content['icon'];
+          final link = content['link'];
+          return createTemplateMessage(
+            author: author,
+            timestamp: timestamp,
+            roomId: roomId,
+            id: remoteId,
+            remoteId: remoteId,
+            sourceKey: sourceKey,
+            title: title,
+            content: contentStr,
+            icon: icon,
+            link: link,
           );
         default :
           return null;
@@ -340,6 +357,35 @@ class CustomMessageFactory implements MessageFactory {
         invoice: invoice,
         amount: amount,
         description: description,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
+
+  types.CustomMessage createTemplateMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    required String title,
+    required String content,
+    required String icon,
+    required String link,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.templateMetaData(
+        title: title,
+        content: content,
+        icon: icon,
+        link: link,
       ),
       type: types.MessageType.custom,
     );

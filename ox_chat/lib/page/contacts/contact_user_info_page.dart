@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +25,7 @@ import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -73,7 +73,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     fit: BoxFit.contain,
     width: Adapt.px(60),
     height: Adapt.px(60),
-    package: 'ox_chat',
+    package: 'ox_common',
   );
 
   Widget _badgePlaceholderImage = CommonImage(
@@ -543,71 +543,73 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     OtherInfoItemType type = OtherInfoItemType.Remark,
     String? rightHint,
   }) {
-    return ListTile(
-      leading: CommonImage(
-        iconName: iconName ?? '',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
-        package: iconPackage ?? 'ox_chat',
-      ),
-      title: Text(
-        type.text,
-        style: TextStyle(
-          fontSize: Adapt.px(16),
-          color: ThemeColor.color0,
+    return Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      alignment: Alignment.center,
+      child: ListTile(
+        leading: CommonImage(
+          iconName: iconName ?? '',
+          width: Adapt.px(32),
+          height: Adapt.px(32),
+          package: iconPackage ?? 'ox_chat',
         ),
+        title: Text(
+          type.text,
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+          ),
+        ),
+        trailing: type == OtherInfoItemType.Mute
+            ? Switch(
+                value: _isMute,
+                activeColor: Colors.white,
+                activeTrackColor: ThemeColor.gradientMainStart,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: ThemeColor.color160,
+                onChanged: _onChangedMute,
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  type == OtherInfoItemType.Badges
+                      ? Container(
+                          width: Adapt.px(100),
+                          child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: ListView.separated(
+                                itemCount: _badgeDBList.length,
+                                scrollDirection: Axis.horizontal,
+                                separatorBuilder: (context, index) => Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  BadgeDB tempItem = _badgeDBList[index];
+                                  LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
+                                  return OXCachedNetworkImage(
+                                    imageUrl: tempItem.thumb ?? '',
+                                    fit: BoxFit.contain,
+                                    placeholder: (context, url) => _badgePlaceholderImage,
+                                    errorWidget: (context, url, error) => _badgePlaceholderImage,
+                                    width: Adapt.px(32),
+                                    height: Adapt.px(32),
+                                  );
+                                }),
+                          ),
+                        )
+                      : Container(),
+                  CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ),
+                ],
+              ),
+        onTap: () {
+          _itemClick(type);
+        },
       ),
-      trailing: type == OtherInfoItemType.Mute
-          ? Switch(
-              value: _isMute,
-              activeColor: Colors.white,
-              activeTrackColor: ThemeColor.gradientMainStart,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: ThemeColor.color160,
-              onChanged: _onChangedMute,
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                type == OtherInfoItemType.Badges
-                    ? Container(
-                        width: Adapt.px(100),
-                        child: Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: ListView.separated(
-                              itemCount: _badgeDBList.length,
-                              scrollDirection: Axis.horizontal,
-                              separatorBuilder: (context, index) =>
-                                  Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                BadgeDB tempItem = _badgeDBList[index];
-                                LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
-                                return CachedNetworkImage(
-                                  imageUrl: tempItem.thumb ?? '',
-                                  fit: BoxFit.contain,
-                                  placeholder: (context, url) =>
-                                  _badgePlaceholderImage,
-                                  errorWidget: (context, url, error) =>
-                                  _badgePlaceholderImage,
-                                  width: Adapt.px(32),
-                                  height: Adapt.px(32),
-                                );
-                              }),
-                        ),
-                      )
-                    : Container(),
-                CommonImage(
-                  iconName: 'icon_arrow_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                ),
-              ],
-            ),
-      onTap: () {
-        _itemClick(type);
-      },
     );
   }
 
@@ -642,7 +644,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               alignment: Alignment.center,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(Adapt.px(100)),
-                child: CachedNetworkImage(
+                child: OXCachedNetworkImage(
                   imageUrl: widget.userDB.picture ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => _avatarPlaceholderImage,
@@ -676,7 +678,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               child: FutureBuilder<BadgeDB?>(
                 builder: (context, snapshot) {
                   return (snapshot.data != null && snapshot.data!.thumb != null)
-                      ? CachedNetworkImage(
+                      ? OXCachedNetworkImage(
                           imageUrl: snapshot.data?.thumb ?? '',
                           errorWidget: (context, url, error) =>
                               badgePlaceholderImage,
@@ -942,9 +944,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   void _verifiedDNS() async {
     var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
-    setState(() {
-      _isVerifiedDNS = isVerifiedDNS;
-    });
+    if(this.mounted){
+      setState(() {
+        _isVerifiedDNS = isVerifiedDNS;
+      });
+    }
   }
 }
 

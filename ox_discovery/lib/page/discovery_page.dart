@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:avatar_stack/avatar_stack.dart';
@@ -5,6 +6,8 @@ import 'package:avatar_stack/positions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/avatar.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
@@ -53,7 +56,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       fit: BoxFit.cover,
       width: Adapt.px(76),
       height: Adapt.px(76),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
     _getHotChannels(type: _currentIndex.value + 1,context: context);
   }
@@ -83,7 +86,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor)).width;
+    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor)).width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -147,7 +150,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             Container(
               constraints: BoxConstraints(maxWidth: mm),
               child: GradientText(Localized.text('ox_discovery.discovery'),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: ThemeColor.titleColor),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor),
                   colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd]),
             ),
             SizedBox(
@@ -229,7 +232,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                     child: Transform.scale(
                                       alignment: Alignment.center,
                                       scale: 1.2,
-                                      child: CachedNetworkImage(
+                                      child: OXCachedNetworkImage(
                                         height: Adapt.px(100),
                                         imageUrl: item?.picture ?? '',
                                         fit: BoxFit.cover,
@@ -258,12 +261,12 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                   border: Border.all(color: ThemeColor.color180, width: Adapt.px(3)),
                                   borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
                                 ),
-                                height: Adapt.px(60),
-                                width: Adapt.px(60),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4))),
-                                  child: CachedNetworkImage(
+                                  child: OXCachedNetworkImage(
                                     imageUrl: item?.picture ?? '',
+                                    height: Adapt.px(60),
+                                    width: Adapt.px(60),
                                     fit: BoxFit.cover,
                                     errorWidget: (context,url,error) => _placeholderImage,
                                   ),
@@ -310,37 +313,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                 width: Adapt.px(16),
                               ),
                               FutureBuilder(
-                                  future: _getChannelMembersAvatars(item?.latestChatUsers ?? []),
-                                  builder: (context, snapshot) {
-                                    List<String?> avatars = snapshot.data ?? [];
-                                    return avatars.isNotEmpty
-                                        ? Container(
-                                            margin: EdgeInsets.only(
-                                              right: Adapt.px(10),
-                                            ),
-                                            constraints: BoxConstraints(
-                                                maxWidth: avatars.length > 1
-                                                    ? avatars.length > 4
-                                                        ? Adapt.px(4 * 26)
-                                                        : Adapt.px(26 * avatars.length)
-                                                    : Adapt.px(32),
-                                                minWidth: Adapt.px(32)),
-                                            child: AvatarStack(
-                                              settings: RestrictedPositions(
-                                                  // maxCoverage: 0.1,
-                                                  // minCoverage: 0.2,
-                                                  align: StackAlign.left,
-                                                  laying: StackLaying.first),
-                                              borderColor: ThemeColor.color180,
-                                              height: Adapt.px(32),
-                                              avatars: [
-                                                for (var n = 0; n < avatars.length; n++)
-                                                  if(avatars[n] != null && avatars[n]!.isNotEmpty) CachedNetworkImageProvider(avatars[n]!) else const AssetImage('assets/images/user_image.png',package: 'ox_common'),
-                                              ],
-                                            ),
-                                          )
-                                        : Container();
-                                  }),
+                                initialData: const [].cast<String>(),
+                                future: _getChannelMembersAvatars(item?.latestChatUsers ?? []),
+                                builder: (context, snapshot) {
+                                  List<String> avatars = snapshot.data ?? [];
+                                  return avatars.isEmpty ? const SizedBox() : _buildAvatarStack(avatars);
+                                },
+                              ),
                               item?.msgCount != null ? Expanded(
                                 child: Text(
                                   '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
@@ -373,6 +352,47 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             },
           ));
     }).toList();
+  }
+
+  Widget _buildAvatarStack(List<String> avatarURLs) {
+
+    final avatarCount = min(avatarURLs.length, 4);
+    avatarURLs = avatarURLs.sublist(0, avatarCount);
+
+    double maxWidth = Adapt.px(32);
+    if (avatarURLs.length > 1) {
+      maxWidth = Adapt.px(avatarURLs.length * 26);
+    }
+
+    return Container(
+      margin: EdgeInsets.only(
+        right: Adapt.px(10),
+      ),
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
+        minWidth: Adapt.px(32),
+      ),
+      child: AvatarStack(
+        settings: RestrictedPositions(
+            // maxCoverage: 0.1,
+            // minCoverage: 0.2,
+            align: StackAlign.left,
+            laying: StackLaying.first),
+        borderColor: ThemeColor.color180,
+        height: Adapt.px(32),
+        avatars: avatarURLs.map((url) {
+          if (url.isEmpty) {
+            return const AssetImage('assets/images/user_image.png', package: 'ox_common');
+          } else {
+            return OXCachedNetworkImageProviderEx.create(
+              context,
+              url,
+              height: Adapt.px(26),
+            );
+          }
+        }).toList().cast<ImageProvider>(),
+      ),
+    );
   }
 
   Widget _topSearch() {
@@ -481,11 +501,11 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return users;
   }
 
-  Future<List<String?>> _getChannelMembersAvatars(List<String> pubKeys) async {
+  Future<List<String>> _getChannelMembersAvatars(List<String> pubKeys) async {
     List<String?> avatars = [];
     List<UserDB> users = await _getChannelMembers(pubKeys);
     avatars.addAll(users.map((e) => e.picture).toList());
-    return avatars;
+    return avatars.where((e) => e != null).toList().cast<String>();
   }
 
   Future<String> _getCreator(String pubKey) async {

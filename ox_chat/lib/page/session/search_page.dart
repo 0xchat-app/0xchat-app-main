@@ -5,7 +5,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/search_history_model.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
@@ -239,7 +239,6 @@ class SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = ThemeColor.color200;
     return widget.searchPageType == SearchPageType.discover ? discoverPage() : normalPage();
   }
 
@@ -797,15 +796,12 @@ class SearchPageState extends State<SearchPage> {
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
-            Map<String, dynamic> tempMap = jsonDecode(element.content!);
-            Map<String, dynamic> rightContentMap = jsonDecode(tempMap['content']);
-            String subTitle = rightContentMap['content'].toString();
             chatMessageList.add(ChatMessage(
-              element.groupId!,
+              element.groupId,
               element.messageId ?? '',
-              Channels.sharedInstance.myChannels[element.groupId!]?.name ?? '',
-              subTitle,
-              Channels.sharedInstance.myChannels[element.groupId!]?.picture ?? '',
+              Channels.sharedInstance.myChannels[element.groupId]?.name ?? '',
+              element.decryptContent,
+              Channels.sharedInstance.myChannels[element.groupId]?.picture ?? '',
               ChatType.chatChannel,
               1,
             ));
@@ -876,13 +872,11 @@ class SearchPageState extends State<SearchPage> {
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
-            Map<String, dynamic> tempMap = jsonDecode(element.decryptContent!);
-            String subTitle = tempMap['content'].toString();
             chatMessageList.add(ChatMessage(
               chatId,
               element.messageId ?? '',
               Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
-              subTitle,
+              element.decryptContent,
               Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
               ChatType.chatSingle,
               1,
@@ -903,7 +897,7 @@ class SearchPageState extends State<SearchPage> {
       fit: BoxFit.cover,
       width: Adapt.px(wh),
       height: Adapt.px(wh),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
   }
 
@@ -950,7 +944,7 @@ class SearchPageState extends State<SearchPage> {
       case ChatType.chatChannel:
         OXNavigator.pushPage(
           context,
-          (context) => ChatGroupMessagePage(
+          (context) => ChatChannelMessagePage(
             communityItem: sessionModel,
             anchorMsgId: item.msgId,
           ),
@@ -1001,9 +995,10 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void gotoChatGroupSession(ChannelDB channelDB) {
+    LogUtil.e('Michael: channelDB =${channelDB.toString()}');
     OXNavigator.pushPage(
         context,
-        (context) => ChatGroupMessagePage(
+        (context) => ChatChannelMessagePage(
               communityItem: ChatSessionModel(
                 chatId: channelDB.channelId,
                 chatName: channelDB.name,

@@ -38,10 +38,10 @@ class PrivateChatKey implements ChatTypeKey {
 }
 
 @immutable
-class ChannelKey implements ChatTypeKey {
+class GroupKey implements ChatTypeKey {
   final String groupId;
 
-  ChannelKey(this.groupId);
+  GroupKey(this.groupId);
 
   String getSQLFilter() {
     return ' groupId = ? ';
@@ -54,11 +54,35 @@ class ChannelKey implements ChatTypeKey {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ChannelKey && other.groupId == groupId;
+    return other is GroupKey && other.groupId == groupId;
   }
 
   @override
   int get hashCode => groupId.hashCode;
+}
+
+@immutable
+class ChannelKey implements ChatTypeKey {
+  final String channelId;
+
+  ChannelKey(this.channelId);
+
+  String getSQLFilter() {
+    return ' groupId = ? ';
+  }
+
+  List<String> getSQLFilterArgs() {
+    return [channelId];
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ChannelKey && other.channelId == channelId;
+  }
+
+  @override
+  int get hashCode => channelId.hashCode;
 }
 
 @immutable
@@ -83,8 +107,4 @@ class SecretChatKey implements ChatTypeKey {
 
   @override
   int get hashCode => sessionId.hashCode;
-}
-
-abstract class ChatDataManagerObserver  {
-
 }

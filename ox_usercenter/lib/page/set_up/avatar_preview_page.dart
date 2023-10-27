@@ -4,11 +4,11 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -93,18 +93,20 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
   }
 
   Widget createBody() {
+    final imageWidth = MediaQuery.of(context).size.width;
+    final imageHeight = MediaQuery.of(context).size.height;
     String localAvatarPath = 'assets/images/user_image.png';
     Image placeholderImage = Image.asset(
       localAvatarPath,
       fit: BoxFit.cover,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
+      width: imageWidth,
+      height: imageHeight,
       package: 'ox_common',
     );
     return Container(
       color: ThemeColor.color200,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
+      width: imageWidth,
+      height: imageHeight,
       child: Align(
           alignment: Alignment(1, -0.5),
           child: imageFile != null
@@ -114,7 +116,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                     return placeholderImage;
                   })
               : PhotoView(
-                  imageProvider: CachedNetworkImageProvider('${mUserDB?.picture}'),
+                  imageProvider: OXCachedNetworkImageProviderEx.create(context, '${mUserDB?.picture}', width: imageWidth),
                   errorBuilder: (_, __, ___) {
                     return placeholderImage;
                   })),

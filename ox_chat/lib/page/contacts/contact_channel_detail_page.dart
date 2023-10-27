@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
@@ -15,6 +14,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -80,6 +80,14 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   void initState() {
     super.initState();
     _initData();
+    _syncChannelInfo();
+  }
+
+  void _syncChannelInfo() async {
+    ChannelDB? channelDB = await Channels.sharedInstance.syncChannelMetadataFromRelay(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ??'', widget.channelDB.channelId);
+    if (channelDB != null){
+      _initData();
+    }
   }
 
   void _initData() async {
@@ -90,12 +98,8 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         widget.channelDB.creator!.isNotEmpty) {
       final UserDB? userFromDB =
           await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
-      if (userFromDB != null) {
-        _showCreator = userFromDB.name!;
-      } else {
-        _showCreator = widget.channelDB.creator!;
-      }
-      setState(() {});
+      _showCreator = userFromDB != null ? userFromDB.name! : widget.channelDB.creator;
+      if (mounted) setState(() {});
     } else {
       _showCreator = '';
     }
@@ -113,16 +117,14 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
             }
           });
           _badgeRequirementsHint = badgeRequirementsHint;
-          setState(() {});
+          if (mounted) setState(() {});
         } else {
           List<BadgeDB> badgeDB =
               await BadgesHelper.getBadgesInfoFromRelay(badgeList);
           if (badgeDB.length > 0) {
             _badgeDBList = badgeDB;
             _badgeRequirementsHint = badgeRequirementsHint;
-            if (mounted) {
-              setState(() {});
-            }
+            if (mounted) setState(() {});
           }
         }
       }
@@ -139,7 +141,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       fit: BoxFit.cover,
       width: Adapt.px(32),
       height: Adapt.px(32),
-      package: 'ox_chat',
+      package: 'ox_common',
     );
 
     bool isCreator = OXUserInfoManager.sharedInstance
@@ -175,7 +177,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
               child: Stack(
                 children: <Widget>[
                   Positioned.fill(
-                    child: CachedNetworkImage(
+                    child: OXCachedNetworkImage(
                       imageUrl: widget.channelDB.picture!,
                       placeholder: (context, url) => _placeholderImage,
                       errorWidget: (context, url, error) => _placeholderImage,
@@ -494,54 +496,59 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     OtherInfoItemType type = OtherInfoItemType.ChannelID,
     String? rightHint,
   }) {
-    return ListTile(
-      leading: CommonImage(
-        iconName: iconName ?? '',
-        width: Adapt.px(32),
-        height: Adapt.px(32),
-        package: iconPackage ?? 'ox_chat',
-      ),
-      title: Text(
-        type.text,
-        style: TextStyle(
-          fontSize: Adapt.px(16),
-          color: ThemeColor.color0,
+    return Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      alignment: Alignment.center,
+      child: ListTile(
+        leading: CommonImage(
+          iconName: iconName ?? '',
+          width: Adapt.px(32),
+          height: Adapt.px(32),
+          package: iconPackage ?? 'ox_chat',
         ),
-      ),
-      trailing: type == OtherInfoItemType.Mute
-          ? _switchMute()
-          : type == OtherInfoItemType.QRCode
-              ? CommonImage(
-                  iconName: 'icon_arrow_more.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                )
-              : Container(
-                  width: Adapt.px(100),
-                  child: Text(
-                    truncateString(rightHint ?? '', 8),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: Adapt.px(16),
-                      color: ThemeColor.color100,
+        title: Text(
+          type.text,
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+          ),
+        ),
+        trailing: type == OtherInfoItemType.Mute
+            ? _switchMute()
+            : type == OtherInfoItemType.QRCode
+                ? CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  )
+                : Container(
+                    width: Adapt.px(100),
+                    child: Text(
+                      truncateString(rightHint ?? '', 8),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: Adapt.px(16),
+                        color: ThemeColor.color100,
+                      ),
                     ),
                   ),
-                ),
-      onTap: () async {
-        if (type == OtherInfoItemType.QRCode) {
-          showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return MyIdCardDialog(
-                  type: CommonConstant.qrCodeChannel,
-                  channelDB: widget.channelDB,
-                );
-              });
-        } else if (type == OtherInfoItemType.ChannelID) {
-          await TookKit.copyKey(context, rightHint ?? '');
-        }
-      },
+        onTap: () async {
+          if (type == OtherInfoItemType.QRCode) {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) {
+                  return MyIdCardDialog(
+                    type: CommonConstant.qrCodeChannel,
+                    channelDB: widget.channelDB,
+                  );
+                });
+          } else if (type == OtherInfoItemType.ChannelID) {
+            await TookKit.copyKey(context, rightHint ?? '');
+          }
+        },
+      ),
     );
   }
 
@@ -589,7 +596,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
+          OXCachedNetworkImage(
             fit: BoxFit.cover,
             height: Adapt.px(36),
             width: Adapt.px(36),
@@ -647,10 +654,11 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     await OXLoading.dismiss();
     if (result) {
       OXChatBinding.sharedInstance.sessionUpdate();
-      setState(() {
-        _isMute = value;
-        widget.channelDB.mute = value;
-      });
+      if (mounted)
+        setState(() {
+          _isMute = value;
+          widget.channelDB.mute = value;
+        });
     } else {
       CommonToast.instance
           .show(context, 'Mute(Unmute) failed, please try again later.');

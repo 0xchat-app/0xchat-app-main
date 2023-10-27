@@ -91,7 +91,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
   }
 
   void _connect(BuildContext context) {
-    _signaling ??= SignalingManager(widget.host, widget.port, context)..connect();
+    _signaling ??= SignalingManager(widget.host, widget.port)..connect();
 
     _signaling?.onDataChannelMessage = (_, dc, RTCDataChannelMessage data) {
       setState(() {

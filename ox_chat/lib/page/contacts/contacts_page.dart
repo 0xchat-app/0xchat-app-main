@@ -5,6 +5,7 @@ import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
+import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
@@ -40,9 +41,16 @@ class _ContractsPageState extends State<ContractsPage>
   ScrollController _scrollController = ScrollController();
   Widget? _cursorContactsWidget;
   Widget? _cursorChannelsWidget;
+  Widget? _cursorGroupsWidget;
   bool _isShowTools = false;
   int _contactNotelength = 0;
   int _channelNotelength = 0;
+  int _groupNoteLength = 0;
+  final tabItems = [
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_msg')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_groups')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_channels')),
+  ];
 
   @override
   void initState() {
@@ -63,20 +71,18 @@ class _ContractsPageState extends State<ContractsPage>
 
   @override
   Widget build(BuildContext context) {
-    final tabItems = [
-      CommonCategoryTitleItem(
-        title: Localized.text('ox_chat.contract_title_msg'),
-        selectedIconName: '',
-        unSelectedIconName: '',
-      ),
-      CommonCategoryTitleItem(
-        title: Localized.text('ox_chat.contract_title_channels'),
-        selectedIconName: '',
-        unSelectedIconName: '',
-      ),
-    ];
-    num itemHeight = (_selectedIndex == 0 ? Contacts.sharedInstance.allContacts.values.length : Channels.sharedInstance.myChannels.length) * Adapt.px(68)
-     + (_selectedIndex == 0 ? _contactNotelength : _channelNotelength) * Adapt.px(24);
+    num itemHeight = 0;
+    switch (_selectedIndex) {
+      case 0:
+        itemHeight = Contacts.sharedInstance.allContacts.values.length * Adapt.px(68) + _contactNotelength * Adapt.px(24);
+        break;
+      case 1:
+        itemHeight = Groups.sharedInstance.myGroups.length * Adapt.px(68) + _groupNoteLength * Adapt.px(24);
+        break;
+      case 2:
+        itemHeight = Channels.sharedInstance.myChannels.length * Adapt.px(68) + _channelNotelength * Adapt.px(24);
+        break;
+    }
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -94,8 +100,8 @@ class _ContractsPageState extends State<ContractsPage>
               ThemeColor.gradientMainEnd
             ],
             unselectedGradientColors: [ThemeColor.color120, ThemeColor.color120],
-            selectedFontSize: Adapt.px(20),
-            unSelectedFontSize: Adapt.px(20),
+            selectedFontSize: Adapt.sp(20),
+            unSelectedFontSize: Adapt.sp(20),
             items: tabItems,
             onTap: (int value) {
               setState(() {
@@ -197,6 +203,12 @@ class _ContractsPageState extends State<ContractsPage>
                         scrollController: _scrollController,
                         onCursorContactsChanged: _setCursorContactsWidget,
                       ),
+                      ContactViewGroups(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: false,
+                        scrollController: _scrollController,
+                        onCursorGroupsChanged: _setCursorGroupsWidget,
+                      ),
                       ContactViewChannels(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: false,
@@ -209,10 +221,10 @@ class _ContractsPageState extends State<ContractsPage>
               ],
             ),
           ),
-          if (_isShowTools && (_cursorContactsWidget != null || _cursorChannelsWidget != null))
+          if (_isShowTools && (_cursorContactsWidget != null || _cursorChannelsWidget != null || _cursorGroupsWidget != null))
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: _selectedIndex == 0 ? _cursorContactsWidget : _cursorChannelsWidget,
+              child: _selectedIndex == 0 ? _cursorContactsWidget : _selectedIndex == 1 ? _cursorGroupsWidget : _cursorChannelsWidget,
             ),
         ],
       ),
@@ -230,6 +242,13 @@ class _ContractsPageState extends State<ContractsPage>
     _channelNotelength = noteLength;
     setState(() {
       _cursorChannelsWidget = widget;
+    });
+  }
+
+  void _setCursorGroupsWidget(Widget widget, int noteLength) {
+    _groupNoteLength = noteLength;
+    setState(() {
+      _cursorGroupsWidget = widget;
     });
   }
 

@@ -4,11 +4,10 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -19,15 +18,15 @@ import 'package:ox_localizable/ox_localizable.dart';
 double headerHeight = Adapt.px(24);
 double itemHeight = Adapt.px(68.0);
 
-typedef void CursorChannelsChanged(Widget cursor, int noteLength);
+typedef void CursorGroupsChanged(Widget cursor, int noteLength);
 
 class GroupContact extends StatefulWidget {
-  final List<ChannelDB> data;
+  final List<GroupDB> data;
   final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
   ScrollController? scrollController;
-  CursorChannelsChanged? onCursorChannelsChanged;
+  CursorGroupsChanged? onCursorGroupsChanged;
 
   GroupContact({
     Key? key,
@@ -36,7 +35,7 @@ class GroupContact extends StatefulWidget {
     this.shrinkWrap = false,
     this.physics,
     this.scrollController,
-    this.onCursorChannelsChanged,
+    this.onCursorGroupsChanged,
   }) : super(key: key);
 
   @override
@@ -47,14 +46,14 @@ class GroupContact extends StatefulWidget {
 
 class Note {
   String tag;
-  List<ChannelDB> childList;
+  List<GroupDB> childList;
 
   Note(this.tag, this.childList);
 }
 
 class GroupContactState extends State<GroupContact> {
   List<String> indexTagList = [];
-  late List<ChannelDB> channelList;
+  late List<GroupDB> groupList;
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -62,13 +61,13 @@ class GroupContactState extends State<GroupContact> {
   String _tagName = '';
   bool _isTouchTagBar = false;
 
-  List<ChannelDB> selectedList = [];
-  Map<String, List<ChannelDB>> mapData = Map();
+  List<GroupDB> selectedList = [];
+  Map<String, List<GroupDB>> mapData = Map();
 
   @override
   void initState() {
     super.initState();
-    channelList = widget.data;
+    groupList = widget.data;
     _initIndexBarData();
     // scrollController.addListener(() {
     //   double position = scrollController.offset.toDouble();
@@ -77,10 +76,10 @@ class GroupContactState extends State<GroupContact> {
     // });
   }
 
-  void updateContactData(List<ChannelDB> data) {
-    channelList = data;
+  void updateContactData(List<GroupDB> data) {
+    groupList = data;
     _initIndexBarData();
-    widget.onCursorChannelsChanged?.call(Container(
+    widget.onCursorGroupsChanged?.call(Container(
       child: _buildAlphaBar(),
       width: 30,
     ), noteList.length);
@@ -91,18 +90,18 @@ class GroupContactState extends State<GroupContact> {
     mapData.clear();
     noteList.clear();
 
-    if (null == channelList || channelList?.length == 0) return;
+    if (groupList.length == 0) return;
 
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
 
-    channelList!.sort((v1, v2) {
+    groupList.sort((v1, v2) {
       return PinyinHelper.getFirstWordPinyin(v1.name ?? '').compareTo(PinyinHelper.getFirstWordPinyin(v1.name ?? ''));
     });
 
-    channelList!.forEach((item) {
-      if (item.channelId == '' || item.name == '') return;
+    groupList.forEach((item) {
+      if (item.groupId == '' || item.name == '') return;
       var cTag = PinyinHelper.getFirstWordPinyin(item.name ?? '').substring(0, 1).toUpperCase();
       if (!ALPHAS_INDEX.contains(cTag)) cTag = '#';
       mapData[cTag]?.add(item);
@@ -118,11 +117,11 @@ class GroupContactState extends State<GroupContact> {
 
   @override
   Widget build(BuildContext context) {
-    channelList = widget.data;
+    groupList = widget.data;
     _initIndexBarData();
     return Material(
       color: ThemeColor.color200,
-      child: channelList == null || channelList!.isEmpty
+      child: groupList.isEmpty
           ? _emptyWidget()
           : Stack(
               alignment: AlignmentDirectional.centerEnd,
@@ -316,7 +315,7 @@ class GroupHeaderWidget extends StatelessWidget {
 }
 
 class GroupContactListItem extends StatefulWidget {
-  late ChannelDB item;
+  late GroupDB item;
   final onCheckChanged;
   final int chatType;
 
@@ -334,40 +333,24 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    if (widget.chatType == ChatType.chatGroup) {
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatGroupMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId!,
-            groupId: widget.item.channelId!,
-            chatType: ChatType.chatGroup,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime!,
-            avatar: widget.item.picture!,
-          ),
+    OXNavigator.pushPage(
+      context,
+      (context) => ChatGroupMessagePage(
+        communityItem: ChatSessionModel(
+          chatId: widget.item.groupId!,
+          groupId: widget.item.groupId!,
+          chatType: ChatType.chatGroup,
+          chatName: widget.item.name!,
+          createTime: widget.item.updateTime!,
+          avatar: widget.item.picture!,
         ),
-      );
-    } else if (widget.chatType == ChatType.chatChannel) {
-      OXNavigator.pushPage(
-        context,
-        (context) => ChatGroupMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId!,
-            groupId: widget.item.channelId!,
-            chatType: ChatType.chatChannel,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime!,
-            avatar: widget.item.picture!,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget iconAvatar = OXChannelAvatar(channel: widget.item);
+    Widget iconAvatar = OXGroupAvatar(group: widget.item);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _onItemClick,

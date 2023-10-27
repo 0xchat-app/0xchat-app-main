@@ -62,7 +62,7 @@ class _CallFloatingDraggableOverlayState extends State<CallFloatingDraggableOver
                 CallManager.instance.overlayEntry!.remove();
               }
               CallManager.instance.removeObserver(counterValueChange);
-              OXNavigator.pushPage(OXNavigator.navigatorKey.currentContext!, (context) => CallPage(widget.userDB, CallManager.instance.callType.text));
+              OXNavigator.pushPage(OXNavigator.navigatorKey.currentContext!, (context) => CallPage(widget.userDB, CallManager.instance.callType?.text ?? CallMessageType.video.text));
             },
             child: CallManager.instance.callType == CallMessageType.audio
                 ? Container(

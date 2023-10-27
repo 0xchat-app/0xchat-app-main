@@ -3,11 +3,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -56,7 +56,8 @@ class ImageGallery extends StatelessWidget {
                 builder: (BuildContext context, int index) {
                   final isEncryptedImage = images[index].encrypted;
                   return PhotoViewGalleryPageOptions(
-                    imageProvider: CachedNetworkImageProvider(
+                    imageProvider: OXCachedNetworkImageProviderEx.create(
+                      context,
                       images[index].uri,
                       headers: imageHeaders,
                       cacheManager: isEncryptedImage ? DecryptedCacheManager(options.decryptionKey) : null,

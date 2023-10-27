@@ -132,5 +132,21 @@
   "screen_record_hint_message" :"${user} attempted to screen record",
   "session_content_mentioned": "You're mentioned",
   "session_content_draft":"Draft",
-  "lightning_invoice": "Lightning Invoice"
+  "lightning_invoice": "Lightning Invoice",
+  "str_new_group": "New Group",
+  "create_group_search_hint_text": "Who would you like to add？",
+  "create_group_select_toast": "Please select at least one user",
+  "next": "Next",
+  "group_name_item":"Group Name",
+  "group_member": "Members",
+  "group_enter_hint_text": "Please Enter a Group Name",
+  "contract_title_groups": "Groups",
+  "add_member_title": "Add members",
+  "remove_member_title": "Remove members",
+  "select_chat": "Select a chat",
+  "add_member_success_tips": "Add members successful",
+  "add_member_fail_tips": "Add members failed",
+  "remove_member_success_tips": "Remove members successful",
+  "remove_member_fail_tips": "Remove members failed",
+  "group_share_tips": "Are you sure you want to share a group chat link with your friends"
 }

@@ -5,8 +5,8 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/common_status_view.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -189,7 +189,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
           borderRadius: BorderRadius.circular(Adapt.px(44)),
           color: ThemeColor.color180,
         ),
-        child: CachedNetworkImage(
+        child: OXCachedNetworkImage(
           imageUrl: picture,
           fit: BoxFit.cover,
           placeholder: (context, url) => placeholderImage,

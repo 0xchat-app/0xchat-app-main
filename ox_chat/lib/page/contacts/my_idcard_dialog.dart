@@ -1,11 +1,11 @@
 import 'dart:ui';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -122,7 +122,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
                         height: Adapt.px(48),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(Adapt.px(48)),
-                          child: CachedNetworkImage(
+                          child: OXCachedNetworkImage(
                             imageUrl: _imgUrl,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => placeholderImage,

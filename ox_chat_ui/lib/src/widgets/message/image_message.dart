@@ -77,11 +77,11 @@ class _ImageMessageState extends State<ImageMessage> {
   Widget build(BuildContext context) {
     final user = InheritedUser.of(context).user;
 
-    if (_size.aspectRatio == 0) {
-      return Container(
-        color: InheritedChatTheme.of(context).theme.secondaryColor,
-        height: _size.height,
-        width: _size.width,
+    if (_size.isEmpty || _size.aspectRatio == 0) {
+      return SizedBox(
+        width: 100,
+        height: 100,
+        child: Center(child: const CircularProgressIndicator()),
       );
     } else if (_size.aspectRatio < 0.1 || _size.aspectRatio > 10) {
       return Container(

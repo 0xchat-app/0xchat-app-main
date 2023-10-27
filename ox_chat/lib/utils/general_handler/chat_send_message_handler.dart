@@ -2,7 +2,7 @@
 part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
-  
+
   static Future sendMessageHandler(
       ChatSessionModel session,
       types.Message message, {
@@ -12,6 +12,32 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       }) async {
     handler ??= ChatGeneralHandler(session: session);
     handler._sendMessageHandler( message, context: context, isResend: isResend);
+  }
+
+  static void sendTemplatePrivateMessage({
+    required String receiverPubkey,
+    String title = '',
+    String subTitle = '',
+    String icon = '',
+    String link = '',
+  }) {
+    final session = _getSessionModel(receiverPubkey, ChatType.chatSingle);
+    if (session == null) return ;
+    ChatGeneralHandler(session: session).sendTemplateMessage(title: title, content: subTitle, icon: icon, link: link);
+  }
+
+  static ChatSessionModel? _getSessionModel(String receiverPubkey, int type) {
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return null;
+
+    final session = OXChatBinding.sharedInstance.sessionMap[receiverPubkey];
+    if (session != null) return session;
+
+    return ChatSessionModel(
+      receiver: receiverPubkey,
+      chatType: type,
+      sender: sender,
+    );
   }
 
   Future _sendMessageHandler(
@@ -56,7 +82,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendTextMessage(BuildContext context, String text) async {
-
+    
     final mid = Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -193,6 +219,29 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
       _sendMessageHandler(message, context: context);
     }
+  }
+
+  void sendTemplateMessage({
+    BuildContext? context,
+    String title = '',
+    String content = '',
+    String icon = '',
+    String link = '',
+  }) {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    final message = CustomMessageFactory().createTemplateMessage(
+      author: author,
+      timestamp: tempCreateTime,
+      roomId: session.chatId,
+      id: message_id,
+      title: title,
+      content: content,
+      icon: icon,
+      link: link,
+    );
+
+    _sendMessageHandler(message, context: context);
   }
 
   void sendSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) {

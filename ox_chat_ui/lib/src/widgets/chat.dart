@@ -37,6 +37,8 @@ import 'dart:io';
 enum ChatStatus {
   Unknown,
   NotJoined,
+  NotJoinedGroup,
+  RequestGroup,
   NotContact,
   InsufficientBadge,
   Normal,
@@ -119,6 +121,8 @@ class Chat extends StatefulWidget {
     this.onMessageLongPressEvent,
     this.chatStatus,
     this.onJoinChannelTap,
+    this.onJoinGroupTap,
+    this.onRequestGroupTap,
     this.longPressMenuItemsCreator,
     this.onGifSend,
     this.inputBottomView,
@@ -128,6 +132,8 @@ class Chat extends StatefulWidget {
 
   final ChatStatus? chatStatus;
   final void Function()? onJoinChannelTap;
+  final void Function()? onJoinGroupTap;
+  final void Function()? onRequestGroupTap;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})?
@@ -460,7 +466,7 @@ class ChatState extends State<Chat> {
   /// Scroll to the message with the specified [id].
   void scrollToMessage(String id, {Duration? duration}) =>
       _scrollController.scrollToIndex(
-        _autoScrollIndexById[id]!,
+        _autoScrollIndexById[id] ?? 0,
         duration: duration ?? scrollAnimationDuration,
       );
 
@@ -600,7 +606,40 @@ class ChatState extends State<Chat> {
             widget.onJoinChannelTap?.call();
           },
         );
-      } else if (chatStatus == ChatStatus.InsufficientBadge) {
+      }
+      else if (chatStatus == ChatStatus.NotJoinedGroup) {
+        return GestureDetector(
+          child: container(
+            child: Container(
+              alignment:Alignment.center,
+              child: Text(
+                Localized.text('ox_chat_ui.group_join'),
+                style: TextStyle(color: ThemeColor.gradientMainStart),
+              ),
+            ),
+          ),
+          onTap: (){
+            widget.onJoinGroupTap?.call();
+          },
+        );
+      }
+      else if (chatStatus == ChatStatus.RequestGroup) {
+        return GestureDetector(
+          child: container(
+            child: Container(
+              alignment:Alignment.center,
+              child: Text(
+                Localized.text('ox_chat_ui.group_request'),
+                style: TextStyle(color: ThemeColor.gradientMainStart),
+              ),
+            ),
+          ),
+          onTap: (){
+            widget.onRequestGroupTap?.call();
+          },
+        );
+      }
+      else if (chatStatus == ChatStatus.InsufficientBadge) {
         final text = chatStatus == ChatStatus.InsufficientBadge ?
         Localized.text('ox_chat_ui.channel_badge_requirements') :
         Localized.text('ox_chat_ui.friend_requirements');
@@ -712,10 +751,9 @@ class ChatState extends State<Chat> {
           messageWidget = widget.systemMessageBuilder?.call(message) ??
               SystemMessage(message: message.text);
         } else {
-          final messageWidth =
-          showUserAvatars && message.author.id != widget.user.id
-              ? min(constraints.maxWidth * 0.72, 270).floor()
-              : min(constraints.maxWidth * 0.78, 270).floor();
+          final messageWidth = showUserAvatars && message.author.id != widget.user.id
+              ? min(constraints.maxWidth * 0.72, Adapt.px(250)).floor()
+              : min(constraints.maxWidth * 0.78, Adapt.px(250)).floor();
 
           messageWidget = Message(
               audioMessageBuilder: widget.audioMessageBuilder,

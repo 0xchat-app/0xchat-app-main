@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -11,6 +10,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -189,7 +189,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Adapt.px(40)),
         ),
-        child: CachedNetworkImage(
+        child: OXCachedNetworkImage(
           imageUrl: picture,
           fit: BoxFit.cover,
           placeholder: (context, url) => placeholderImage,

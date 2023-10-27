@@ -109,13 +109,35 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didChannalMessageCallBack(MessageDB message) async {
+  void didGroupMessageCallBack(MessageDB message) async {
     final groupId = message.groupId;
-    ChannelKey key = ChannelKey(groupId);
+    final key = GroupKey(groupId);
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
         OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
+      },
+    );
+    if (msg == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didGroupMessageCallBack',
+        message: 'message is null',
+      );
+      return ;
+    }
+
+    await _addChatMessages(key, msg);
+  }
+
+  @override
+  void didChannalMessageCallBack(MessageDB message) async {
+    final channelId = message.groupId;
+    ChannelKey key = ChannelKey(channelId);
+
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: true);
       },
     );
     if (msg == null) {
@@ -209,6 +231,11 @@ class ChatDataCache with OXChatObserver {
       message: 'sessionId: $sessionId, receiverPubkey: $receiverPubkey, contentString: $contentString, type: ${sendMsg.type}',
     );
 
+    final chatKey = _getChatTypeKey(session);
+    if (chatKey == null) {
+      return;
+    }
+
     Contacts.sharedInstance
         .sendSecretMessage(
       sessionId,
@@ -224,24 +251,24 @@ class ChatDataCache with OXChatObserver {
         remoteId: event.eventId,
         status: event.status ? types.Status.sent : types.Status.error,
       );
-      ChatDataCache.shared.updateMessage(session, updatedMessage);
+      ChatDataCache.shared.updateMessage(chatKey: chatKey, message: updatedMessage);
     });
 
     // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, session);
+    _setMessageSendingStatusIfNeeded(sendFinish, sendMsg, chatKey);
   }
 
-  void _updateMessageStatus(types.Message message, types.Status status, ChatSessionModel session) {
+  void _updateMessageStatus(types.Message message, types.Status status, ChatTypeKey key) {
     final updatedMessage = message.copyWith(
       status: status,
     );
-    updateMessage(session, updatedMessage);
+    updateMessage(chatKey: key, message: updatedMessage);
   }
 
-  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message, ChatSessionModel session) {
+  void _setMessageSendingStatusIfNeeded(OXValue<bool> sendFinish, types.Message message, ChatTypeKey key) {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!sendFinish.value) {
-        _updateMessageStatus(message, types.Status.sending, session);
+        _updateMessageStatus(message, types.Status.sending, key);
       }
     });
   }
@@ -249,14 +276,20 @@ class ChatDataCache with OXChatObserver {
 
 extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
-  Future<void> addNewMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
+  Future<void> addNewMessage({
+      ChatTypeKey? key,
+      ChatSessionModel? session,
+      required types.Message message,
+  }) async {
+    if (session != null) {
+      key ??= _getChatTypeKey(session);
+    }
     if (key == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'ChatTypeKey is null');
       return ;
     }
 
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session.chatId}, key: $key');
+    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session?.chatId}, key: $key');
     await _addChatMessages(key, message);
   }
 
@@ -272,38 +305,27 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     await notifyChatObserverValueChanged(key);
   }
 
-  Future<void> resendMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
-    if (key == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'resendMessage',
-        message: 'ChatTypeKey is null',
-      );
-      return ;
-    }
-
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: 'resendMessage',
-      message: 'session: ${session.chatId}, key: $key',
-    );
-
+  Future<void> resendMessage(ChatTypeKey key, types.Message message) async {
     await _removeChatMessages(key, message);
     await _addChatMessages(key, message);
     await notifyChatObserverValueChanged(key);
-
   }
 
-  Future<void> updateMessage(ChatSessionModel session, types.Message message) async {
-    final key = _getChatTypeKey(session);
-    if (key == null) {
+  Future<void> updateMessage({
+    ChatTypeKey? chatKey,
+    ChatSessionModel? session,
+    required types.Message message,
+  }) async {
+    if (session != null) {
+      chatKey ??= _getChatTypeKey(session);
+    }
+    if (chatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
       return ;
     }
 
-    await _updatePrivateChatMessages(key, message);
-    await notifyChatObserverValueChanged(key);
+    await _updatePrivateChatMessages(chatKey, message);
+    await notifyChatObserverValueChanged(chatKey);
   }
 }
 
@@ -348,13 +370,22 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return PrivateChatKey(session.sender, session.receiver);
   }
 
-  ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
+  GroupKey? _convertSessionToGroupKey(ChatSessionModel session) {
     final groupId = session.groupId;
     if (groupId == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'groupId is null');
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToGroupKey', message: 'groupId is null');
       return null;
     }
-    return ChannelKey(groupId);
+    return GroupKey(groupId);
+  }
+
+  ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
+    final channelId = session.groupId;
+    if (channelId == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'channelId is null');
+      return null;
+    }
+    return ChannelKey(channelId);
   }
 
   ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModel session) {
@@ -458,6 +489,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       case ChatType.chatSingle:
       case ChatType.chatStranger:
         return _convertSessionToPrivateChatKey(session);
+      case ChatType.chatGroup:
+        return _convertSessionToGroupKey(session);
       case ChatType.chatChannel:
         return _convertSessionToChannelKey(session);
       case ChatType.chatSecret:
@@ -471,15 +504,20 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
   ChatTypeKey? _getChatTypeKeyWithMessage(MessageDB message) {
 
-    if (message.sessionId.isNotEmpty) {
+    final type = message.chatType;
+    if (type == 3 || message.sessionId.isNotEmpty) {
       return SecretChatKey(message.sessionId);
     }
 
-    if (message.groupId.isNotEmpty) {
+    if (type == 1) {
+      return GroupKey(message.groupId);
+    }
+
+    if (type == 2 || message.groupId.isNotEmpty) {
       return ChannelKey(message.groupId);
     }
 
-    if (message.sender.isNotEmpty && message.receiver.isNotEmpty) {
+    if (type == 0 || message.sender.isNotEmpty && message.receiver.isNotEmpty) {
       return PrivateChatKey(message.sender, message.receiver);
     }
 
@@ -537,7 +575,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       // Secret Chat
       return sessionId == session.chatId;
     } else if (groupId.isNotEmpty) {
-      // Channel
+      // Channel & Group
       return groupId == session.groupId;
     } else if (senderId.isNotEmpty && receiverId.isNotEmpty) {
       // Private
