@@ -96,6 +96,10 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   @override
   buildAddPressed() async {
+    if(userList.isEmpty){
+      CommonToast.instance.show(context, Localized.text('ox_chat.create_group_select_toast'));
+      return;
+    }
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
