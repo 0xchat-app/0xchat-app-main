@@ -554,6 +554,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
           break;
         case ChatType.chatSingle:
+        case ChatType.chatSecret:
           showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
           break;
         case ChatType.chatGroup:
@@ -607,6 +608,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
         break;
       case ChatType.chatSingle:
+      case ChatType.chatSecret:
         showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
         break;
       case ChatType.chatGroup:
