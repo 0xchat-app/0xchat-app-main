@@ -86,12 +86,6 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   @override
   Widget build(BuildContext context) {
-    if (userList.isEmpty) {
-      return SizedBox(
-          height: Adapt.px(24),
-          width: Adapt.px(24),
-          child: CircularProgressIndicator());
-    }
     return super.build(context);
   }
 
@@ -102,6 +96,10 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   @override
   buildAddPressed() async {
+    if(userList.isEmpty){
+      CommonToast.instance.show(context, Localized.text('ox_chat.create_group_select_toast'));
+      return;
+    }
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');

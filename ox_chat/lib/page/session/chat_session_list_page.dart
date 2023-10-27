@@ -560,7 +560,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
           break;
       }
-      String localAvatarPath = item.chatType == ChatType.chatChannel ? 'icon_group_default.png' : 'user_image.png';
+      String localAvatarPath = item.chatType == ChatType.chatChannel || item.chatType == ChatType.chatGroup ? 'icon_group_default.png' : 'user_image.png';
       return Container(
         width: Adapt.px(60),
         height: Adapt.px(60),

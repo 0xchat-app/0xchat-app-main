@@ -24,6 +24,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 class ChatGroupMessagePage extends StatefulWidget {
 
@@ -197,14 +198,24 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           }
         },
         onRequestGroupTap: () async {
-          await OXLoading.show();
-          final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, group?.owner ?? '','');
-          await OXLoading.dismiss();
-          if (okEvent.status) {
-            CommonToast.instance.show(context, 'Request Sent!');
-          } else {
-            CommonToast.instance.show(context, okEvent.message);
-          }
+          OXModuleService.invoke('ox_chat', 'groupSharePage',[context],
+              {
+                Symbol('groupPic'): group?.picture ?? '',
+                Symbol('groupName'):groupId,
+                Symbol('groupOwner'): group?.owner ?? '',
+                Symbol('groupId'):groupId,
+                Symbol('inviterPubKey'):'--',
+              }
+          );
+          // await OXLoading.show();
+          // final OKEvent okEvent = await Groups.sharedInstance.requestGroup(groupId, group?.owner ?? '','');
+          //
+          // await OXLoading.dismiss();
+          // if (okEvent.status) {
+          //   CommonToast.instance.show(context, 'Request Sent!');
+          // } else {
+          //   CommonToast.instance.show(context, okEvent.message);
+          // }
         },
         longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
