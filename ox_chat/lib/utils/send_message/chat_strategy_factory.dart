@@ -5,6 +5,7 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 
 class ChatStrategyFactory {
   static ChatStrategy getStrategy(ChatSessionModel session) {
@@ -64,6 +65,9 @@ class ChannelChatStrategy extends ChatStrategy {
   final ChatSessionModel session;
 
   ChannelChatStrategy(this.session);
+  
+  @override
+  String get receiverId => session.chatId.orDefault(session.groupId ?? '');
 
   @override
   String get encryptedKey => '';
@@ -108,7 +112,7 @@ class GroupChatStrategy extends ChatStrategy {
   GroupChatStrategy(this.session);
 
   @override
-  String get receiverId => session.groupId ?? '';
+  String get receiverId => session.chatId.orDefault(session.groupId ?? '');
 
   @override
   String get encryptedKey => '';
