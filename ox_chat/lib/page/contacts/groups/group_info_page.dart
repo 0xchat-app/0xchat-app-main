@@ -23,7 +23,6 @@ import 'group_setting_qrcode_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-import 'group_share_page.dart';
 
 class GroupInfoPage extends StatefulWidget {
   final String groupId;
@@ -52,19 +51,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   String get _getGroupNotice {
     String groupNotice = groupDBInfo?.pinned?[0] ?? '';
     return groupNotice.isEmpty ? 'no content' : groupNotice;
-  }
-
-  void _groupInfoInit() async {
-    String groupId = widget.groupId;
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
-    List<UserDB>? groupList =
-        await Groups.sharedInstance.getAllGroupMembers(groupId);
-
-    if (groupDB != null) {
-      groupDBInfo = groupDB;
-      groupMember = groupList;
-      setState(() {});
-    }
   }
 
   @override
@@ -700,6 +686,19 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     if (event.status) {
       CommonToast.instance.show(context, 'Disband group chat success');
       OXNavigator.popToRoot(context);
+    }
+  }
+
+  void _groupInfoInit() async {
+    String groupId = widget.groupId;
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
+    List<UserDB>? groupList =
+    await Groups.sharedInstance.getAllGroupMembers(groupId);
+
+    if (groupDB != null) {
+      groupDBInfo = groupDB;
+      groupMember = groupList;
+      setState(() {});
     }
   }
 }

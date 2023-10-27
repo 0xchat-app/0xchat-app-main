@@ -49,36 +49,6 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
   @override
   Widget build(BuildContext context) {
-    return _body();
-  }
-
-  void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
-
-    if (groupDB != null) {
-      groupDBInfo = groupDB;
-      _getGroupQrcode(groupDB);
-      setState(() {});
-    }
-  }
-
-  void _getGroupQrcode(GroupDB groupDB){
-    String relay = groupDB.relay ?? '';
-    String groupOwner = groupDB.owner;
-    String groupId = groupDB.groupId;
-    _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
-  }
-
-  Widget _body() {
-    String localAvatarPath = 'assets/images/user_image.png';
-    Image placeholderImage = Image.asset(
-      localAvatarPath,
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_common',
-    );
-
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
@@ -93,137 +63,150 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
           ),
         ],
       ),
-      body: Container(
-        width: double.infinity,
-        margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(24),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            RepaintBoundary(
-              key: _globalKey,
-              child: Container(
-                width: Adapt.px(310),
-                height: Adapt.px(430),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: ThemeColor.color180,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: Adapt.px(48),
-                      margin: EdgeInsets.only(
-                        left: Adapt.px(24),
-                        top: Adapt.px(36),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: Adapt.px(48),
-                            height: Adapt.px(48),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(Adapt.px(48)),
-                              child: CachedNetworkImage(
-                                imageUrl: _imgUrl,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    placeholderImage,
-                                errorWidget: (context, url, error) =>
-                                    placeholderImage,
-                                width: Adapt.px(48),
-                                height: Adapt.px(48),
-                              ),
+      body: _body(),
+    );
+  }
+
+  Widget _body() {
+    String localAvatarPath = 'assets/images/user_image.png';
+    Image placeholderImage = Image.asset(
+      localAvatarPath,
+      fit: BoxFit.cover,
+      width: Adapt.px(76),
+      height: Adapt.px(76),
+      package: 'ox_common',
+    );
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        horizontal: Adapt.px(24),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          RepaintBoundary(
+            key: _globalKey,
+            child: Container(
+              width: Adapt.px(310),
+              height: Adapt.px(430),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: ThemeColor.color180,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    height: Adapt.px(48),
+                    margin: EdgeInsets.only(
+                      left: Adapt.px(24),
+                      top: Adapt.px(36),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: Adapt.px(48),
+                          height: Adapt.px(48),
+                          child: ClipRRect(
+                            borderRadius:
+                            BorderRadius.circular(Adapt.px(48)),
+                            child: CachedNetworkImage(
+                              imageUrl: _imgUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                              placeholderImage,
+                              errorWidget: (context, url, error) =>
+                              placeholderImage,
+                              width: Adapt.px(48),
+                              height: Adapt.px(48),
                             ),
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(
-                                    left: Adapt.px(16), top: Adapt.px(2)),
-                                child: MyText(
-                                  groupDBInfo?.name ?? '--',
-                                  16,
-                                  ThemeColor.color10,
-                                  fontWeight:FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(
-                                    left: Adapt.px(16), top: Adapt.px(2)),
-                                child: MyText(
-                                  _dealWithGroupId,
-                                  14,
-                                  ThemeColor.color120,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      highlightColor: Colors.transparent,
-                      radius: 0.0,
-                      onLongPress: () {
-                        _showBottomMenu();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: Adapt.px(260),
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(
-                            top: Adapt.px(19),
-                            left: Adapt.px(25),
-                            right: Adapt.px(25)),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
                         ),
-                        padding: EdgeInsets.all(
-                          Adapt.px(8),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(
+                                  left: Adapt.px(16), top: Adapt.px(2)),
+                              child: MyText(
+                                groupDBInfo?.name ?? '--',
+                                16,
+                                ThemeColor.color10,
+                                fontWeight:FontWeight.w600,
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  left: Adapt.px(16), top: Adapt.px(2)),
+                              child: MyText(
+                                _dealWithGroupId,
+                                14,
+                                ThemeColor.color120,
+                              ),
+                            ),
+                          ],
                         ),
-                        child: _groupQrCodeUrl!.isEmpty
-                            ? Container()
-                            : _qrCodeWidget(),
-                      ),
+                      ],
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: Adapt.px(24)),
+                  ),
+                  InkWell(
+                    highlightColor: Colors.transparent,
+                    radius: 0.0,
+                    onLongPress: () {
+                      _showBottomMenu();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: Adapt.px(260),
                       alignment: Alignment.center,
-                      child: MyText('Scan the QR code to join the group ', 13, ThemeColor.color110,
-                          fontWeight: FontWeight.w400),
+                      margin: EdgeInsets.only(
+                          top: Adapt.px(19),
+                          left: Adapt.px(25),
+                          right: Adapt.px(25)),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      padding: EdgeInsets.all(
+                        Adapt.px(8),
+                      ),
+                      child: _groupQrCodeUrl!.isEmpty
+                          ? Container()
+                          : _qrCodeWidget(),
                     ),
-                  ],
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: Adapt.px(24)),
+                    alignment: Alignment.center,
+                    child: MyText('Scan the QR code to join the group ', 13, ThemeColor.color110,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          //
+          GestureDetector(
+            onTap: _widgetShotAndSave,
+            child:  Container(
+              child:Text(
+                'Save Image',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: ThemeColor.purple2,
+                  fontSize: Adapt.px(18),
+
                 ),
               ),
             ),
-            //
-           GestureDetector(
-             onTap: _widgetShotAndSave,
-             child:  Container(
-               child:Text(
-                 'Save Image',
-                 style: TextStyle(
-                   fontWeight: FontWeight.w600,
-                   color: ThemeColor.purple2,
-                   fontSize: Adapt.px(18),
-
-                 ),
-               ),
-             ),
-           ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -384,6 +367,24 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
       return;
     }
   }
+
+  void _groupInfoInit() async {
+    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+
+    if (groupDB != null) {
+      groupDBInfo = groupDB;
+      _getGroupQrcode(groupDB);
+      setState(() {});
+    }
+  }
+
+  void _getGroupQrcode(GroupDB groupDB){
+    String relay = groupDB.relay ?? '';
+    String groupOwner = groupDB.owner;
+    String groupId = groupDB.groupId;
+    _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
+  }
+
 
   String get _dealWithGroupId {
     String? groupId = groupDBInfo?.groupId;
