@@ -34,7 +34,7 @@ abstract class ChatStrategy {
 
   ChatSessionModel get session;
 
-  String get receiverId => session.chatId ?? '';
+  String get receiverId => session.chatId;
 
   String get receiverPubkey =>
       (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
@@ -106,6 +106,9 @@ class GroupChatStrategy extends ChatStrategy {
   final ChatSessionModel session;
 
   GroupChatStrategy(this.session);
+
+  @override
+  String get receiverId => session.groupId ?? '';
 
   @override
   String get encryptedKey => '';
