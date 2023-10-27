@@ -307,6 +307,7 @@ class GroupedAvatar extends StatelessWidget {
     avatarWidgetList = avatars.map((element) => _buildAvatar(smallSize, element)).toList();
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: isClickable ? onTap : null,
       child: Container(
         width: size,
