@@ -1,5 +1,6 @@
 package com.ox.ox_common
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -15,10 +16,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
+import com.ox.ox_common.activitys.PermissionActivity
+import com.ox.ox_common.activitys.SelectPicsActivity
 import com.ox.ox_common.utils.BitmapUtils
-import com.ox.ox_common.utils.Const
-import com.ox.ox_common.utils.FileUtils
-import com.ox.ox_common.utils.Tools
+import com.ox.ox_common.utils.FileTool
+import com.ox.ox_common.utils.LocalConst
+import com.ox.ox_common.utils.LocalTools
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -28,6 +31,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import java.io.File
+import java.io.Serializable
+
 
 /** OXCommonPlugin */
 class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -38,6 +43,9 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private lateinit var mContext: Context
     private val TAG: String = "OXCommonPlugin";
+
+    private val SELECT = 102
+    private val READ_IMAGE = 106
 
     private val CODE_IMAGE_FROM_CAMERRA = 155
     private val CODE_IMAGE_FROM_GALLERY = 156
@@ -52,19 +60,87 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var mActivity: Activity
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         mContext = flutterPluginBinding.applicationContext
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "ox_common")
         channel.setMethodCallHandler(this)
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    override fun onMethodCall(call: MethodCall, result: Result) {
         if (call.hasArgument("isNeedTailor")) {
             mIsNeedCrop = call.argument<Boolean>("isNeedTailor")!!
         }
         mResult = result
         _tempImageFileLocation = null
         when (call.method) {
+            "getPickerPaths" -> {
+                val galleryMode: String? = call.argument("galleryMode")
+                val showGif: Boolean? = call.argument("showGif")
+                val uiColor: Map<String, Number>? = call.argument("uiColor")
+                val selectCount: Number? = call.argument("selectCount")
+                val showCamera: Boolean? = call.argument("showCamera")
+                val enableCrop: Boolean? = call.argument("enableCrop")
+                val width: Number? = call.argument("width")
+                val height: Number? = call.argument("height")
+                val compressSize: Number? = call.argument("compressSize")
+                val cameraMimeType: String? = call.argument("cameraMimeType")
+                val videoRecordMaxSecond: Number? = call.argument("videoRecordMaxSecond")
+                val videoRecordMinSecond: Number? = call.argument("videoRecordMinSecond")
+                val videoSelectMaxSecond: Number? = call.argument("videoSelectMaxSecond")
+                val videoSelectMinSecond: Number? = call.argument("videoSelectMinSecond")
+                val language: String? = call.argument("language")
+
+                val intent = Intent()
+
+                intent.putExtra(SelectPicsActivity.GALLERY_MODE, galleryMode)
+                intent.putExtra(SelectPicsActivity.UI_COLOR, uiColor as Serializable)
+                intent.putExtra(SelectPicsActivity.SELECT_COUNT, selectCount)
+                intent.putExtra(SelectPicsActivity.SHOW_GIF, showGif)
+                intent.putExtra(SelectPicsActivity.SHOW_CAMERA, showCamera)
+                intent.putExtra(SelectPicsActivity.ENABLE_CROP, enableCrop)
+                intent.putExtra(SelectPicsActivity.WIDTH, width)
+                intent.putExtra(SelectPicsActivity.HEIGHT, height)
+                intent.putExtra(SelectPicsActivity.COMPRESS_SIZE, compressSize)
+                //直接调用拍照或拍视频时有效
+                //直接调用拍照或拍视频时有效
+                intent.putExtra(SelectPicsActivity.CAMERA_MIME_TYPE, cameraMimeType)
+                intent.putExtra(SelectPicsActivity.VIDEO_RECORD_MAX_SECOND, videoRecordMaxSecond)
+                intent.putExtra(SelectPicsActivity.VIDEO_RECORD_MIN_SECOND, videoRecordMinSecond)
+                intent.putExtra(SelectPicsActivity.VIDEO_SELECT_MAX_SECOND, videoSelectMaxSecond)
+                intent.putExtra(SelectPicsActivity.VIDEO_SELECT_MIN_SECOND, videoSelectMinSecond)
+                intent.putExtra(SelectPicsActivity.LANGUAGE, language)
+                if (cameraMimeType != null) {
+                    intent.putExtra(
+                        PermissionActivity.PERMISSIONS,
+                        arrayOf<String>(Manifest.permission.CAMERA)
+                    )
+                    intent.setClass(mContext, PermissionActivity::class.java)
+                    mActivity.startActivityForResult(
+                        intent,
+                        READ_IMAGE
+                    )
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.putExtra(
+                            PermissionActivity.PERMISSIONS, arrayOf<String>(
+                                Manifest.permission.READ_MEDIA_IMAGES,
+                                Manifest.permission.READ_MEDIA_VIDEO
+                            )
+                        )
+                        intent.setClass(mContext, PermissionActivity::class.java)
+                        mActivity.startActivityForResult(
+                            intent,
+                            READ_IMAGE
+                        )
+                    } else {
+                        intent.setClass(mContext, SelectPicsActivity::class.java)
+                        mActivity.startActivityForResult(
+                            intent,
+                            SELECT
+                        )
+                    }
+                }
+            }
             "getImageFromCamera" -> takePhoto(mActivity, CODE_IMAGE_FROM_CAMERRA, getTempImageFileUri(".jpg"))
             "getImageFromGallery" -> choosePhoto(mActivity, CODE_IMAGE_FROM_GALLERY)
             "getVideoFromCamera" -> takeVideo(mActivity, CODE_VIDEO, getTempImageFileUri(".mp4"))
@@ -112,12 +188,12 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
-            "getDeviceId" -> result.success(Tools.getAndroidId(mContext))
+            "getDeviceId" -> result.success(LocalTools.getAndroidId(mContext))
             else -> result.notImplemented()
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
     }
 
@@ -131,14 +207,28 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mActivity = binding.activity
 
 
-        binding.addActivityResultListener(ActivityResultListener { requestCode, responseCode, data ->
-            if (responseCode != Activity.RESULT_OK) {
-                false
+        binding.addActivityResultListener(ActivityResultListener { requestCode, resultCode, data ->
+            if (resultCode != Activity.RESULT_OK) {
+                return@ActivityResultListener false
             } else {
-                if (requestCode == CODE_VIDEO) {
+                if (requestCode == SELECT) {
+                    val paths =
+                        data?.getSerializableExtra(SelectPicsActivity.COMPRESS_PATHS) as List<Map<String, String>>
+                    mResult?.success(paths)
+                    return@ActivityResultListener true
+                } else if (requestCode == READ_IMAGE) {
+                    if (resultCode == Activity.RESULT_OK) {
+                        var intent1 = Intent(mActivity, SelectPicsActivity::class.java)
+                        intent1.putExtras(data!!)
+                        mActivity.startActivityForResult(
+                            intent1,
+                            SELECT
+                        )
+                    }
+                } else if (requestCode == CODE_VIDEO) {
 //                        Uri uriVideo = data.getData();
                     val uriVideo = getTempImageFileUri(".mp4")
-                    val videoFilePath = FileUtils.uri2File(mActivity, uriVideo)
+                    val videoFilePath = FileTool.uri2File(mActivity, uriVideo)
                     processResult(videoFilePath)
                     return@ActivityResultListener true
                 }
@@ -162,7 +252,7 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                             if (extras != null) {
                                 val imageBitmap = extras["data"] as Bitmap?
                                 if (imageBitmap != null) {
-                                    val saveFlag = FileUtils.saveBitmap(imageBitmap, File(_tempImageFileLocation), Bitmap.CompressFormat.JPEG, 100)
+                                    val saveFlag = FileTool.saveBitmap(imageBitmap, File(_tempImageFileLocation), Bitmap.CompressFormat.JPEG, 100)
                                 }
                             }
                         }
@@ -175,14 +265,14 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     val originalPhotoForChoose = data.data
                     if (mIsNeedCrop) {
                         // The File corresponding to the original photo's URI
-                        val originalPhotoForChooseCopySrc = FileUtils.uri2File(mActivity, originalPhotoForChoose)
+                        val originalPhotoForChooseCopySrc = FileTool.uri2File(mActivity, originalPhotoForChoose)
                         // Make a copy of the selected original image (for cropping purposes)
                         val originalPhotoForChooseCopyDest = _tempImageFileLocation
                         if (originalPhotoForChooseCopySrc != null) {
                             var copyOK = false
                             try {
                                 // Make a copy of the selected original image (for cropping purposes)
-                                copyOK = FileUtils.copyFile(originalPhotoForChooseCopySrc, originalPhotoForChooseCopyDest)
+                                copyOK = FileTool.copyFile(originalPhotoForChooseCopySrc, originalPhotoForChooseCopyDest)
                             } catch (e: java.lang.Exception) {
                                 Log.e(TAG, e.message, e)
                             }
@@ -210,7 +300,7 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         }
                     } else {
                         // The File corresponding to the original photo's URI
-                        val originalPhotoSrc = FileUtils.uri2File(mActivity.applicationContext, originalPhotoForChoose)
+                        val originalPhotoSrc = FileTool.uri2File(mActivity.applicationContext, originalPhotoForChoose)
                         if (TextUtils.isEmpty(originalPhotoSrc)) {
                             return@ActivityResultListener false
                         } else {
@@ -328,11 +418,11 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             if (mIsNeedCrop && Build.VERSION.SDK_INT >= 30) {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
             } else {
-                mActivity!!.getExternalFilesDir(Const.DIR_YLNEW_APP_FILES_PIC_DIR)!!.absolutePath
+                mActivity!!.getExternalFilesDir(LocalConst.DIR_YLNEW_APP_FILES_PIC_DIR)!!.absolutePath
             }
         } else {
             //External storage is not available
-            mActivity!!.filesDir.absolutePath + Const.DIR_YLNEW_APP_FILES_PIC_DIR
+            mActivity!!.filesDir.absolutePath + LocalConst.DIR_YLNEW_APP_FILES_PIC_DIR
         }
         //        LogUtils.e("dir = " + dir);
         return dir
@@ -393,8 +483,8 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             Log.e("ox_debug", e.message, e)
         }
         if (bitmap == null) mResult!!.success(null)
-        val path: String = FileUtils.getFileSavedDir(mActivity, Const.DIR_YLNEW_APP_FILES_PIC_DIR).toString() + "/" + System.currentTimeMillis() + ".png"
-        val isSaveSucc: Boolean = FileUtils.saveBitmap(bitmap, File(path), Bitmap.CompressFormat.JPEG, quality)
+        val path: String = FileTool.getFileSavedDir(mActivity, LocalConst.DIR_YLNEW_APP_FILES_PIC_DIR).toString() + "/" + System.currentTimeMillis() + ".png"
+        val isSaveSucc: Boolean = FileTool.saveBitmap(bitmap, File(path), Bitmap.CompressFormat.JPEG, quality)
         if (isSaveSucc) {
             mResult!!.success(path)
         } else {

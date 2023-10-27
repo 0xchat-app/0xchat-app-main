@@ -16,8 +16,8 @@ class GesturePassword extends StatefulWidget {
       {@required this.successCallback,
         this.failCallback,
         this.selectedCallback,
-        this.attribute: ItemAttribute.normalAttribute,
-        this.height: 300.0,
+        this.attribute = ItemAttribute.normalAttribute,
+        this.height = 300.0,
         this.width,
       });
 
@@ -172,10 +172,10 @@ class ItemAttribute {
     required this.selectedBgColor,
     required this.normalColor,
     required this.selectedColor,
-    this.lineStrokeWidth: 2.0,
-    this.circleStrokeWidth: 2.0,
-    this.smallCircleR: 10.0,
-    this.bigCircleR: 30.0,
-    this.focusDistance: 25.0,
+    this.lineStrokeWidth = 2.0,
+    this.circleStrokeWidth = 2.0,
+    this.smallCircleR = 10.0,
+    this.bigCircleR = 30.0,
+    this.focusDistance = 25.0,
   });
 }

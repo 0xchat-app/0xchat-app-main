@@ -60,7 +60,7 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   DatePickerDateTimeOrder get datePickerDateTimeOrder => _en.datePickerDateTimeOrder;
 
   @override
-  String datePickerDayOfMonth(int dayIndex) => _en.datePickerDayOfMonth(dayIndex);
+  String datePickerDayOfMonth(int dayIndex, [int? weekDay]) => _en.datePickerDayOfMonth(dayIndex, weekDay);
 
   @override
   String datePickerHour(int hour) => _en.datePickerHour(hour);
@@ -119,4 +119,8 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   @override
   // TODO: implement timerPickerSecondLabels
   List<String> get timerPickerSecondLabels => _en.timerPickerSecondLabels;
+
+  @override
+  // TODO: implement noSpellCheckReplacementsLabel
+  String get noSpellCheckReplacementsLabel => _en.noSpellCheckReplacementsLabel;
 }

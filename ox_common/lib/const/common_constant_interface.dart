@@ -4,7 +4,7 @@ abstract class ConstantInterface {
   const ConstantInterface();
 
   ///db version
-  int get dbVersion => 4;
+  int get dbVersion => 5;
 
   /// 0xchat relay
   String get oxChatRelay => 'wss://relay.0xchat.com';
@@ -13,6 +13,8 @@ abstract class ConstantInterface {
   int get qrCodeUser => 0;
   /// nevent: (1) Channel QRCode;
   int get qrCodeChannel => 1;
+  /// nevent: (2) Group QRCode;
+  int get qrCodeGroup => 2;
 
   String get baseUrl => 'https://www.0xchat.com';
 

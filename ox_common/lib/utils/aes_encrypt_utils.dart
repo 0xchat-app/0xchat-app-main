@@ -19,14 +19,14 @@ class AesEncryptUtils{
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static void decryptFile(File encryptedFile, File decryptedFile, String pubkey) {
+  static void decryptFile(File encryptedFile, File decryptedFile, String pubkey, {Function(List<int>)? bytesCallback}) {
     final encryptedBytes = encryptedFile.readAsBytesSync();
     Uint8List? uint8list = Contacts.sharedInstance.getFriendSharedSecret(pubkey);
     final decrypter = Encrypter(AES(Key(uint8list!)));
     final encrypted = Encrypted(encryptedBytes);
     final iv = IV.fromLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
-
+    bytesCallback?.call(decryptedBytes);
     decryptedFile.writeAsBytesSync(decryptedBytes);
   }
 

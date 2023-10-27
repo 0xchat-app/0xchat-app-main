@@ -8,8 +8,8 @@ class MiniGesturePassword extends StatefulWidget {
 
   MiniGesturePassword(
       {Key? key,
-        this.attribute: MiniItemAttribute.normalAttribute,
-        this.height: 60.0})
+        this.attribute = MiniItemAttribute.normalAttribute,
+        this.height = 60.0})
       : super(key: key);
 
   @override
@@ -89,6 +89,6 @@ class MiniItemAttribute {
   const MiniItemAttribute({
     required this.normalColor,
     required this.selectedColor,
-    this.smallCircleR: 6.0,
+    this.smallCircleR = 6.0,
   });
 }

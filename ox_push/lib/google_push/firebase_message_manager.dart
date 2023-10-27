@@ -4,33 +4,66 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:firebase_core/firebase_core.dart';
+
+enum PushMsgType{
+  call,
+  other
+}
+
+extension PushMsgTypeEx on PushMsgType {
+  String get text {
+    switch (this) {
+      case PushMsgType.call:
+        return '1';
+      case PushMsgType.other:
+        return '0';
+      default:
+        return 'unknow';
+    }
+  }
+}
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  LogUtil.e('Push: background receive msg');
-  await FirebaseMessageManager.initFirebase();
-  FirebaseMessageManager.instance;
-  showFlutterNotification(message);
+  // await Firebase.initializeApp();
+  // showFlutterNotification(message);
+  if (message.data.isNotEmpty) {
+    String msgType = message.data['msgType'];
+    if (msgType == PushMsgType.call.text) {
+      PromptToneManager.sharedInstance.playCalling();
+      Future.delayed(Duration(seconds: 10), () {
+        PromptToneManager.sharedInstance.stopPlay();
+      });
+    }
+  }
 }
 
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 
-late AndroidNotificationChannel channel;
+AndroidNotificationChannel? channel;
 
-void showFlutterNotification(RemoteMessage message) {
+void openAppByClick(RemoteMessage message) {
+  LogUtil.e('Push: background -openAppByClick--');
+  PromptToneManager.sharedInstance.stopPlay();
+}
+
+void showFlutterNotification(RemoteMessage message) async {
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
 
   if (notification != null && android != null) {
-    flutterLocalNotificationsPlugin.show(
+    if (flutterLocalNotificationsPlugin == null)
+      await FirebaseMessageManager.instance.initFlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin!.show(
       notification.hashCode,
       notification.title,
       notification.body,
       NotificationDetails(
         android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
+          channel?.id ?? '',
+          channel?.name ?? '',
           channelDescription: '',
           icon: '@mipmap/ic_notification',
         ),
@@ -45,14 +78,11 @@ class FirebaseMessageManager {
     await Firebase.initializeApp();
   }
 
-
-
   static FirebaseMessageManager get instance => _instance;
 
   static final FirebaseMessageManager _instance = FirebaseMessageManager._init();
 
   late FirebaseMessaging messaging;
-
 
   FirebaseMessageManager._init(){
     messaging = FirebaseMessaging.instance;
@@ -60,9 +90,11 @@ class FirebaseMessageManager {
     initFlutterLocalNotificationsPlugin();
     requestPermission();
     setToken();
+  }
+
+  void loadListener(){
     initMessage();
     onBackgroundMessage();
-    LogUtil.e('Push: Push _init');
   }
 
   Future<void> setToken() async {
@@ -94,16 +126,18 @@ class FirebaseMessageManager {
       importance: Importance.high,
     );
     
-    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+    await flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel!);
   }
 
 
   void initMessage() {
     FirebaseMessaging.onMessage.listen(showFlutterNotification);
+    FirebaseMessaging.onMessageOpenedApp.listen(openAppByClick);
   }
 
   //background
   void onBackgroundMessage() {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
+
 }

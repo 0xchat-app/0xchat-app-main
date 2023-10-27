@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class FileUtils {
+public class FileTool {
 
     private static final String TAG = "FileUtils";
     private static boolean isSaveSucc;
 
-    private FileUtils() {
+    private FileTool() {
         throw new Error("￣﹏￣");
     }
 
@@ -1022,7 +1022,7 @@ public class FileUtils {
     }
 
     public static void autoClear(String dirPath, final int autoClearDay) {
-        FileUtils.delete(dirPath, new FilenameFilter() {
+        FileTool.delete(dirPath, new FilenameFilter() {
 
             @Override
             public boolean accept(File file, String filename) {

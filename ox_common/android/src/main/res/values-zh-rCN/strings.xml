@@ -2,4 +2,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="str_picker_image_sdcar_error">您的SD卡可能存在问题，请重新插拨后再试！</string>
+    <string name="str_picker_image_tips">提示信息</string>
+    <string name="str_picker_image_cancel">取消</string>
+    <string name="str_picker_image_confirm">确定</string>
+    <string name="str_picker_image_lack_request_and_goto_settings">当前应用缺少必要权限，该功能暂时无法使用。如若需要，请单击【确定】按钮前往设置中心进行权限授权。</string>
 </resources>

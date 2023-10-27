@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io' show Platform;
 
+import 'package:ox_common/log_util.dart';
+
 class Adapt {
   static MediaQueryData? mediaQuery;
   static double? _width;
@@ -12,7 +14,7 @@ class Adapt {
   static num statusBarHeight = 0.0;
   static double? _ratioW;
   static var _ratioH;
-  static double? _textScaleFactor;
+  static double _textScaleFactor = 1.0;
 
   static get isInitialized => _ratioW != null;
 
@@ -23,31 +25,30 @@ class Adapt {
     _topbarH = mediaQuery?.padding.top;
     _botbarH = mediaQuery?.padding.bottom;
     _pixelRatio = mediaQuery?.devicePixelRatio;
-    _textScaleFactor = mediaQuery?.textScaleFactor;
+    _textScaleFactor = mediaQuery?.textScaleFactor ?? _textScaleFactor;
 
-    int uiwidth = standardW is int ? standardW : 375;
     if (_width != null) {
       if (Platform.isIOS && _width! > 375.0)
         _ratioW = 1;
       else
-        _ratioW = _width! / uiwidth;
+        _ratioW = _width! / standardW;
     }
 
-    int uiheight = standardH is int ? standardH : 812;
     if (_height != null) {
-      _ratioH = _height! / uiheight;
+      _ratioH = _height! / standardH;
     }
   }
 
-  static px(number) {
+  static double px(number) {
     if (!(_ratioW is double || _ratioW is int)) {
       Adapt.init(standardW: 375, standardH: 812);
     }
     return number * _ratioW;
   }
 
-  static sp(number, {bool allowFontScaling = false}) {
-    return allowFontScaling ? px(number) : px(number) / _textScaleFactor;
+  static double sp(number, {bool allowFontScaling = false}) {
+    final fontSize = allowFontScaling ? px(number) * _textScaleFactor : px(number);
+    return fontSize.floorToDouble();
   }
 
   static py(number) {
@@ -79,4 +80,9 @@ class Adapt {
   static padBotH() {
     return _botbarH;
   }
+}
+
+extension AdaptEx on num {
+  double get px => Adapt.px(this);
+  double get sp => Adapt.sp(this);
 }

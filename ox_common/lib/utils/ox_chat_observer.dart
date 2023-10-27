@@ -8,7 +8,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2023/10/9 19:28
-abstract class OXChatObserver {
+abstract mixin class OXChatObserver {
   void didSecretChatRequestCallBack() {}
 
   void didPrivateMessageCallBack(MessageDB message) {}
@@ -29,7 +29,11 @@ abstract class OXChatObserver {
 
   void didChannalMessageCallBack(MessageDB message) {}
 
+  void didGroupMessageCallBack(MessageDB message) {}
+
   void didChannelsUpdatedCallBack() {}
+
+  void didGroupsUpdatedCallBack() {}
 
   void didSessionUpdate() {}
 

@@ -7,7 +7,7 @@ import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
-abstract class OXRelayObserver {
+abstract mixin class OXRelayObserver {
   void didAddRelay(RelayModel? relayModel) {}
 
   void didDeleteRelay(RelayModel? relayModel) {}

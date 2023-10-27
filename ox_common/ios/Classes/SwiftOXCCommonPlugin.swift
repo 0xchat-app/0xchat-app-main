@@ -71,6 +71,8 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             callIOSSysShare(call.arguments as? [String:Any], result: result)
         case "getDeviceId":
             getDeviceId(result: result)
+        case "getPickerPaths":
+            OXCImagePickerHelper.getPickerPaths(params: call.arguments as? [String : Any], result: result)
         break;
         default:
             break;
@@ -261,9 +263,6 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
         }
         return normalizedImage
     }
-    
-    
-    
 }
 
 extension SwiftOXCCommonPlugin: UIImagePickerControllerDelegate {

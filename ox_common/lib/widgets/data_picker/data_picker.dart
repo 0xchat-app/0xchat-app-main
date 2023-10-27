@@ -18,7 +18,7 @@ class DatePicker {
   ///
   static Future<DateTime?> showDatePicker(
       BuildContext context, {
-        bool showTitleActions: true,
+        bool showTitleActions = true,
         String? title,
         DateTime? minTime,
         DateTime? maxTime,

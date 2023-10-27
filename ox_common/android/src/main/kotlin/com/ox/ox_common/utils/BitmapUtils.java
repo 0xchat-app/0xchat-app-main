@@ -517,13 +517,13 @@ public class BitmapUtils {
     public static String createSaveBitmapPath() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.CHINA);
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/OX/Screenshots/");
-        FileUtils.checkDirectory(file);
+        FileTool.checkDirectory(file);
         return file.getAbsolutePath() + "/" + ScreenshotPrefixName + sdf.format(new Date()) + ".jpg";
     }
 
     public static String createSaveBitmapPath(Context context,  String dir, String imageName) {
-        File file = new File(FileUtils.getFileSavedDir(context, dir));
-        FileUtils.checkDirectory(file);
+        File file = new File(FileTool.getFileSavedDir(context, dir));
+        FileTool.checkDirectory(file);
         String path = file.getAbsolutePath() + "/" + imageName;
         file = new File(path);
         if(!file.exists()){
@@ -550,10 +550,10 @@ public class BitmapUtils {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.CHINA);
         File file = new File(activity.getExternalFilesDir(null).getAbsolutePath() + "/OX/Screenshots/");
-        FileUtils.checkDirectory(file);
+        FileTool.checkDirectory(file);
         String path = file.getAbsolutePath() + "/" + ScreenshotPrefixName + sdf.format(new Date()) + ".jpg";
         file = new File(path);
-        boolean b = FileUtils.saveBitmap(bitmap, file);
+        boolean b = FileTool.saveBitmap(bitmap, file);
         if (isTip)
             Toast.makeText(activity, "save failed", Toast.LENGTH_SHORT).show();
 //        notifyImageMedia(activity, file);
@@ -562,12 +562,12 @@ public class BitmapUtils {
 
     public static String saveBitmap(Context context, Bitmap bitmap, String dir, String imageName) {
 
-        File file = new File(FileUtils.getFileSavedDir(context, dir));
-        FileUtils.checkDirectory(file);
+        File file = new File(FileTool.getFileSavedDir(context, dir));
+        FileTool.checkDirectory(file);
         String path = file.getAbsolutePath() + "/" + imageName;
         file = new File(path);
-        FileUtils.checkDirectory(file);
-        FileUtils.saveBitmap(bitmap, file);
+        FileTool.checkDirectory(file);
+        FileTool.saveBitmap(bitmap, file);
         return path;
     }
 
@@ -698,7 +698,7 @@ public class BitmapUtils {
 
     // Save image to the specified path in the gallery
     public static String saveImageToGallery(Context context, Bitmap bmp, boolean showMsg) {
-        String storePath = FileUtils.getFileSavedDir(context, Const.DIR_YLNEW_ROOT);
+        String storePath = FileTool.getFileSavedDir(context, LocalConst.DIR_YLNEW_ROOT);
         File appDir = new File(storePath);
         if (!appDir.exists()) {
             appDir.mkdir();

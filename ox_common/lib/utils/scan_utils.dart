@@ -48,7 +48,15 @@ class ScanUtils {
         url.startsWith('nostr:note') ||
         url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
-      type = CommonConstant.qrCodeChannel;
+      ChannelDB? channelDB = Channels.sharedInstance.channels[tempMap?['channelId']];
+      if(channelDB != null){
+        type = CommonConstant.qrCodeChannel;
+      }
+      else{
+        GroupDB? groupDB = Groups.sharedInstance.groups[tempMap?['channelId']];
+        if(groupDB == null) return;
+        type = CommonConstant.qrCodeGroup;
+      }
     }
     if (tempMap == null) {
       return;
@@ -94,6 +102,8 @@ class ScanUtils {
                     _showFriendInfo(context, tempMap!['pubkey']);
                   } else if (type == CommonConstant.qrCodeChannel) {
                     _gotoChannel(context, tempMap!['channelId']);
+                  } else if( type == CommonConstant.qrCodeGroup){
+                    _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
                   }
                 }),
           ]);
@@ -119,6 +129,19 @@ class ScanUtils {
         });
       }
     }
+  }
+
+  static Future<void> _gotoGroup( BuildContext context, String groupId,String author) async {
+     // TODO: goto group
+    OXModuleService.invoke('ox_chat', 'groupSharePage',[context],
+        {
+          Symbol('groupPic'):'',
+          Symbol('groupName'):groupId,
+          Symbol('groupOwner'): author,
+          Symbol('groupId'):groupId,
+          Symbol('inviterPubKey'):'--',
+        }
+    );
   }
 
   static Future<void> _gotoChannel(

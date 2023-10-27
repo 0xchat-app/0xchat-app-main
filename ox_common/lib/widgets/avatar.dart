@@ -1,14 +1,13 @@
-import 'dart:io';
 
+import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
 
 class BaseAvatarWidget extends StatelessWidget {
   BaseAvatarWidget({
@@ -45,7 +44,7 @@ class BaseAvatarWidget extends StatelessWidget {
 
   Widget _buildAvatar() {
     if (imageUrl.isNotEmpty) {
-      return CachedNetworkImage(
+      return OXCachedNetworkImage(
         errorWidget: (context, url, error) => _defaultImage(defaultImageName, size),
         placeholder: (context, url) => _defaultImage(defaultImageName, size),
         fit: BoxFit.cover,
@@ -63,7 +62,7 @@ class BaseAvatarWidget extends StatelessWidget {
     fit: BoxFit.contain,
     width: size,
     height: size,
-    package: 'ox_chat',
+    package: 'ox_common',
   );
 }
 
@@ -173,4 +172,187 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
     );
   }
 
+}
+
+class OXGroupAvatar extends StatefulWidget {
+
+  OXGroupAvatar({
+    this.groupId,
+    this.group,
+    this.imageUrl,
+    double? size,
+    this.isCircular = true,
+    this.isClickable = false,
+    this.onReturnFromNextPage,
+  }) : this.size = size ?? Adapt.px(48);
+
+  final String? groupId;
+  final GroupDB? group;
+  final String? imageUrl;
+  final double size;
+  final bool isCircular;
+  final bool isClickable;
+  final VoidCallback? onReturnFromNextPage;
+
+  @override
+  State<StatefulWidget> createState() => OXGroupAvatarState();
+}
+
+class OXGroupAvatarState extends State<OXGroupAvatar> {
+
+  final defaultImageName = 'icon_group_default.png';
+
+  List<String> _avatars = [];
+
+  String groupId = '';
+
+  late Future<ImageProvider> _imageLoader;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.groupId != null) {
+      groupId = widget.groupId ?? '';
+    }else{
+      groupId = widget.group?.groupId ?? '';
+    }
+    _getMembers();
+    _imageLoader = _loadImageFromCache();
+  }
+
+  Future<ImageProvider> _loadImageFromCache() async {
+    return throw Exception('load error');
+  }
+
+  void _getMembers() async {
+    List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    _avatars = groupList.map((element) => element.picture ?? '').toList();
+    _avatars.removeWhere((element) => element.isEmpty);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _imageLoader,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting || snapshot.hasError) {
+          if (_avatars.isEmpty) {
+            return BaseAvatarWidget(
+              defaultImageName: defaultImageName,
+              size: widget.size,
+              imageUrl: '',
+              isCircular: true,
+              isClickable: true,
+              onTap: _onTap,
+            );
+          }
+          return GroupedAvatar(
+            avatars: _avatars,
+            size: widget.size,
+            isCircular: true,
+            isClickable: true,
+            onTap: _onTap,
+          );
+        } else {
+          return GroupedAvatar(
+            avatars: _avatars,
+            size: widget.size,
+            isCircular: true,
+            isClickable: true,
+            onTap: _onTap,
+          );
+        }
+      },
+    );
+  }
+
+  void _onTap() async {
+    final groupDB = widget.group;
+    if (groupDB != null) {
+      await OXModuleService.pushPage(context, 'ox_chat', 'GroupInfoPage', {
+        'groupId': groupDB.groupId,
+      });
+    }
+  }
+}
+
+class GroupedAvatar extends StatelessWidget {
+  final List<String> avatars;
+  final double size;
+  final bool isCircular;
+  final bool isClickable;
+  final GestureTapCallback? onTap;
+
+  const GroupedAvatar({
+    super.key,
+    required this.avatars,
+    required this.size,
+    this.isCircular = true,
+    this.isClickable = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double smallSize = 0;
+    List<String> avatarList = avatars;
+    List<Widget> avatarWidgetList = [];
+
+    if (avatarList.length <= 4) {
+      smallSize = avatarList.length <= 2 ? size * 0.66 : size * 0.5;
+    } else {
+      smallSize = size / 3;
+      avatarList = avatarList.length > 9 ? avatarList.sublist(0, 9) : avatarList;
+    }
+    avatarWidgetList = avatars.map((element) => _buildAvatar(smallSize, element)).toList();
+
+    return GestureDetector(
+      onTap: isClickable ? onTap : null,
+      child: Container(
+        width: size,
+        height: size,
+        child: _buildGroupedAvatar(avatarWidgetList),
+      ),
+    );
+  }
+
+  Widget _buildGroupedAvatar(List<Widget> avatarWidgetList) {
+    if (avatars.length == 2) {
+      return Stack(
+        children: [
+          Positioned(right: 0, top: 0, child: avatarWidgetList[1]),
+          Positioned(left: 0, bottom: 0, child: avatarWidgetList[0]),
+        ],
+      );
+    } else if (avatars.length <= 4) {
+      return Wrap(
+        children: avatarWidgetList,
+      );
+    } else {
+      return Wrap(
+        children: avatarWidgetList,
+      );
+    }
+  }
+
+  Widget _buildAvatar(double size, String imageUrl) {
+    final defaultImageName = 'icon_user_default.png';
+    return BaseAvatarWidget(
+      imageUrl: imageUrl,
+      defaultImageName: defaultImageName,
+      size: size,
+      isCircular: isCircular,
+    );
+  }
+
+  Widget _buildDefault(double size){
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: ThemeColor.color180,
+        borderRadius: BorderRadius.circular(size / 2),
+      ),
+    );
+  }
 }

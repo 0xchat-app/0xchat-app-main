@@ -42,6 +42,7 @@ class OXChatBinding {
   final List<OXChatObserver> _observers = <OXChatObserver>[];
 
   String? Function(MessageDB messageDB)? sessionMessageTextBuilder;
+  bool Function(MessageDB messageDB)? msgIsReaded;
 
   Future<void> initLocalSession() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
@@ -49,7 +50,7 @@ class OXChatBinding {
     );
     bool isRefreshSession = false;
     sessionList.forEach((e) {
-      if (sessionMap[e.chatId] == null || (sessionMap[e.chatId] != null && (sessionMap[e.chatId]!.createTime ?? 0) < (e.createTime ?? 0))) {
+      if (sessionMap[e.chatId] == null || (sessionMap[e.chatId] != null && sessionMap[e.chatId]!.createTime < e.createTime)) {
         sessionMap[e.chatId] = e;
         isRefreshSession = true;
       }
@@ -123,9 +124,16 @@ class OXChatBinding {
             final decryptedContent = json.decode(decryptContent);
             if (decryptedContent is Map) {
               final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
+              final content = decryptedContent['content'];
               switch (type) {
                 case CustomMessageType.zaps:
                   return Localized.text('ox_common.message_type_zaps');
+                case CustomMessageType.template:
+                  if (content is Map) {
+                    final title = content['title'] ?? '';
+                    return Localized.text('ox_common.message_type_template') + title;
+                  }
+                  break ;
                 default:
                   break ;
               }
@@ -200,6 +208,7 @@ class OXChatBinding {
   }
 
   ChatSessionModel syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
+    updateMessageDB(messageDB);
     String showContent = showContentByMsgType(messageDB);
     ChatSessionModel sessionModel = ChatSessionModel(
       content: showContent,
@@ -222,7 +231,7 @@ class OXChatBinding {
 
   void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
     sessionModel.chatId = messageDB.groupId;
-    sessionModel.chatType = ChatType.chatChannel;
+    sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
     ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
@@ -233,17 +242,21 @@ class OXChatBinding {
       sessionMap[messageDB.groupId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
-      if (channelDB != null) {
-        sessionModel.avatar = channelDB.picture;
-        sessionModel.chatName = channelDB.name;
-        if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-          sessionModel.unreadCount = 1;
-          noticePromptToneCallBack(messageDB, sessionModel.chatType!);
-        }
-        sessionMap[messageDB.groupId] = sessionModel;
-        DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+      if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
+        ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+        sessionModel.avatar = channelDB?.picture ?? '';
+        sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
+      } else {
+        GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+        sessionModel.avatar = groupDBDB?.picture ?? '';
+        sessionModel.chatName = groupDBDB?.name ?? messageDB.groupId;
       }
+      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        sessionModel.unreadCount = 1;
+        noticePromptToneCallBack(messageDB, sessionModel.chatType!);
+      }
+      sessionMap[messageDB.groupId] = sessionModel;
+      DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
     }
   }
 
@@ -256,12 +269,16 @@ class OXChatBinding {
     ChatSessionModel? tempModel = sessionMap[chatId];
     if (tempModel != null) {
       sessionModel.chatType = tempModel.chatType;
-      if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-        sessionModel.unreadCount = tempModel.unreadCount += 1;
-        if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
-          unReadStrangerSessionCount += 1;
+      if (messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+        if (!messageDB.read) {
+          sessionModel.unreadCount = tempModel.unreadCount += 1;
+          if (tempModel.chatType == ChatType.chatStranger || tempModel.chatType == ChatType.chatSecretStranger) {
+            unReadStrangerSessionCount += 1;
+          }
+          noticePromptToneCallBack(messageDB, tempModel.chatType);
         }
-        noticePromptToneCallBack(messageDB, tempModel.chatType);
+      } else {
+        sessionModel.chatType = (sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret : ChatType.chatSingle);
       }
       if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
       sessionMap[chatId] = tempModel;
@@ -349,7 +366,7 @@ class OXChatBinding {
         userDB = await Account.sharedInstance.getUserInfo(chatId);
       }
       int tempCreateTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      chatSessionModel = await syncChatSessionTable(
+      chatSessionModel = syncChatSessionTable(
         MessageDB(
           decryptContent: decryptContent,
           content: decryptContent,
@@ -452,6 +469,27 @@ class OXChatBinding {
     syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatMessageCallBack(message);
+    }
+  }
+
+  void channalMessageCallBack(MessageDB messageDB) async {
+    syncChatSessionTable(messageDB);
+    for (OXChatObserver observer in _observers) {
+      observer.didChannalMessageCallBack(messageDB);
+    }
+  }
+
+  void groupMessageCallBack(MessageDB messageDB) async {
+    syncChatSessionTable(messageDB);
+    for (OXChatObserver observer in _observers) {
+      observer.didGroupMessageCallBack(messageDB);
+    }
+  }
+
+  void updateMessageDB(MessageDB messageDB) async {
+    if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
+      messageDB.read = true;
+      Messages.updateMessageReadStatus(messageDB);
     }
   }
 
@@ -563,10 +601,9 @@ class OXChatBinding {
     }
   }
 
-  void channalMessageCallBack(MessageDB messageDB) async {
-    OXChatBinding.sharedInstance.syncChatSessionTable(messageDB);
+  void groupsUpdatedCallBack() {
     for (OXChatObserver observer in _observers) {
-      observer.didChannalMessageCallBack(messageDB);
+      observer.didGroupsUpdatedCallBack();
     }
   }
 

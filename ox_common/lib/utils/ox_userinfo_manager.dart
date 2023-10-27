@@ -13,7 +13,7 @@ import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-abstract class OXUserInfoObserver {
+abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDB? userInfo);
 
   void didSwitchUser(UserDB? userInfo);
@@ -21,6 +21,12 @@ abstract class OXUserInfoObserver {
   void didLogout();
 
   void didUpdateUserInfo() {}
+}
+
+enum _ContactType {
+  contacts,
+  channels,
+  groups,
 }
 
 class OXUserInfoManager {
@@ -41,7 +47,14 @@ class OXUserInfoManager {
 
   UserDB? currentUserInfo;
 
-  bool _initAllCompleted = false;
+  var _contactFinishFlags = {
+    _ContactType.contacts: false,
+    _ContactType.channels: false,
+    _ContactType.groups: false,
+  };
+
+  bool get isFetchContactFinish => _contactFinishFlags.values.every((v) => v);
+
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
@@ -128,20 +141,30 @@ class OXUserInfoManager {
       LogUtil.e("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
-    Contacts.sharedInstance.contactUpdatedCallBack = () {
-      LogUtil.e("Michael: init contactUpdatedCallBack");
-      OXChatBinding.sharedInstance.contactUpdatedCallBack();
-      OXChatBinding.sharedInstance.syncSessionTypesByContact();
-    };
     Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
       LogUtil.e('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);
     };
+    Groups.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+      LogUtil.e('Michael: init  groupMessageCallBack');
+      OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
+    };
 
+    Contacts.sharedInstance.contactUpdatedCallBack = () {
+      LogUtil.e("Michael: init contactUpdatedCallBack");
+      _fetchFinishHandler(_ContactType.contacts);
+      OXChatBinding.sharedInstance.contactUpdatedCallBack();
+      OXChatBinding.sharedInstance.syncSessionTypesByContact();
+    };
     Channels.sharedInstance.myChannelsUpdatedCallBack = () async {
       LogUtil.e('Michael: init  myChannelsUpdatedCallBack');
+      _fetchFinishHandler(_ContactType.channels);
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
-      _initMessage();
+    };
+    Groups.sharedInstance.myGroupsUpdatedCallBack = () async {
+      LogUtil.e('Michael: init  myGroupsUpdatedCallBack');
+      _fetchFinishHandler(_ContactType.groups);
+      OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
 
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
@@ -179,7 +202,11 @@ class OXUserInfoManager {
     OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
     OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
     currentUserInfo = null;
-    _initAllCompleted = false;
+    _contactFinishFlags = {
+      _ContactType.contacts: false,
+      _ContactType.channels: false,
+      _ContactType.groups: false,
+    };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();
     for (OXUserInfoObserver observer in _observers) {
@@ -193,7 +220,7 @@ class OXUserInfoManager {
 
   Future<bool> setNotification() async {
     bool updateNotificatin = false;
-    if (!isLogin || !_initAllCompleted) return updateNotificatin;
+    if (!isLogin || !isFetchContactFinish) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUSH_TOKEN, defaultValue: '');
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
@@ -250,10 +277,13 @@ class OXUserInfoManager {
       fn();
     });
     Relays.sharedInstance.init().then((value) {
+      BadgesHelper.sharedInstance.init();
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
+      Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
+      _initMessage();
     });
-    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey!).then((value) {
+    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
       //List<String> relays
       OXRelayManager.sharedInstance.addRelaysSuccess(value);
     });
@@ -262,14 +292,17 @@ class OXUserInfoManager {
   }
 
   void _initMessage() {
-    _initAllCompleted = true;
     Messages.sharedInstance.init();
     NotificationHelper.sharedInstance.init(CommonConstant.serverPubkey);
-    setNotification();
     OXModuleService.invoke(
       'ox_calling',
       'initRTC',
       [],
     );
+  }
+
+  void _fetchFinishHandler(_ContactType type) {
+    _contactFinishFlags[type] = true;
+    setNotification();
   }
 }

@@ -1,6 +1,8 @@
 library dot_navigation_bar;
 export 'common_category_title_item.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_item.dart';
@@ -79,66 +81,47 @@ class CommonCategoryTitleView extends StatelessWidget {
       child: Container(
         width: width > 0 ? width : MediaQuery.of(context).size.width,
         color: bgColor,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            for (final item in updatedItems)
-              InkWell(
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                onTap: () {
-                  onTap!.call(items.indexOf(item));
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(right: Adapt.px(24)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Image(image: AssetImage('')),
-                      SizedBox(
-                        height: Adapt.px(12),
-                      ),
-                      item.selectedIconName.isNotEmpty
-                          ? Container(
-                        child: Image(
-                          image: items.indexOf(item) == selectedIndex
-                              ? AssetImage(
-                              'assets/images/${item.selectedIconName}')
-                              : AssetImage(
-                              'assets/images/${item.unSelectedIconName}'),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              for (final item in updatedItems)
+                InkWell(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    onTap!.call(items.indexOf(item));
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(right: Adapt.px(24)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Image(image: AssetImage('')),
+                        SizedBox(
+                          height: Adapt.px(12),
                         ),
-                        width: Adapt.px(29),
-                        height: Adapt.px(29),
-                      )
-                          : Container(),
-                      // Icon(z
-                      //   item.iconData,
-                      //   color: items.indexOf(item) == selectedIndex
-                      //     ? selectedColor
-                      //     : unselectedColor,
-                      // ),
-                      SizedBox(
-                        height: Adapt.px(2),
-                      ),
-                      AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 300),
-                          // curve: Curves.easeInOutQuint,
-                          curve: Curves.easeInOutCirc,
-                          textAlign: TextAlign.start,
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: items.indexOf(item) == selectedIndex
-                                  ? selectedFontSize
-                                  : unSelectedFontSize,
-                              color: items.indexOf(item) == selectedIndex
-                                  ? selectedColor
-                                  : unselectedColor,
-                              fontWeight: FontWeight.bold
-                          ),
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: 0),
-                            child: GradientText(item.title, overflow: TextOverflow.fade, colors: items.indexOf(item) == selectedIndex ? selectedGradientColors : unselectedGradientColors, textAlign: TextAlign.left, style: TextStyle(
+                        item.selectedIconName != null
+                            ? Container(
+                                child: items.indexOf(item) == selectedIndex
+                                    ? CommonImage(iconName: item.selectedIconName ?? '',)
+                                    : CommonImage(iconName: item.unSelectedIconName ?? '',),
+                                width: Adapt.px(29),
+                                height: Adapt.px(29),
+                              )
+                            : SizedBox(),
+                        SizedBox(
+                          height: Adapt.px(2),
+                        ),
+                        AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 300),
+                            // curve: Curves.easeInOutQuint,
+                            curve: Curves.easeInOutCirc,
+                            textAlign: TextAlign.start,
+                            maxLines: 1,
+                            style: TextStyle(
                                 fontSize: items.indexOf(item) == selectedIndex
                                     ? selectedFontSize
                                     : unSelectedFontSize,
@@ -146,34 +129,46 @@ class CommonCategoryTitleView extends StatelessWidget {
                                     ? selectedColor
                                     : unselectedColor,
                                 fontWeight: FontWeight.bold
-                            ),),
-                            // height: 25,
-                          )),
+                            ),
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 0),
+                              child: GradientText(item.title, overflow: TextOverflow.fade, colors: items.indexOf(item) == selectedIndex ? selectedGradientColors : unselectedGradientColors, textAlign: TextAlign.left, style: TextStyle(
+                                  fontSize: items.indexOf(item) == selectedIndex
+                                      ? selectedFontSize
+                                      : unSelectedFontSize,
+                                  color: items.indexOf(item) == selectedIndex
+                                      ? selectedColor
+                                      : unselectedColor,
+                                  fontWeight: FontWeight.bold
+                              ),),
+                              // height: 25,
+                            )),
 
-                      SizedBox(
-                        height: Adapt.px(1),
-                      ),
-                      items.indexOf(item) == selectedIndex
-                          ? Container(
-                        margin: EdgeInsets.only(left: 3),
-                        width: gradientWidth,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          gradient: gradient,
-                          borderRadius: BorderRadius.all(Radius.circular(2.0)),
+                        SizedBox(
+                          height: Adapt.px(1),
                         ),
-                      )
-                          : Container(
-                        height: 4,
-                      ),
-                      SizedBox(
-                        height: Adapt.px(5),
-                      ),
-                    ],
+                        items.indexOf(item) == selectedIndex
+                            ? Container(
+                          margin: EdgeInsets.only(left: 3),
+                          width: gradientWidth,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            gradient: gradient,
+                            borderRadius: BorderRadius.all(Radius.circular(2.0)),
+                          ),
+                        )
+                            : Container(
+                          height: 4,
+                        ),
+                        SizedBox(
+                          height: Adapt.px(5),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
