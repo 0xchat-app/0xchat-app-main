@@ -86,12 +86,6 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   @override
   Widget build(BuildContext context) {
-    if (userList.isEmpty) {
-      return SizedBox(
-          height: Adapt.px(24),
-          width: Adapt.px(24),
-          child: CircularProgressIndicator());
-    }
     return super.build(context);
   }
 
