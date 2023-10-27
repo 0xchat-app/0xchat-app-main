@@ -112,6 +112,8 @@ class ScanUtils {
         _showFriendInfo(context, tempMap['pubkey']);
       } else if (type == CommonConstant.qrCodeChannel) {
         _gotoChannel(context, tempMap['channelId']);
+      }  else if( type == CommonConstant.qrCodeGroup){
+        _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
       }
     }
   }
