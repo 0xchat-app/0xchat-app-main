@@ -204,7 +204,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: userInfo.isShowMore ? Adapt.px(250) : Adapt.px(200),
+            width: userInfo.isShowMore ? Adapt.px(250) : Adapt.px(180),
             child: Text(
               userInfo.content,
               softWrap: userInfo.isShowMore,

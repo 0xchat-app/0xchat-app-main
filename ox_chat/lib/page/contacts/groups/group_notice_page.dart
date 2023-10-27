@@ -160,7 +160,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
                           margin: EdgeInsets.only(
                               left: Adapt.px(16), top: Adapt.px(2)),
                           child: MyText(
-                            '${groupDBInfo?.updateTime}' ?? '--',
+                            _dealWithGroupId,
                             14,
                             ThemeColor.color120,
                           ),
@@ -200,4 +200,10 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
       ),
     );
   }
+
+  String get _dealWithGroupId {
+    String groupId = widget.groupId;
+    return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
+  }
+
 }
