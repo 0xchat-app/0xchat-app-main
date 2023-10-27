@@ -132,7 +132,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
           ),
         ),
         Text(
-          '${inviterUserDB?.name ?? '--'} invited you to join the Group',
+          '${inviterUserDB?.name ?? ''} invited you to join the Group',
           style: TextStyle(
             color: ThemeColor.color60,
             fontSize: Adapt.px(12),
