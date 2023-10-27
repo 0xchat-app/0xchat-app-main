@@ -3,7 +3,6 @@ import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
-import 'package:ox_chat_ui/thirdParty/flutter_chat_types/lib/flutter_chat_types.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
