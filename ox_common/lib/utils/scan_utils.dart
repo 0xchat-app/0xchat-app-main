@@ -53,8 +53,6 @@ class ScanUtils {
         type = CommonConstant.qrCodeChannel;
       }
       else{
-        GroupDB? groupDB = Groups.sharedInstance.groups[tempMap?['channelId']];
-        if(groupDB == null) return;
         type = CommonConstant.qrCodeGroup;
       }
     }
@@ -112,6 +110,8 @@ class ScanUtils {
         _showFriendInfo(context, tempMap['pubkey']);
       } else if (type == CommonConstant.qrCodeChannel) {
         _gotoChannel(context, tempMap['channelId']);
+      }  else if( type == CommonConstant.qrCodeGroup){
+        _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
       }
     }
   }
