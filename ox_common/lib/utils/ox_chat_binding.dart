@@ -124,9 +124,16 @@ class OXChatBinding {
             final decryptedContent = json.decode(decryptContent);
             if (decryptedContent is Map) {
               final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
+              final content = decryptedContent['content'];
               switch (type) {
                 case CustomMessageType.zaps:
                   return Localized.text('ox_common.message_type_zaps');
+                case CustomMessageType.template:
+                  if (content is Map) {
+                    final title = content['title'] ?? '';
+                    return Localized.text('ox_common.message_type_template') + title;
+                  }
+                  break ;
                 default:
                   break ;
               }
