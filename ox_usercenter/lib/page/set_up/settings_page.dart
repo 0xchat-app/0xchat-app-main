@@ -51,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     super.initState();
     OXChatBinding.sharedInstance.addObserver(this);
     _isShowZapBadge = _getZapBadge();
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     _getPackageInfo();
     _settingModelList.add(SettingModel(
       iconName: 'icon_mute.png',
@@ -436,6 +437,11 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       });
     });
   }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
+  }
+
 }
 
 class SettingModel {
