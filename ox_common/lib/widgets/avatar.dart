@@ -226,10 +226,8 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
 
   void _getMembers() async {
     List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
-    setState(() {
-      _avatars = groupList.map((element) => element.picture ?? '').toList();
-      _avatars.removeWhere((element) => element.isEmpty);
-    });
+    _avatars = groupList.map((element) => element.picture ?? '').toList();
+    _avatars.removeWhere((element) => element.isEmpty);
   }
 
   @override
@@ -238,30 +236,43 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
       future: _imageLoader,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting || snapshot.hasError) {
+          if (_avatars.isEmpty) {
+            return BaseAvatarWidget(
+              defaultImageName: defaultImageName,
+              size: widget.size,
+              imageUrl: '',
+              isCircular: true,
+              isClickable: true,
+              onTap: _onTap,
+            );
+          }
           return GroupedAvatar(
             avatars: _avatars,
             size: widget.size,
+            isCircular: true,
             isClickable: true,
-            onTap: () async {
-              final groupDB = widget.group;
-              if (groupDB != null) {
-                await OXModuleService.pushPage(
-                    context, 'ox_chat', 'GroupInfoPage', {
-                  'groupId': groupDB.groupId,
-                });
-              }
-            },
+            onTap: _onTap,
           );
         } else {
-          return Image(
-            image: snapshot.data!,
-            width: widget.size,
-            height: widget.size,
-            fit: BoxFit.cover,
+          return GroupedAvatar(
+            avatars: _avatars,
+            size: widget.size,
+            isCircular: true,
+            isClickable: true,
+            onTap: _onTap,
           );
         }
       },
     );
+  }
+
+  void _onTap() async {
+    final groupDB = widget.group;
+    if (groupDB != null) {
+      await OXModuleService.pushPage(context, 'ox_chat', 'GroupInfoPage', {
+        'groupId': groupDB.groupId,
+      });
+    }
   }
 }
 
