@@ -184,21 +184,28 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             laying: StackLaying.first),
         borderColor: ThemeColor.color180,
         height: Adapt.px(48),
-        avatars: [
-          for (var n = 0; n < renderCount; n++)
-            if (groupMember[n].picture?.isNotEmpty != null)
-              OXCachedNetworkImageProviderEx.create(
-                context,
-                groupMember[n].picture!,
-                // height: Adapt.px(26),
-              )
-            // CachedNetworkImageProvider()
-            else
-              const AssetImage('assets/images/user_image.png',
-                  package: 'ox_common'),
-        ],
+        avatars: _showMemberAvatarWidget(renderCount),
       ),
     );
+  }
+
+  List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
+    List<ImageProvider<Object>> avatarList = [];
+    for (var n = 0; n < renderCount; n++) {
+      String? groupPic = groupMember[n].picture;
+      if (groupPic != null && groupPic.isNotEmpty) {
+        avatarList.add(OXCachedNetworkImageProviderEx.create(
+          context,
+          groupPic,
+          // height: Adapt.px(26),
+        ));
+      } else {
+        avatarList.add(
+            AssetImage('assets/images/user_image.png', package: 'ox_common'));
+      }
+      // CachedNetworkImageProvider()
+    }
+    return avatarList;
   }
 
   Widget _addOrDelMember() {
@@ -212,8 +219,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     );
   }
 
-  Widget _addMemberBtnWidget(){
-   return  GestureDetector(
+  Widget _addMemberBtnWidget() {
+    return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.add),
       child: CommonImage(
         iconName: 'add_circle_icon.png',
@@ -224,8 +231,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     );
   }
 
-  Widget _removeMemberBtnWidget(){
-    if(!_isGroupOwner) return Container();
+  Widget _removeMemberBtnWidget() {
+    if (!_isGroupOwner) return Container();
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.remove),
       child: Container(
@@ -252,10 +259,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       child: Column(
         children: [
           _topItemBuild(
-              title: 'Group Name',
-              subTitle: groupDBInfo?.name ?? '--',
-              onTap: _updateGroupNameFn,
-              isShowMoreIcon: _isGroupMember,
+            title: 'Group Name',
+            subTitle: groupDBInfo?.name ?? '--',
+            onTap: _updateGroupNameFn,
+            isShowMoreIcon: _isGroupMember,
           ),
           _topItemBuild(
             title: 'Members',
@@ -281,8 +288,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           ),
           _topItemBuild(
             title: 'Join requests',
-            onTap: () =>
-                OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId:groupDBInfo?.groupId ?? ''),),
+            onTap: () => OXNavigator.pushPage(
+              context,
+              (context) =>
+                  GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
+            ),
             isShowDivider: false,
           ),
         ],
@@ -636,11 +646,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   void _shareGroupFn() {
     if (!_isGroupMember) return _DisableShareDialog();
     OXNavigator.presentPage(
-        context,
-        (context) => ContactGroupMemberPage(
-              groupId: widget.groupId,
-              groupListAction: GroupListAction.send,
-            ),);
+      context,
+      (context) => ContactGroupMemberPage(
+        groupId: widget.groupId,
+        groupListAction: GroupListAction.send,
+      ),
+    );
   }
 
   void _changeMuteFn(bool value) async {
@@ -661,8 +672,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _groupMemberOptionFn(GroupListAction action) async {
-    if(!_isGroupMember) return;
-    if(GroupListAction.add == action && !_isGroupOwner) return _shareGroupFn();
+    if (!_isGroupMember) return;
+    if (GroupListAction.add == action && !_isGroupOwner) return _shareGroupFn();
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
