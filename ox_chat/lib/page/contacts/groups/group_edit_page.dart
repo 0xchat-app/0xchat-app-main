@@ -296,7 +296,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
     if (groupNoticeContent.isEmpty)
       return CommonToast.instance.show(context, 'The notice cannot be empty');
     OKEvent event = await Groups.sharedInstance
-        .updateGroupPinned(widget.groupId, '', groupNoticeContent);
+        .updateGroupPinned(widget.groupId, 'Pin: \"$groupNoticeContent\"', groupNoticeContent);
     if (!event.status) return CommonToast.instance.show(context, event.message);
     OXNavigator.pop(context, true);
   }
