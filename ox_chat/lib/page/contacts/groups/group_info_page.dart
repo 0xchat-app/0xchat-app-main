@@ -274,15 +274,21 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
           ),
           _topItemBuild(
             title: 'Join requests',
-            onTap: () => OXNavigator.pushPage(
-              context,
-              (context) =>
-                  GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
-            ),
-            isShowDivider: false,
+            onTap: _jumpJoinRequestFn,
+            isShowMoreIcon: _isGroupOwner,
+            isShowDivider:  false,
           ),
         ],
       ),
+    );
+  }
+
+  void _jumpJoinRequestFn(){
+    if(!_isGroupOwner) return;
+    OXNavigator.pushPage(
+      context,
+          (context) =>
+          GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
     );
   }
 
@@ -595,7 +601,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _updateGroupNoticeFn() async {
-    if (!_isGroupMember) return;
+    if (!_isGroupOwner) return;
     await OXNavigator.pushPage(
       context,
       (context) => GroupNoticePage(
