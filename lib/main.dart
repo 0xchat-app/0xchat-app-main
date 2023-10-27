@@ -6,7 +6,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:orientation/orientation.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
@@ -57,39 +56,37 @@ void main() async {
   await ThemeManager.init();
   await Localized.init();
   await setupModules();
+
   OXRelayManager.sharedInstance.loadConnectRelay();
   OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
-  await OrientationPlugin.setEnabledSystemUIOverlays(
-      [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-  await OrientationPlugin.setPreferredOrientations(
-      [DeviceOrientation.portraitUp]);
-
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
-
   getApplicationDocumentsDirectory().then((value) {
     LogUtil.log(content: '[App start] Application Documents Path: $value');
   });
-
   if (Platform.isIOS) {
     runApp(MainApp(window.defaultRouteName));
   } else {
     await FirebaseMessageManager.initFirebase();
-    FirebaseMessageManager.instance;
+    FirebaseMessageManager.instance.loadListener();
     runApp(MainApp(window.defaultRouteName));
   }
 }
 
 Future<void> setupModules() async {
-  await OXCommon().setup();
-  await OXLogin().setup();
-  await OXUserCenter().setup();
-  await OXPush().setup();
-  await OXDiscovery().setup();
-  await OXChat().setup();
-  await OXChatUI().setup();
-  await OxCalling().setup();
-  await OxChatHome().setup();
+  final setupAction = [
+    OXCommon().setup(),
+    OXLogin().setup(),
+    OXUserCenter().setup(),
+    OXPush().setup(),
+    OXDiscovery().setup(),
+    OXChat().setup(),
+    OXChatUI().setup(),
+    OxCalling().setup(),
+    OxChatHome().setup(),
+  ];
+  await Future.wait(setupAction);
 }
 
 class MainApp extends StatefulWidget {
@@ -180,7 +177,6 @@ class MainState extends State<MainApp>
         navigatorKey: OXNavigator.navigatorKey,
         navigatorObservers: [MyObserver()],
         theme: ThemeData(
-          primaryColorBrightness: ThemeManager.brightness(),
           brightness: ThemeManager.brightness(),
           fontFamily: 'Lato', //use regular for ios / thin for android
           // fontFamily: 'OX Font',
@@ -301,7 +297,7 @@ extension ThemeStyleOverlayEx on ThemeStyle {
   SystemUiOverlayStyle toOverlayStyle() =>
     SystemUiOverlayStyle(
         systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
-        systemNavigationBarColor: systemNavigationBarColor,
+        systemNavigationBarColor: Colors.transparent,
         statusBarIconBrightness: statusBarIconBrightness,
         statusBarBrightness: statusBarBrightness,
         statusBarColor: statusBarColor,
