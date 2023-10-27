@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -176,6 +177,7 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
 class OXGroupAvatar extends StatefulWidget {
 
   OXGroupAvatar({
+    this.groupId,
     this.group,
     this.imageUrl,
     double? size,
@@ -184,6 +186,7 @@ class OXGroupAvatar extends StatefulWidget {
     this.onReturnFromNextPage,
   }) : this.size = size ?? Adapt.px(48);
 
+  final String? groupId;
   final GroupDB? group;
   final String? imageUrl;
   final double size;
@@ -201,13 +204,28 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
 
   List<String> _avatars = [];
 
+  String groupId = '';
+
+  late Future<ImageProvider> _imageLoader;
+
   @override
   void initState() {
+    super.initState();
+    if (widget.groupId != null) {
+      groupId = widget.groupId ?? '';
+    }else{
+      groupId = widget.group?.groupId ?? '';
+    }
     _getMembers();
+    _imageLoader = _loadImageFromCache();
+  }
+
+  Future<ImageProvider> _loadImageFromCache() async {
+    return throw Exception('load error');
   }
 
   void _getMembers() async {
-    List<UserDB>? groupList = await Groups.sharedInstance.getAllGroupMembers(widget.group?.groupId ?? '');
+    List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
     setState(() {
       _avatars = groupList.map((element) => element.picture ?? '').toList();
       _avatars.removeWhere((element) => element.isEmpty);
@@ -216,15 +234,31 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.group?.picture ?? widget.imageUrl ?? '';
-    return GestureDetector(
-      child: GroupedAvatar(avatars: _avatars, size: 48.px),
-      onTap: () async {
-        final groupDB = widget.group;
-        if (groupDB != null) {
-          await OXModuleService.pushPage(context, 'ox_chat', 'GroupInfoPage', {
-            'groupId': groupDB.groupId,
-          });
+    return FutureBuilder(
+      future: _imageLoader,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting || snapshot.hasError) {
+          return GroupedAvatar(
+            avatars: _avatars,
+            size: widget.size,
+            isClickable: true,
+            onTap: () async {
+              final groupDB = widget.group;
+              if (groupDB != null) {
+                await OXModuleService.pushPage(
+                    context, 'ox_chat', 'GroupInfoPage', {
+                  'groupId': groupDB.groupId,
+                });
+              }
+            },
+          );
+        } else {
+          return Image(
+            image: snapshot.data!,
+            width: widget.size,
+            height: widget.size,
+            fit: BoxFit.cover,
+          );
         }
       },
     );
@@ -235,8 +269,17 @@ class GroupedAvatar extends StatelessWidget {
   final List<String> avatars;
   final double size;
   final bool isCircular;
+  final bool isClickable;
+  final GestureTapCallback? onTap;
 
-  const GroupedAvatar({super.key, required this.avatars, required this.size,this.isCircular = true,});
+  const GroupedAvatar({
+    super.key,
+    required this.avatars,
+    required this.size,
+    this.isCircular = true,
+    this.isClickable = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,33 +295,31 @@ class GroupedAvatar extends StatelessWidget {
     }
     avatarWidgetList = avatars.map((element) => _buildAvatar(smallSize, element)).toList();
 
-    if (avatars.length == 2) {
-      return Container(
+    return GestureDetector(
+      onTap: isClickable ? onTap : null,
+      child: Container(
         width: size,
         height: size,
-        child: Stack(
-          children: [
-            Positioned(left: 0, bottom: 0, child: avatarWidgetList[0]),
-            Positioned(right: 0, top: 0, child: avatarWidgetList[1]),
-          ],
-        ),
+        child: _buildGroupedAvatar(avatarWidgetList),
+      ),
+    );
+  }
+
+  Widget _buildGroupedAvatar(List<Widget> avatarWidgetList) {
+    if (avatars.length == 2) {
+      return Stack(
+        children: [
+          Positioned(right: 0, top: 0, child: avatarWidgetList[1]),
+          Positioned(left: 0, bottom: 0, child: avatarWidgetList[0]),
+        ],
       );
     } else if (avatars.length <= 4) {
-      return Container(
-        width: size,
-        height: size,
-        child: Wrap(
-          children: avatarWidgetList,
-        ),
+      return Wrap(
+        children: avatarWidgetList,
       );
     } else {
-      return Container(
-        alignment: Alignment.center,
-        width: size,
-        height: size,
-        child: Wrap(
-          children: avatarWidgetList,
-        ),
+      return Wrap(
+        children: avatarWidgetList,
       );
     }
   }
