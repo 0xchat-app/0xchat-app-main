@@ -71,11 +71,14 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       if (badgeAwardFromDB.isNotEmpty) {
         _getCurrentUserBadgeModelList(badgeAwardFromDB);
       }
-      List<BadgeAwardDB?> badgeAwardFromRelay = await BadgesHelper.sharedInstance.getUserBadgeAwardsFromRelay(userPubkey) ?? [];
-      LogUtil.d("current user badge award form Relay: $badgeAwardFromRelay");
-      if(!listEquals(badgeAwardFromDB, badgeAwardFromRelay)){
-        _getCurrentUserBadgeModelList(badgeAwardFromRelay);
-      }
+      BadgesHelper.sharedInstance.getUserBadgeAwardsFromRelay(userPubkey).then((badgeAwardFromRelay) {
+        if(badgeAwardFromRelay != null){
+          LogUtil.d("current user badge award form Relay: $badgeAwardFromRelay");
+          if(!listEquals(badgeAwardFromDB, badgeAwardFromRelay)){
+            _getCurrentUserBadgeModelList(badgeAwardFromRelay);
+          }
+        }
+      });
     }catch(error,stack){
       LogUtil.e("get user badge award failed: $error\r\n$stack");
     }
