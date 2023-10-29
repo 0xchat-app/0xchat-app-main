@@ -111,20 +111,12 @@ class ChatGeneralHandler {
   }
 
   void setupMentionHandlerIfNeeded() {
-    if (!session.isSupportMention) return ;
+    final userListGetter = session.userListGetter;
+    if (userListGetter == null) return ;
 
     final mentionHandler = ChatMentionHandler();
-    ChatDataCache.shared.getSessionMessage(session).then((messageList) {
-      final userList = Set<UserDB>();
-      messageList.forEach((msg) {
-        final userDB = msg.author.sourceObject;
-        if (userDB is UserDB) {
-          if (userDB.pubKey != this.author.id) {
-            userList.add(userDB);
-          }
-        }
-      });
-      mentionHandler.allUser = userList.toList();
+    userListGetter(session).then((userList) {
+      mentionHandler.allUser = userList;
     });
     mentionHandler.inputController = inputController;
 
