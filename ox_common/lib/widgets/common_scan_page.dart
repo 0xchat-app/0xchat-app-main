@@ -1,22 +1,19 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:scan/scan.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/common_color.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/ox_common.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
+import 'package:flutter_zxing/flutter_zxing.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
 import 'common_image.dart';
 
 class CommonScanPage extends StatefulWidget {
@@ -24,23 +21,53 @@ class CommonScanPage extends StatefulWidget {
   CommonScanPageState createState() => CommonScanPageState();
 }
 
-class CommonScanPageState extends State<CommonScanPage> {
-  ScanController controller = ScanController();
+class CommonScanPageState extends State<CommonScanPage> with SingleTickerProviderStateMixin{
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  late double _scanArea;
+  late double _scanBarMarginLR;
 
   @override
   void initState() {
     super.initState();
-    controller.resume();
+    _scanArea = (Adapt.screenW() < 400 ||
+        Adapt.screenH() < 400)
+        ? Adapt.px(260)
+        : Adapt.px(360);
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reset();
+        _controller.forward();
+      }
+    });
+    _scanBarMarginLR = (Adapt.screenW() - _scanArea)/2 + Adapt.px(20);
+    double halfRange = _scanArea/2 - Adapt.px(30);
+    double centerPos = Adapt.screenH() / 2;
+    _animation = Tween(begin: centerPos - halfRange, end: centerPos + halfRange).animate(_controller);
+
+    _controller.forward();
+
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 
   @override
   void dispose() {
-    controller.pause();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -48,14 +75,22 @@ class CommonScanPageState extends State<CommonScanPage> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            child: ScanView(
-              controller: controller,
-              scanAreaScale: .7,
-              scanLineColor: ThemeColor.gray2,
-              onCapture: (data) {
-                OXNavigator.pop(context, data);
-              },
-            ),
+            child: _buildQrView(context),
+          ),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (BuildContext context, Widget? child) {
+              return Positioned(
+                top: _animation.value,
+                left: _scanBarMarginLR,
+                right: _scanBarMarginLR,
+                child: Container(
+                  width: _scanArea - Adapt.px(20),
+                  height: Adapt.px(1),
+                  color: Colors.white54,
+                ),
+              );
+            },
           ),
           Positioned(
               width: MediaQuery.of(context).size.width,
@@ -168,9 +203,16 @@ class CommonScanPageState extends State<CommonScanPage> {
                       ),
                     ),
                     onTap: () async {
-                      File? file = await ImagePickerUtils.getImageFromGallery();
+                      final res = await ImagePickerUtils.pickerPaths(
+                        galleryMode: GalleryMode.image,
+                        selectCount: 1,
+                        showGif: false,
+                        compressSize: 5120,
+                      );
+                      if(res == null) return;
+                      File? file = File(res[0].path ?? '');
                       if (file != null) {
-                        String? qrcode = await Scan.parse(file.path);
+                        String? qrcode = await scanner.scanPath(file.path);
                         if (qrcode != null) {
                           OXNavigator.pop(context, qrcode);
                         } else {
@@ -187,4 +229,197 @@ class CommonScanPageState extends State<CommonScanPage> {
       ),
     );
   }
+
+  Widget _buildQrView(BuildContext context) {
+    return  ReaderWidget(
+      onScan: _onScanSuccess,
+      onScanFailure: _onScanFailure,
+      scanDelay: Duration(milliseconds: 500),
+      resolution: ResolutionPreset.high,
+      lensDirection: CameraLensDirection.back,
+      scannerOverlay: CustomScannerOverlay(
+        borderColor: Colors.white,
+        borderRadius: 0,
+        borderLength: 20,
+        borderWidth: Adapt.px(4),
+      ),
+      showFlashlight: false,
+      showGallery: false,
+      showToggleCamera: false,
+    );
+  }
+
+  _onScanSuccess(Code? code) {
+    if (code != null) {
+      OXNavigator.pop(context, code.text);
+    } else {
+      CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
+    }
+  }
+
+  _onScanFailure(Code? code) {
+    if (code?.error?.isNotEmpty == true) {
+      _showMessage(context, 'Error: ${code?.error}');
+    }
+  }
+
+  _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+}
+
+class CustomScannerOverlay extends ScannerOverlay{
+  CustomScannerOverlay({
+    this.borderColor = Colors.red,
+    this.borderWidth = 3.0,
+    this.overlayColor = const Color.fromRGBO(0, 0, 0, 80),
+    this.borderRadius = 0,
+    this.borderLength = 40,
+    double? cutOutSize,
+    double? cutOutWidth,
+    double? cutOutHeight,
+    this.cutOutBottomOffset = 0,
+  })  : cutOutWidth = cutOutWidth ?? cutOutSize ?? 250,
+        cutOutHeight = cutOutHeight ?? cutOutSize ?? 250 {
+    assert(
+    borderLength <=
+        min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
+    "Border can't be larger than ${min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2}",
+    );
+    assert(
+    (cutOutWidth == null && cutOutHeight == null) ||
+        (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
+    'Use only cutOutWidth and cutOutHeight or only cutOutSize');
+  }
+
+  final Color borderColor;
+  final double borderWidth;
+  final Color overlayColor;
+  final double borderRadius;
+  final double borderLength;
+  final double cutOutWidth;
+  final double cutOutHeight;
+  final double cutOutBottomOffset;
+
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final width = rect.width;
+    final borderWidthSize = width / 2;
+    final height = rect.height;
+    final borderOffset = borderWidth / 2;
+    final _borderLength =
+    borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2
+        ? borderWidthSize / 2
+        : borderLength;
+    final _cutOutWidth =
+    cutOutWidth < width ? cutOutWidth : width - borderOffset;
+    final _cutOutHeight =
+    cutOutHeight < height ? cutOutHeight : height - borderOffset;
+
+    final backgroundPaint = Paint()
+      ..color = overlayColor
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    final boxPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final cutOutRect = Rect.fromLTWH(
+      rect.left + width / 2 - _cutOutWidth / 2 + borderOffset,
+      -cutOutBottomOffset +
+          rect.top +
+          height / 2 -
+          _cutOutHeight / 2 +
+          borderOffset,
+      _cutOutWidth - borderOffset * 2,
+      _cutOutHeight - borderOffset * 2,
+    );
+
+    canvas
+      ..saveLayer(
+        rect,
+        backgroundPaint,
+      )
+      ..drawRect(
+        rect,
+        backgroundPaint,
+      )
+    // Draw top right corner
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.right - _borderLength,
+          cutOutRect.top,
+          cutOutRect.right,
+          cutOutRect.top + _borderLength,
+          topRight: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+    // Draw top left corner
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.left,
+          cutOutRect.top,
+          cutOutRect.left + _borderLength,
+          cutOutRect.top + _borderLength,
+          topLeft: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+    // Draw bottom right corner
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.right - _borderLength,
+          cutOutRect.bottom - _borderLength,
+          cutOutRect.right,
+          cutOutRect.bottom,
+          bottomRight: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+    // Draw bottom left corner
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.left,
+          cutOutRect.bottom - _borderLength,
+          cutOutRect.left + _borderLength,
+          cutOutRect.bottom,
+          bottomLeft: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+      ..drawRRect(
+        RRect.fromRectAndRadius(
+          cutOutRect,
+          Radius.circular(borderRadius),
+        ),
+        boxPaint,
+      )
+      ..restore();
+  }
+
+  @override
+  ScannerOverlay scale(double t) {
+    return CustomScannerOverlay(
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      overlayColor: overlayColor,
+    );
+  }
+
+  @override
+  // TODO: implement cutOutSize
+  double get cutOutSize => throw UnimplementedError();
+
 }
