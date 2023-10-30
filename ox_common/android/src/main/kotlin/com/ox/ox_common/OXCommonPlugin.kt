@@ -47,11 +47,6 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val SELECT = 102
     private val READ_IMAGE = 106
 
-    private val CODE_IMAGE_FROM_CAMERRA = 155
-    private val CODE_IMAGE_FROM_GALLERY = 156
-    private val CODE_CROP_BIG_PICTURE = 157
-    private val CODE_VIDEO = 158
-
     private var mResult: Result? = null
     private var mIsNeedCrop = false
     private var _tempImageFileLocation: String? = null
@@ -141,46 +136,6 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     }
                 }
             }
-            "getImageFromCamera" -> takePhoto(mActivity, CODE_IMAGE_FROM_CAMERRA, getTempImageFileUri(".jpg"))
-            "getImageFromGallery" -> choosePhoto(mActivity, CODE_IMAGE_FROM_GALLERY)
-            "getVideoFromCamera" -> takeVideo(mActivity, CODE_VIDEO, getTempImageFileUri(".mp4"))
-            "getCompressionImg" -> {
-                var filePath: String? = null
-                if (call.hasArgument("filePath")) {
-                    filePath = call.argument<String>("filePath")
-                }
-                var quality = 100
-                if (call.hasArgument("quality")) {
-                    quality = call.argument<Int>("quality")!!
-                }
-                if (filePath != null) {
-                    getCompressionImg(filePath, quality)
-                }
-            }
-            "saveImageToGallery" -> {
-                var imageBytes: ByteArray? = null
-                if (call.hasArgument("imageBytes")) {
-                    imageBytes = call.argument<ByteArray>("imageBytes")
-                }
-                var name: String? = null
-                if (call.hasArgument("name")) {
-                    name = call.argument<String>("name")
-                }
-                var quality = 100
-                if (call.hasArgument("quality")) {
-                    quality = call.argument<Int>("quality")!!
-                }
-                val path: String = BitmapUtils.saveImageToGallery(mActivity, BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes!!.size), false)
-                result.success(path);
-            }
-            "callSysShare" -> {
-                var filePath: String? = null
-                if (call.hasArgument("filePath")) {
-                    filePath = call.argument<String>("filePath")
-                }
-                if (!TextUtils.isEmpty(filePath))
-                    goSysShare(filePath!!);
-            }
             "backToDesktop" -> {
                 if (mResult != null) {
                     mResult!!.success(true)
@@ -224,95 +179,6 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                             intent1,
                             SELECT
                         )
-                    }
-                } else if (requestCode == CODE_VIDEO) {
-//                        Uri uriVideo = data.getData();
-                    val uriVideo = getTempImageFileUri(".mp4")
-                    val videoFilePath = FileTool.uri2File(mActivity, uriVideo)
-                    processResult(videoFilePath)
-                    return@ActivityResultListener true
-                }
-                val uri = getTempImageFileUri(".jpg")
-                if (uri == null || _tempImageFileLocation == null) {
-                    Toast.makeText(mActivity, mActivity.resources.getString(R.string.str_picker_image_sdcar_error), Toast.LENGTH_SHORT).show()
-                    return@ActivityResultListener false
-                }
-                if (requestCode == CODE_IMAGE_FROM_CAMERRA) {
-                    if (mIsNeedCrop) {
-                        var cropUri = uri
-                        val srcUri: Uri = uri
-                        if (Build.VERSION.SDK_INT >= 30) {
-                            cropUri = getSDK30PictureUri()
-                            //                                srcUri = originalPhotoForChoose;
-                        }
-                        startPhotoCrop(srcUri, cropUri!!, 200, 200, CODE_CROP_BIG_PICTURE)
-                    } else {
-                        if (data != null) {
-                            val extras = data.extras
-                            if (extras != null) {
-                                val imageBitmap = extras["data"] as Bitmap?
-                                if (imageBitmap != null) {
-                                    val saveFlag = FileTool.saveBitmap(imageBitmap, File(_tempImageFileLocation), Bitmap.CompressFormat.JPEG, 100)
-                                }
-                            }
-                        }
-                        processResult(_tempImageFileLocation!!)
-                    }
-                    return@ActivityResultListener true
-                } else if (requestCode == CODE_IMAGE_FROM_GALLERY) {
-                    if (data == null || data.data == null) return@ActivityResultListener false
-                    // URI of the selected photo in the album
-                    val originalPhotoForChoose = data.data
-                    if (mIsNeedCrop) {
-                        // The File corresponding to the original photo's URI
-                        val originalPhotoForChooseCopySrc = FileTool.uri2File(mActivity, originalPhotoForChoose)
-                        // Make a copy of the selected original image (for cropping purposes)
-                        val originalPhotoForChooseCopyDest = _tempImageFileLocation
-                        if (originalPhotoForChooseCopySrc != null) {
-                            var copyOK = false
-                            try {
-                                // Make a copy of the selected original image (for cropping purposes)
-                                copyOK = FileTool.copyFile(originalPhotoForChooseCopySrc, originalPhotoForChooseCopyDest)
-                            } catch (e: java.lang.Exception) {
-                                Log.e(TAG, e.message, e)
-                            }
-                            // Copy of the image to be cropped is ready
-                            // In practice, it's just copying to the location of the temp file. In the camera, the photo is automatically saved to the temp location after taking the picture
-                            if (copyOK) {
-                                Log.d(TAG, "【ChangeAvatar】CHOOSE_BIG_PICTURE2: data = " + data //+",uri=="+uri
-                                        + ",originalPhotoForChoose=" + originalPhotoForChoose) //it seems to be null
-
-                                // Copy completed, entering cropping process
-                                if (originalPhotoForChoose != null) {
-                                    var cropUri = uri
-                                    var srcUri = uri
-                                    if (Build.VERSION.SDK_INT >= 30) {
-                                        cropUri = getSDK30PictureUri()
-                                        srcUri = originalPhotoForChoose
-                                    }
-                                    startPhotoCrop(srcUri!!, cropUri!!, 200, 200, CODE_CROP_BIG_PICTURE)
-                                }
-                            } else {
-//                                    WidgetUtils.showToast(parentActivity, HINT_FOR_SDCARD_ERROR + "[2]", ToastType.WARN);
-                            }
-                        } else {
-//                                WidgetUtils.showToast(parentActivity, HINT_FOR_SDCARD_ERROR + "[3]", ToastType.WARN);
-                        }
-                    } else {
-                        // The File corresponding to the original photo's URI
-                        val originalPhotoSrc = FileTool.uri2File(mActivity.applicationContext, originalPhotoForChoose)
-                        if (TextUtils.isEmpty(originalPhotoSrc)) {
-                            return@ActivityResultListener false
-                        } else {
-                            processResult(originalPhotoSrc)
-                            return@ActivityResultListener true
-                        }
-                    }
-                } else if (requestCode == CODE_CROP_BIG_PICTURE) {
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        processResult(_mCropImgPath!!)
-                    } else {
-                        processResult(_tempImageFileLocation!!)
                     }
                 }
                 false
