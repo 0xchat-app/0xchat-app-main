@@ -304,7 +304,7 @@ class GroupedAvatar extends StatelessWidget {
       smallSize = size / 3;
       avatarList = avatarList.length > 9 ? avatarList.sublist(0, 9) : avatarList;
     }
-    avatarWidgetList = avatars.map((element) => _buildAvatar(smallSize, element)).toList();
+    avatarWidgetList = avatars.map((element) => _buildSingleAvatar(smallSize, element)).toList();
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -318,6 +318,7 @@ class GroupedAvatar extends StatelessWidget {
   }
 
   Widget _buildGroupedAvatar(List<Widget> avatarWidgetList) {
+    if (avatars.isEmpty) return _buildDefaultGroupedAvatar(size);
     if (avatars.length == 2) {
       return Stack(
         children: [
@@ -336,7 +337,7 @@ class GroupedAvatar extends StatelessWidget {
     }
   }
 
-  Widget _buildAvatar(double size, String imageUrl) {
+  Widget _buildSingleAvatar(double size, String imageUrl) {
     final defaultImageName = 'icon_user_default.png';
     return BaseAvatarWidget(
       imageUrl: imageUrl,
@@ -346,14 +347,14 @@ class GroupedAvatar extends StatelessWidget {
     );
   }
 
-  Widget _buildDefault(double size){
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: ThemeColor.color180,
-        borderRadius: BorderRadius.circular(size / 2),
-      ),
+  Widget _buildDefaultGroupedAvatar(double size){
+    final defaultImageName = 'icon_group_default.png';
+    return BaseAvatarWidget(
+      defaultImageName: defaultImageName,
+      size: size,
+      imageUrl: '',
+      isCircular: true,
+      isClickable: true,
     );
   }
 }
