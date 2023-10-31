@@ -352,7 +352,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         return;
       }
 
-      CommonToast.instance.show(context, 'Request to join the group successful');
+      CommonToast.instance.show(context, 'Request to join the group');
       OXNavigator.pop(context);
     }
 
@@ -362,7 +362,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     if(requestTag){
       _changeRequestTagStatus(false);
       OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'');
+      OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'${Account.sharedInstance.me?.name} join the group');
 
       if (!event.status) {
         _changeRequestTagStatus(true);
@@ -371,7 +371,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         return;
       }
     }
-      CommonToast.instance.show(context, 'Join the group successful');
+      CommonToast.instance.show(context, 'Join the group');
       OXNavigator.pop(context);
   }
 
