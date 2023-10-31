@@ -14,6 +14,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../session/chat_group_message_page.dart';
 
@@ -109,7 +110,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            'Done',
+            Localized.text('ox_common.complete'),
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,
@@ -130,7 +131,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
             bottom: Adapt.px(8),
           ),
           child: Text(
-            'Group share',
+            Localized.text('ox_chat.group_share'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(24),
@@ -139,7 +140,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
           ),
         ),
         Text(
-          '${inviterUserDB?.name ?? ''} invited you to join the Group',
+          Localized.text('ox_chat.group_invited_item').replaceAll(r'${name}', '${inviterUserDB?.name ?? ''}'),
           style: TextStyle(
             color: ThemeColor.color60,
             fontSize: Adapt.px(12),
@@ -267,11 +268,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
   String _getBtnContent(int status){
       switch(status){
         case 0:
-          return 'request Group Chat';
+          return Localized.text('ox_chat.request_group_chat_button');
         case 1:
-          return 'join Group Chat';
+          return Localized.text('ox_chat.join_group_chat_button');
         case 2:
-          return 'Jump Group Chat';
+          return Localized.text('ox_chat.jump_group_chat_button');
         default:
           return '--';
       }
@@ -287,7 +288,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
           child: Column(
             children: [
               Text(
-                "The group owner has required 'invitation Approval'. you can add an join reason to give the group owner and admin.",
+                Localized.text('ox_chat.confirm_join_dialog_content'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: ThemeColor.color0,
@@ -312,7 +313,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
                   controller: _groupJoinInfoText,
                   maxLines: 1,
                   decoration: InputDecoration(
-                    hintText: "Please enter...",
+                    hintText: Localized.text('ox_chat.confirm_join_dialog_hint'),
                     hintStyle: TextStyle(
                       color: ThemeColor.color100,
                       fontSize: Adapt.px(15),
@@ -333,7 +334,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: 'Send', onTap: _requestGroupFn),
+          OXCommonHintAction.sure(text: Localized.text('ox_chat.send'), onTap: _requestGroupFn),
         ],
         isRowAction: true,
     );
@@ -352,7 +353,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         return;
       }
 
-      CommonToast.instance.show(context, 'Request to join the group successful');
+      CommonToast.instance.show(context, Localized.text('ox_chat.request_join_toast_success'));
       OXNavigator.pop(context);
     }
 
@@ -371,7 +372,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         return;
       }
     }
-      CommonToast.instance.show(context, 'Join the group successful');
+      CommonToast.instance.show(context, Localized.text('ox_chat.join_group_success'));
       OXNavigator.pop(context);
   }
 
