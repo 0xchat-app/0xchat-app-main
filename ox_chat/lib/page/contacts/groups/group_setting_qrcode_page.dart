@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -382,7 +383,9 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     String relay = groupDB.relay ?? '';
     String groupOwner = groupDB.owner;
     String groupId = groupDB.groupId;
-    _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
+
+    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
+    _groupQrCodeUrl = shareAppLinkDomain + Groups.encodeGroup(groupId,[relay],groupOwner);
   }
 
 
