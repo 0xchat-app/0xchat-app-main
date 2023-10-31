@@ -282,6 +282,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
     if(status == 2) return _createGroup();
     if(status == 1) return _joinGroupFn();
+    return _requestGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
         contentView: Container(
@@ -344,7 +345,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     if(requestTag){
       _changeRequestTagStatus(false);
       OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
+      OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner,widget.groupName,_groupJoinInfoText.text);
 
       if (!event.status) {
         _changeRequestTagStatus(true);
