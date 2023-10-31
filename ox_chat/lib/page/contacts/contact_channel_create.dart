@@ -238,7 +238,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
-          hintText: hintText ?? "Please enter...",
+          hintText: hintText ?? Localized.text('ox_chat.confirm_join_dialog_hint'),
           hintStyle: TextStyle(
               color: Color.fromRGBO(123, 127, 143, 1),
               fontWeight: FontWeight.w400,

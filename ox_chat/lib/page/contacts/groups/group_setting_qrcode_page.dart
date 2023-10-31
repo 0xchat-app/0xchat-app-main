@@ -184,7 +184,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                   Container(
                     margin: EdgeInsets.only(top: Adapt.px(24)),
                     alignment: Alignment.center,
-                    child: MyText('Scan the QR code to join the group ', 13, ThemeColor.color110,
+                    child: MyText(Localized.text('ox_chat.scan_qr_code_join_group'), 13, ThemeColor.color110,
                         fontWeight: FontWeight.w400),
                   ),
                 ],
@@ -196,7 +196,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
             onTap: _widgetShotAndSave,
             child:  Container(
               child:Text(
-                'Save Image',
+                Localized.text('ox_chat.str_save_image'),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: ThemeColor.purple2,
