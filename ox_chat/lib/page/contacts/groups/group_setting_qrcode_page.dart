@@ -177,7 +177,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                       padding: EdgeInsets.all(
                         Adapt.px(8),
                       ),
-                      child: _groupQrCodeUrl!.isEmpty
+                      child: _groupQrCodeUrl.isEmpty
                           ? Container()
                           : _qrCodeWidget(),
                     ),
