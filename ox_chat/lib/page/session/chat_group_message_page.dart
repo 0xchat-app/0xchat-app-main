@@ -204,7 +204,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
                 Symbol('groupName'):groupId,
                 Symbol('groupOwner'): group?.owner ?? '',
                 Symbol('groupId'):groupId,
-                Symbol('inviterPubKey'):'--',
+                Symbol('inviterPubKey'):'',
               }
           );
           // await OXLoading.show();
