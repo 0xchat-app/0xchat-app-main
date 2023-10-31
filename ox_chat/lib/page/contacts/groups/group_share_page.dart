@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
 import '../../session/chat_group_message_page.dart';
@@ -30,6 +31,8 @@ class GroupSharePage extends StatefulWidget {
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
   UserDB? inviterUserDB = null;
+
+  bool requestTag = true;
 
   @override
   void initState() {
@@ -337,23 +340,45 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   void _requestGroupFn()async{
-    OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
-    if(event.status) {
+    if(requestTag){
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner, _groupJoinInfoText.text);
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+
       CommonToast.instance.show(context, 'Request to join the group successful');
       OXNavigator.pop(context);
-    }else{
-      CommonToast.instance.show(context, event.message);
     }
+
   }
 
   void _joinGroupFn()async{
-    OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'');
-    if(event.status) {
+    if(requestTag){
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'');
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+    }
       CommonToast.instance.show(context, 'Join the group successful');
       OXNavigator.pop(context);
-    }else{
-      CommonToast.instance.show(context, event.message);
-    }
+  }
+
+  void _changeRequestTagStatus(bool status) {
+    setState(() {
+      requestTag = status;
+    });
   }
 
   Future<void> _createGroup() async {

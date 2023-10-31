@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -23,7 +24,6 @@ import 'group_setting_qrcode_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-
 class GroupInfoPage extends StatefulWidget {
   final String groupId;
 
@@ -37,6 +37,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   bool _isMute = false;
   List<UserDB> groupMember = [];
   GroupDB? groupDBInfo = null;
+
+  bool requestTag = true;
   @override
   void initState() {
     super.initState();
@@ -49,7 +51,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   String get _getGroupNotice {
-    String groupNotice = groupDBInfo?.pinned?[0] ?? '';
+    String groupNotice = '';
+    List<String>? pinned = groupDBInfo?.pinned;
+    if (pinned != null && pinned.length > 0) {
+      groupNotice = pinned[0];
+    }
     return groupNotice.isEmpty ? 'no content' : groupNotice;
   }
 
@@ -276,19 +282,18 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             title: 'Join requests',
             onTap: _jumpJoinRequestFn,
             isShowMoreIcon: _isGroupOwner,
-            isShowDivider:  false,
+            isShowDivider: false,
           ),
         ],
       ),
     );
   }
 
-  void _jumpJoinRequestFn(){
-    if(!_isGroupOwner) return;
+  void _jumpJoinRequestFn() {
+    if (!_isGroupOwner) return;
     OXNavigator.pushPage(
       context,
-          (context) =>
-          GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
+      (context) => GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
     );
   }
 
@@ -677,29 +682,57 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _leaveGroupFn() async {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    OKEvent event = await Groups.sharedInstance
-        .leaveGroup(widget.groupId, '${userInfo?.name} leave group');
-    if (event.status) {
+    if (requestTag) {
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+      OKEvent event = await Groups.sharedInstance
+          .leaveGroup(widget.groupId, '${userInfo?.name} leave group');
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+
+      OXLoading.dismiss();
       CommonToast.instance.show(context, 'Leave group success');
       OXNavigator.popToRoot(context);
     }
   }
 
   void _disbandGroupFn() async {
-    OKEvent event = await Groups.sharedInstance
-        .deleteAndLeave(widget.groupId, 'Disband group chat success');
-    if (event.status) {
+    if (requestTag) {
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      OKEvent event = await Groups.sharedInstance
+          .deleteAndLeave(widget.groupId, 'Disband group chat success');
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+
+      OXLoading.dismiss();
       CommonToast.instance.show(context, 'Disband group chat success');
       OXNavigator.popToRoot(context);
     }
+  }
+
+  void _changeRequestTagStatus(bool status) {
+    setState(() {
+      requestTag = status;
+    });
   }
 
   void _groupInfoInit() async {
     String groupId = widget.groupId;
     GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
     List<UserDB>? groupList =
-    await Groups.sharedInstance.getAllGroupMembers(groupId);
+        await Groups.sharedInstance.getAllGroupMembers(groupId);
 
     if (groupDB != null) {
       groupDBInfo = groupDB;
