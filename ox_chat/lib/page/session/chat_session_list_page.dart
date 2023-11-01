@@ -101,6 +101,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   onLocaleChange() {
     _onRefresh();
+    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     if (mounted) setState(() {});
   }
 
