@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:ox_home/page/home_tabbar.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_webview.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_chat_project/main.dart';
 import 'package:ox_home/page/launch_page_view.dart';
 
@@ -55,7 +53,7 @@ class MultiRouteUtils {
     return path;
   }
 
-  /// 解析native参数，执行初始化操作
+  /// Parse native parameters and perform initialization operations
   static Map<String, dynamic> _parseNativeParams(String route) {
     Map<String, dynamic> nativeParams = {};
     if (route.indexOf("?") != -1) {
@@ -65,7 +63,7 @@ class MultiRouteUtils {
   }
 
   static void newFlutterActivity(String route, String params) {
-    channel.invokeMethod('showFlutterActivity', {
+    OXCommon.channelPreferences.invokeMethod('showFlutterActivity', {
       'route': route,
       'params': params,
     });

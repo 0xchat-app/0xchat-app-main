@@ -36,7 +36,6 @@ import 'package:path_provider/path_provider.dart';
 
 import 'main.reflectable.dart';
 
-const MethodChannel channel = const MethodChannel('com.oxchat.nostr/perferences');
 const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
 
 class MyHttpOverrides extends HttpOverrides {
@@ -118,7 +117,6 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
-    getOpenAppSchemeInfo();
   }
 
   void notNetworInitWow() async {
@@ -158,12 +156,14 @@ class MainState extends State<MainApp>
   }
 
   void getOpenAppSchemeInfo() async {
-    String jumpInfo = await channel.invokeMethod(
+    String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
       'getAppOpenURL',
     );
     LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
     if (jumpInfo.isNotEmpty) {
-      ScanUtils.analysis(OXNavigator.navigatorKey.currentContext!, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
+      BuildContext? context = OXNavigator.navigatorKey.currentContext;
+      if(context == null) return;
+      ScanUtils.analysis(context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
     }
   }
 
