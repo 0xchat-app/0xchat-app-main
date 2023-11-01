@@ -1,22 +1,20 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:scan/scan.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/common_color.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/ox_common.dart';
-import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_common/widgets/custom_scanner_overlay.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
+import 'package:flutter_zxing/flutter_zxing.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
 import 'common_image.dart';
 
 class CommonScanPage extends StatefulWidget {
@@ -24,23 +22,46 @@ class CommonScanPage extends StatefulWidget {
   CommonScanPageState createState() => CommonScanPageState();
 }
 
-class CommonScanPageState extends State<CommonScanPage> {
-  ScanController controller = ScanController();
+class CommonScanPageState extends State<CommonScanPage> with SingleTickerProviderStateMixin{
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late AnimationController _controller;
+  late double _scanArea;
 
   @override
   void initState() {
     super.initState();
-    controller.resume();
+    _scanArea = (Adapt.screenW() < 375 ||
+        Adapt.screenH() < 400)
+        ? Adapt.px(160)
+        : Adapt.px(260);
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reset();
+        _controller.forward();
+      }
+    });
+    _controller.forward();
+
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 
   @override
   void dispose() {
-    controller.pause();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -48,14 +69,7 @@ class CommonScanPageState extends State<CommonScanPage> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            child: ScanView(
-              controller: controller,
-              scanAreaScale: .7,
-              scanLineColor: ThemeColor.gray2,
-              onCapture: (data) {
-                OXNavigator.pop(context, data);
-              },
-            ),
+            child: _buildQrView(context),
           ),
           Positioned(
               width: MediaQuery.of(context).size.width,
@@ -167,17 +181,7 @@ class CommonScanPageState extends State<CommonScanPage> {
                         ],
                       ),
                     ),
-                    onTap: () async {
-                      File? file = await ImagePickerUtils.getImageFromGallery();
-                      if (file != null) {
-                        String? qrcode = await Scan.parse(file.path);
-                        if (qrcode != null) {
-                          OXNavigator.pop(context, qrcode);
-                        } else {
-                          CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
-                        }
-                      }
-                    },
+                    onTap: _onPicTap,
                   )),
                 ],
               ),
@@ -187,4 +191,62 @@ class CommonScanPageState extends State<CommonScanPage> {
       ),
     );
   }
+
+  void _onPicTap() async {
+    final res = await ImagePickerUtils.pickerPaths(
+      galleryMode: GalleryMode.image,
+      selectCount: 1,
+      showGif: false,
+      compressSize: 5120,
+    );
+    File file = File(res[0].path ?? '');
+    try {
+      String qrcode = await scanner.scanPath(file.path);
+      OXNavigator.pop(context, qrcode);
+    } catch (e) {
+      CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
+    }
+  }
+
+  Widget _buildQrView(BuildContext context) {
+    return  ReaderWidget(
+      onScan: _onScanSuccess,
+      onScanFailure: _onScanFailure,
+      scanDelay: Duration(milliseconds: 500),
+      resolution: ResolutionPreset.high,
+      lensDirection: CameraLensDirection.back,
+      scannerOverlay: CustomScannerOverlay(
+        cutOutSize: _scanArea,
+        borderColor: Colors.white,
+        borderRadius: 0,
+        borderLength: 20,
+        borderWidth: Adapt.px(4),
+      ),
+      showFlashlight: false,
+      showGallery: false,
+      showToggleCamera: false,
+    );
+  }
+
+  _onScanSuccess(Code? code) {
+    if (code != null) {
+      OXNavigator.pop(context, code.text);
+    } else {
+      CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
+    }
+  }
+
+  _onScanFailure(Code? code) {
+    if (code?.error?.isNotEmpty == true) {
+      _showMessage(context, 'Error: ${code?.error}');
+    }
+  }
+
+  _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
 }

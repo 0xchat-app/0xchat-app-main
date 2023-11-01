@@ -34,5 +34,4 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.meizu.flyme.internet:push-internal:4.1.4'
 }

@@ -29,8 +29,8 @@ dependencies:
   flutter_easyloading: ^3.0.0
   archive: ^3.1.2
   fl_chart: ^0.35.0
-  scan: ^1.6.0
-  qr_flutter: ^4.0.0
+  flutter_zxing: ^1.4.1
+  qrscan: ^0.3.3
   pretty_qr_code: ^2.0.2
   dart_ping: ^6.0.0
   lpinyin: ^2.0.0

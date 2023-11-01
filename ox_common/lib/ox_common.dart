@@ -44,10 +44,10 @@ class OXCommon extends OXFlutterModule {
   @override
   Map<String, Function> get interfaces =>{
     "gotoWebView": gotoWebView,
-    'saveImageToGallery':saveImageToGallery
   };
 
   static const MethodChannel channel = const MethodChannel('$CommonModule');
+  static const MethodChannel channelPreferences = const MethodChannel('com.oxchat.global/perferences');
 
   static Future<String> get platformVersion async {
     final String version = await channel.invokeMethod('getPlatformVersion');
@@ -82,7 +82,4 @@ class OXCommon extends OXFlutterModule {
     OXNavigator.pushPage(context, (context) => CommonWebView(url));
   }
 
-  Future<String?> saveImageToGallery(Map<String,dynamic> params) async{
-    return await ImagePickerUtils.saveImageToGallery(imageBytes: params["imageBytes"]);
-  }
 }
