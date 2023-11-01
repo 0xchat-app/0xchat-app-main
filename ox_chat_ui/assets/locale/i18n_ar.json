@@ -6,6 +6,8 @@
   "input_more_call": "مكالمة",
   "input_more_zaps": "زابس",
   "channel_join": "انضم للقناة",
+  "group_join": "انضم إلى المجموعة",
+  "group_request": "طلب الانضمام إلى المجموعة",
   "channel_badge_requirements": "الإرسال في هذه القناة يتطلب شارة",
   "friend_requirements": "لا يمكن الإرسال، لأنه لم يعد صديقًا",
   "giphy_emoji": "إيموجي",

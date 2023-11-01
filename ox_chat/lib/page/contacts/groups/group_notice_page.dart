@@ -8,6 +8,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'group_edit_page.dart';
 
 class GroupNoticePage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
 
   String get _getGroupNotice {
     String groupNotice = groupDBInfo?.pinned?[0] ?? '';
-    return groupNotice.isEmpty ? 'no content' : groupNotice;
+    return groupNotice.isEmpty ? Localized.text('ox_chat.group_notice_default_hint') : groupNotice;
   }
 
   @override
@@ -53,7 +54,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Group Notice',
+        title: Localized.text('ox_chat.group_notice'),
         backgroundColor: ThemeColor.color190,
         actions: [
           _appBarActionWidget(),
@@ -87,7 +88,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            'Edit',
+            Localized.text('ox_common.edit'),
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,

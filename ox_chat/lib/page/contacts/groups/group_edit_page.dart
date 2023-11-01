@@ -8,6 +8,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 enum EGroupEditType { groupName, notice }
 
@@ -15,27 +16,27 @@ extension EGroupEditTypeStr on EGroupEditType {
   String get title {
     switch (this) {
       case EGroupEditType.groupName:
-        return 'Edit Group Name';
+        return Localized.text('ox_chat.edit_group_name');
       case EGroupEditType.notice:
-        return 'Edit Group Notice';
+        return Localized.text('ox_chat.edit_group_notice');
     }
   }
 
   String get subTitle {
     switch (this) {
       case EGroupEditType.groupName:
-        return 'Group Name';
+        return Localized.text('ox_chat.group_name_item');
       case EGroupEditType.notice:
-        return 'Group Notice';
+        return Localized.text('ox_chat.group_notice');
     }
   }
 
   String get hintText {
     switch (this) {
       case EGroupEditType.groupName:
-        return 'This is Group Name';
+        return Localized.text('ox_chat.edit_group_name_hint');
       case EGroupEditType.notice:
-        return 'This is Group Notice';
+        return Localized.text('ox_chat.edit_group_notice_hint');
     }
   }
 }
@@ -134,7 +135,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            'Done',
+            Localized.text('ox_common.complete'),
             style: TextStyle(
               fontSize: Adapt.px(16),
               color: Colors.white,
@@ -225,7 +226,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
         controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
-          hintText: hintText ?? "Please enter...",
+          hintText: hintText ?? Localized.text('ox_chat.confirm_join_dialog_hint'),
           hintStyle: TextStyle(
             color: ThemeColor.color0,
             fontSize: Adapt.px(15),
@@ -279,7 +280,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
   void _updateGroupName() async {
     String groupNameContent = _groupNameController.text;
     if (groupNameContent.isEmpty) {
-      CommonToast.instance.show(context, 'The group name cannot be empty');
+      CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_name_not_empty_toast'));
     }
 
     OKEvent event = await Groups.sharedInstance
@@ -294,9 +295,9 @@ class _GroupEditPageState extends State<GroupEditPage> {
   void _updateGroupNotice() async {
     String groupNoticeContent = _groupNoticeController.text;
     if (groupNoticeContent.isEmpty)
-      return CommonToast.instance.show(context, 'The notice cannot be empty');
+      return CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_notice_not_empty_toast'));
     OKEvent event = await Groups.sharedInstance
-        .updateGroupPinned(widget.groupId, 'Pin: \"$groupNoticeContent\"', groupNoticeContent);
+        .updateGroupPinned(widget.groupId, '${Localized.text('ox_chat.pin')}: \"$groupNoticeContent\"', groupNoticeContent);
     if (!event.status) return CommonToast.instance.show(context, event.message);
     OXNavigator.pop(context, true);
   }

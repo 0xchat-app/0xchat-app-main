@@ -6,6 +6,8 @@
   "input_more_call": "Anruf",
   "input_more_zaps": "Zaps",
   "channel_join": "Kanal beitreten",
+  "group_join": "Gruppe beitreten",
+  "group_request": "Anfrage zum Beitritt zur Gruppe",
   "channel_badge_requirements": "Nachrichten in diesem Kanal erfordern Abzeichen",
   "friend_requirements": "Nachricht nicht möglich, da nicht mehr befreundet",
   "giphy_emoji": "Emojis",

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -176,7 +177,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                       padding: EdgeInsets.all(
                         Adapt.px(8),
                       ),
-                      child: _groupQrCodeUrl!.isEmpty
+                      child: _groupQrCodeUrl.isEmpty
                           ? Container()
                           : _qrCodeWidget(),
                     ),
@@ -184,7 +185,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                   Container(
                     margin: EdgeInsets.only(top: Adapt.px(24)),
                     alignment: Alignment.center,
-                    child: MyText('Scan the QR code to join the group ', 13, ThemeColor.color110,
+                    child: MyText(Localized.text('ox_chat.scan_qr_code_join_group'), 13, ThemeColor.color110,
                         fontWeight: FontWeight.w400),
                   ),
                 ],
@@ -196,7 +197,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
             onTap: _widgetShotAndSave,
             child:  Container(
               child:Text(
-                'Save Image',
+                Localized.text('ox_chat.str_save_image'),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: ThemeColor.purple2,
@@ -382,7 +383,9 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     String relay = groupDB.relay ?? '';
     String groupOwner = groupDB.owner;
     String groupId = groupDB.groupId;
-    _groupQrCodeUrl = Groups.encodeGroup(groupId,[relay],groupOwner);
+
+    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
+    _groupQrCodeUrl = shareAppLinkDomain + Groups.encodeGroup(groupId,[relay],groupOwner);
   }
 
 

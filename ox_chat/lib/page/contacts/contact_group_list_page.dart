@@ -165,15 +165,17 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       highlightColor: Colors.transparent,
       icon: widget.groupListAction != GroupListAction.view
           ? CommonImage(
-        iconName: 'title_done.png',
+        iconName: 'icon_done.png',
         width: Adapt.px(24),
         height: Adapt.px(24),
+        useTheme: true,
       )
           : CommonImage(
-        iconName: 'add_icon.png',
+        iconName: 'icon_add.png',
         width: Adapt.px(24),
         height: Adapt.px(24),
         package: 'ox_chat',
+        useTheme: true,
       ),
       onPressed: () {
         // widget.groupListAction == GroupListAction.view ? buildViewPressed() : widget.groupListAction == GroupListAction.add ? buildAddPressed() : buildRemovePressed();

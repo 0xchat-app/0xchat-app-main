@@ -7,6 +7,8 @@ import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
+import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -71,6 +73,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
   Map<String, BadgeDB> _badgeCache = {};
   Map<String, bool> _muteCache = {};
+  Map<String, List<String>> _groupMembersCache = {};
 
   GlobalKey? _latestGlobalKey;
 
@@ -87,6 +90,17 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXRelayManager.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
+    getOpenAppSchemeInfo();
+  }
+
+
+  void getOpenAppSchemeInfo() async {
+    String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
+      'getAppOpenURL',
+    );
+    if (jumpInfo.isNotEmpty) {
+      ScanUtils.analysis(context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
+    }
   }
 
   _navigateToLoginPage(BuildContext context) async {
@@ -100,6 +114,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   onLocaleChange() {
     _onRefresh();
+    _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     if (mounted) setState(() {});
   }
 
@@ -349,6 +364,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       var session1CreatedTime = session1.createTime;
       return session2CreatedTime.compareTo(session1CreatedTime);
     });
+    _getGroupMembers(msgDatas);
     if (this.mounted) {
       setState(() {});
     }
@@ -567,7 +583,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         height: Adapt.px(60),
         child: Stack(
           children: [
-            ClipRRect(
+            (item.chatType == ChatType.chatGroup) ? Center(child: GroupedAvatar(avatars: _groupMembersCache[item.groupId] ?? [],size: 60.px,)) : ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(60)),
               child: BaseAvatarWidget(
                 imageUrl: '${showPicUrl}',
@@ -1079,6 +1095,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender!);
     isMute = tempUserDB?.mute ?? false;
     return isMute;
+  }
+
+  void _getGroupMembers(List<ChatSessionModel> chatSessionModelList) async {
+    chatSessionModelList.forEach((element) async {
+      if(element.chatType == ChatType.chatGroup){
+        final groupId = element.groupId ?? '';
+        List<UserDB> groupList =  await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
+        avatars.removeWhere((element) => element.isEmpty);
+        _groupMembersCache[groupId] = avatars;
+      }
+    });
   }
 
 }

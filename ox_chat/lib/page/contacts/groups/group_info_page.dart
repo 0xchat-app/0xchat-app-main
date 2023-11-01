@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -23,7 +24,6 @@ import 'group_setting_qrcode_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-
 class GroupInfoPage extends StatefulWidget {
   final String groupId;
 
@@ -37,6 +37,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   bool _isMute = false;
   List<UserDB> groupMember = [];
   GroupDB? groupDBInfo = null;
+
+  bool requestTag = true;
   @override
   void initState() {
     super.initState();
@@ -49,8 +51,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   String get _getGroupNotice {
-    String groupNotice = groupDBInfo?.pinned?[0] ?? '';
-    return groupNotice.isEmpty ? 'no content' : groupNotice;
+    String groupNotice = '';
+    List<String>? pinned = groupDBInfo?.pinned;
+    if (pinned != null && pinned.length > 0) {
+      groupNotice = pinned[0];
+    }
+    return groupNotice.isEmpty ? Localized.text('ox_chat.group_notice_default_hint') : groupNotice;
   }
 
   @override
@@ -60,7 +66,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Group Info',
+        title: Localized.text('ox_chat.group_info'),
         backgroundColor: ThemeColor.color190,
         actions: [
           _appBarActionWidget(),
@@ -129,7 +135,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                   Container(
                     height: Adapt.px(20),
                     child: Text(
-                      'View All ${groupMember.length} Members',
+                      Localized.text('ox_chat.view_all_members').replaceAll(r'${count}', '${groupMember.length}'),
                       style: TextStyle(
                         fontSize: Adapt.px(14),
                         color: ThemeColor.color100,
@@ -245,19 +251,19 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       child: Column(
         children: [
           _topItemBuild(
-            title: 'Group Name',
+            title: Localized.text('ox_chat.group_name'),
             subTitle: groupDBInfo?.name ?? '--',
             onTap: _updateGroupNameFn,
             isShowMoreIcon: _isGroupMember,
           ),
           _topItemBuild(
-            title: 'Members',
+            title: Localized.text('ox_chat.group_member'),
             subTitle: groupMember.length.toString(),
             onTap: () => _groupMemberOptionFn(GroupListAction.view),
             isShowMoreIcon: _isGroupMember,
           ),
           _topItemBuild(
-            title: 'Group QR Code',
+            title: Localized.text('ox_chat.group_qr_code'),
             actionWidget: CommonImage(
               iconName: 'qrcode_icon.png',
               width: Adapt.px(24),
@@ -267,28 +273,27 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             onTap: _groupQrCodeFn,
           ),
           _topItemBuild(
-            title: 'Group Notice',
+            title: Localized.text('ox_chat.group_notice'),
             titleDes: _getGroupNotice,
             onTap: _updateGroupNoticeFn,
             isShowMoreIcon: _isGroupMember,
           ),
           _topItemBuild(
-            title: 'Join requests',
+            title: Localized.text('ox_chat.join_request'),
             onTap: _jumpJoinRequestFn,
             isShowMoreIcon: _isGroupOwner,
-            isShowDivider:  false,
+            isShowDivider: false,
           ),
         ],
       ),
     );
   }
 
-  void _jumpJoinRequestFn(){
-    if(!_isGroupOwner) return;
+  void _jumpJoinRequestFn() {
+    if (!_isGroupOwner) return;
     OXNavigator.pushPage(
       context,
-          (context) =>
-          GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
+      (context) => GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
     );
   }
 
@@ -303,7 +308,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         color: ThemeColor.color180,
       ),
       child: _topItemBuild(
-        title: 'Mute',
+        title: Localized.text('ox_chat.mute_item'),
         isShowDivider: false,
         actionWidget: _muteSwitchWidget(),
         isShowMoreIcon: false,
@@ -449,7 +454,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Widget _leaveBtnWidget() {
     if (!_isGroupMember) return Container();
-    String content = _isGroupOwner ? 'Delete and leave' : 'Leave';
+    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.leave_item');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
@@ -478,9 +483,9 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _leaveConfirmWidget() {
     String tips = _isGroupOwner
-        ? 'Delete and remove all group members? ?'
-        : 'Leave this group?';
-    String content = _isGroupOwner ? 'Delete and leave' : 'Leave';
+        ? Localized.text('ox_chat.delete_group_tips')
+        : Localized.text('ox_chat.leave_group_tips');
+    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.leave_item');
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -623,8 +628,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     OXCommonHintDialog.show(
       context,
       title: "",
-      content:
-          'This Group has enabled group-join verification. An invitation by a current group admin is required to join.',
+      content: Localized.text('ox_chat.enabled_group_join_verification'),
       actionList: [
         OXCommonHintAction.sure(
           text: Localized.text('ox_common.confirm'),
@@ -648,15 +652,15 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _changeMuteFn(bool value) async {
     if (!_isGroupMember) {
-      CommonToast.instance.show(context, 'Not group members cannot operate');
+      CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_no_member_toast'));
       return;
     }
     if (value) {
       await Groups.sharedInstance.muteGroup(widget.groupId);
-      CommonToast.instance.show(context, 'Successful operation');
+      CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     } else {
       await Groups.sharedInstance.unMuteGroup(widget.groupId);
-      CommonToast.instance.show(context, 'Successful operation');
+      CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     }
     setState(() {
       _isMute = value;
@@ -677,29 +681,57 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   void _leaveGroupFn() async {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    OKEvent event = await Groups.sharedInstance
-        .leaveGroup(widget.groupId, '${userInfo?.name} leave group');
-    if (event.status) {
-      CommonToast.instance.show(context, 'Leave group success');
+    if (requestTag) {
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+      OKEvent event = await Groups.sharedInstance
+          .leaveGroup(widget.groupId, Localized.text('ox.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, Localized.text('ox_chat.leave_group_success_toast'));
       OXNavigator.popToRoot(context);
     }
   }
 
   void _disbandGroupFn() async {
-    OKEvent event = await Groups.sharedInstance
-        .deleteAndLeave(widget.groupId, 'Disband group chat success');
-    if (event.status) {
-      CommonToast.instance.show(context, 'Disband group chat success');
+    if (requestTag) {
+      _changeRequestTagStatus(false);
+      OXLoading.show();
+      OKEvent event = await Groups.sharedInstance
+          .deleteAndLeave(widget.groupId, Localized.text('ox_chat.disband_group_toast'));
+
+      if (!event.status) {
+        _changeRequestTagStatus(true);
+        CommonToast.instance.show(context, event.message);
+        OXLoading.dismiss();
+        return;
+      }
+
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, Localized.text('ox_chat.disband_group_toast'));
       OXNavigator.popToRoot(context);
     }
+  }
+
+  void _changeRequestTagStatus(bool status) {
+    setState(() {
+      requestTag = status;
+    });
   }
 
   void _groupInfoInit() async {
     String groupId = widget.groupId;
     GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
     List<UserDB>? groupList =
-    await Groups.sharedInstance.getAllGroupMembers(groupId);
+        await Groups.sharedInstance.getAllGroupMembers(groupId);
 
     if (groupDB != null) {
       groupDBInfo = groupDB;

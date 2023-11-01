@@ -1,21 +1,63 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/widget/mention_user_list.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+
+typedef UserListGetter = Future<List<UserDB>> Function(ChatSessionModel session);
 
 extension ChatSessionModelMentionEx on ChatSessionModel {
-  bool get isSupportMention {
+
+  bool get isSupportMention => userListGetter != null;
+
+  UserListGetter? get userListGetter {
     switch (this.chatType) {
+      case ChatType.chatGroup:
+        return _userListGetterByGroupMember;
       case ChatType.chatChannel:
-        return true;
+        return _userListGetterByMessageList;
       default:
-        return false;
+        return null;
     }
+  }
+
+  Future<List<UserDB>> _userListGetterByMessageList(ChatSessionModel session) async {
+    final completer = Completer<List<UserDB>>();
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    ChatDataCache.shared.getSessionMessage(session).then((messageList) {
+      final userList = Set<UserDB>();
+      messageList.forEach((msg) {
+        final userDB = msg.author.sourceObject;
+        if (userDB is UserDB) {
+          if (userDB.pubKey != myPubkey) {
+            userList.add(userDB);
+          }
+        }
+      });
+      completer.complete(userList.toList());
+    });
+    return completer.future;
+  }
+
+  Future<List<UserDB>> _userListGetterByGroupMember(ChatSessionModel session) async {
+    final completer = Completer<List<UserDB>>();
+    final members = Groups.sharedInstance.groups[session.groupId]?.members;
+    if (members == null) {
+      completer.complete([]);
+    } else {
+      Account.sharedInstance.getUserInfos(members).then((users) {
+        completer.complete(users.values.toList());
+      });
+    }
+    return completer.future;
   }
 }
 

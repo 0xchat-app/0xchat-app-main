@@ -14,6 +14,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../../utils/widget_tool.dart';
 
@@ -99,7 +100,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Join Requests',
+        title: Localized.text('ox_chat.join_request'),
         backgroundColor: ThemeColor.color190,
       ),
       body: Container(
@@ -151,7 +152,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${userInfo.userName} request jion',
+                    Localized.text('ox_request_join_item_text').replaceAll(r'${name}', '${userInfo.userName}'),
                     style: TextStyle(
                       color: ThemeColor.color0,
                       fontSize: Adapt.px(16),
@@ -236,7 +237,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         },
         child: Container(
           child: Text(
-            'Show more',
+            Localized.text('ox_chat.request_join_show_more'),
             style: TextStyle(
               color: ThemeColor.purple2,
               fontSize: Adapt.px(14),
@@ -261,7 +262,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              'no requests',
+              Localized.text('ox_chat.request_join_no_data'),
               14,
               ThemeColor.gray02,
             ),
@@ -279,7 +280,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           Expanded(
             child: GestureDetector(
               onTap: () => _userRequestDialog(
-                'Confirm whether to ignore the member',
+                Localized.text('ox_chat.request_join_ignore_member'),
                 () => _requestJoinOption(
                     userInfo.messageDB, ERequestsOption.ignore),
               ),
@@ -297,7 +298,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
                   vertical: Adapt.px(5),
                 ),
                 child: Text(
-                  'Ignore',
+                  Localized.text('ox_chat.ignore_text'),
                 ),
               ),
             ),
@@ -308,7 +309,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           Expanded(
             child: GestureDetector(
               onTap: () => _userRequestDialog(
-                'Confirm whether to accept the member',
+                Localized.text('ox_chat.request_join_accept_member'),
                 () => _requestJoinOption(
                     userInfo.messageDB, ERequestsOption.accept),
               ),
@@ -329,7 +330,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
                   vertical: Adapt.px(5),
                 ),
                 child: Text(
-                  'Accept',
+                  Localized.text('ox_chat.accept_text'),
                 ),
               ),
             ),
@@ -348,7 +349,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
         }),
-        OXCommonHintAction.sure(text: 'confirm', onTap: callback),
+        OXCommonHintAction.sure(text: Localized.text('ox_common.confirm'), onTap: callback),
       ],
       isRowAction: true,
     );
@@ -368,7 +369,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     draftList.removeWhere((userInfo) => userInfo.messageDB == messageDB);
     requestUserList = draftList;
 
-    CommonToast.instance.show(context, 'Successful operation');
+    CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     OXNavigator.pop(context);
     setState(() {});
   }

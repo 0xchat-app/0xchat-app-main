@@ -86,7 +86,13 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
     final storagePermission = await PermissionUtils.getPhotosPermission();
     if(storagePermission){
       OXLoading.show();
-      imgFile = await ImagePickerUtils.getImageFromGallery();
+      final res = await ImagePickerUtils.pickerPaths(
+        galleryMode: GalleryMode.image,
+        selectCount: 1,
+        showGif: false,
+        compressSize: 2048,
+      );
+      imgFile = (res == null || res[0].path == null) ? null : File(res[0].path ?? '');
       OXLoading.dismiss();
     } else {
       CommonToast.instance.show(context, 'Please grant permission to access the photo');
@@ -99,7 +105,12 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
     Map<Permission, PermissionStatus> statuses = await [Permission.camera].request();
     if (statuses[Permission.camera]!.isGranted) {
       OXLoading.show();
-      imgFile = await ImagePickerUtils.getImageFromCamera();
+      Media? res = await ImagePickerUtils.openCamera(
+        cameraMimeType: CameraMimeType.photo,
+        compressSize: 1024,
+      );
+      if(res == null) return imgFile;
+      imgFile = File(res.path ?? '');
       OXLoading.dismiss();
     } else {
       PermissionUtils.showPermission(context, statuses);

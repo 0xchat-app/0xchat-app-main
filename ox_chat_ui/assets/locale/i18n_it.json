@@ -6,6 +6,8 @@
   "input_more_call": "Chiama",
   "input_more_zaps": "Zaps",
   "channel_join": "Unisciti al Canale",
+  "group_join": "Unirsi al gruppo",
+  "group_request": "Richiesta di unirsi al gruppo",
   "channel_badge_requirements": "L'invio di messaggi in questo canale ha requisiti di badge",
   "friend_requirements": "Impossibile inviare messaggi, poiché non sono più un amico",
   "giphy_emoji": "Emoji",

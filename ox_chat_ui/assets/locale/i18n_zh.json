@@ -6,6 +6,8 @@
   "input_more_call": "呼叫",
   "input_more_zaps": "打闪",
   "channel_join": "加入频道",
+  "group_join": "加入群聊",
+  "group_request": "请求加入群聊",
   "channel_badge_requirements": "在此频道内发送消息需要徽章要求",
   "friend_requirements": "由于对方已不再是您的朋友，无法发送消息",
   "giphy_emoji": "表情符号",
