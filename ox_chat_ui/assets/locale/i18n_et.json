@@ -6,6 +6,8 @@
   "input_more_call": "Kõne",
   "input_more_zaps": "Zaps",
   "channel_join": "Liitu Kanaliga",
+  "group_join": "Liitu grupiga",
+  "group_request": "Soov liituda grupiga",
   "channel_badge_requirements": "Selles kanalis sõnumite saatmiseks on vajalik märkmete nõue",
   "friend_requirements": "Sõnumite saatmine pole võimalik, kuna nad pole enam sõbrad",
   "giphy_emoji": "Emotikonid",

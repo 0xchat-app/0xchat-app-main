@@ -6,6 +6,8 @@
   "input_more_call": "통화",
   "input_more_zaps": "잡스",
   "channel_join": "채널 참여",
+  "group_join": "그룹 참여",
+  "group_request": "그룹 가입 요청",
   "channel_badge_requirements": "이 채널에서 메시지를 보내려면 배지 필요",
   "friend_requirements": "더 이상 친구가 아니라 메시지를 보낼 수 없습니다",
   "giphy_emoji": "이모티콘",

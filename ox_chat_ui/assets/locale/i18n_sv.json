@@ -6,6 +6,8 @@
   "input_more_call": "Ring",
   "input_more_zaps": "Zaps",
   "channel_join": "Gå med i Kanalen",
+  "group_join": "Gå med i gruppen",
+  "group_request": "Begäran om att gå med i gruppen",
   "channel_badge_requirements": "Det krävs badge för att skicka meddelanden i den här kanalen",
   "friend_requirements": "Det går inte att skicka meddelanden, eftersom de inte längre är en vän",
   "giphy_emoji": "Emojis",

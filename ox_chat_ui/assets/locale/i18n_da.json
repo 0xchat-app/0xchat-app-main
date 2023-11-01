@@ -6,6 +6,8 @@
   "input_more_call": "Opkald",
   "input_more_zaps": "Zaps",
   "channel_join": "Tilmeld dig kanalen",
+  "group_join": "Deltag i gruppen",
+  "group_request": "Anmodning om at deltage i gruppen",
   "channel_badge_requirements": "Kravene til at sende beskeder i denne kanal er badge-krav",
   "friend_requirements": "Det er ikke muligt at sende beskeder, da de ikke længere er venner",
   "giphy_emoji": "Emojis",

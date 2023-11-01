@@ -6,6 +6,8 @@
   "input_more_call": "Appel",
   "input_more_zaps": "Zaps",
   "channel_join": "Rejoindre le canal",
+  "group_join": "Rejoindre le groupe",
+  "group_request": "Demande pour rejoindre le groupe",
   "channel_badge_requirements": "Envoyer des messages dans ce canal nécessite un badge",
   "friend_requirements": "Impossible d'envoyer un message, n'est plus un ami",
   "giphy_emoji": "Émojis",

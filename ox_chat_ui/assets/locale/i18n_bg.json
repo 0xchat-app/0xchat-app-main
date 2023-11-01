@@ -6,6 +6,8 @@
   "input_more_call": "Обаждане",
   "input_more_zaps": "Zaps",
   "channel_join": "Присъединете се към канала",
+  "group_join": "Присъедини се към групата",
+  "group_request": "Искане за присъединяване към групата",
   "channel_badge_requirements": "Изпращането на съобщения в този канал изисква значка",
   "friend_requirements": "Не може да се изпращат съобщения, тъй като вече не са приятели",
   "giphy_emoji": "Емоджита",

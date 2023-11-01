@@ -6,6 +6,8 @@
   "input_more_call": "Panggilan",
   "input_more_zaps": "Zaps",
   "channel_join": "Bergabung dengan Saluran",
+  "group_join": "Bergabung dengan grup",
+  "group_request": "Permintaan untuk bergabung dengan grup",
   "channel_badge_requirements": "Mengirim pesan di saluran ini memiliki persyaratan badge",
   "friend_requirements": "Tidak dapat mengirim pesan, karena mereka bukan teman lagi",
   "giphy_emoji": "Emoji",

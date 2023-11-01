@@ -6,6 +6,8 @@
   "input_more_call": "โทร",
   "input_more_zaps": "แซปส์",
   "channel_join": "เข้าร่วมช่อง",
+  "group_join": "เข้าร่วมกลุ่ม",
+  "group_request": "ขอเข้าร่วมกลุ่ม",
   "channel_badge_requirements": "การส่งข้อความในช่องนี้ต้องมีเหรียญ",
   "friend_requirements": "ไม่สามารถส่งข้อความ เนื่องจากไม่เป็นเพื่อนแล้ว",
   "giphy_emoji": "อิโมจิ",

@@ -6,6 +6,8 @@
   "input_more_call": "Дзвінок",
   "input_more_zaps": "Zaps",
   "channel_join": "Приєднатися до каналу",
+  "group_join": "Приєднатися до групи",
+  "group_request": "Запит на приєднання до групи",
   "channel_badge_requirements": "Відправлення повідомлень на цьому каналі вимагає значків",
   "friend_requirements": "Неможливо відправити повідомлення, оскільки вони вже не є друзями",
   "giphy_emoji": "Емодзі",

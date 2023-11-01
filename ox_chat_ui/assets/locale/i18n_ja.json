@@ -6,6 +6,8 @@
   "input_more_call": "通話",
   "input_more_zaps": "ザップス",
   "channel_join": "チャンネルに参加",
+  "group_join": "グループに参加",
+  "group_request": "グループへの参加リクエスト",
   "channel_badge_requirements": "このチャンネルでメッセージを送るにはバッジが必要です",
   "friend_requirements": "友達ではなくなったため、メッセージを送れません",
   "giphy_emoji": "絵文字",

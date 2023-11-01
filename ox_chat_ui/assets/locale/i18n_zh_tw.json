@@ -6,6 +6,8 @@
   "input_more_call": "通話",
   "input_more_zaps": "打電",
   "channel_join": "加入頻道",
+  "group_join": "加入群組",
+  "group_request": "請求加入群組",
   "channel_badge_requirements": "在此頻道內發送訊息需有徽章要求",
   "friend_requirements": "由於對方已非您的朋友，無法發送訊息",
   "giphy_emoji": "表情符號",
