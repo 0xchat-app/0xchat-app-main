@@ -47,6 +47,7 @@ class OXCommon extends OXFlutterModule {
   };
 
   static const MethodChannel channel = const MethodChannel('$CommonModule');
+  static const MethodChannel channelPreferences = const MethodChannel('com.oxchat.global/perferences');
 
   static Future<String> get platformVersion async {
     final String version = await channel.invokeMethod('getPlatformVersion');
