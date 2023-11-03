@@ -409,7 +409,7 @@ class InputState extends State<Input>{
   void _handleSendPressed() async {
     final trimmedText = _textController.text.trim();
     if (trimmedText.isNotEmpty) {
-      final partialText = types.PartialText(text: _textController.text);
+      final partialText = types.PartialText(text: trimmedText);
       await widget.onSendPressed(partialText);
 
       if (widget.options.inputClearMode == InputClearMode.always) {
