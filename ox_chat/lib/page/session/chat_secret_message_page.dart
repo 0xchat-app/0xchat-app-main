@@ -271,6 +271,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
+        customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
         inputOptions: chatGeneralHandler.inputOptions,
