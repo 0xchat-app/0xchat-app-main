@@ -4,8 +4,9 @@ import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:flutter_chat_types/src/message.dart' as UIMessage;
+import 'package:flutter_chat_types/src/preview_data.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
@@ -21,9 +22,10 @@ abstract class MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   });
 }
 
@@ -35,11 +37,13 @@ class TextMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final text = contentModel.content ?? '';
+
     return types.TextMessage(
       author: author,
       createdAt: timestamp,
@@ -50,6 +54,7 @@ class TextMessageFactory implements MessageFactory {
       text: text,
       status: status,
       repliedMessage: repliedMessage,
+      previewData: previewData != null ? PreviewData.fromJson(jsonDecode(previewData)) : null
     );
   }
 }
@@ -62,9 +67,10 @@ class ImageMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -94,9 +100,10 @@ class AudioMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -127,9 +134,10 @@ class VideoMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final uri = contentModel.content;
     final snapshotUrl = '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
@@ -163,9 +171,10 @@ class CallMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final contentString = contentModel.content;
     if (contentString == null) return null;
@@ -243,9 +252,10 @@ class SystemMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     var text = contentModel.content ?? '';
     final key = text;
@@ -275,9 +285,10 @@ class CustomMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData
   }) {
     final contentString = contentModel.content;
     if (contentString == null) return null;

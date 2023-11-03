@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:uuid/uuid.dart';
@@ -322,6 +323,10 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     if (chatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
       return ;
+    }
+
+    if(message is types.TextMessage && message.previewData != null){
+        await MessageDB.savePreviewData(message.id, jsonEncode(message.previewData?.toJson()));
     }
 
     await _updatePrivateChatMessages(chatKey, message);
