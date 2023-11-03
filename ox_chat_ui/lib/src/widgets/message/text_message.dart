@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
-    show LinkPreview, regexEmail, regexLink;
+    show LinkPreview, regexEmail, regexLink, regexNostr;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -248,6 +248,28 @@ class TextMessageText extends StatelessWidget {
           }
         },
         pattern: regexLink,
+        style: bodyLinkTextStyle ??
+            bodyTextStyle.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+      ),
+      MatchText(
+        onTap: (urlText) async {
+          ///https://njump.nostr.wine/npub1qcmnx8qmnz75l6jq7jklk2zgsfc25jtjkk6vu29esjc3rxz8famsh04u92
+          urlText = urlText.replaceFirst('nostr:', 'https://njump.nostr.wine/');
+          if (options.onLinkPressed != null) {
+            options.onLinkPressed!(urlText);
+          } else {
+            final url = Uri.tryParse(urlText);
+            if (url != null && await canLaunchUrl(url)) {
+              await launchUrl(
+                url,
+                mode: LaunchMode.externalApplication,
+              );
+            }
+          }
+        },
+        pattern: regexNostr,
         style: bodyLinkTextStyle ??
             bodyTextStyle.copyWith(
               decoration: TextDecoration.underline,

@@ -270,3 +270,5 @@ const regexImageContentType = r'image\/*';
 /// Regex to find all links in the text.
 const regexLink =
     r'((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?';
+
+const regexNostr = r'nostr:(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
