@@ -12,6 +12,8 @@ import '../state/inherited_chat_theme.dart';
 import '../state/inherited_user.dart';
 import 'user_name.dart';
 
+const njumpURL = 'https://njump.nostr.wine/';
+
 /// A class that represents text message widget with optional link preview.
 class TextMessage extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class.
@@ -67,11 +69,19 @@ class TextMessage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     if (usePreviewData && onPreviewDataFetched != null) {
-      final urlRegexp = RegExp(regexLink, caseSensitive: false);
-      final matches = urlRegexp.allMatches(message.text);
+      var urlRegexp = RegExp(regexLink, caseSensitive: false);
+      var matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
         return _linkPreview(user, width, context);
+      }
+
+      urlRegexp = RegExp(regexNostr, caseSensitive: false);
+      matches = urlRegexp.allMatches(message.text);
+
+      if (matches.isNotEmpty) {
+        final text = message.text.replaceFirst('nostr:', njumpURL);
+        return _linkPreview(user, width, context, text: text);
       }
     }
 
@@ -88,6 +98,7 @@ class TextMessage extends StatelessWidget {
     types.User user,
     double width,
     BuildContext context,
+      {String? text}
   ) {
     final theme = InheritedChatTheme.of(context).theme;
     final linkDescriptionTextStyle = user.id == message.author.id
@@ -111,7 +122,7 @@ class TextMessage extends StatelessWidget {
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
-      text: message.text,
+      text: text ?? message.text,
       textWidget: _textWidgetBuilder(user, context, false),
       userAgent: userAgent,
       width: width,
@@ -255,8 +266,7 @@ class TextMessageText extends StatelessWidget {
       ),
       MatchText(
         onTap: (urlText) async {
-          ///https://njump.nostr.wine/npub1qcmnx8qmnz75l6jq7jklk2zgsfc25jtjkk6vu29esjc3rxz8famsh04u92
-          urlText = urlText.replaceFirst('nostr:', 'https://njump.nostr.wine/');
+          urlText = urlText.replaceFirst('nostr:', njumpURL);
           if (options.onLinkPressed != null) {
             options.onLinkPressed!(urlText);
           } else {
