@@ -59,24 +59,13 @@ class ScanUtils {
     if (tempMap == null) {
       return;
     }
-    bool notSame = true;
     List<String> relaysList =
         (tempMap['relays'] as List<dynamic>).cast<String>();
     String willAddRelay = '';
-    if (relaysList.isEmpty) {
-      notSame = false;
-    } else {
-      for (String tempRelay in relaysList) {
-        for (String localRelay
-            in OXRelayManager.sharedInstance.relayAddressList) {
-          if (localRelay == tempRelay) {
-            notSame = false;
-          }
-        }
-      }
+    if (relaysList.isNotEmpty) {
+      willAddRelay = OXRelayManager.sharedInstance.relayAddressList.contains(relaysList[0]) == false ? relaysList[0] : '';
     }
-    if (notSame) {
-      willAddRelay = relaysList[0];
+    if (willAddRelay.isNotEmpty) {
       OXCommonHintDialog.show(context,
           content: 'scan_find_not_same_hint'
               .commonLocalized()
