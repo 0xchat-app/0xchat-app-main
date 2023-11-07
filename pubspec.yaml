@@ -85,6 +85,11 @@ dev_dependencies:
 
 dependency_overrides:
   collection: ^1.18.0
+  sqflite:
+    git:
+      url: https://www.github.com/davidmartos96/sqflite_sqlcipher.git
+      path: sqflite
+      ref: fmdb_override
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
