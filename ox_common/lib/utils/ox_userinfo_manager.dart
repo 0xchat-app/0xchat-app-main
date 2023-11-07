@@ -59,7 +59,16 @@ class OXUserInfoManager {
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     DB.sharedInstance.deleteDBIfNeedMirgration = false;
-    await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
+    String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
+    if(dbpw == null || dbpw.isEmpty){
+      dbpw = generateStrongPassword(16);
+      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
+      await DB.sharedInstance.cipherMigrate(pubkey + ".db2", CommonConstant.dbVersion, dbpw);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
+    }
+    else{
+      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
+    }
   }
 
   Future initLocalData() async {
