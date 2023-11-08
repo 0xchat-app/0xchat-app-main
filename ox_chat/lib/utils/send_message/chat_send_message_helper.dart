@@ -31,7 +31,8 @@ class ChatSendMessageHelper {
 
     // create chat sender strategy
     final senderStrategy = ChatStrategyFactory.getStrategy(session);
-
+    // for test
+    // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
     // prepare send event
     Event? event;
     var plaintEvent = message.sourceKey;
@@ -58,6 +59,7 @@ class ChatSendMessageHelper {
     final sendMsg = message.copyWith(
       id: event.id,
       sourceKey: sourceKey,
+      expiration: senderStrategy.session.expiration,
     );
 
     ChatLogUtils.info(

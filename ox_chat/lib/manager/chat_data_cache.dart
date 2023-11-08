@@ -215,7 +215,7 @@ class ChatDataCache with OXChatObserver {
       receiverPubkey,
       '',
       type,
-      contentString, 
+      contentString,
       null,
     );
 
@@ -272,6 +272,22 @@ class ChatDataCache with OXChatObserver {
       if (!sendFinish.value) {
         _updateMessageStatus(message, types.Status.sending, key);
       }
+    });
+  }
+}
+
+extension ChatDataCacheExpiration on ChatDataCache {
+  Future<void> scheduleExpirationTask(ChatTypeKey key, types.Message message) async {
+    int? expiration = message.expiration;
+    if(expiration == null || expiration == 0) return;
+    DateTime time = DateTime.fromMillisecondsSinceEpoch(expiration * 1000);
+    var duration = time.difference(DateTime.now());
+    if (duration.isNegative) {
+      return;
+    }
+    Timer(duration, () async {
+      await _removeChatMessages(key, message);
+      await notifyChatObserverValueChanged(key);
     });
   }
 }
@@ -426,11 +442,17 @@ extension ChatDataCacheEx on ChatDataCache {
     }
 
     List<MessageDB> allMessage = result;
+    List<String> expiredMessages = [];
     await Future.forEach(allMessage, (message) async {
+      if(message.expiration != null && message.expiration! > DateTime.now().millisecondsSinceEpoch ~/ 1000){
+        expiredMessages.add(message.messageId);
+        return;
+      }
       final key = _getChatTypeKeyWithMessage(message);
       if (key == null) return ;
       await _distributeMessageToChatKey(key, message);
     });
+    Messages.deleteMessagesFromDB(messageIds: expiredMessages);
   }
 
   Future _distributeMessageToChatKey(ChatTypeKey key, MessageDB message) async {
@@ -465,14 +487,14 @@ extension ChatDataCacheEx on ChatDataCache {
     return msgList;
   }
 
-  Future<void> _addChatMessages(ChatTypeKey key, types.Message message,  { bool waitSetup = true }) async {
+  Future<void> _addChatMessages(ChatTypeKey key, types.Message message, { bool waitSetup = true }) async {
 
     final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
 
     if (!messageIdCache.add(message.id)) return ;
 
     _addMessageToList(msgList, message);
-
+    scheduleExpirationTask(key, message);
     await notifyChatObserverValueChanged(key);
   }
 

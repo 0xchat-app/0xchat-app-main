@@ -26,6 +26,7 @@ abstract class SystemMessage extends Message {
     required this.text,
     MessageType? type,
     super.updatedAt,
+    super.expiration,
   }) : super(type: type ?? MessageType.system);
 
   factory SystemMessage({
@@ -42,6 +43,7 @@ abstract class SystemMessage extends Message {
     required String text,
     MessageType? type,
     int? updatedAt,
+    int? expiration,
   }) = _SystemMessage;
 
   /// Creates a custom message from a map (decoded JSON).
@@ -68,6 +70,7 @@ abstract class SystemMessage extends Message {
         status,
         text,
         updatedAt,
+        expiration,
       ];
 
   @override
@@ -85,6 +88,7 @@ abstract class SystemMessage extends Message {
     String? text,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    int? expiration,
   });
 
   /// Converts a custom message to the map representation,
@@ -109,6 +113,7 @@ class _SystemMessage extends SystemMessage {
     required super.text,
     super.type,
     super.updatedAt,
+    super.expiration,
   }) : super._();
 
   @override
@@ -126,6 +131,7 @@ class _SystemMessage extends SystemMessage {
     String? text,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    int? expiration,
   }) =>
       _SystemMessage(
         author: author ?? this.author,
@@ -145,6 +151,7 @@ class _SystemMessage extends SystemMessage {
         status: status == _Unset ? this.status : status as Status?,
         text: text ?? this.text,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
+        expiration: expiration ?? this.expiration,
       );
 }
 

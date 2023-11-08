@@ -200,7 +200,8 @@ extension MessageDBToUIEx on MessageDB {
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
       repliedMessage: repliedMessage,
-      previewData: this.previewData
+      previewData: this.previewData,
+      expiration: this.expiration,
     );
   }
 
