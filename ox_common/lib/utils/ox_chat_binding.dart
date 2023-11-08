@@ -156,6 +156,7 @@ class OXChatBinding {
     String? draft,
     int? messageKind,
     bool? isMentioned,
+    int? expiration
   }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId];
@@ -194,6 +195,10 @@ class OXChatBinding {
       }
       if (messageKind != null && sessionModel.messageKind != messageKind) {
         sessionModel.messageKind = messageKind;
+        isChange = true;
+      }
+      if (expiration != null && sessionModel.expiration != expiration) {
+        sessionModel.expiration = expiration;
         isChange = true;
       }
       if (isChange) {
