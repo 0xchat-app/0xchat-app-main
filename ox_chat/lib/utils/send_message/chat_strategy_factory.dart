@@ -1,4 +1,3 @@
-
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
@@ -20,7 +19,7 @@ class ChatStrategyFactory {
       case ChatType.chatStranger:
       case ChatType.chatSecretStranger:
         return PrivateChatStrategy(session);
-      default :
+      default:
         ChatLogUtils.error(
           className: 'ChatSendMessageHelper',
           funcName: 'sendMessage',
@@ -32,15 +31,16 @@ class ChatStrategyFactory {
 }
 
 abstract class ChatStrategy {
-
   ChatSessionModel get session;
 
   String get receiverId => session.chatId;
 
   String get receiverPubkey =>
-      (session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
+      (session.receiver !=
+              OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
           ? session.receiver
-          : session.sender) ?? '';
+          : session.sender) ??
+      '';
 
   String get encryptedKey;
 
@@ -57,15 +57,13 @@ abstract class ChatStrategy {
     bool isLocal = false,
     Event? event,
   });
-
 }
 
 class ChannelChatStrategy extends ChatStrategy {
-
   final ChatSessionModel session;
 
   ChannelChatStrategy(this.session);
-  
+
   @override
   String get receiverId => session.chatId.orDefault(session.groupId ?? '');
 
@@ -106,7 +104,6 @@ class ChannelChatStrategy extends ChatStrategy {
 }
 
 class GroupChatStrategy extends ChatStrategy {
-
   final ChatSessionModel session;
 
   GroupChatStrategy(this.session);
@@ -151,7 +148,6 @@ class GroupChatStrategy extends ChatStrategy {
 }
 
 class PrivateChatStrategy extends ChatStrategy {
-
   final ChatSessionModel session;
 
   PrivateChatStrategy(this.session);
@@ -171,14 +167,11 @@ class PrivateChatStrategy extends ChatStrategy {
     required String contentString,
     required String replayId,
   }) async {
-    final messageKind = session.messageKind;
-    if (messageKind != null) {
-      return await Contacts.sharedInstance.getSendMessageEvent(receiverId, replayId, messageType, contentString, kind: messageKind);
-    } else {
-      return await Contacts.sharedInstance.getSendMessageEvent(receiverId, replayId, messageType, contentString);
-    }
+    return await Contacts.sharedInstance.getSendMessageEvent(
+        receiverId, replayId, messageType, contentString,
+        kind: session.messageKind, expiration: session.expiration);
   }
-  
+
   @override
   Future doSendMessageAction({
     required MessageType messageType,
@@ -193,13 +186,14 @@ class PrivateChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       event: event,
+      kind: session.messageKind,
+      expiration: session.expiration,
       local: isLocal,
     );
   }
 }
 
 class SecretChatStrategy extends ChatStrategy {
-
   final ChatSessionModel session;
 
   SecretChatStrategy(this.session);
@@ -225,9 +219,10 @@ class SecretChatStrategy extends ChatStrategy {
       replayId,
       messageType,
       contentString,
+      session.expiration,
     );
   }
-  
+
   @override
   Future doSendMessageAction({
     required MessageType messageType,
@@ -236,8 +231,7 @@ class SecretChatStrategy extends ChatStrategy {
     bool isLocal = false,
     Event? event,
   }) async {
-    return Contacts.sharedInstance
-        .sendSecretMessage(
+    return Contacts.sharedInstance.sendSecretMessage(
       receiverId,
       receiverPubkey,
       replayId,

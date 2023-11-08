@@ -215,7 +215,8 @@ class ChatDataCache with OXChatObserver {
       receiverPubkey,
       '',
       type,
-      contentString,
+      contentString, 
+      null,
     );
 
     if (event == null) {
