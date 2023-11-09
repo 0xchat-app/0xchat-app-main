@@ -246,6 +246,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>oxchat</string>
+				<string>nostr+walletconnect</string>
 			</array>
 		</dict>
 	</array>
