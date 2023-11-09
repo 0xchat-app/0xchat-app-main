@@ -22,6 +22,8 @@ abstract class ConstantInterface {
 
   String get APP_SCHEME => 'oxchat://';
 
+  String get NWC_SCHEME => 'nostr+walletconnect://';
+
   /// share app link domain
   String get SHARE_APP_LINK_DOMAIN => 'https://www.0xchat.com/link/';
 
