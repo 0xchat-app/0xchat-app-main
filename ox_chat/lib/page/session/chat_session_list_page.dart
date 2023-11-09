@@ -98,8 +98,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
       'getAppOpenURL',
     );
-    if (jumpInfo.isNotEmpty) {
+    if(jumpInfo.isEmpty) return;
+    if(jumpInfo.startsWith(CommonConstant.APP_SCHEME)) {
       ScanUtils.analysis(context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
+    }
+    else{
+      ScanUtils.analysis(context, jumpInfo);
     }
   }
 
