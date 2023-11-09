@@ -332,13 +332,11 @@ class _ZapsPageState extends State<ZapsPage> {
 
   void _gotoScan() async {
     if (await Permission.camera.request().isGranted) {
-      // String? result =
-      // await OXNavigator.pushPage(context, (context) => CommonScanPage());
-      ScanUtils.analysis(context, 'nostr+walletconnect://69effe7b49a6dd5cf525bd0905917a5005ffe480b58eeb8e861418cf3ae760d9?relay=wss://relay.getalby.com/v1&secret=8b4436515ca05d2373d5d9a45f4a53b1be9d0857643e0323e9495716dce212e8&lud16=0xchat@getalby.com');
-
-      // if (result != null) {
-      //   ScanUtils.analysis(context, result);
-      // }
+      String? result =
+      await OXNavigator.pushPage(context, (context) => CommonScanPage());
+      if (result != null) {
+        ScanUtils.analysis(context, result);
+      }
     } else {
       OXCommonHintDialog.show(context,
           content: Localized.text('yl_home.str_permission_camera_hint'),
