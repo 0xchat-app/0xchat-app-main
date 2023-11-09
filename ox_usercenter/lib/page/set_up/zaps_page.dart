@@ -8,13 +8,19 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/zaps_record.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:ox_common/widgets/common_scan_page.dart';
+import 'package:ox_common/utils/scan_utils.dart';
+
 
 ///Title: zaps_page
 ///Description: TODO(Fill in by oneself)
@@ -46,18 +52,21 @@ class _ZapsPageState extends State<ZapsPage> {
 
   Future<void> _initData() async {
     pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    _selectedWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet') ?? Localized.text('ox_usercenter.not_set_wallet_status');
-    _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector') ?? true;
+    _selectedWalletName = await OXCacheManager.defaultOXCacheManager
+            .getForeverData('$pubKey.defaultWallet') ??
+        Localized.text('ox_usercenter.not_set_wallet_status');
+    _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager
+            .getForeverData('$pubKey.isShowWalletSelector') ??
+        true;
     // _defaultZapAmount = await YLCacheManager.defaultYLCacheManager.getForeverData('$pubKey.defaultZapAmount');
     _zapsRecord = await getZapsRecord();
     // _focusNode.addListener(() {
-      // if(!_focusNode.hasFocus){
-      //   double defaultZapAmount = double.parse(_zapAmountTextEditingController.text);
-      //   YLCacheManager.defaultYLCacheManager.saveForeverData('$pubKey.defaultZapAmount',defaultZapAmount);
-      // }
+    // if(!_focusNode.hasFocus){
+    //   double defaultZapAmount = double.parse(_zapAmountTextEditingController.text);
+    //   YLCacheManager.defaultYLCacheManager.saveForeverData('$pubKey.defaultZapAmount',defaultZapAmount);
+    // }
     // });
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -73,37 +82,53 @@ class _ZapsPageState extends State<ZapsPage> {
         ),
         body: _body(),
       ),
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
     );
   }
 
   Widget _body() {
-    List<ZapsRecordDetail>  zapsRecordDetails= _zapsRecord?.list ?? [];
+    List<ZapsRecordDetail> zapsRecordDetails = _zapsRecord?.list ?? [];
     // String totalZaps = _totalZaps(_zapsRecord?.totalZaps ?? 0);
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _buildItem(label: Localized.text('ox_usercenter.zaps'),itemBody: Container(
-            width: double.infinity,
-            height: Adapt.px(104 + 0.5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Adapt.px(16)),
-              color: ThemeColor.color180,
+          _buildItem(
+            label: Localized.text('ox_usercenter.zaps'),
+            itemBody: Container(
+              width: double.infinity,
+              height: Adapt.px(104 + 0.5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Adapt.px(16)),
+                color: ThemeColor.color180,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildItemBody(
+                      title:
+                          Localized.text('ox_usercenter.show_wallet_selector'),
+                      isShowDivider: true,
+                      trailing: _buildWalletSelector(),
+                      isShowArrow: false),
+                  _buildItemBody(
+                      title:
+                          Localized.text('ox_usercenter.select_default_wallet'),
+                      flag: _selectedWalletName,
+                      onTap: () => _walletSelectorDialog()),
+                ],
+              ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildItemBody(title: Localized.text('ox_usercenter.show_wallet_selector'), isShowDivider: true,trailing: _buildWalletSelector(),isShowArrow: false),
-                _buildItemBody(title: Localized.text('ox_usercenter.select_default_wallet'), flag: _selectedWalletName,onTap: ()=>_walletSelectorDialog()),
-              ],
-            ),
-          ),),
+          ),
           // _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
           // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
-          zapsRecordDetails.isNotEmpty ? _buildItem(label: Localized.text('ox_usercenter.zaps_record'), itemBody: _buildZapsRecord()) : Container(),
+          zapsRecordDetails.isNotEmpty
+              ? _buildItem(
+                  label: Localized.text('ox_usercenter.zaps_record'),
+                  itemBody: _buildZapsRecord())
+              : Container(),
         ],
       ).setPadding(EdgeInsets.symmetric(
         horizontal: Adapt.px(24),
@@ -112,14 +137,19 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  Widget _zapAmountView({String? hitText,TextEditingController? controller,bool? enable,FocusNode? focusNode}){
+  Widget _zapAmountView(
+      {String? hitText,
+      TextEditingController? controller,
+      bool? enable,
+      FocusNode? focusNode}) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color180,
       ),
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(16), vertical: Adapt.px(12)),
+      padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(16), vertical: Adapt.px(12)),
       child: TextField(
         readOnly: false,
         enabled: enable,
@@ -141,7 +171,13 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  Widget _buildItemBody({String? title, bool isShowDivider = false,Widget? trailing, String? flag, GestureTapCallback? onTap,bool isShowArrow = true}) {
+  Widget _buildItemBody(
+      {String? title,
+      bool isShowDivider = false,
+      Widget? trailing,
+      String? flag,
+      GestureTapCallback? onTap,
+      bool isShowArrow = true}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -154,40 +190,44 @@ class _ZapsPageState extends State<ZapsPage> {
             height: Adapt.px(52),
             padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
             child: Row(
-            children: [
-              Text(
-                title ?? '',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(16),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  width: Adapt.px(122),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      trailing ?? SizedBox(
-                        child: Text(
-                          flag ?? '',
-                          style: TextStyle(
-                            fontSize: Adapt.px(16),
-                            color: ThemeColor.color100,
-                          ),
-                        textAlign: TextAlign.end,
-                      ),
-                    ), isShowArrow ? CommonImage(
-                      iconName: 'icon_arrow_more.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                    ):Container(),
-                  ],
+              children: [
+                Text(
+                  title ?? '',
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: Adapt.px(16),
                   ),
                 ),
-              ),
-             ],
+                Expanded(
+                  child: SizedBox(
+                    width: Adapt.px(122),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        trailing ??
+                            SizedBox(
+                              child: Text(
+                                flag ?? '',
+                                style: TextStyle(
+                                  fontSize: Adapt.px(16),
+                                  color: ThemeColor.color100,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                        isShowArrow
+                            ? CommonImage(
+                                iconName: 'icon_arrow_more.png',
+                                width: Adapt.px(24),
+                                height: Adapt.px(24),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -202,8 +242,8 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  void _walletSelectorDialog(){
-    final height = MediaQuery.of(context).size.height - Adapt.px(56) - MediaQuery.of(context).padding.top;
+  void _walletSelectorDialog() {
+    final height = Adapt.px(56) * (_walletList.length + 1) + Adapt.px(8);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -220,7 +260,7 @@ class _ZapsPageState extends State<ZapsPage> {
                   color: ThemeColor.color180,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child:  SingleChildScrollView(
+                child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
@@ -275,7 +315,8 @@ class _ZapsPageState extends State<ZapsPage> {
                           child: Center(
                             child: Text(
                               Localized.text('ox_common.cancel'),
-                              style: TextStyle(fontSize: 16, color: ThemeColor.gray02),
+                              style: TextStyle(
+                                  fontSize: 16, color: ThemeColor.gray02),
                             ),
                           ),
                         ),
@@ -289,14 +330,142 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
+  void _gotoScan() async {
+    if (await Permission.camera.request().isGranted) {
+      // String? result =
+      // await OXNavigator.pushPage(context, (context) => CommonScanPage());
+      ScanUtils.analysis(context, 'nostr+walletconnect://69effe7b49a6dd5cf525bd0905917a5005ffe480b58eeb8e861418cf3ae760d9?relay=wss://relay.getalby.com/v1&secret=8b4436515ca05d2373d5d9a45f4a53b1be9d0857643e0323e9495716dce212e8&lud16=0xchat@getalby.com');
+
+      // if (result != null) {
+      //   ScanUtils.analysis(context, result);
+      // }
+    } else {
+      OXCommonHintDialog.show(context,
+          content: Localized.text('yl_home.str_permission_camera_hint'),
+          actionList: [
+            OXCommonHintAction(
+                text: () => Localized.text('yl_home.str_go_to_settings'),
+                onTap: () {
+                  openAppSettings();
+                  OXNavigator.pop(context);
+                })
+          ]);
+    }
+  }
+
+  Widget _nwcItemWidget(BuildContext context, int index) {
+    String walletName = index == 0 ? 'Connect to Alby Wallet' : 'Scan QR Code';
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () async {
+        OXNavigator.pop(context);
+        if(index == 0){
+          print('goto alby wallet');
+          OXNavigator.presentPage(
+            context,
+                (context) => CommonWebView(
+              'https://nwc.getalby.com/',
+              title: 'Alby - Nostr Wallet Connect',
+            ),
+            fullscreenDialog: true,
+          );
+        }
+        else if(index == 1){
+          print('goto qr code');
+          _gotoScan();
+        }
+      },
+      child: Container(
+        height: Adapt.px(56),
+        alignment: Alignment.center,
+        child: Text(
+          walletName,
+          style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
+        ),
+      ),
+    );
+  }
+
+  void _nwcSelectorDialog() {
+    final height = Adapt.px(56)*3 + Adapt.px(8);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Material(
+            type: MaterialType.transparency,
+            child: Opacity(
+              opacity: 1,
+              child: Container(
+                alignment: Alignment.topCenter,
+                height: Adapt.px(height),
+                decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      // height: Adapt.px(280),
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemBuilder: _nwcItemWidget,
+                        itemCount: 2,
+                        shrinkWrap: true,
+                      ),
+                    ),
+                    Container(
+                      height: Adapt.px(8),
+                      color: ThemeColor.color190,
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        OXNavigator.pop(context);
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: Adapt.px(56),
+                        color: ThemeColor.color180,
+                        child: Center(
+                          child: Text(
+                            Localized.text('ox_common.cancel'),
+                            style: TextStyle(
+                                fontSize: 16, color: ThemeColor.gray02),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ));
+      },
+    );
+  }
+
   Widget _itemWidget(BuildContext context, int index) {
     String walletName = _walletList[index].title;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
         OXNavigator.pop(context);
-        if(walletName != _selectedWalletName){
-          await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.defaultWallet', walletName);
+        print('$walletName, _selectedWalletName');
+        if (walletName != _selectedWalletName) {
+          if (walletName == 'NWC' &&
+              Account.sharedInstance.me?.nwcURI == null) {
+            // not set nwc before
+            _nwcSelectorDialog();
+            return;
+          }
+          await OXCacheManager.defaultOXCacheManager
+              .saveForeverData('$pubKey.defaultWallet', walletName);
         }
         setState(() {
           _selectedWalletName = walletName;
@@ -313,7 +482,7 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  Widget _buildItemLabel({required String label}){
+  Widget _buildItemLabel({required String label}) {
     return Container(
       alignment: Alignment.topLeft,
       child: Text(
@@ -327,18 +496,22 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  Widget _buildItem({required String label,required Widget itemBody}){
+  Widget _buildItem({required String label, required Widget itemBody}) {
     return Column(
       children: [
         _buildItemLabel(label: label),
-        SizedBox(height: Adapt.px(12),),
+        SizedBox(
+          height: Adapt.px(12),
+        ),
         itemBody,
-        SizedBox(height: Adapt.px(12),),
+        SizedBox(
+          height: Adapt.px(12),
+        ),
       ],
     );
   }
 
-  Widget _buildWalletSelector(){
+  Widget _buildWalletSelector() {
     return SizedBox(
       width: Adapt.px(36),
       height: Adapt.px(20),
@@ -349,9 +522,11 @@ class _ZapsPageState extends State<ZapsPage> {
         inactiveThumbColor: Colors.white,
         inactiveTrackColor: ThemeColor.color160,
         onChanged: (value) async {
-          if(!value){
-            if(_selectedWalletName ==  Localized.text('ox_usercenter.not_set_wallet_status')){
-              CommonToast.instance.show(context, Localized.text('ox_usercenter.not_set_wallet_tips'));
+          if (!value) {
+            if (_selectedWalletName ==
+                Localized.text('ox_usercenter.not_set_wallet_status')) {
+              CommonToast.instance.show(
+                  context, Localized.text('ox_usercenter.not_set_wallet_tips'));
               return;
             }
           }
@@ -359,7 +534,8 @@ class _ZapsPageState extends State<ZapsPage> {
           setState(() {
             _walletSwitchSelected = value;
           });
-          await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.isShowWalletSelector', value);
+          await OXCacheManager.defaultOXCacheManager
+              .saveForeverData('$pubKey.isShowWalletSelector', value);
         },
         materialTapTargetSize: MaterialTapTargetSize.padded,
       ),
@@ -367,8 +543,7 @@ class _ZapsPageState extends State<ZapsPage> {
   }
 
   Widget _buildZapsRecord() {
-
-    List<ZapsRecordDetail>  zapsRecordDetails= _zapsRecord?.list ?? [];
+    List<ZapsRecordDetail> zapsRecordDetails = _zapsRecord?.list ?? [];
 
     return Container(
       decoration: BoxDecoration(
@@ -381,7 +556,11 @@ class _ZapsPageState extends State<ZapsPage> {
         itemBuilder: (context, index) => _buildItemBody(
             title: '+${zapsRecordDetails[index].amount}',
             flag: zapsRecordDetails[index].zapsTimeFormat,
-            onTap: () => OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsRecordDetails[index],))),
+            onTap: () => OXNavigator.pushPage(
+                context,
+                (context) => ZapsRecordPage(
+                      zapsRecordDetail: zapsRecordDetails[index],
+                    ))),
         separatorBuilder: (context, index) => Divider(
           height: Adapt.px(0.5),
           color: ThemeColor.color160,
@@ -414,10 +593,14 @@ class _ZapsPageState extends State<ZapsPage> {
   }
 
   Future<ZapsRecord> getZapsRecord() async {
-    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    String pubKey =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXLoading.show();
     List<ZapRecordsDB?> zapRecordsDBList = await Zaps.loadZapRecordsFromDB(
-        where: "recipient = ?", whereArgs: [pubKey], orderBy: 'paidAt desc',limit: 50);
+        where: "recipient = ?",
+        whereArgs: [pubKey],
+        orderBy: 'paidAt desc',
+        limit: 50);
     await OXLoading.dismiss();
 
     List<ZapsRecordDetail> zapsRecordDetailList = [];
@@ -435,14 +618,13 @@ class _ZapsPageState extends State<ZapsPage> {
 
         zapsRecordDetailList.add(
           ZapsRecordDetail(
-            invoice: invoice,
-            amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
-            fromPubKey: '${fromUser?.name} (${fromUser?.shortEncodedPubkey})',
-            toPubKey: '${toUser?.name} (${toUser?.shortEncodedPubkey})',
-            zapsTime: paidAt,
-            description: zapRecordsDB.content,
-            isConfirmed: true
-          ),
+              invoice: invoice,
+              amount: (requestInfo.amount.toDouble() * 100000000).toInt(),
+              fromPubKey: '${fromUser?.name} (${fromUser?.shortEncodedPubkey})',
+              toPubKey: '${toUser?.name} (${toUser?.shortEncodedPubkey})',
+              zapsTime: paidAt,
+              description: zapRecordsDB.content,
+              isConfirmed: true),
         );
       }
     }
@@ -455,7 +637,7 @@ class _ZapsPageState extends State<ZapsPage> {
   }
 }
 
-class ZapsRecordRe{
+class ZapsRecordRe {
   String id;
   int stats;
   String from;
