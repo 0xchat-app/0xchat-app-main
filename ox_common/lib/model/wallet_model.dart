@@ -18,6 +18,12 @@ class WalletModel {
 
   static List<WalletModel> get wallets => List.from([
         WalletModel(
+            id: '1111111111',
+            appId: '1111111111',
+            title: 'NWC',
+            scheme: '',
+            image: 'icon_lighting_wallet_strike.png'),
+        WalletModel(
             id: '1488724463',
             appId: 'zapsolutions.strike',
             title: 'Strike',

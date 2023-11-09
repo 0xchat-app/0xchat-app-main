@@ -15,6 +15,8 @@ abstract class ConstantInterface {
   int get qrCodeChannel => 1;
   /// nevent: (2) Group QRCode;
   int get qrCodeGroup => 2;
+  /// nostr+walletconnect: (3) NWC
+  int get qrCodeNWC => 3;
 
   String get baseUrl => 'https://www.0xchat.com';
 
