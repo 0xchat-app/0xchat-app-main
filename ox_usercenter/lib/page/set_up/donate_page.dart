@@ -17,6 +17,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/product_list_entity.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
@@ -412,24 +413,8 @@ class _DonatePageState extends State<DonatePage> {
               } else {
                 await _getInvoice(donateItems[_selectIndex].sats);
               }
-              bool isShowWalletSelector = await getShowWalletSelector();
-              String defaultWalletName = await getDefaultWalletName();
-              if (isShowWalletSelector) {
-                showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (BuildContext context) {
-                      return ZapsInvoiceDialog(
-                        invoice: _invoice,
-                      );
-                    });
-              } else if (defaultWalletName.isNotEmpty) {
-                WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
-                _onTap(walletModel);
-              } else {
-                CommonToast.instance.show(context, "Please set the default wallet first");
+              await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {});
               }
-            }
           } catch (error) {
             return;
           }
@@ -545,23 +530,6 @@ class _DonatePageState extends State<DonatePage> {
       CommonToast.instance.show(context, message);
     }
     OXLoading.dismiss();
-  }
-
-  Future<bool> getShowWalletSelector() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('${_mCurrentUserInfo?.pubKey}.isShowWalletSelector') ?? true;
-  }
-
-  Future<String> getDefaultWalletName() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('${_mCurrentUserInfo?.pubKey}.defaultWallet') ?? '';
-  }
-
-  void _onTap(WalletModel walletModel) async {
-    String url = '${walletModel.scheme}$_invoice';
-    if (Platform.isIOS) {
-      LaunchThirdPartyApp.openWallet(url, walletModel.appStoreUrl ?? '', context: context);
-    } else if (Platform.isAndroid) {
-      LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl ?? '', context: context);
-    }
   }
 
   void _buyConsumable() async {
