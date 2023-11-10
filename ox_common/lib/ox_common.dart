@@ -73,7 +73,8 @@ class OXCommon extends OXFlutterModule {
 
   static Future<String> scanPath(String path) async {
     assert(path.isNotEmpty);
-    return await channel.invokeMethod('scan_path', {'path': path});
+    final String result = await channel.invokeMethod('scan_path', {'path': path});
+    return result;
   }
 
   @override
