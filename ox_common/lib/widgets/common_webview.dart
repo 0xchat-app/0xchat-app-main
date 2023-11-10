@@ -14,12 +14,15 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 
+typedef UrlCallBack = void Function(String);
+
 class CommonWebView extends StatefulWidget {
   final String url;
   final String? title;
   final bool hideAppbar;
+  final UrlCallBack? urlCallback;
 
-  CommonWebView(this.url, {this.title, this.hideAppbar = false});
+  CommonWebView(this.url, {this.title, this.hideAppbar = false, this.urlCallback});
 
   @override
   State<StatefulWidget> createState() {
@@ -117,6 +120,9 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
               showProgress = true;
             });
           }
+        },navigationDelegate: (navigationDelegate) async {
+          (widget as CommonWebView).urlCallback?.call(navigationDelegate.url);
+          return NavigationDecision.navigate;
         });
   }
 
