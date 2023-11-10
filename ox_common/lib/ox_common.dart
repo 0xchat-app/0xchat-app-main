@@ -71,7 +71,7 @@ class OXCommon extends OXFlutterModule {
     return deviceId;
   }
 
-  Future<String> scanPath(String path) async {
+  static Future<String> scanPath(String path) async {
     assert(path.isNotEmpty);
     return await channel.invokeMethod('scan_path', {'path': path});
   }
