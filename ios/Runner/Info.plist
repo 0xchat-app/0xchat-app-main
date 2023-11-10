@@ -247,7 +247,6 @@
 			<array>
 				<string>oxchat</string>
 				<string>nostr+walletconnect</string>
-				<string>nostr</string>
 			</array>
 		</dict>
 	</array>
