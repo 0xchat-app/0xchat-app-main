@@ -3,10 +3,9 @@ import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/relay_model.dart';
-import 'package:ox_common/model/scan_jump_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -16,6 +15,7 @@ import 'package:ox_common/utils//string_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_common/event_bus.dart';
 
 ///Title: scan_utils
 ///Description: TODO()
@@ -184,6 +184,12 @@ class ScanUtils {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 Zaps.sharedInstance.updateNWC(nwcURI);
+                await OXCacheManager.defaultOXCacheManager
+                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.isShowWalletSelector', false);
+                await OXCacheManager.defaultOXCacheManager
+                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.defaultWallet', 'NWC');
+                OXNavigator.pop(context);
+                CommonToast.instance.show(context, 'Success');
               }),
         ]);
   }
