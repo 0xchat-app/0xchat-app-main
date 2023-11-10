@@ -265,28 +265,6 @@ class _ZapsPageState extends State<ZapsPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      // GestureDetector(
-                      //   behavior: HitTestBehavior.translucent,
-                      //   onTap: (){
-                      //     YLNavigator.pop(context);
-                      //     setState(() {
-                      //       _selectedWalletName = 'Local default';
-                      //     });
-                      //   },
-                      //   child: Container(
-                      //     width: double.infinity,
-                      //     height: Adapt.px(56),
-                      //     alignment: Alignment.center,
-                      //     child: Text(
-                      //       'Default',
-                      //       style: TextStyle(fontSize: Adapt.px(16), color: Colors.white),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Container(
-                      //   height: Adapt.px(0.5),
-                      //   color: ThemeColor.color190,
-                      // ),
                       SizedBox(
                         width: double.infinity,
                         // height: Adapt.px(280),
@@ -358,18 +336,20 @@ class _ZapsPageState extends State<ZapsPage> {
       onTap: () async {
         OXNavigator.pop(context);
         if(index == 0){
-          print('goto alby wallet');
           OXNavigator.presentPage(
             context,
                 (context) => CommonWebView(
               'https://nwc.getalby.com/',
               title: 'Alby - Nostr Wallet Connect',
+                  urlCallback: (url){
+                      if(url.startsWith('nostr+walletconnect://'))
+                      ScanUtils.analysis(context!, url);
+                  },
             ),
             fullscreenDialog: true,
           );
         }
         else if(index == 1){
-          print('goto qr code');
           _gotoScan();
         }
       },
@@ -378,6 +358,33 @@ class _ZapsPageState extends State<ZapsPage> {
         alignment: Alignment.center,
         child: Text(
           walletName,
+          style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
+        ),
+      ),
+    );
+  }
+
+  Widget _nwcDisconnectWidget(BuildContext context, int index) {
+    String disconnect = 'Disconnect wallet';
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () async {
+        OXCommonHintDialog.show(context, showCancelButton: true, isRowAction: true,
+            content: Localized.text('ox_usercenter.disconnect_wallet_warning'),
+            actionList: [
+              OXCommonHintAction(
+                  text: () => Localized.text('ox_usercenter.disconnect_wallet_confirm'),
+                  onTap: () {
+                    OXNavigator.pop(context);
+                    Zaps.sharedInstance.disconnectNWC();
+                  })
+            ]);
+      },
+      child: Container(
+        height: Adapt.px(56),
+        alignment: Alignment.center,
+        child: Text(
+          disconnect,
           style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
         ),
       ),
@@ -448,20 +455,89 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
+  void _nwcDisconnectDialog() {
+    final height = Adapt.px(56)*2 + Adapt.px(8);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Material(
+            type: MaterialType.transparency,
+            child: Opacity(
+              opacity: 1,
+              child: Container(
+                alignment: Alignment.topCenter,
+                height: Adapt.px(height),
+                decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      // height: Adapt.px(280),
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemBuilder: _nwcDisconnectWidget,
+                        itemCount: 1,
+                        shrinkWrap: true,
+                      ),
+                    ),
+                    Container(
+                      height: Adapt.px(8),
+                      color: ThemeColor.color190,
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        OXNavigator.pop(context);
+                        setState(() async {
+                          _selectedWalletName = await OXCacheManager.defaultOXCacheManager
+                              .getForeverData('$pubKey.defaultWallet');
+                        });
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: Adapt.px(56),
+                        color: ThemeColor.color180,
+                        child: Center(
+                          child: Text(
+                            Localized.text('ox_common.cancel'),
+                            style: TextStyle(
+                                fontSize: 16, color: ThemeColor.gray02),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ));
+      },
+    );
+  }
+
   Widget _itemWidget(BuildContext context, int index) {
     String walletName = _walletList[index].title;
+    String showName = walletName;
+    if (walletName == 'NWC' && Account.sharedInstance.me?.nwcURI != null){
+      showName = '${walletName} (${Account.sharedInstance.me?.nwc?.lud16 ?? 'Connected'})';
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
         OXNavigator.pop(context);
-        print('$walletName, _selectedWalletName');
+        if(walletName == 'NWC'){
+          if(Account.sharedInstance.me?.nwcURI == null) _nwcSelectorDialog();
+          else _nwcDisconnectDialog();
+        }
         if (walletName != _selectedWalletName) {
-          if (walletName == 'NWC' &&
-              Account.sharedInstance.me?.nwcURI == null) {
-            // not set nwc before
-            _nwcSelectorDialog();
-            return;
-          }
           await OXCacheManager.defaultOXCacheManager
               .saveForeverData('$pubKey.defaultWallet', walletName);
         }
@@ -473,7 +549,7 @@ class _ZapsPageState extends State<ZapsPage> {
         height: Adapt.px(56),
         alignment: Alignment.center,
         child: Text(
-          walletName,
+          showName,
           style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color0),
         ),
       ),
