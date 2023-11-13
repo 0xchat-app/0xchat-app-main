@@ -23,7 +23,7 @@ import 'package:ox_common/event_bus.dart';
 ///@author George
 ///CreateTime: 2021/5/31 3:03 PM
 class ScanUtils {
-  static void analysis(BuildContext context, String url) {
+  static Future<void> analysis(BuildContext context, String url) async {
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {
       CommonToast.instance.show(context, 'please_sign_in'.commonLocalized());
@@ -48,12 +48,11 @@ class ScanUtils {
         url.startsWith('nostr:note') ||
         url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
-      ChannelDB? channelDB =
-          Channels.sharedInstance.channels[tempMap?['channelId']];
-      if (channelDB != null) {
-        type = CommonConstant.qrCodeChannel;
-      } else {
+      if(Groups.sharedInstance.groups.containsKey(tempMap?['channelId'])){
         type = CommonConstant.qrCodeGroup;
+      }
+      else{
+        type = CommonConstant.qrCodeChannel;
       }
     } else if (url.startsWith('nostr+walletconnect:')) {
       tempMap = {'nwc': url};
