@@ -80,6 +80,7 @@ abstract class UnsupportedMessage extends Message {
     Status? status,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -125,6 +126,7 @@ class _UnsupportedMessage extends UnsupportedMessage {
     dynamic status = _Unset,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) =>
       _UnsupportedMessage(

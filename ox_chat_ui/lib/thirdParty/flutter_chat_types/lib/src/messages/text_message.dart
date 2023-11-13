@@ -126,6 +126,7 @@ abstract class TextMessage extends Message {
     String? text,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -170,6 +171,7 @@ class _TextMessage extends TextMessage {
     String? text,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) =>
       _TextMessage(

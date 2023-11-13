@@ -88,6 +88,7 @@ abstract class SystemMessage extends Message {
     String? text,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -131,6 +132,7 @@ class _SystemMessage extends SystemMessage {
     String? text,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) =>
       _SystemMessage(

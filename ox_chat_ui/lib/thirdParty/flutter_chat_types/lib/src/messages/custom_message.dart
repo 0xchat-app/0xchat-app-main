@@ -118,6 +118,7 @@ abstract class CustomMessage extends Message {
     Status? status,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -159,6 +160,7 @@ class _CustomMessage extends CustomMessage {
     dynamic status = _Unset,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) =>
       _CustomMessage(

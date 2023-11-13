@@ -149,6 +149,7 @@ abstract class FileMessage extends Message {
     int? updatedAt,
     String? uri,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -201,6 +202,7 @@ class _FileMessage extends FileMessage {
     String? uri,
     dynamic width = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) =>
       _FileMessage(

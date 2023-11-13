@@ -50,6 +50,7 @@ abstract class Message extends Equatable {
     required this.type,
     this.updatedAt,
     this.fileEncryptionType = EncryptionType.none,
+    this.decryptKey,
     this.expiration,
   });
 
@@ -117,6 +118,8 @@ abstract class Message extends Equatable {
   /// The encryption type of the file
   final EncryptionType fileEncryptionType;
 
+  final String? decryptKey;
+
   final dynamic sourceKey;
 
   String get content;
@@ -137,6 +140,7 @@ abstract class Message extends Equatable {
     Status? status,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 

@@ -278,10 +278,20 @@ List<Object> calculateChatMessages(
       final encrypted = message.fileEncryptionType != types.EncryptionType.none;
       if (kIsWeb) {
         if (message.uri.startsWith('http') || message.uri.startsWith('blob')) {
-          gallery.add(PreviewImage(id: message.id, uri: message.uri, encrypted: encrypted));
+          gallery.add(PreviewImage(
+            id: message.id,
+            uri: message.uri,
+            encrypted: encrypted,
+            decryptSecret: message.decryptKey,
+          ));
         }
       } else {
-        gallery.add(PreviewImage(id: message.id, uri: message.uri, encrypted: encrypted));
+        gallery.add(PreviewImage(
+          id: message.id,
+          uri: message.uri,
+          encrypted: encrypted,
+          decryptSecret: message.decryptKey,
+        ));
       }
     }
   }

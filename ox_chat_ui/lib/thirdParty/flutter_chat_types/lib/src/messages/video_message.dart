@@ -31,6 +31,7 @@ abstract class VideoMessage extends Message {
     required this.uri,
     this.width,
     EncryptionType? fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super(
     type: type ?? MessageType.video,
@@ -56,6 +57,7 @@ abstract class VideoMessage extends Message {
     required String uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) = _VideoMessage;
 
@@ -159,6 +161,7 @@ abstract class VideoMessage extends Message {
     String? uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -188,6 +191,7 @@ class _VideoMessage extends VideoMessage {
     required super.uri,
     super.width,
     super.fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super._();
 
@@ -210,6 +214,7 @@ class _VideoMessage extends VideoMessage {
     String? uri,
     dynamic width = _Unset,
     dynamic fileEncryptionType = _Unset,
+    String? decryptKey,
     int? expiration,
   }) =>
       _VideoMessage(
@@ -235,6 +240,7 @@ class _VideoMessage extends VideoMessage {
         uri: uri ?? this.uri,
         width: width == _Unset ? this.width : width as double?,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
+        decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
       );
 }

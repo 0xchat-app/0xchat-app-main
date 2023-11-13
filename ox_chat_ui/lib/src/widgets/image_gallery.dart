@@ -54,13 +54,17 @@ class ImageGallery extends StatelessWidget {
             children: [
               PhotoViewGallery.builder(
                 builder: (BuildContext context, int index) {
-                  final isEncryptedImage = images[index].encrypted;
+                  final uri = images[index].uri;
+                  final encrypted = images[index].encrypted;
+                  final decryptKey = images[index].decryptSecret;
                   return PhotoViewGalleryPageOptions(
                     imageProvider: OXCachedNetworkImageProviderEx.create(
                       context,
-                      images[index].uri,
+                      uri,
                       headers: imageHeaders,
-                      cacheManager: isEncryptedImage ? DecryptedCacheManager(options.decryptionKey) : null,
+                      cacheManager: encrypted
+                          ? DecryptedCacheManager(decryptKey ?? options.decryptionKey)
+                          : null,
                     ),
                     minScale: options.minScale,
                     maxScale: options.maxScale,

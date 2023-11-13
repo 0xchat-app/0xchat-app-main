@@ -35,6 +35,7 @@ abstract class AudioMessage extends Message {
     this.waveForm,
     this.audioFile,
     EncryptionType? fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super(
     type: type ?? MessageType.audio,
@@ -62,6 +63,7 @@ abstract class AudioMessage extends Message {
     List<double>? waveForm,
     File? audioFile,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) = _AudioMessage;
 
@@ -174,6 +176,7 @@ abstract class AudioMessage extends Message {
     List<double>? waveForm,
     File? audioFile,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -205,6 +208,7 @@ class _AudioMessage extends AudioMessage {
     super.waveForm,
     super.audioFile,
     super.fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super._();
 
@@ -229,6 +233,7 @@ class _AudioMessage extends AudioMessage {
     dynamic waveForm = _Unset,
     File? audioFile,
     dynamic fileEncryptionType = _Unset,
+    String? decryptKey,
     int? expiration,
   }) =>
       _AudioMessage(
@@ -257,6 +262,7 @@ class _AudioMessage extends AudioMessage {
             waveForm == _Unset ? this.waveForm : waveForm as List<double>?,
         audioFile: audioFile ?? this.audioFile,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
+        decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
       );
 }

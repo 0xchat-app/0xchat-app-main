@@ -31,6 +31,7 @@ abstract class ImageMessage extends Message {
     required this.uri,
     this.width,
     EncryptionType? fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super(
     type: type ?? MessageType.image,
@@ -56,6 +57,7 @@ abstract class ImageMessage extends Message {
     required String uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   }) = _ImageMessage;
 
@@ -157,6 +159,7 @@ abstract class ImageMessage extends Message {
     String? uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
     int? expiration,
   });
 
@@ -186,6 +189,7 @@ class _ImageMessage extends ImageMessage {
     required super.uri,
     super.width,
     super.fileEncryptionType,
+    super.decryptKey,
     super.expiration,
   }) : super._();
 
@@ -208,6 +212,7 @@ class _ImageMessage extends ImageMessage {
     String? uri,
     dynamic width = _Unset,
     dynamic fileEncryptionType = _Unset,
+    String? decryptKey,
     int? expiration,
   }) =>
       _ImageMessage(
@@ -233,6 +238,7 @@ class _ImageMessage extends ImageMessage {
         uri: uri ?? this.uri,
         width: width == _Unset ? this.width : width as double?,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
+        decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
       );
 }

@@ -14,8 +14,6 @@ typedef MessageContentEncoder = FutureOr<String?> Function(types.Message message
 
 class ChatSendMessageHelper {
 
-  static String getEncryptedKey(ChatSessionModel session) => ChatStrategyFactory.getStrategy(session).encryptedKey;
-
   static Future<String?> sendMessage({
     required ChatSessionModel session,
     required types.Message message,
@@ -49,6 +47,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
+        decryptSecret: message.decryptKey,
       );
     }
     if (event == null) {
@@ -74,6 +73,7 @@ class ChatSendMessageHelper {
       messageType: type,
       contentString: contentString,
       replayId: replayId,
+      decryptSecret: message.decryptKey,
       event: event,
       isLocal: isLocal,
     ).then((event) {

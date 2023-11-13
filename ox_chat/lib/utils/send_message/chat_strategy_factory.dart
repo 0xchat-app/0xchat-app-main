@@ -42,18 +42,18 @@ abstract class ChatStrategy {
           : session.sender) ??
       '';
 
-  String get encryptedKey;
-
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
   });
 
   Future doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
     bool isLocal = false,
     Event? event,
   });
@@ -68,19 +68,18 @@ class ChannelChatStrategy extends ChatStrategy {
   String get receiverId => session.chatId.orDefault(session.groupId ?? '');
 
   @override
-  String get encryptedKey => '';
-
-  @override
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
   }) async {
     return Channels.sharedInstance.getSendChannelMessageEvent(
       receiverId,
       messageType,
       contentString,
       replyMessage: replayId,
+      decryptSecret: decryptSecret,
     );
   }
 
@@ -89,6 +88,7 @@ class ChannelChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
     bool isLocal = false,
     Event? event,
   }) async {
@@ -99,6 +99,7 @@ class ChannelChatStrategy extends ChatStrategy {
       contentString,
       event: event,
       local: isLocal,
+      decryptSecret: decryptSecret,
     );
   }
 }
@@ -112,19 +113,18 @@ class GroupChatStrategy extends ChatStrategy {
   String get receiverId => session.chatId.orDefault(session.groupId ?? '');
 
   @override
-  String get encryptedKey => '';
-
-  @override
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
   }) async {
     return Groups.sharedInstance.getSendGroupMessageEvent(
       receiverId,
       messageType,
       contentString,
       replyMessage: replayId,
+      decryptSecret: decryptSecret,
     );
   }
 
@@ -133,6 +133,7 @@ class GroupChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
     bool isLocal = false,
     Event? event,
   }) async {
@@ -143,6 +144,7 @@ class GroupChatStrategy extends ChatStrategy {
       contentString,
       event: event,
       local: isLocal,
+      decryptSecret: decryptSecret,
     );
   }
 }
@@ -153,23 +155,21 @@ class PrivateChatStrategy extends ChatStrategy {
   PrivateChatStrategy(this.session);
 
   @override
-  String get encryptedKey {
-    final receiverPubkey = this.receiverPubkey;
-    if (receiverPubkey.isEmpty) {
-      return session.chatId ?? '';
-    }
-    return receiverPubkey;
-  }
-
-  @override
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
   }) async {
     return await Contacts.sharedInstance.getSendMessageEvent(
-        receiverId, replayId, messageType, contentString,
-        kind: session.messageKind, expiration: session.expiration);
+      receiverId,
+      replayId,
+      messageType,
+      contentString,
+      kind: session.messageKind,
+      expiration: session.expiration,
+      decryptSecret: decryptSecret,
+    );
   }
 
   @override
@@ -177,6 +177,7 @@ class PrivateChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
     bool isLocal = false,
     Event? event,
   }) async {
@@ -189,6 +190,7 @@ class PrivateChatStrategy extends ChatStrategy {
       kind: session.messageKind,
       expiration: session.expiration,
       local: isLocal,
+      decryptSecret: decryptSecret,
     );
   }
 }
@@ -199,19 +201,11 @@ class SecretChatStrategy extends ChatStrategy {
   SecretChatStrategy(this.session);
 
   @override
-  String get encryptedKey {
-    final receiverPubkey = this.receiverPubkey;
-    if (receiverPubkey.isEmpty) {
-      return session.chatId ?? '';
-    }
-    return receiverPubkey;
-  }
-
-  @override
   Future getSendMessageEvent({
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
   }) async {
     return await Contacts.sharedInstance.getSendSecretMessageEvent(
       receiverId,
@@ -220,6 +214,7 @@ class SecretChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       session.expiration,
+      decryptSecret: decryptSecret,
     );
   }
 
@@ -228,6 +223,7 @@ class SecretChatStrategy extends ChatStrategy {
     required MessageType messageType,
     required String contentString,
     required String replayId,
+    String? decryptSecret,
     bool isLocal = false,
     Event? event,
   }) async {
@@ -239,6 +235,21 @@ class SecretChatStrategy extends ChatStrategy {
       contentString,
       event: event,
       local: isLocal,
+      decryptSecret: decryptSecret,
     );
+  }
+}
+
+extension MessageTypeEncryptEx on MessageType {
+  bool get supportEncrypt {
+    switch (this) {
+      case MessageType.encryptedImage:
+      case MessageType.encryptedVideo:
+      case MessageType.encryptedAudio:
+      case MessageType.encryptedFile:
+        return true;
+      default:
+        return false;
+    }
   }
 }

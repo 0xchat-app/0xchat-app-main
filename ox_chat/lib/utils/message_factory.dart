@@ -26,6 +26,7 @@ abstract class MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   });
 }
@@ -42,6 +43,7 @@ class TextMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final text = contentModel.content ?? '';
@@ -74,6 +76,7 @@ class ImageMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final uri = contentModel.content;
@@ -92,6 +95,7 @@ class ImageMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
       expiration: expiration,
     );
   }
@@ -109,6 +113,7 @@ class AudioMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final uri = contentModel.content;
@@ -128,6 +133,7 @@ class AudioMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
       expiration: expiration,
     );
   }
@@ -145,6 +151,7 @@ class VideoMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final uri = contentModel.content;
@@ -167,6 +174,7 @@ class VideoMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
       expiration: expiration,
     );
   }
@@ -184,6 +192,7 @@ class CallMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final contentString = contentModel.content;
@@ -267,6 +276,7 @@ class SystemMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     var text = contentModel.content ?? '';
@@ -302,6 +312,7 @@ class CustomMessageFactory implements MessageFactory {
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? previewData,
+    String? decryptKey,
     int? expiration,
   }) {
     final contentString = contentModel.content;

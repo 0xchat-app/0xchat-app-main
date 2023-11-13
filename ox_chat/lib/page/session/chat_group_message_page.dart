@@ -74,6 +74,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           _messages = messages;
         });
       },
+      fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
   }
