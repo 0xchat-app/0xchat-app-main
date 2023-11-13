@@ -193,7 +193,8 @@ window.nostr = {
           bool allowGetPublicKey = await OXCacheManager.defaultOXCacheManager.getForeverData('$host.getPublicKey') ?? false;
           if(!allowGetPublicKey){
             OXCommonHintDialog.show(context,
-                content: 'get_publicKey_request'.commonLocalized(),
+                title: 'get_publicKey_request_title'.commonLocalized(),
+                content: 'get_publicKey_request_content'.commonLocalized(),
                 isRowAction: true,
                 actionList: [
                   OXCommonHintAction.cancel(onTap: () {
