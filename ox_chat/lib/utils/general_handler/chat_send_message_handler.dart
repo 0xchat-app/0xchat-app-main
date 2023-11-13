@@ -117,6 +117,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
     for (final result in images) {
+      OXLoading.show();
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
       String message_id = const Uuid().v4();
@@ -138,7 +139,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         decryptKey: fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null,
       );
 
-      _sendMessageHandler(message, context: context);
+      await _sendMessageHandler(message, context: context);
     }
   }
 
@@ -160,6 +161,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
+    OXLoading.show();
     File audioFile = File(path);
     final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
     final bytes = await audioFile.readAsBytes();
@@ -183,6 +185,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendVideoMessageSend(BuildContext context, List<File> images) async {
     for (final result in images) {
+      OXLoading.show();
       final bytes = await result.readAsBytes();
       final uint8list = await VideoCompress.getByteThumbnail(result.path,
           quality: 50, // default(100)

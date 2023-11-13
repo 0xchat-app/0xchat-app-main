@@ -333,6 +333,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     ChatTypeKey? chatKey,
     ChatSessionModel? session,
     required types.Message message,
+    types.Message? originMessage,
   }) async {
     if (session != null) {
       chatKey ??= _getChatTypeKey(session);
@@ -346,7 +347,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
         await MessageDB.savePreviewData(message.id, jsonEncode(message.previewData?.toJson()));
     }
 
-    await _updatePrivateChatMessages(chatKey, message);
+    await _updateChatMessages(chatKey, message, originMessage: originMessage);
     await notifyChatObserverValueChanged(chatKey);
   }
 }
@@ -503,9 +504,9 @@ extension ChatDataCacheEx on ChatDataCache {
     _removeMessageFromList(messageList, message);
   }
 
-  Future<void> _updatePrivateChatMessages(ChatTypeKey key, types.Message message) async {
+  Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {types.Message? originMessage}) async {
     final messageList = await _getSessionMessage(key);
-    _updateMessageToList(messageList, message);
+    _updateMessageToList(messageList, message, originMessage: originMessage);
   }
 }
 
@@ -559,6 +560,9 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
   }
 
   void _addMessageToList(List<types.Message> messageList, types.Message newMessage) {
+
+    if (_updateMessageToList(messageList, newMessage)) return ;
+
     // If newMessage is the latest message
     if (messageList.length > 0) {
       final firstMsgTime = messageList.first.createdAt;
@@ -587,11 +591,19 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
   }
 
-  void _updateMessageToList(List<types.Message> messageList, types.Message newMessage) {
-    final index = messageList.indexWhere((msg) => msg.id == newMessage.id);
+  bool _updateMessageToList(List<types.Message> messageList, types.Message newMessage, {types.Message? originMessage}) {
+    final index = messageList.indexWhere((msg) {
+      if (originMessage != null) {
+        return msg.id == originMessage.id;
+      } else {
+        return msg.id == newMessage.id;
+      }
+    });
     if (index >= 0) {
       messageList.replaceRange(index, index + 1, [newMessage]);
+      return true;
     }
+    return false;
   }
 
   bool isContainMessage(ChatSessionModel session, MessageDB message) {
