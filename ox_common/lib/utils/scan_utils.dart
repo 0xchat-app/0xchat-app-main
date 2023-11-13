@@ -48,12 +48,7 @@ class ScanUtils {
         url.startsWith('nostr:note') ||
         url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
-      if(Groups.sharedInstance.groups.containsKey(tempMap?['channelId'])){
-        type = CommonConstant.qrCodeGroup;
-      }
-      else{
-        type = CommonConstant.qrCodeChannel;
-      }
+      type = Groups.sharedInstance.groups.containsKey(tempMap?['channelId']) ? CommonConstant.qrCodeGroup : CommonConstant.qrCodeChannel;
     } else if (url.startsWith('nostr+walletconnect:')) {
       tempMap = {'nwc': url};
       type = CommonConstant.qrCodeNWC;
