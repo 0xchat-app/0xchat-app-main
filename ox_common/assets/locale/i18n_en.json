@@ -89,6 +89,7 @@
   "str_new_channel": "New Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
   "scan_find_nwc_hint": "Connect to this wallet?",
+  "get_publicKey_request": "Do you authorize the website to access your npub?",
   "message_type_image": "[Image]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",

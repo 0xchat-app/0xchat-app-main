@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ox_common/mixin/common_js_method_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -14,6 +15,9 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+
+import 'common_hint_dialog.dart';
 
 typedef UrlCallBack = void Function(String);
 
@@ -183,13 +187,40 @@ window.nostr = {
     return JavascriptChannel(
         name: 'JS_getPublicKey',
         onMessageReceived: (JavascriptMessage message) async {
-          var jsonObj = jsonDecode(message.message);
-          var resultId = jsonObj["resultId"];
 
-          String pubkey = Account.sharedInstance.currentPubkey;
-          var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
-          print(script.toString());
-          await _currentController.runJavascript(script);
+          var uri = Uri.parse((widget as CommonWebView).url);
+          var host = uri.host;
+          bool allowGetPublicKey = await OXCacheManager.defaultOXCacheManager.getForeverData('$host.getPublicKey') ?? false;
+          if(!allowGetPublicKey){
+            OXCommonHintDialog.show(context,
+                content: 'get_publicKey_request'.commonLocalized(),
+                isRowAction: true,
+                actionList: [
+                  OXCommonHintAction.cancel(onTap: () {
+                    OXNavigator.pop(context);
+                  }),
+                  OXCommonHintAction.sure(
+                      text: Localized.text('ox_common.confirm'),
+                      onTap: () async {
+                        await OXCacheManager.defaultOXCacheManager
+                            .saveForeverData('$host.getPublicKey', true);
+
+                        var jsonObj = jsonDecode(message.message);
+                        var resultId = jsonObj["resultId"];
+                        String pubkey = Account.sharedInstance.currentPubkey;
+                        var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
+                        await _currentController.runJavascript(script);
+                        OXNavigator.pop(context);
+                      }),
+                ]);
+          }
+          else{
+            var jsonObj = jsonDecode(message.message);
+            var resultId = jsonObj["resultId"];
+            String pubkey = Account.sharedInstance.currentPubkey;
+            var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
+            await _currentController.runJavascript(script);
+          }
         });
   }
 
@@ -206,7 +237,6 @@ window.nostr = {
           eventResultStr = eventResultStr.replaceAll("\"", "\\\"");
           var script =
               "window.nostr.resolve(\"$resultId\", JSON.parse(\"$eventResultStr\"));";
-          print(script);
           await _currentController.runJavascript(script);
         });
   }
