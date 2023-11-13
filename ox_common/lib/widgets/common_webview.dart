@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -22,7 +23,8 @@ class CommonWebView extends StatefulWidget {
   final bool hideAppbar;
   final UrlCallBack? urlCallback;
 
-  CommonWebView(this.url, {this.title, this.hideAppbar = false, this.urlCallback});
+  CommonWebView(this.url,
+      {this.title, this.hideAppbar = false, this.urlCallback});
 
   @override
   State<StatefulWidget> createState() {
@@ -35,13 +37,14 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
     with CommonJSMethodMixin<T> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
+  late WebViewController _currentController;
 
   get controller => _controller;
 
   double loadProgress = 0;
   bool showProgress = false;
 
-  Map<String, Function> get jsMethods => { };
+  Map<String, Function> get jsMethods => {};
 
   @override
   void initState() {
@@ -103,15 +106,64 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
         initialUrl: Uri.encodeFull(formatUrl((widget as CommonWebView).url)),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
+          _currentController = webViewController;
           _controller.complete(webViewController);
         },
-        // javascriptChannels: <JavascriptChannel>{
-        //   _javascriptChannel(context),
-        // },
+        javascriptChannels: <JavascriptChannel>{
+          _getPublicKeyChannel(context),
+          _signEventChannel(context),
+          _getRelaysChannel(context),
+        },
         onPageFinished: (url) {
           setState(() {
             showProgress = false;
           });
+          _currentController.runJavascript("""
+window.nostr = {
+  _call(channel, message) {
+    return new Promise((resolve, reject) => {
+      var resultId = "callbackResult_" + Math.floor(Math.random() * 100000000);
+      var arg = { resultId: resultId };
+      if (message) {
+        arg["msg"] = message;
+      }
+      var argStr = JSON.stringify(arg);
+      channel.postMessage(argStr);
+      window.nostr._requests[resultId] = { resolve, reject };
+    });
+  },
+  _requests: {},
+  resolve(resultId, message) {
+    window.nostr._requests[resultId].resolve(message);
+  },
+  reject(resultId, message) {
+    window.nostr._requests[resultId].reject(message);
+  },
+  async getPublicKey() {
+    return window.nostr._call(JS_getPublicKey);
+  },
+  async signEvent(event) {
+    return window.nostr._call(JS_signEvent, JSON.stringify(event));
+  },
+  async getRelays() {
+    return window.nostr._call(JS_getRelays);
+  },
+  nip04: {
+    async encrypt(pubkey, plaintext) {
+      return window.nostr._call(JS_nip04_encrypt, {
+        pubkey: pubkey,
+        plaintext: plaintext,
+      });
+    },
+    async decrypt(pubkey, ciphertext) {
+      return window.nostr._call(JS_nip04_decrypt, {
+        pubkey: pubkey,
+        ciphertext: ciphertext,
+      });
+    },
+  },
+};   
+         """);
         },
         onProgress: (process) {
           if (loadProgress != 1) {
@@ -120,70 +172,62 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
               showProgress = true;
             });
           }
-        },navigationDelegate: (navigationDelegate) async {
+        },
+        navigationDelegate: (navigationDelegate) async {
           (widget as CommonWebView).urlCallback?.call(navigationDelegate.url);
           return NavigationDecision.navigate;
         });
   }
 
-  JavascriptChannel _javascriptChannel(BuildContext context) {
+  JavascriptChannel _getPublicKeyChannel(BuildContext context) {
     return JavascriptChannel(
-        name: 'YLAPP',
+        name: 'JS_getPublicKey',
         onMessageReceived: (JavascriptMessage message) async {
-          try {
-            Map<String, dynamic> jsonObject =
-                Map<String, dynamic>.from(json.decode(message.message));
+          var jsonObj = jsonDecode(message.message);
+          var resultId = jsonObj["resultId"];
 
-            String methodName = jsonObject['method'];
-
-            ///Parameters are specified as objects
-            Map<String, dynamic>? params;
-            if (jsonObject['params'] != null) {
-              params = Map<String, dynamic>.from(jsonObject['params']);
-            }
-            String? callback = jsonObject['callback'];
-            final func = jsMethods[methodName];
-            if (func != null) {
-              try {
-                if (params != null && params.length > 0) {
-                  Map<Symbol, dynamic> paramsObject = params.map((key, value) {
-                    return new MapEntry(Symbol(key), value);
-                  });
-                  await _invokeMethod(func, paramsObject, callback);
-                } else {
-                  await _invokeMethod(func, null, callback);
-                }
-              } catch (e) {
-                throw FlutterError.fromParts(<DiagnosticsNode>[
-                  ErrorSummary('YLWEBView.invoke Error.'),
-                  ErrorDescription(
-                    'Method call failed, please check whether the parameter format is correct',
-                  ),
-                  ErrorDescription(e.toString()),
-                ]);
-              }
-            } else {
-              throw FlutterError.fromParts(<DiagnosticsNode>[
-                ErrorSummary('YLWEBView.invoke Error.'),
-                ErrorDescription('No corresponding method was found:$methodName'),
-              ]);
-            }
-          } catch (e) {
-            print(e.toString());
-          }
+          String pubkey = Account.sharedInstance.currentPubkey;
+          var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
+          print(script.toString());
+          await _currentController.runJavascript(script);
         });
   }
 
-  _invokeMethod(Function function,
-      [Map<Symbol, dynamic>? namedArguments, String? callBack]) async {
-    if (callBack != null) {
-      WebViewController webViewController = await _controller.future;
-      dynamic? result = await Function.apply(function, [], namedArguments);
-      webViewController.evaluateJavascript("$callBack('$result')");
-      print("$function callbackToJS($callBack):$result");
-    } else {
-      await Function.apply(function, [], namedArguments);
-    }
+  JavascriptChannel _signEventChannel(BuildContext context) {
+    return JavascriptChannel(
+        name: 'JS_signEvent',
+        onMessageReceived: (JavascriptMessage message) async {
+          var jsonObj = jsonDecode(message.message);
+          var resultId = jsonObj["resultId"];
+          var content = jsonObj["msg"];
+          var eventObj = jsonDecode(content);
+          var signedEvent = Account.sharedInstance.signEvent(eventObj);
+          var eventResultStr = jsonEncode(signedEvent);
+          eventResultStr = eventResultStr.replaceAll("\"", "\\\"");
+          var script =
+              "window.nostr.resolve(\"$resultId\", JSON.parse(\"$eventResultStr\"));";
+          print(script);
+          await _currentController.runJavascript(script);
+        });
+  }
+
+  JavascriptChannel _getRelaysChannel(BuildContext context) {
+    return JavascriptChannel(
+        name: 'JS_getRelays',
+        onMessageReceived: (JavascriptMessage message) async {
+          var jsonObj = jsonDecode(message.message);
+          var resultId = jsonObj["resultId"];
+          var relayMaps = {};
+          var relayAddrs = Connect.sharedInstance.relays();
+          for (var relayAddr in relayAddrs) {
+            relayMaps[relayAddr] = {"read": true, "write": true};
+          }
+          var resultStr = jsonEncode(relayMaps);
+          resultStr = resultStr.replaceAll("\"", "\\\"");
+          var script =
+              "window.nostr.resolve(\"$resultId\", JSON.parse(\"$resultStr\"));";
+          await _currentController.runJavascript(script);
+        });
   }
 
   _renderAppBar() {
