@@ -3,6 +3,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
     show LinkPreview, regexEmail, regexLink, regexNostr;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/emoji_enlargement_behavior.dart';
@@ -11,8 +12,6 @@ import '../../util.dart';
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_user.dart';
 import 'user_name.dart';
-
-const njumpURL = 'https://njump.nostr.wine/';
 
 /// A class that represents text message widget with optional link preview.
 class TextMessage extends StatelessWidget {
@@ -80,7 +79,7 @@ class TextMessage extends StatelessWidget {
       matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
-        final text = message.text.replaceFirst('nostr:', njumpURL);
+        final text = message.text.replaceFirst('nostr:', CommonConstant.njumpURL);
         return _linkPreview(user, width, context, text: text);
       }
     }
@@ -266,7 +265,7 @@ class TextMessageText extends StatelessWidget {
       ),
       MatchText(
         onTap: (urlText) async {
-          urlText = urlText.replaceFirst('nostr:', njumpURL);
+          urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
           if (options.onLinkPressed != null) {
             options.onLinkPressed!(urlText);
           } else {

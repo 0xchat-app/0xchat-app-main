@@ -760,6 +760,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             OXCommonHintAction.sure(
                 text: Localized.text('ox_common.confirm'),
                 onTap: () async {
+                  OXNavigator.pop(context, true);
                   await OXLoading.show();
                   final OKEvent okEvent = await Contacts.sharedInstance
                       .addToContact([widget.userDB.pubKey]);
@@ -769,10 +770,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                     OXChatBinding.sharedInstance.changeChatSessionTypeAll(widget.userDB.pubKey, true);
                     CommonToast.instance.show(
                         context, Localized.text('ox_chat.sent_successfully'));
+                    _sendMsg();
                   } else {
                     CommonToast.instance.show(context, okEvent.message);
                   }
-                  OXNavigator.pop(context, true);
                 }),
           ],
           isRowAction: true);
