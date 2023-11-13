@@ -1,28 +1,27 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:chatcore/chat-core.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 class AesEncryptUtils{
   static String _getUploadFileKey(){
     return "nostr@chat*yuele";
   }
 
-  static void encryptFile(File sourceFile, File encryptedFile, String pubkey) {
+  static void encryptFile(File sourceFile, File encryptedFile, String key) {
     final sourceBytes = sourceFile.readAsBytesSync();
-    Uint8List? uint8list = Contacts.sharedInstance.getFriendSharedSecret(pubkey);
-    final encrypter = Encrypter(AES(Key(uint8list!)));
+    final uint8list = hexToBytes(key);
+    final encrypter = Encrypter(AES(Key(uint8list)));
     final iv = IV.fromLength(16);
     final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
     encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
   }
 
-  static void decryptFile(File encryptedFile, File decryptedFile, String pubkey, {Function(List<int>)? bytesCallback}) {
+  static void decryptFile(File encryptedFile, File decryptedFile, String key, {Function(List<int>)? bytesCallback}) {
     final encryptedBytes = encryptedFile.readAsBytesSync();
-    Uint8List? uint8list = Contacts.sharedInstance.getFriendSharedSecret(pubkey);
-    final decrypter = Encrypter(AES(Key(uint8list!)));
+    final uint8list = hexToBytes(key);
+    final decrypter = Encrypter(AES(Key(uint8list)));
     final encrypted = Encrypted(encryptedBytes);
     final iv = IV.fromLength(16);
     final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);

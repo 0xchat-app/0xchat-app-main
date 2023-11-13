@@ -67,6 +67,7 @@ class OXUserInfoManager {
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
     }
     else{
+      LogUtil.d('[DB init] dbpw: $dbpw');
       await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
     }
   }
