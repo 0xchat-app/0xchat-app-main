@@ -52,6 +52,7 @@ class Chat extends StatefulWidget {
     super.key,
     this.audioMessageBuilder,
     this.avatarBuilder,
+    this.chatId,
     this.anchorMsgId,
     this.bubbleBuilder,
     this.bubbleRtlAlignment = BubbleRtlAlignment.right,
@@ -141,6 +142,8 @@ class Chat extends StatefulWidget {
 
   /// See [Message.avatarBuilder].
   final Widget Function(types.Message message)? avatarBuilder;
+
+  final String? chatId;
 
   final String? anchorMsgId;
 
@@ -658,6 +661,7 @@ class ChatState extends State<Chat> {
       } else {
         return Input(
           key: _inputKey,
+          chatId: widget.chatId,
           items: widget.inputMoreItems,
           isAttachmentUploading: widget.isAttachmentUploading,
           onAttachmentPressed: widget.onAttachmentPressed,

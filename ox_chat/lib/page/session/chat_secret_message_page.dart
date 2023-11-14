@@ -221,6 +221,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           Container(
             alignment: Alignment.center,
             child: OXUserAvatar(
+              chatId: widget.communityItem.chatId,
               user: otherUser,
               size: Adapt.px(36),
               isClickable: true,
@@ -232,6 +233,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         ],
       ),
       body: Chat(
+        chatId: widget.communityItem.chatId,
         theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,

@@ -123,6 +123,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
           Container(
             alignment: Alignment.center,
             child: OXUserAvatar(
+              chatId: widget.communityItem.chatId,
               user: otherUser,
               size: Adapt.px(36),
               isClickable: true,
@@ -134,6 +135,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         ],
       ),
       body: Chat(
+        chatId:widget.communityItem.chatId,
         theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,

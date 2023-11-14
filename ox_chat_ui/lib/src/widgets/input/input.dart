@@ -3,11 +3,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import 'package:ox_common/widgets/common_time_dialog.dart';
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
 import '../../models/send_button_visibility_mode.dart';
@@ -29,6 +35,7 @@ class Input extends StatefulWidget {
   const Input({
     super.key,
     required this.items,
+    this.chatId,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
@@ -39,6 +46,8 @@ class Input extends StatefulWidget {
     this.inputBottomView,
     this.onFocusNodeInitialized,
   });
+
+  final String? chatId;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -103,6 +112,19 @@ class InputState extends State<Input>{
 
   bool safeAreaBottomInsetsInit = false;
   double safeAreaBottomInsets = 0.0;
+
+  ChatSessionModel? get _chatSessionModel {
+    if(widget.chatId == null) return null;
+    ChatSessionModel? model = OXChatBinding.sharedInstance.sessionMap[widget.chatId];
+    return model;
+  }
+
+  // auto delete
+  int get _autoDelExTime {
+    int? autoDelExpiration = _chatSessionModel?.expiration;
+    if(autoDelExpiration == null) return 0;
+    return autoDelExpiration;
+  }
 
   void dissMissMoreView(){
       inputType = InputType.inputTypeDefault;
@@ -261,6 +283,7 @@ class InputState extends State<Input>{
                 Expanded(
                   child: _buildInputTextField().setPadding(EdgeInsets.only(left: _itemSpacing),),
                 ),
+                _buildChatTimeButton(),
                 _buildEmojiButton(),
               ],
             ),
@@ -343,6 +366,23 @@ class InputState extends State<Input>{
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
       );
 
+  Widget _buildChatTimeButton() {
+    if(widget.chatId == null || _autoDelExTime == 0) return Container();
+    return GestureDetector(
+      onTap: _selectChatTimeDialog,
+      child: SizedBox(
+        width: 24.px,
+        height: 24.px,
+        child: CommonImage(
+          iconName: 'chat_time.png',
+          useTheme: true,
+          package: 'ox_chat',
+        ),
+      ),
+    );
+  }
+
+
   Widget _buildEmojiButton() =>
       IconButton(
         constraints: const BoxConstraints(
@@ -391,6 +431,23 @@ class InputState extends State<Input>{
         tooltip: InheritedL10n.of(context).l10n.sendButtonAccessibilityLabel,
       );
 
+
+  void _selectChatTimeDialog() {
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) => CommonTimeDialog(callback: (int time) async {
+          await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: time);
+          setState(() {});
+          await CommonToast.instance.show(context, 'Change successfully');
+          OXNavigator.pop(context);
+        },
+          expiration: _autoDelExTime
+      ),
+    );
+  }
 
   void _handleSendButtonVisibilityModeChange() {
     _textController.removeListener(_handleTextControllerChange);

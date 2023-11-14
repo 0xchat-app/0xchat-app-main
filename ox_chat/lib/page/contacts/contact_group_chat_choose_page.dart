@@ -25,10 +25,6 @@ class _ContactCreateGroupChatState extends ContactGroupListPageState {
   Widget buildEditButton() {
     return GestureDetector(
       onTap: (){
-        if(selectedUserList.isEmpty){
-          CommonToast.instance.show(context, Localized.text('ox_chat.create_group_select_toast'));
-          return;
-        }
         OXNavigator.presentPage(
           context,
           (context) => ContactGroupChatCreatePage(

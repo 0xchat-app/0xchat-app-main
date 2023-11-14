@@ -120,7 +120,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
         },
         child: CommonImage(
-          iconName: 'icon_more.png',
+          iconName: 'icon_more_gray.png',
           width: Adapt.px(24),
           height: Adapt.px(24),
           package: 'ox_chat',
