@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_webview+nostr.dart';
+import 'package:ox_common/widgets/common_webview_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ox_common/mixin/common_js_method_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -131,30 +132,9 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
   }
 
   _renderAppBar() {
-    return CommonAppBar(
-      useLargeTitle: false,
-      title: (widget as CommonWebView).title ?? "",
-      centerTitle: true,
-      leading: WebViewBackBtn(
-          _controller.future,
-          CommonImage(
-            iconName: "icon_back.png",
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-          )),
-      actions: [
-        GestureDetector(
-          onTap: () => OXNavigator.pop(context),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: Adapt.px(18)),
-            child: CommonImage(
-              iconName: 'title_close.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-            ),
-          ),
-        )
-      ],
+    return CommonWebViewAppBar(
+      title: Text('${(widget as CommonWebView).title ?? ""}'),
+      webViewControllerFuture: _controller.future,
     );
   }
 
@@ -166,42 +146,5 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
       return url +
           "?lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
     }
-  }
-}
-
-class WebViewBackBtn extends StatelessWidget {
-  final Future<WebViewController> _webViewControllerFuture;
-  final Widget backIcon;
-
-  WebViewBackBtn(this._webViewControllerFuture, this.backIcon);
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return FutureBuilder<WebViewController>(
-      future: _webViewControllerFuture,
-      builder:
-          (BuildContext context, AsyncSnapshot<WebViewController> snapshot) {
-        final bool webViewReady =
-            snapshot.connectionState == ConnectionState.done;
-        WebViewController? controller = snapshot.data;
-        return controller != null
-            ? IconButton(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                icon: this.backIcon,
-                onPressed: webViewReady
-                    ? () async {
-                        if (await controller.canGoBack()) {
-                          await controller.goBack();
-                        } else {
-                          OXNavigator.pop(context);
-                        }
-                      }
-                    : null,
-              )
-            : Container();
-      },
-    );
   }
 }
