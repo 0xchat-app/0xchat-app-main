@@ -1,6 +1,7 @@
 
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 
@@ -31,7 +32,7 @@ extension ThemeStyleExtension on ThemeStyle{
 
 }
 
-const String _keyThemeStyle = "themeStyle";
+const String _keyThemeStyle = "themeSetting";
 
 class ThemeManager {
 
@@ -152,8 +153,10 @@ class ThemeManager {
 
   static Future<Null> init() async {
 
-    String currentStyle = await OXCacheManager.defaultOXCacheManager.getData(_keyThemeStyle, defaultValue: themeManager.defaultThemeStyle) as String;
-
+    String currentStyle = await OXCacheManager.defaultOXCacheManager.getForeverData(_keyThemeStyle, defaultValue: themeManager.defaultThemeStyle) as String;
+    if(currentStyle.isEmpty){
+      currentStyle = ui.window.platformBrightness.name;
+    }
     themeManager.themeStyle = getThemeStyleByString(currentStyle);
     try{
       String jsonContentLight = await rootBundle.loadString("assets/theme/theme_light.json");
@@ -176,8 +179,6 @@ class ThemeManager {
   static void changeTheme(ThemeStyle themeStyle){
 
     themeManager.themeStyle = themeStyle;
-
-    OXCacheManager.defaultOXCacheManager.saveData(_keyThemeStyle, themeManager.themeStyle.value());
 
     themeManager.cache = {};
     themeManager.onThemeChangedCallbackList.forEach((fn) {
