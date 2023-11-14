@@ -73,15 +73,15 @@ class ChatSessionModel extends DBObject {
     return ['chatId'];
   }
 
-  static List<String?> ignoreKey() {
-    return ['messageKind'];
-  }
+  // static List<String?> ignoreKey() {
+  //   return ['messageKind'];
+  // }
 
   static Map<String, String?> updateTable() {
     return {
       '2': '''alter table ChatSessionModel add draft TEXT;''',
       '3': '''alter table ChatSessionModel add isMentioned INT DEFAULT 0;''',
-      "5": '''alter table ChatSessionModel add expiration INT;''',
+      "5": '''alter table ChatSessionModel add expiration INT; alter table ChatSessionModel add messageKind INT;''',
     };
   }
 
@@ -116,6 +116,7 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
     alwaysTop: map['alwaysTop'] == 1,
     draft: map['draft'],
     isMentioned: map['isMentioned'] == 1,
+    messageKind: map['messageKind'],
     expiration: map['expiration'],
   );
 }
@@ -135,5 +136,6 @@ Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <Strin
       'alwaysTop': instance.alwaysTop == true ? 1 : 0,
       'draft': instance.draft,
       'isMentioned': instance.isMentioned == true ? 1 : 0,
+      'messageKind': instance.messageKind,
       'expiration': instance.expiration
     };

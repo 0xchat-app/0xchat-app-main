@@ -286,7 +286,11 @@ class OXChatBinding {
         sessionModel.chatType = sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret
             : (sessionModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : sessionModel.chatType);
       }
-      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
+      if (messageDB.createTime >= tempModel.createTime){
+        sessionModel.expiration = tempModel.expiration;
+        sessionModel.messageKind = tempModel.messageKind;
+        tempModel = sessionModel;
+      }
       sessionMap[chatId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {
