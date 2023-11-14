@@ -109,7 +109,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   // disable safe chat: kind = 4
   bool get _safeChatStatus {
     int? safeMsgKind = _chatSessionModel?.messageKind;
-    if (safeMsgKind == null) return false;
+    if (safeMsgKind == null) return true;
     return safeMsgKind == 1059;
   }
 
@@ -880,7 +880,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   _chatControlDialogItemWidget(
                       isSelect: _autoDelExTime != 0,
                       content:
-                          '${_autoDelExTime != 0 ? 'Disable' : 'Enable'} Auto-Delete',
+                          '${_autoDelExTime > 0 ? 'Disable' : 'Enable'} Auto-Delete',
                       onTap: _updateAutoDel),
                   Divider(
                     height: Adapt.px(0.5),
@@ -932,7 +932,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       builder: (BuildContext context) {
         return CommonTimeDialog(
           callback: (time) async {
-            await OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey, expiration: time);
+            if(widget.chatId == null) OXNavigator.pop(context);
+            await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
             setState(() {});
             CommonToast.instance.show(context, 'Change successfully');
             OXNavigator.pop(context);

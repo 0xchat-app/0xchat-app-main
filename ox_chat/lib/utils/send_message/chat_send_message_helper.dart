@@ -64,7 +64,7 @@ class ChatSendMessageHelper {
     ChatLogUtils.info(
       className: 'ChatSendMessageHelper',
       funcName: 'sendMessage',
-      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
+      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}, expiration: ${senderStrategy.session.expiration}',
     );
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);

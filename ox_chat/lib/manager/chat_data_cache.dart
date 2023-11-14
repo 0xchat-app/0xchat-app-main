@@ -83,10 +83,10 @@ class ChatDataCache with OXChatObserver {
 
     await _addChatMessages(key, msg);
 
-    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (receiverId == myPubkey) {
-      OXChatBinding.sharedInstance.updateChatSession(senderId, messageKind: message.kind);
-    }
+    // final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    // if (receiverId == myPubkey) {
+    //   OXChatBinding.sharedInstance.updateChatSession(senderId, messageKind: message.kind);
+    // }
   }
 
   @override
