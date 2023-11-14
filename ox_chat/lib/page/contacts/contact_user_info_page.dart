@@ -959,16 +959,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   void _updateAutoDel() async {
     String? chatId = widget.chatId;
     if (chatId == null) return;
-
-    if (_autoDelExTime != 0) {
-      await OXChatBinding.sharedInstance
-          .updateChatSession(chatId, expiration: 0);
-      CommonToast.instance.show(context, 'disable successfully');
-      OXNavigator.pop(context);
-      setState(() {});
-      return;
-    }
-
     OXNavigator.pop(context);
     _selectTimeDialog();
   }
