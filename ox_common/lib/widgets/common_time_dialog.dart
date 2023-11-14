@@ -4,32 +4,32 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-enum EDialogTime { oneHour, twelveHours, twentyFourHours, seventyTwoHours }
+enum EDialogTime { oneDay, twoDays, sevenDays, thirtyDays }
 
 extension ESafeChatTimeToSecond on EDialogTime {
-  int hour() {
+  int days() {
     switch (this) {
-      case EDialogTime.oneHour:
+      case EDialogTime.oneDay:
         return 1;
-      case EDialogTime.twelveHours:
-        return 12;
-      case EDialogTime.twentyFourHours:
-        return 24;
-      case EDialogTime.seventyTwoHours:
-        return 72;
+      case EDialogTime.twoDays:
+        return 2;
+      case EDialogTime.sevenDays:
+        return 7;
+      case EDialogTime.thirtyDays:
+        return 30;
     }
   }
 
   String toText() {
     switch (this) {
-      case EDialogTime.oneHour:
-        return '1' + Localized.text('ox_chat.hour');
-      case EDialogTime.twelveHours:
-        return '12' + Localized.text('ox_chat.hour');
-      case EDialogTime.twentyFourHours:
-        return '24' + Localized.text('ox_chat.hour');
-      case EDialogTime.seventyTwoHours:
-        return '72' + Localized.text('ox_chat.hour');
+      case EDialogTime.oneDay:
+        return 'One day';
+      case EDialogTime.twoDays:
+        return 'Two days';
+      case EDialogTime.sevenDays:
+        return 'Seven days';
+      case EDialogTime.thirtyDays:
+        return 'thirty days';
     }
   }
 }
@@ -49,16 +49,16 @@ class _CommonTimeDialogState extends State<CommonTimeDialog> {
   EDialogTime? get _getExpiration {
     int? expiration = widget.expiration;
     if(expiration == null || expiration == 0) return null;
-    var getExpirationInHour = expiration / 3600;
-    switch(getExpirationInHour){
+    var getExpirationInHour = expiration / (24 * 60 * 60);
+    switch(getExpirationInHour.toInt()){
       case 1:
-        return EDialogTime.oneHour;
-      case 12:
-        return EDialogTime.twelveHours;
-      case 24:
-        return EDialogTime.twentyFourHours;
-      case 72:
-        return EDialogTime.seventyTwoHours;
+        return EDialogTime.oneDay;
+      case 2:
+        return EDialogTime.twoDays;
+      case 7:
+        return EDialogTime.sevenDays;
+      case 30:
+        return EDialogTime.thirtyDays;
       default:
         return null;
     }
@@ -106,7 +106,7 @@ class _CommonTimeDialogState extends State<CommonTimeDialog> {
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         onTap: () {
-                          widget.callback?.call(time.hour() * 3600);
+                          widget.callback?.call(time.days() * 24 *  3600);
                         },
                         child: Column(
                           children: [
