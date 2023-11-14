@@ -686,7 +686,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       OXLoading.show();
       UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
       OKEvent event = await Groups.sharedInstance
-          .leaveGroup(widget.groupId, Localized.text('ox.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
+          .leaveGroup(widget.groupId, Localized.text('ox_chat.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
 
       if (!event.status) {
         _changeRequestTagStatus(true);
