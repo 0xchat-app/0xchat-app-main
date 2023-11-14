@@ -3,11 +3,13 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 
 class ChatStrategyFactory {
   static ChatStrategy getStrategy(ChatSessionModel session) {
+    session = OXChatBinding.sharedInstance.sessionMap[session.chatId]!;
     switch (session.chatType) {
       case ChatType.chatGroup:
         return GroupChatStrategy(session);
