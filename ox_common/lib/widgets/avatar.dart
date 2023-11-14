@@ -4,10 +4,13 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+
+import '../model/chat_session_model.dart';
 
 class BaseAvatarWidget extends StatelessWidget {
   BaseAvatarWidget({
@@ -71,6 +74,7 @@ class OXUserAvatar extends StatefulWidget {
   OXUserAvatar({
     this.user,
     this.imageUrl,
+    this.chatId,
     double? size,
     this.isCircular = true,
     this.isClickable = false,
@@ -80,6 +84,7 @@ class OXUserAvatar extends StatefulWidget {
 
   final UserDB? user;
   final String? imageUrl;
+  final String? chatId;
   final double size;
   final bool isCircular;
   final bool isClickable;
@@ -111,6 +116,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
         }
         await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
           'userDB': user,
+          'chatId': widget.chatId,
         });
         final onReturnFromNextPage = widget.onReturnFromNextPage;
         if (onReturnFromNextPage != null) onReturnFromNextPage();
