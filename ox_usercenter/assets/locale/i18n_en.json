@@ -51,7 +51,7 @@
   "language_title": "INTERFACE LANGUAGE",
   "theme": "Theme",
   "theme_color_title": "COLOR THEME",
-  "theme_color_default": "Default(Dark)",
+  "theme_color_default": "Automatic(${theme})",
   "theme_color_dart": "Dark",
   "theme_color_light": "Light",
   "version": "Version",

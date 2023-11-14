@@ -49,7 +49,7 @@
   "language_title": "界面语言",
   "theme": "主题",
   "theme_color_title": "主题颜色",
-  "theme_color_default": "默认(黑夜)",
+  "theme_color_default": "跟随系统(${theme})",
   "theme_color_dart": "黑夜",
   "theme_color_light": "白天",
   "version": "版本",
