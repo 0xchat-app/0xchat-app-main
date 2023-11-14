@@ -889,7 +889,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   _chatControlDialogItemWidget(
                       isSelect: _safeChatStatus,
                       content:
-                          '${_safeChatStatus ? 'Disable' : 'Enable'} Safe chat',
+                          '${_safeChatStatus ? 'Disable' : 'Enable'} Gift Wrap DM',
                       onTap: _updateSafeChat),
                   Container(
                     height: Adapt.px(8),
