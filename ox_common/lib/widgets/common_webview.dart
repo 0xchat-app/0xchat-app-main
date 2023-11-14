@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/common_webview+nostr.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ox_common/mixin/common_js_method_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -15,9 +13,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 
-import 'common_hint_dialog.dart';
 
 typedef UrlCallBack = void Function(String);
 
@@ -41,7 +37,7 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
     with CommonJSMethodMixin<T> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
-  late WebViewController _currentController;
+  late WebViewController currentController;
 
   get controller => _controller;
 
@@ -110,64 +106,15 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
         initialUrl: Uri.encodeFull(formatUrl((widget as CommonWebView).url)),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
-          _currentController = webViewController;
+          currentController = webViewController;
           _controller.complete(webViewController);
         },
-        javascriptChannels: <JavascriptChannel>{
-          _getPublicKeyChannel(context),
-          _signEventChannel(context),
-          _getRelaysChannel(context),
-        },
+        javascriptChannels: nostrChannels,
         onPageFinished: (url) {
           setState(() {
             showProgress = false;
           });
-          _currentController.runJavascript("""
-window.nostr = {
-  _call(channel, message) {
-    return new Promise((resolve, reject) => {
-      var resultId = "callbackResult_" + Math.floor(Math.random() * 100000000);
-      var arg = { resultId: resultId };
-      if (message) {
-        arg["msg"] = message;
-      }
-      var argStr = JSON.stringify(arg);
-      channel.postMessage(argStr);
-      window.nostr._requests[resultId] = { resolve, reject };
-    });
-  },
-  _requests: {},
-  resolve(resultId, message) {
-    window.nostr._requests[resultId].resolve(message);
-  },
-  reject(resultId, message) {
-    window.nostr._requests[resultId].reject(message);
-  },
-  async getPublicKey() {
-    return window.nostr._call(JS_getPublicKey);
-  },
-  async signEvent(event) {
-    return window.nostr._call(JS_signEvent, JSON.stringify(event));
-  },
-  async getRelays() {
-    return window.nostr._call(JS_getRelays);
-  },
-  nip04: {
-    async encrypt(pubkey, plaintext) {
-      return window.nostr._call(JS_nip04_encrypt, {
-        pubkey: pubkey,
-        plaintext: plaintext,
-      });
-    },
-    async decrypt(pubkey, ciphertext) {
-      return window.nostr._call(JS_nip04_decrypt, {
-        pubkey: pubkey,
-        ciphertext: ciphertext,
-      });
-    },
-  },
-};   
-         """);
+          currentController.runJavascript(windowNostrJavaScript);
         },
         onProgress: (process) {
           if (loadProgress != 1) {
@@ -180,84 +127,6 @@ window.nostr = {
         navigationDelegate: (navigationDelegate) async {
           (widget as CommonWebView).urlCallback?.call(navigationDelegate.url);
           return NavigationDecision.navigate;
-        });
-  }
-
-  JavascriptChannel _getPublicKeyChannel(BuildContext context) {
-    return JavascriptChannel(
-        name: 'JS_getPublicKey',
-        onMessageReceived: (JavascriptMessage message) async {
-
-          var uri = Uri.parse((widget as CommonWebView).url);
-          var host = uri.host;
-          bool allowGetPublicKey = await OXCacheManager.defaultOXCacheManager.getForeverData('$host.getPublicKey') ?? false;
-          if(!allowGetPublicKey){
-            OXCommonHintDialog.show(context,
-                title: 'get_publicKey_request_title'.commonLocalized(),
-                content: 'get_publicKey_request_content'.commonLocalized(),
-                isRowAction: true,
-                actionList: [
-                  OXCommonHintAction.cancel(onTap: () {
-                    OXNavigator.pop(context);
-                  }),
-                  OXCommonHintAction.sure(
-                      text: Localized.text('ox_common.confirm'),
-                      onTap: () async {
-                        await OXCacheManager.defaultOXCacheManager
-                            .saveForeverData('$host.getPublicKey', true);
-
-                        var jsonObj = jsonDecode(message.message);
-                        var resultId = jsonObj["resultId"];
-                        String pubkey = Account.sharedInstance.currentPubkey;
-                        var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
-                        await _currentController.runJavascript(script);
-                        OXNavigator.pop(context);
-                      }),
-                ]);
-          }
-          else{
-            var jsonObj = jsonDecode(message.message);
-            var resultId = jsonObj["resultId"];
-            String pubkey = Account.sharedInstance.currentPubkey;
-            var script = "window.nostr.resolve(\"$resultId\", \"$pubkey\");";
-            await _currentController.runJavascript(script);
-          }
-        });
-  }
-
-  JavascriptChannel _signEventChannel(BuildContext context) {
-    return JavascriptChannel(
-        name: 'JS_signEvent',
-        onMessageReceived: (JavascriptMessage message) async {
-          var jsonObj = jsonDecode(message.message);
-          var resultId = jsonObj["resultId"];
-          var content = jsonObj["msg"];
-          var eventObj = jsonDecode(content);
-          var signedEvent = Account.sharedInstance.signEvent(eventObj);
-          var eventResultStr = jsonEncode(signedEvent);
-          eventResultStr = eventResultStr.replaceAll("\"", "\\\"");
-          var script =
-              "window.nostr.resolve(\"$resultId\", JSON.parse(\"$eventResultStr\"));";
-          await _currentController.runJavascript(script);
-        });
-  }
-
-  JavascriptChannel _getRelaysChannel(BuildContext context) {
-    return JavascriptChannel(
-        name: 'JS_getRelays',
-        onMessageReceived: (JavascriptMessage message) async {
-          var jsonObj = jsonDecode(message.message);
-          var resultId = jsonObj["resultId"];
-          var relayMaps = {};
-          var relayAddrs = Connect.sharedInstance.relays();
-          for (var relayAddr in relayAddrs) {
-            relayMaps[relayAddr] = {"read": true, "write": true};
-          }
-          var resultStr = jsonEncode(relayMaps);
-          resultStr = resultStr.replaceAll("\"", "\\\"");
-          var script =
-              "window.nostr.resolve(\"$resultId\", JSON.parse(\"$resultStr\"));";
-          await _currentController.runJavascript(script);
         });
   }
 
