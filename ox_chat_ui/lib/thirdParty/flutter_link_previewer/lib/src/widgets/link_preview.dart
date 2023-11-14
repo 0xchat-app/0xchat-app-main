@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:flutter_linkify/flutter_linkify.dart' hide UrlLinkifier;
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../url_linkifier.dart' show UrlLinkifier;
@@ -343,8 +344,8 @@ class _LinkPreviewState extends State<LinkPreview>
           width: width,
           child: widget.imageBuilder != null
               ? widget.imageBuilder!(imageUrl)
-              : Image.network(
-                  imageUrl,
+              : OXCachedNetworkImage(
+                  imageUrl:imageUrl,
                   fit: BoxFit.contain,
                 ),
         ),
