@@ -45,7 +45,7 @@ class _ImageMessageState extends State<ImageMessage> {
   void initState() {
     super.initState();
     if (widget.message.fileEncryptionType == types.EncryptionType.none) {
-      _image = Conditional().getProvider(
+      _image = CachedNetworkImageProvider(
         widget.message.uri,
         headers: widget.imageHeaders,
       );
