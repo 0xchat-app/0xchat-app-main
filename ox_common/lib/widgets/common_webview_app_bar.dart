@@ -120,7 +120,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: ThemeColor.color160,
+        color: ThemeColor.color190,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -132,8 +132,8 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildItem(label: '在默认浏览器中打开',onTap: _launchURL, iconName: ''),
-                _buildItem(label: '复制链接',onTap: ()=>_copyURL(context), iconName: ''),
+                _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: ''),
+                _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: '',icon: Icons.copy),
               ],
             ),
           ),
@@ -162,7 +162,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     );
   }
 
-  Widget _buildItem({required String label,required String iconName,GestureTapCallback? onTap}){
+  Widget _buildItem({required String label,required String iconName,GestureTapCallback? onTap,IconData? icon}){
     return _buildTapWidget(
       onTap: onTap,
       child: Container(
@@ -172,7 +172,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.open_in_browser,size: 48.sp,),
+            Icon(icon ?? Icons.open_in_browser,size: 48.sp,),
             SizedBox(height: 5.px,),
             Text(label,textAlign: TextAlign.center,),
           ],
@@ -181,12 +181,13 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     );
   }
 
-  void _launchURL() async {
+  void _launchURL(BuildContext context) async {
     WebViewController webViewController = await webViewControllerFuture!;
     String? url = await webViewController.currentUrl();
     if(url != null && url.isNotEmpty){
       final Uri uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
+        OXNavigator.pop(context);
         await launchUrl(uri,mode: LaunchMode.externalApplication);
       } else {
         throw 'Cannot open $url';

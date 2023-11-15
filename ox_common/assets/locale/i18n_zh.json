@@ -100,5 +100,7 @@
   "secret_chat_received_tips": "您收到了一个密聊请求",
   "secret_chat_accepted_tips": "${name}接受了您的密聊请求",
   "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求",
-  "you": "你"
+  "you": "你",
+  "webview_more_browser": "从默认浏览器中打开",
+  "webview_more_copy": "复制链接"
 }
