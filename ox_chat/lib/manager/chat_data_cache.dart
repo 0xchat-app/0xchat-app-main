@@ -441,8 +441,9 @@ extension ChatDataCacheEx on ChatDataCache {
 
     List<MessageDB> allMessage = result;
     List<String> expiredMessages = [];
+    int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     await Future.forEach(allMessage, (message) async {
-      if(message.expiration != null && message.expiration! > DateTime.now().millisecondsSinceEpoch ~/ 1000){
+      if(message.expiration != null && message.expiration! < currentTime){
         expiredMessages.add(message.messageId);
         return;
       }
