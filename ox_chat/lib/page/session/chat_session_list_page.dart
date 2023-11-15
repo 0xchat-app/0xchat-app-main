@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
+import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -362,6 +363,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       return;
     }
     msgDatas = OXChatBinding.sharedInstance.sessionList;
+    _getMergeStrangerSession();
 
     msgDatas.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
@@ -569,19 +571,25 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
       String showPicUrl = '';
+      String localAvatarPath = '';
       switch(item.chatType){
         case ChatType.chatChannel:
           showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
+          localAvatarPath = 'icon_group_default.png';
           break;
         case ChatType.chatSingle:
         case ChatType.chatSecret:
           showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
+          localAvatarPath = 'user_image.png';
           break;
         case ChatType.chatGroup:
           showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
+          localAvatarPath = 'icon_group_default.png';
+          break;
+        case ChatType.chatNotice:
+          localAvatarPath = 'icon_request_avatar.png';
           break;
       }
-      String localAvatarPath = item.chatType == ChatType.chatChannel || item.chatType == ChatType.chatGroup ? 'icon_group_default.png' : 'user_image.png';
       return Container(
         width: Adapt.px(60),
         height: Adapt.px(60),
@@ -633,6 +641,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         break;
       case ChatType.chatGroup:
         showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
+        break;
+      case ChatType.chatNotice:
+        showName = item.chatName ?? '';
         break;
     }
     return Container(
@@ -781,6 +792,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     ChatSecretMessagePage(
                       communityItem: item,
                     ));
+          } else if (item.chatType == ChatType.chatNotice) {
+            OXNavigator.pushPage(context, (context) => ContactRequest());
           } else {
             OXNavigator.pushPage(
                 context,
@@ -1113,6 +1126,34 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     });
   }
 
+  void _getMergeStrangerSession(){
+    List<ChatSessionModel>  strangerSessionList = OXChatBinding.sharedInstance.strangerSessionList;
+    if(strangerSessionList.isNotEmpty){
+      ChatSessionModel mergeStrangerSession = ChatSessionModel();
+      int latestCreateTime = 0;
+      for(var session in strangerSessionList){
+        if(session.createTime > latestCreateTime){
+          latestCreateTime = session.createTime;
+        }
+      }
+
+      UserDB? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey];
+      String userShowName = user?.getUserShowName() ?? '';
+      String content = strangerSessionList.length > 1 ? '$userShowName... and other ${strangerSessionList.length} chats' : '$userShowName';
+
+      final unreadCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
+      mergeStrangerSession.chatId = '1000000001';
+      mergeStrangerSession.chatName = Localized.text('ox_chat.request_chat');
+      mergeStrangerSession.chatType = ChatType.chatNotice;
+      mergeStrangerSession.createTime = latestCreateTime;
+      mergeStrangerSession.content = content;
+      mergeStrangerSession.unreadCount = unreadCount;
+
+      if(mergeStrangerSession.chatId == '1000000001'){
+        msgDatas.add(mergeStrangerSession);
+      }
+    }
+  }
 }
 
 class _Style {

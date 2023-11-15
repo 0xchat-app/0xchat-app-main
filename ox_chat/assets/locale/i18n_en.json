@@ -190,5 +190,7 @@
   "ignore_text": "Ignore",
   "accept_text": "accept",
   "request_join_ignore_member": "Confirm whether to ignore the member",
-  "request_join_accept_member": "Confirm whether to accept the member"
+  "request_join_accept_member": "Confirm whether to accept the member",
+  "request_chat": "Request Chats",
+  "request_chat_content": "${name}... and other ${count} chats"
 }
