@@ -198,7 +198,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void didPromptToneCallBack (MessageDB message, int type) async {
     if(PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = await _checkIsMute(message,type);
-    if(!isMute) throttle(() {PromptToneManager.sharedInstance.play();});
+    if(!isMute && OXUserInfoManager.sharedInstance.canSound) throttle(() {PromptToneManager.sharedInstance.play();});
   }
 
 
@@ -1142,14 +1142,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       String content = strangerSessionList.length > 1 ? '$userShowName... and other ${strangerSessionList.length} chats' : '$userShowName';
 
       final unreadCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
-      mergeStrangerSession.chatId = '1000000001';
+      mergeStrangerSession.chatId = CommonConstant.NOTICE_CHAT_ID;
       mergeStrangerSession.chatName = Localized.text('ox_chat.request_chat');
       mergeStrangerSession.chatType = ChatType.chatNotice;
       mergeStrangerSession.createTime = latestCreateTime;
       mergeStrangerSession.content = content;
       mergeStrangerSession.unreadCount = unreadCount;
 
-      if(mergeStrangerSession.chatId == '1000000001'){
+      if(mergeStrangerSession.chatId == CommonConstant.NOTICE_CHAT_ID){
         msgDatas.add(mergeStrangerSession);
       }
     }

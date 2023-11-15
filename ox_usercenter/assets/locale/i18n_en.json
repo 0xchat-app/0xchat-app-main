@@ -103,5 +103,7 @@
   "add_ice_server_exist_tips": "This ICE Server already exists",
   "delete_server_tips": "Are you sure you want to delete it?",
   "delete_server_success_tips": "Successfully deleted",
-  "add": "Add"
+  "add": "Add",
+  "sound_feedback": "Sound",
+  "vibrate_feedback": "Vibrate"
 }

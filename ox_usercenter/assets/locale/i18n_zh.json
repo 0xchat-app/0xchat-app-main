@@ -101,5 +101,7 @@
   "add_ice_server_exist_tips": "该ICE服务器已存在",
   "delete_server_tips": "确定要删除吗？",
   "delete_server_success_tips": "删除成功",
-  "add": "添加"
+  "add": "添加",
+  "sound_feedback": "声音",
+  "vibrate_feedback": "震动"
 }
