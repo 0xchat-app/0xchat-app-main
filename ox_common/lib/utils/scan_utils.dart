@@ -3,10 +3,9 @@ import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/relay_model.dart';
-import 'package:ox_common/model/scan_jump_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -16,6 +15,7 @@ import 'package:ox_common/utils//string_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_common/event_bus.dart';
 
 ///Title: scan_utils
 ///Description: TODO()
@@ -23,7 +23,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 ///@author George
 ///CreateTime: 2021/5/31 3:03 PM
 class ScanUtils {
-  static void analysis(BuildContext context, String url) {
+  static Future<void> analysis(BuildContext context, String url) async {
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (!isLogin) {
       CommonToast.instance.show(context, 'please_sign_in'.commonLocalized());
@@ -31,7 +31,7 @@ class ScanUtils {
     }
 
     String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-    if(url.startsWith(shareAppLinkDomain)){
+    if (url.startsWith(shareAppLinkDomain)) {
       url = url.substring(shareAppLinkDomain.length);
     }
 
@@ -48,35 +48,25 @@ class ScanUtils {
         url.startsWith('nostr:note') ||
         url.startsWith('note')) {
       tempMap = Channels.decodeChannel(url);
-      ChannelDB? channelDB = Channels.sharedInstance.channels[tempMap?['channelId']];
-      if(channelDB != null){
-        type = CommonConstant.qrCodeChannel;
-      }
-      else{
-        type = CommonConstant.qrCodeGroup;
-      }
+      type = Groups.sharedInstance.groups.containsKey(tempMap?['channelId']) ? CommonConstant.qrCodeGroup : CommonConstant.qrCodeChannel;
+    } else if (url.startsWith('nostr+walletconnect:')) {
+      tempMap = {'nwc': url};
+      type = CommonConstant.qrCodeNWC;
     }
     if (tempMap == null) {
       return;
     }
-    bool notSame = true;
     List<String> relaysList =
-        (tempMap['relays'] as List<dynamic>).cast<String>();
+        (tempMap['relays'] ?? []).cast<String>();
     String willAddRelay = '';
-    if (relaysList.isEmpty) {
-      notSame = false;
-    } else {
-      for (String tempRelay in relaysList) {
-        for (String localRelay
-            in OXRelayManager.sharedInstance.relayAddressList) {
-          if (localRelay == tempRelay) {
-            notSame = false;
-          }
-        }
-      }
+    if (relaysList.isNotEmpty) {
+      willAddRelay = OXRelayManager.sharedInstance.relayAddressList
+                  .contains(relaysList[0]) ==
+              false
+          ? relaysList[0]
+          : '';
     }
-    if (notSame) {
-      willAddRelay = relaysList[0];
+    if (willAddRelay.isNotEmpty) {
       OXCommonHintDialog.show(context,
           content: 'scan_find_not_same_hint'
               .commonLocalized()
@@ -100,8 +90,9 @@ class ScanUtils {
                     _showFriendInfo(context, tempMap!['pubkey']);
                   } else if (type == CommonConstant.qrCodeChannel) {
                     _gotoChannel(context, tempMap!['channelId']);
-                  } else if( type == CommonConstant.qrCodeGroup){
-                    _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
+                  } else if (type == CommonConstant.qrCodeGroup) {
+                    _gotoGroup(
+                        context, tempMap!['channelId'], tempMap['author']);
                   }
                 }),
           ]);
@@ -110,8 +101,10 @@ class ScanUtils {
         _showFriendInfo(context, tempMap['pubkey']);
       } else if (type == CommonConstant.qrCodeChannel) {
         _gotoChannel(context, tempMap['channelId']);
-      }  else if( type == CommonConstant.qrCodeGroup){
-        _gotoGroup(context, tempMap!['channelId'], tempMap!['author']);
+      } else if (type == CommonConstant.qrCodeGroup) {
+        _gotoGroup(context, tempMap['channelId'], tempMap['author']);
+      } else if (type == CommonConstant.qrCodeNWC) {
+        _gotoNWC(context, tempMap['nwc']);
       }
     }
   }
@@ -123,25 +116,25 @@ class ScanUtils {
       CommonToast.instance.show(context, 'User not found');
     } else {
       if (context.mounted) {
-        OXModuleService.pushPage(
-            context, 'ox_chat', 'ContactUserInfoPage', {
+        OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
           'userDB': user,
         });
       }
     }
   }
 
-  static Future<void> _gotoGroup( BuildContext context, String groupId,String author) async {
-     // TODO: goto group
-    OXModuleService.invoke('ox_chat', 'groupSharePage',[context],
-        {
-          Symbol('groupPic'):'',
-          Symbol('groupName'):groupId,
-          Symbol('groupOwner'): author,
-          Symbol('groupId'):groupId,
-          Symbol('inviterPubKey'):'--',
-        }
-    );
+  static Future<void> _gotoGroup(
+      BuildContext context, String groupId, String author) async {
+    // TODO: goto group
+    OXModuleService.invoke('ox_chat', 'groupSharePage', [
+      context
+    ], {
+      Symbol('groupPic'): '',
+      Symbol('groupName'): groupId,
+      Symbol('groupOwner'): author,
+      Symbol('groupId'): groupId,
+      Symbol('inviterPubKey'): '--',
+    });
   }
 
   static Future<void> _gotoChannel(
@@ -169,5 +162,29 @@ class ScanUtils {
         });
       }
     }
+  }
+
+  static Future<void> _gotoNWC(BuildContext context, String nwcURI) async {
+    NostrWalletConnection? nwc = NostrWalletConnection.fromURI(nwcURI);
+    OXCommonHintDialog.show(context,
+        title: 'scan_find_nwc_hint'.commonLocalized(),
+        content: '${nwc?.relays[0]}\n${nwc?.lud16}',
+        isRowAction: true,
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                Zaps.sharedInstance.updateNWC(nwcURI);
+                await OXCacheManager.defaultOXCacheManager
+                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.isShowWalletSelector', false);
+                await OXCacheManager.defaultOXCacheManager
+                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.defaultWallet', 'NWC');
+                OXNavigator.pop(context);
+                CommonToast.instance.show(context, 'Success');
+              }),
+        ]);
   }
 }

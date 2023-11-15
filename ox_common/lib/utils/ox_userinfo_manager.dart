@@ -55,11 +55,23 @@ class OXUserInfoManager {
 
   bool get isFetchContactFinish => _contactFinishFlags.values.every((v) => v);
 
+  bool canVibrate = true;
+  bool canSound = true;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     DB.sharedInstance.deleteDBIfNeedMirgration = false;
-    await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
+    String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
+    if(dbpw == null || dbpw.isEmpty){
+      dbpw = generateStrongPassword(16);
+      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
+      await DB.sharedInstance.cipherMigrate(pubkey + ".db2", CommonConstant.dbVersion, dbpw);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
+    }
+    else{
+      LogUtil.d('[DB init] dbpw: $dbpw');
+      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
+    }
   }
 
   Future initLocalData() async {
@@ -90,6 +102,7 @@ class OXUserInfoManager {
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
+        _initFeedback();
       }
     } else {
       AppInitializationManager.shared.shouldShowInitializationLoading = false;
@@ -278,6 +291,7 @@ class OXUserInfoManager {
     });
     Relays.sharedInstance.init().then((value) {
       BadgesHelper.sharedInstance.init();
+      Zaps.sharedInstance.init();
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
@@ -304,5 +318,24 @@ class OXUserInfoManager {
   void _fetchFinishHandler(_ContactType type) {
     _contactFinishFlags[type] = true;
     setNotification();
+  }
+
+  Future<void> _initFeedback() async {
+    canVibrate = await _fetchFeedback(CommonConstant.NOTIFICATION_VIBRATE);
+    canSound = await _fetchFeedback(CommonConstant.NOTIFICATION_SOUND);
+  }
+
+  Future<bool> _fetchFeedback(int feedback) async {
+    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
+    if (dynamicList.isNotEmpty) {
+      List<String> jsonStringList = dynamicList.cast<String>();
+      for (var jsonString in jsonStringList) {
+        Map<String, dynamic> jsonMap = json.decode(jsonString);
+        if(jsonMap['id'] == feedback){
+          return jsonMap['isSelected'];
+        }
+      }
+    }
+    return true;
   }
 }

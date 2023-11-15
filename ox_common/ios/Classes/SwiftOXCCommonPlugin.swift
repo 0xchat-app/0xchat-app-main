@@ -14,18 +14,18 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
     
     var result:FlutterResult?
     
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "ox_common", binaryMessenger: registrar.messenger())
-    let instance = SwiftOXCCommonPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "ox_common", binaryMessenger: registrar.messenger())
+        let instance = SwiftOXCCommonPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
+    }
     
     
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    print("=====>ox_common \(call.method)")
-    self.result = result
-    switch call.method {
+    
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        print("=====>ox_common \(call.method)")
+        self.result = result
+        switch call.method {
         case "getPlatformVersion":
             result("iOS " + UIDevice.current.systemVersion)
         case "getImageFromCamera":
@@ -73,11 +73,22 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             getDeviceId(result: result)
         case "getPickerPaths":
             OXCImagePickerHelper.getPickerPaths(params: call.arguments as? [String : Any], result: result)
-        break;
+        case "scan_path":
+            guard let path = (call.arguments as? [String: String])?["path"] else { 
+                result("")
+                return
+            }
+            if let features = OXCQRCodeHelper.detectQRCode(UIImage.init(contentsOfFile: path)), 
+                let data = features.first as? CIQRCodeFeature {
+                result(data.messageString);
+            } else {
+                OXCQRCodeHelper.detectBarCode(UIImage.init(contentsOfFile: path), result: result)
+            }
+            break;
         default:
             break;
+        }
     }
-  }
     
     
     func getDeviceId(result:FlutterResult) {
@@ -152,7 +163,7 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             result("")
             return
         }
-
+        
         guard  let image = UIImage.init(data: data.data) else {
             result("")
             return
@@ -177,7 +188,7 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             }
         };
     }
-        
+    
     func callIOSSysShare(_ params:[String:Any]?,result:@escaping FlutterResult) {
         guard let param = params else {
             result("")
@@ -188,7 +199,7 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             result("")
             return
         }
-
+        
         guard  let image = UIImage.init(data: data.data) else {
             result("")
             return
@@ -275,7 +286,7 @@ extension SwiftOXCCommonPlugin: UIImagePickerControllerDelegate {
     }
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-
+        
         guard let mediaType = info[.mediaType] as? String else {
             UIApplication.shared.delegate?.window??.rootViewController?.dismiss(animated: true, completion: nil)
             return

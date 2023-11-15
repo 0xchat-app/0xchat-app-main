@@ -13,9 +13,9 @@ import 'package:path/path.dart' as path;
 
 class DecryptedCacheManager extends CacheManager {
   static const key = "decryptCache";
-  final String pubkey;
+  final String decryptKey;
 
-  DecryptedCacheManager(this.pubkey) : super(Config(key));
+  DecryptedCacheManager(this.decryptKey) : super(Config(key));
 
   @override
   Stream<FileResponse> getFileStream(String url,
@@ -35,7 +35,7 @@ class DecryptedCacheManager extends CacheManager {
             return fileInfo;
           }
           final validTill = const Duration(days: 30);
-          File decryptedFile = await decryptFile(fileInfo.file, pubkey, bytesCallback: (bytes) {
+          File decryptedFile = await decryptFile(fileInfo.file, decryptKey, bytesCallback: (bytes) {
             final fileBytes = Uint8List.fromList(bytes);
             super.putFile(url, fileBytes, key: key, maxAge: validTill);
           });
@@ -63,13 +63,13 @@ class DecryptedCacheManager extends CacheManager {
     yield fileResponse;
   }
 
-  static Future<File> decryptFile(io.File file, String pubkey,{ Function(List<int>)? bytesCallback }) async {
+  static Future<File> decryptFile(io.File file, String decryptKey, { Function(List<int>)? bytesCallback }) async {
     String fileName = path.basename(file.path);
     final decryptedFile = await DecryptedCacheManager('').store.fileSystem.createFile(fileName);
     AesEncryptUtils.decryptFile(
       file,
       decryptedFile,
-      pubkey,
+      decryptKey,
       bytesCallback: bytesCallback,
     );
     return decryptedFile;

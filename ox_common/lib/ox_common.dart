@@ -71,6 +71,12 @@ class OXCommon extends OXFlutterModule {
     return deviceId;
   }
 
+  static Future<String> scanPath(String path) async {
+    assert(path.isNotEmpty);
+    final String result = await channel.invokeMethod('scan_path', {'path': path});
+    return result;
+  }
+
   @override
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
     // TODO: implement navigateToPage

@@ -88,6 +88,10 @@
   "str_add_friend" : "Add Friend",
   "str_new_channel": "New Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
+  "scan_find_nwc_hint": "Connect to this wallet?",
+  "get_request_title": "Allow this website to:",
+  "get_publicKey_request_content": "☑️ Request to read your public key\n☑️ Sign events using your private key",
+  "get_encryptNip04_request_content": "☑️ Encrypt/Decrypt Nip04 event",
   "message_type_image": "[Image]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "You have received a secret chat request",
   "secret_chat_accepted_tips": "${name} has accepted your secret chat request.",
   "secret_chat_rejected_tips": "${name} has rejected your secret chat request",
-  "you": "you"
+  "you": "you",
+  "webview_more_browser": "Open in Browser",
+  "webview_more_copy": "Copy Link"
 }

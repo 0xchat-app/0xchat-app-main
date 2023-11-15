@@ -42,6 +42,10 @@ class ChatSessionModel extends DBObject {
 
   int? messageKind;
 
+  // added @v5
+  int? expiration;
+
+
   ChatSessionModel({
     this.chatId = '',
     this.chatName,
@@ -58,6 +62,7 @@ class ChatSessionModel extends DBObject {
     this.draft,
     this.isMentioned = false,
     this.messageKind,
+    this.expiration
   });
 
   String get getOtherPubkey {
@@ -68,14 +73,15 @@ class ChatSessionModel extends DBObject {
     return ['chatId'];
   }
 
-  static List<String?> ignoreKey() {
-    return ['messageKind'];
-  }
+  // static List<String?> ignoreKey() {
+  //   return ['messageKind'];
+  // }
 
   static Map<String, String?> updateTable() {
     return {
       '2': '''alter table ChatSessionModel add draft TEXT;''',
       '3': '''alter table ChatSessionModel add isMentioned INT DEFAULT 0;''',
+      "5": '''alter table ChatSessionModel add expiration INT; alter table ChatSessionModel add messageKind INT;''',
     };
   }
 
@@ -90,7 +96,7 @@ class ChatSessionModel extends DBObject {
 
   @override
   String toString() {
-    return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind}';
+    return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind, expiration: $expiration}';
   }
 }
 
@@ -110,6 +116,8 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
     alwaysTop: map['alwaysTop'] == 1,
     draft: map['draft'],
     isMentioned: map['isMentioned'] == 1,
+    messageKind: map['messageKind'],
+    expiration: map['expiration'],
   );
 }
 
@@ -128,4 +136,6 @@ Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <Strin
       'alwaysTop': instance.alwaysTop == true ? 1 : 0,
       'draft': instance.draft,
       'isMentioned': instance.isMentioned == true ? 1 : 0,
+      'messageKind': instance.messageKind,
+      'expiration': instance.expiration
     };

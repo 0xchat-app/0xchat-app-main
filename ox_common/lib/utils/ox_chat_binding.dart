@@ -156,6 +156,7 @@ class OXChatBinding {
     String? draft,
     int? messageKind,
     bool? isMentioned,
+    int? expiration
   }) async {
     int changeCount = 0;
     ChatSessionModel? sessionModel = sessionMap[chatId];
@@ -194,6 +195,11 @@ class OXChatBinding {
       }
       if (messageKind != null && sessionModel.messageKind != messageKind) {
         sessionModel.messageKind = messageKind;
+        isChange = true;
+      }
+      if (expiration != null && sessionModel.expiration != expiration && !(expiration == 0 && sessionModel.expiration == null)) {
+        if(expiration == 0) expiration = null;
+        sessionModel.expiration = expiration;
         isChange = true;
       }
       if (isChange) {
@@ -281,7 +287,11 @@ class OXChatBinding {
         sessionModel.chatType = sessionModel.chatType == ChatType.chatSecretStranger ? ChatType.chatSecret
             : (sessionModel.chatType == ChatType.chatStranger ? ChatType.chatSingle : sessionModel.chatType);
       }
-      if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
+      if (messageDB.createTime >= tempModel.createTime){
+        sessionModel.expiration = tempModel.expiration;
+        sessionModel.messageKind = tempModel.messageKind;
+        tempModel = sessionModel;
+      }
       sessionMap[chatId] = tempModel;
       DB.sharedInstance.insert<ChatSessionModel>(tempModel);
     } else {

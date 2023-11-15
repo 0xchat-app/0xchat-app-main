@@ -4,7 +4,7 @@ abstract class ConstantInterface {
   const ConstantInterface();
 
   ///db version
-  int get dbVersion => 5;
+  int get dbVersion => 6;
 
   /// 0xchat relay
   String get oxChatRelay => 'wss://relay.0xchat.com';
@@ -15,10 +15,18 @@ abstract class ConstantInterface {
   int get qrCodeChannel => 1;
   /// nevent: (2) Group QRCode;
   int get qrCodeGroup => 2;
+  /// nostr+walletconnect: (3) NWC
+  int get qrCodeNWC => 3;
 
   String get baseUrl => 'https://www.0xchat.com';
 
+  String get njumpURL =>  'https://njump.me/';
+
   String get APP_SCHEME => 'oxchat://';
+
+  String get NWC_SCHEME => 'nostr+walletconnect://';
+
+  String get NOSTR_SCHEME => 'nostr://';
 
   /// share app link domain
   String get SHARE_APP_LINK_DOMAIN => 'https://www.0xchat.com/link/';
@@ -31,6 +39,12 @@ abstract class ConstantInterface {
   int get NOTIFICATION_CHANNELS => 2;
   /// Zaps
   int get NOTIFICATION_ZAPS => 3;
+  /// Sound
+  int get NOTIFICATION_SOUND => 4;
+  /// Vibrate
+  int get NOTIFICATION_VIBRATE => 5;
+
+  String get NOTICE_CHAT_ID => '1000000001';
 
   /// Aliyun OSS EndPoint
   String get ossEndPoint;

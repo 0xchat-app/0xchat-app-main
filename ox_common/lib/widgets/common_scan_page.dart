@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/common_color.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
@@ -14,7 +15,6 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/custom_scanner_overlay.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
-import 'package:qrscan/qrscan.dart' as scanner;
 import 'common_image.dart';
 
 class CommonScanPage extends StatefulWidget {
@@ -201,7 +201,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
     );
     File file = File(res[0].path ?? '');
     try {
-      String qrcode = await scanner.scanPath(file.path);
+      String qrcode = await OXCommon.scanPath(file.path);
       OXNavigator.pop(context, qrcode);
     } catch (e) {
       CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
