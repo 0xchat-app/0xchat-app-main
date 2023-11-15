@@ -195,7 +195,7 @@
   "request_chat_content": "${name}... and other ${count} chats",
   "more": "More",
   "success": "Success",
-  "option_gift_wrap_dm": "${option} Gift Wrap DM",
+  "option_gift_wrap_dm": "${option} Gift-Wrapped DM",
   "option_auto_delete": "${option} Auto-Delete",
   "set": "Set",
   "enable": "Enable",
