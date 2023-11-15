@@ -26,6 +26,15 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
   TextEditingController _controller = TextEditingController();
 
+  List<UserDB> userList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initUserList();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -84,7 +93,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
   Widget _buildTitleWidget() {
     return Text(
-      '${Localized.text('ox_chat.str_new_group')} (${widget.userList.length})',
+      '${Localized.text('ox_chat.str_new_group')} (${userList.length})',
       style: TextStyle(
           fontWeight: FontWeight.w400,
           fontSize: Adapt.px(16),
@@ -180,14 +189,22 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
         itemContent: Expanded(
           child: ListView.builder(
             itemBuilder: (BuildContext context, int index) {
-              return GroupMemberItem(user: widget.userList[index]);
+              return GroupMemberItem(user: userList[index]);
             },
-            itemCount: widget.userList.length,
+            itemCount: userList.length,
           ),
         ),
       ),
     );
   }
+
+  void _initUserList(){
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    userList = widget.userList;
+    if(userDB != null) userList.add(userDB);
+    setState(() {});
+  }
+
 
   Future<void> _createGroup() async {
     String name = _controller.text;
@@ -195,7 +212,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       CommonToast.instance.show(context, Localized.text("ox_chat.group_enter_hint_text"));
       return;
     };
-    List<String> members = widget.userList.map((user) => user.pubKey).toList();
+    List<String> members = userList.map((user) => user.pubKey).toList();
     String owner = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, [...members,owner], '${Localized.text("ox_chat.create_group_system_message")}: $name');
     if (groupDB != null) {
@@ -212,7 +229,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
           ),
         ),
       );
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(widget.userList,groupDB.groupId);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
     }else{
       CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
     }
