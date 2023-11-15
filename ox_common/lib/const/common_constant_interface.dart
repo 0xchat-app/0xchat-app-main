@@ -39,6 +39,12 @@ abstract class ConstantInterface {
   int get NOTIFICATION_CHANNELS => 2;
   /// Zaps
   int get NOTIFICATION_ZAPS => 3;
+  /// Sound
+  int get NOTIFICATION_SOUND => 4;
+  /// Vibrate
+  int get NOTIFICATION_VIBRATE => 5;
+
+  String get NOTICE_CHAT_ID => '1000000001';
 
   /// Aliyun OSS EndPoint
   String get ossEndPoint;
