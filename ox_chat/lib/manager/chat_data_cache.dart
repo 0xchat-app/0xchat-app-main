@@ -70,12 +70,12 @@ class ChatDataCache with OXChatObserver {
       funcName: 'didFriendMessageCallBack',
       message: 'begin',
     );
-
     final senderId = message.sender;
     final receiverId = message.receiver;
     final key = PrivateChatKey(senderId, receiverId);
 
     types.Message? msg = await message.toChatUIMessage();
+
     if (msg == null) {
       ChatLogUtils.info(className: 'ChatDataCache', funcName: 'receivePrivateMessageHandler', message: 'message is null');
       return ;
@@ -83,7 +83,7 @@ class ChatDataCache with OXChatObserver {
 
     await _addChatMessages(key, msg);
 
-    OXChatBinding.sharedInstance.updateChatSession(senderId, expiration: message.expiration);
+    // OXChatBinding.sharedInstance.updateChatSession(senderId, expiration: message.expiration);
   }
 
   @override
@@ -104,8 +104,6 @@ class ChatDataCache with OXChatObserver {
     }
 
     await _addChatMessages(key, msg);
-
-    OXChatBinding.sharedInstance.updateChatSession(sessionId, expiration: message.expiration);
   }
 
   @override

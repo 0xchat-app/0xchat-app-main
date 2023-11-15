@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -10,11 +11,11 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
-import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
 import '../../models/send_button_visibility_mode.dart';
@@ -442,17 +443,18 @@ class InputState extends State<Input>{
       builder: (BuildContext context) => CommonTimeDialog(callback: (int time) async {
           await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: time);
 
-          String content =  time > 0 ? 'Set Auto-Delete ${(time ~/ (24*3600)).toString()} Days' : 'Disable Auto-Delete';
+          final username = Account.sharedInstance.me?.name;
+          final content =  time > 0 ? '$username Set messages to auto-delete after ${(time ~/ (24*3600)).toString()} days' : '$username Disabled the auto-delete timer';
           OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
             context
           ], {
             Symbol('content'): content,
-            Symbol('localTextKey'): 'Change Auto-Delete status',
+            Symbol('localTextKey'): content,
             Symbol('chatId'): widget.chatId,
           });
 
           setState(() {});
-          await CommonToast.instance.show(context, 'Change successfully');
+          await CommonToast.instance.show(context, 'Success');
           OXNavigator.pop(context);
         },
           expiration: _autoDelExTime

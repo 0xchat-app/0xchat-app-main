@@ -58,7 +58,7 @@ class ChatSendMessageHelper {
     final sendMsg = message.copyWith(
       id: event.id,
       sourceKey: sourceKey,
-      expiration: senderStrategy.session.expiration,
+      expiration: senderStrategy.session.expiration == null ? null : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
     );
 
     ChatLogUtils.info(
