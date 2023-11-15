@@ -7,11 +7,7 @@ import 'package:ox_common/widgets/common_webview+nostr.dart';
 import 'package:ox_common/widgets/common_webview_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ox_common/mixin/common_js_method_mixin.dart';
-import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 

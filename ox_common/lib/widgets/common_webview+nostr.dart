@@ -98,9 +98,9 @@ window.nostr = {
           var eventObj = jsonDecode(content);
           var signedEvent = Account.sharedInstance.signEvent(eventObj);
           var eventResultStr = jsonEncode(signedEvent);
-          eventResultStr = eventResultStr.replaceAll("\"", "\\\"");
+          String base64Json = base64.encode(utf8.encode(eventResultStr));
           var script =
-              "window.nostr.resolve(\"$resultId\", JSON.parse(\"$eventResultStr\"));";
+              "window.nostr.resolve(\"$resultId\", JSON.parse(atob(\"$base64Json\")));";
           await currentController.runJavascript(script);
         });
   }
