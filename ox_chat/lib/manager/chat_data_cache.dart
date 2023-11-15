@@ -64,6 +64,21 @@ class ChatDataCache with OXChatObserver {
     receivePrivateMessageHandler(message);
   }
 
+  void updateSessionExpiration(String sessionId, MessageDB message){
+    final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if(message.receiver != myPubkey) return;
+
+    ChatSessionModel? sessionModel = OXChatBinding.sharedInstance.sessionMap[sessionId];
+
+    if(sessionModel != null && message.createTime >= sessionModel.createTime){
+      int expiration = 0;
+      if(message.expiration != null && message.expiration! > message.createTime) {
+        expiration = message.expiration! - message.createTime;
+      }
+      OXChatBinding.sharedInstance.updateChatSession(sessionId, expiration: expiration);
+    }
+  }
+
   Future receivePrivateMessageHandler(MessageDB message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
@@ -83,7 +98,7 @@ class ChatDataCache with OXChatObserver {
 
     await _addChatMessages(key, msg);
 
-    // OXChatBinding.sharedInstance.updateChatSession(senderId, expiration: message.expiration);
+    updateSessionExpiration(senderId, message);
   }
 
   @override
@@ -104,6 +119,8 @@ class ChatDataCache with OXChatObserver {
     }
 
     await _addChatMessages(key, msg);
+
+    updateSessionExpiration(sessionId, message);
   }
 
   @override
