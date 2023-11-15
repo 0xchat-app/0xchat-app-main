@@ -55,6 +55,8 @@ class OXUserInfoManager {
 
   bool get isFetchContactFinish => _contactFinishFlags.values.every((v) => v);
 
+  bool canVibrate = true;
+  bool canSound = true;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
@@ -100,6 +102,7 @@ class OXUserInfoManager {
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
+        _initFeedback();
       }
     } else {
       AppInitializationManager.shared.shouldShowInitializationLoading = false;
@@ -315,5 +318,24 @@ class OXUserInfoManager {
   void _fetchFinishHandler(_ContactType type) {
     _contactFinishFlags[type] = true;
     setNotification();
+  }
+
+  Future<void> _initFeedback() async {
+    canVibrate = await _fetchFeedback(CommonConstant.NOTIFICATION_VIBRATE);
+    canSound = await _fetchFeedback(CommonConstant.NOTIFICATION_SOUND);
+  }
+
+  Future<bool> _fetchFeedback(int feedback) async {
+    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
+    if (dynamicList.isNotEmpty) {
+      List<String> jsonStringList = dynamicList.cast<String>();
+      for (var jsonString in jsonStringList) {
+        Map<String, dynamic> jsonMap = json.decode(jsonString);
+        if(jsonMap['id'] == feedback){
+          return jsonMap['isSelected'];
+        }
+      }
+    }
+    return true;
   }
 }
