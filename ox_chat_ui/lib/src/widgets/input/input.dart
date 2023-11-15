@@ -14,6 +14,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import 'package:ox_common/widgets/common_time_dialog.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
 import '../../models/send_button_visibility_mode.dart';
@@ -440,6 +441,16 @@ class InputState extends State<Input>{
       isScrollControlled: true,
       builder: (BuildContext context) => CommonTimeDialog(callback: (int time) async {
           await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: time);
+
+          String content =  time > 0 ? 'Set Auto-Delete ${(time ~/ (24*3600)).toString()} Days' : 'Disable Auto-Delete';
+          OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
+            context
+          ], {
+            Symbol('content'): content,
+            Symbol('localTextKey'): 'Change Auto-Delete status',
+            Symbol('chatId'): widget.chatId,
+          });
+
           setState(() {});
           await CommonToast.instance.show(context, 'Change successfully');
           OXNavigator.pop(context);

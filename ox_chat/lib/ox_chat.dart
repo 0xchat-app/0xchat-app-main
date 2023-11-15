@@ -13,13 +13,17 @@ import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
-import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chatcore/chat-core.dart';
+
+
+
 
 class OXChat extends OXFlutterModule {
 
@@ -39,6 +43,7 @@ class OXChat extends OXFlutterModule {
     'chatSessionListPageWidget': _chatSessionListPageWidget,
     'contractsPageWidget': _contractsPageWidget,
     'groupSharePage': _jumpGroupSharePage,
+    'sendSystemMsg': _sendSystemMsg,
   };
 
   @override
@@ -110,5 +115,26 @@ class OXChat extends OXFlutterModule {
 
   void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
     OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
+  }
+
+  void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+
+    ChatSessionModel? sessionModel = OXChatBinding.sharedInstance.sessionMap[chatId];
+    if(sessionModel == null) return;
+
+    ChatGeneralHandler chatGeneralHandler = ChatGeneralHandler(
+      author: types.User(
+        id: userDB!.pubKey,
+        sourceObject: userDB,
+      ),
+      session: sessionModel,
+    );
+
+    chatGeneralHandler.sendSystemMessage(
+        context,
+        content,
+        localTextKey:localTextKey,
+    );
   }
 }

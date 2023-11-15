@@ -69,6 +69,13 @@ extension OtherInfoItemStr on OtherInfoItemType {
 }
 
 class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
+
+  ChatSessionModel? get _chatSessionModel {
+    ChatSessionModel? model =
+    OXChatBinding.sharedInstance.sessionMap[widget.chatId];
+    return model;
+  }
+
   Image _avatarPlaceholderImage = Image.asset(
     'assets/images/icon_user_default.png',
     fit: BoxFit.contain,
@@ -91,11 +98,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   bool _isMute = false;
   bool _isVerifiedDNS = false;
 
-  ChatSessionModel? get _chatSessionModel {
-    ChatSessionModel? model =
-        OXChatBinding.sharedInstance.sessionMap[widget.chatId];
-    return model;
-  }
 
   // auto delete
   int get _autoDelExTime {
@@ -934,6 +936,11 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           callback: (time) async {
             if(widget.chatId == null) OXNavigator.pop(context);
             await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
+
+            String content =  time > 0 ? 'Set Auto-Delete ${(time ~/ (24*3600)).toString()} Days' : 'Disable Auto-Delete';
+
+            _sendSystemMsg(content: content,localTextKey: 'Change Auto-Delete status');
+
             setState(() {});
             CommonToast.instance.show(context, 'Change successfully');
             OXNavigator.pop(context);
@@ -950,8 +957,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
     int kind = _safeChatStatus ? 4 : 1059;
 
-    await OXChatBinding.sharedInstance
-        .updateChatSession(chatId, messageKind: kind);
+    await OXChatBinding.sharedInstance.updateChatSession(chatId, messageKind: kind);
+
+    String content =  kind == 4 ? 'Disable safe chat' : 'Safe chat';
+
+    _sendSystemMsg(content:content,localTextKey:'Change safe chat status');
+
     CommonToast.instance.show(context, 'option successfully');
     OXNavigator.pop(context);
     setState(() {});
@@ -1113,5 +1124,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         _isVerifiedDNS = isVerifiedDNS;
       });
     }
+  }
+
+  void _sendSystemMsg({required String localTextKey,required String content}){
+    OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
+      context
+    ], {
+      Symbol('content'): content,
+      Symbol('localTextKey'): localTextKey,
+      Symbol('chatId'): widget.chatId,
+    });
+
   }
 }
