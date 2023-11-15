@@ -36,7 +36,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: backgroundColor ?? ThemeColor.color180,
+      color: backgroundColor ?? ThemeColor.color200,
       child: SafeArea(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20.px),
