@@ -814,6 +814,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _sendMsg() {
+    if(widget.chatId != null){
+      OXNavigator.pop(context);
+      return;
+    }
     OXNavigator.pushReplacement(
       context,
       ChatMessagePage(
@@ -943,6 +947,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
             setState(() {});
             CommonToast.instance.show(context, 'Success');
+            OXNavigator.pop(context);
             OXNavigator.pop(context);
           },
           expiration: _autoDelExTime,
