@@ -197,7 +197,7 @@ class OXChatBinding {
         sessionModel.messageKind = messageKind;
         isChange = true;
       }
-      if (expiration != null && sessionModel.expiration != expiration) {
+      if (expiration != null && sessionModel.expiration != expiration && !(expiration == 0 && sessionModel.expiration == null)) {
         if(expiration == 0) expiration = null;
         sessionModel.expiration = expiration;
         isChange = true;
