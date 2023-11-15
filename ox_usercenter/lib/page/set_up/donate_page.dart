@@ -11,6 +11,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -285,23 +286,23 @@ class _DonatePageState extends State<DonatePage> {
         useLargeTitle: false,
         titleTextColor: ThemeColor.color0,
         backgroundColor: ThemeColor.color200,
-        // actions: [
-        //    YLEButton(
-        //     highlightColor: Colors.transparent,
-        //     color: Colors.transparent,
-        //     disabledColor: Colors.transparent,
-        //     child: CommonImage(
-        //       iconName: _isAppleOrGooglePay ? 'icon_pay_channel_sats.png' : (Platform.isAndroid ? 'icon_pay_channel_google.png':'icon_pay_channel_apple.png'),
-        //       width: Adapt.px(40),
-        //       height: Adapt.px(26),
-        //       fit: BoxFit.cover,
-        //       package: 'ox_usercenter',
-        //     ),
-        //     onPressed: () {
-        //       _switchPay();
-        //     },
-        //   ),
-        // ],
+        actions: [
+           OXButton(
+            highlightColor: Colors.transparent,
+            color: Colors.transparent,
+            disabledColor: Colors.transparent,
+            child: CommonImage(
+              iconName: _isAppleOrGooglePay ? 'icon_pay_channel_sats.png' : (Platform.isAndroid ? 'icon_pay_channel_google.png':'icon_pay_channel_apple.png'),
+              width: Adapt.px(40),
+              height: Adapt.px(26),
+              fit: BoxFit.cover,
+              package: 'ox_usercenter',
+            ),
+            onPressed: () {
+              _switchPay();
+            },
+          ),
+        ],
       ),
       body: _body(),
     );
@@ -413,7 +414,7 @@ class _DonatePageState extends State<DonatePage> {
               } else {
                 await _getInvoice(donateItems[_selectIndex].sats);
               }
-              await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {});
+              await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoice});
               }
           } catch (error) {
             return;
