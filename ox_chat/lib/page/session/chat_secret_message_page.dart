@@ -221,6 +221,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           Container(
             alignment: Alignment.center,
             child: OXUserAvatar(
+              isSecretChat:true,
               chatId: widget.communityItem.chatId,
               user: otherUser,
               size: Adapt.px(36),

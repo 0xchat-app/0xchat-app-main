@@ -190,5 +190,6 @@
   "ignore_text": "忽略",
   "accept_text": "接受",
   "request_join_ignore_member": "确认是否忽略该成员",
-  "request_join_accept_member": "确认是否接受该成员"
+  "request_join_accept_member": "确认是否接受该成员",
+  "more": "更多"
 }

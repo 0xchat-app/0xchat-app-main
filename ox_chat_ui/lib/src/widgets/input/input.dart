@@ -441,10 +441,14 @@ class InputState extends State<Input>{
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) => CommonTimeDialog(callback: (int time) async {
-          await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: time);
+          await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: 10);
 
-          final username = Account.sharedInstance.me?.name;
-          final content =  time > 0 ? '$username Set messages to auto-delete after ${(time ~/ (24*3600)).toString()} days' : '$username Disabled the auto-delete timer';
+          final username = Account.sharedInstance.me?.name ?? '';
+
+          String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
+          String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
+          String content =  time > 0 ? setMsgContent : disableMsgContent;
+
           OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
             context
           ], {

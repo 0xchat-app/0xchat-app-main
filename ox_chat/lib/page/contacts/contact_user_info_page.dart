@@ -35,8 +35,9 @@ import 'contact_create_secret_chat.dart';
 class ContactUserInfoPage extends StatefulWidget {
   final UserDB userDB;
   final String? chatId;
+  final bool isSecretChat;
 
-  ContactUserInfoPage({Key? key, required this.userDB, this.chatId})
+  ContactUserInfoPage({Key? key, required this.userDB, this.chatId, this.isSecretChat = false})
       : super(key: key);
 
   @override
@@ -264,7 +265,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             child: _tabWidget(
               onTap: _chatMsgControlDialogWidget,
               iconName: 'icon_more_gray.png',
-              content: 'More',
+              content: Localized.text('ox_chat.more'),
             ),
           ),
         ],
@@ -712,7 +713,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               right: 0,
               child: FutureBuilder<BadgeDB?>(
                 builder: (context, snapshot) {
-                  return (snapshot.data != null && snapshot.data!.thumb != null)
+                  return (snapshot.data != null)
                       ? OXCachedNetworkImage(
                           imageUrl: snapshot.data?.thumb ?? '',
                           errorWidget: (context, url, error) =>
@@ -874,7 +875,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             opacity: 1,
             child: Container(
               alignment: Alignment.bottomCenter,
-              height: Adapt.px(195),
+              height: Adapt.px(widget.isSecretChat ? 142 : 195),
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
                 borderRadius: BorderRadius.circular(12),
@@ -886,17 +887,17 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   _chatControlDialogItemWidget(
                       isSelect: _autoDelExTime != 0,
                       content:
-                          '${_autoDelExTime > 0 ? 'Set' : 'Enable'} Auto-Delete',
+                      Localized.text('ox_chat.option_auto_delete').replaceAll(r'${option}', '${_autoDelExTime > 0 ? Localized.text('ox_chat.set') : Localized.text('ox_chat.enable')}'),
                       onTap: _updateAutoDel),
                   Divider(
                     height: Adapt.px(0.5),
                     color: ThemeColor.color160,
                   ),
-                  _chatControlDialogItemWidget(
+                  !widget.isSecretChat ? _chatControlDialogItemWidget(
                       isSelect: _safeChatStatus,
                       content:
-                          '${_safeChatStatus ? 'Disable' : 'Enable'} Gift Wrap DM',
-                      onTap: _updateSafeChat),
+                      Localized.text('ox_chat.option_gift_wrap_dm').replaceAll(r'${option}', '${_safeChatStatus ? Localized.text('ox_chat.disable') : Localized.text('ox_chat.enable')} '),
+                      onTap: _updateSafeChat) : Container(),
                   Container(
                     height: Adapt.px(8),
                     color: ThemeColor.color190,
@@ -940,13 +941,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           callback: (time) async {
             if(widget.chatId == null) OXNavigator.pop(context);
             await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
-            String? username = Account.sharedInstance.me?.name;
-            String content =  time > 0 ? '$username Set messages to auto-delete after ${(time ~/ (24*3600)).toString()} days' : '$username Disabled the auto-delete timer';
+            String username = Account.sharedInstance.me?.name ?? '';
+
+            String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
+            String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
+            String content =  time > 0 ? setMsgContent : disableMsgContent;
 
             _sendSystemMsg(content: content,localTextKey: content);
 
             setState(() {});
-            CommonToast.instance.show(context, 'Success');
+            CommonToast.instance.show(context, Localized.text('ox_chat.success'));
             OXNavigator.pop(context);
             OXNavigator.pop(context);
           },
@@ -963,8 +967,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     int kind = _safeChatStatus ? 4 : 1059;
 
     await OXChatBinding.sharedInstance.updateChatSession(chatId, messageKind: kind);
-    String? username = Account.sharedInstance.me?.name;
-    String content =  kind == 4 ? '$username Set the current conversation as normal DM' : '$username Set the current conversation as gift-wrapped DM';
+    String username = Account.sharedInstance.me?.name ?? '';
+
+
+    String normalDmContent = Localized.text('ox_chat.set_normal_dm_system').replaceAll(r'${username}', username);
+    String giftWrappedDmContent = Localized.text('ox_chat.set_gift_wrapped_dm_system').replaceAll(r'${username}', username);
+    String content =  kind == 4 ? normalDmContent : giftWrappedDmContent;
 
     _sendSystemMsg(content:content, localTextKey:content);
 
