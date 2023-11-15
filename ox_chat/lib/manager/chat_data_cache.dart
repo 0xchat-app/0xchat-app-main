@@ -83,10 +83,7 @@ class ChatDataCache with OXChatObserver {
 
     await _addChatMessages(key, msg);
 
-    // final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    // if (receiverId == myPubkey) {
-    //   OXChatBinding.sharedInstance.updateChatSession(senderId, messageKind: message.kind);
-    // }
+    OXChatBinding.sharedInstance.updateChatSession(senderId, expiration: message.expiration);
   }
 
   @override
@@ -107,6 +104,8 @@ class ChatDataCache with OXChatObserver {
     }
 
     await _addChatMessages(key, msg);
+
+    OXChatBinding.sharedInstance.updateChatSession(sessionId, expiration: message.expiration);
   }
 
   @override

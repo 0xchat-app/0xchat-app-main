@@ -882,7 +882,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   _chatControlDialogItemWidget(
                       isSelect: _autoDelExTime != 0,
                       content:
-                          '${_autoDelExTime > 0 ? 'Disable' : 'Enable'} Auto-Delete',
+                          '${_autoDelExTime > 0 ? 'Set' : 'Enable'} Auto-Delete',
                       onTap: _updateAutoDel),
                   Divider(
                     height: Adapt.px(0.5),
@@ -936,13 +936,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           callback: (time) async {
             if(widget.chatId == null) OXNavigator.pop(context);
             await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
+            String? username = Account.sharedInstance.me?.name;
+            String content =  time > 0 ? '$username Set messages to auto-delete after ${(time ~/ (24*3600)).toString()} days' : '$username Disabled the auto-delete timer';
 
-            String content =  time > 0 ? 'Set Auto-Delete ${(time ~/ (24*3600)).toString()} Days' : 'Disable Auto-Delete';
-
-            _sendSystemMsg(content: content,localTextKey: 'Change Auto-Delete status');
+            _sendSystemMsg(content: content,localTextKey: content);
 
             setState(() {});
-            CommonToast.instance.show(context, 'Change successfully');
+            CommonToast.instance.show(context, 'Success');
             OXNavigator.pop(context);
           },
           expiration: _autoDelExTime,
@@ -958,12 +958,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     int kind = _safeChatStatus ? 4 : 1059;
 
     await OXChatBinding.sharedInstance.updateChatSession(chatId, messageKind: kind);
+    String? username = Account.sharedInstance.me?.name;
+    String content =  kind == 4 ? '$username Set the current conversation as normal DM' : '$username Set the current conversation as gift-wrapped DM';
 
-    String content =  kind == 4 ? 'Disable safe chat' : 'Safe chat';
+    _sendSystemMsg(content:content, localTextKey:content);
 
-    _sendSystemMsg(content:content,localTextKey:'Change safe chat status');
-
-    CommonToast.instance.show(context, 'option successfully');
+    CommonToast.instance.show(context, 'Success');
     OXNavigator.pop(context);
     setState(() {});
   }
