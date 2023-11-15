@@ -14,4 +14,19 @@ class ChatLogUtils {
     if (showInfoLog)
       LogUtil.i('[Module - $module][$className - $funcName] $message');
   }
+
+  static debug({String module = 'Chat', required String className, required String funcName, MessageCheckLogger? logger}) {
+    if (logger == null) return ;
+    LogUtil.i('[Module - $module][$className - $funcName] ${logger.log}');
+  }
+}
+
+class MessageCheckLogger {
+  MessageCheckLogger(this.messageId);
+
+  final messageId;
+
+  String printMessage = '';
+
+  String get log => 'message check $printMessage';
 }

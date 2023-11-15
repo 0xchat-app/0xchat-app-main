@@ -342,7 +342,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
           chatType: ChatType.chatGroup,
           chatName: widget.item.name!,
           createTime: widget.item.updateTime!,
-          avatar: widget.item.picture!,
+          avatar: widget.item.picture ?? '',
         ),
       ),
     );

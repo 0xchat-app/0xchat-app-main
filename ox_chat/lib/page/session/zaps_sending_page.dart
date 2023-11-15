@@ -120,7 +120,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
 
         },
         child: CommonImage(
-          iconName: 'icon_more.png',
+          iconName: 'icon_more_gray.png',
           width: Adapt.px(24),
           height: Adapt.px(24),
           package: 'ox_chat',
@@ -253,18 +253,14 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': invoice,
       'walletOnPress': (WalletModel wallet) async {
-        final result = await OXCommonHintDialog.showConfirmDialog(context, title: '', content: Localized.text('ox_chat.send_zap_tips'),);
-        if (result) {
-          widget.zapsInfoCallback({
-            'zapper': zapper,
-            'invoice': invoice,
-            'amount': amount.toString(),
-            'description': description,
-          });
-          OXNavigator.pop(context);
-        }
-        isConfirm = result;
-        return result;
+        widget.zapsInfoCallback({
+          'zapper': zapper,
+          'invoice': invoice,
+          'amount': amount.toString(),
+          'description': description,
+        });
+        isConfirm = true;
+        return true;
       },
     });
     return isConfirm;

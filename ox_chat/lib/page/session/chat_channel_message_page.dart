@@ -210,6 +210,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
+        customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,

@@ -290,7 +290,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void _tabClick(int value) {
-    if (hasVibrator == true) {
+    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
       //Vibration feedback
       FeedbackType type = FeedbackType.impact;
       Vibrate.feedback(type);

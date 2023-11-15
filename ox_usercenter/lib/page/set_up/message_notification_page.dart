@@ -33,6 +33,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   Map<int, NoticeModel> _allNoticeModel = {};
   List<NoticeModel> _noticeModelList = [];
   NoticeModel? _messageNoticeModel;
+  final List<NoticeModel> _feedbackList = [];
 
   @override
   void initState() {
@@ -70,9 +71,25 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         isSelected: true,
       );
     }
+    bool containsSound = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_SOUND);
+    if(!containsSound){
+      _allNoticeModel[CommonConstant.NOTIFICATION_SOUND] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_SOUND,
+        isSelected: true,
+      );
+    }
+    bool containsVibrate = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_VIBRATE);
+    if(!containsVibrate){
+      _allNoticeModel[CommonConstant.NOTIFICATION_VIBRATE] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_VIBRATE,
+        isSelected: true,
+      );
+    }
     _allNoticeModel.forEach((key, element) {
       if (element.id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
         _messageNoticeModel = element;
+      } else if (element.id == CommonConstant.NOTIFICATION_SOUND || element.id == CommonConstant.NOTIFICATION_VIBRATE){
+        _feedbackList.add(element);
       } else {
         _noticeModelList.add(element);
       }
@@ -94,51 +111,62 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   }
 
   Widget _body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: Adapt.px(12),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: Adapt.px(12),
           ),
-          child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
-        ),
-        SizedBox(
-          height: Adapt.px(12),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Adapt.px(16)),
+              color: ThemeColor.color180,
+            ),
+            child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
           ),
-          child: ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: _itemBuild,
-            itemCount: _noticeModelList.length,
+          SizedBox(
+            height: Adapt.px(12),
           ),
-        ),
-      ],
+          _buildCardItem(_feedbackList),
+          SizedBox(
+            height: Adapt.px(12),
+          ),
+          _buildCardItem(_noticeModelList),
+        ],
+      ),
     );
   }
 
-  Widget _itemBuild(BuildContext context, int index) {
-    NoticeModel model = _noticeModelList[index];
+  Widget _itemBuild(BuildContext context, int index,List<NoticeModel> noticeModelList) {
+    NoticeModel model = noticeModelList[index];
     return Column(
       children: [
         _itemContent(model),
-        _noticeModelList.length > 1 && _noticeModelList.length - 1 != index
+        noticeModelList.length > 1 && noticeModelList.length - 1 != index
             ? Container(
                 color: ThemeColor.color160,
                 height: Adapt.px(0.5),
               )
             : Container(),
       ],
+    );
+  }
+
+  Widget _buildCardItem(List<NoticeModel> noticeModelList){
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: const EdgeInsets.only(bottom: 0),
+        itemBuilder: (context,index)=> _itemBuild(context, index, noticeModelList),
+        itemCount: noticeModelList.length,
+      ),
     );
   }
 
@@ -167,7 +195,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
               _switchMute(model),
             ],
           ),
-          RichText(
+          _showDescriptionById(model.id).isNotEmpty ? RichText(
             text: TextSpan(
               children: [
                 TextSpan(
@@ -196,7 +224,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
                   ),
               ]
             ),
-          ),
+          ) : Container(),
         ],
       ),
     );
@@ -220,6 +248,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
           }
           await saveObjectList(_allNoticeModel.values.toList());
           OXUserInfoManager.sharedInstance.setNotification();
+          if(model.id == CommonConstant.NOTIFICATION_VIBRATE){
+            OXUserInfoManager.sharedInstance.canVibrate = value;
+          }
+          if(model.id == CommonConstant.NOTIFICATION_SOUND){
+            OXUserInfoManager.sharedInstance.canSound = value;
+          }
         }
         await OXLoading.dismiss();
         setState(() {});
@@ -266,6 +300,10 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.channels');
     } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
       return Localized.text('ox_usercenter.zaps');
+    } else if (id == CommonConstant.NOTIFICATION_SOUND) {
+      return Localized.text('ox_usercenter.sound_feedback');
+    } else if (id == CommonConstant.NOTIFICATION_VIBRATE) {
+      return Localized.text('ox_usercenter.vibrate_feedback');
     }
     return '';
   }

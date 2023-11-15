@@ -1,12 +1,14 @@
 import 'dart:async';
-import 'dart:convert' as convert;
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
@@ -19,6 +21,7 @@ import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/utils/zaps_helper.dart';
+import 'package:ox_common/launch/launch_third_party_app.dart';
 
 class OXUserCenter extends OXFlutterModule {
 
@@ -62,15 +65,7 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
         final walletOnPress = params?['walletOnPress'];
-        return showDialog(
-            context: context,
-            barrierDismissible: true,
-            builder: (BuildContext context) {
-              return ZapsInvoiceDialog(
-                invoice: invoice,
-                walletOnPress: walletOnPress,
-              );
-            });
+        return _showZapDialog(context, invoice, walletOnPress);
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
@@ -79,6 +74,47 @@ class OXUserCenter extends OXFlutterModule {
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
     }
     return null;
+  }
+
+   _showZapDialog(context, invoice, walletOnPress) async {
+    String? pubkey = Account.sharedInstance.me?.pubKey;
+     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubkey}.isShowWalletSelector') ?? true;;
+     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubkey}.defaultWallet') ?? '';
+     if(isShowWalletSelector){
+       return showDialog(
+           context: context,
+           barrierDismissible: true,
+           builder: (BuildContext context) {
+             return ZapsInvoiceDialog(
+               invoice: invoice,
+               walletOnPress: walletOnPress,
+             );
+           });
+     }
+     else if(defaultWalletName == 'NWC'){
+       OXLoading.show();
+       await Zaps.sharedInstance.requestNWC(invoice);
+       WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
+       walletOnPress?.call(walletModel);
+       OXLoading.dismiss();
+     }
+     else if(defaultWalletName.isNotEmpty){
+       walletOnPress?.call();
+       WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
+       _onTap(context, invoice, walletModel);
+     }
+     else{
+       CommonToast.instance.show(context, "Please set the default wallet first");
+     }
+  }
+
+  void _onTap(context, invoice, walletModel) async {
+    String url = '${walletModel.scheme}$invoice';
+    if (Platform.isIOS) {
+      LaunchThirdPartyApp.openWallet(url, walletModel.appStoreUrl ?? '', context: context);
+    } else if (Platform.isAndroid) {
+      LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl ?? '', context: context);
+    }
   }
 
   void showRelayPage(BuildContext context) {

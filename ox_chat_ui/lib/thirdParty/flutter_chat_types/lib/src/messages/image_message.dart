@@ -31,6 +31,8 @@ abstract class ImageMessage extends Message {
     required this.uri,
     this.width,
     EncryptionType? fileEncryptionType,
+    super.decryptKey,
+    super.expiration,
   }) : super(
     type: type ?? MessageType.image,
     fileEncryptionType: fileEncryptionType ?? EncryptionType.none,
@@ -55,6 +57,8 @@ abstract class ImageMessage extends Message {
     required String uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   }) = _ImageMessage;
 
   /// Creates an image message from a map (decoded JSON).
@@ -73,6 +77,7 @@ abstract class ImageMessage extends Message {
     Status? status,
     int? updatedAt,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    int? expiration,
   }) =>
       _ImageMessage(
         author: author,
@@ -92,6 +97,7 @@ abstract class ImageMessage extends Message {
         uri: partialImage.uri,
         width: partialImage.width,
         fileEncryptionType: fileEncryptionType,
+        expiration: expiration,
       );
 
   /// Image height in pixels.
@@ -131,6 +137,7 @@ abstract class ImageMessage extends Message {
         uri,
         width,
         fileEncryptionType,
+        expiration,
       ];
 
   @override
@@ -152,6 +159,8 @@ abstract class ImageMessage extends Message {
     String? uri,
     double? width,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts an image message to the map representation, encodable to JSON.
@@ -180,6 +189,8 @@ class _ImageMessage extends ImageMessage {
     required super.uri,
     super.width,
     super.fileEncryptionType,
+    super.decryptKey,
+    super.expiration,
   }) : super._();
 
   @override
@@ -201,6 +212,8 @@ class _ImageMessage extends ImageMessage {
     String? uri,
     dynamic width = _Unset,
     dynamic fileEncryptionType = _Unset,
+    String? decryptKey,
+    int? expiration,
   }) =>
       _ImageMessage(
         author: author ?? this.author,
@@ -225,6 +238,8 @@ class _ImageMessage extends ImageMessage {
         uri: uri ?? this.uri,
         width: width == _Unset ? this.width : width as double?,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
+        decryptKey: decryptKey ?? this.decryptKey,
+        expiration: expiration ?? this.expiration,
       );
 }
 

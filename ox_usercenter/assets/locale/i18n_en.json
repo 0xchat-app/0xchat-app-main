@@ -43,13 +43,15 @@
   "zaps_record": "Zap Record",
   "not_set_wallet_status": "Not Set",
   "not_set_wallet_tips": "Please set the default wallet first",
+  "disconnect_wallet_warning": "Disconnect wallet?",
+  "disconnect_wallet_confirm": "Confirm",
   "keys": "Keys",
   "show": "Show",
   "language": "Language",
   "language_title": "INTERFACE LANGUAGE",
   "theme": "Theme",
   "theme_color_title": "COLOR THEME",
-  "theme_color_default": "Default(Dark)",
+  "theme_color_default": "Automatic(${theme})",
   "theme_color_dart": "Dark",
   "theme_color_light": "Light",
   "version": "Version",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "This ICE Server already exists",
   "delete_server_tips": "Are you sure you want to delete it?",
   "delete_server_success_tips": "Successfully deleted",
-  "add": "Add"
+  "add": "Add",
+  "sound_feedback": "Sound",
+  "vibrate_feedback": "Vibrate"
 }

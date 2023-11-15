@@ -35,6 +35,8 @@ abstract class AudioMessage extends Message {
     this.waveForm,
     this.audioFile,
     EncryptionType? fileEncryptionType,
+    super.decryptKey,
+    super.expiration,
   }) : super(
     type: type ?? MessageType.audio,
     fileEncryptionType: fileEncryptionType ?? EncryptionType.none,
@@ -61,6 +63,8 @@ abstract class AudioMessage extends Message {
     List<double>? waveForm,
     File? audioFile,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   }) = _AudioMessage;
 
   /// Creates an audio message from a map (decoded JSON).
@@ -80,6 +84,7 @@ abstract class AudioMessage extends Message {
     Status? status,
     int? updatedAt,
     EncryptionType fileEncryptionType = EncryptionType.none,
+    int? expiration,
   }) =>
       _AudioMessage(
         author: author,
@@ -101,6 +106,7 @@ abstract class AudioMessage extends Message {
         uri: partialAudio.uri,
         waveForm: partialAudio.waveForm,
         fileEncryptionType: fileEncryptionType,
+        expiration: expiration,
       );
 
   /// The length of the audio.
@@ -146,6 +152,7 @@ abstract class AudioMessage extends Message {
         uri,
         waveForm,
         fileEncryptionType,
+        expiration,
       ];
 
   @override
@@ -169,6 +176,8 @@ abstract class AudioMessage extends Message {
     List<double>? waveForm,
     File? audioFile,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts an audio message to the map representation, encodable to JSON.
@@ -199,6 +208,8 @@ class _AudioMessage extends AudioMessage {
     super.waveForm,
     super.audioFile,
     super.fileEncryptionType,
+    super.decryptKey,
+    super.expiration,
   }) : super._();
 
   @override
@@ -222,6 +233,8 @@ class _AudioMessage extends AudioMessage {
     dynamic waveForm = _Unset,
     File? audioFile,
     dynamic fileEncryptionType = _Unset,
+    String? decryptKey,
+    int? expiration,
   }) =>
       _AudioMessage(
         author: author ?? this.author,
@@ -249,6 +262,8 @@ class _AudioMessage extends AudioMessage {
             waveForm == _Unset ? this.waveForm : waveForm as List<double>?,
         audioFile: audioFile ?? this.audioFile,
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
+        decryptKey: decryptKey ?? this.decryptKey,
+        expiration: expiration ?? this.expiration,
       );
 }
 

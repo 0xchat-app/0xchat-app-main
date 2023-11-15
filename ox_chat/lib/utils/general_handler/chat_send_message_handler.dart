@@ -47,8 +47,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         bool isLocal = false,
       }) async {
     if (!isResend) {
-      final encryptedKey = ChatSendMessageHelper.getEncryptedKey(session);
-      final sendMsg = await tryPrepareSendFileMessage(context, message, encryptedKey);
+      final sendMsg = await tryPrepareSendFileMessage(context, message);
       if (sendMsg == null) return ;
       message = sendMsg;
     }
@@ -118,6 +117,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
     for (final result in images) {
+      OXLoading.show();
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
       String message_id = const Uuid().v4();
@@ -136,9 +136,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         uri: result.path.toString(),
         width: image.width.toDouble(),
         fileEncryptionType: fileEncryptionType,
+        decryptKey: fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null,
       );
 
-      _sendMessageHandler(message, context: context);
+      await _sendMessageHandler(message, context: context);
     }
   }
 
@@ -160,6 +161,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
+    OXLoading.show();
     File audioFile = File(path);
     final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
     final bytes = await audioFile.readAsBytes();
@@ -183,6 +185,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendVideoMessageSend(BuildContext context, List<File> images) async {
     for (final result in images) {
+      OXLoading.show();
       final bytes = await result.readAsBytes();
       final uint8list = await VideoCompress.getByteThumbnail(result.path,
           quality: 50, // default(100)
@@ -265,6 +268,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
 extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
+  String createEncryptKey() => bytesToHex(MessageDB.getRandomSecret());
+
   Future<String> uploadFile({
     required UplodAliyunType fileType,
     required String filePath,
@@ -277,25 +282,22 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return await UplodAliyun.uploadFileToAliyun(fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey);
   }
 
-  Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message, String encryptedKey) async {
+  Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message) async {
     types.Message? updatedMessage;
     if (message is types.ImageMessage) {
       updatedMessage = await prepareSendImageMessage(
         message: message,
         context: context,
-        encryptedKey: encryptedKey,
       );
     } else if (message is types.AudioMessage) {
       updatedMessage = await prepareSendAudioMessage(
         message: message,
         context: context,
-        encryptedKey: encryptedKey,
       );
     } else if (message is types.VideoMessage) {
       updatedMessage = await prepareSendVideoMessage(
         message: message,
         context: context,
-        encryptedKey: encryptedKey,
       );
     } else {
       return message;
@@ -307,7 +309,6 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
   Future<types.Message?> prepareSendImageMessage({
     BuildContext? context,
     required types.ImageMessage message,
-    String? encryptedKey,
   }) async {
     final filePath = message.uri;
     final uriIsLocalPath = filePath.isLocalPath;
@@ -322,7 +323,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     }
 
     if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? encryptedKey : null;
+      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
       final uri = await uploadFile(fileType: UplodAliyunType.imageType, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_image_fail'));
@@ -336,7 +337,6 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
   Future<types.Message?> prepareSendAudioMessage({
     BuildContext? context,
     required types.AudioMessage message,
-    String? encryptedKey,
   }) async {
     final filePath = message.uri;
     final uriIsLocalPath = filePath.isLocalPath;
@@ -351,7 +351,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     }
 
     if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? encryptedKey : null;
+      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
       final uri = await uploadFile(fileType: UplodAliyunType.voiceType, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_audio_fail'));
@@ -365,7 +365,6 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
   Future<types.Message?> prepareSendVideoMessage({
     BuildContext? context,
     required types.VideoMessage message,
-    String? encryptedKey,
   }) async {
     final filePath = message.metadata?['videoUrl'] as String? ?? '';
     final uriIsLocalPath = filePath.isLocalPath;
@@ -380,7 +379,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     }
 
     if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? encryptedKey : null;
+      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
       final uri = await uploadFile(fileType: UplodAliyunType.videoType, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_video_fail'));

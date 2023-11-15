@@ -45,15 +45,17 @@ class _ImageMessageState extends State<ImageMessage> {
   void initState() {
     super.initState();
     if (widget.message.fileEncryptionType == types.EncryptionType.none) {
-      _image = Conditional().getProvider(
+      _image = CachedNetworkImageProvider(
         widget.message.uri,
         headers: widget.imageHeaders,
       );
     } else {
       final chatId = widget.message.roomId;
+      final decryptKey = widget.message.decryptKey;
+      final needDecrypt = widget.message.fileEncryptionType == types.EncryptionType.encrypted;
       _image = CachedNetworkImageProvider(
         widget.message.uri,
-        cacheManager: chatId == null ? null : DecryptedCacheManager(chatId),
+        cacheManager: needDecrypt ? DecryptedCacheManager(decryptKey ?? chatId ?? '') : null,
       );
     }
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);

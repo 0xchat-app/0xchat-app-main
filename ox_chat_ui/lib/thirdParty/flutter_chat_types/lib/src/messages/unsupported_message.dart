@@ -27,6 +27,7 @@ abstract class UnsupportedMessage extends Message {
     super.status,
     MessageType? type,
     super.updatedAt,
+    super.expiration,
   }) : super(type: type ?? MessageType.unsupported);
 
   const factory UnsupportedMessage({
@@ -42,6 +43,7 @@ abstract class UnsupportedMessage extends Message {
     Status? status,
     MessageType? type,
     int? updatedAt,
+    int? expiration,
   }) = _UnsupportedMessage;
 
   /// Creates an unsupported message from a map (decoded JSON).
@@ -61,6 +63,7 @@ abstract class UnsupportedMessage extends Message {
         showStatus,
         status,
         updatedAt,
+        expiration,
       ];
 
   @override
@@ -77,6 +80,8 @@ abstract class UnsupportedMessage extends Message {
     Status? status,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts an unsupported message to the map representation,
@@ -101,6 +106,7 @@ class _UnsupportedMessage extends UnsupportedMessage {
     super.status,
     super.type,
     super.updatedAt,
+    super.expiration,
   }) : super._();
 
   @override
@@ -120,6 +126,8 @@ class _UnsupportedMessage extends UnsupportedMessage {
     dynamic status = _Unset,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   }) =>
       _UnsupportedMessage(
         author: author ?? this.author,
@@ -138,6 +146,7 @@ class _UnsupportedMessage extends UnsupportedMessage {
             showStatus == _Unset ? this.showStatus : showStatus as bool?,
         status: status == _Unset ? this.status : status as Status?,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
+        expiration: expiration ?? this.expiration,
       );
 }
 

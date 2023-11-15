@@ -136,6 +136,8 @@ class SearchPageState extends State<SearchPage> {
       _loadFriendsData();
       _loadChannelsData();
       _loadMessagesData();
+      _loadOnlineChannelsData();
+      _loadUsersData();
     } else {
       _loadHistory();
     }
@@ -164,6 +166,10 @@ class SearchPageState extends State<SearchPage> {
 
   void loadOnlineChannelsData() async {
     dataGroups.clear();
+    _loadOnlineChannelsData();
+  }
+
+  void _loadOnlineChannelsData() async {
     final requestId = ++lastRequestId;
     if (searchQuery.startsWith('nevent') || searchQuery.startsWith('nostr:') || searchQuery.startsWith('note')) {
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
@@ -216,8 +222,23 @@ class SearchPageState extends State<SearchPage> {
     List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
     if (tempFriendList != null && tempFriendList.length > 0) {
       dataGroups.add(
-        Group(title: 'Friends', type: SearchItemType.friend, items: tempFriendList),
+        Group(title: 'Contacts', type: SearchItemType.friend, items: tempFriendList),
       );
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _loadUsersData() async {
+    if (searchQuery.startsWith('npub')) {
+      String? pubkey = UserDB.decodePubkey(searchQuery);
+      if(pubkey != null){
+        UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+        dataGroups.add(
+          Group(title: 'Users', type: SearchItemType.friend, items: List<UserDB>.from([user])),
+        );
+      }
     }
     if (mounted) {
       setState(() {});

@@ -221,6 +221,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           Container(
             alignment: Alignment.center,
             child: OXUserAvatar(
+              isSecretChat:true,
+              chatId: widget.communityItem.chatId,
               user: otherUser,
               size: Adapt.px(36),
               isClickable: true,
@@ -232,6 +234,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         ],
       ),
       body: Chat(
+        chatId: widget.communityItem.chatId,
         theme: pageConfig.pageTheme,
         anchorMsgId: widget.anchorMsgId,
         messages: _messages,
@@ -271,6 +274,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
         customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
+        customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
         inputOptions: chatGeneralHandler.inputOptions,

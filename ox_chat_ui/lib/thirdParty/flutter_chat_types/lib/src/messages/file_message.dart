@@ -30,6 +30,7 @@ abstract class FileMessage extends Message {
     MessageType? type,
     super.updatedAt,
     required this.uri,
+    super.expiration,
   }) : super(type: type ?? MessageType.file);
 
   const factory FileMessage({
@@ -49,6 +50,7 @@ abstract class FileMessage extends Message {
     MessageType? type,
     int? updatedAt,
     required String uri,
+    int? expiration,
   }) = _FileMessage;
 
   /// Creates a file message from a map (decoded JSON).
@@ -67,6 +69,7 @@ abstract class FileMessage extends Message {
     bool? showStatus,
     Status? status,
     int? updatedAt,
+    int? expiration,
   }) =>
       _FileMessage(
         author: author,
@@ -85,6 +88,7 @@ abstract class FileMessage extends Message {
         type: MessageType.file,
         updatedAt: updatedAt,
         uri: partialFile.uri,
+        expiration: expiration,
       );
 
   /// Specify whether the message content is currently being loaded.
@@ -123,6 +127,7 @@ abstract class FileMessage extends Message {
         status,
         updatedAt,
         uri,
+        expiration,
       ];
 
   @override
@@ -144,6 +149,8 @@ abstract class FileMessage extends Message {
     int? updatedAt,
     String? uri,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts a file message to the map representation, encodable to JSON.
@@ -171,6 +178,7 @@ class _FileMessage extends FileMessage {
     super.type,
     super.updatedAt,
     required super.uri,
+    super.expiration,
   }) : super._();
 
   @override
@@ -194,6 +202,8 @@ class _FileMessage extends FileMessage {
     String? uri,
     dynamic width = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   }) =>
       _FileMessage(
         author: author ?? this.author,
@@ -217,6 +227,7 @@ class _FileMessage extends FileMessage {
         status: status == _Unset ? this.status : status as Status?,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         uri: uri ?? this.uri,
+        expiration: expiration ?? this.expiration,
       );
 }
 

@@ -190,5 +190,18 @@
   "ignore_text": "Ignore",
   "accept_text": "accept",
   "request_join_ignore_member": "Confirm whether to ignore the member",
-  "request_join_accept_member": "Confirm whether to accept the member"
+  "request_join_accept_member": "Confirm whether to accept the member",
+  "request_chat": "Request Chats",
+  "request_chat_content": "${name}... and other ${count} chats",
+  "more": "More",
+  "success": "Success",
+  "option_gift_wrap_dm": "${option} Gift-Wrapped DM",
+  "option_auto_delete": "${option} Auto-Delete",
+  "set": "Set",
+  "enable": "Enable",
+  "disable": "Disable",
+  "set_msg_auto_delete_system": "${username} Set messages to auto-delete after ${time} days",
+  "disabled_msg_auto_delete_system": "${username} Disabled the auto-delete timer",
+  "set_normal_dm_system": "${username} Set the current conversation as normal DM",
+  "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM"
 }

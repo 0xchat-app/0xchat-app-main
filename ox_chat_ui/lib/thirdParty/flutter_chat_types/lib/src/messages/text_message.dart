@@ -28,6 +28,7 @@ abstract class TextMessage extends Message {
     required this.text,
     MessageType? type,
     super.updatedAt,
+    super.expiration,
   }) : super(type: type ?? MessageType.text);
 
   const factory TextMessage({
@@ -45,6 +46,7 @@ abstract class TextMessage extends Message {
     required String text,
     MessageType? type,
     int? updatedAt,
+    int? expiration,
   }) = _TextMessage;
 
   /// Creates a text message from a map (decoded JSON).
@@ -62,6 +64,7 @@ abstract class TextMessage extends Message {
     bool? showStatus,
     Status? status,
     int? updatedAt,
+    int? expiration,
   }) =>
       _TextMessage(
         author: author,
@@ -77,6 +80,7 @@ abstract class TextMessage extends Message {
         text: partialText.text,
         type: MessageType.text,
         updatedAt: updatedAt,
+        expiration: expiration,
       );
 
   /// See [PreviewData].
@@ -103,6 +107,7 @@ abstract class TextMessage extends Message {
         status,
         text,
         updatedAt,
+        expiration,
       ];
 
   @override
@@ -121,6 +126,8 @@ abstract class TextMessage extends Message {
     String? text,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts a text message to the map representation, encodable to JSON.
@@ -145,6 +152,7 @@ class _TextMessage extends TextMessage {
     required super.text,
     super.type,
     super.updatedAt,
+    super.expiration,
   }) : super._();
 
   @override
@@ -163,6 +171,8 @@ class _TextMessage extends TextMessage {
     String? text,
     dynamic updatedAt = _Unset,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   }) =>
       _TextMessage(
         author: author ?? this.author,
@@ -185,6 +195,7 @@ class _TextMessage extends TextMessage {
         status: status == _Unset ? this.status : status as Status?,
         text: text ?? this.text,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
+        expiration: expiration ?? this.expiration,
       );
 }
 

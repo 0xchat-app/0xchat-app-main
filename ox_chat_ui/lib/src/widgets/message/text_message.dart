@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
-    show LinkPreview, regexEmail, regexLink;
+    show LinkPreview, regexEmail, regexLink, regexNostr;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/emoji_enlargement_behavior.dart';
@@ -67,11 +68,19 @@ class TextMessage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     if (usePreviewData && onPreviewDataFetched != null) {
-      final urlRegexp = RegExp(regexLink, caseSensitive: false);
-      final matches = urlRegexp.allMatches(message.text);
+      var urlRegexp = RegExp(regexLink, caseSensitive: false);
+      var matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
         return _linkPreview(user, width, context);
+      }
+
+      urlRegexp = RegExp(regexNostr, caseSensitive: false);
+      matches = urlRegexp.allMatches(message.text);
+
+      if (matches.isNotEmpty) {
+        final text = message.text.replaceFirst('nostr:', CommonConstant.njumpURL);
+        return _linkPreview(user, width, context, text: text);
       }
     }
 
@@ -88,6 +97,7 @@ class TextMessage extends StatelessWidget {
     types.User user,
     double width,
     BuildContext context,
+      {String? text}
   ) {
     final theme = InheritedChatTheme.of(context).theme;
     final linkDescriptionTextStyle = user.id == message.author.id
@@ -111,7 +121,7 @@ class TextMessage extends StatelessWidget {
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
-      text: message.text,
+      text: text ?? message.text,
       textWidget: _textWidgetBuilder(user, context, false),
       userAgent: userAgent,
       width: width,
@@ -248,6 +258,27 @@ class TextMessageText extends StatelessWidget {
           }
         },
         pattern: regexLink,
+        style: bodyLinkTextStyle ??
+            bodyTextStyle.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+      ),
+      MatchText(
+        onTap: (urlText) async {
+          urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
+          if (options.onLinkPressed != null) {
+            options.onLinkPressed!(urlText);
+          } else {
+            final url = Uri.tryParse(urlText);
+            if (url != null && await canLaunchUrl(url)) {
+              await launchUrl(
+                url,
+                mode: LaunchMode.externalApplication,
+              );
+            }
+          }
+        },
+        pattern: regexNostr,
         style: bodyLinkTextStyle ??
             bodyTextStyle.copyWith(
               decoration: TextDecoration.underline,

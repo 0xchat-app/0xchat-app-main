@@ -4,8 +4,9 @@ import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:flutter_chat_types/src/message.dart' as UIMessage;
+import 'package:flutter_chat_types/src/preview_data.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
@@ -21,9 +22,12 @@ abstract class MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   });
 }
 
@@ -35,11 +39,15 @@ class TextMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final text = contentModel.content ?? '';
+
     return types.TextMessage(
       author: author,
       createdAt: timestamp,
@@ -50,6 +58,8 @@ class TextMessageFactory implements MessageFactory {
       text: text,
       status: status,
       repliedMessage: repliedMessage,
+      previewData: previewData != null ? PreviewData.fromJson(jsonDecode(previewData)) : null,
+      expiration: expiration,
     );
   }
 }
@@ -62,9 +72,12 @@ class ImageMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -82,6 +95,8 @@ class ImageMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
+      expiration: expiration,
     );
   }
 }
@@ -94,9 +109,12 @@ class AudioMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final uri = contentModel.content;
     if (uri == null) {
@@ -115,6 +133,8 @@ class AudioMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
+      expiration: expiration,
     );
   }
 }
@@ -127,9 +147,12 @@ class VideoMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final uri = contentModel.content;
     final snapshotUrl = '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
@@ -151,6 +174,8 @@ class VideoMessageFactory implements MessageFactory {
       remoteId: remoteId,
       status: status,
       fileEncryptionType: fileEncryptionType,
+      decryptKey: decryptKey,
+      expiration: expiration,
     );
   }
 }
@@ -163,9 +188,12 @@ class CallMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final contentString = contentModel.content;
     if (contentString == null) return null;
@@ -199,6 +227,7 @@ class CallMessageFactory implements MessageFactory {
         type: media,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
     );
   }
 }
@@ -243,9 +272,12 @@ class SystemMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     var text = contentModel.content ?? '';
     final key = text;
@@ -263,6 +295,7 @@ class SystemMessageFactory implements MessageFactory {
       id: remoteId,
       roomId: roomId,
       text: text,
+      expiration: expiration,
     );
   }
 }
@@ -275,9 +308,12 @@ class CustomMessageFactory implements MessageFactory {
     required String remoteId,
     required dynamic sourceKey,
     required MessageContentModel contentModel,
-    required Status status,
-    EncryptionType fileEncryptionType = EncryptionType.none,
+    required UIMessage.Status status,
+    UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? previewData,
+    String? decryptKey,
+    int? expiration,
   }) {
     final contentString = contentModel.content;
     if (contentString == null) return null;
@@ -307,6 +343,7 @@ class CustomMessageFactory implements MessageFactory {
             invoice: invoice,
             amount: amount,
             description: description,
+            expiration: expiration,
           );
         case CustomMessageType.template:
           final title = content['title'];
@@ -324,6 +361,7 @@ class CustomMessageFactory implements MessageFactory {
             content: contentStr,
             icon: icon,
             link: link,
+            expiration: expiration,
           );
         default :
           return null;
@@ -344,6 +382,7 @@ class CustomMessageFactory implements MessageFactory {
     required String invoice,
     required String amount,
     required String description,
+    int? expiration,
   }) {
     return types.CustomMessage(
       author: author,
@@ -373,6 +412,7 @@ class CustomMessageFactory implements MessageFactory {
     required String content,
     required String icon,
     required String link,
+    int? expiration,
   }) {
     return types.CustomMessage(
       author: author,

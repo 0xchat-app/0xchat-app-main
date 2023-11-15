@@ -74,6 +74,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           _messages = messages;
         });
       },
+      fileEncryptionType: types.EncryptionType.encrypted,
     );
     chatGeneralHandler.messageDeleteHandler = _removeMessage;
   }
@@ -221,6 +222,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
+        customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
         inputOptions: chatGeneralHandler.inputOptions,
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,

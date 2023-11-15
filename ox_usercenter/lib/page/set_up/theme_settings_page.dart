@@ -7,6 +7,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'dart:ui' as ui;
 
 enum ThemeSettingType { defaultTheme, dark, light }
 
@@ -14,7 +15,8 @@ extension ThemeSettingTypeText on ThemeSettingType {
   String get text {
     switch (this) {
       case ThemeSettingType.defaultTheme:
-        return Localized.text('ox_usercenter.theme_color_default');
+        final platformBrightness = ui.window.platformBrightness;
+        return Localized.text('ox_usercenter.theme_color_default').replaceAll(r'${theme}', Localized.text(platformBrightness == Brightness.dark ? 'ox_usercenter.theme_color_dart' : 'ox_usercenter.theme_color_light'));
       case ThemeSettingType.dark:
         return Localized.text('ox_usercenter.theme_color_dart');
       case ThemeSettingType.light:
@@ -24,8 +26,8 @@ extension ThemeSettingTypeText on ThemeSettingType {
 
   ThemeStyle get themeStyle {
     switch (this) {
-      case ThemeSettingType.defaultTheme:
-        return ThemeStyle.dark;
+      case ThemeSettingType.defaultTheme:;
+        return ui.window.platformBrightness == Brightness.dark ? ThemeStyle.dark : ThemeStyle.light;
       case ThemeSettingType.dark:
         return ThemeStyle.dark;
       case ThemeSettingType.light:
@@ -63,7 +65,7 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
   }
 
   void _getSelectIndex ()async{
-    var getStyle = await OXCacheManager.defaultOXCacheManager.getForeverData('themeSetting');
+    var getStyle = await OXCacheManager.defaultOXCacheManager.getForeverData('themeSetting',defaultValue: ThemeSettingType.dark.saveText);
     if(getStyle == '') {
       _selectedIndex = 0;
     }

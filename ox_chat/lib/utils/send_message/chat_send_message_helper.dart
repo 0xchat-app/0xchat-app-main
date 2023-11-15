@@ -14,8 +14,6 @@ typedef MessageContentEncoder = FutureOr<String?> Function(types.Message message
 
 class ChatSendMessageHelper {
 
-  static String getEncryptedKey(ChatSessionModel session) => ChatStrategyFactory.getStrategy(session).encryptedKey;
-
   static Future<String?> sendMessage({
     required ChatSessionModel session,
     required types.Message message,
@@ -31,7 +29,8 @@ class ChatSendMessageHelper {
 
     // create chat sender strategy
     final senderStrategy = ChatStrategyFactory.getStrategy(session);
-
+    // for test
+    // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
     // prepare send event
     Event? event;
     var plaintEvent = message.sourceKey;
@@ -48,6 +47,7 @@ class ChatSendMessageHelper {
         messageType: type,
         contentString: contentString,
         replayId: replayId,
+        decryptSecret: message.decryptKey,
       );
     }
     if (event == null) {
@@ -58,12 +58,13 @@ class ChatSendMessageHelper {
     final sendMsg = message.copyWith(
       id: event.id,
       sourceKey: sourceKey,
+      expiration: senderStrategy.session.expiration == null ? null : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
     );
 
     ChatLogUtils.info(
       className: 'ChatSendMessageHelper',
       funcName: 'sendMessage',
-      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}',
+      message: 'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
     );
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
@@ -72,6 +73,7 @@ class ChatSendMessageHelper {
       messageType: type,
       contentString: contentString,
       replayId: replayId,
+      decryptSecret: message.decryptKey,
       event: event,
       isLocal: isLocal,
     ).then((event) {

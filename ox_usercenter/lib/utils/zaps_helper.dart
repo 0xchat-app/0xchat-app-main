@@ -32,7 +32,7 @@ class ZapsHelper {
       return result;
     }
 
-    if (otherLnurl.isEmpty) {
+    if (otherLnurl.isEmpty || otherLnurl == 'null') {
       result['message'] = 'The receiver\'s lightning address has not been set up';
       return result;
     }

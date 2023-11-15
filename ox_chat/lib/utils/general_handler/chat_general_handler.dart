@@ -197,7 +197,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       );
 
   void _onLinkTextPressed(BuildContext context, String text) {
-    OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text));
+    OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text), fullscreenDialog: true);
   }
 
   Future messagePressHandler(BuildContext context, types.Message message) async {

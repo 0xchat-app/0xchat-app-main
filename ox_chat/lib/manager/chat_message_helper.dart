@@ -42,8 +42,15 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
+    MessageCheckLogger? logger;
+    // logger = MessageCheckLogger('fc12538a75a7f10efc73bdff7a7f1d498ca851f833d54e0cd361eb6c810a23bf');
+    // if (this.messageId != logger.messageId) return null;
+
     // Msg id
     final messageId = this.messageId;
+
+    logger?.printMessage = '1';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     // ContentModel
     final decryptContent = this.decryptContent;
@@ -76,6 +83,9 @@ extension MessageDBToUIEx on MessageDB {
       );
       return null;
     }
+
+    logger?.printMessage = '2';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     // Status
     final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(senderId);
@@ -110,6 +120,9 @@ extension MessageDBToUIEx on MessageDB {
       return null;
     }
 
+    logger?.printMessage = '3';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
     // MessageType & mid & MessageId
     final mid = contentModel.mid;
     final messageType = contentModel.contentType;
@@ -121,6 +134,9 @@ extension MessageDBToUIEx on MessageDB {
       );
       return null;
     }
+
+    logger?.printMessage = '4 $messageType';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     MessageFactory messageFactory;
     switch (messageType) {
@@ -168,6 +184,9 @@ extension MessageDBToUIEx on MessageDB {
         return null;
     }
 
+    logger?.printMessage = '5';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
     UIMessage.EncryptionType fileEncryptionType;
     switch (messageType) {
       case MessageType.encryptedImage:
@@ -190,7 +209,7 @@ extension MessageDBToUIEx on MessageDB {
       }
     }
 
-    return messageFactory.createMessage(
+    final result = messageFactory.createMessage(
       author: author,
       timestamp: messageTimestamp,
       roomId: chatId,
@@ -200,7 +219,15 @@ extension MessageDBToUIEx on MessageDB {
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
       repliedMessage: repliedMessage,
+      previewData: this.previewData,
+      decryptKey: this.decryptSecret,
+      expiration: this.expiration,
     );
+
+    logger?.printMessage = '6 $result';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    return result;
   }
 
   String? getRoomId() {

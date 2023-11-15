@@ -50,6 +50,8 @@ abstract class Message extends Equatable {
     required this.type,
     this.updatedAt,
     this.fileEncryptionType = EncryptionType.none,
+    this.decryptKey,
+    this.expiration,
   });
 
   /// Creates a particular message from a map (decoded JSON).
@@ -116,9 +118,13 @@ abstract class Message extends Equatable {
   /// The encryption type of the file
   final EncryptionType fileEncryptionType;
 
+  final String? decryptKey;
+
   final dynamic sourceKey;
 
   String get content;
+
+  final int? expiration;
 
   /// Creates a copy of the message with an updated data.
   Message copyWith({
@@ -134,6 +140,8 @@ abstract class Message extends Equatable {
     Status? status,
     int? updatedAt,
     EncryptionType? fileEncryptionType,
+    String? decryptKey,
+    int? expiration,
   });
 
   /// Converts a particular message to the map representation, serializable to JSON.
@@ -141,6 +149,6 @@ abstract class Message extends Equatable {
 
   @override
   String toString() {
-    return 'Message{author: $author, createdAt: $createdAt, id: $id, metadata: $metadata, remoteId: $remoteId, repliedMessage: $repliedMessage, roomId: $roomId, showStatus: $showStatus, status: $status, type: $type, updatedAt: $updatedAt, fileEncryptionType: $fileEncryptionType, sourceKey: $sourceKey}';
+    return 'Message{author: $author, createdAt: $createdAt, id: $id, metadata: $metadata, remoteId: $remoteId, repliedMessage: $repliedMessage, roomId: $roomId, showStatus: $showStatus, status: $status, type: $type, updatedAt: $updatedAt, fileEncryptionType: $fileEncryptionType, sourceKey: $sourceKey, expiration: $expiration}';
   }
 }
