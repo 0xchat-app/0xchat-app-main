@@ -23,13 +23,13 @@ extension ESafeChatTimeToSecond on EDialogTime {
   String toText() {
     switch (this) {
       case EDialogTime.oneDay:
-        return 'One day';
+        return '1 day';
       case EDialogTime.twoDays:
-        return 'Two days';
+        return '2 days';
       case EDialogTime.sevenDays:
-        return 'Seven days';
+        return '7 days';
       case EDialogTime.thirtyDays:
-        return 'thirty days';
+        return '30 days';
     }
   }
 }
