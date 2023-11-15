@@ -360,6 +360,14 @@ class InputState extends State<Input>{
               .inputTextColor,
         ),
         textCapitalization: TextCapitalization.sentences,
+        // contentInsertionConfiguration:  ContentInsertionConfiguration(
+        //   allowedMimeTypes: const <String>['image/png', 'image/gif'],
+        //   onContentInserted: (KeyboardInsertedContent data) async {
+        //     if (data.data != null) {
+        //       /// todo: ContentInsertionConfiguration
+        //     }
+        //   },
+        // ),
       );
 
   Widget _buildSendButton() =>
