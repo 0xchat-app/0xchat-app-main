@@ -441,7 +441,7 @@ class InputState extends State<Input>{
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) => CommonTimeDialog(callback: (int time) async {
-          await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: 10);
+          await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!,expiration: time);
 
           final username = Account.sharedInstance.me?.name ?? '';
 
