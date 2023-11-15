@@ -72,6 +72,7 @@ class BaseAvatarWidget extends StatelessWidget {
 class OXUserAvatar extends StatefulWidget {
 
   OXUserAvatar({
+    this.isSecretChat = false,
     this.user,
     this.imageUrl,
     this.chatId,
@@ -82,6 +83,7 @@ class OXUserAvatar extends StatefulWidget {
     this.onLongPress,
   }) : this.size = size ?? Adapt.px(48);
 
+  final bool isSecretChat;
   final UserDB? user;
   final String? imageUrl;
   final String? chatId;
@@ -117,6 +119,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
         await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
           'userDB': user,
           'chatId': widget.chatId,
+          'isSecretChat':widget.isSecretChat
         });
         final onReturnFromNextPage = widget.onReturnFromNextPage;
         if (onReturnFromNextPage != null) onReturnFromNextPage();
