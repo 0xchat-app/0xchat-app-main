@@ -163,7 +163,13 @@ class MainState extends State<MainApp>
     if (jumpInfo.isNotEmpty) {
       BuildContext? context = OXNavigator.navigatorKey.currentContext;
       if(context == null) return;
-      ScanUtils.analysis(context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
+      if(jumpInfo.startsWith(CommonConstant.APP_SCHEME)) {
+        ScanUtils.analysis(
+            context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
+      }
+      else{
+        ScanUtils.analysis(context, jumpInfo);
+      }
     }
   }
 
