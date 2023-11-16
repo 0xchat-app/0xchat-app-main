@@ -76,7 +76,7 @@ class OXChat extends OXFlutterModule {
           (context) => ContactUserInfoPage(
             userDB: params?['userDB'],
             chatId: params?['chatId'],
-            isSecretChat: params?['isSecretChat'],
+            isSecretChat: params?['isSecretChat'] ?? false,
           ),
         );
       case 'ContactChanneDetailsPage':

@@ -1,32 +1,33 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:screenshot/screenshot.dart';
+
 import '../models/preview_image.dart';
 
-import 'package:ox_common/widgets/common_hint_dialog.dart';
-
-import 'package:permission_handler/permission_handler.dart';
-
-import 'dart:ui';
-import 'package:flutter/services.dart';
-
-import 'package:ox_chat/utils/widget_tool.dart';
-
-import 'package:ox_common/navigator/navigator.dart';
 
 
 
@@ -67,6 +68,8 @@ class _ImageGalleryState extends State<ImageGallery> {
 
   GlobalKey _globalKey = new GlobalKey();
 
+  ScreenshotController screenshotController = ScreenshotController();
+
   @override
   Widget build(BuildContext context) =>
       WillPopScope(
@@ -81,35 +84,38 @@ class _ImageGalleryState extends State<ImageGallery> {
           onDismissed: (direction) => widget.onClosePressed(),
           child: Stack(
             children: [
-              GestureDetector(
-                onLongPress: _showBottomMenu,
-                child: RepaintBoundary(
-                  key: _globalKey,
-                  child: PhotoViewGallery.builder(
-                    builder: (BuildContext context, int index) {
-                      final uri = widget.images[index].uri;
-                      final encrypted = widget.images[index].encrypted;
-                      final decryptKey = widget.images[index].decryptSecret;
-                      return PhotoViewGalleryPageOptions(
-                        imageProvider: OXCachedNetworkImageProviderEx.create(
-                          context,
-                          uri,
-                          headers: widget.imageHeaders,
-                          cacheManager: encrypted
-                              ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
-                              : null,
-                        ),
-                        minScale: widget.options.minScale,
-                        maxScale: widget.options.maxScale,
-                      );
-                    },
-                    itemCount: widget.images.length,
-                    loadingBuilder: (context, event) =>
-                        _imageGalleryLoadingBuilder(event),
-                    pageController: widget.pageController,
-                    scrollPhysics: const ClampingScrollPhysics(),
+              Screenshot(
+                controller: screenshotController,
+                child:GestureDetector(
+                  onLongPress: _showBottomMenu,
+                  child: RepaintBoundary(
+                    key: _globalKey,
+                    child: PhotoViewGallery.builder(
+                      builder: (BuildContext context, int index) {
+                        final uri = widget.images[index].uri;
+                        final encrypted = widget.images[index].encrypted;
+                        final decryptKey = widget.images[index].decryptSecret;
+                        return PhotoViewGalleryPageOptions(
+                          imageProvider: OXCachedNetworkImageProviderEx.create(
+                            context,
+                            uri,
+                            headers: widget.imageHeaders,
+                            cacheManager: encrypted
+                                ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
+                                : null,
+                          ),
+                          minScale: widget.options.minScale,
+                          maxScale: widget.options.maxScale,
+                        );
+                      },
+                      itemCount: widget.images.length,
+                      loadingBuilder: (context, event) =>
+                          _imageGalleryLoadingBuilder(event),
+                      pageController: widget.pageController,
+                      scrollPhysics: const ClampingScrollPhysics(),
+                    ),
                   ),
-                )
+                ),
               ),
               Positioned.directional(
                 end: 16,
@@ -196,9 +202,26 @@ class _ImageGalleryState extends State<ImageGallery> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         new GestureDetector(
-                          onTap: () {
-                            _widgetShotAndSave();
-                          },
+                          onTap: _identifyQRCode,
+                          child: Container(
+                            height: Adapt.px(48),
+                            padding: EdgeInsets.all(Adapt.px(8)),
+                            alignment: FractionalOffset.center,
+                            decoration: new BoxDecoration(
+                              color: ThemeColor.color180,
+                            ),
+                            child: Text(
+                              'Identify QR code',
+                              style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          height: Adapt.px(0.5),
+                          color: ThemeColor.color160,
+                        ),
+                        new GestureDetector(
+                          onTap: _widgetShotAndSave,
                           child: Container(
                             height: Adapt.px(48),
                             padding: EdgeInsets.all(Adapt.px(8)),
@@ -235,7 +258,8 @@ class _ImageGalleryState extends State<ImageGallery> {
                     ),
                   ),
                 ),
-              )),
+              ),
+          ),
         ),
     );
   }
@@ -282,6 +306,26 @@ class _ImageGalleryState extends State<ImageGallery> {
             }),
       ]);
       return;
+    }
+  }
+
+  Future<void> _identifyQRCode() async {
+    final image = await screenshotController.capture();
+    if(image == null)return;
+    OXLoading.show();
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = '${directory.path}/screenshot.png';
+    final imageFile = File(imagePath);
+    await imageFile.writeAsBytes(image);
+
+    try {
+      String qrcode = await OXCommon.scanPath(imageFile.path);
+      OXLoading.dismiss();
+      OXNavigator.pop(context);
+      ScanUtils.analysis(context, qrcode);
+    } catch (e) {
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
     }
   }
 
