@@ -190,5 +190,18 @@
   "ignore_text": "İdis et",
   "accept_text": "qəbul et",
   "request_join_ignore_member": "üzvü idis etməyə əminsinizmi?",
-  "request_join_accept_member": "üzvü qəbul etməyə əminsinizmi?"
+  "request_join_accept_member": "üzvü qəbul etməyə əminsinizmi?",
+  "request_chat": "Yabancılar",
+  "request_chat_content": "${name}... və digər ${count} söhbətlər",
+  "more": "Daha çox",
+  "success": "Uğur",
+  "option_gift_wrap_dm": "${option} Hədiyyə qablaşdırılmış DM",
+  "option_auto_delete": "${option} Avtomatik Silmə",
+  "set": "Qur",
+  "enable": "Aktiv et",
+  "disable": "Deaktiv et",
+  "set_msg_auto_delete_system": "${username} Mesajları ${time} gün sonra avtomatik silmək üçün təyin etdi",
+  "disabled_msg_auto_delete_system": "${username} Avtomatik silmə taymerini söndürdü",
+  "set_normal_dm_system": "${username} Cari söhbəti adi DM kimi qurdu",
+  "set_gift_wrapped_dm_system": "${username} Cari söhbəti hədiyyə qablaşdırılmış DM kimi qurdu"
 }

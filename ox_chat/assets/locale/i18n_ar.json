@@ -190,5 +190,18 @@
   "ignore_text": "تجاهل",
   "accept_text": "قبول",
   "request_join_ignore_member": "تأكيد تجاهل العضو",
-  "request_join_accept_member": "تأكيد قبول العضو"
+  "request_join_accept_member": "تأكيد قبول العضو",
+  "request_chat": "غرباء",
+  "request_chat_content": "${name}... و ${count} محادثات أخرى",
+  "more": "المزيد",
+  "success": "نجاح",
+  "option_gift_wrap_dm": "رسالة مباشرة مغلفة بالهدية ${option}",
+  "option_auto_delete": "حذف تلقائي ${option}",
+  "set": "تعيين",
+  "enable": "تمكين",
+  "disable": "تعطيل",
+  "set_msg_auto_delete_system": "${username} ضبط الرسائل للحذف التلقائي بعد ${time} أيام",
+  "disabled_msg_auto_delete_system": "${username} عطّل مؤقت الحذف التلقائي",
+  "set_normal_dm_system": "${username} ضبط المحادثة الحالية كرسالة مباشرة عادية",
+  "set_gift_wrapped_dm_system": "${username} ضبط المحادثة الحالية كرسالة مباشرة مغلفة بالهدية"
 }

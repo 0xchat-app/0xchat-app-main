@@ -191,5 +191,17 @@
   "accept_text": "接受",
   "request_join_ignore_member": "确认是否忽略该成员",
   "request_join_accept_member": "确认是否接受该成员",
-  "more": "更多"
+  "request_chat": "陌生人",
+  "request_chat_content": "${name}... 和其他 ${count} 聊天",
+  "more": "更多",
+  "success": "成功",
+  "option_gift_wrap_dm": "${option} 礼物包装 DM",
+  "option_auto_delete": "${option} 自动删除",
+  "set": "设置",
+  "enable": "启用",
+  "disable": "禁用",
+  "set_msg_auto_delete_system": "${username} 设置消息在 ${time} 天后自动删除",
+  "disabled_msg_auto_delete_system": "${username} 禁用了自动删除计时器",
+  "set_normal_dm_system": "${username} 将当前对话设置为普通 DM",
+  "set_gift_wrapped_dm_system": "${username} 将当前对话设置为礼物包装 DM"
 }

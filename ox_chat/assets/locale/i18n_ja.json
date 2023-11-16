@@ -190,5 +190,18 @@
   "ignore_text": "無視",
   "accept_text": "承認",
   "request_join_ignore_member": "このメンバーを無視しますか？",
-  "request_join_accept_member": "このメンバーを承認しますか？"
+  "request_join_accept_member": "このメンバーを承認しますか？",
+  "request_chat": "見知らぬ人",
+  "request_chat_content": "${name}... その他${count}チャット",
+  "more": "もっと",
+  "success": "成功",
+  "option_gift_wrap_dm": "${option} ギフトラップDM",
+  "option_auto_delete": "${option} 自動削除",
+  "set": "設定",
+  "enable": "有効化",
+  "disable": "無効化",
+  "set_msg_auto_delete_system": "${username} は${time}日後にメッセージを自動削除するよう設定しました",
+  "disabled_msg_auto_delete_system": "${username} は自動削除タイマーを無効にしました",
+  "set_normal_dm_system": "${username} は現在の会話を通常のDMとして設定しました",
+  "set_gift_wrapped_dm_system": "${username} は現在の会話をギフトラップDMとして設定しました"
 }

@@ -190,5 +190,18 @@
   "ignore_text": "무시",
   "accept_text": "수락",
   "request_join_ignore_member": "멤버를 무시할 것인지 확인",
-  "request_join_accept_member": "멤버를 수락할 것인지 확인"
+  "request_join_accept_member": "멤버를 수락할 것인지 확인",
+  "request_chat": "낯선 사람",
+  "request_chat_content": "${name}... 및 기타 ${count}개의 채팅",
+  "more": "더 보기",
+  "success": "성공",
+  "option_gift_wrap_dm": "${option} 선물 포장된 DM",
+  "option_auto_delete": "${option} 자동 삭제",
+  "set": "설정",
+  "enable": "활성화",
+  "disable": "비활성화",
+  "set_msg_auto_delete_system": "${username}가 ${time}일 후 자동 삭제되도록 메시지 설정",
+  "disabled_msg_auto_delete_system": "${username}가 자동 삭제 타이머 비활성화",
+  "set_normal_dm_system": "${username}가 현재 대화를 일반 DM으로 설정",
+  "set_gift_wrapped_dm_system": "${username}가 현재 대화를 선물 포장된 DM으로 설정"
 }

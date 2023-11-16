@@ -190,5 +190,18 @@
   "ignore_text": "Negeren",
   "accept_text": "Accepteren",
   "request_join_ignore_member": "Bevestig of je het lid wilt negeren",
-  "request_join_accept_member": "Bevestig of je het lid wilt accepteren"
+  "request_join_accept_member": "Bevestig of je het lid wilt accepteren",
+  "request_chat": "Vreemden",
+  "request_chat_content": "${name}... en andere ${count} chats",
+  "more": "Meer",
+  "success": "Succes",
+  "option_gift_wrap_dm": "${option} Cadeauverpakte DM",
+  "option_auto_delete": "${option} Automatisch Verwijderen",
+  "set": "Instellen",
+  "enable": "Inschakelen",
+  "disable": "Uitschakelen",
+  "set_msg_auto_delete_system": "${username} heeft berichten ingesteld om automatisch te verwijderen na ${time} dagen",
+  "disabled_msg_auto_delete_system": "${username} heeft de automatische verwijdertimer uitgeschakeld",
+  "set_normal_dm_system": "${username} heeft het huidige gesprek ingesteld als normale DM",
+  "set_gift_wrapped_dm_system": "${username} heeft het huidige gesprek ingesteld als cadeauverpakte DM"
 }

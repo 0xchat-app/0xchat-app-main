@@ -190,5 +190,18 @@
   "ignore_text": "Ignoruj",
   "accept_text": "Akceptuj",
   "request_join_ignore_member": "Czy na pewno chcesz zignorować tego członka?",
-  "request_join_accept_member": "Czy na pewno chcesz zaakceptować tego członka?"
+  "request_join_accept_member": "Czy na pewno chcesz zaakceptować tego członka?",
+  "request_chat": "Nieznajomi",
+  "request_chat_content": "${name}... i inne ${count} czaty",
+  "more": "Więcej",
+  "success": "Sukces",
+  "option_gift_wrap_dm": "${option} Opakowany na prezent DM",
+  "option_auto_delete": "${option} Automatyczne Usuwanie",
+  "set": "Ustaw",
+  "enable": "Włącz",
+  "disable": "Wyłącz",
+  "set_msg_auto_delete_system": "${username} Ustawił wiadomości na automatyczne usuwanie po ${time} dniach",
+  "disabled_msg_auto_delete_system": "${username} Wyłączył automatyczny zegar usuwania",
+  "set_normal_dm_system": "${username} Ustawił bieżącą rozmowę jako normalną DM",
+  "set_gift_wrapped_dm_system": "${username} Ustawił bieżącą rozmowę jako opakowaną na prezent DM"
 }

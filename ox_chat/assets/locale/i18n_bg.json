@@ -190,5 +190,18 @@
   "ignore_text": "Игнорирай",
   "accept_text": "Приеми",
   "request_join_ignore_member": "Потвърдете дали да игнорирате члена",
-  "request_join_accept_member": "Потвърдете дали да приемете члена"
+  "request_join_accept_member": "Потвърдете дали да приемете члена",
+  "request_chat": "Непознати",
+  "request_chat_content": "${name}... и други ${count} чата",
+  "more": "Още",
+  "success": "Успех",
+  "option_gift_wrap_dm": "${option} Подаръчно опакован ДМ",
+  "option_auto_delete": "${option} Автоматично изтриване",
+  "set": "Настрой",
+  "enable": "Активиране",
+  "disable": "Деактивиране",
+  "set_msg_auto_delete_system": "${username} Настрои съобщенията да се изтриват автоматично след ${time} дни",
+  "disabled_msg_auto_delete_system": "${username} Деактивира таймера за автоматично изтриване",
+  "set_normal_dm_system": "${username} Настрои текущия чат като обикновен ДМ",
+  "set_gift_wrapped_dm_system": "${username} Настрои текущия чат като подаръчно опакован ДМ"
 }

@@ -190,5 +190,18 @@
   "ignore_text": "Ignorieren",
   "accept_text": "Akzeptieren",
   "request_join_ignore_member": "Bestätigen, ob das Mitglied ignoriert werden soll",
-  "request_join_accept_member": "Bestätigen, ob das Mitglied akzeptiert werden soll"
+  "request_join_accept_member": "Bestätigen, ob das Mitglied akzeptiert werden soll",
+  "request_chat": "Fremde",
+  "request_chat_content": "${name}... und weitere ${count} Chats",
+  "more": "Mehr",
+  "success": "Erfolg",
+  "option_gift_wrap_dm": "${option} Geschenkverpackte DM",
+  "option_auto_delete": "${option} Automatisches Löschen",
+  "set": "Einstellen",
+  "enable": "Aktivieren",
+  "disable": "Deaktivieren",
+  "set_msg_auto_delete_system": "${username} hat Nachrichten auf automatisches Löschen nach ${time} Tagen eingestellt",
+  "disabled_msg_auto_delete_system": "${username} hat den Timer für automatisches Löschen deaktiviert",
+  "set_normal_dm_system": "${username} hat die aktuelle Unterhaltung als normale DM eingestellt",
+  "set_gift_wrapped_dm_system": "${username} hat die aktuelle Unterhaltung als geschenkverpackte DM eingestellt"
 }

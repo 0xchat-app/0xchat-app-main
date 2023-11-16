@@ -190,5 +190,18 @@
   "ignore_text": "अनदेखा करें",
   "accept_text": "स्वीकार करें",
   "request_join_ignore_member": "सदस्य को अनदेखा करने की पुष्टि करें",
-  "request_join_accept_member": "सदस्य को स्वीकार करने की पुष्टि करें"
+  "request_join_accept_member": "सदस्य को स्वीकार करने की पुष्टि करें",
+  "request_chat": "अजनबी",
+  "request_chat_content": "${name}... और अन्य ${count} चैट्स",
+  "more": "अधिक",
+  "success": "सफलता",
+  "option_gift_wrap_dm": "${option} उपहार में लिपटा DM",
+  "option_auto_delete": "${option} स्वत: हटाना",
+  "set": "सेट करें",
+  "enable": "सक्रिय करें",
+  "disable": "निष्क्रिय करें",
+  "set_msg_auto_delete_system": "${username} ने संदेशों को ${time} दिनों के बाद स्वत: हटाने के लिए सेट किया",
+  "disabled_msg_auto_delete_system": "${username} ने स्वत: हटाने का टाइमर निष्क्रिय किया",
+  "set_normal_dm_system": "${username} ने वर्तमान वार्तालाप को सामान्य DM के रूप में सेट किया",
+  "set_gift_wrapped_dm_system": "${username} ने वर्तमान वार्तालाप को उपहार में लिपटा DM के रूप में सेट किया"
 }

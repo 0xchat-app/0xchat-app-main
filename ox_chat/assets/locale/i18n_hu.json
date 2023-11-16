@@ -190,5 +190,18 @@
   "ignore_text": "Mellőz",
   "accept_text": "Elfogad",
   "request_join_ignore_member": "Megerősíti, hogy figyelmen kívül hagyja a tagot?",
-  "request_join_accept_member": "Megerősíti, hogy elfogadja a tagot?"
+  "request_join_accept_member": "Megerősíti, hogy elfogadja a tagot?",
+  "request_chat": "Idegenek",
+  "request_chat_content": "${name}... és további ${count} csevegés",
+  "more": "Több",
+  "success": "Siker",
+  "option_gift_wrap_dm": "${option} Ajándékba csomagolt DM",
+  "option_auto_delete": "${option} Automatikus törlés",
+  "set": "Beállítás",
+  "enable": "Engedélyez",
+  "disable": "Letilt",
+  "set_msg_auto_delete_system": "${username} beállította az üzenetek automatikus törlését ${time} nap után",
+  "disabled_msg_auto_delete_system": "${username} kikapcsolta az automatikus törlés időzítőjét",
+  "set_normal_dm_system": "${username} beállította az aktuális beszélgetést normál DM-ként",
+  "set_gift_wrapped_dm_system": "${username} beállította az aktuális beszélgetést ajándékba csomagolt DM-ként"
 }

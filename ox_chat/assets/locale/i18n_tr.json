@@ -190,5 +190,18 @@
   "ignore_text": "Yoksay",
   "accept_text": "Kabul et",
   "request_join_ignore_member": "Üyeyi yoksaymak istediğinize emin misiniz?",
-  "request_join_accept_member": "Üyeyi kabul etmek istediğinize emin misiniz?"
+  "request_join_accept_member": "Üyeyi kabul etmek istediğinize emin misiniz?",
+  "request_chat": "Yabancılar",
+  "request_chat_content": "${name}... ve diğer ${count} sohbet",
+  "more": "Daha Fazla",
+  "success": "Başarılı",
+  "option_gift_wrap_dm": "${option} Hediye Paketli DM",
+  "option_auto_delete": "${option} Otomatik Silme",
+  "set": "Ayarla",
+  "enable": "Etkinleştir",
+  "disable": "Devre Dışı Bırak",
+  "set_msg_auto_delete_system": "${username} Mesajları ${time} gün sonra otomatik silinecek şekilde ayarladı",
+  "disabled_msg_auto_delete_system": "${username} Otomatik silme zamanlayıcısını devre dışı bıraktı",
+  "set_normal_dm_system": "${username} Mevcut sohbeti normal DM olarak ayarladı",
+  "set_gift_wrapped_dm_system": "${username} Mevcut sohbeti hediye paketli DM olarak ayarladı"
 }
