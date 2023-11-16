@@ -120,20 +120,32 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: ThemeColor.color190,
+        color: ThemeColor.color180,
       ),
+      padding: EdgeInsets.symmetric(vertical: 20.px),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: EdgeInsets.only(left: 20.px),
+            child: Text(
+              'Share',
+              style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: ThemeColor.color0),
+            ),
+          ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.px,vertical: 20.px),
+            padding: EdgeInsets.symmetric(horizontal: 20.px,vertical: 16.px),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: ''),
-                _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: '',icon: Icons.copy),
+                _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
+                _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
               ],
             ),
           ),
@@ -162,19 +174,40 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     );
   }
 
-  Widget _buildItem({required String label,required String iconName,GestureTapCallback? onTap,IconData? icon}){
+  Widget _buildItem({required String label,required String iconName,GestureTapCallback? onTap}){
     return _buildTapWidget(
       onTap: onTap,
       child: Container(
-        width: 80.px,
+        width: 60.px,
+        margin: EdgeInsets.only(right: 16.px),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon ?? Icons.open_in_browser,size: 48.sp,),
-            SizedBox(height: 5.px,),
-            Text(label,textAlign: TextAlign.center,),
+            Container(
+              decoration: BoxDecoration(
+                color: ThemeColor.color170,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              width: 60.px,
+              height: 60.px,
+              child: CommonImage(
+                iconName: iconName,
+                size: 24.px,
+              ),
+            ),
+            SizedBox(height: 8.px,),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color80,
+              ),
+            ),
           ],
         ),
       ),
@@ -231,7 +264,8 @@ class WebViewBackBtn extends StatelessWidget {
                     : null,
                 child: this.backIcon ??
                     CommonImage(
-                      iconName: 'icon_back_light.png',
+                      iconName: 'icon_webview_back.png',
+                      useTheme: true,
                       size: 24.px,
                     ),
               ) : Container();
