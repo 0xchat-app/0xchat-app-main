@@ -36,6 +36,8 @@
   "connect_relay": "KAPCSOLÓDÁS A RELÉHEZ",
   "connected_relay": "KAPCSOLÓDVA A RELÉHEZ",
   "recommend_relay": "AJÁNLOTT RELÉ",
+  "disconnect_wallet_warning": "Pénztárca szétkapcsolása?",
+  "disconnect_wallet_confirm": "Megerősít",
   "zaps": "Zaps",
   "wallet": "Pénztárca",
   "show_wallet_selector": "Pénztárca választó megjelenítése",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Ez az ICE szerver már létezik",
   "delete_server_tips": "Biztosan törölni szeretné?",
   "delete_server_success_tips": "Sikeresen törölve",
-  "add": "Hozzáad"
+  "add": "Hozzáad",
+  "sound_feedback": "Hang",
+  "vibrate_feedback": "Rezgés"
 }

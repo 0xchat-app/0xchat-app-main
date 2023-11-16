@@ -36,6 +36,8 @@
   "connect_relay": "FORBINDELSE TIL RELÆ",
   "connected_relay": "FORBUNDET TIL RELÆ",
   "recommend_relay": "Anbefal RELÆ",
+  "disconnect_wallet_warning": "Frakoble tegnebog?",
+  "disconnect_wallet_confirm": "Bekræft",
   "zaps": "Zaps",
   "wallet": "Tegnebog",
   "show_wallet_selector": "Vis tegnebogsvælger",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Denne ICE-server findes allerede",
   "delete_server_tips": "Er du sikker på, at du vil slette det?",
   "delete_server_success_tips": "Slettet med succes",
-  "add": "Tilføj"
+  "add": "Tilføj",
+  "sound_feedback": "Lyd",
+  "vibrate_feedback": "Vibrere"
 }

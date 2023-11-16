@@ -36,6 +36,8 @@
   "connect_relay": "ПОДКЛЮЧИТЬ К РЕЛЕ",
   "connected_relay": "ПОДКЛЮЧЕНО К РЕЛЕ",
   "recommend_relay": "Рекомендовать РЕЛЕ",
+  "disconnect_wallet_warning": "Отключить кошелек?",
+  "disconnect_wallet_confirm": "Подтвердить",
   "zaps": "Zaps",
   "wallet": "Кошелек",
   "show_wallet_selector": "Выбор кошелька",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Этот сервер ICE уже существует",
   "delete_server_tips": "Вы уверены, что хотите его удалить?",
   "delete_server_success_tips": "Успешно удалено",
-  "add": "Добавить"
+  "add": "Добавить",
+  "sound_feedback": "Звук",
+  "vibrate_feedback": "Вибрация"
 }

@@ -36,6 +36,8 @@
   "connect_relay": "ПІДКЛЮЧИТИ ДО РЕЛЕ",
   "connected_relay": "ПІДКЛЮЧЕНО ДО РЕЛЕ",
   "recommend_relay": "Рекомендувати РЕЛЕ",
+  "disconnect_wallet_warning": "Від'єднати гаманець?",
+  "disconnect_wallet_confirm": "Підтвердити",
   "zaps": "Zaps",
   "wallet": "Гаманець",
   "show_wallet_selector": "Показати вибір гаманця",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Цей сервер ICE вже існує",
   "delete_server_tips": "Ви впевнені, що хочете видалити?",
   "delete_server_success_tips": "Успішно видалено",
-  "add": "Додати"
+  "add": "Додати",
+  "sound_feedback": "Звук",
+  "vibrate_feedback": "Вібрація"
 }

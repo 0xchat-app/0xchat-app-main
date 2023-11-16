@@ -36,6 +36,8 @@
   "connect_relay": "PIEVIENOTIES RELĒ",
   "connected_relay": "PIEVIENOTS RELĒ",
   "recommend_relay": "Ieteikt RELĒ",
+  "disconnect_wallet_warning": "Atvienot maku?",
+  "disconnect_wallet_confirm": "Apstiprināt",
   "zaps": "Zaps",
   "wallet": "Makss",
   "show_wallet_selector": "Rādīt maksa izvēlētāju",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Šis ICE serveris jau pastāv",
   "delete_server_tips": "Vai tiešām vēlaties to dzēst?",
   "delete_server_success_tips": "Veiksmīgi dzēsts",
-  "add": "Pievienot"
+  "add": "Pievienot",
+  "sound_feedback": "Skaņa",
+  "vibrate_feedback": "Vibrācija"
 }

@@ -36,6 +36,8 @@
   "connect_relay": "連接中繼器",
   "connected_relay": "已連接的中繼器",
   "recommend_relay": "推薦的中繼器",
+  "disconnect_wallet_warning": "斷開錢包連接？",
+  "disconnect_wallet_confirm": "確認",
   "zaps": "打閃",
   "wallet": "閃電錢包",
   "show_wallet_selector": "顯示錢包選擇",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "該 ICE 伺服器已存在",
   "delete_server_tips": "確定要刪除嗎？",
   "delete_server_success_tips": "刪除成功",
-  "add": "添加"
+  "add": "添加",
+  "sound_feedback": "聲音",
+  "vibrate_feedback": "震動"
 }

@@ -36,6 +36,8 @@
   "connect_relay": "CONNECTA AL RELÉ",
   "connected_relay": "CONNECTAT AL RELÉ",
   "recommend_relay": "Recomana RELÉ",
+  "disconnect_wallet_warning": "Desconnectar la cartera?",
+  "disconnect_wallet_confirm": "Confirma",
   "zaps": "Zaps",
   "wallet": "Cartera",
   "show_wallet_selector": "Mostra selector de cartera",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Aquest servidor ICE ja existeix",
   "delete_server_tips": "Estàs segur que vols suprimir-ho?",
   "delete_server_success_tips": "S'ha suprimit correctament",
-  "add": "Afegeix"
+  "add": "Afegeix",
+  "sound_feedback": "So",
+  "vibrate_feedback": "Vibració"
 }

@@ -36,6 +36,8 @@
   "connect_relay": "الاتصال بالمرحلة",
   "connected_relay": "المرحلة المتصلة",
   "recommend_relay": "المرحلة الموصى بها",
+  "disconnect_wallet_warning": "فصل المحفظة؟",
+  "disconnect_wallet_confirm": "تأكيد",
   "zaps": "زابس",
   "wallet": "محفظة البرق",
   "show_wallet_selector": "عرض اختيار المحفظة",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "خادم ICE هذا موجود بالفعل",
   "delete_server_tips": "هل أنت متأكد أنك تريد حذفه؟",
   "delete_server_success_tips": "تم الحذف بنجاح",
-  "add": "إضافة"
+  "add": "إضافة",
+  "sound_feedback": "صوت",
+  "vibrate_feedback": "اهتزاز"
 }

@@ -43,6 +43,8 @@
   "zaps_record": "打闪记录",
   "not_set_wallet_status": "未设置",
   "not_set_wallet_tips": "请先设置默认的闪电钱包",
+  "disconnect_wallet_warning": "Disconnect wallet?",
+  "disconnect_wallet_confirm": "Confirm",
   "keys": "密钥",
   "show": "显示",
   "language": "语言",

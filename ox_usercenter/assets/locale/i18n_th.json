@@ -36,6 +36,8 @@
   "connect_relay": "เชื่อมต่อไปยังรีเลย์",
   "connected_relay": "เชื่อมต่อแล้ว",
   "recommend_relay": "แนะนำรีเลย์",
+  "disconnect_wallet_warning": "ต้องการยกเลิกการเชื่อมต่อกระเป๋าเงินหรือไม่?",
+  "disconnect_wallet_confirm": "ยืนยัน",
   "zaps": "แซป",
   "wallet": "กระเป๋าเงิน",
   "show_wallet_selector": "แสดงตัวเลือกกระเป๋าเงิน",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "เซิร์ฟเวอร์ ICE นี้มีอยู่แล้ว",
   "delete_server_tips": "คุณแน่ใจหรือไม่ว่าต้องการลบ",
   "delete_server_success_tips": "ลบสำเร็จ",
-  "add": "เพิ่ม"
+  "add": "เพิ่ม",
+  "sound_feedback": "เสียง",
+  "vibrate_feedback": "สั่น"
 }
