@@ -35,7 +35,7 @@
   "relays": "Relays",
   "connect_relay": "CONNECT TO RELAY",
   "connected_relay": "CONNECTED TO RELAY",
-  "recommend_relay": "Recommend RELAY",
+  "recommend_relay": "RECOMMENDED RELAY",
   "zaps": "Zaps",
   "wallet": "Wallet",
   "show_wallet_selector": "Show wallet selector",
