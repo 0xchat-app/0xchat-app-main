@@ -119,10 +119,10 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
   Widget _buildMoreWidget(BuildContext context){
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12.px)),
         color: ThemeColor.color180,
       ),
-      padding: EdgeInsets.symmetric(vertical: 20.px),
+      padding: EdgeInsets.only(top: 20.px),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
