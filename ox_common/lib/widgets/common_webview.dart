@@ -135,6 +135,7 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
   }
 
   String formatUrl(String url) {
+    return url;
     if (url.contains("?")) {
       return url +
           "&lang=${Localized.getCurrentLanguage().symbol()}&theme=${ThemeManager.getCurrentThemeStyle().value()}";
