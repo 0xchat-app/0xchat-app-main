@@ -36,6 +36,8 @@
   "connect_relay": "POŁĄCZ Z PRZEKAŹNIKIEM",
   "connected_relay": "POŁĄCZONY Z PRZEKAŹNIKIEM",
   "recommend_relay": "Poleć PRZEKAŹNIK",
+  "disconnect_wallet_warning": "Odłączyć portfel?",
+  "disconnect_wallet_confirm": "Potwierdź",
   "zaps": "Zaps",
   "wallet": "Portfel",
   "show_wallet_selector": "Pokaż selektor portfela",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Este servidor ICE já existe",
   "delete_server_tips": "Tem certeza de que deseja deletar?",
   "delete_server_success_tips": "Deletado com sucesso",
-  "add": "Adicionar"
+  "add": "Adicionar",
+  "sound_feedback": "Dźwięk",
+  "vibrate_feedback": "Wibracja"
 }

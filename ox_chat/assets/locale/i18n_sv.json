@@ -190,5 +190,18 @@
   "ignore_text": "Ignorera",
   "accept_text": "Acceptera",
   "request_join_ignore_member": "Bekräfta om du vill ignorera medlemmen",
-  "request_join_accept_member": "Bekräfta om du vill acceptera medlemmen"
+  "request_join_accept_member": "Bekräfta om du vill acceptera medlemmen",
+  "request_chat": "Främlingar",
+  "request_chat_content": "${name}... och andra ${count} chattar",
+  "more": "Mer",
+  "success": "Framgång",
+  "option_gift_wrap_dm": "${option} Presentinslagen DM",
+  "option_auto_delete": "${option} Automatisk Radering",
+  "set": "Sätt",
+  "enable": "Aktivera",
+  "disable": "Inaktivera",
+  "set_msg_auto_delete_system": "${username} Ställde in meddelanden att automatiskt raderas efter ${time} dagar",
+  "disabled_msg_auto_delete_system": "${username} Inaktiverade timern för automatisk radering",
+  "set_normal_dm_system": "${username} Ställde in den aktuella konversationen som vanlig DM",
+  "set_gift_wrapped_dm_system": "${username} Ställde in den aktuella konversationen som presentinslagen DM"
 }

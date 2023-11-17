@@ -190,5 +190,18 @@
   "ignore_text": "Ignora",
   "accept_text": "Accepta",
   "request_join_ignore_member": "Confirmes ignorar el membre?",
-  "request_join_accept_member": "Confirmes acceptar el membre?"
+  "request_join_accept_member": "Confirmes acceptar el membre?",
+  "request_chat": "Estranys",
+  "request_chat_content": "${name}... i altres ${count} xats",
+  "more": "Més",
+  "success": "Èxit",
+  "option_gift_wrap_dm": "DM embolicat com a regal ${option}",
+  "option_auto_delete": "Autoesborrar ${option}",
+  "set": "Configurar",
+  "enable": "Habilitar",
+  "disable": "Desactivar",
+  "set_msg_auto_delete_system": "${username} Ha configurat els missatges per a autoesborrar-se després de ${time} dies",
+  "disabled_msg_auto_delete_system": "${username} Ha desactivat el temporitzador d'autoesborrat",
+  "set_normal_dm_system": "${username} Ha configurat la conversa actual com a DM normal",
+  "set_gift_wrapped_dm_system": "${username} Ha configurat la conversa actual com a DM embolicat com a regal"
 }

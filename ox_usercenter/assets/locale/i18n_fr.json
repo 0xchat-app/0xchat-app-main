@@ -36,6 +36,8 @@
   "connect_relay": "SE CONNECTER AU RELAIS",
   "connected_relay": "CONNECTÉ AU RELAIS",
   "recommend_relay": "Recommander RELAIS",
+  "disconnect_wallet_warning": "Déconnecter le portefeuille?",
+  "disconnect_wallet_confirm": "Confirmer",
   "zaps": "Zaps",
   "wallet": "Portefeuille",
   "show_wallet_selector": "Afficher le sélecteur de portefeuille",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Ce serveur ICE existe déjà",
   "delete_server_tips": "Êtes-vous sûr de vouloir le supprimer?",
   "delete_server_success_tips": "Supprimé avec succès",
-  "add": "Ajouter"
+  "add": "Ajouter",
+  "sound_feedback": "Son",
+  "vibrate_feedback": "Vibration"
 }

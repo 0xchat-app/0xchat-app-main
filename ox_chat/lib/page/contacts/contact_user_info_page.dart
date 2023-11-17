@@ -32,12 +32,21 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 import 'contact_create_secret_chat.dart';
 
+class TabModel {
+  Function onTap;
+  final String iconName;
+  final String content;
+  TabModel(
+      {required this.onTap, required this.iconName, required this.content});
+}
+
 class ContactUserInfoPage extends StatefulWidget {
   final UserDB userDB;
   final String? chatId;
   final bool isSecretChat;
 
-  ContactUserInfoPage({Key? key, required this.userDB, this.chatId, this.isSecretChat = false})
+  ContactUserInfoPage(
+      {Key? key, required this.userDB, this.chatId, this.isSecretChat = false})
       : super(key: key);
 
   @override
@@ -116,10 +125,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     return safeMsgKind == 1059;
   }
 
+  List<TabModel> modelList = [];
+
   @override
   void initState() {
     super.initState();
     _initData();
+    _initModelList();
   }
 
   @override
@@ -129,6 +141,52 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   bool _isInBlockList() {
     return Contacts.sharedInstance.inBlockList(widget.userDB.pubKey ?? '');
+  }
+
+  void _initModelList() {
+    modelList = [
+      TabModel(
+        iconName: 'icon_message.png',
+        onTap: _sendMsg,
+        content: Localized.text('ox_chat.send_message'),
+      ),
+      TabModel(
+        onTap: () {
+          OXNavigator.presentPage(
+            context,
+            (context) => ContactCreateSecret(userDB: widget.userDB),
+          );
+        },
+        iconName: 'icon_secret.png',
+        content: Localized.text('ox_chat.secret_chat'),
+      ),
+      TabModel(
+        onTap: () {
+          _clickCall();
+        },
+        iconName: 'icon_chat_call.png',
+        content: Localized.text('ox_chat.call'),
+      ),
+      TabModel(
+        onTap: () => _onChangedMute(!_isMute),
+        iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
+        content: _isMute
+            ? Localized.text('ox_chat.un_mute_item')
+            : Localized.text('ox_chat.mute_item'),
+      ),
+    ];
+
+    if (widget.chatId != null) {
+      modelList.add(
+        TabModel(
+          onTap: _chatMsgControlDialogWidget,
+          iconName: 'icon_more_gray.png',
+          content: Localized.text('ox_chat.more'),
+        ),
+      );
+    }
+
+    setState(() {});
   }
 
   void _initData() async {
@@ -224,51 +282,28 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   Widget _tabContainerView() {
     if (!(!_isInBlockList())) return Container();
+    bool isShowMore = widget.chatId != null;
     return Container(
-      padding: EdgeInsets.only(
-        bottom: Adapt.px(16),
+      margin: EdgeInsets.only(
+        bottom: 16.px,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _tabWidget(
-            onTap: _sendMsg,
-            iconName: 'icon_message.png',
-            content: Localized.text('ox_chat.send_message'),
-          ),
-          _tabWidget(
-            onTap: () {
-              OXNavigator.presentPage(
-                context,
-                (context) => ContactCreateSecret(userDB: widget.userDB),
-              );
-            },
-            iconName: 'icon_secret.png',
-            content: Localized.text('ox_chat.secret_chat'),
-          ),
-          _tabWidget(
-            onTap: () {
-              _clickCall();
-            },
-            iconName: 'icon_chat_call.png',
-            content: Localized.text('ox_chat.call'),
-          ),
-          _tabWidget(
-            onTap: () => _onChangedMute(!_isMute),
-            iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
-            content: _isMute
-                ? Localized.text('ox_chat.un_mute_item')
-                : Localized.text('ox_chat.mute_item'),
-          ),
-          Visibility(
-            visible: widget.chatId != null,
-            child: _tabWidget(
-              onTap: _chatMsgControlDialogWidget,
-              iconName: 'icon_more_gray.png',
-              content: Localized.text('ox_chat.more'),
-            ),
-          ),
-        ],
+      child: GridView.builder(
+        shrinkWrap: true,
+        padding: const EdgeInsets.only(top: 0),
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isShowMore ? 5 : 4,
+          crossAxisSpacing: isShowMore ? 4.px : 20.px,
+          childAspectRatio:  1.1,
+          // mainAxisExtent: _imageWH + Adapt.px(8 + 34),
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          return _tabWidget(
+              content: modelList[index].content,
+              onTap: modelList[index].onTap,
+              iconName: modelList[index].iconName);
+        },
+        itemCount: modelList.length,
       ),
     );
   }
@@ -278,7 +313,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: Adapt.px(widget.chatId == null ? 76.5 : 72),
         padding: EdgeInsets.symmetric(
           vertical: Adapt.px(14),
         ),
@@ -290,26 +324,29 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             ),
           ),
         ),
-        child: Column(
-          children: [
-            CommonImage(
-              iconName: iconName,
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              package: 'ox_chat',
-            ),
-            SizedBox(
-              height: Adapt.px(2),
-            ),
-            Text(
-              content,
-              style: TextStyle(
-                color: ThemeColor.color80,
-                fontSize: Adapt.px(10),
-                fontWeight: FontWeight.w400,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CommonImage(
+                iconName: iconName,
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                package: 'ox_chat',
               ),
-            )
-          ],
+              SizedBox(
+                height: Adapt.px(2),
+              ),
+              Text(
+                content,
+                style: TextStyle(
+                  color: ThemeColor.color80,
+                  fontSize: Adapt.px(10),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

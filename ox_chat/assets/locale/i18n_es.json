@@ -190,5 +190,18 @@
   "ignore_text": "Ignorar",
   "accept_text": "Aceptar",
   "request_join_ignore_member": "Confirmar si ignorar al miembro",
-  "request_join_accept_member": "Confirmar si aceptar al miembro"
+  "request_join_accept_member": "Confirmar si aceptar al miembro",
+  "request_chat": "Extraños",
+  "request_chat_content": "${name}... y otros ${count} chats",
+  "more": "Más",
+  "success": "Éxito",
+  "option_gift_wrap_dm": "${option} DM envuelto para regalo",
+  "option_auto_delete": "${option} Autoeliminación",
+  "set": "Configurar",
+  "enable": "Activar",
+  "disable": "Desactivar",
+  "set_msg_auto_delete_system": "${username} Configuró los mensajes para autoeliminar después de ${time} días",
+  "disabled_msg_auto_delete_system": "${username} Desactivó el temporizador de autoeliminación",
+  "set_normal_dm_system": "${username} Configuró la conversación actual como DM normal",
+  "set_gift_wrapped_dm_system": "${username} Configuró la conversación actual como DM envuelto para regalo"
 }

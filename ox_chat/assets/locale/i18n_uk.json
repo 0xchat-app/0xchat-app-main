@@ -190,5 +190,18 @@
   "ignore_text": "Ігнорувати",
   "accept_text": "Прийняти",
   "request_join_ignore_member": "Підтвердіть ігнорування члена",
-  "request_join_accept_member": "Підтвердіть прийняття члена"
+  "request_join_accept_member": "Підтвердіть прийняття члена",
+  "request_chat": "Незнайомці",
+  "request_chat_content": "${name}... та інші ${count} чати",
+  "more": "Більше",
+  "success": "Успішно",
+  "option_gift_wrap_dm": "${option} Подарунково запакований ДМ",
+  "option_auto_delete": "${option} Автоматичне видалення",
+  "set": "Налаштувати",
+  "enable": "Увімкнути",
+  "disable": "Вимкнути",
+  "set_msg_auto_delete_system": "${username} Налаштував повідомлення на автоматичне видалення через ${time} днів",
+  "disabled_msg_auto_delete_system": "${username} Вимкнув таймер автоматичного видалення",
+  "set_normal_dm_system": "${username} Налаштував поточну бесіду як звичайний ДМ",
+  "set_gift_wrapped_dm_system": "${username} Налаштував поточну бесіду як подарунково запакований ДМ"
 }

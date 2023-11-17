@@ -190,5 +190,18 @@
   "ignore_text": "Ignorer",
   "accept_text": "Accepter",
   "request_join_ignore_member": "Confirmer l'ignorance du membre",
-  "request_join_accept_member": "Confirmer l'acceptation du membre"
+  "request_join_accept_member": "Confirmer l'acceptation du membre",
+  "request_chat": "Étrangers",
+  "request_chat_content": "${name}... et ${count} autres discussions",
+  "more": "Plus",
+  "success": "Succès",
+  "option_gift_wrap_dm": "${option} DM emballé cadeau",
+  "option_auto_delete": "${option} Suppression automatique",
+  "set": "Régler",
+  "enable": "Activer",
+  "disable": "Désactiver",
+  "set_msg_auto_delete_system": "${username} a réglé les messages pour s'auto-supprimer après ${time} jours",
+  "disabled_msg_auto_delete_system": "${username} a désactivé le minuteur de suppression automatique",
+  "set_normal_dm_system": "${username} a défini la conversation actuelle comme DM normal",
+  "set_gift_wrapped_dm_system": "${username} a défini la conversation actuelle comme DM emballé cadeau"
 }

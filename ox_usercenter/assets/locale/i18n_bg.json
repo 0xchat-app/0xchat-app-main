@@ -36,6 +36,8 @@
   "connect_relay": "СВЪРЖЕТЕ СЕ С РЕЛЕ",
   "connected_relay": "СВЪРЗАНО С РЕЛЕ",
   "recommend_relay": "Препоръчайте РЕЛЕ",
+  "disconnect_wallet_warning": "Да се изключи ли портфейла?",
+  "disconnect_wallet_confirm": "Потвърждение",
   "zaps": "Zaps",
   "wallet": "Портфейл",
   "show_wallet_selector": "Показване на селектора на портфейла",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Този ICE сървър вече съществува",
   "delete_server_tips": "Сигурни ли сте, че искате да го изтриете?",
   "delete_server_success_tips": "Успешно изтрито",
-  "add": "Добави"
+  "add": "Добави",
+  "sound_feedback": "Звук",
+  "vibrate_feedback": "Вибрация"
 }

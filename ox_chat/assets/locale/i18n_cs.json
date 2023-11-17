@@ -190,5 +190,18 @@
   "ignore_text": "Ignorovat",
   "accept_text": "Přijmout",
   "request_join_ignore_member": "Potvrdit, zda ignorovat člena",
-  "request_join_accept_member": "Potvrdit, zda přijmout člena"
+  "request_join_accept_member": "Potvrdit, zda přijmout člena",
+  "request_chat": "Cizinci",
+  "request_chat_content": "${name}... a další ${count} chaty",
+  "more": "Více",
+  "success": "Úspěch",
+  "option_gift_wrap_dm": "${option} Dárkově zabalená DM",
+  "option_auto_delete": "${option} Auto-Smazání",
+  "set": "Nastavit",
+  "enable": "Povolit",
+  "disable": "Zakázat",
+  "set_msg_auto_delete_system": "${username} Nastavil(a) automatické mazání zpráv po ${time} dnech",
+  "disabled_msg_auto_delete_system": "${username} Vypnul(a) časovač automatického mazání",
+  "set_normal_dm_system": "${username} Nastavil(a) současný rozhovor jako normální DM",
+  "set_gift_wrapped_dm_system": "${username} Nastavil(a) současný rozhovor jako dárkově zabalenou DM"
 }

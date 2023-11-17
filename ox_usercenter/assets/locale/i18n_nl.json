@@ -36,6 +36,8 @@
   "connect_relay": "VERBIND MET RELAY",
   "connected_relay": "VERBONDEN MET RELAY",
   "recommend_relay": "Aanbevolen RELAY",
+  "disconnect_wallet_warning": "Portemonnee loskoppelen?",
+  "disconnect_wallet_confirm": "Bevestigen",
   "zaps": "Zaps",
   "wallet": "Portemonnee",
   "show_wallet_selector": "Toon portemonnee selector",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Deze ICE Server bestaat al",
   "delete_server_tips": "Weet je zeker dat je het wilt verwijderen?",
   "delete_server_success_tips": "Succesvol verwijderd",
-  "add": "Toevoegen"
+  "add": "Toevoegen",
+  "sound_feedback": "Geluid",
+  "vibrate_feedback": "Trillen"
 }

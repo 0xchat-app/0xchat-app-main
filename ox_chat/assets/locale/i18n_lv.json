@@ -191,4 +191,17 @@
   "accept_text": "Pieņemt",
   "request_join_ignore_member": "Vai tiešām vēlaties ignorēt dalībnieku?",
   "request_join_accept_member": "Vai tiešām vēlaties pieņemt dalībnieku?",
+  "request_chat": "Svešinieki",
+  "request_chat_content": "${name}... un citas ${count} tērzēšanas",
+  "more": "Vairāk",
+  "success": "Panākumi",
+  "option_gift_wrap_dm": "${option} Dāvanu Iesaiņots DM",
+  "option_auto_delete": "${option} Automātiska Dzēšana",
+  "set": "Iestatīt",
+  "enable": "Ieslēgt",
+  "disable": "Izslēgt",
+  "set_msg_auto_delete_system": "${username} Iestatījis ziņojumus automātiski dzēst pēc ${time} dienām",
+  "disabled_msg_auto_delete_system": "${username} Atspējojis automātisko dzēšanas taimeri",
+  "set_normal_dm_system": "${username} Iestatījis pašreizējo sarunu kā parasto DM",
+  "set_gift_wrapped_dm_system": "${username} Iestatījis pašreizējo sarunu kā dāvanu iesaiņotu DM"
 }

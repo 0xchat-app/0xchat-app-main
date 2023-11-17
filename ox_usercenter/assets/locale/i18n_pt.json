@@ -36,6 +36,8 @@
   "connect_relay": "CONECTAR AO REVEZAMENTO",
   "connected_relay": "CONECTADO AO REVEZAMENTO",
   "recommend_relay": "Recomendar REVEZAMENTO",
+  "disconnect_wallet_warning": "Desconectar a carteira?",
+  "disconnect_wallet_confirm": "Confirmar",
   "zaps": "Zaps",
   "wallet": "Carteira",
   "show_wallet_selector": "Mostrar seletor de carteira",
@@ -93,8 +95,15 @@
   "zap_time": "Hora",
   "zap_content": "Conteúdo",
   "zap_no_content": "Sem conteúdo",
+  "ice_server_title": "Servidor ICE",
   "connect_ice_server": "Conectar ao servidor ICE",
   "connected_ice_server": "Conectado ao servidor ICE",
   "recommend_ice_server": "Recomendar servidor ICE",
-  "add": "Adicionar"
+  "enter_ice_server_hint": "Por favor insira o endereço do servidor ICE",
+  "add_ice_server_exist_tips": "Este servidor ICE já existe",
+  "delete_server_tips": "Tem certeza que deseja excluí-lo?",
+  "delete_server_success_tips": "Excluído com sucesso",
+  "add": "Adicionar",
+  "sound_feedback": "Som",
+  "vibrate_feedback": "Vibrar"
 }

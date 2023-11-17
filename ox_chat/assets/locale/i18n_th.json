@@ -190,5 +190,18 @@
   "ignore_text": "ไม่สนใจ",
   "accept_text": "ยอมรับ",
   "request_join_ignore_member": "ยืนยันการละเว้นสมาชิก",
-  "request_join_accept_member": "ยืนยันการยอมรับสมาชิก"
+  "request_join_accept_member": "ยืนยันการยอมรับสมาชิก",
+  "request_chat": "คนแปลกหน้า",
+  "request_chat_content": "${name}... และอีก ${count} แชท",
+  "more": "เพิ่มเติม",
+  "success": "สำเร็จ",
+  "option_gift_wrap_dm": "${option} ข้อความแบบห่อของขวัญ",
+  "option_auto_delete": "${option} ลบอัตโนมัติ",
+  "set": "ตั้งค่า",
+  "enable": "เปิดใช้งาน",
+  "disable": "ปิดใช้งาน",
+  "set_msg_auto_delete_system": "${username} ตั้งค่าให้ข้อความลบอัตโนมัติหลังจาก ${time} วัน",
+  "disabled_msg_auto_delete_system": "${username} ปิดใช้งานตัวจับเวลาลบอัตโนมัติ",
+  "set_normal_dm_system": "${username} ตั้งค่าการสนทนาปัจจุบันเป็นข้อความทั่วไป",
+  "set_gift_wrapped_dm_system": "${username} ตั้งค่าการสนทนาปัจจุบันเป็นข้อความแบบห่อของขวัญ"
 }

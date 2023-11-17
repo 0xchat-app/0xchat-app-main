@@ -190,5 +190,18 @@
   "ignore_text": "Игнорировать",
   "accept_text": "Принять",
   "request_join_ignore_member": "Подтвердите, хотите ли вы игнорировать участника",
-  "request_join_accept_member": "Подтвердите, хотите ли вы принять участника"
+  "request_join_accept_member": "Подтвердите, хотите ли вы принять участника",
+  "request_chat": "Незнакомцы",
+  "request_chat_content": "${name}... и другие ${count} чаты",
+  "more": "Больше",
+  "success": "Успех",
+  "option_gift_wrap_dm": "${option} Подарочная упаковка ДМ",
+  "option_auto_delete": "${option} Автоудаление",
+  "set": "Установить",
+  "enable": "Включить",
+  "disable": "Отключить",
+  "set_msg_auto_delete_system": "${username} Установил сообщения на автоудаление через ${time} дней",
+  "disabled_msg_auto_delete_system": "${username} Отключил таймер автоудаления",
+  "set_normal_dm_system": "${username} Установил текущий разговор как обычный ДМ",
+  "set_gift_wrapped_dm_system": "${username} Установил текущий разговор как подарочно упакованный ДМ"
 }

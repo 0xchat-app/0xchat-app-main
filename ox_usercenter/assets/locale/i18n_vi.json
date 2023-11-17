@@ -36,6 +36,8 @@
   "connect_relay": "KẾT NỐI VỚI RELAY",
   "connected_relay": "ĐÃ KẾT NỐI VỚI RELAY",
   "recommend_relay": "Gợi ý RELAY",
+  "disconnect_wallet_warning": "Ngắt kết nối ví?",
+  "disconnect_wallet_confirm": "Xác nhận",
   "zaps": "Zaps",
   "wallet": "Ví",
   "show_wallet_selector": "Hiện trình chọn ví",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Máy chủ ICE này đã tồn tại",
   "delete_server_tips": "Bạn có chắc chắn muốn xóa không?",
   "delete_server_success_tips": "Đã xóa thành công",
-  "add": "Thêm"
+  "add": "Thêm",
+  "sound_feedback": "Âm thanh",
+  "vibrate_feedback": "Rung"
 }

@@ -244,6 +244,7 @@ class _ZapsPageState extends State<ZapsPage> {
 
   void _walletSelectorDialog() {
     final height = Adapt.px(56) * (_walletList.length + 1) + Adapt.px(8);
+    final maxHeight = MediaQuery.of(context).size.height - Adapt.px(56) - MediaQuery.of(context).padding.top;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -255,7 +256,9 @@ class _ZapsPageState extends State<ZapsPage> {
               opacity: 1,
               child: Container(
                 alignment: Alignment.topCenter,
-                height: Adapt.px(height),
+                constraints: BoxConstraints(
+                  maxHeight: height > maxHeight ? maxHeight : height,
+                ),
                 decoration: BoxDecoration(
                   color: ThemeColor.color180,
                   borderRadius: BorderRadius.circular(12),

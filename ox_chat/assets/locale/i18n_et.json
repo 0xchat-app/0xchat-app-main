@@ -190,5 +190,18 @@
   "ignore_text": "Ignoreeri",
   "accept_text": "Nõustu",
   "request_join_ignore_member": "Kinnita, kas ignoreerida liiget",
-  "request_join_accept_member": "Kinnita, kas nõustuda liikmega"
+  "request_join_accept_member": "Kinnita, kas nõustuda liikmega",
+  "request_chat": "Võõrad",
+  "request_chat_content": "${name}... ja veel ${count} vestlust",
+  "more": "Rohkem",
+  "success": "Edukas",
+  "option_gift_wrap_dm": "${option} Kingituseks pakitud DM",
+  "option_auto_delete": "${option} Automaatkustutamine",
+  "set": "Seadista",
+  "enable": "Luba",
+  "disable": "Keela",
+  "set_msg_auto_delete_system": "${username} Seadis sõnumid automaatselt kustutama ${time} päeva pärast",
+  "disabled_msg_auto_delete_system": "${username} Keelas automaatse kustutamise taimeri",
+  "set_normal_dm_system": "${username} Seadis praeguse vestluse tavapäraseks DM-iks",
+  "set_gift_wrapped_dm_system": "${username} Seadis praeguse vestluse kingituseks pakitud DM-iks"
 }

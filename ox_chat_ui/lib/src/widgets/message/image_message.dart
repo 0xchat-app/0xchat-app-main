@@ -1,4 +1,7 @@
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -41,14 +44,27 @@ class _ImageMessageState extends State<ImageMessage> {
   Size _size = Size.zero;
   ImageStream? _stream;
 
+  Uint8List dataUriToBytes(String dataUri) {
+    final base64String = dataUri.split(',').last;
+    return base64.decode(base64String);
+  }
+
   @override
   void initState() {
     super.initState();
     if (widget.message.fileEncryptionType == types.EncryptionType.none) {
-      _image = CachedNetworkImageProvider(
-        widget.message.uri,
-        headers: widget.imageHeaders,
-      );
+      if(widget.message.uri.startsWith('data:image/')){
+        print('widget.message.uri.startsWith');
+        _image = Image.memory(
+          dataUriToBytes(widget.message.uri),
+        ).image;
+      }
+      else{
+        _image = CachedNetworkImageProvider(
+          widget.message.uri,
+          headers: widget.imageHeaders,
+        );
+      }
     } else {
       final chatId = widget.message.roomId;
       final decryptKey = widget.message.decryptKey;

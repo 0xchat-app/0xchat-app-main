@@ -47,6 +47,7 @@ class Input extends StatefulWidget {
     this.onGifSend,
     this.inputBottomView,
     this.onFocusNodeInitialized,
+    this.onInsertedContent,
   });
 
   final String? chatId;
@@ -78,6 +79,9 @@ class Input extends StatefulWidget {
 
   ///Send a gif message
   final void Function(GiphyImage giphyImage)? onGifSend;
+
+  ///Send a inserted content
+  final void Function(KeyboardInsertedContent insertedContent)? onInsertedContent;
 
   final Widget? inputBottomView;
 
@@ -360,14 +364,14 @@ class InputState extends State<Input>{
               .inputTextColor,
         ),
         textCapitalization: TextCapitalization.sentences,
-        // contentInsertionConfiguration:  ContentInsertionConfiguration(
-        //   allowedMimeTypes: const <String>['image/png', 'image/gif'],
-        //   onContentInserted: (KeyboardInsertedContent data) async {
-        //     if (data.data != null) {
-        //       /// todo: ContentInsertionConfiguration
-        //     }
-        //   },
-        // ),
+        contentInsertionConfiguration:  ContentInsertionConfiguration(
+          allowedMimeTypes: const <String>['image/png', 'image/gif'],
+          onContentInserted: (KeyboardInsertedContent data) async {
+            if (data.data != null) {
+              widget.onInsertedContent?.call(data);
+            }
+          },
+        ),
       );
 
   Widget _buildSendButton() =>

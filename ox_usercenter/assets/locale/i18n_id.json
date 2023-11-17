@@ -36,6 +36,8 @@
   "connect_relay": "SAMBUNGKAN KE RELAY",
   "connected_relay": "TERSAMBUNG KE RELAY",
   "recommend_relay": "Rekomendasikan RELAY",
+  "disconnect_wallet_warning": "Putuskan dompet?",
+  "disconnect_wallet_confirm": "Konfirmasi",
   "zaps": "Zaps",
   "wallet": "Dompet",
   "show_wallet_selector": "Tampilkan pemilih dompet",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Server ICE ini sudah ada",
   "delete_server_tips": "Apakah Anda yakin ingin menghapusnya?",
   "delete_server_success_tips": "Berhasil dihapus",
-  "add": "Tambah"
+  "add": "Tambah",
+  "sound_feedback": "Suara",
+  "vibrate_feedback": "Getaran"
 }

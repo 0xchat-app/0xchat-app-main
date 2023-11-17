@@ -190,5 +190,18 @@
   "ignore_text": "Ignorer",
   "accept_text": "Accepter",
   "request_join_ignore_member": "Bekræft, om du vil ignorere medlemmet",
-  "request_join_accept_member": "Bekræft, om du vil acceptere medlemmet"
+  "request_join_accept_member": "Bekræft, om du vil acceptere medlemmet",
+  "request_chat": "Fremmede",
+  "request_chat_content": "${name}... og yderligere ${count} chats",
+  "more": "Mere",
+  "success": "Succes",
+  "option_gift_wrap_dm": "${option} Gaveindpakket DM",
+  "option_auto_delete": "${option} Auto-Slet",
+  "set": "Sæt",
+  "enable": "Aktiver",
+  "disable": "Deaktiver",
+  "set_msg_auto_delete_system": "${username} Indstillede beskeder til at slette automatisk efter ${time} dage",
+  "disabled_msg_auto_delete_system": "${username} Deaktiverede den automatiske slette-timer",
+  "set_normal_dm_system": "${username} Indstillede den aktuelle samtale som normal DM",
+  "set_gift_wrapped_dm_system": "${username} Indstillede den aktuelle samtale som gaveindpakket DM"
 }

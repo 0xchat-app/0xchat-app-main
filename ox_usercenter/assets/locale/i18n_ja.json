@@ -36,6 +36,8 @@
   "connect_relay": "リレーに接続",
   "connected_relay": "リレーに接続済み",
   "recommend_relay": "リレーを推薦",
+  "disconnect_wallet_warning": "ウォレットを切断しますか？",
+  "disconnect_wallet_confirm": "確認",
   "zaps": "ザップ",
   "wallet": "ウォレット",
   "show_wallet_selector": "ウォレットセレクターを表示",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "この ICE サーバーはすでに存在します",
   "delete_server_tips": "削除してもよろしいですか？",
   "delete_server_success_tips": "正常に削除されました",
-  "add": "追加"
+  "add": "追加",
+  "sound_feedback": "音",
+  "vibrate_feedback": "振動"
 }

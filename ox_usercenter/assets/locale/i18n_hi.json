@@ -36,6 +36,8 @@
   "connect_relay": "रिले से जुड़ें",
   "connected_relay": "रिले से जुड़ा हुआ",
   "recommend_relay": "रिले की सिफारिश करें",
+  "disconnect_wallet_warning": "वॉलेट को डिस्कनेक्ट करें?",
+  "disconnect_wallet_confirm": "पुष्टि करें",
   "zaps": "ज़ैप्स",
   "wallet": "वॉलेट",
   "show_wallet_selector": "वॉलेट सेलेक्टर दिखाएं",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "यह ICE सर्वर पहले ही मौजूद है",
   "delete_server_tips": "क्या आप वाकई इसे हटाना चाहते हैं?",
   "delete_server_success_tips": "सफलतापूर्वक हटा दिया गया",
-  "add": "जोड़ें"
+  "add": "जोड़ें",
+  "sound_feedback": "ध्वनि",
+  "vibrate_feedback": "कंपन"
 }

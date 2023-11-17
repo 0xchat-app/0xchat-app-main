@@ -36,6 +36,8 @@
   "connect_relay": "ÜHENDUMA RELEEGA",
   "connected_relay": "ÜHENDATUD RELEEGA",
   "recommend_relay": "Soovitatav RELEE",
+  "disconnect_wallet_warning": "Rahakoti lahtiühendamine?",
+  "disconnect_wallet_confirm": "Kinnita",
   "zaps": "Zaps",
   "wallet": "Rahakott",
   "show_wallet_selector": "Näita rahakoti valijat",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "See ICE server on juba olemas",
   "delete_server_tips": "Olete kindel, et soovite selle kustutada?",
   "delete_server_success_tips": "Edukalt kustutatud",
-  "add": "Lisa"
+  "add": "Lisa",
+  "sound_feedback": "Heli",
+  "vibrate_feedback": "Vibratsioon"
 }

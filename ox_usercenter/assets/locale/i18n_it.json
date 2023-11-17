@@ -36,6 +36,8 @@
   "connect_relay":"CONNETTI AL RELÈ",
   "connected_relay":"COLLEGATO AL RELÈ",
   "recommend_relay":"Relè consigliato",
+  "disconnect_wallet_warning": "Disconnettere il portafoglio?",
+  "disconnect_wallet_confirm": "Conferma",
   "zaps":"Zaps",
   "wallet":"Portafoglio",
   "show_wallet_selector":"Mostra selettore di portafoglio",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Questo server ICE esiste già",
   "delete_server_tips": "Sei sicuro di volerlo eliminare?",
   "delete_server_success_tips": "Eliminato con successo",
-  "add": "Aggiungi"
+  "add": "Aggiungi",
+  "sound_feedback": "Suono",
+  "vibrate_feedback": "Vibrazione"
 }

@@ -190,5 +190,18 @@
   "ignore_text": "Παράβλεψη",
   "accept_text": "accept",
   "request_join_ignore_member": "Επιβεβαιώστε εάν θα αγνοήσετε το μέλος",
-  "request_join_accept_member": "Επιβεβαιώστε εάν θα αποδεχτείτε το μέλος"
+  "request_join_accept_member": "Επιβεβαιώστε εάν θα αποδεχτείτε το μέλος",
+  "request_chat": "Ξένοι",
+  "request_chat_content": "${name}... και άλλες ${count} συζητήσεις",
+  "more": "Περισσότερα",
+  "success": "Επιτυχία",
+  "option_gift_wrap_dm": "${option} Δώρο-Συσκευασμένο DM",
+  "option_auto_delete": "${option} Αυτόματη Διαγραφή",
+  "set": "Ορισμός",
+  "enable": "Ενεργοποίηση",
+  "disable": "Απενεργοποίηση",
+  "set_msg_auto_delete_system": "${username} Όρισε τα μηνύματα να διαγράφονται αυτόματα μετά από ${time} ημέρες",
+  "disabled_msg_auto_delete_system": "${username} Απενεργοποίησε το χρονόμετρο αυτόματης διαγραφής",
+  "set_normal_dm_system": "${username} Ορίστηκε η τρέχουσα συνομιλία ως κανονικό DM",
+  "set_gift_wrapped_dm_system": "${username} Ορίστηκε η τρέχουσα συνομιλία ως δώρο-συσκευασμένο DM"
 }

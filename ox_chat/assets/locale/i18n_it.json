@@ -190,5 +190,18 @@
   "ignore_text": "Ignora",
   "accept_text": "Accetta",
   "request_join_ignore_member": "Conferma se ignorare il membro",
-  "request_join_accept_member": "Conferma se accettare il membro"
+  "request_join_accept_member": "Conferma se accettare il membro",
+  "request_chat": "Estranei",
+  "request_chat_content": "${name}... e altri ${count} chat",
+  "more": "Altro",
+  "success": "Successo",
+  "option_gift_wrap_dm": "${option} DM Confezionato Regalo",
+  "option_auto_delete": "${option} Eliminazione Automatica",
+  "set": "Imposta",
+  "enable": "Abilita",
+  "disable": "Disabilita",
+  "set_msg_auto_delete_system": "${username} Impostato messaggi per auto-eliminazione dopo ${time} giorni",
+  "disabled_msg_auto_delete_system": "${username} Disattivato il timer di auto-eliminazione",
+  "set_normal_dm_system": "${username} Impostato la conversazione corrente come DM normale",
+  "set_gift_wrapped_dm_system": "${username} Impostato la conversazione corrente come DM Confezionato Regalo"
 }

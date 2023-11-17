@@ -36,6 +36,8 @@
   "connect_relay": "RÖLEYE BAĞLAN",
   "connected_relay": "RÖLEYE BAĞLANDI",
   "recommend_relay": "RÖLE TAVSİYE ET",
+  "disconnect_wallet_warning": "Cüzdanı bağlantısını kes?",
+  "disconnect_wallet_confirm": "Onayla",
   "zaps": "Zaps",
   "wallet": "Cüzdan",
   "show_wallet_selector": "Cüzdan seçici göster",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Bu ICE sunucusu zaten var",
   "delete_server_tips": "Silmek istediğinizden emin misiniz?",
   "delete_server_success_tips": "Başarıyla silindi",
-  "add": "Ekle"
+  "add": "Ekle",
+  "sound_feedback": "Ses",
+  "vibrate_feedback": "Titreşim"
 }

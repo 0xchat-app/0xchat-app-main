@@ -36,6 +36,8 @@
   "connect_relay": "KOPPLA TILL RELÄ",
   "connected_relay": "KOPPLAD TILL RELÄ",
   "recommend_relay": "Rekommendera RELÄ",
+  "disconnect_wallet_warning": "Koppla från plånboken?",
+  "disconnect_wallet_confirm": "Bekräfta",
   "zaps": "Zaps",
   "wallet": "Plånbok",
   "show_wallet_selector": "Visa plånboksväljare",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Denna ICE-server finns redan",
   "delete_server_tips": "Är du säker på att du vill radera den?",
   "delete_server_success_tips": "Raderad framgångsrikt",
-  "add": "Lägg till"
+  "add": "Lägg till",
+  "sound_feedback": "Ljud",
+  "vibrate_feedback": "Vibration"
 }

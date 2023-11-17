@@ -160,6 +160,27 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context);
   }
 
+  void sendInsertedContentMessage(BuildContext context, KeyboardInsertedContent insertedContent) {
+    String base64String = base64.encode(insertedContent.data!);
+    String sendMessage = 'data:${insertedContent.mimeType};base64,$base64String';
+
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+    final message = types.ImageMessage(
+      uri: sendMessage,
+      author: author,
+      createdAt: tempCreateTime,
+      id: message_id,
+      roomId: session.chatId,
+      name: insertedContent.uri,
+      size: sendMessage.length,
+      fileEncryptionType: EncryptionType.none,
+    );
+
+    _sendMessageHandler(message, context: context);
+  }
+
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
     OXLoading.show();
     File audioFile = File(path);

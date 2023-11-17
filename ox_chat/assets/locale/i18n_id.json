@@ -190,5 +190,18 @@
   "ignore_text": "Abaikan",
   "accept_text": "Terima",
   "request_join_ignore_member": "Konfirmasi apakah ingin mengabaikan anggota",
-  "request_join_accept_member": "Konfirmasi apakah ingin menerima anggota"
+  "request_join_accept_member": "Konfirmasi apakah ingin menerima anggota",
+  "request_chat": "Orang Asing",
+  "request_chat_content": "${name}... dan ${count} chat lainnya",
+  "more": "Lebih",
+  "success": "Sukses",
+  "option_gift_wrap_dm": "${option} DM yang Dibungkus Kado",
+  "option_auto_delete": "${option} Hapus Otomatis",
+  "set": "Atur",
+  "enable": "Aktifkan",
+  "disable": "Nonaktifkan",
+  "set_msg_auto_delete_system": "${username} Atur pesan agar dihapus otomatis setelah ${time} hari",
+  "disabled_msg_auto_delete_system": "${username} Nonaktifkan timer penghapusan otomatis",
+  "set_normal_dm_system": "${username} Atur percakapan saat ini sebagai DM biasa",
+  "set_gift_wrapped_dm_system": "${username} Atur percakapan saat ini sebagai DM yang Dibungkus Kado"
 }

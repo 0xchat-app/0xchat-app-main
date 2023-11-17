@@ -36,6 +36,8 @@
   "connect_relay": "ΣΥΝΔΕΣΗ ΣΕ ΡΕΛΕ",
   "connected_relay": "ΣΥΝΔΕΔΕΜΕΝΟ ΣΕ ΡΕΛΕ",
   "recommend_relay": "Προτείνετε ΡΕΛΕ",
+  "disconnect_wallet_warning": "Αποσύνδεση πορτοφολιού;",
+  "disconnect_wallet_confirm": "Επιβεβαίωση",
   "zaps": "Zaps",
   "wallet": "Πορτοφόλι",
   "show_wallet_selector": "Εμφάνιση επιλογέα πορτοφολιού",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Αυτός ο διακομιστής ICE υπάρχει ήδη",
   "delete_server_tips": "Είστε σίγουροι ότι θέλετε να το διαγράψετε;",
   "delete_server_success_tips": "Επιτυχής διαγραφή",
-  "add": "Προσθέστε"
+  "add": "Προσθέστε",
+  "sound_feedback": "Ήχος",
+  "vibrate_feedback": "Δόνηση"
 }

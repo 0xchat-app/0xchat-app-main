@@ -190,5 +190,18 @@
   "ignore_text": "Bỏ qua",
   "accept_text": "Chấp nhận",
   "request_join_ignore_member": "Xác nhận bỏ qua thành viên này?",
-  "request_join_accept_member": "Xác nhận chấp nhận thành viên này?"
+  "request_join_accept_member": "Xác nhận chấp nhận thành viên này?",
+  "request_chat": "Người lạ",
+  "request_chat_content": "${name}... và ${count} cuộc trò chuyện khác",
+  "more": "Thêm",
+  "success": "Thành công",
+  "option_gift_wrap_dm": "${option} DM Quà tặng",
+  "option_auto_delete": "${option} Tự động xóa",
+  "set": "Thiết lập",
+  "enable": "Kích hoạt",
+  "disable": "Vô hiệu hóa",
+  "set_msg_auto_delete_system": "${username} Đã thiết lập tin nhắn tự động xóa sau ${time} ngày",
+  "disabled_msg_auto_delete_system": "${username} Đã vô hiệu hóa bộ đếm thời gian tự động xóa",
+  "set_normal_dm_system": "${username} Đã thiết lập cuộc trò chuyện hiện tại là DM thông thường",
+  "set_gift_wrapped_dm_system": "${username} Đã thiết lập cuộc trò chuyện hiện tại là DM quà tặng"
 }

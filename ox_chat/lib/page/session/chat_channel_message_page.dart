@@ -217,6 +217,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
         mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
         onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
+        onInsertedContent: (KeyboardInsertedContent insertedContent) => chatGeneralHandler.sendInsertedContentMessage(context, insertedContent),
       ),
     );
   }

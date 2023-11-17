@@ -210,11 +210,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
                       : TextSpan(
                     text: gitUrl,
                     style: TextStyle(
+                      fontSize: Adapt.px(12),
                       foreground: Paint()
                         ..shader = LinearGradient(
                           colors: [ThemeColor.gradientMainEnd, ThemeColor.gradientMainStart],
                         ).createShader(
-                          Rect.fromLTWH(0.0, 0.0, 550.0, 70.0),
+                          Rect.fromLTWH(0.0, 0.0, Adapt.px(550), Adapt.px(70)),
                         ),
                     ),
                     recognizer: TapGestureRecognizer()

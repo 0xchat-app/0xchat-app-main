@@ -36,6 +36,8 @@
   "connect_relay": "릴레이 연결",
   "connected_relay": "릴레이 연결됨",
   "recommend_relay": "릴레이 추천",
+  "disconnect_wallet_warning": "지갑 연결 해제?",
+  "disconnect_wallet_confirm": "확인",
   "zaps": "잡스",
   "wallet": "지갑",
   "show_wallet_selector": "지갑 선택기 표시",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "이 ICE 서버는 이미 존재합니다",
   "delete_server_tips": "삭제하시겠습니까?",
   "delete_server_success_tips": "삭제 성공",
-  "add": "추가"
+  "add": "추가",
+  "sound_feedback": "소리",
+  "vibrate_feedback": "진동"
 }

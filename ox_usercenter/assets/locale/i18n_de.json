@@ -36,6 +36,8 @@
   "connect_relay": "MIT RELAIS VERBINDEN",
   "connected_relay": "MIT RELAIS VERBUNDEN",
   "recommend_relay": "Relais empfehlen",
+  "disconnect_wallet_warning": "Wallet trennen?",
+  "disconnect_wallet_confirm": "Bestätigen",
   "zaps": "Zaps",
   "wallet": "Geldbörse",
   "show_wallet_selector": "Geldbörsen-Auswahl anzeigen",
@@ -101,5 +103,7 @@
   "add_ice_server_exist_tips": "Dieser ICE-Server existiert bereits",
   "delete_server_tips": "Sind Sie sicher, dass Sie es löschen möchten?",
   "delete_server_success_tips": "Erfolgreich gelöscht",
-  "add": "Hinzufügen"
+  "add": "Hinzufügen",
+  "sound_feedback": "Ton",
+  "vibrate_feedback": "Vibration"
 }
