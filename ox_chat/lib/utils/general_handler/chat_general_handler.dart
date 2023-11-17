@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -52,8 +53,10 @@ import 'package:video_compress/video_compress.dart';
 import '../custom_message_utils.dart';
 import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
+import 'package:flutter_chat_types/src/message.dart';
 
 part 'chat_send_message_handler.dart';
+
 
 class ChatGeneralHandler {
 
@@ -477,7 +480,7 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
 extension StringChatEx on String {
   /// Returns whether it is a local path or null if it is not a path String
   bool? get isLocalPath {
-    return !this.startsWith('http://') && !this.startsWith('https://');
+    return !this.startsWith('http://') && !this.startsWith('https://') && !this.startsWith('data:image/');
   }
 }
 
