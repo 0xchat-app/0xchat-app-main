@@ -122,22 +122,11 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
         borderRadius: BorderRadius.vertical(top: Radius.circular(12.px)),
         color: ThemeColor.color180,
       ),
-      padding: EdgeInsets.only(top: 20.px),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.only(left: 20.px),
-            child: Text(
-              'Share',
-              style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.color0),
-            ),
-          ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20.px,vertical: 16.px),
             child: Row(
