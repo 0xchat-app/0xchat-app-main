@@ -88,6 +88,10 @@
   "str_add_friend": "เพิ่มเพื่อน",
   "str_new_channel": "ช่องใหม่",
   "scan_find_not_same_hint": "คุณต้องเพิ่มรีเลย์: ${relay} เพื่อดึงข้อมูลนี้",
+  "scan_find_nwc_hint": "เชื่อมต่อกับกระเป๋าเงินนี้หรือไม่?",
+  "get_request_title": "อนุญาตเว็บไซต์นี้:",
+  "get_publicKey_request_content": "☑️ คำขออ่านกุญแจสาธารณะของคุณ\n☑️ ลงนามเหตุการณ์โดยใช้กุญแจส่วนตัวของคุณ",
+  "get_encryptNip04_request_content": "☑️ เข้ารหัส/ถอดรหัสเหตุการณ์ Nip04",
   "message_type_image": "[รูปภาพ]",
   "message_type_video": "[วิดีโอ]",
   "message_type_audio": "[เสียง]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "คุณได้รับคำขอแชทลับ",
   "secret_chat_accepted_tips": "${name} ได้ยอมรับคำขอแชทลับของคุณ",
   "secret_chat_rejected_tips": "${name} ได้ปฏิเสธคำขอแชทลับของคุณ",
-  "you": "คุณ"
+  "you": "คุณ",
+  "webview_more_browser": "เปิดในเบราว์เซอร์",
+  "webview_more_copy": "คัดลอกลิงก์"
 }

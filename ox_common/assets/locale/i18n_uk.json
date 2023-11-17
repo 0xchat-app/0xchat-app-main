@@ -55,9 +55,9 @@
   "type": "Тип",
   "reset": "Скинути",
   "search_date_scope": "Пошук записів представників протягом 3 місяців підтримується лише",
-  "year": "",
-  "month": "Місяць",
-  "day": "",
+  "year": "рік",
+  "month": "місяць",
+  "day": "день",
   "all": "Усе",
   "jan_month": "Січ.",
   "feb_month": "Лют.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Додати друга",
   "str_new_channel": "Новий канал",
   "scan_find_not_same_hint": "Для отримання цих даних вам потрібно додати ретранслятор: ${relay}.",
+  "scan_find_nwc_hint": "Підключитися до цього гаманця?",
+  "get_request_title": "Дозволити цьому веб-сайту:",
+  "get_publicKey_request_content": "☑️ Запит на читання вашого публічного ключа\n☑️ Підписувати події за допомогою вашого приватного ключа",
+  "get_encryptNip04_request_content": "☑️ Шифрувати/Розшифровувати подію Nip04",
   "message_type_image": "[Зображення]",
   "message_type_video": "[Відео]",
   "message_type_audio": "[Аудіо]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Ви отримали запит на секретний чат",
   "secret_chat_accepted_tips": "${name} прийняв ваш запит на секретний чат.",
   "secret_chat_rejected_tips": "${name} відхилив ваш запит на секретний чат",
-  "you": "ти"
+  "you": "ти",
+  "webview_more_browser": "Відкрити у браузері",
+  "webview_more_copy": "Копіювати посилання"
 }

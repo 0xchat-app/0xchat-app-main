@@ -55,9 +55,9 @@
   "type": "Tips",
   "reset": "Atiestatīt",
   "search_date_scope": "Pilnvaroto ierakstu meklēšana 3 mēnešu ietvaros tiek atbalstīta tikai",
-  "year": "",
-  "month": "Mēnesis",
-  "day": "",
+  "year": "gads",
+  "month": "mēnesis",
+  "day": "diena",
   "all": "Visi",
   "jan_month": "Janv.",
   "feb_month": "Febr.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Pievienot draugu",
   "str_new_channel": "Jauns kanāls",
   "scan_find_not_same_hint": "Lai iegūtu šos datus, jāpievieno relejs: ${relay}.",
+  "scan_find_nwc_hint": "Pievienoties šim maksā?",
+  "get_request_title": "Atļaut šai tīmekļa vietnei:",
+  "get_publicKey_request_content": "☑️ Pieprasījums lasīt jūsu publisko atslēgu\n☑️ Parakstīt notikumus, izmantojot jūsu privāto atslēgu",
+  "get_encryptNip04_request_content": "☑️ Šifrēt/Atšifrēt Nip04 notikumu",
   "message_type_image": "[Attēls]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Jūs saņēmāt pieprasījumu slepenajam čatam",
   "secret_chat_accepted_tips": "${name} ir pieņēmis jūsu pieprasījumu slepenajam čatam.",
   "secret_chat_rejected_tips": "${name} ir noraidījis jūsu pieprasījumu slepenajam čatam",
-  "you": "tu"
+  "you": "tu",
+  "webview_more_browser": "Atvērt pārlūkprogrammā",
+  "webview_more_copy": "Kopēt saiti"
 }

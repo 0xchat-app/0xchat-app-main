@@ -55,9 +55,9 @@
   "type": "Növ",
   "reset": "Sıfırla",
   "search_date_scope": "Təmsilçi qeydlərini 3 ay ərzində yalnız dəstəklənir",
-  "year": "",
-  "month": "Ay",
-  "day": "",
+  "year": "il",
+  "month": "ay",
+  "day": "gün",
   "all": "Hamısı",
   "jan_month": "Yan.",
   "feb_month": "Fev.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Dost əlavə edin",
   "str_new_channel": "Yeni Kanal",
   "scan_find_not_same_hint": "Bu məlumatları əldə etmək üçün bir releyi əlavə etməlisiniz: ${relay}.",
+  "scan_find_nwc_hint": "Bu cüzdana qoşul?",
+  "get_request_title": "Bu veb saytın icazəsi:",
+  "get_publicKey_request_content": "☑️ Açıq açarınızı oxumaq üçün istək\n☑️ Şəxsi açarınızla imzalama hadisələri",
+  "get_encryptNip04_request_content": "☑️ Şifrələmək/Şifrəni açmaq Nip04 hadisəsi",
   "message_type_image": "[Şəkil]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Səs]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Sizə gizli söhbət tələbi gəlib",
   "secret_chat_accepted_tips": "${name}, sizin gizli söhbət tələbinizi qəbul etdi.",
   "secret_chat_rejected_tips": "${name}, sizin gizli söhbət tələbinizi rədd etdi",
-  "you": "siz"
+  "you": "siz",
+  "webview_more_browser": "Brauzerdə Aç",
+  "webview_more_copy": "Keçidi Kopyala"
 }

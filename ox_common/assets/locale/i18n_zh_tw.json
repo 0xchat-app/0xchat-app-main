@@ -88,6 +88,10 @@
   "str_add_friend": "添加聯絡人",
   "str_new_channel": "新建頻道",
   "scan_find_not_same_hint": "您需要添加一個中繼：${relay}來獲取這些數據。",
+  "scan_find_nwc_hint": "連接到這個錢包？",
+  "get_request_title": "允許該網站：",
+  "get_publicKey_request_content": "☑️ 請求讀取您的公鑰\n☑️ 使用您的私鑰簽署事件",
+  "get_encryptNip04_request_content": "☑️ 加密/解密 Nip04 事件",
   "message_type_image": "[圖片]",
   "message_type_video": "[視頻]",
   "message_type_audio": "[音頻]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "您收到了一個密聊請求",
   "secret_chat_accepted_tips": "${name}接受了您的密聊請求",
   "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求",
-  "you": "你"
+  "you": "你",
+  "webview_more_browser": "在瀏覽器中開啟",
+  "webview_more_copy": "複製連結"
 }

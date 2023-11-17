@@ -47,6 +47,7 @@
   "more": "Más",
   "save_to_album_failed": "Fallo al guardar en el álbum",
   "save_to_album": "Guardar en el álbum",
+  "copied_to_clipboard": "Copiado al portapapeles",
   "scan_qr_code": "Escanear código QR",
   "str_invalid_qr_code": "Código QR inválido",
   "str_album": "Álbum",
@@ -87,6 +88,10 @@
   "str_add_friend": "Agregar amigo",
   "str_new_channel": "Nuevo canal",
   "scan_find_not_same_hint": "Necesitas añadir un relay: ${relay} para obtener estos datos.",
+  "scan_find_nwc_hint": "¿Conectar con esta cartera?",
+  "get_request_title": "Permitir a este sitio web:",
+  "get_publicKey_request_content": "☑️ Solicitar leer tu clave pública\n☑️ Firmar eventos usando tu clave privada",
+  "get_encryptNip04_request_content": "☑️ Cifrar/Descifrar evento Nip04",
   "message_type_image": "[imagen]",
   "message_type_video": "[video]",
   "message_type_audio": "[audio]",
@@ -99,5 +104,7 @@
   "secret_chat_received_tips": "Has recibido una solicitud de chat secreto",
   "secret_chat_accepted_tips": "${name} ha aceptado tu solicitud de chat secreto",
   "secret_chat_rejected_tips": "${name} ha rechazado tu solicitud de chat secreto",
-  "you": "tú"
+  "you": "tú",
+  "webview_more_browser": "Abrir en el navegador",
+  "webview_more_copy": "Copiar enlace"
 }

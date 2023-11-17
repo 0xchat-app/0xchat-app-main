@@ -55,9 +55,9 @@
   "type": "Typ",
   "reset": "Obnovit",
   "search_date_scope": "Vyhledávání záznamů zástupců do 3 měsíců je podporováno pouze",
-  "year": "",
-  "month": "Měsíc",
-  "day": "",
+  "year": "rok",
+  "month": "měsíc",
+  "day": "den",
   "all": "Všechno",
   "jan_month": "Led.",
   "feb_month": "Ún.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Přidat přítele",
   "str_new_channel": "Nový kanál",
   "scan_find_not_same_hint": "Pro získání těchto dat musíte přidat relé: ${relay}.",
+  "scan_find_nwc_hint": "Připojit k této peněžence?",
+  "get_request_title": "Povolit tuto webovou stránku:",
+  "get_publicKey_request_content": "☑️ Žádost o přečtení vašeho veřejného klíče\n☑️ Podepisování událostí pomocí vašeho soukromého klíče",
+  "get_encryptNip04_request_content": "☑️ Šifrování/Dešifrování události Nip04",
   "message_type_image": "[Obrázek]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Obdrželi jste žádost o tajnou konverzaci",
   "secret_chat_accepted_tips": "${name} přijal(a) vaši žádost o tajnou konverzaci.",
   "secret_chat_rejected_tips": "${name} odmítl(a) vaši žádost o tajnou konverzaci",
-  "you": "ty"
+  "you": "ty",
+  "webview_more_browser": "Otevřít v prohlížeči",
+  "webview_more_copy": "Kopírovat odkaz"
 }

@@ -55,9 +55,9 @@
   "type": "Tüüp",
   "reset": "Lähtesta",
   "search_date_scope": "Esindajate kirjete otsimine 3 kuu jooksul on toetatud ainult",
-  "year": "",
-  "month": "Kuu",
-  "day": "",
+  "year": "aasta",
+  "month": "kuu",
+  "day": "päev",
   "all": "Kõik",
   "jan_month": "Jaan.",
   "feb_month": "Veebr.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Lisa sõber",
   "str_new_channel": "Uus kanal",
   "scan_find_not_same_hint": "Nende andmete saamiseks peate lisama relee: ${relay}.",
+  "scan_find_nwc_hint": "Ühenduda selle rahakotiga?",
+  "get_request_title": "Luba sellel veebilehel:",
+  "get_publicKey_request_content": "☑️ Taotlus lugeda teie avalikku võtit\n☑️ Sündmuste allkirjastamine teie privaatvõtmega",
+  "get_encryptNip04_request_content": "☑️ Krüpteeri/Dekrüpteeri Nip04 sündmus",
   "message_type_image": "[Pilt]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Heli]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Olete saanud salajase vestluse taotluse",
   "secret_chat_accepted_tips": "${name} on aktsepteerinud teie salajase vestluse taotluse.",
   "secret_chat_rejected_tips": "${name} on teie salajase vestluse taotluse tagasi lükanud",
-  "you": "sina"
+  "you": "sina",
+  "webview_more_browser": "Ava brauseris",
+  "webview_more_copy": "Kopeeri link"
 }

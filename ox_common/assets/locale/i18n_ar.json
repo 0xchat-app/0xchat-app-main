@@ -88,6 +88,10 @@
   "str_add_friend": "إضافة صديق",
   "str_new_channel": "قناة جديدة",
   "scan_find_not_same_hint": "أضف الريلي ${relay} للحصول على هذه البيانات.",
+  "scan_find_nwc_hint": "الاتصال بهذه المحفظة؟",
+  "get_request_title": "السماح لهذا الموقع ب:",
+  "get_publicKey_request_content": "☑️ طلب لقراءة مفتاحك العام\n☑️ توقيع الأحداث باستخدام مفتاحك الخاص",
+  "get_encryptNip04_request_content": "☑️ تشفير/فك تشفير حدث Nip04",
   "message_type_image": "[صورة]",
   "message_type_video": "[فيديو]",
   "message_type_audio": "[صوت]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "لقد تلقيت طلب دردشة سرية",
   "secret_chat_accepted_tips": "${name} قد قبل طلبك للدردشة السرية",
   "secret_chat_rejected_tips": "${name} قد رفض طلبك للدردشة السرية",
-  "you": "أنت"
+  "you": "أنت",
+  "webview_more_browser": "افتح في المتصفح",
+  "webview_more_copy": "نسخ الرابط"
 }
