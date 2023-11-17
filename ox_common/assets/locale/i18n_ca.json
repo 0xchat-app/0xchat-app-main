@@ -55,9 +55,9 @@
   "type": "Tipus",
   "reset": "Restablir",
   "search_date_scope": "La cerca de registres de delegats dins de 3 mesos només és compatible amb",
-  "year": "",
-  "month": "Mes",
-  "day": "",
+  "year": "any",
+  "month": "mes",
+  "day": "dia",
   "all": "Tot",
   "jan_month": "Gen.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Afegeix amic",
   "str_new_channel": "Canal nou",
   "scan_find_not_same_hint": "Cal afegir un relé: ${relay} per obtenir aquestes dades.",
+  "scan_find_nwc_hint": "Connectar amb aquesta cartera?",
+  "get_request_title": "Permet a aquest lloc web:",
+  "get_publicKey_request_content": "☑️ Sol·licitud per llegir la teva clau pública\n☑️ Signar esdeveniments utilitzant la teva clau privada",
+  "get_encryptNip04_request_content": "☑️ Xifrar/Desxifrar esdeveniment Nip04",
   "message_type_image": "[Imatge]",
   "message_type_video": "[Vídeo]",
   "message_type_audio": "[Àudio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Has rebut una sol·licitud de conversa secreta",
   "secret_chat_accepted_tips": "${name} ha acceptat la teva sol·licitud de conversa secreta.",
   "secret_chat_rejected_tips": "${name} ha rebutjat la teva sol·licitud de conversa secreta",
-  "you": "tu"
+  "you": "tu",
+  "webview_more_browser": "Obre en el navegador",
+  "webview_more_copy": "Copia l'enllaç"
 }

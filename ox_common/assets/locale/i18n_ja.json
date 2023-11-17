@@ -88,6 +88,10 @@
   "str_add_friend": "友達追加",
   "str_new_channel": "新しいチャンネル",
   "scan_find_not_same_hint": "このデータを取得するには、リレー：${relay}を追加する必要があります。",
+  "scan_find_nwc_hint": "このウォレットに接続しますか？",
+  "get_request_title": "このウェブサイトに許可する:",
+  "get_publicKey_request_content": "☑️ あなたの公開鍵を読むためのリクエスト\n☑️ あなたの秘密鍵を使用してイベントに署名する",
+  "get_encryptNip04_request_content": "☑️ Nip04イベントの暗号化/復号化",
   "message_type_image": "[画像]",
   "message_type_video": "[ビデオ]",
   "message_type_audio": "[オーディオ]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "秘密のチャットのリクエストを受け取りました",
   "secret_chat_accepted_tips": "${name}があなたの秘密のチャットのリクエストを受け入れました",
   "secret_chat_rejected_tips": "${name}があなたの秘密のチャットのリクエストを拒否しました",
-  "you": "あなた"
+  "you": "あなた",
+  "webview_more_browser": "ブラウザで開く",
+  "webview_more_copy": "リンクをコピー"
 }

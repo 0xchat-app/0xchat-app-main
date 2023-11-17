@@ -55,9 +55,9 @@
   "type": "Tipo",
   "reset": "Reset",
   "search_date_scope": "La ricerca dei record delegati entro 3 mesi è supportata solo",
-  "year": "",
-  "month": "Mese",
-  "day": "",
+  "year": "anno",
+  "month": "mese",
+  "day": "giorno",
   "all": "Tutto",
   "jan_month": "Gen.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Aggiungi Amico",
   "str_new_channel": "Nuovo Canale",
   "scan_find_not_same_hint": "Devi aggiungere un relay: ${relay} per ottenere questi dati.",
+  "scan_find_nwc_hint": "Connettersi a questo portafoglio?",
+  "get_request_title": "Permetti a questo sito di:",
+  "get_publicKey_request_content": "☑️ Richiesta per leggere la tua chiave pubblica\n☑️ Firmare eventi con la tua chiave privata",
+  "get_encryptNip04_request_content": "☑️ Criptare/Decriptare evento Nip04",
   "message_type_image": "[Immagine]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Hai ricevuto una richiesta di chat segreta",
   "secret_chat_accepted_tips": "${name} ha accettato la tua richiesta di chat segreta.",
   "secret_chat_rejected_tips": "${name} ha respinto la tua richiesta di chat segreta",
-  "you": "tu"
+  "you": "tu",
+  "webview_more_browser": "Apri nel browser",
+  "webview_more_copy": "Copia link"
 }

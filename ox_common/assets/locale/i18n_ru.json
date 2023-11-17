@@ -88,6 +88,10 @@
   "str_add_friend": "Добавить друга",
   "str_new_channel": "Новый канал",
   "scan_find_not_same_hint": "Чтобы получить эти данные, добавьте реле: ${relay}.",
+  "scan_find_nwc_hint": "Подключиться к этому кошельку?",
+  "get_request_title": "Разрешить этому сайту:",
+  "get_publicKey_request_content": "☑️ Запрос на чтение вашего публичного ключа\n☑️ Подписывать события с использованием вашего личного ключа",
+  "get_encryptNip04_request_content": "☑️ Шифрование/Расшифровка события Nip04",
   "message_type_image": "[изображение]",
   "message_type_video": "[видео]",
   "message_type_audio": "[аудио]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Вы получили запрос на секретный чат",
   "secret_chat_accepted_tips": "${name} принял ваш запрос на секретный чат",
   "secret_chat_rejected_tips": "${name} отклонил ваш запрос на секретный чат",
-  "you": "ты"
+  "you": "ты",
+  "webview_more_browser": "Открыть в браузере",
+  "webview_more_copy": "Скопировать ссылку"
 }

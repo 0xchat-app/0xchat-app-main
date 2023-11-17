@@ -55,9 +55,9 @@
   "type": "Typ",
   "reset": "Resetuj",
   "search_date_scope": "Wyszukiwanie wpisów delegatów w ciągu 3 miesięcy jest obsługiwane tylko",
-  "year": "",
-  "month": "Miesiąc",
-  "day": "",
+  "year": "rok",
+  "month": "miesiąc",
+  "day": "dzień",
   "all": "Wszystko",
   "jan_month": "Sty.",
   "feb_month": "Lut.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Dodaj Przyjaciela",
   "str_new_channel": "Nowy Kanał",
   "scan_find_not_same_hint": "Aby pobrać te dane, musisz dodać przekaźnik: ${relay}.",
+  "scan_find_nwc_hint": "Połączyć z tym portfelem?",
+  "get_request_title": "Zezwól tej stronie na:",
+  "get_publicKey_request_content": "☑️ Prośba o odczytanie Twojego klucza publicznego\n☑️ Podpisywanie wydarzeń za pomocą Twojego klucza prywatnego",
+  "get_encryptNip04_request_content": "☑️ Szyfrowanie/Odszyfrowanie wydarzenia Nip04",
   "message_type_image": "[Obraz]",
   "message_type_video": "[Wideo]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Otrzymałeś prośbę o tajny czat",
   "secret_chat_accepted_tips": "${name} zaakceptował(a) twoją prośbę o tajny czat.",
   "secret_chat_rejected_tips": "${name} odrzucił(a) twoją prośbę o tajny czat",
-  "you": "ty"
+  "you": "ty",
+  "webview_more_browser": "Otwórz w przeglądarce",
+  "webview_more_copy": "Kopiuj link"
 }

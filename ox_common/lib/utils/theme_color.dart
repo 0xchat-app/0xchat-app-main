@@ -75,4 +75,7 @@ class ThemeColor {
   static Color get color180 => ThemeManager.colors('ox_common.color_180');
   static Color get color190 => ThemeManager.colors('ox_common.color_190');
   static Color get color200 => ThemeManager.colors('ox_common.color_200');
+  static Color get color210 => ThemeManager.colors('ox_common.color_210');
+  static Color get color220 => ThemeManager.colors('ox_common.color_220');
+  static Color get color230 => ThemeManager.colors('ox_common.color_230');
 }

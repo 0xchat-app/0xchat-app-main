@@ -55,9 +55,9 @@
   "type": "Type",
   "reset": "Nulstil",
   "search_date_scope": "Søgning af repræsentationsposter inden for 3 måneder understøttes kun",
-  "year": "",
-  "month": "Måned",
-  "day": "",
+  "year": "år",
+  "month": "måned",
+  "day": "dag",
   "all": "Alle",
   "jan_month": "Jan.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Tilføj ven",
   "str_new_channel": "Ny kanal",
   "scan_find_not_same_hint": "Du skal tilføje en relæ: ${relay} for at hente disse data.",
+  "scan_find_nwc_hint": "Oprette forbindelse til denne tegnebog?",
+  "get_request_title": "Tillad denne hjemmeside at:",
+  "get_publicKey_request_content": "☑️ Anmod om at læse din offentlige nøgle\n☑️ Signere begivenheder med din private nøgle",
+  "get_encryptNip04_request_content": "☑️ Kryptere/Dekryptere Nip04 begivenhed",
   "message_type_image": "[Billede]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Lyd]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Du har modtaget en anmodning om hemmelig chat",
   "secret_chat_accepted_tips": "${name} har accepteret din anmodning om hemmelig chat.",
   "secret_chat_rejected_tips": "${name} har afvist din anmodning om hemmelig chat",
-  "you": "du"
+  "you": "du",
+  "webview_more_browser": "Åbn i browser",
+  "webview_more_copy": "Kopier link"
 }

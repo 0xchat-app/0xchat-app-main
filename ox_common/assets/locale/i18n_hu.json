@@ -55,9 +55,9 @@
   "type": "Típus",
   "reset": "Visszaállítás",
   "search_date_scope": "A küldött rekordok lekérdezése csak 3 hónapon belül támogatott",
-  "year": "",
-  "month": "Hónap",
-  "day": "",
+  "year": "év",
+  "month": "hónap",
+  "day": "nap",
   "all": "Minden",
   "jan_month": "Jan.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Barát hozzáadása",
   "str_new_channel": "Új csatorna",
   "scan_find_not_same_hint": "Ehhez az adathoz hozzá kell adnia egy relét: ${relay}.",
+  "scan_find_nwc_hint": "इस वॉलेट से कनेक्ट करें?",
+  "get_request_title": "इस वेबसाइट को अनुमति दें:",
+  "get_publicKey_request_content": "☑️ आपकी सार्वजनिक कुंजी पढ़ने का अनुरोध\n☑️ आपकी निजी कुंजी का उपयोग करके इवेंट्स पर हस्ताक्षर करें",
+  "get_encryptNip04_request_content": "☑️ एनक्रिप्ट/डिक्रिप्ट Nip04 इवेंट",
   "message_type_image": "[Kép]",
   "message_type_video": "[Videó]",
   "message_type_audio": "[Hang]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Kaptál egy titkos csevegési kérelmet",
   "secret_chat_accepted_tips": "${name} elfogadta a titkos csevegési kérelmed.",
   "secret_chat_rejected_tips": "${name} elutasította a titkos csevegési kérelmed",
-  "you": "te"
+  "you": "te",
+  "webview_more_browser": "Megnyitás böngészőben",
+  "webview_more_copy": "Link másolása"
 }

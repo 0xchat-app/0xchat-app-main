@@ -55,9 +55,9 @@
   "type": "Type",
   "reset": "Reset",
   "search_date_scope": "Het opvragen van afgevaardigdenregistraties binnen 3 maanden wordt alleen ondersteund",
-  "year": "",
-  "month": "Maand",
-  "day": "",
+  "year": "jaar",
+  "month": "maand",
+  "day": "dag",
   "all": "Alles",
   "jan_month": "Jan.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Vriend Toevoegen",
   "str_new_channel": "Nieuw Kanaal",
   "scan_find_not_same_hint": "Je moet een relais toevoegen: ${relay} om deze gegevens op te halen.",
+  "scan_find_nwc_hint": "Verbinden met deze portemonnee?",
+  "get_request_title": "Deze website toestaan om:",
+  "get_publicKey_request_content": "☑️ Verzoek om uw openbare sleutel te lezen\n☑️ Gebeurtenissen ondertekenen met uw privésleutel",
+  "get_encryptNip04_request_content": "☑️ Nip04-evenement coderen/decoderen",
   "message_type_image": "[Afbeelding]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Je hebt een verzoek ontvangen voor een geheime chat",
   "secret_chat_accepted_tips": "${name} heeft je verzoek voor een geheime chat geaccepteerd.",
   "secret_chat_rejected_tips": "${name} heeft je verzoek voor een geheime chat afgewezen",
-  "you": "jij/u"
+  "you": "jij/u",
+  "webview_more_browser": "Openen in browser",
+  "webview_more_copy": "Link kopiëren"
 }

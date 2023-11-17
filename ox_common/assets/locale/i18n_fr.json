@@ -88,6 +88,10 @@
   "str_add_friend": "Ajouter un ami",
   "str_new_channel": "Nouveau canal",
   "scan_find_not_same_hint": "Ajoutez un relais: ${relay} pour récupérer ces données.",
+  "scan_find_nwc_hint": "Se connecter à ce portefeuille?",
+  "get_request_title": "Autoriser ce site à :",
+  "get_publicKey_request_content": "☑️ Demande de lire votre clé publique\n☑️ Signer des événements avec votre clé privée",
+  "get_encryptNip04_request_content": "☑️ Chiffrer/Déchiffrer un événement Nip04",
   "message_type_image": "[image]",
   "message_type_video": "[vidéo]",
   "message_type_audio": "[audio]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Vous avez reçu une demande de chat secret",
   "secret_chat_accepted_tips": "${name} a accepté votre demande de chat secret",
   "secret_chat_rejected_tips": "${name} a refusé votre demande de chat secret",
-  "you": "tu"
+  "you": "tu",
+  "webview_more_browser": "Ouvrir dans le navigateur",
+  "webview_more_copy": "Copier le lien"
 }

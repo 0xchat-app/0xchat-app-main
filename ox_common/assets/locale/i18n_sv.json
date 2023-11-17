@@ -55,9 +55,9 @@
   "type": "Typ",
   "reset": "Återställ",
   "search_date_scope": "Sökande av ombudsinlägg inom 3 månader stöds endast",
-  "year": "",
-  "month": "Månad",
-  "day": "",
+  "year": "år",
+  "month": "månad",
+  "day": "dag",
   "all": "Allt",
   "jan_month": "Jan.",
   "feb_month": "Feb.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Lägg till vän",
   "str_new_channel": "Ny kanal",
   "scan_find_not_same_hint": "Du måste lägga till en relä: ${relay} för att hämta dessa data.",
+  "scan_find_nwc_hint": "Anslut till denna plånbok?",
+  "get_request_title": "Tillåt denna webbplats att:",
+  "get_publicKey_request_content": "☑️ Begäran att läsa din offentliga nyckel\n☑️ Signera händelser med din privata nyckel",
+  "get_encryptNip04_request_content": "☑️ Kryptera/Dekryptera Nip04 händelse",
   "message_type_image": "[Bild]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Ljud]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Du har fått en förfrågan om en hemlig chatt",
   "secret_chat_accepted_tips": "${name} har accepterat din förfrågan om en hemlig chatt.",
   "secret_chat_rejected_tips": "${name} har avvisat din förfrågan om en hemlig chatt",
-  "you": "du"
+  "you": "du",
+  "webview_more_browser": "Öppna i webbläsaren",
+  "webview_more_copy": "Kopiera länk"
 }

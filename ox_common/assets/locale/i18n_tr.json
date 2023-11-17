@@ -55,9 +55,9 @@
   "type": "Tür",
   "reset": "Sıfırla",
   "search_date_scope": "3 ay içinde temsilci kayıtlarını sorgulama yalnızca destekleniyor",
-  "year": "",
-  "month": "Ay",
-  "day": "",
+  "year": "yıl",
+  "month": "ay",
+  "day": "gün",
   "all": "Hepsi",
   "jan_month": "Oca.",
   "feb_month": "Şub.",
@@ -88,6 +88,10 @@
   "str_add_friend": "Arkadaş Ekle",
   "str_new_channel": "Yeni Kanal",
   "scan_find_not_same_hint": "Bu veriyi almak için bir röle eklemeniz gerekiyor: ${relay}.",
+  "scan_find_nwc_hint": "Bu cüzdana bağlan?",
+  "get_request_title": "Bu web sitesine izin ver:",
+  "get_publicKey_request_content": "☑️ Kamu anahtarınızı okuma isteği\n☑️ Özel anahtarınızı kullanarak etkinlikleri imzalayın",
+  "get_encryptNip04_request_content": "☑️ Nip04 etkinliğini Şifrele/Şifresini Çöz",
   "message_type_image": "[Resim]",
   "message_type_video": "[Video]",
   "message_type_audio": "[Ses]",
@@ -100,5 +104,7 @@
   "secret_chat_received_tips": "Gizli sohbet isteği aldınız",
   "secret_chat_accepted_tips": "${name}, gizli sohbet isteğinizi kabul etti.",
   "secret_chat_rejected_tips": "${name}, gizli sohbet isteğinizi reddetti",
-  "you": "sen"
+  "you": "sen",
+  "webview_more_browser": "Tarayıcıda Aç",
+  "webview_more_copy": "Bağlantıyı Kopyala"
 }
