@@ -213,8 +213,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       return;
     };
     List<String> members = userList.map((user) => user.pubKey).toList();
-    String owner = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, [...members,owner], '${Localized.text("ox_chat.create_group_system_message")}: $name');
+    GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, members, '${Localized.text("ox_chat.create_group_system_message")}: $name');
     if (groupDB != null) {
       OXNavigator.pop(context);
       OXNavigator.pushReplacement(
