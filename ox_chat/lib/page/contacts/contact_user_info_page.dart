@@ -294,7 +294,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: isShowMore ? 5 : 4,
           crossAxisSpacing: isShowMore ? 4.px : 20.px,
-          childAspectRatio: isShowMore ?  1.1 : 1.2,
+          childAspectRatio:  1.1,
           // mainAxisExtent: _imageWH + Adapt.px(8 + 34),
         ),
         itemBuilder: (BuildContext context, int index) {

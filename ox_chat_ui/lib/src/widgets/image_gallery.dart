@@ -211,7 +211,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                               color: ThemeColor.color180,
                             ),
                             child: Text(
-                              'Scan QR code',
+                              'scan_qr_code'.localized(),
                               style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
                             ),
                           ),

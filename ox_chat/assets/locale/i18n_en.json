@@ -203,5 +203,6 @@
   "set_msg_auto_delete_system": "${username} Set messages to auto-delete after ${time} days",
   "disabled_msg_auto_delete_system": "${username} Disabled the auto-delete timer",
   "set_normal_dm_system": "${username} Set the current conversation as normal DM",
-  "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM"
+  "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM",
+  "scan_qr_code": "Scan QR code"
 }
