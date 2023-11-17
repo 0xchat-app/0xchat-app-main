@@ -201,7 +201,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
   void _initUserList(){
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     userList = widget.userList;
-    if(userDB != null) userList.add(userDB);
+    if(userDB != null && !userList.contains(userDB)) userList.add(userDB);
     setState(() {});
   }
 
