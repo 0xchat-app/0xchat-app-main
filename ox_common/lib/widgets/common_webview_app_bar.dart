@@ -36,7 +36,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: backgroundColor ?? ThemeColor.color200,
+      color: backgroundColor ?? ThemeColor.color230,
       child: SafeArea(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20.px),
@@ -65,7 +65,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
         padding: EdgeInsets.symmetric(horizontal: 10.px),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.px),
-            color: ThemeColor.color200),
+            color: ThemeColor.color210,),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -83,7 +83,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
             Container(
               height: 20.px,
               width: 0.5.px,
-              color: ThemeColor.color120,
+              color: ThemeColor.color220,
             ),
             SizedBox(
               width: 10.px,
