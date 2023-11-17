@@ -129,6 +129,7 @@ class Chat extends StatefulWidget {
     this.inputBottomView,
     this.mentionUserListWidget,
     this.onFocusNodeInitialized,
+    this.onInsertedContent,
   });
 
   final ChatStatus? chatStatus;
@@ -316,6 +317,9 @@ class Chat extends StatefulWidget {
 
   ///Send a voice message
   final void Function(String path, Duration duration)? onVoiceSend;
+
+  ///Send a inserted content
+  final void Function(KeyboardInsertedContent insertedContent)? onInsertedContent;
 
   ///Send a gif message
   final void Function(GiphyImage image)? onGifSend;
@@ -680,6 +684,7 @@ class ChatState extends State<Chat> {
           },
           inputBottomView: widget.inputBottomView,
           onFocusNodeInitialized: widget.onFocusNodeInitialized,
+          onInsertedContent: widget.onInsertedContent,
         );
       }
     }
