@@ -79,6 +79,7 @@ class ScanUtils {
             OXCommonHintAction.sure(
                 text: Localized.text('ox_common.confirm'),
                 onTap: () async {
+                  OXNavigator.pop(context);
                   RelayModel _tempRelayModel = RelayModel(
                     relayName: willAddRelay,
                     canDelete: true,
