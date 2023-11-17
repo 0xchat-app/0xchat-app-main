@@ -211,7 +211,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                               color: ThemeColor.color180,
                             ),
                             child: Text(
-                              'Identify QR code',
+                              'Scan QR code',
                               style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
                             ),
                           ),
@@ -320,6 +320,7 @@ class _ImageGalleryState extends State<ImageGallery> {
 
     try {
       String qrcode = await OXCommon.scanPath(imageFile.path);
+      _deleteImage(imageFile.path);
       OXLoading.dismiss();
       OXNavigator.pop(context);
       ScanUtils.analysis(context, qrcode);
@@ -328,6 +329,20 @@ class _ImageGalleryState extends State<ImageGallery> {
       CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());
     }
   }
+
+  void _deleteImage(String imagePath) {
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      file.delete().then((_) {
+        print('File Deleted');
+      }).catchError((error) {
+        print('Error: $error');
+      });
+    } else {
+      print('File not found');
+    }
+  }
+
 
 }
 

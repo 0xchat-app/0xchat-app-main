@@ -326,6 +326,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         ),
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CommonImage(
                 iconName: iconName,
@@ -343,7 +344,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   fontSize: Adapt.px(10),
                   fontWeight: FontWeight.w400,
                 ),
-              )
+              ),
             ],
           ),
         ),
