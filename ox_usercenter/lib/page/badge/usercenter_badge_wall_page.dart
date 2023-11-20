@@ -231,7 +231,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
     }else{
       badgeModel = _defaultBadgeModelList[index];
     }
-    var result = await OXNavigator.pushPage(context, (context) => UserCenterBadgeDetailPage(badgeModel: badgeModel ,isHad: isHad,isSelected: isSelected));
+    var result = await OXNavigator.pushPage(context, (context) => UserCenterBadgeDetailPage(badgeModel: badgeModel ,isHad: isHad,isSelected: isSelected,userDB: _mUserInfo,));
     if (result != null && result is BadgeModel) {
       await _setUserProfileBadge(result);
     }

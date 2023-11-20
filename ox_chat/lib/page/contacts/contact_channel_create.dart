@@ -88,12 +88,14 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
           List<String>.from(jsonDecode(widget.channelDB?.badges ?? '')).first;
       index = badgeIds.indexOf(badgeId);
     } catch (_) {}
-    setState(() {
-      _isNone = index == -1;
-      if (!_isNone) {
-        _requirementModel = _badgeModelList[index];
-      }
-    });
+    if(this.mounted){
+      setState(() {
+        _isNone = index == -1;
+        if (!_isNone) {
+          _requirementModel = _badgeModelList[index];
+        }
+      });
+    }
   }
 
   @override
