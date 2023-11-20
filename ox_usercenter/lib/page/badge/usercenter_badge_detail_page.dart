@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pull_to_refresh_notification/pull_to_refresh_notification.dart';
@@ -14,17 +15,20 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
+import 'package:chatcore/chat-core.dart';
 
 class UserCenterBadgeDetailPage extends StatefulWidget {
   final BadgeModel badgeModel;
   final bool isHad;
   final bool? isSelected;
+  final UserDB? userDB;
 
   const UserCenterBadgeDetailPage(
       {Key? key,
       required this.badgeModel,
       required this.isHad,
-      this.isSelected})
+      this.isSelected,
+      this.userDB})
       : super(key: key);
 
   @override
@@ -65,6 +69,8 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
       height: Adapt.screenW() * 0.6,
       useTheme: true,
     );
+
+    final currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
 
     return Scaffold(
       body: SafeArea(
@@ -190,7 +196,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                                   color: ThemeColor.color0,
                                 ),
                               ),
-                              Container(
+                              currentUser == widget.userDB ? Container(
                                 margin: EdgeInsets.only(top: Adapt.px(4)),
                                 child: Text(
                                   widget.badgeModel.obtainedTime != null ? (OXDateUtils.formatTimestamp((widget.badgeModel.obtainedTime!) * 1000, pattern: 'yyyy.MM.dd') + Localized.text('ox_usercenter.obtained')) : Localized.text('ox_usercenter.not_yet_obtained'),
@@ -199,7 +205,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                                     color: ThemeColor.color100,
                                   ),
                                 ),
-                              ),
+                              ) : Container(),
                             ],
                           ),
                         ),
@@ -386,7 +392,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: currentUser == widget.userDB ? Container(
         width: double.infinity,
         height: Adapt.px(80),
         decoration: BoxDecoration(
@@ -445,7 +451,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
             ),
           ],
         ),
-      ),
+      ) : null,
       // floatingActionButton: FloatingActionButton(
       //   child: const Icon(Icons.refresh),
       //   onPressed: () {
