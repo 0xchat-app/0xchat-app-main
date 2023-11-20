@@ -297,6 +297,7 @@ class _DonatePageState extends State<DonatePage> {
               height: Adapt.px(26),
               fit: BoxFit.cover,
               package: 'ox_usercenter',
+              useTheme: true,
             ),
             onPressed: () {
               _switchPay();
