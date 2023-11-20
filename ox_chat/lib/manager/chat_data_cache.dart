@@ -457,18 +457,16 @@ extension ChatDataCacheEx on ChatDataCache {
     }
 
     List<MessageDB> allMessage = result;
-    List<String> expiredMessages = [];
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     await Future.forEach(allMessage, (message) async {
       if(message.expiration != null && message.expiration! < currentTime){
-        expiredMessages.add(message.messageId);
+        Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
         return;
       }
       final key = _getChatTypeKeyWithMessage(message);
       if (key == null) return ;
       await _distributeMessageToChatKey(key, message);
     });
-    Messages.deleteMessagesFromDB(messageIds: expiredMessages);
   }
 
   Future _distributeMessageToChatKey(ChatTypeKey key, MessageDB message) async {
