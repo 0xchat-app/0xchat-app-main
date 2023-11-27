@@ -121,7 +121,7 @@ window.nostr = {
               var pubkey = msg["pubkey"];
               var plaintext = msg["plaintext"];
               var resultStr =
-                  Account.sharedInstance.encryptNip04(plaintext, pubkey);
+                  await Account.sharedInstance.encryptNip04(plaintext, pubkey);
               var script =
                   "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
               await currentController.runJavascript(script);
@@ -150,7 +150,7 @@ window.nostr = {
               var pubkey = msg["pubkey"];
               var ciphertext = msg["ciphertext"];
               var resultStr =
-                  Account.sharedInstance.decryptNip04(ciphertext, pubkey);
+                  await Account.sharedInstance.decryptNip04(ciphertext, pubkey);
               var script =
                   "window.nostr.resolve(\"$resultId\", \"$resultStr\");";
               await currentController.runJavascript(script);
