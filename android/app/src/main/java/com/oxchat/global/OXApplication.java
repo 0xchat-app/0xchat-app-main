@@ -1,6 +1,6 @@
 package com.oxchat.global;
 
-import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 
 /**
  * Title: YLApplication
@@ -11,7 +11,7 @@ import android.app.Application;
  * @CheckItem Fill in by oneself
  * @since JDK1.8
  */
-public class OXApplication extends Application {
+public class OXApplication extends MultiDexApplication {
 
 
     @Override

@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.oxchat.global.MultiEngineActivity;
 import com.oxchat.global.util.SharedPreUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -103,6 +108,36 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
                     .build(mContext);
 //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mActivity.startActivity(intent);
+        } else if (call.method.equals("getPubKey")){
+            List<String> proList = new ArrayList<>();
+            proList.add("login");
+            proList.add("测试");
+            String[] stringArray = proList.toArray(new String[0]);
+            for (String s : stringArray) {
+                Log.e("Michael", "数组的值----s ="+s);
+            }
+            Cursor tempResult = mContext.getContentResolver().query(
+                    Uri.parse("content://com.greenart7c3.nostrsigner.GET_PUBLIC_KEY"),
+                    proList.toArray(new String[0]), null,null,null
+            );
+            if (tempResult != null) {
+                try {
+                    while (tempResult.moveToNext()) {
+                        int columnIndex = tempResult.getColumnIndex("login");
+                        if (columnIndex >= 0) {
+                            // 确保列索引有效
+                            String login = tempResult.getString(columnIndex);
+                            Log.e("Michael", "----login ="+login);
+                            // 此处处理 login 变量
+                        } else {
+                            // 列 "login" 在结果中不存在
+                            // 此处处理错误或执行替代操作
+                        }
+                    }
+                } finally {
+                    tempResult.close();
+                }
+            }
         }
     }
 

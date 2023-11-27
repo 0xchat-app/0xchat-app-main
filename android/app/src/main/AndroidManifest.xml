@@ -30,6 +30,9 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
+    <queries>
+        <package android:name="com.greenart7c3.nostrsigner"/>
+    </queries>
 
     <application
         android:name=".OXApplication"
@@ -46,7 +49,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

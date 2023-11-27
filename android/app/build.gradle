@@ -43,6 +43,7 @@ android {
     applicationId "com.oxchat.global"
     minSdkVersion 24
     targetSdkVersion 34
+    multiDexEnabled true
     versionCode Integer.parseInt(VERSION_CODE)
     versionName VERSION_NAME
 
@@ -82,8 +83,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_11
-    targetCompatibility JavaVersion.VERSION_11
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
   }
 }
 
@@ -94,5 +95,6 @@ flutter {
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'androidx.multidex:multidex:2.0.1'
   implementation platform('com.google.firebase:firebase-bom:32.0.0')
 }
