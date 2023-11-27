@@ -88,6 +88,15 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       isAddedCommend: containsYabume ? true : false,
       relayName: 'wss://yabu.me',
     ));
+    bool containsSiamstr = _relayAddressList.contains(''
+        'wss://relay.siamstr.com');
+    _commendRelayList.add(RelayModel(
+      canDelete: true,
+      connectStatus: 3,
+      isSelected: false,
+      isAddedCommend: containsSiamstr ? true : false,
+      relayName: 'wss://relay.siamstr.com',
+    ));
     bool containsDamusIo = _relayAddressList.contains('wss://relay.damus.io');
     _commendRelayList.add(RelayModel(
       canDelete: true,
