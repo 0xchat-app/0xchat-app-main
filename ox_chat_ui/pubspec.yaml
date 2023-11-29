@@ -28,7 +28,6 @@ dependencies:
   emoji_picker_flutter: 1.5.4
   flutter_sound: ^9.2.13
   audio_session: ^0.1.13
-  audioplayers: ^3.0.1
   just_audio: ^0.9.31
   syncfusion_flutter_sliders: ^20.4.51
   screenshot: ^2.1.0
