@@ -29,15 +29,7 @@ android {
   compileSdkVersion 34
   ndkVersion "25.1.8937393"
 
-  aaptOptions {
-    //disable .9 file check
-    cruncherEnabled = false
-  }
   //disable resource file check
-  lintOptions {
-    checkReleaseBuilds false
-    abortOnError false
-  }
 
   defaultConfig {
     applicationId "com.oxchat.global"
@@ -83,9 +75,14 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_17
-    targetCompatibility JavaVersion.VERSION_17
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
+  lint {
+    abortOnError false
+    checkReleaseBuilds false
+  }
+  namespace 'com.oxchat.global'
 }
 
 flutter {
