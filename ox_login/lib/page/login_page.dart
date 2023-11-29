@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
@@ -164,6 +168,29 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   height: Adapt.px(18),
                 ),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithAmber,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: ThemeColor.color180,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      Localized.text('ox_login.login_with_amber'),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: Adapt.px(18),
+                ),
                 Container(
                   width: double.infinity,
                   child: Row(
@@ -255,6 +282,27 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() {
     OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
+  }
+
+  void _loginWithAmber() async {
+    String? signature = await ExternalSignerTool.getPubKey();
+    if (signature == null) {
+      CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
+      return;
+    }
+    await OXLoading.show();
+    String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+    await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
+    UserDB? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    if (userDB == null) {
+      CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
+      return;
+    }
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    await OXLoading.dismiss();
+    OXNavigator.popToRoot(context);
+    AppInitializationManager.shared.showInitializationLoading();
   }
 
   void _serviceWebView() {
