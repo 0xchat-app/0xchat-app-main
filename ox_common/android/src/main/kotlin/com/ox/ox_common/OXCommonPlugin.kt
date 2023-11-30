@@ -43,8 +43,8 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var mContext: Context
     private val TAG: String = "OXCommonPlugin";
 
-    private val SELECT = 102
-    private val READ_IMAGE = 106
+    private val SELECT = 601
+    private val READ_IMAGE = 603
 
     private var mResult: Result? = null
     private var mIsNeedCrop = false
