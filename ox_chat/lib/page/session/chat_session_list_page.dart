@@ -281,19 +281,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               SliverToBoxAdapter(
                 child: _menueWidget(),
               ),
-              if (!_isLogin || _msgDatas.length < 1)
-                SliverToBoxAdapter(
-                  child: commonStateViewWidget(context, Container()),
-                ),
-              if (_msgDatas.length > 0)
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return _buildListViewItem(context, index);
-                    },
-                    childCount: itemCount(),
-                  ),
-                ),
+              _isLogin && _msgDatas.length > 0
+                  ? SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return _buildListViewItem(context, index);
+                        },
+                        childCount: itemCount(),
+                      ),
+                    )
+                  : SliverToBoxAdapter(
+                      child: commonStateViewWidget(context, Container()),
+                    ),
               SliverToBoxAdapter(
                 child: SizedBox(height: 120.px),
               ),

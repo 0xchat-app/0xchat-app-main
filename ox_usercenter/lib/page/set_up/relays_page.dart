@@ -34,7 +34,7 @@ class RelaysPage extends StatefulWidget {
 class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   final TextEditingController _relayTextFieldControll = TextEditingController();
   late List<RelayModel> _relayList = [];
-  final List<RelayModel> _commendRelayList = [];
+  late List<RelayModel> _commendRelayList = [];
   final List<String> _relayAddressList = [];
   final Map<String, RelayModel> _relayConnectStatusMap = {};
   bool _isEditing = false;
@@ -70,86 +70,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       _relayAddressList.add(model.identify);
       _relayConnectStatusMap[model.identify] = model;
     }
-    bool containsOxChatRelay = _relayAddressList.contains(CommonConstant.oxChatRelay);
-    _commendRelayList.add(RelayModel(
-      relayName: CommonConstant.oxChatRelay,
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: true,
-      isAddedCommend: containsOxChatRelay ? true : false,
-      createTime: DateTime.now().millisecondsSinceEpoch,
-    ));
-    bool containsYabume = _relayAddressList.contains(''
-        'wss://yabu.me');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsYabume ? true : false,
-      relayName: 'wss://yabu.me',
-    ));
-    bool containsSiamstr = _relayAddressList.contains(''
-        'wss://relay.siamstr.com');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsSiamstr ? true : false,
-      relayName: 'wss://relay.siamstr.com',
-    ));
-    bool containsDamusIo = _relayAddressList.contains('wss://relay.damus.io');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsDamusIo ? true : false,
-      relayName: 'wss://relay.damus.io',
-    ));
-    bool containsNostrBand = _relayAddressList.contains(''
-        'wss://relay.nostr.band');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsNostrBand ? true : false,
-      relayName: 'wss://relay.nostr.band',
-    ));
-    bool containsNoslol = _relayAddressList.contains(''
-        'wss://nos.lol');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsNoslol ? true : false,
-      relayName: 'wss://nos.lol',
-    ));
-    bool containsNostrwine = _relayAddressList.contains(''
-        'wss://nostr.wine');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsNostrwine ? true : false,
-      relayName: 'wss://nostr.wine',
-    ));
-    bool containsCoinfundit = _relayAddressList.contains(''
-        'wss://nostr.coinfundit.com');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsCoinfundit ? true : false,
-      relayName: 'wss://nostr.coinfundit.com',
-    ));
-    bool containsNostrland = _relayAddressList.contains(''
-        'wss://eden.nostr.land');
-    _commendRelayList.add(RelayModel(
-      canDelete: true,
-      connectStatus: 3,
-      isSelected: false,
-      isAddedCommend: containsNostrland ? true : false,
-      relayName: 'wss://eden.nostr.land',
-    ));
+    _commendRelayList = RelayModel.checkDefaultRelays(_relayAddressList);
     setState(() {});
     _relayConnectStatusMap.forEach((key, value) {
       if (Connect.sharedInstance.webSockets[key]?.connectStatus != null) {
@@ -501,11 +422,12 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       );
       _relayConnectStatusMap[upcomingRelay] = _tempRelayModel;
       await OXRelayManager.sharedInstance.addRelaySuccess(_tempRelayModel);
-      for(RelayModel model in _commendRelayList){
-        if(model.relayName == upcomingRelay){
-          model.isAddedCommend = true;
-        }
-      }
+      _commendRelayList.removeWhere((element) => element.relayName == upcomingRelay);
+      // for(RelayModel model in _commendRelayList){
+      //   if(model.relayName == upcomingRelay){
+      //     model.isAddedCommend = true;
+      //   }
+      // }
       setState(() {
         _relayList.add(_tempRelayModel);
         _relayAddressList.add(upcomingRelay!);
