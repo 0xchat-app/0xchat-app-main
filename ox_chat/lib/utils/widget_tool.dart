@@ -3,11 +3,11 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-Widget MyText(String content, double fontSize, Color txtColor, {TextAlign? textAlign, double? height, FontWeight fontWeight = FontWeight.w400, TextOverflow? overflow}) {
+Widget MyText(String content, double fontSize, Color txtColor, {TextAlign? textAlign, double? height, FontWeight fontWeight = FontWeight.w400, TextOverflow? overflow, double? letterSpacing}) {
   return Text(
     content,
     textAlign: textAlign,
-    style: TextStyle(fontSize: Adapt.px(fontSize), color: txtColor, fontWeight: fontWeight, height: height),
+    style: TextStyle(fontSize: Adapt.px(fontSize), color: txtColor, fontWeight: fontWeight, height: height, letterSpacing: letterSpacing),
     overflow: overflow,
   );
 }
