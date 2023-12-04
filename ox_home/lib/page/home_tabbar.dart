@@ -10,6 +10,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -18,6 +19,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -355,16 +357,20 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void signerCheck() async {
-    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
-    if (mounted && !isInstalled) {
-      OXCommonHintDialog.show(context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
-      actionList: [
-        OXCommonHintAction.sure(
-            text: Localized.text('ox_common.confirm'),
-            onTap: () {
-              OXNavigator.pop(context);
-            }),
-      ]);
+    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
+    if (localIsLoginAmber != null && localIsLoginAmber) {
+      bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+      if (mounted && !isInstalled) {
+        OXCommonHintDialog.show(
+            context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
+            actionList: [
+              OXCommonHintAction.sure(
+                  text: Localized.text('ox_common.confirm'),
+                  onTap: () {
+                    OXNavigator.pop(context);
+                  }),
+            ]);
+      }
     }
   }
 }

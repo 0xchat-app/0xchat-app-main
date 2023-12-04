@@ -97,9 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: Adapt.px(180),
                   useTheme: true,
                 ),
-                SizedBox(
-                  height: Adapt.px(36),
-                ),
+                SizedBox(height: Adapt.px(36)),
                 Container(
                   child: Text(
                     Localized.text('ox_login.login_tips'),
@@ -144,9 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
+                SizedBox(height: Adapt.px(18)),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: _login,
@@ -167,32 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: _loginWithAmber,
-                  child: Container(
-                    width: double.infinity,
-                    height: Adapt.px(48),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: ThemeColor.color180,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      Localized.text('ox_login.login_with_amber'),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: Adapt.px(16),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
+                SizedBox(height: Adapt.px(18)),
                 Container(
                   width: double.infinity,
                   child: Row(
@@ -200,9 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: Adapt.px(8),
-                      ),
+                      SizedBox(width: Adapt.px(8)),
                       Container(
                         width: Adapt.screenW() - Adapt.px(20 + 8 * 2 + 30 * 2),
                         child: RichTextWidget(
@@ -252,6 +221,30 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+                SizedBox(height: Adapt.px(40)),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithAmber,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
+                        CommonImage(iconName: 'icon_login_amber.png', width: 48.px,height: 48.px, package: 'ox_login'),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: Adapt.px(4)),
+                Text(
+                  Localized.text('ox_login.login_with_amber'),
+                  style: TextStyle(
+                    color: ThemeColor.color120,
+                    fontSize: Adapt.px(12),
+                  ),
+                ),
               ],
             ),
           ),
@@ -287,6 +280,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginWithAmber() async {
+    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+    if (mounted && !isInstalled) {
+      CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
+      return;
+    }
     String? signature = await ExternalSignerTool.getPubKey();
     if (signature == null) {
       CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));

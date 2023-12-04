@@ -28,5 +28,6 @@
   "lets_go": "Let’s go!",
   "enter_account_key_login_hint": "Enter your private key to login:",
   "private_key_regular_failed": "Private Key regular failed",
-  "pub_key_regular_failed": "Pub Key regular failed"
+  "pub_key_regular_failed": "Pub Key regular failed",
+  "str_not_installed_amber": "You have not installed Amber"
 }
