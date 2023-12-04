@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_home/widgets/translucent_navigation_bar.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rive/rive.dart';
@@ -101,6 +104,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     isHasVibrator();
 
     dataInit();
+    signerCheck();
   }
 
   Future<void> _loadRiveFile(int index) async {
@@ -347,6 +351,20 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   updateLocaleStatus() {
     for (int index = 0; index < tabBarList.length; index++) {
       tabBarList[index].title = Localized.text('ox_home.${riveFileNames[index]}');
+    }
+  }
+
+  void signerCheck() async {
+    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+    if (mounted && !isInstalled) {
+      OXCommonHintDialog.show(context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
+      actionList: [
+        OXCommonHintAction.sure(
+            text: Localized.text('ox_common.confirm'),
+            onTap: () {
+              OXNavigator.pop(context);
+            }),
+      ]);
     }
   }
 }
