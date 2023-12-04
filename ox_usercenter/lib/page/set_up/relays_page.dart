@@ -400,7 +400,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   }
 
   bool isWssWithValidURL(String input) {
-    RegExp regex = RegExp(r'^wss?:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
+    RegExp regex = RegExp(r'^(wss?://)([\w-]+\.)+[\w-]+(:\d+)?(/[\w- ./?%&=]*)?$');
     return regex.hasMatch(input);
   }
 
