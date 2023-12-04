@@ -7,4 +7,7 @@ class StorageKeyTool {
   static const String KEY_NOTIFICATION_SWITCH = "KEY_NOTIFICATION_SWITCH"; //save message notification value
   static const String KEY_PUSH_TOKEN = "KEY_PUSH_TOKEN"; //save push token value
   static const String KEY_RELAY = "KEY_RELAY"; //save all relay value
+  static const String KEY_PUBKEY = "KEY_PUBKEY";
+  static const String KEY_DEFAULT_PASSWORD = "KEY_DEFAULT_PASSWORD";
+  static const String KEY_IS_LOGIN_AMBER = "KEY_IS_LOGIN_AMBER";
 }
