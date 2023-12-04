@@ -7,6 +7,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -24,6 +25,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -300,6 +302,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
     AppInitializationManager.shared.showInitializationLoading();
