@@ -234,7 +234,7 @@ class MainState extends State<MainApp>
         getOpenAppSchemeInfo();
         break;
       case AppLifecycleState.paused:
-        if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
+        if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         break;
       default:
         break;
