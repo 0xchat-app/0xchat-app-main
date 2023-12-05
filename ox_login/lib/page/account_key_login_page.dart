@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -153,7 +154,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
     UserDB? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
     if (userDB == null) {
-      CommonToast.instance.show(context, 'Private Key regular failed' /*Localized.text('ox_common.network_connect_fail')*/);
+      CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);

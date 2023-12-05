@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/app_initialization_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
@@ -20,6 +25,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:rich_text_widget/rich_text_widget.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 class LoginPage extends StatefulWidget {
   final bool? isLoginShow;
@@ -91,9 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: Adapt.px(180),
                   useTheme: true,
                 ),
-                SizedBox(
-                  height: Adapt.px(36),
-                ),
+                SizedBox(height: Adapt.px(36)),
                 Container(
                   child: Text(
                     Localized.text('ox_login.login_tips'),
@@ -138,9 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
+                SizedBox(height: Adapt.px(18)),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: _login,
@@ -161,9 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: Adapt.px(18),
-                ),
+                SizedBox(height: Adapt.px(18)),
                 Container(
                   width: double.infinity,
                   child: Row(
@@ -171,9 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: Adapt.px(8),
-                      ),
+                      SizedBox(width: Adapt.px(8)),
                       Container(
                         width: Adapt.screenW() - Adapt.px(20 + 8 * 2 + 30 * 2),
                         child: RichTextWidget(
@@ -223,6 +221,30 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+                SizedBox(height: Adapt.px(40)),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _loginWithAmber,
+                  child: Container(
+                    width: double.infinity,
+                    height: Adapt.px(48),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
+                        CommonImage(iconName: 'icon_login_amber.png', width: 48.px,height: 48.px, package: 'ox_login'),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: Adapt.px(4)),
+                Text(
+                  Localized.text('ox_login.login_with_amber'),
+                  style: TextStyle(
+                    color: ThemeColor.color120,
+                    fontSize: Adapt.px(12),
+                  ),
+                ),
               ],
             ),
           ),
@@ -255,6 +277,33 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() {
     OXNavigator.pushPage(context, (context) => AccountKeyLoginPage());
+  }
+
+  void _loginWithAmber() async {
+    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+    if (mounted && !isInstalled) {
+      CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
+      return;
+    }
+    String? signature = await ExternalSignerTool.getPubKey();
+    if (signature == null) {
+      CommonToast.instance.show(context, Localized.text('ox_login.sign_request_rejected'));
+      return;
+    }
+    await OXLoading.show();
+    String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+    await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
+    UserDB? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    if (userDB == null) {
+      CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
+      return;
+    }
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, true);
+    await OXLoading.dismiss();
+    OXNavigator.popToRoot(context);
+    AppInitializationManager.shared.showInitializationLoading();
   }
 
   void _serviceWebView() {

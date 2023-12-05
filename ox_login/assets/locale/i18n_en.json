@@ -1,6 +1,8 @@
 {
   "login_title": "Login",
   "login_button" : "LOGIN",
+  "login_with_amber" : "Login with Amber",
+  "sign_request_rejected" : "Sign request rejected",
   "login_tips": "Log in with the private key or create a new one.",
   "or" : "OR",
   "terms_of_service_privacy_policy": "By connecting your account you accept the Terms of Use and Privacy Policy.",
@@ -24,5 +26,8 @@
   "public_key": "Public Key",
   "private_key": "Private Key",
   "lets_go": "Let’s go!",
-  "enter_account_key_login_hint": "Enter your private key to login:"
+  "enter_account_key_login_hint": "Enter your private key to login:",
+  "private_key_regular_failed": "Private Key regular failed",
+  "pub_key_regular_failed": "Pub Key regular failed",
+  "str_not_installed_amber": "You have not installed Amber"
 }

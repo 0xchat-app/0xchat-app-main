@@ -1,6 +1,8 @@
 {
   "login_title": "登录",
   "login_button" : "登录",
+  "login_with_amber" : "使用Amber登录",
+  "sign_request_rejected" : "签名请求被拒绝",
   "login_tips":"使用私钥登录或创建一个新的私钥",
   "or" : "或",
   "terms_of_service_privacy_policy": "通过连接您的帐户，您接受使用条款和隐私政策",
@@ -24,5 +26,8 @@
   "public_key": "公开账户ID",
   "private_key": "账户私钥",
   "lets_go": "让我们出发吧!",
-  "enter_account_key_login_hint": "输入您的私钥登录："
+  "enter_account_key_login_hint": "输入您的私钥登录：",
+  "private_key_regular_failed": "私钥规则检验失败",
+  "pub_key_regular_failed": "公钥规则检验失败",
+  "str_not_installed_amber": "您尚未安装Amber"
 }
