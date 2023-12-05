@@ -31,6 +31,7 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
     private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.nostr/perferences";
     private Context mContext;
     private Activity mActivity;
+    private MethodChannel.Result mMethodChannelResult;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -47,6 +48,7 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         mActivity = binding.getActivity();
+
     }
 
     @Override
@@ -66,6 +68,7 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+        mMethodChannelResult = result;
         HashMap paramsMap = null;
         if (call.arguments != null && call.arguments instanceof HashMap) {
             paramsMap = (HashMap) call.arguments;
@@ -83,7 +86,7 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
             SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
             preferences.edit().putInt("themeStyle", themeStyle);
             if (themeStyle == 0) {
-               //TODO light
+                //TODO light
             } else {
                 //TODO Dark
             }
@@ -101,10 +104,9 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
                     .withNewEngine(MultiEngineActivity.class)
                     .initialRoute(MultiEngineActivity.getFullRoute(route, params))
                     .build(mContext);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mActivity.startActivity(intent);
         }
     }
-
 
 }

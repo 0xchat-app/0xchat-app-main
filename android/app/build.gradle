@@ -30,20 +30,13 @@ android {
   compileSdkVersion 33
   ndkVersion "25.1.8937393"
 
-  aaptOptions {
-    //disable .9 file check
-    cruncherEnabled = false
-  }
   //disable resource file check
-  lintOptions {
-    checkReleaseBuilds false
-    abortOnError false
-  }
 
   defaultConfig {
     applicationId "com.oxchat.nostr"
     minSdkVersion 24
     targetSdkVersion 33
+    multiDexEnabled true
     versionCode Integer.parseInt(VERSION_CODE)
     versionName VERSION_NAME
 
@@ -86,6 +79,11 @@ android {
     sourceCompatibility JavaVersion.VERSION_11
     targetCompatibility JavaVersion.VERSION_11
   }
+  lint {
+    abortOnError false
+    checkReleaseBuilds false
+  }
+  namespace 'com.oxchat.global'
 }
 
 flutter {
@@ -95,5 +93,6 @@ flutter {
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'androidx.multidex:multidex:2.0.1'
   implementation platform('com.google.firebase:firebase-bom:32.0.0')
 }
