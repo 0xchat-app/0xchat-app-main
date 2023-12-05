@@ -102,7 +102,7 @@ class OXUserInfoManager {
     } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
       await initDB(localPubKey);
       UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
-      if (tempUserDB == null) {
+      if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
         _initFeedback();
