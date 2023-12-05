@@ -47,19 +47,8 @@ android {
     }
   }
 
-  signingConfigs {
-    release {
-      keyAlias KEY_ALIAS
-      keyPassword KEY_PWD
-      storeFile file(KEYSTORE_FILE)
-      storePassword KEYSTORE_PWD
-    }
-  }
-
   buildTypes {
     release {
-      // TODO: Add your own signing config for the release build.
-      signingConfig signingConfigs.release
       minifyEnabled true
       shrinkResources true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -69,7 +58,6 @@ android {
         abiFilters 'armeabi', 'x86', 'x86_64', 'armeabi-v7a'
         // can also add 'x86', 'x86_64', 'mips', 'mips64', 'armeabi-v7a', 'arm64-v8a'
       }
-      signingConfig signingConfigs.release
       minifyEnabled false
       shrinkResources false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
