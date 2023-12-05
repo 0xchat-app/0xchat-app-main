@@ -6,11 +6,13 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
-import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 abstract mixin class OXUserInfoObserver {
@@ -77,8 +79,9 @@ class OXUserInfoManager {
   Future initLocalData() async {
     ///account auto-login
     final String? localPriv = await OXCacheManager.defaultOXCacheManager.getForeverData('PrivKey');
-    final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData('pubKey');
-    final String? localDefaultPw = await OXCacheManager.defaultOXCacheManager.getForeverData('defaultPw');
+    final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
+    final String? localDefaultPw = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD);
+    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
     if (localPriv != null && localPriv.isNotEmpty) {
       OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
       OXCacheManager.defaultOXCacheManager.removeData('PrivKey');
@@ -93,8 +96,16 @@ class OXUserInfoManager {
       if (tempUserDB != null) {
         currentUserInfo = Account.sharedInstance.me;
         _initDatas();
-        await OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', tempUserDB.pubKey);
-        await OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', tempUserDB.defaultPassword);
+        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, tempUserDB.pubKey);
+        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, tempUserDB.defaultPassword);
+      }
+    } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
+      await initDB(localPubKey);
+      UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+      if (tempUserDB == null) {
+        currentUserInfo = tempUserDB;
+        _initDatas();
+        _initFeedback();
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
       await initDB(localPubKey);
@@ -116,8 +127,8 @@ class OXUserInfoManager {
 
   Future<void> loginSuccess(UserDB userDB) async {
     currentUserInfo = Account.sharedInstance.me;
-    OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', userDB.pubKey);
-    OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', userDB.defaultPassword);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, userDB.defaultPassword);
     LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
@@ -212,8 +223,9 @@ class OXUserInfoManager {
     }
     Account.sharedInstance.logout();
     LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
-    OXCacheManager.defaultOXCacheManager.saveForeverData('pubKey', null);
-    OXCacheManager.defaultOXCacheManager.saveForeverData('defaultPw', null);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, null);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,

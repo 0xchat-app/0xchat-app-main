@@ -213,7 +213,11 @@ class OXChatBinding {
     return changeCount;
   }
 
-  ChatSessionModel syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
+  ChatSessionModel? syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
+    final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if ( userdb == null || userdb!.pubKey.isEmpty) {
+      return null;
+    }
     updateMessageDB(messageDB);
     String showContent = showContentByMsgType(messageDB);
     ChatSessionModel sessionModel = ChatSessionModel(
@@ -366,10 +370,11 @@ class OXChatBinding {
   }
 
   Future<ChatSessionModel?> getChatSession(String sender, String receiver, String decryptContent) async {
-    if (OXUserInfoManager.sharedInstance.currentUserInfo == null || OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey.isEmpty) {
+    final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if ( userdb == null || userdb!.pubKey.isEmpty) {
       return null;
     }
-    String chatId = sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? receiver : sender;
+    String chatId = sender == userdb!.pubKey ? receiver : sender;
     ChatSessionModel? chatSessionModel = sessionMap[chatId];
     if (chatSessionModel == null) {
       UserDB? userDB = Contacts.sharedInstance.allContacts[chatId];
@@ -400,7 +405,7 @@ class OXChatBinding {
     if (userDB == null) {
       userDB = await Account.sharedInstance.getUserInfo(toPubkey);
     }
-    final ChatSessionModel chatSessionModel = await syncChatSessionTable(
+    final ChatSessionModel? chatSessionModel = syncChatSessionTable(
       MessageDB(
         decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB?.name ?? ''}),
         createTime: ssDB.lastUpdateTime,

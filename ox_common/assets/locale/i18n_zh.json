@@ -106,5 +106,8 @@
   "secret_chat_rejected_tips": "${name}拒绝了您的密聊请求",
   "you": "你",
   "webview_more_browser": "从默认浏览器中打开",
-  "webview_more_copy": "复制链接"
+  "webview_more_copy": "复制链接",
+  "open_singer_app_error_title": "打开签名应用时出错",
+  "open_singer_app_error_content": "找不到签名应用程序，请检查该应用程序是否未被卸载。"
+
 }

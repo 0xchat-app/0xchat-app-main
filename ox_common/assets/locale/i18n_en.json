@@ -106,5 +106,7 @@
   "secret_chat_rejected_tips": "${name} has rejected your secret chat request",
   "you": "you",
   "webview_more_browser": "Open in Browser",
-  "webview_more_copy": "Copy Link"
+  "webview_more_copy": "Copy Link",
+  "open_singer_app_error_title": "Error occurred when opening the signer app",
+  "open_singer_app_error_content": "The signer app could not be found. Check if the app hasn't been uninstalled."
 }

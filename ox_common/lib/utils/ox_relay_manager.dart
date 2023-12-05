@@ -39,6 +39,7 @@ class OXRelayManager {
   void loadConnectRelay() async {
     List<RelayModel> list = await getRelayList();
     relayMap = {};
+    var defaultRelays = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_RELAY, defaultValue: null);
     if (list.length > 0) {
       for (RelayModel model in list) {
         relayMap[model.relayName] = model;
@@ -47,7 +48,7 @@ class OXRelayManager {
         relayMap[CommonConstant.oxChatRelay]!.canDelete = true;
       }
       Connect.sharedInstance.connectRelays(relayAddressList);
-    } else {
+    } else if(defaultRelays == null){
       RelayModel defaultModel1 = RelayModel(
         relayName: CommonConstant.oxChatRelay,
         canDelete: true,
@@ -127,7 +128,7 @@ class OXRelayManager {
   Future<void> deleteRelay(RelayModel relayModel) async {
     relayMap.remove(relayModel.relayName);
     await saveRelayList(relayModelList);
-    Connect.sharedInstance.closeConnect(relayModel.relayName);
+    await Connect.sharedInstance.closeConnect(relayModel.relayName);
     if (OXUserInfoManager.sharedInstance.currentUserInfo != null) {
       Account.sharedInstance.updateRelaysMetadata(relayAddressList);
     }
@@ -143,7 +144,7 @@ class OXRelayManager {
 
   Future<List<RelayModel>> getRelayList() async {
     Set<String> uniqueSet = Set<String>();
-    List<dynamic> dynamicList = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_RELAY, defaultValue: []);
+    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_RELAY, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
     List<RelayModel> objectList = jsonStringList.map((jsonString) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
