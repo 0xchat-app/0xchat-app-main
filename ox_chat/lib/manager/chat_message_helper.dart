@@ -146,7 +146,6 @@ extension MessageDBToUIEx on MessageDB {
       case MessageType.text:
         final initialText = contentModel.content ?? '';
         if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null){
-          this.type = 'template';
           contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
           messageFactory = CustomMessageFactory();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {

@@ -54,6 +54,7 @@ import '../custom_message_utils.dart';
 import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
+import 'package:ox_common/const/common_constant.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -210,15 +211,18 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       switch(message.customType) {
         case CustomMessageType.zaps:
           await zapsMessagePressHandler(context, message);
-          break ;
+          break;
         case CustomMessageType.call:
           callMessagePressHandler(context, message);
-          break ;
+          break;
         case CustomMessageType.template:
           templateMessagePressHandler(context, message);
-          break ;
+          break;
+        case CustomMessageType.note:
+          noteMessagePressHandler(context, message);
+          break;
         default:
-          break ;
+          break;
       }
     }
   }
@@ -289,6 +293,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = TemplateMessageEx(message).link;
     link.tryHandleCustomUri(context: context);
+  }
+
+  void noteMessagePressHandler(BuildContext context, types.CustomMessage message) {
+    String resultString = NoteMessageEx(message).link.replaceFirst('nostr:', "");
+    final link = '${CommonConstant.njumpURL}${resultString}';
+    _onLinkTextPressed(context, link);
   }
 }
 
