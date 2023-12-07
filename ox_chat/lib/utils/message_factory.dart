@@ -58,7 +58,9 @@ class TextMessageFactory implements MessageFactory {
       text: text,
       status: status,
       repliedMessage: repliedMessage,
-      previewData: previewData != null ? PreviewData.fromJson(jsonDecode(previewData)) : null,
+      previewData: previewData != null
+          ? PreviewData.fromJson(jsonDecode(previewData))
+          : null,
       expiration: expiration,
     );
   }
@@ -155,7 +157,8 @@ class VideoMessageFactory implements MessageFactory {
     int? expiration,
   }) {
     final uri = contentModel.content;
-    final snapshotUrl = '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
+    final snapshotUrl =
+        '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
     if (uri == null) {
       return null;
     }
@@ -202,19 +205,22 @@ class CallMessageFactory implements MessageFactory {
     try {
       contentMap = json.decode(contentString);
       if (contentMap is! Map) return null;
-    } catch(_) { }
+    } catch (_) {}
 
-    final state = CallMessageState.values.cast<CallMessageState?>()
-        .firstWhere((state) => state.toString() == contentMap['state'], orElse: () => null);
+    final state = CallMessageState.values.cast<CallMessageState?>().firstWhere(
+        (state) => state.toString() == contentMap['state'],
+        orElse: () => null);
     var duration = contentMap['duration'];
     final media = CallMessageTypeEx.fromValue(contentMap['media']);
-    if (state is! CallMessageState || duration is! int || media == null) return null;
+    if (state is! CallMessageState || duration is! int || media == null)
+      return null;
 
     if (!state.shouldShowMessage) return null;
 
     duration = max(duration, 0);
     final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
-    final durationText = Duration(milliseconds: duration).toString().substring(2, 7);
+    final durationText =
+        Duration(milliseconds: duration).toString().substring(2, 7);
     return types.CustomMessage(
       author: author,
       createdAt: timestamp,
@@ -245,16 +251,24 @@ extension CallStateMessageEx on CallMessageState {
         return false;
     }
   }
+
   String messageText(bool isMe, String durationText) {
     switch (this) {
       case CallMessageState.cancel:
-        return isMe ? Localized.text('ox_calling.str_call_canceled') : Localized.text('ox_calling.str_call_other_canceled');
+        return isMe
+            ? Localized.text('ox_calling.str_call_canceled')
+            : Localized.text('ox_calling.str_call_other_canceled');
       case CallMessageState.reject:
-        return isMe ? Localized.text('ox_calling.str_call_other_rejected') : Localized.text('ox_calling.str_call_rejected');
+        return isMe
+            ? Localized.text('ox_calling.str_call_other_rejected')
+            : Localized.text('ox_calling.str_call_rejected');
       case CallMessageState.timeout:
-        return isMe ? Localized.text('ox_calling.str_call_other_not_answered') : Localized.text('ox_calling.str_call_not_answered');
+        return isMe
+            ? Localized.text('ox_calling.str_call_other_not_answered')
+            : Localized.text('ox_calling.str_call_not_answered');
       case CallMessageState.disconnect:
-        return Localized.text('ox_calling.str_call_duration').replaceAll(r'${time}', durationText);
+        return Localized.text('ox_calling.str_call_duration')
+            .replaceAll(r'${time}', durationText);
       case CallMessageState.inCalling:
         return Localized.text('ox_calling.str_call_busy');
       default:
@@ -262,7 +276,6 @@ extension CallStateMessageEx on CallMessageState {
     }
   }
 }
-
 
 class SystemMessageFactory implements MessageFactory {
   types.Message? createMessage({
@@ -283,9 +296,12 @@ class SystemMessageFactory implements MessageFactory {
     final key = text;
     if (key.isNotEmpty) {
       text = Localized.text(key, useOrigin: true);
-      if (key == 'ox_chat.screen_record_hint_message' || key == 'ox_chat.screenshot_hint_message') {
+      if (key == 'ox_chat.screen_record_hint_message' ||
+          key == 'ox_chat.screenshot_hint_message') {
         final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(author.id);
-        final name = isMe ? Localized.text('ox_common.you') : (author.sourceObject?.getUserShowName() ?? '');
+        final name = isMe
+            ? Localized.text('ox_common.you')
+            : (author.sourceObject?.getUserShowName() ?? '');
         text = text.replaceAll(r'${user}', name);
       }
     }
@@ -363,7 +379,31 @@ class CustomMessageFactory implements MessageFactory {
             link: link,
             expiration: expiration,
           );
-        default :
+        case CustomMessageType.note:
+          final authorIcon = content['authorIcon'];
+          final authorName = content['authorName'];
+          final authorDNS = content['authorDNS'];
+          final createTime = content['createTime'];
+          final note = content['note'];
+          final image = content['image'];
+          final link = content['link'];
+          return createNoteMessage(
+            author: author,
+            timestamp: timestamp,
+            roomId: roomId,
+            id: remoteId,
+            remoteId: remoteId,
+            sourceKey: sourceKey,
+            authorIcon: authorIcon,
+            authorName: authorName,
+            authorDNS: authorDNS,
+            createTime: createTime,
+            note: note,
+            image: image,
+            link: link,
+            expiration: expiration,
+          );
+        default:
           return null;
       }
     } catch (e) {
@@ -425,6 +465,42 @@ class CustomMessageFactory implements MessageFactory {
         title: title,
         content: content,
         icon: icon,
+        link: link,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
+
+  types.CustomMessage createNoteMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    required String authorIcon,
+    required String authorName,
+    required String authorDNS,
+    required String createTime,
+    required String note,
+    required String image,
+    required String link,
+    int? expiration,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.noteMetaData(
+        authorIcon: authorIcon,
+        authorName: authorName,
+        authorDNS: authorDNS,
+        createTime: createTime,
+        note: note,
+        image: image,
         link: link,
       ),
       type: types.MessageType.custom,

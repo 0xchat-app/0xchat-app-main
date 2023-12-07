@@ -55,6 +55,29 @@ extension CustomMessageEx on types.CustomMessage {
     };
   }
 
+  static Map<String, dynamic> noteMetaData({
+    required String authorIcon,
+    required String authorName,
+    required String authorDNS,
+    required String createTime,
+    required String note,
+    required String image,
+    required String link,
+  }) {
+    return {
+      'type': CustomMessageType.note.value,
+      'content': {
+        'authorIcon': authorIcon,
+        'authorName': authorName,
+        'authorDNS': authorDNS,
+        'createTime': createTime,
+        'note': note,
+        'image': image,
+        'link': link,
+      },
+    };
+  }
+
   String get customContentString {
     try {
       return jsonEncode(metadata ?? {});
@@ -80,5 +103,15 @@ extension TemplateMessageEx on types.CustomMessage {
   String get title => metadata?['content']?['title'] ?? '';
   String get content => metadata?['content']?['content'] ?? '';
   String get icon => metadata?['content']?['icon'] ?? '';
+  String get link => metadata?['content']?['link'] ?? '';
+}
+
+extension NoteMessageEx on types.CustomMessage {
+  String get authorIcon => metadata?['content']?['authorIcon'] ?? '';
+  String get authorName => metadata?['content']?['authorName'] ?? '';
+  String get authorDNS => metadata?['content']?['authorDNS'] ?? '';
+  int get createTime => int.tryParse(metadata?['content']?['createTime'] ?? '') ?? 0;
+  String get note => metadata?['content']?['note'] ?? '';
+  String get image => metadata?['content']?['image'] ?? '';
   String get link => metadata?['content']?['link'] ?? '';
 }

@@ -62,6 +62,8 @@ class ChatMessageBuilder {
         return _buildCallMessage(message, isMe);
       case CustomMessageType.template:
         return _buildTemplateMessage(message, isMe);
+      case CustomMessageType.note:
+        return _buildNoteMessage(message, isMe);
       default:
         return SizedBox();
     }
@@ -158,6 +160,70 @@ class ChatMessageBuilder {
     final title = TemplateMessageEx(message).title;
     final content = TemplateMessageEx(message).content;
     final icon = TemplateMessageEx(message).icon;
+    Widget iconWidget = SizedBox();
+    if (icon.isNotEmpty) {
+      if (icon.isRemoteURL) {
+        iconWidget = OXCachedNetworkImage(
+          imageUrl: icon,
+          height: 48.px,
+          width: 48.px,
+        ).setPadding(EdgeInsets.only(left: 10.px));
+      }
+      else {
+        iconWidget = CommonImage(
+          iconName: icon,
+          fit: BoxFit.contain,
+          height: 48.px,
+          width: 48.px,
+          package: 'ox_common',
+        ).setPadding(EdgeInsets.only(left: 10.px));
+      }
+    }
+    return Container(
+      width: 266.px,
+      padding: EdgeInsets.all(10.px),
+      color: ThemeColor.color180,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: ThemeColor.color0,
+              height: 1.4,
+            ),
+          ),
+          Container(color: ThemeColor.color160, height: 0.5,)
+              .setPadding(EdgeInsets.symmetric(vertical: 4.px)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  content,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: ThemeColor.color60,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              iconWidget,
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildNoteMessage(types.CustomMessage message, bool isMe) {
+    final title = NoteMessageEx(message).authorName;
+    final content = NoteMessageEx(message).note;
+    final icon = NoteMessageEx(message).image;
     Widget iconWidget = SizedBox();
     if (icon.isNotEmpty) {
       if (icon.isRemoteURL) {

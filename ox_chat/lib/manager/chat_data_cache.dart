@@ -308,6 +308,20 @@ extension ChatDataCacheExpiration on ChatDataCache {
 
 extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
+  Future<types.Message?> getMessage(
+      ChatTypeKey? chatKey,
+      ChatSessionModel? session,
+      String messageId) async {
+    if (session != null) {
+      chatKey ??= _getChatTypeKey(session);
+    }
+    if (chatKey == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
+      return null;
+    }
+    return await _getChatMessages(chatKey, messageId);
+  }
+
   Future<void> addNewMessage({
       ChatTypeKey? key,
       ChatSessionModel? session,
@@ -521,6 +535,11 @@ extension ChatDataCacheEx on ChatDataCache {
     final messageList = await _getSessionMessage(key);
     _updateMessageToList(messageList, message, originMessage: originMessage);
   }
+
+  Future<types.Message?> _getChatMessages(ChatTypeKey key, String messageId) async {
+    final messageList = await _getSessionMessage(key);
+    return _getMessageFromList(messageList, messageId);
+  }
 }
 
 extension ChatDataCacheGeneralMethodEx on ChatDataCache {
@@ -617,6 +636,10 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       return true;
     }
     return false;
+  }
+
+  types.Message? _getMessageFromList(List<types.Message> messageList, String messageId){
+    return messageList.firstWhere((msg) => msg.id == messageId);
   }
 
   bool isContainMessage(ChatSessionModel session, MessageDB message) {
