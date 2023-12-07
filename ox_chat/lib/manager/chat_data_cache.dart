@@ -477,7 +477,7 @@ extension ChatDataCacheEx on ChatDataCache {
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
         return;
       }
-      final key = _getChatTypeKeyWithMessage(message);
+      final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
       if (key == null) return ;
       await _distributeMessageToChatKey(key, message);
     });
@@ -563,7 +563,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
   }
 
-  ChatTypeKey? _getChatTypeKeyWithMessage(MessageDB message) {
+  static ChatTypeKey? getChatTypeKeyWithMessage(MessageDB message) {
 
     final type = message.chatType;
     if (type == 3 || message.sessionId.isNotEmpty) {

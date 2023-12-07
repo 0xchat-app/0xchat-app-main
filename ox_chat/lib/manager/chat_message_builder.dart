@@ -228,7 +228,7 @@ class ChatMessageBuilder {
     final createTime = NoteMessageEx(message).createTime;
     final content = NoteMessageEx(message).note;
     final icon = NoteMessageEx(message).image;
-    Widget iconWidget = SizedBox();
+    Widget iconWidget = SizedBox().setPadding(EdgeInsets.only(bottom: 10.px));
     if (icon.isNotEmpty) {
       if (icon.isRemoteURL) {
         iconWidget = OXCachedNetworkImage(

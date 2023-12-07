@@ -16,6 +16,8 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+import 'chat_data_cache.dart';
+
 class OXValue<T> {
   OXValue(this.value);
   T value;
@@ -143,10 +145,22 @@ extension MessageDBToUIEx on MessageDB {
     switch (messageType) {
       case MessageType.text:
         final initialText = contentModel.content ?? '';
-        String? nostrSchemeContent = await ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText);
-        if(nostrSchemeContent != null){
-          contentModel.content = nostrSchemeContent;
+        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null){
+          this.type = 'template';
+          contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
           messageFactory = CustomMessageFactory();
+          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
+            if(nostrSchemeContent != null){
+              final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
+              final uiMessage = await this.toChatUIMessage();
+              if(uiMessage != null){
+                ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
+              }
+              this.type = 'template';
+              this.decryptContent = nostrSchemeContent;
+              await DB.sharedInstance.update(this);
+            }
+          });
         }
         else{
           messageFactory = TextMessageFactory();

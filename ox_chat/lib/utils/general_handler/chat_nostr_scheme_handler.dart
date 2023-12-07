@@ -28,6 +28,9 @@ class ChatNostrSchemeHandle {
   static Future<String?> pubkeyToMessageContent(String? pubkey) async {
     if (pubkey != null) {
       UserDB? userDB = await Account.sharedInstance.getUserInfo(pubkey);
+      if (userDB?.lastUpdatedTime == 0) {
+        userDB = await Account.sharedInstance.reloadProfileFromRelay(pubkey);
+      };
       return userToMessageContent(userDB);
     }
     return null;
@@ -47,19 +50,31 @@ class ChatNostrSchemeHandle {
         switch (event.kind) {
           case 1:
             Note? note = Nip1.decodeNote(event);
-            return noteToMessageContent(note);
+            return await noteToMessageContent(note);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
             ChannelDB channelDB = Channels.channelToChannelDB(channel);
-            return channelToMessageContent(channelDB);
+            return await channelToMessageContent(channelDB);
           case 41:
             Channel channel = Nip28.getChannelMetadata(event);
             ChannelDB channelDB = Channels.channelToChannelDB(channel);
-            return channelToMessageContent(channelDB);
+            return await channelToMessageContent(channelDB);
         }
       }
     }
     return null;
+  }
+
+  static String blankToMessageContent() {
+    Map<String, dynamic> map = {};
+    map['type'] = '3';
+    map['content'] = {
+      'title': 'Loading...',
+      'content': 'Loading...',
+      'icon': '',
+      'link': ''
+    };
+    return jsonEncode(map);
   }
 
   static Future<String?> userToMessageContent(UserDB? userDB) async {
@@ -99,7 +114,12 @@ class ChatNostrSchemeHandle {
   }
 
   static Future<String?> noteToMessageContent(Note? note) async {
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(note!.pubkey);
+    if(note == null) return null;
+    UserDB? userDB = await Account.sharedInstance.getUserInfo(note.pubkey);
+    if (userDB?.lastUpdatedTime == 0) {
+      userDB = await Account.sharedInstance.reloadProfileFromRelay(note.pubkey);
+    };
+
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
