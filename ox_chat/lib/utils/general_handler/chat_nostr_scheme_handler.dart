@@ -108,9 +108,18 @@ class ChatNostrSchemeHandle {
       'authorDNS': '${userDB?.dns}',
       'createTime': '${note.createAt}',
       'note': '${note.content}',
-      'image': '',
+      'image': '${_extractFirstImageUrl(note.content)}',
       'link': '',
     };
     return jsonEncode(map);
+  }
+
+  static String _extractFirstImageUrl(String text) {
+    RegExp regExp = RegExp(r'(http[s]?:\/\/.*\.(?:png|jpg|gif|jpeg))');
+    RegExpMatch? match = regExp.firstMatch(text);
+    if (match != null) {
+      return match.group(0) ?? '';
+    }
+    return '';
   }
 }

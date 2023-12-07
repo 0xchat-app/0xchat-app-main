@@ -10,6 +10,7 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -222,6 +223,9 @@ class ChatMessageBuilder {
 
   static Widget _buildNoteMessage(types.CustomMessage message, bool isMe) {
     final title = NoteMessageEx(message).authorName;
+    final authorIcon = NoteMessageEx(message).authorIcon;
+    final dns = NoteMessageEx(message).authorDNS;
+    final createTime = NoteMessageEx(message).createTime;
     final content = NoteMessageEx(message).note;
     final icon = NoteMessageEx(message).image;
     Widget iconWidget = SizedBox();
@@ -229,56 +233,88 @@ class ChatMessageBuilder {
       if (icon.isRemoteURL) {
         iconWidget = OXCachedNetworkImage(
           imageUrl: icon,
-          height: 48.px,
-          width: 48.px,
-        ).setPadding(EdgeInsets.only(left: 10.px));
+          height: 139.px,
+          width: 265.px,
+          fit: BoxFit.fitWidth,
+        ).setPadding(EdgeInsets.only(bottom: 8.px));
       }
       else {
         iconWidget = CommonImage(
           iconName: icon,
           fit: BoxFit.contain,
-          height: 48.px,
-          width: 48.px,
+          height: 139.px,
+          width: 265.px,
           package: 'ox_common',
-        ).setPadding(EdgeInsets.only(left: 10.px));
+        ).setPadding(EdgeInsets.only(bottom: 8.px));
       }
     }
     return Container(
       width: 266.px,
-      padding: EdgeInsets.all(10.px),
       color: ThemeColor.color180,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: ThemeColor.color0,
-              height: 1.4,
-            ),
-          ),
-          Container(color: ThemeColor.color160, height: 0.5,)
-              .setPadding(EdgeInsets.symmetric(vertical: 4.px)),
+          iconWidget,
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipOval(
+                    child: OXCachedNetworkImage(
+                  imageUrl: authorIcon,
+                  height: 20.px,
+                  width: 20.px,
+                )).setPadding(EdgeInsets.only(right: 4.px)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: ThemeColor.color0,
+                    height: 1.4
+                  ),
+                  textAlign: TextAlign.center,
+                ).setPadding(EdgeInsets.only(right: 4.px)),
+                Expanded(
+                  child: Text(
+                    dns,
+                    style: TextStyle(
+                        fontSize: 12.sp,
+                        color: ThemeColor.color120,
+                        height: 1.4
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                Spacer(),
+                Text(
+                  OXDateUtils.convertTimeFormatString2(createTime * 1000,
+                      pattern: 'MM-dd'),
+                  style: TextStyle(
+                      fontSize: 12.sp,
+                      color: ThemeColor.color120,
+                      height: 1.4
+                  ),
+                  textAlign: TextAlign.center,
+                )
+              ]).setPadding(EdgeInsets.only(left: 10.px, right: 10.px)),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
                   content,
-                  maxLines: 3,
+                  maxLines: 10,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: ThemeColor.color60,
+                    color: ThemeColor.color0,
                     height: 1.4,
                   ),
                 ),
               ),
-              iconWidget,
             ],
-          ),
+          ).setPadding(EdgeInsets.only(top: 2.px, left: 10.px, right: 10.px, bottom: 10.px)),
         ],
       ),
     );
