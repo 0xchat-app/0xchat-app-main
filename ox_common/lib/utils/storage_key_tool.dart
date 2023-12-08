@@ -10,4 +10,8 @@ class StorageKeyTool {
   static const String KEY_PUBKEY = "KEY_PUBKEY";
   static const String KEY_DEFAULT_PASSWORD = "KEY_DEFAULT_PASSWORD";
   static const String KEY_IS_LOGIN_AMBER = "KEY_IS_LOGIN_AMBER";
+  static const String KEY_PASSCODE = "KEY_PASSCODE";
+  static const String KEY_FACEID = "KEY_FACEID";
+  static const String KEY_FINGERPRINT = "KEY_FINGERPRINT";
+
 }

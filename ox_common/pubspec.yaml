@@ -63,6 +63,7 @@ dependencies:
   photo_view: ^0.14.0
   url_launcher: ^6.0.0
   audioplayers: ^3.0.1
+  local_auth: ^2.1.7
 
   chatcore:
     path: ../../0xchat-core
