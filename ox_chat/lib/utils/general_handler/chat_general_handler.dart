@@ -296,9 +296,8 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   }
 
   void noteMessagePressHandler(BuildContext context, types.CustomMessage message) {
-    String resultString = NoteMessageEx(message).link.replaceFirst('nostr:', "");
-    final link = '${CommonConstant.njumpURL}${resultString}';
-    _onLinkTextPressed(context, link);
+    final link = NoteMessageEx(message).link;
+    link.tryHandleCustomUri(context: context);
   }
 }
 

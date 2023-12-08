@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
@@ -14,37 +15,43 @@ class ChatNostrSchemeHandle {
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
     String? nostrScheme = getNostrScheme(content);
-    if(nostrScheme == null) return null;
-    else if(nostrScheme.startsWith('nostr:npub') || nostrScheme.startsWith('nostr:nprofile')){
+    if (nostrScheme == null)
+      return null;
+    else if (nostrScheme.startsWith('nostr:npub') ||
+        nostrScheme.startsWith('nostr:nprofile')) {
       final tempMap = Account.decodeProfile(content);
       return await pubkeyToMessageContent(tempMap?['pubkey'], nostrScheme);
-    }
-    else if(nostrScheme.startsWith('nostr:note') || nostrScheme.startsWith('nostr:nevent')){
+    } else if (nostrScheme.startsWith('nostr:note') ||
+        nostrScheme.startsWith('nostr:nevent')) {
       final tempMap = Channels.decodeChannel(content);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme);
     }
     return null;
   }
 
-  static Future<String?> pubkeyToMessageContent(String? pubkey, String nostrScheme) async {
+  static Future<String?> pubkeyToMessageContent(
+      String? pubkey, String nostrScheme) async {
     if (pubkey != null) {
       UserDB? userDB = await Account.sharedInstance.getUserInfo(pubkey);
       if (userDB?.lastUpdatedTime == 0) {
         userDB = await Account.sharedInstance.reloadProfileFromRelay(pubkey);
-      };
+      }
+      ;
       return userToMessageContent(userDB, nostrScheme);
     }
     return null;
   }
 
-  static Future<String?> eventIdToMessageContent(String? eventId, String nostrScheme) async {
+  static Future<String?> eventIdToMessageContent(
+      String? eventId, String nostrScheme) async {
     if (eventId != null) {
       // check local group id
       GroupDB? groupDB = Groups.sharedInstance.groups[eventId];
       if (groupDB != null) return groupDBToMessageContent(groupDB, nostrScheme);
       // check local channel id
       ChannelDB? channelDB = Channels.sharedInstance.channels[eventId];
-      if (channelDB != null) return channelToMessageContent(channelDB, nostrScheme);
+      if (channelDB != null)
+        return channelToMessageContent(channelDB, nostrScheme);
       // check online
       Event? event = await Account.loadEvent(eventId);
       if (event != null) {
@@ -78,8 +85,12 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> userToMessageContent(UserDB? userDB, String nostrScheme) async {
-    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'contactUserInfoPage',params: {'pubkey':userDB?.pubKey});
+  static Future<String?> userToMessageContent(
+      UserDB? userDB, String nostrScheme) async {
+    String link = CustomURIHelper.createModuleActionURI(
+        module: 'ox_chat',
+        action: 'contactUserInfoPage',
+        params: {'pubkey': userDB?.pubKey});
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
@@ -91,37 +102,54 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> channelToMessageContent(ChannelDB? channelDB, String nostrScheme) async {
+  static Future<String?> channelToMessageContent(
+      ChannelDB? channelDB, String nostrScheme) async {
+    String link = CustomURIHelper.createModuleActionURI(
+        module: 'ox_chat',
+        action: 'contactChanneDetailsPage',
+        params: {'channelId': channelDB?.channelId ?? ''});
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
       'title': '${channelDB?.name}',
       'content': '${channelDB?.about}',
       'icon': '${channelDB?.picture}',
-      'link': nostrScheme
+      'link': link
     };
     return jsonEncode(map);
   }
 
-  static Future<String?> groupDBToMessageContent(GroupDB? groupDB, String nostrScheme) async {
+  static Future<String?> groupDBToMessageContent(
+      GroupDB? groupDB, String nostrScheme) async {
+    String link = CustomURIHelper.createModuleActionURI(
+        module: 'ox_chat',
+        action: 'groupInfoPage',
+        params: {'groupId': groupDB?.groupId ?? ''});
+
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
       'title': '${groupDB?.name}',
       'content': '${groupDB?.about}',
       'icon': '${groupDB?.picture}',
-      'link': nostrScheme
+      'link': link
     };
     return jsonEncode(map);
   }
 
-  static Future<String?> noteToMessageContent(Note? note, String nostrScheme) async {
-    if(note == null) return null;
+  static Future<String?> noteToMessageContent(
+      Note? note, String nostrScheme) async {
+    if (note == null) return null;
     UserDB? userDB = await Account.sharedInstance.getUserInfo(note.pubkey);
     if (userDB?.lastUpdatedTime == 0) {
       userDB = await Account.sharedInstance.reloadProfileFromRelay(note.pubkey);
-    };
+    }
+    ;
 
+    String resultString = nostrScheme.replaceFirst('nostr:', "");
+    final url = '${CommonConstant.njumpURL}${resultString}';
+    String link = CustomURIHelper.createModuleActionURI(
+        module: 'ox_chat', action: 'commonWebview', params: {'url': url});
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
@@ -131,7 +159,7 @@ class ChatNostrSchemeHandle {
       'createTime': '${note.createAt}',
       'note': '${note.content}',
       'image': '${_extractFirstImageUrl(note.content)}',
-      'link': nostrScheme,
+      'link': link,
     };
     return jsonEncode(map);
   }
