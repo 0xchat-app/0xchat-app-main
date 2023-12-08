@@ -44,6 +44,7 @@ class OXChat extends OXFlutterModule {
     'contractsPageWidget': _contractsPageWidget,
     'groupSharePage': _jumpGroupSharePage,
     'sendSystemMsg': _sendSystemMsg,
+    'contactUserInfoPage': _contactUserInfoPage,
   };
 
   @override
@@ -74,7 +75,7 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => ContactUserInfoPage(
-            userDB: params?['userDB'],
+            pubkey: params?['userDB']?.pubkey,
             chatId: params?['chatId'],
             isSecretChat: params?['isSecretChat'] ?? false,
           ),
@@ -116,6 +117,10 @@ class OXChat extends OXFlutterModule {
 
   void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
     OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
+  }
+
+  void _contactUserInfoPage(BuildContext? context,{required String pubkey}){
+    OXNavigator.pushPage(context!, (context) => ContactUserInfoPage(pubkey: pubkey));
   }
 
   void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){

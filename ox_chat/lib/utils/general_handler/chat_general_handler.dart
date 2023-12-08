@@ -190,7 +190,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
+    await OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
   }
 
   TextMessageOptions textMessageOptions(BuildContext context) =>

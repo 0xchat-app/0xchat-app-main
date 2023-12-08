@@ -8,6 +8,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat_ui/thirdParty/flutter_chat_types/lib/flutter_chat_types.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
@@ -41,12 +42,12 @@ class TabModel {
 }
 
 class ContactUserInfoPage extends StatefulWidget {
-  final UserDB userDB;
+  final String pubkey;
   final String? chatId;
   final bool isSecretChat;
 
   ContactUserInfoPage(
-      {Key? key, required this.userDB, this.chatId, this.isSecretChat = false})
+      {Key? key, required this.pubkey, this.chatId, this.isSecretChat = false})
       : super(key: key);
 
   @override
@@ -107,7 +108,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   List<BadgeDB> _badgeDBList = [];
   bool _isMute = false;
   bool _isVerifiedDNS = false;
-
+  late UserDB userDB;
 
   // auto delete
   int get _autoDelExTime {
@@ -140,7 +141,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   bool _isInBlockList() {
-    return Contacts.sharedInstance.inBlockList(widget.userDB.pubKey ?? '');
+    return Contacts.sharedInstance.inBlockList(widget.pubkey ?? '');
   }
 
   void _initModelList() {
@@ -154,7 +155,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         onTap: () {
           OXNavigator.presentPage(
             context,
-            (context) => ContactCreateSecret(userDB: widget.userDB),
+            (context) => ContactCreateSecret(userDB: userDB),
           );
         },
         iconName: 'icon_secret.png',
@@ -190,9 +191,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _initData() async {
-    _isMute = widget.userDB.mute ?? false;
-    if (widget.userDB.badges != null && widget.userDB.badges!.isNotEmpty) {
-      List<dynamic> badgeListDynamic = jsonDecode(widget.userDB.badges!);
+    userDB = await Account.sharedInstance.getUserInfo(widget.pubkey) ?? UserDB(pubKey: widget.pubkey);
+    _isMute = userDB.mute ?? false;
+    if (userDB.badges != null && userDB.badges!.isNotEmpty) {
+      List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
       List<String> badgeIds = badgeListDynamic.cast();
       List<BadgeDB?> dbGetList =
           await BadgesHelper.getBadgeInfosFromDB(badgeIds);
@@ -214,11 +216,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         }
       }
     }
-    UserDB user = await Account.sharedInstance.reloadProfileFromRelay(widget.userDB.pubKey);
-    widget.userDB.updateWith(user);
-    setState(() {});
-    OXChatBinding.sharedInstance.updateChatSession(widget.userDB.pubKey,
-        chatName: widget.userDB.name, pic: widget.userDB.picture);
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
+      userDB.updateWith(user);
+      setState(() {});
+    });
+    OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
+        chatName: userDB.name, pic: userDB.picture);
     _verifiedDNS();
   }
 
@@ -249,12 +252,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             ),
             _tabContainerView(),
             _contentList(),
-            widget.userDB.about == null ||
-                    widget.userDB.about!.isEmpty ||
-                    widget.userDB.about == 'null'
+            userDB.about == null ||
+                    userDB.about!.isEmpty ||
+                    userDB.about == 'null'
                 ? SizedBox()
                 : _bioOrPubKeyWidget(
-                        OtherInfoItemType.Bio, widget.userDB.about ?? '')
+                        OtherInfoItemType.Bio, userDB.about ?? '')
                     .setPadding(
                     EdgeInsets.only(
                       top: Adapt.px(24),
@@ -264,7 +267,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               height: Adapt.px(24),
             ),
             _bioOrPubKeyWidget(
-                OtherInfoItemType.Pubkey, widget.userDB.encodedPubkey),
+                OtherInfoItemType.Pubkey, userDB.encodedPubkey),
             SizedBox(
               height: Adapt.px(24),
             ),
@@ -360,15 +363,15 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       ),
       child: Column(
         children: [
-          isFriend(widget.userDB.pubKey ?? '')
+          isFriend(userDB.pubKey ?? '')
               ? _itemView(
                   iconName: 'icon_remark.png',
                   iconPackage: 'ox_chat',
                   type: OtherInfoItemType.Remark,
-                  rightHint: widget.userDB.nickName,
+                  rightHint: userDB.nickName,
                 )
               : Container(),
-          isFriend(widget.userDB.pubKey ?? '')
+          isFriend(userDB.pubKey ?? '')
               ? Divider(
                   height: Adapt.px(0.5),
                   color: ThemeColor.color160,
@@ -450,7 +453,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _buildHeadPubKey() {
-    String encodedPubKey = widget.userDB.encodedPubkey;
+    String encodedPubKey = userDB.encodedPubkey;
 
     String newPubKey = '';
     if (encodedPubKey.isNotEmpty) {
@@ -500,7 +503,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   Widget _delOrAddFriendBtnView() {
     if (_isInBlockList()) return Container();
-    bool friendsStatus = isFriend(widget.userDB.pubKey ?? '');
+    bool friendsStatus = isFriend(userDB.pubKey ?? '');
 
     return GestureDetector(
       child: Container(
@@ -522,7 +525,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         ),
         alignment: Alignment.center,
         child: Text(
-          isFriend(widget.userDB.pubKey ?? '') == false
+          isFriend(userDB.pubKey ?? '') == false
               ? Localized.text('ox_chat.add_friend')
               : Localized.text('ox_chat.remove_contacts'),
           style: TextStyle(
@@ -567,7 +570,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _blockOptionFn() async {
-    String pubKey = widget.userDB.pubKey ?? '';
+    String pubKey = userDB.pubKey ?? '';
     if (_isInBlockList()) {
       OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
       if (!event.status) {
@@ -702,7 +705,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           'ox_usercenter',
           'AvatarPreviewPage',
           {
-            'userDB': widget.userDB,
+            'userDB': userDB,
           },
         );
       },
@@ -718,7 +721,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(Adapt.px(100)),
                 child: OXCachedNetworkImage(
-                  imageUrl: widget.userDB.picture ?? '',
+                  imageUrl: userDB.picture ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => _avatarPlaceholderImage,
                   errorWidget: (context, url, error) => _avatarPlaceholderImage,
@@ -761,7 +764,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                         )
                       : Container();
                 },
-                future: _getUserSelectedBadgeInfo(widget.userDB),
+                future: _getUserSelectedBadgeInfo(userDB),
               ),
             ),
           ],
@@ -772,9 +775,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   Widget _buildHeadName() {
     String showName =
-        widget.userDB.nickName != null && widget.userDB.nickName!.isNotEmpty
-            ? widget.userDB.nickName!
-            : (widget.userDB.name ?? '');
+        userDB.nickName != null && userDB.nickName!.isNotEmpty
+            ? userDB.nickName!
+            : (userDB.name ?? '');
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -787,10 +790,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _buildHeadDesc() {
-    if (widget.userDB.dns == null || widget.userDB.dns == 'null') {
+    if (userDB.dns == null || userDB.dns == 'null') {
       return SizedBox();
     }
-    String dns = widget.userDB.dns ?? '';
+    String dns = userDB.dns ?? '';
     return Container(
       margin: EdgeInsets.only(top: Adapt.px(2)),
       child: Row(
@@ -820,7 +823,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _addFriends() async {
-    if (isFriend(widget.userDB.pubKey) == false) {
+    if (isFriend(userDB.pubKey) == false) {
       OXCommonHintDialog.show(context,
           content: Localized.text('ox_chat.add_contact_dialog_title'),
           actionList: [
@@ -833,12 +836,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   OXNavigator.pop(context, true);
                   await OXLoading.show();
                   final OKEvent okEvent = await Contacts.sharedInstance
-                      .addToContact([widget.userDB.pubKey]);
+                      .addToContact([userDB.pubKey]);
                   await OXLoading.dismiss();
                   if (okEvent.status) {
                     OXChatBinding.sharedInstance.contactUpdatedCallBack();
                     OXChatBinding.sharedInstance
-                        .changeChatSessionTypeAll(widget.userDB.pubKey, true);
+                        .changeChatSessionTypeAll(userDB.pubKey, true);
                     CommonToast.instance.show(
                         context, Localized.text('ox_chat.sent_successfully'));
                     _sendMsg();
@@ -860,10 +863,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       context,
       ChatMessagePage(
         communityItem: ChatSessionModel(
-          chatId: widget.userDB.pubKey,
-          chatName: widget.userDB.name,
+          chatId: userDB.pubKey,
+          chatName: userDB.name,
           sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-          receiver: widget.userDB.pubKey,
+          receiver: userDB.pubKey,
           chatType: ChatType.chatSingle,
         ),
       ),
@@ -874,7 +877,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_chat.remove_contacts'),
         content: Localized.text('ox_chat.remove_contacts_dialog_content')
-            .replaceAll(r'${name}', '${widget.userDB.name}'),
+            .replaceAll(r'${name}', '${userDB.name}'),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
@@ -884,7 +887,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               onTap: () async {
                 await OXLoading.show();
                 final OKEvent okEvent = await Contacts.sharedInstance
-                    .removeContact(widget.userDB.pubKey ?? '');
+                    .removeContact(userDB.pubKey ?? '');
                 await OXLoading.dismiss();
                 OXNavigator.pop(context);
                 if (okEvent.status) {
@@ -1051,7 +1054,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _clickCall() async {
-    if (widget.userDB.pubKey ==
+    if (userDB.pubKey ==
         OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
       CommonToast.instance.show(context, "Don't call yourself");
     } else {
@@ -1080,7 +1083,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           'ox_calling',
           'CallPage',
           {
-            'userDB': widget.userDB,
+            'userDB': userDB,
             'media': oxActionModel.identify == 1
                 ? CallMessageType.audio.text
                 : CallMessageType.video.text,
@@ -1100,9 +1103,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   void _onChangedMute(bool value) async {
     await OXLoading.show();
     if (value) {
-      await Contacts.sharedInstance.muteFriend(widget.userDB.pubKey!);
+      await Contacts.sharedInstance.muteFriend(userDB.pubKey!);
     } else {
-      await Contacts.sharedInstance.unMuteFriend(widget.userDB.pubKey!);
+      await Contacts.sharedInstance.unMuteFriend(userDB.pubKey!);
     }
     final bool result =
         await OXUserInfoManager.sharedInstance.setNotification();
@@ -1111,7 +1114,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       OXChatBinding.sharedInstance.sessionUpdate();
       setState(() {
         _isMute = value;
-        widget.userDB.mute = value;
+        userDB.mute = value;
       });
     } else {
       CommonToast.instance
@@ -1125,7 +1128,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       String? result = await OXNavigator.pushPage(
         context,
         (context) => ContactFriendRemarkPage(
-          userDB: widget.userDB,
+          userDB: userDB,
         ),
       );
       if (result != null) {
@@ -1137,7 +1140,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         'ox_usercenter',
         'UsercenterBadgeWallPage',
         {
-          'userDB': widget.userDB,
+          'userDB': userDB,
         },
       );
     }

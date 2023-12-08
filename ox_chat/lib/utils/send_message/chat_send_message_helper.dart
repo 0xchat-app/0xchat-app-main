@@ -72,7 +72,7 @@ class ChatSendMessageHelper {
         roomId: session.chatId,
         id: sendMsg.id,
         title: 'Loading...',
-        content: 'Loaing...',
+        content: 'Loading...',
         icon: '',
         link: '',
       );

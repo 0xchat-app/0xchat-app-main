@@ -579,7 +579,7 @@ class SearchPageState extends State<SearchPage> {
           .map((user) => GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                   OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: user!));
+                   OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: user!.pubKey));
                 },
                 child: Container(
                   width: Adapt.px(60),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
@@ -78,13 +79,14 @@ class ChatNostrSchemeHandle {
   }
 
   static Future<String?> userToMessageContent(UserDB? userDB, String nostrScheme) async {
+    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'contactUserInfoPage',params: {'pubkey':userDB?.pubKey});
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
       'title': '${userDB?.name}',
       'content': '${userDB?.about}',
       'icon': '${userDB?.picture}',
-      'link': nostrScheme
+      'link': link
     };
     return jsonEncode(map);
   }
