@@ -71,6 +71,9 @@ class ChatNostrSchemeHandle {
           case 1:
             Note? note = Nip1.decodeNote(event);
             return await noteToMessageContent(note, nostrScheme);
+          case 30023:
+            LongFormContent? longFormContent = Nip23.decode(event);
+            return await longFormContentToMessageContent(longFormContent, nostrScheme);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
             ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
@@ -171,6 +174,50 @@ class ChatNostrSchemeHandle {
       'createTime': '${note.createAt}',
       'note': '${note.content}',
       'image': '${_extractFirstImageUrl(note.content)}',
+      'link': link,
+    };
+    return jsonEncode(map);
+  }
+
+  static Future<String?> longFormContentToMessageContent(
+      LongFormContent? longFormContent, String nostrScheme) async {
+    if (longFormContent == null) return null;
+    UserDB? userDB = await Account.sharedInstance.getUserInfo(longFormContent.pubkey);
+    if (userDB?.lastUpdatedTime == 0) {
+      userDB = await Account.sharedInstance.reloadProfileFromRelay(longFormContent.pubkey);
+    }
+    ;
+
+    String resultString = nostrScheme.replaceFirst('nostr:', "");
+    final url = '${CommonConstant.njumpURL}${resultString}';
+    String link = CustomURIHelper.createModuleActionURI(
+        module: 'ox_chat', action: 'commonWebview', params: {'url': url});
+
+    String note = '';
+    if(longFormContent.title != null) note = '$note${longFormContent.title}\n\n';
+    if(longFormContent.hashtags?.isNotEmpty == true){
+      for(int i = 0; i < longFormContent.hashtags!.length; i++){
+        String hashtag = longFormContent.hashtags![i];
+        hashtag = hashtag.replaceAll(' ', '_');
+        if(i == 0){
+          note = '$note#$hashtag';
+        } else {
+          note = '$note #$hashtag';
+        }
+      }
+      note = '$note\n\n';
+    }
+    note = '$note${longFormContent.summary ?? longFormContent.content}';
+
+    Map<String, dynamic> map = {};
+    map['type'] = '4';
+    map['content'] = {
+      'authorIcon': '${userDB?.picture}',
+      'authorName': '${userDB?.name}',
+      'authorDNS': '${userDB?.dns}',
+      'createTime': '${longFormContent.publishedAt ?? longFormContent.createAt}',
+      'note': note,
+      'image': '${longFormContent.image ?? _extractFirstImageUrl(longFormContent.content)}',
       'link': link,
     };
     return jsonEncode(map);

@@ -235,7 +235,7 @@ class ChatMessageBuilder {
       spans.add(TextSpan(
           text: matchedText,
           style: TextStyle(
-            color: matchedText.startsWith('#') ? Color(0xFFC084FC) : Color(0xFFC084FC),
+            color: Color(0xFFC084FC),
           )));
 
       start = match.end;
