@@ -28,7 +28,7 @@
   "channels": "Kanalen",
   "channels_notifications_tips": "Het inschakelen van meldingen voor Kanalen zal uw lijst met deelgenomen kanalen naar de pushserver sturen.",
   "zaps_notifications_tips": "Alleen Zaps die het Nostr-protocol ondersteunen, kunnen Zap-meldingen ontvangen.",
-  "privacy": "Privacy",
+  "privacy": "Privacy en Veiligheid",
   "blocked": "Geblokkeerd",
   "blocked_users_title": "Geblokkeerde Gebruikers",
   "no_blocked_user": "Geen geblokkeerde gebruiker",

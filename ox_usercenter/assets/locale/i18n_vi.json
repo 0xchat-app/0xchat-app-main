@@ -28,7 +28,7 @@
   "channels": "Kênh",
   "channels_notifications_tips": "Kích hoạt thông báo cho Kênh sẽ gửi danh sách các kênh đã tham gia của bạn đến máy chủ đẩy.",
   "zaps_notifications_tips": "Chỉ có Zaps hỗ trợ giao thức Nostr mới có khả năng nhận thông báo Zap.",
-  "privacy": "Riêng tư",
+  "privacy": "Quyền riêng tư và An ninh",
   "blocked": "Đã chặn",
   "blocked_users_title": "Người Dùng Bị Chặn",
   "no_blocked_user": "Không có người dùng bị chặn",

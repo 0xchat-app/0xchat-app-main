@@ -28,7 +28,7 @@
   "channels": "Kanały",
   "channels_notifications_tips": "Włączanie powiadomień dla kanałów będzie wysyłać Twoją listę dołączonych kanałów do serwera push.",
   "zaps_notifications_tips": "Tylko Zaps, które obsługują protokół Nostr, mogą otrzymywać powiadomienia Zap.",
-  "privacy": "Prywatność",
+  "privacy": "Prywatność i Bezpieczeństwo",
   "blocked": "Zablokowany",
   "blocked_users_title": "Zablokowani użytkownicy",
   "no_blocked_user": "Brak zablokowanego użytkownika",

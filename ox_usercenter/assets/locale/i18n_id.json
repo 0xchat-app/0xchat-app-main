@@ -28,7 +28,7 @@
   "channels": "Saluran",
   "channels_notifications_tips": "Mengaktifkan notifikasi untuk Saluran akan mengirim daftar saluran yang Anda ikuti ke server push.",
   "zaps_notifications_tips": "Hanya Zaps yang mendukung protokol Nostr yang dapat menerima notifikasi Zap.",
-  "privacy": "Privasi",
+  "privacy": "Privasi dan Keamanan",
   "blocked": "Diblokir",
   "blocked_users_title": "Pengguna yang Diblokir",
   "no_blocked_user": "Tidak ada pengguna yang diblokir",

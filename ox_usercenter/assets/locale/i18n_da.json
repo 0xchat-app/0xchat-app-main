@@ -28,7 +28,7 @@
   "channels": "Kanaler",
   "channels_notifications_tips": "Ved at aktivere notifikationer for kanaler vil din liste over deltagne kanaler blive sendt til push-serveren.",
   "zaps_notifications_tips": "Kun Zaps der støtter Nostr-protokollen kan modtage Zap notifikationer.",
-  "privacy": "Privatliv",
+  "privacy": "Fortrolighed og Sikkerhed",
   "blocked": "Blokeret",
   "blocked_users_title": "Blokerede Brugere",
   "no_blocked_user": "Ingen blokeret bruger",

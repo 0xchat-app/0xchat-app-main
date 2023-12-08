@@ -28,7 +28,7 @@
   "channels": "Kanály",
   "channels_notifications_tips": "Povolením oznámení pro kanály odešlete seznam připojených kanálů na push server.",
   "zaps_notifications_tips": "Pouze Zaps, které podporují protokol Nostr, mohou přijímat oznámení o Zap.",
-  "privacy": "Soukromí",
+  "privacy": "Soukromí a Bezpečnost",
   "blocked": "Blokovaný",
   "blocked_users_title": "Blokovaní uživatelé",
   "no_blocked_user": "Žádný blokovaný uživatel",

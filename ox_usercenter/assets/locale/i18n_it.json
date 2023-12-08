@@ -28,7 +28,7 @@
   "channels":"Canali",
   "channels_notifications_tips":"Abilitare le notifiche per i Canali invierà l'elenco dei canali a cui ti sei unito al server push.",
   "zaps_notifications_tips":"Solo gli Zaps che supportano il protocollo Nostr sono in grado di ricevere notifiche Zaps.",
-  "privacy":"Privacy",
+  "privacy":"Privacy e Sicurezza",
   "blocked":"Bloccato",
   "blocked_users_title":"Utenti Bloccati",
   "no_blocked_user":"Nessun utente bloccato",

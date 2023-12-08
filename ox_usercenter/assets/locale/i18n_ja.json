@@ -28,7 +28,7 @@
   "channels": "チャンネル",
   "channels_notifications_tips": "チャンネルの通知を有効にすると、参加したチャンネルのリストがプッシュサーバーに送信されます。",
   "zaps_notifications_tips": "NostrプロトコルをサポートするZapsのみがZap通知を受信できます。",
-  "privacy": "プライバシー",
+  "privacy": "プライバシーとセキュリティ",
   "blocked": "ブロック済み",
   "blocked_users_title": "ブロックされたユーザー",
   "no_blocked_user": "ブロックされたユーザーなし",

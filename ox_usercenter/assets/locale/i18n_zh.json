@@ -28,7 +28,7 @@
   "channels": "频道",
   "channels_notifications_tips": "启用频道通知将会把您加入的频道列表发送到推送服务器",
   "zaps_notifications_tips": "只有支持Nostr协议的打闪才能接收打闪通知",
-  "privacy": "隐私",
+  "privacy": "隐私与安全",
   "blocked": "已屏蔽",
   "blocked_users_title": "已屏蔽的用户",
   "no_blocked_user": "暂无已屏蔽用户",
@@ -105,5 +105,8 @@
   "delete_server_success_tips": "删除成功",
   "add": "添加",
   "sound_feedback": "声音",
-  "vibrate_feedback": "震动"
+  "vibrate_feedback": "震动",
+  "str_secure_with_passcode": "用密码保护",
+  "str_secure_with_face_id": "使用面部ID加密",
+  "str_secure_with_fingerprint": "使用指纹加密"
 }

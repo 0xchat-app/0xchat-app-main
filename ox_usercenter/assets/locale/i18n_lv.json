@@ -28,7 +28,7 @@
   "channels": "Kanāli",
   "channels_notifications_tips": "Paziņojumi par kanāliem tiks nosūtīti pievienoto kanālu sarakstā uz push serveri.",
   "zaps_notifications_tips": "Tikai Zaps, kuri atbalsta Nostr protokolu, var saņemt Zap paziņojumus.",
-  "privacy": "Privātums",
+  "privacy": "Privātums un Drošība",
   "blocked": "Bloķēts",
   "blocked_users_title": "Bloķētie lietotāji",
   "no_blocked_user": "Nav bloķētu lietotāju",
