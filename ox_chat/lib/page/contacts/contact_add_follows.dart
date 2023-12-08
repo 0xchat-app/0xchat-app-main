@@ -243,7 +243,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     return GestureDetector(
       onTap: () async {
         await OXNavigator.pushPage(
-            context, (context) => ContactUserInfoPage(userDB: userDB));
+            context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
         _resetFollowsData();
       },
       child: ClipRRect(

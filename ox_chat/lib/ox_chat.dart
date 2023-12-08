@@ -18,6 +18,8 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -44,6 +46,10 @@ class OXChat extends OXFlutterModule {
     'contractsPageWidget': _contractsPageWidget,
     'groupSharePage': _jumpGroupSharePage,
     'sendSystemMsg': _sendSystemMsg,
+    'contactUserInfoPage': _contactUserInfoPage,
+    'contactChanneDetailsPage': _contactChanneDetailsPage,
+    'groupInfoPage': _groupInfoPage,
+    'commonWebview': _commonWebview,
   };
 
   @override
@@ -74,7 +80,7 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => ContactUserInfoPage(
-            userDB: params?['userDB'],
+            pubkey: params?['userDB']?.pubkey,
             chatId: params?['chatId'],
             isSecretChat: params?['isSecretChat'] ?? false,
           ),
@@ -116,6 +122,29 @@ class OXChat extends OXFlutterModule {
 
   void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
     OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
+  }
+
+  void _contactUserInfoPage(BuildContext? context,{required String pubkey}){
+    OXNavigator.pushPage(context!, (context) => ContactUserInfoPage(pubkey: pubkey));
+  }
+
+  Future<void> _contactChanneDetailsPage(BuildContext? context,{required String channelId}) async {
+    ChannelDB? channelDB = Channels.sharedInstance.channels[channelId];
+    if(channelDB == null){
+      await OXLoading.show();
+      List<ChannelDB> channels = await Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]);
+      await OXLoading.dismiss();
+      channelDB = channels.length > 0 ? channels.first : null;
+    }
+    OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDB(channelId: channelId)));
+  }
+
+  Future<void> _groupInfoPage(BuildContext? context,{required String groupId}) async {
+    OXNavigator.pushPage(context!, (context) => GroupInfoPage(groupId: groupId));
+  }
+
+  Future<void> _commonWebview(BuildContext? context,{required String url}) async {
+    OXNavigator.presentPage(context!, allowPageScroll: true, (context) => CommonWebView(url), fullscreenDialog: true);
   }
 
   void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){

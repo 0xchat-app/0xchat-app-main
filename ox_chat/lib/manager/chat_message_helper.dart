@@ -10,10 +10,13 @@ import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+
+import 'chat_data_cache.dart';
 
 class OXValue<T> {
   OXValue(this.value);
@@ -43,7 +46,7 @@ extension MessageDBToUIEx on MessageDB {
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
     MessageCheckLogger? logger;
-    // logger = MessageCheckLogger('fc12538a75a7f10efc73bdff7a7f1d498ca851f833d54e0cd361eb6c810a23bf');
+    // logger = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
     // if (this.messageId != logger.messageId) return null;
 
     // Msg id
@@ -141,17 +144,35 @@ extension MessageDBToUIEx on MessageDB {
     MessageFactory messageFactory;
     switch (messageType) {
       case MessageType.text:
-        messageFactory = TextMessageFactory();
         final initialText = contentModel.content ?? '';
-        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
-          if (mentions.isEmpty) return ;
-          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
-          if (hasCurrentUser) {
-            isMentionMessageCallback?.call();
+        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null){
+          contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
+          messageFactory = CustomMessageFactory();
+          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
+            if(nostrSchemeContent != null){
+              final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
+              final uiMessage = await this.toChatUIMessage();
+              if(uiMessage != null){
+                ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
+              }
+              this.type = 'template';
+              this.decryptContent = nostrSchemeContent;
+              await DB.sharedInstance.update(this);
+            }
+          });
+        }
+        else{
+          messageFactory = TextMessageFactory();
+          final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+            if (mentions.isEmpty) return ;
+            final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+            if (hasCurrentUser) {
+              isMentionMessageCallback?.call();
+            }
+          });
+          if (mentionDecodeText != null) {
+            contentModel.content = mentionDecodeText;
           }
-        });
-        if (mentionDecodeText != null) {
-          contentModel.content = mentionDecodeText;
         }
         break ;
       case MessageType.image:

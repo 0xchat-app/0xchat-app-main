@@ -9,6 +9,9 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_chat/model/message_content_model.dart';
+import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
+import 'package:ox_chat/utils/message_factory.dart';
 
 typedef MessageContentEncoder = FutureOr<String?> Function(types.Message message);
 
@@ -55,11 +58,45 @@ class ChatSendMessageHelper {
     }
 
     final sourceKey = jsonEncode(event);
-    final sendMsg = message.copyWith(
+    types.Message sendMsg = message.copyWith(
       id: event.id,
       sourceKey: sourceKey,
       expiration: senderStrategy.session.expiration == null ? null : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
     );
+
+    if(sendMsg.type == types.MessageType.text
+        && ChatNostrSchemeHandle.getNostrScheme(sendMsg.content) != null) {
+      sendMsg =  CustomMessageFactory().createTemplateMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        title: 'Loading...',
+        content: 'Loading...',
+        icon: '',
+        link: '',
+      );
+      ChatNostrSchemeHandle.tryDecodeNostrScheme(
+          message.content).then((nostrSchemeContent) async {
+        if (nostrSchemeContent != null) {
+          MessageContentModel contentModel = MessageContentModel();
+          contentModel.content = nostrSchemeContent;
+          var chatMessage = await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
+          if(chatMessage != null) {
+            chatMessage = CustomMessageFactory().createMessage(
+                author: chatMessage.author,
+                timestamp: chatMessage.createdAt,
+                roomId: chatMessage.roomId ?? '',
+                remoteId: chatMessage.remoteId ?? '',
+                sourceKey: chatMessage.sourceKey,
+                contentModel: contentModel,
+                status: chatMessage.status ?? types.Status.sending)!;
+            ChatDataCache.shared
+                .updateMessage(message: chatMessage, session: session, originMessage: sendMsg);
+          }
+        }
+      });
+    }
 
     ChatLogUtils.info(
       className: 'ChatSendMessageHelper',

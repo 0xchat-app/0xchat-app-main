@@ -156,15 +156,13 @@ class _CommunityContactAddFriendState extends State<CommunityContactAddFriend> w
       } else if (info == '') {
         updateStateView(CommonStateView.CommonStateView_NoData);
       } else {
-        if (user.pubKey != null) {
-          OXNavigator.pushPage(
-            context,
-            (context) => ContactUserInfoPage(
-              userDB: user,
-            ),
-          );
-        }
-      }
+        OXNavigator.pushPage(
+          context,
+          (context) => ContactUserInfoPage(
+            pubkey: user.pubKey,
+          ),
+        );
+            }
       if (this.mounted) {
         setState(() {});
       }

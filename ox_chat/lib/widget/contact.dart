@@ -387,9 +387,9 @@ class _ContractListItemState extends State<ContractListItem> {
   }
 
   void _onItemClick() async {
-    if (widget.item.pubKey != null && widget.item.pubKey!.isNotEmpty) {
+    if (widget.item.pubKey.isNotEmpty) {
       UserDB? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDB;
-      OXNavigator.pushPage(context, (context) => ContactUserInfoPage(userDB: userDB));
+      OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
     }
   }
 
