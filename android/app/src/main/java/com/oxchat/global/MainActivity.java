@@ -21,21 +21,20 @@ import org.json.JSONObject;
 import java.io.File;
 import java.net.URLDecoder;
 
-import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.embedding.engine.FlutterShellArgs;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
-public class MainActivity extends FlutterActivity {
+public class MainActivity extends FlutterFragmentActivity {
 
-    public static NewMyEngineIntentBuilder withNewEngine(Class<? extends FlutterActivity> activityClass) {
+    public static NewMyEngineIntentBuilder withNewEngine(Class<? extends FlutterFragmentActivity> activityClass) {
         return new NewMyEngineIntentBuilder(activityClass);
     }
 
     //Rewrite engine method
     public static class NewMyEngineIntentBuilder extends NewEngineIntentBuilder{
 
-        protected NewMyEngineIntentBuilder(Class<? extends FlutterActivity> activityClass) {
+        protected NewMyEngineIntentBuilder(Class<? extends FlutterFragmentActivity> activityClass) {
             super(activityClass);
         }
     }
@@ -68,13 +67,6 @@ public class MainActivity extends FlutterActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-    }
-
-    @Override
-    public FlutterShellArgs getFlutterShellArgs() {
-        FlutterShellArgs supFA = super.getFlutterShellArgs();
-
-        return supFA;
     }
 
     @Override
