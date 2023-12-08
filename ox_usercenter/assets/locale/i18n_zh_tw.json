@@ -28,7 +28,7 @@
   "channels": "頻道",
   "channels_notifications_tips": "啟用頻道通知將會把您加入的頻道列表發送到推播伺服器",
   "zaps_notifications_tips": "只有支持Nostr協定的打閃才能接收打閃通知",
-  "privacy": "隱私",
+  "privacy": "隱私與安全",
   "blocked": "已屏蔽",
   "blocked_users_title": "已屏蔽的使用者",
   "no_blocked_user": "暫無已屏蔽使用者",

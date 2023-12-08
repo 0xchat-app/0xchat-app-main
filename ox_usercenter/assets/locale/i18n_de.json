@@ -28,7 +28,7 @@
   "channels": "Kanäle",
   "channels_notifications_tips": "Die Aktivierung von Benachrichtigungen für Kanäle sendet Ihre Liste der beigetretenen Kanäle an den Push-Server.",
   "zaps_notifications_tips": "Nur Zaps, die das Nostr-Protokoll unterstützen, können Zap-Benachrichtigungen erhalten.",
-  "privacy": "Datenschutz",
+  "privacy": "Datenschutz und Sicherheit",
   "blocked": "Blockiert",
   "blocked_users_title": "Blockierte Benutzer",
   "no_blocked_user": "Kein blockierter Benutzer",

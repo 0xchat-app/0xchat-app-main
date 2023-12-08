@@ -28,7 +28,7 @@
   "channels": "Kanaler",
   "channels_notifications_tips": "Att aktivera notifikationer för kanaler kommer att skicka din lista över anslutna kanaler till push-servern.",
   "zaps_notifications_tips": "Endast Zaps som stöder Nostr-protokollet kan ta emot Zap-notifikationer.",
-  "privacy": "Integritet",
+  "privacy": "Integritet och Säkerhet",
   "blocked": "Blockerad",
   "blocked_users_title": "Blockerade Användare",
   "no_blocked_user": "Ingen blockerad användare",

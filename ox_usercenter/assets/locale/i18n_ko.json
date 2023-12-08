@@ -28,7 +28,7 @@
   "channels": "채널",
   "channels_notifications_tips": "채널에 대한 알림을 활성화하면 가입한 채널 목록이 푸시 서버로 전송됩니다.",
   "zaps_notifications_tips": "Nostr 프로토콜을 지원하는 Zaps만 Zap 알림을 받을 수 있습니다.",
-  "privacy": "프라이버시",
+  "privacy": "개인정보 보호 및 보안",
   "blocked": "차단됨",
   "blocked_users_title": "차단된 사용자",
   "no_blocked_user": "차단된 사용자 없음",

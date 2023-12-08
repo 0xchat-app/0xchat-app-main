@@ -28,7 +28,7 @@
   "channels": "Kanalid",
   "channels_notifications_tips": "Kanalite jaoks teadete lubamine saadab teie liitunud kanalite loendi push-serverisse.",
   "zaps_notifications_tips": "Ainult Zaps, mis toetavad Nostr protokolli, saavad Zap teateid vastu võtta.",
-  "privacy": "Privaatsus",
+  "privacy": "Privaatsus ja Turvalisus",
   "blocked": "Blokeeritud",
   "blocked_users_title": "Blokeeritud Kasutajad",
   "no_blocked_user": "Pole blokeeritud kasutajat",

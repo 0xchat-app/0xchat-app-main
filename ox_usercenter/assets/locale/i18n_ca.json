@@ -28,7 +28,7 @@
   "channels": "Canals",
   "channels_notifications_tips": "Habilitar notificacions per als canals enviarà la teva llista de canals units al servidor de push.",
   "zaps_notifications_tips": "Només els Zaps que suporten el protocol Nostr poden rebre notificacions de Zap.",
-  "privacy": "Privacitat",
+  "privacy": "Privacitat i Seguretat",
   "blocked": "Bloquejat",
   "blocked_users_title": "Usuaris bloquejats",
   "no_blocked_user": "Cap usuari bloquejat",

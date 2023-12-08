@@ -28,7 +28,7 @@
   "channels": "Csatornák",
   "channels_notifications_tips": "A Csatornákhoz való értesítések engedélyezése elküldi a csatlakozott csatornák listáját a push szervernek.",
   "zaps_notifications_tips": "Csak azok a Zaps-ek, amelyek támogatják a Nostr protokollt, képesek Zap értesítéseket fogadni.",
-  "privacy": "Adatvédelem",
+  "privacy": "Adatvédelem és Biztonság",
   "blocked": "Letiltva",
   "blocked_users_title": "Letiltott Felhasználók",
   "no_blocked_user": "Nincs letiltott felhasználó",

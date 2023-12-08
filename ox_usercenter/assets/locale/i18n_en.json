@@ -28,7 +28,7 @@
   "channels": "Channels",
   "channels_notifications_tips": "Enabling notifications for Channels will send your list of joined channels to the push server.",
   "zaps_notifications_tips": "Only Zaps that support the Nostr protocol are able to receive Zap notifications.",
-  "privacy": "Privacy",
+  "privacy": "Privacy and Security",
   "blocked": "Blocked",
   "blocked_users_title": "Blocked Users",
   "no_blocked_user": "No blocked user",
@@ -105,5 +105,8 @@
   "delete_server_success_tips": "Successfully deleted",
   "add": "Add",
   "sound_feedback": "Sound",
-  "vibrate_feedback": "Vibrate"
+  "vibrate_feedback": "Vibrate",
+  "str_secure_with_passcode": "Secure with Passcode",
+  "str_secure_with_face_id": "Secure with Face ID",
+  "str_secure_with_fingerprint": "Secure with Fingerprint"
 }
