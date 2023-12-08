@@ -42,6 +42,14 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
+  static Future<ChannelDB> _loadChannelOnline(String channelId) async {
+    List<ChannelDB> channels = await Channels.sharedInstance
+        .getChannelsFromRelay(channelIds: [channelId]);
+    return channels.length > 0
+        ? channels.first
+        : ChannelDB(channelId: channelId);
+  }
+
   static Future<String?> eventIdToMessageContent(
       String? eventId, String nostrScheme) async {
     if (eventId != null) {
@@ -61,11 +69,11 @@ class ChatNostrSchemeHandle {
             return await noteToMessageContent(note, nostrScheme);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
-            ChannelDB channelDB = Channels.channelToChannelDB(channel);
+            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
             return await channelToMessageContent(channelDB, nostrScheme);
           case 41:
             Channel channel = Nip28.getChannelMetadata(event);
-            ChannelDB channelDB = Channels.channelToChannelDB(channel);
+            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
             return await channelToMessageContent(channelDB, nostrScheme);
         }
       }
