@@ -221,6 +221,37 @@ class ChatMessageBuilder {
     );
   }
 
+  static TextSpan buildTextSpan(String text) {
+    RegExp regExp = RegExp(r"#\w+|https?://\S+|nostr:\S+");
+    Iterable<RegExpMatch> matches = regExp.allMatches(text);
+
+    List<TextSpan> spans = [];
+    int start = 0;
+
+    matches.forEach((match) {
+      spans.add(TextSpan(text: text.substring(start, match.start)));
+
+      var matchedText = text.substring(match.start, match.end);
+      spans.add(TextSpan(
+          text: matchedText,
+          style: TextStyle(
+            color: matchedText.startsWith('#') ? Color(0xFFC084FC) : Color(0xFFC084FC),
+          )));
+
+      start = match.end;
+    });
+
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start, text.length)));
+    }
+
+    return TextSpan(children: spans, style: TextStyle(
+      fontSize: 12.sp,
+      color: ThemeColor.color0,
+      height: 1.4,
+    ));
+  }
+
   static Widget _buildNoteMessage(types.CustomMessage message, bool isMe) {
     final title = NoteMessageEx(message).authorName;
     final authorIcon = NoteMessageEx(message).authorIcon;
@@ -302,15 +333,10 @@ class ChatMessageBuilder {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  content,
-                  maxLines: 10,
+                child: RichText(
+                  text: buildTextSpan(content),
+                  maxLines: 20,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: ThemeColor.color0,
-                    height: 1.4,
-                  ),
                 ),
               ),
             ],
