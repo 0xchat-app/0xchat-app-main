@@ -7,7 +7,7 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
     final regexNostr =
-        r'nostr:(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
+        r'(nostr:)?(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
     final urlRegexp = RegExp(regexNostr, caseSensitive: false);
     final match = urlRegexp.firstMatch(content);
     return match?[0];
@@ -18,11 +18,15 @@ class ChatNostrSchemeHandle {
     if (nostrScheme == null)
       return null;
     else if (nostrScheme.startsWith('nostr:npub') ||
-        nostrScheme.startsWith('nostr:nprofile')) {
+        nostrScheme.startsWith('nostr:nprofile') ||
+        nostrScheme.startsWith('nprofile') ||
+        nostrScheme.startsWith('npub')) {
       final tempMap = Account.decodeProfile(content);
       return await pubkeyToMessageContent(tempMap?['pubkey'], nostrScheme);
     } else if (nostrScheme.startsWith('nostr:note') ||
-        nostrScheme.startsWith('nostr:nevent')) {
+        nostrScheme.startsWith('nostr:nevent') ||
+        nostrScheme.startsWith('nevent') ||
+        nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme);
     }
