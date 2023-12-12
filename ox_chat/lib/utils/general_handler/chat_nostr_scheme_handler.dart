@@ -6,11 +6,7 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
-    final regexNostr =
-        r'(nostr:)?(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
-    final urlRegexp = RegExp(regexNostr, caseSensitive: false);
-    final match = urlRegexp.firstMatch(content);
-    return match?[0];
+    return MessageDB.getNostrScheme(content);
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
