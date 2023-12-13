@@ -13,6 +13,8 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_usercenter/model/setting_model.dart';
+import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
@@ -21,6 +23,7 @@ import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
+import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
@@ -54,54 +57,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     _getPackageInfo();
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_mute.png',
-      title: 'ox_usercenter.notifications',
-      rightContent: '',
-      settingItemType: SettingItemType.messageNotification,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_privacy.png',
-      title: 'ox_usercenter.privacy',
-      rightContent: '',
-      settingItemType: SettingItemType.privacy,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_relays.png',
-      title: 'ox_usercenter.relays',
-      rightContent: '',
-      settingItemType: SettingItemType.relays,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_zaps.png',
-      title: 'ox_usercenter.zaps',
-      rightContent: '',
-      settingItemType: SettingItemType.zaps,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_keys.png',
-      title: 'ox_usercenter.keys',
-      rightContent: '',
-      settingItemType: SettingItemType.keys,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_ice_server.png',
-      title: 'ox_usercenter.ice_server_title',
-      rightContent: '',
-      settingItemType: SettingItemType.ice,
-    ));
-    _settingModelList.add(SettingModel(
-      iconName: 'icon_settings_language.png',
-      title: 'ox_usercenter.language',
-      rightContent: Localized.getCurrentLanguage().languageText,
-      settingItemType: SettingItemType.language,
-    ));
-    _settingModelList.add(SettingModel(
-        iconName: 'icon_settings_Theme.png',
-        title: 'ox_usercenter.theme',
-        rightContent: ThemeManager.getCurrentThemeStyle().value(),
-        settingItemType: SettingItemType.theme
-    ));
+    _settingModelList = SettingModel.getItemData(_settingModelList);
   }
 
   @override
@@ -298,6 +254,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           OXNavigator.pushPage(context, (context) => ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
+        } else if (_settingModel.settingItemType == SettingItemType.database) {
+          OXNavigator.pushPage(context, (context) => const DatabaseSettingPage());
         } else if (_settingModel.settingItemType == SettingItemType.language) {
           OXNavigator.pushPage(context, (context) => LanguageSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.theme) {
@@ -449,28 +407,4 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
 }
 
-class SettingModel {
-  final String iconName;
-  final String title;
-  String rightContent;
-  final SettingItemType settingItemType;
 
-  SettingModel({
-    this.iconName = '',
-    this.title = '',
-    this.rightContent = '',
-    this.settingItemType = SettingItemType.none,
-  });
-}
-
-enum SettingItemType {
-  messageNotification,
-  relays,
-  zaps,
-  keys,
-  privacy,
-  ice,
-  language,
-  theme,
-  none,
-}
