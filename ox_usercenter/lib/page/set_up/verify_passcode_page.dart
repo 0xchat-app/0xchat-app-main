@@ -45,13 +45,14 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            image: AssetImage(
-              'assets/images/purple_bg.png',
-              package: 'kd_wallet_home',
-            ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              ThemeColor.gradientMainStart,
+              ThemeColor.gradientMainEnd,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: Column(
@@ -60,7 +61,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
               title: '',
               backgroundColor: Colors.transparent,
             ),
-            CommonImage(iconName: 'icon_verify_passcode.png', width: 80.px, height: 80.px, package: 'kd_wallet_home'),
+            CommonImage(iconName: 'icon_logo_ox_login.png', width: 80.px, height: 80.px, package: 'kd_wallet_home'),
             SizedBox(height: 36.px),
             abbrText('Enter your Passcode', 24, ThemeColor.color0),
             SizedBox(height: 36.px),
