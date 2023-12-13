@@ -47,6 +47,7 @@ class CommonTextField extends StatefulWidget {
   final VoidCallback? captachaOnPressed;
   final bool captchaButtonEnable;
   final InputDecoration? decoration;
+  final Widget? leftWidget;
 
   /// Bottom tip
   CommonTextField({
@@ -81,6 +82,7 @@ class CommonTextField extends StatefulWidget {
     this.captchaButtonEnable = false,
     this.captchaButtonTitle,
     this.captachaOnPressed,
+    this.leftWidget,
   }) : super(key: key);
 
   @override
@@ -201,14 +203,15 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   Widget buildInputView(BuildContext context) {
     return Container(
-      height: Adapt.px(50),
+      height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(12)),
       decoration: BoxDecoration(
-        color: ThemeColor.dark03,
+        color: ThemeColor.color180,
         borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
       ),
       child: Row(
         children: [
+          widget.leftWidget ?? SizedBox(),
           Expanded(
             child: TextField(
                 enabled: widget.inputEnabled,
@@ -233,10 +236,10 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   Widget buildPhoneInputView(BuildContext context) {
     return Container(
-      height: Adapt.px(50),
+      height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(6)),
       decoration: BoxDecoration(
-        color: ThemeColor.dark03,
+        color: ThemeColor.color180,
         borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4))),
       ),
       child: Row(
