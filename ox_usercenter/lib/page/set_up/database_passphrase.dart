@@ -36,9 +36,9 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
   FocusNode _currentFocusNode = FocusNode();
   FocusNode _newFocusNode = FocusNode();
   FocusNode _confirmFocusNode = FocusNode();
-  bool _currentEyeOpen = true;
-  bool _newEyeOpen = true;
-  bool _confirmEyeOpen = true;
+  bool _currentEyeStatus = true;
+  bool _newEyeStatus = true;
+  bool _confirmEyeStatus = true;
 
   @override
   void initState() {
@@ -70,6 +70,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
       child: Column(
         children: [
           DatabaseItemWidget(
+            height: 48.px,
             title: 'str_save_passphrase_in_keychain',
             radiusCornerList: [16.px, 16.px, 16.px, 16.px],
             iconRightMargin: 0,
@@ -86,40 +87,23 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
               setState(() {});
             },
           ),
-          _customTextField(
+          CommonTextField(
             controller: _currentTeController,
-            focusNode: _currentFocusNode,
+            type: TextFieldType.normal,
+            keyboardType: TextInputType.text,
             inputFormatters: [LengthLimitingTextInputFormatter(30)],
+            focusNode: _currentFocusNode,
+            decoration: _getInputDecoration('str_current_passphrase'.localized()),
+            leftWidget: _getLeftWidget(_currentEyeStatus),
           ),
-          // CommonTextField(
-          //   controller: _currentTeController,
-          //   type: TextFieldType.normal,
-          //   keyboardType: TextInputType.text,
-          //   inputFormatters: [LengthLimitingTextInputFormatter(30)],
-          //   focusNode: _currentFocusNode,
-          //   hintText: 'str_current_passphrase'.localized(),
-          //   leftWidget: CommonImage(
-          //     iconName: _currentEyeOpen ? 'icon_obscure_close.png' : 'icon_obscure.png',
-          //     width: 24.px,
-          //     height: 24.px,
-          //   ),
-          // ),
           CommonTextField(
             controller: _newTeController,
             type: TextFieldType.normal,
             keyboardType: TextInputType.text,
             inputFormatters: [LengthLimitingTextInputFormatter(30)],
             focusNode: _newFocusNode,
-            decoration: InputDecoration(
-              hintText: 'str_new_passphrase'.localized(),
-              contentPadding: EdgeInsets.only(left: 8.px),
-              prefixIcon: CommonImage(
-                iconName: _newEyeOpen ? 'icon_obscure_close.png' : 'icon_obscure.png',
-                width: 12.px,
-                height: 12.px,
-              ),
-              border: InputBorder.none,
-            ),
+            decoration: _getInputDecoration('str_new_passphrase'.localized()),
+            leftWidget: _getLeftWidget(_newEyeStatus),
           ),
           CommonTextField(
             controller: _confirmTeController,
@@ -127,29 +111,18 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
             keyboardType: TextInputType.text,
             inputFormatters: [LengthLimitingTextInputFormatter(30)],
             focusNode: _confirmFocusNode,
-            decoration: InputDecoration(
-              hintText: 'str_confirm_new_passphrase'.localized(),
-              prefixIcon:  ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: 24.px,
-                  minHeight: 24.px,
-                  maxWidth: 24.px,
-                  maxHeight: 24.px,
-                ),
-                child: CommonImage(
-                  iconName: _confirmEyeOpen ? 'icon_obscure_close.png' : 'icon_obscure.png',
-                  width: 12.px,
-                  height: 12.px,
-                ),
-              ),
-              border: InputBorder.none,
-            ),
+            decoration: _getInputDecoration('str_confirm_new_passphrase'.localized()),
+            leftWidget: _getLeftWidget(_confirmEyeStatus),
           ),
+          SizedBox(height: 12.px),
           DatabaseItemWidget(
+            height: 48.px,
             title: 'str_update_database_passphrase',
+            titleTxtColor: ThemeColor.color100,
             radiusCornerList: [16.px, 16.px, 16.px, 16.px],
-            iconRightMargin: 0,
+            iconRightMargin: 8,
             iconName: 'icon_update.png',
+            iconSize: 24.px,
             iconPackage: 'ox_common',
             onTapCall: () {},
           ),
@@ -159,27 +132,26 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px)),
     );
   }
+  InputDecoration _getInputDecoration(String hint){
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        fontSize: 16.px,
+        color: ThemeColor.color100,
+      ),
+      contentPadding: EdgeInsets.only(left: 8.px),
+      border: InputBorder.none,
+    );
+  }
 
-  bool _obscureText = false;
-  Widget _customTextField({TextEditingController? controller,FocusNode? focusNode,List<TextInputFormatter>? inputFormatters }){
-    return TextField(
-        autofocus: false,
-        style: Styles.textFieldStyles(),
-        controller: controller,
-        obscureText: _obscureText,
-        textAlign: TextAlign.start,
-        decoration: InputDecoration(
-          hintText: 'str_confirm_new_passphrase'.localized(),
-
-          prefixIcon: CommonImage(
-            iconName: _confirmEyeOpen ? 'icon_obscure_close.png' : 'icon_obscure.png',
-            width: 24.px,
-            height: 24.px,
-          ),
-          border: InputBorder.none,
-        ),
-        focusNode: focusNode,
-        inputFormatters: inputFormatters,
-        cursorColor: ThemeColor.red);
+  Widget _getLeftWidget(bool eysStatus){
+    return Container(
+      margin: EdgeInsets.only(left: 16.px),
+      child: CommonImage(
+        iconName: eysStatus ? 'icon_obscure_close.png' : 'icon_obscure.png',
+        width: 24.px,
+        height: 24.px,
+      ),
+    );
   }
 }

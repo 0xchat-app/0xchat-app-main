@@ -10,8 +10,10 @@ import 'package:ox_usercenter/utils/widget_tool.dart';
 ///@author Michael
 ///CreateTime: 2023/12/12 12:24
 class DatabaseItemWidget extends StatelessWidget {
+  double? height;
   List<double>? radiusCornerList; //topLeft、topRight、bottomLeft、bottomRight
   String? iconName;
+  double? iconSize;
   String? iconPackage;
   double iconRightMargin;
   String title;
@@ -26,8 +28,10 @@ class DatabaseItemWidget extends StatelessWidget {
 
   DatabaseItemWidget({
     Key? key,
+    this.height,
     this.radiusCornerList,
     this.iconName,
+    this.iconSize,
     this.iconPackage,
     this.iconRightMargin = 12,
     this.title = '',
@@ -60,13 +64,13 @@ class DatabaseItemWidget extends StatelessWidget {
                   bottomRight: Radius.circular(radiusCornerList?[3] ?? 0)),
               color: ThemeColor.color180,
             ),
-            height: 52.px,
+            height: height ?? 52.px,
             child: _buildItem(
               leading: iconName != null
                   ? CommonImage(
                       iconName: iconName ?? '',
-                      width: Adapt.px(32),
-                      height: Adapt.px(32),
+                      width: iconSize ?? 32.px,
+                      height: iconSize ?? 32.px,
                       package: iconPackage ?? 'ox_usercenter',
                     )
                   : null,

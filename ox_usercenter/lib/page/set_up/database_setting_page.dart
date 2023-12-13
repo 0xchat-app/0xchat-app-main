@@ -206,6 +206,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   }
 
   void _onItemTap(DatabaseSetItemType type) {
+    if (_chatRunStatus) {
+      return;
+    }
     switch (type) {
       case DatabaseSetItemType.databasePassphrase:
         OXNavigator.pushPage(context, (context) => const DatabasePassphrase());
