@@ -25,6 +25,7 @@ class CommonTextField extends StatefulWidget {
   final VoidCallback? actionOnPressed;
   final bool canHiddenInput;
   final bool isHiddenInput;
+  final bool needTopView;
 
   // InputView
   final String? countryCode;
@@ -63,6 +64,7 @@ class CommonTextField extends StatefulWidget {
     this.actionOnPressed,
     this.canHiddenInput = false,
     this.isHiddenInput = false,
+    this.needTopView = false,
     this.countryCode,
     this.countryImage,
     this.palceholderName,
@@ -143,9 +145,9 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          buildTopView(context),
+          widget.needTopView ? buildTopView(context) : SizedBox(),
           !isHiddenInput ? (widget.type == TextFieldType.phone ? buildPhoneInputView(context) : buildInputView(context)) : Container(),
-          !isHiddenInput ? buildBootomView(context) : Container()
+          !isHiddenInput ? buildBootomView(context) : SizedBox()
         ],
       ),
     );
