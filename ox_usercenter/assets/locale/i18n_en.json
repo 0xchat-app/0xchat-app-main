@@ -138,8 +138,14 @@
   "str_confirm_new_passphrase": "Confirm new passphrase",
   "str_update_database_passphrase": "Update database passphrase",
   "str_passphrase_hint": "Please note: you will not be able to recover or change passphrase if you lose it.",
-  "str_passphrase_current_error": "Current password verification failed, please re-enter",
-  "str_passphrase_invalidate_tips": "Password must be at least 8 characters(Eg: 12345#Aa)",
+  "str_passphrase_current_error_title": "Wrong passphrase",
+  "str_passphrase_current_error": "Please enter correct current passphrase.",
   "str_input_passphrase_empty_hint": "Password cannot be empty",
-  "str_input_confirm_error": "The passwords entered do not match, please re-enter"
+  "str_input_confirm_error": "The passwords entered do not match, please re-enter",
+  "str_stop_chat": "Stop chat",
+  "str_stop_chat_hint": "Stop chat to export, import or delete chat database. You will not be able to receive and send messages while the chat is stopped.",
+  "str_stop_button": "Stop",
+  "str_change_database_passphrase_title": "Change database passphrase",
+  "str_change_database_passphrase_hint": "Change database Database passphrase will be updated. Please note：you will NOT be able to change it if you lose it.",
+  "str_update_database_pw": "Update"
 }

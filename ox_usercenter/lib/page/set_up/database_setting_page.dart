@@ -1,19 +1,28 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/date_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/page/set_up/database_passphrase.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
+import 'package:file_picker/file_picker.dart';
+
 
 ///Title: database_setting_page
 ///Description: TODO(Fill in by oneself)
@@ -115,19 +124,12 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         SizedBox(height: 12.px),
         DatabaseItemWidget(
           onTapCall: () {},
-          onChanged: (bool value) async {
-            await OXLoading.show();
-            if (value != _chatRunStatus) {
-              _chatRunStatus = value;
-              await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
-            }
-            await OXLoading.dismiss();
-            setState(() {});
-          },
+          onChanged: _stopConfirmDialog,
           radiusCornerList: [16.px, 16.px, 16.px, 16.px],
           showSwitch: true,
           switchValue: _chatRunStatus,
           title: _chatRunStatus ? 'str_chat_running' : 'str_chat_stopped',
+          iconRightMargin: 0,
         ),
         SizedBox(height: 12.px),
         abbrText(_chatRunStatus ? 'str_chat_stopped_hint'.localized() : 'str_chat_running_hint'.localized(), 12, ThemeColor.color100),
@@ -214,6 +216,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         OXNavigator.pushPage(context, (context) => const DatabasePassphrase());
         break;
       case DatabaseSetItemType.exportDatabase:
+        _exportDB();
         break;
       case DatabaseSetItemType.importDatabase:
         break;
@@ -223,4 +226,83 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         break;
     }
   }
+
+  void _stopConfirmDialog(bool value) {
+    if (_chatRunStatus) {
+      OXCommonHintDialog.show(
+        context,
+        title: 'str_stop_chat'.localized(),
+        content: 'str_stop_chat_hint'.localized(),
+        isRowAction: true,
+        actionList: [
+          OXCommonHintAction(
+              text: () => Localized.text('ox_common.cancel'),
+              onTap: () {
+                OXNavigator.pop(context);
+              }),
+          OXCommonHintAction(
+              text: () => 'str_stop_button'.localized(),
+              onTap: () {
+                OXNavigator.pop(context);
+                _onChangedChatRunStatus(value);
+              }),
+        ],
+      );
+    } else {
+      _onChangedChatRunStatus(value);
+    }
+  }
+
+  void _onChangedChatRunStatus(bool value) async {
+    await OXLoading.show();
+    if (value != _chatRunStatus) {
+      _chatRunStatus = value;
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
+    }
+    await OXLoading.dismiss();
+    setState(() {});
+  }
+
+  void _exportDB() async {
+    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    String dbFilePath = await OXCommon.getDatabaseFilePath(pubkey + ".db2");
+    LogUtil.e('Michael：_exportDB ---dbFile =${dbFilePath}');
+    String? outputDirectory = await pickFolder();
+
+    if (outputDirectory == null) {
+      // User canceled the picker
+    } else {
+      await saveFileToSelectedFolder(dbFilePath, outputDirectory);
+      CommonToast.instance.show(context, 'Successfully saved to $outputDirectory.');
+    }
+  }
+
+  Future<String?> pickFolder() async {
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+
+    if (selectedDirectory == null) {
+      // user cancel selected
+      print('No folder selected');
+      return null;
+    } else {
+      print('Selected folder: $selectedDirectory');
+      return selectedDirectory;
+    }
+  }
+
+  Future<void> saveFileToSelectedFolder(String filePath, String targetFolderPath) async {
+    final fileName = '0xchat '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch);
+    final targetPath = '$targetFolderPath/$fileName.db';
+
+    final File sourceFile = File(filePath);
+    final File targetFile = File(targetPath);
+
+    try {
+      await sourceFile.copy(targetFile.path);
+      print('File saved to $targetPath');
+    } catch (e) {
+      print('Failed to save file: $e');
+    }
+  }
+
 }

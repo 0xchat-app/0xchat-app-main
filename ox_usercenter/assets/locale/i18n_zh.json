@@ -138,8 +138,14 @@
   "str_confirm_new_passphrase": "确认新密码",
   "str_update_database_passphrase": "更新数据库密码",
   "str_passphrase_hint": "请注意：如果您丢失密码，您将无法恢复或者更改密码。",
-  "str_passphrase_current_error": "当前密码验证失败，请重新输入",
-  "str_passphrase_invalidate_tips": "至少8个字符 (例子：12345#Aa)",
+  "str_passphrase_current_error_title": "错误的密码",
+  "str_passphrase_current_error": "请输入正确的当前密码",
   "str_input_passphrase_empty_hint": "密码不能为空",
-  "str_input_confirm_error": "两次输入的密码不一致，请重新输入"
+  "str_input_confirm_error": "两次输入的密码不一致，请重新输入",
+  "str_stop_chat": "停止聊天程序",
+  "str_stop_chat_hint": "停止聊天以便导出、导入或删除聊天数据库。在聊天停止期间，您将无法收发消息。",
+  "str_stop_button": "停止",
+  "str_change_database_passphrase_title": "更新数据库密码",
+  "str_change_database_passphrase_hint": "数据库加密密码将被更新。如果您丢失了密码，您将无法更改它。",
+  "str_update_database_pw": "更新"
 }
