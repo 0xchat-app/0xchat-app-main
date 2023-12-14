@@ -36,7 +36,7 @@ class CommonTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextEditingController controller;
   final bool autofocus;
-  final bool obscureText;
+  bool obscureText;
   final bool? inputEnabled;
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
@@ -95,7 +95,6 @@ class CommonTextField extends StatefulWidget {
 
 class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   bool _showClearButton = false;
-  bool _obscureText = false;
   bool? _captchaButtonEnable = false;
   bool isHiddenInput = false;
   String? _captchaButtonTitle = '';
@@ -106,7 +105,6 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.obscureText;
     _captchaButtonEnable = widget.captchaButtonEnable;
     _captchaButtonTitle = widget.captchaButtonTitle;
     _errorTips = widget.errorTips;
@@ -204,7 +202,6 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   }
 
   Widget buildInputView(BuildContext context) {
-    print('Michael: ----_obscureText =${_obscureText}');
     return Container(
       height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(12)),
@@ -221,7 +218,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
                 autofocus: widget.autofocus,
                 style: Styles.textFieldStyles(),
                 controller: widget.controller,
-                obscureText: _obscureText,
+                obscureText: widget.obscureText,
                 onChanged: widget.onChanged,
                 onSubmitted: widget.onSubmitted,
                 keyboardType: widget.keyboardType,
@@ -359,11 +356,11 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   Widget buildObscureView(BuildContext context) {
     return OXButton(
         onPressed: () {
-          setObscureText(!_obscureText);
+          setObscureText(!widget.obscureText);
         },
         color: Colors.transparent,
         splashColor: Colors.transparent,
-        child: CommonImage(iconName: _obscureText ? 'icon_obscure.png' : 'icon_obscure_close.png', width: Adapt.px(24), height: Adapt.px(24)),
+        child: CommonImage(iconName: widget.obscureText ? 'icon_obscure.png' : 'icon_obscure_close.png', width: Adapt.px(24), height: Adapt.px(24)),
         minWidth: 1.0,
         height: 1.0);
   }
@@ -417,7 +414,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   setObscureText(bool enable) {
     setState(() {
-      _obscureText = enable;
+      widget.obscureText = enable;
     });
   }
 
