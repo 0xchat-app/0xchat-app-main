@@ -62,7 +62,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
 
   Widget _body() {
     return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
           child: _topWidget(),
