@@ -137,6 +137,9 @@
   "str_new_passphrase": "新密码",
   "str_confirm_new_passphrase": "确认新密码",
   "str_update_database_passphrase": "更新数据库密码",
-  "str_passphrase_hint1": "在您重启应用程序或者更换密码后安卓密钥库系统用来安全地保存密码。",
-  "str_passphrase_hint2": "请注意：如果您丢失密码，您将无法恢复或者更改密码。"
+  "str_passphrase_hint": "请注意：如果您丢失密码，您将无法恢复或者更改密码。",
+  "str_passphrase_current_error": "当前密码验证失败，请重新输入",
+  "str_passphrase_invalidate_tips": "至少8个字符 (例子：12345#Aa)",
+  "str_input_passphrase_empty_hint": "密码不能为空",
+  "str_input_confirm_error": "两次输入的密码不一致，请重新输入"
 }

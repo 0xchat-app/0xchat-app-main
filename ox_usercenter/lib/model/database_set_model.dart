@@ -61,6 +61,11 @@ enum DatabaseSetItemType {
   deleteDatabase
 }
 
+enum PassphraseEyeType{
+  currentPassphrase,
+  newPassphrase,
+  confirmPassPhrase
+}
 
 enum TimeType{
   never,

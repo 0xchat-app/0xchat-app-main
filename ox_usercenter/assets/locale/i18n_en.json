@@ -137,7 +137,9 @@
   "str_new_passphrase": "New passphrase",
   "str_confirm_new_passphrase": "Confirm new passphrase",
   "str_update_database_passphrase": "Update database passphrase",
-  "str_passphrase_hint1": "Keychain will be used to securely store passphrase after you restart the app or change passphrase.",
-  "str_passphrase_hint2": "You have to enter passphrase every time the app starts. \nPlease note: you will not be able to recover or change passphrase if you lose it."
-
+  "str_passphrase_hint": "Please note: you will not be able to recover or change passphrase if you lose it.",
+  "str_passphrase_current_error": "Current password verification failed, please re-enter",
+  "str_passphrase_invalidate_tips": "Password must be at least 8 characters(Eg: 12345#Aa)",
+  "str_input_passphrase_empty_hint": "Password cannot be empty",
+  "str_input_confirm_error": "The passwords entered do not match, please re-enter"
 }
