@@ -77,40 +77,33 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body() {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Adapt.px(30),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          Container(
-            color: ThemeColor.color200,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CommonImage(
-                  iconName: 'logo_icon.png',
-                  fit: BoxFit.contain,
-                  width: Adapt.px(180),
-                  height: Adapt.px(180),
-                  useTheme: true,
-                ),
-                SizedBox(height: Adapt.px(36)),
-                Container(
-                  child: Text(
-                    Localized.text('ox_login.login_tips'),
-                    style: TextStyle(color: ThemeColor.titleColor, fontSize: Adapt.px(18)),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(30),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            SizedBox(height: Adapt.px(12)),
+            CommonImage(
+              iconName: 'logo_icon.png',
+              fit: BoxFit.contain,
+              width: Adapt.px(180),
+              height: Adapt.px(180),
+              useTheme: true,
             ),
-          ),
-          Container(
-            color: ThemeColor.color200,
-            child: Column(
+            SizedBox(height: Adapt.px(36)),
+            Container(
+              child: Text(
+                Localized.text('ox_login.login_tips'),
+                style: TextStyle(color: ThemeColor.titleColor, fontSize: Adapt.px(18)),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: Adapt.px(110)),
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -247,8 +240,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
