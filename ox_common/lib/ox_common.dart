@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -52,6 +53,11 @@ class OXCommon extends OXFlutterModule {
   static Future<String> get platformVersion async {
     final String version = await channel.invokeMethod('getPlatformVersion');
     return version;
+  }
+
+  static Future<String> getDatabaseFilePath(String dbName) async {
+    final String filePath = await channel.invokeMethod('getDatabaseFilePath', {'dbName' :  dbName});
+    return filePath;
   }
 
   static Future<void> callSysShare(String filePath) async {
