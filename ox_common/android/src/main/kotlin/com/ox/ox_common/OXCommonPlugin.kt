@@ -45,6 +45,7 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private val SELECT = 601
     private val READ_IMAGE = 603
+    private val REQUEST_CODE_SELECT_FOLDER = 701
 
     private var mResult: Result? = null
     private var mIsNeedCrop = false
@@ -67,6 +68,10 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mResult = result
         _tempImageFileLocation = null
         when (call.method) {
+            "getDatabasePath" -> {
+                val databasefile = getDatabaseFile();
+                result.success(databasefile)
+            }
             "scan_path" -> {
                 val path = call.argument<String>("path")
                 val analyzeCallback: CodeUtils.AnalyzeCallback =
@@ -185,6 +190,8 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                             SELECT
                         )
                     }
+                } else if (requestCode == REQUEST_CODE_SELECT_FOLDER) {
+                    val uri = data?.data
                 }
                 false
             }
@@ -383,6 +390,10 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         shareIntent.putExtra(Intent.EXTRA_TEXT, "")
         //Customize the title of the selection box
         mActivity.startActivity(Intent.createChooser(shareIntent, "Share"))
+    }
+
+    private fun getDatabaseFile(): File {
+        return mActivity.getDatabasePath("your_database_name.db");
     }
 
 }

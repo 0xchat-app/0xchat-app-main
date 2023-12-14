@@ -106,7 +106,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.obscureText || widget.type == TextFieldType.password;
+    _obscureText = widget.obscureText;
     _captchaButtonEnable = widget.captchaButtonEnable;
     _captchaButtonTitle = widget.captchaButtonTitle;
     _errorTips = widget.errorTips;
@@ -204,6 +204,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   }
 
   Widget buildInputView(BuildContext context) {
+    print('Michael: ----_obscureText =${_obscureText}');
     return Container(
       height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(12)),
@@ -320,10 +321,10 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(margin: EdgeInsets.only(right: 4), child: _showClearButton ? buildClearButton(context) : emptyView(context)),
-        widget.type == TextFieldType.password || widget.obscureText == true
+        widget.type == TextFieldType.password
             ? Container(
                 margin: EdgeInsets.only(right: 4),
-                child: widget.type == TextFieldType.password || widget.obscureText == true ? buildObscureView(context) : Container())
+                child: buildObscureView(context))
             : Container(),
         widget.needCaptchaButton
             ? Container(
