@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
+import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -15,13 +17,17 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/widgets/common_toast.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/page/set_up/database_passphrase.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:ox_usercenter/widget/time_selector_dialog.dart';
+import 'package:pick_or_save/pick_or_save.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 
 ///Title: database_setting_page
@@ -40,7 +46,8 @@ class DatabaseSettingPage extends StatefulWidget {
 
 class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   bool _chatRunStatus = true;
-  TimeType _selectedTime = TimeType.never;
+  int _selectedTimeCode = TimeType.never.code;
+  TimeType _selectedTimeType = TimeType.never;
   List<DatabaseSetModel> _databaseModelList = [];
 
   @override
@@ -51,7 +58,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
 
   void loadData() async {
     _databaseModelList = DatabaseSetModel.getUIListData();
-    _selectedTime = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME, defaultValue: TimeType.never.text);
+    _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
+    _selectedTimeType = getType(_selectedTimeCode);
     _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, defaultValue: true);
     setState(() {});
   }
@@ -151,18 +159,24 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   abbrText('str_database_delete_msg_after'.localized(), 16, ThemeColor.color0),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _selectedTime.text,
-                        style: TextStyle(
-                          color: ThemeColor.color100,
-                          fontSize: 14.px,
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      _showDeleteTimeDialog();
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _selectedTimeType.text,
+                          style: TextStyle(
+                            color: ThemeColor.color100,
+                            fontSize: 14.px,
+                          ),
                         ),
-                      ),
-                      CommonImage(iconName: 'icon_database_delete_time_more.png', width: 24, height: 24, package: 'ox_usercenter'),
-                    ],
+                        CommonImage(iconName: 'icon_database_delete_time_more.png', width: 24, height: 24, package: 'ox_usercenter'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -219,6 +233,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         _exportDB();
         break;
       case DatabaseSetItemType.importDatabase:
+        _importDB();
         break;
       case DatabaseSetItemType.databaseArchive:
         break;
@@ -257,6 +272,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     await OXLoading.show();
     if (value != _chatRunStatus) {
       _chatRunStatus = value;
+      await Future.forEach(OXRelayManager.sharedInstance.relayModelList, (element) async {
+        await Connect.sharedInstance.closeConnect(element.relayName );
+      });
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
     }
     await OXLoading.dismiss();
@@ -266,34 +284,70 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   void _exportDB() async {
     String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     String dbFilePath = await OXCommon.getDatabaseFilePath(pubkey + ".db2");
-    LogUtil.e('Michael：_exportDB ---dbFile =${dbFilePath}');
-    String? outputDirectory = await pickFolder();
+    final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch)+'.db';
 
-    if (outputDirectory == null) {
+    _fileSaver(FileSaverParams(
+      saveFiles: [
+        SaveFileInfo(
+          fileName: fileName,
+          filePath: dbFilePath,
+        ),
+      ],
+    ));
+  }
+
+  void _importDB() async {
+    OXCommonHintDialog.show(
+      context,
+      title: 'str_import_db_dialog_title'.localized(),
+      content: 'str_import_db_dialog_content'.localized(),
+      isRowAction: true,
+      actionList: [
+        OXCommonHintAction(
+            text: () => Localized.text('ox_common.cancel'),
+            onTap: () {
+              OXNavigator.pop(context);
+            }),
+        OXCommonHintAction(
+            text: () => 'str_import_db_dialog_import'.localized(),
+            onTap: () async {
+              OXNavigator.pop(context);
+              File? file = await pickDatabaseFile();
+              LogUtil.e('Michael: ----file =${file?.path}');
+            }),
+      ],
+    );
+  }
+
+  Future<void> importDatabase(String path) async {
+    //Copy the file to the app's sandbox directory.
+    final Directory directory = await getApplicationDocumentsDirectory();
+    final String newPath = directory.path + '/imported_database.db';
+    await File(path).copy(newPath);
+
+    // TODO : open this database and read the data.
+  }
+
+
+  Future<File?> pickDatabaseFile() async {
+    LogUtil.e('Michael: -pickDatabaseFile---file.path  ');
+    const XTypeGroup typeGroup = XTypeGroup(
+      label: 'db',
+      extensions: <String>['db'],
+    );
+    final XFile? file =
+    await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+
+    if (file != null) {
+      LogUtil.e('Michael: -pickDatabaseFile---file.path =${file.path}');
+      return File(file.path);
+    } else {
       // User canceled the picker
-    } else {
-      await saveFileToSelectedFolder(dbFilePath, outputDirectory);
-      CommonToast.instance.show(context, 'Successfully saved to $outputDirectory.');
-    }
-  }
-
-  Future<String?> pickFolder() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-
-    if (selectedDirectory == null) {
-      // user cancel selected
-      print('No folder selected');
       return null;
-    } else {
-      print('Selected folder: $selectedDirectory');
-      return selectedDirectory;
     }
   }
 
-  Future<void> saveFileToSelectedFolder(String filePath, String targetFolderPath) async {
-    final fileName = '0xchat '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch);
-    final targetPath = '$targetFolderPath/$fileName.db';
-
+  Future<void> saveFileToSelectedFolder(String filePath, String targetPath) async {
     final File sourceFile = File(filePath);
     final File targetFile = File(targetPath);
 
@@ -305,4 +359,51 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     }
   }
 
+
+  final _pickOrSavePlugin = PickOrSave();
+  Future<List<String>?> _fileSaver(FileSaverParams params) async {
+    List<String>? result;
+    try {
+      result = await _pickOrSavePlugin.fileSaver(params: params);
+    } on PlatformException catch (e) {
+      print(e.toString());
+    } catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) return result;
+
+    return result;
+  }
+
+  TimeType getType(int value) {
+    switch (value) {
+      case 0:
+        return TimeType.never;
+      case 1:
+        return TimeType.oneMonth;
+      case 2:
+        return TimeType.oneWeek;
+      case 3:
+        return TimeType.oneDay;
+    }
+    return TimeType.never;
+  }
+
+  void _showDeleteTimeDialog() async {
+    var result = await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return const TimeSelectorDialog();
+      },
+    );
+    if (result != null) {
+      if (result is TimeType) {
+          _selectedTimeType = result;
+          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE,   _selectedTimeType.code);
+          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME,   _selectedTimeType.value);
+          setState(() {});
+      }
+    }
+  }
 }

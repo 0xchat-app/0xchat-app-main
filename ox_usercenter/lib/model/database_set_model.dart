@@ -87,4 +87,32 @@ extension TimeTypeEx on TimeType{
         return 'str_database_time_1_day'.localized();
     }
   }
+
+  int get code {
+    switch (this) {
+      case TimeType.never:
+        return 0;
+      case TimeType.oneMonth:
+        return 1;
+      case TimeType.oneWeek:
+        return 2;
+      case TimeType.oneDay:
+        return 3;
+    }
+  }
+
+  int get value {
+    switch (this) {
+      case TimeType.never:
+        return 0;
+      case TimeType.oneMonth:
+        return 30 * 24 * 60 * 60;
+      case TimeType.oneWeek:
+        return 7 * 24 * 60 * 60;
+      case TimeType.oneDay:
+        return 1 * 24 * 60 * 60;
+    }
+  }
+
+
 }

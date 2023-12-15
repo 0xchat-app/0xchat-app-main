@@ -79,7 +79,6 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
   }
 
   Widget _body() {
-    LogUtil.e('Michael: _body--- _newEyeStatus=$_newEyeStatus; _confirmEyeStatus =$_confirmEyeStatus');
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
@@ -128,7 +127,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
             child: DatabaseItemWidget(
               height: 48.px,
               title: 'str_update_database_passphrase',
-              titleTxtColor: _opacityUpdate == 1 ? ThemeColor.color0 : ThemeColor.color100,
+              titleTxtColor: _opacityUpdate == 1.0 ? ThemeColor.color0 : ThemeColor.color100,
               radiusCornerList: [16.px, 16.px, 16.px, 16.px],
               iconRightMargin: 8,
               iconName: 'icon_update.png',
@@ -171,7 +170,6 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
             _confirmEyeStatus = !_confirmEyeStatus;
             break;
         }
-        LogUtil.e('Michael: onTap--- _newEyeStatus=$_newEyeStatus; _confirmEyeStatus =$_confirmEyeStatus');
         setState(() {});
       },
       child: Container(
@@ -193,13 +191,16 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     } else {
       _opacityUpdate = 0.5;
     }
+    setState(() {});
   }
 
   void _confirmUpdateDialog(){
+    if (_opacityUpdate == 0.5) return;
     OXCommonHintDialog.show(
       context,
       title: 'str_change_database_passphrase_title'.localized(),
       content: 'str_change_database_passphrase_hint'.localized(),
+      isRowAction: true,
       actionList: [
         OXCommonHintAction(
             text: () => Localized.text('ox_common.cancel'),
@@ -209,6 +210,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
         OXCommonHintAction(
             text: () => 'str_update_database_pw'.localized(),
             onTap: () {
+              OXNavigator.pop(context);
               _clickUpdatePassphrase();
             }),
       ],
@@ -231,6 +233,5 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     String confirmPW = _confirmTeController.text.isEmpty ? '' : _confirmTeController.text;
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
     await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
-    LogUtil.e('Michael: -keychainWrite---passphrase =${confirmPW}');
   }
 }
