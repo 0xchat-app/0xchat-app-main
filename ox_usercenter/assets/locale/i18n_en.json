@@ -147,5 +147,8 @@
   "str_stop_button": "Stop",
   "str_change_database_passphrase_title": "Change database passphrase",
   "str_change_database_passphrase_hint": "Change database Database passphrase will be updated. Please note：you will NOT be able to change it if you lose it.",
-  "str_update_database_pw": "Update"
+  "str_update_database_pw": "Update",
+  "str_import_db_dialog_title": "Import chat database",
+  "str_import_db_dialog_content": "Your current chat database will be deleted and replaced with the imported database. This action cannot be undone — your profile, contacts, messages, and files will be irretrievably lost.",
+  "str_import_db_dialog_import": "Import"
 }

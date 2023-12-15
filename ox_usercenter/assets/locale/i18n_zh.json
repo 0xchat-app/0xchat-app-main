@@ -147,5 +147,9 @@
   "str_stop_button": "停止",
   "str_change_database_passphrase_title": "更新数据库密码",
   "str_change_database_passphrase_hint": "数据库加密密码将被更新。如果您丢失了密码，您将无法更改它。",
-  "str_update_database_pw": "更新"
+  "str_update_database_pw": "更新",
+  "str_import_db_dialog_title": "导入聊天数据库",
+  "str_import_db_dialog_content": "您当前的聊天数据库将被删除并替换为导入的数据库。此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
+  "str_import_db_dialog_import": "导入"
+
 }
