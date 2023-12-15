@@ -64,6 +64,7 @@ dependencies:
   url_launcher: ^6.0.0
   audioplayers: ^3.0.1
   local_auth: ^2.1.7
+  file_picker: ^6.1.1
 
   chatcore:
     path: ../../0xchat-core

@@ -67,6 +67,11 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mResult = result
         _tempImageFileLocation = null
         when (call.method) {
+            "getDatabaseFilePath" -> {
+                val dbName = call.argument<String>("dbName")
+                val databasefile = dbName?.let { getDatabaseFilePath(it) }
+                result.success(databasefile)
+            }
             "scan_path" -> {
                 val path = call.argument<String>("path")
                 val analyzeCallback: CodeUtils.AnalyzeCallback =
@@ -383,6 +388,10 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         shareIntent.putExtra(Intent.EXTRA_TEXT, "")
         //Customize the title of the selection box
         mActivity.startActivity(Intent.createChooser(shareIntent, "Share"))
+    }
+
+    private fun getDatabaseFilePath(dbName: String): String {
+        return mActivity.getDatabasePath(dbName).path;
     }
 
 }

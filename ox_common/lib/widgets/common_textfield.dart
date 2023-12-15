@@ -25,6 +25,7 @@ class CommonTextField extends StatefulWidget {
   final VoidCallback? actionOnPressed;
   final bool canHiddenInput;
   final bool isHiddenInput;
+  final bool needTopView;
 
   // InputView
   final String? countryCode;
@@ -35,7 +36,7 @@ class CommonTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextEditingController controller;
   final bool autofocus;
-  final bool obscureText;
+  bool obscureText;
   final bool? inputEnabled;
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
@@ -47,6 +48,7 @@ class CommonTextField extends StatefulWidget {
   final VoidCallback? captachaOnPressed;
   final bool captchaButtonEnable;
   final InputDecoration? decoration;
+  final Widget? leftWidget;
 
   /// Bottom tip
   CommonTextField({
@@ -62,6 +64,7 @@ class CommonTextField extends StatefulWidget {
     this.actionOnPressed,
     this.canHiddenInput = false,
     this.isHiddenInput = false,
+    this.needTopView = false,
     this.countryCode,
     this.countryImage,
     this.palceholderName,
@@ -81,6 +84,7 @@ class CommonTextField extends StatefulWidget {
     this.captchaButtonEnable = false,
     this.captchaButtonTitle,
     this.captachaOnPressed,
+    this.leftWidget,
   }) : super(key: key);
 
   @override
@@ -91,7 +95,6 @@ class CommonTextField extends StatefulWidget {
 
 class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   bool _showClearButton = false;
-  bool _obscureText = false;
   bool? _captchaButtonEnable = false;
   bool isHiddenInput = false;
   String? _captchaButtonTitle = '';
@@ -102,7 +105,6 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.obscureText || widget.type == TextFieldType.password;
     _captchaButtonEnable = widget.captchaButtonEnable;
     _captchaButtonTitle = widget.captchaButtonTitle;
     _errorTips = widget.errorTips;
@@ -141,9 +143,9 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          buildTopView(context),
+          widget.needTopView ? buildTopView(context) : SizedBox(),
           !isHiddenInput ? (widget.type == TextFieldType.phone ? buildPhoneInputView(context) : buildInputView(context)) : Container(),
-          !isHiddenInput ? buildBootomView(context) : Container()
+          !isHiddenInput ? buildBootomView(context) : SizedBox()
         ],
       ),
     );
@@ -201,21 +203,22 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   Widget buildInputView(BuildContext context) {
     return Container(
-      height: Adapt.px(50),
+      height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(12)),
       decoration: BoxDecoration(
-        color: ThemeColor.dark03,
+        color: ThemeColor.color180,
         borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
       ),
       child: Row(
         children: [
+          widget.leftWidget ?? SizedBox(),
           Expanded(
             child: TextField(
                 enabled: widget.inputEnabled,
                 autofocus: widget.autofocus,
                 style: Styles.textFieldStyles(),
                 controller: widget.controller,
-                obscureText: _obscureText,
+                obscureText: widget.obscureText,
                 onChanged: widget.onChanged,
                 onSubmitted: widget.onSubmitted,
                 keyboardType: widget.keyboardType,
@@ -233,10 +236,10 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   Widget buildPhoneInputView(BuildContext context) {
     return Container(
-      height: Adapt.px(50),
+      height: Adapt.px(48),
       margin: EdgeInsets.only(top: Adapt.px(6)),
       decoration: BoxDecoration(
-        color: ThemeColor.dark03,
+        color: ThemeColor.color180,
         borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4))),
       ),
       child: Row(
@@ -315,10 +318,10 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(margin: EdgeInsets.only(right: 4), child: _showClearButton ? buildClearButton(context) : emptyView(context)),
-        widget.type == TextFieldType.password || widget.obscureText == true
+        widget.type == TextFieldType.password
             ? Container(
                 margin: EdgeInsets.only(right: 4),
-                child: widget.type == TextFieldType.password || widget.obscureText == true ? buildObscureView(context) : Container())
+                child: buildObscureView(context))
             : Container(),
         widget.needCaptchaButton
             ? Container(
@@ -353,11 +356,11 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
   Widget buildObscureView(BuildContext context) {
     return OXButton(
         onPressed: () {
-          setObscureText(!_obscureText);
+          setObscureText(!widget.obscureText);
         },
         color: Colors.transparent,
         splashColor: Colors.transparent,
-        child: CommonImage(iconName: _obscureText ? 'icon_obscure.png' : 'icon_obscure_close.png', width: Adapt.px(24), height: Adapt.px(24)),
+        child: CommonImage(iconName: widget.obscureText ? 'icon_obscure.png' : 'icon_obscure_close.png', width: Adapt.px(24), height: Adapt.px(24)),
         minWidth: 1.0,
         height: 1.0);
   }
@@ -411,7 +414,7 @@ class CommonTextFieldState<T extends CommonTextField> extends State<T> {
 
   setObscureText(bool enable) {
     setState(() {
-      _obscureText = enable;
+      widget.obscureText = enable;
     });
   }
 
