@@ -150,7 +150,7 @@ class OXCommonHintDialog extends StatelessWidget {
               content ?? '',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: Adapt.px(16),
+                fontSize: Adapt.px(14),
                 fontWeight: FontWeight.w400,
                 color: ThemeColor.white02,
               ),
