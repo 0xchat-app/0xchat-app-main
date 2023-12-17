@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
@@ -25,7 +27,7 @@ import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
 import 'package:ox_usercenter/widget/time_selector_dialog.dart';
 import 'package:pick_or_save/pick_or_save.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -49,6 +51,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   int _selectedTimeCode = TimeType.never.code;
   TimeType _selectedTimeType = TimeType.never;
   List<DatabaseSetModel> _databaseModelList = [];
+  String _pubkey = '';
+  final _pickOrSavePlugin = PickOrSave();
 
   @override
   void initState() {
@@ -57,6 +61,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   }
 
   void loadData() async {
+    _pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     _databaseModelList = DatabaseSetModel.getUIListData();
     _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
     _selectedTimeType = getType(_selectedTimeCode);
@@ -282,9 +287,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   }
 
   void _exportDB() async {
-    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    String dbFilePath = await OXCommon.getDatabaseFilePath(pubkey + ".db2");
-    final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch)+'.db';
+    String dbFilePath = await OXCommon.getDatabaseFilePath(_pubkey + '.db2');
+    final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
 
     _fileSaver(FileSaverParams(
       saveFiles: [
@@ -313,54 +317,50 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
             onTap: () async {
               OXNavigator.pop(context);
               File? file = await pickDatabaseFile();
-              LogUtil.e('Michael: ----file =${file?.path}');
+              if (file != null) {
+                await _importDatabase(file.path);
+              }
             }),
       ],
     );
   }
 
-  Future<void> importDatabase(String path) async {
-    //Copy the file to the app's sandbox directory.
-    final Directory directory = await getApplicationDocumentsDirectory();
-    final String newPath = directory.path + '/imported_database.db';
-    await File(path).copy(newPath);
+  Future<void> _importDatabase(String path) async {
+    String dbNewPath = await OXCommon.getDatabaseFilePath('imported_database.db');
+    String dbOldPath = await OXCommon.getDatabaseFilePath(_pubkey + '.db2');
+    await File(path).copy(dbNewPath);
+    await replaceDatabase(dbOldPath, dbNewPath);
+    //TODO reload data
+  }
 
-    // TODO : open this database and read the data.
+  Future<void> replaceDatabase(String oldDbPath, String newDbPath) async {
+    try {
+      final oldDbFile = File(oldDbPath);
+      final newDbFile = File(newDbPath);
+      if (!await newDbFile.exists()) {
+        LogUtil.e("New database file does not exist.");
+      }
+      if (await oldDbFile.exists()) {
+        await oldDbFile.delete();
+      }
+      await newDbFile.rename(oldDbPath);
+      LogUtil.d('Database has been replaced successfully');
+    } catch (e) {
+      LogUtil.e('Failed to replace database: $e');
+    }
   }
 
 
   Future<File?> pickDatabaseFile() async {
-    LogUtil.e('Michael: -pickDatabaseFile---file.path  ');
-    const XTypeGroup typeGroup = XTypeGroup(
-      label: 'db',
-      extensions: <String>['db'],
-    );
-    final XFile? file =
-    await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
-
-    if (file != null) {
-      LogUtil.e('Michael: -pickDatabaseFile---file.path =${file.path}');
-      return File(file.path);
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
+      return File(result.files.single.path!);
     } else {
-      // User canceled the picker
       return null;
     }
   }
 
-  Future<void> saveFileToSelectedFolder(String filePath, String targetPath) async {
-    final File sourceFile = File(filePath);
-    final File targetFile = File(targetPath);
-
-    try {
-      await sourceFile.copy(targetFile.path);
-      print('File saved to $targetPath');
-    } catch (e) {
-      print('Failed to save file: $e');
-    }
-  }
-
-
-  final _pickOrSavePlugin = PickOrSave();
   Future<List<String>?> _fileSaver(FileSaverParams params) async {
     List<String>? result;
     try {
