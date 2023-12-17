@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -12,13 +12,12 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_textfield.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: database_passphrase
 ///Description: TODO(Fill in by oneself)
@@ -217,7 +216,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     );
   }
 
-  void _clickUpdatePassphrase() {
+  void _clickUpdatePassphrase() async {
     String tempCurrentPW = _currentTeController.text.isEmpty ? '' : _currentTeController.text;
     if (!_isOriginalPw && currentDBPW != tempCurrentPW) {
       OXCommonHintDialog.showConfirmDialog(context,
@@ -226,12 +225,24 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
       );
       return;
     }
-    keychainWrite();
+    await keychainWrite();
   }
 
-  void keychainWrite() async {
+  Future<void> keychainWrite() async {
     String confirmPW = _confirmTeController.text.isEmpty ? '' : _confirmTeController.text;
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
-    await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
+    try {
+      await changeDatabasePassword(currentDBPW, confirmPW);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
+    } catch (e) {
+      print(e.toString());
+    }
   }
+
+  Future<void> changeDatabasePassword(String currentPassword, String newPassword) async {
+    await DB.sharedInstance.execute("PRAGMA rekey = '$newPassword'");
+    await DB.sharedInstance.closDatabase();
+    await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: newPassword);
+  }
+
 }
