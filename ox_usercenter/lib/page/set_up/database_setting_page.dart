@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
@@ -23,14 +22,10 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/page/set_up/database_passphrase.dart';
+import 'package:ox_usercenter/utils/database_helper.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
 import 'package:ox_usercenter/widget/time_selector_dialog.dart';
-import 'package:pick_or_save/pick_or_save.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
-
-
 
 ///Title: database_setting_page
 ///Description: TODO(Fill in by oneself)
@@ -51,8 +46,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   int _selectedTimeCode = TimeType.never.code;
   TimeType _selectedTimeType = TimeType.never;
   List<DatabaseSetModel> _databaseModelList = [];
-  String _pubkey = '';
-  final _pickOrSavePlugin = PickOrSave();
+  int _cacheFileCount = 0;
+  String _cacheFileSize = '';
 
   @override
   void initState() {
@@ -61,11 +56,13 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   }
 
   void loadData() async {
-    _pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     _databaseModelList = DatabaseSetModel.getUIListData();
     _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
     _selectedTimeType = getType(_selectedTimeCode);
     _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, defaultValue: true);
+    _cacheFileCount = await DatabaseHelper.getCacheFileCount();
+    double cacheSize = await DatabaseHelper.getCacheSizeInMB();
+    _cacheFileSize = cacheSize.toStringAsFixed(4);
     setState(() {});
   }
 
@@ -114,7 +111,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         Opacity(
           opacity: _getItemOpacity(),
           child: DatabaseItemWidget(
-            onTapCall: () {},
+            onTapCall: () {
+              DatabaseHelper.deleteFileAndMedia(context);
+            },
             radiusCornerList: [16.px, 16.px, 16.px, 16.px],
             switchValue: _chatRunStatus,
             title: 'str_delete_all_files',
@@ -123,7 +122,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
           ),
         ),
         SizedBox(height: 12.px),
-        abbrText('str_delete_all_file_hint'.localized(), 12, ThemeColor.color100), //or like "1 file(s) with total size of 2.02 MB"
+        abbrText(_cacheFileCount == 0 ? 'str_delete_all_file_hint'.localized()
+            : 'str_delete_all_file_hint2'.localized({r'${count}': _cacheFileCount.toString(), r'${size}': _cacheFileSize}) , 12, ThemeColor.color100), //or like "1 file(s) with total size of 2.02 MB"
         SizedBox(height: 16.px),
       ],
     );
@@ -235,14 +235,15 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         OXNavigator.pushPage(context, (context) => const DatabasePassphrase());
         break;
       case DatabaseSetItemType.exportDatabase:
-        _exportDB();
+        DatabaseHelper.exportDB();
         break;
       case DatabaseSetItemType.importDatabase:
-        _importDB();
+        DatabaseHelper.importDB(context);
         break;
-      case DatabaseSetItemType.databaseArchive:
-        break;
+      // case DatabaseSetItemType.databaseArchive:
+      //   break;
       case DatabaseSetItemType.deleteDatabase:
+        DatabaseHelper.deleteDB(context);
         break;
     }
   }
@@ -286,95 +287,6 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     setState(() {});
   }
 
-  void _exportDB() async {
-    String dbFilePath = await OXCommon.getDatabaseFilePath(_pubkey + '.db2');
-    final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
-
-    _fileSaver(FileSaverParams(
-      saveFiles: [
-        SaveFileInfo(
-          fileName: fileName,
-          filePath: dbFilePath,
-        ),
-      ],
-    ));
-  }
-
-  void _importDB() async {
-    OXCommonHintDialog.show(
-      context,
-      title: 'str_import_db_dialog_title'.localized(),
-      content: 'str_import_db_dialog_content'.localized(),
-      isRowAction: true,
-      actionList: [
-        OXCommonHintAction(
-            text: () => Localized.text('ox_common.cancel'),
-            onTap: () {
-              OXNavigator.pop(context);
-            }),
-        OXCommonHintAction(
-            text: () => 'str_import_db_dialog_import'.localized(),
-            onTap: () async {
-              OXNavigator.pop(context);
-              File? file = await pickDatabaseFile();
-              if (file != null) {
-                await _importDatabase(file.path);
-              }
-            }),
-      ],
-    );
-  }
-
-  Future<void> _importDatabase(String path) async {
-    String dbNewPath = await OXCommon.getDatabaseFilePath('imported_database.db');
-    String dbOldPath = await OXCommon.getDatabaseFilePath(_pubkey + '.db2');
-    await File(path).copy(dbNewPath);
-    await replaceDatabase(dbOldPath, dbNewPath);
-    //TODO reload data
-  }
-
-  Future<void> replaceDatabase(String oldDbPath, String newDbPath) async {
-    try {
-      final oldDbFile = File(oldDbPath);
-      final newDbFile = File(newDbPath);
-      if (!await newDbFile.exists()) {
-        LogUtil.e("New database file does not exist.");
-      }
-      if (await oldDbFile.exists()) {
-        await oldDbFile.delete();
-      }
-      await newDbFile.rename(oldDbPath);
-      LogUtil.d('Database has been replaced successfully');
-    } catch (e) {
-      LogUtil.e('Failed to replace database: $e');
-    }
-  }
-
-
-  Future<File?> pickDatabaseFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
-      return File(result.files.single.path!);
-    } else {
-      return null;
-    }
-  }
-
-  Future<List<String>?> _fileSaver(FileSaverParams params) async {
-    List<String>? result;
-    try {
-      result = await _pickOrSavePlugin.fileSaver(params: params);
-    } on PlatformException catch (e) {
-      print(e.toString());
-    } catch (e) {
-      print(e.toString());
-    }
-    if (!mounted) return result;
-
-    return result;
-  }
-
   TimeType getType(int value) {
     switch (value) {
       case 0:
@@ -397,13 +309,13 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         return const TimeSelectorDialog();
       },
     );
-    if (result != null) {
-      if (result is TimeType) {
-          _selectedTimeType = result;
-          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE,   _selectedTimeType.code);
-          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME,   _selectedTimeType.value);
-          setState(() {});
-      }
+    if (result != null && result is TimeType) {
+      _selectedTimeType = result;
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, _selectedTimeType.code);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME, _selectedTimeType.value);
+      setState(() {});
     }
   }
+
+
 }

@@ -37,12 +37,12 @@ class DatabaseSetModel {
       title: 'str_database_import',
       settingItemType: DatabaseSetItemType.importDatabase,
     ));
-    settingModelList.add(DatabaseSetModel(
-      iconName: 'icon_database_archive.png',
-      title: 'str_old_database_archive',
-      showArrow: true,
-      settingItemType: DatabaseSetItemType.databaseArchive,
-    ));
+    // settingModelList.add(DatabaseSetModel(
+    //   iconName: 'icon_database_archive.png',
+    //   title: 'str_old_database_archive',
+    //   showArrow: true,
+    //   settingItemType: DatabaseSetItemType.databaseArchive,
+    // ));
     settingModelList.add(DatabaseSetModel(
       iconName: 'icon_database_delete.png',
       title: 'str_database_delete',
@@ -57,7 +57,7 @@ enum DatabaseSetItemType {
   databasePassphrase,
   exportDatabase,
   importDatabase,
-  databaseArchive,
+  // databaseArchive,
   deleteDatabase
 }
 

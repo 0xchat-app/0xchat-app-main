@@ -128,6 +128,7 @@
   "str_file_and_media": "文件和媒体",
   "str_delete_all_files": "删除所有文件",
   "str_delete_all_file_hint": "没有收到或发送的文件",
+  "str_delete_all_file_hint2": "${count}个文件，总大小为${size}MB",
   "str_database_time_never": "从不",
   "str_database_time_1_month": "1个月",
   "str_database_time_1_week": "1周",
@@ -150,6 +151,10 @@
   "str_update_database_pw": "更新",
   "str_import_db_dialog_title": "导入聊天数据库",
   "str_import_db_dialog_content": "您当前的聊天数据库将被删除并替换为导入的数据库。此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
-  "str_import_db_dialog_import": "导入"
-
+  "str_import_db_dialog_import": "导入",
+  "str_delete_chat_profile": "删除聊天资料？",
+  "str_delete_chat_profile_hint": "此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
+  "str_delete": "删除",
+  "str_delete_file_dialog_title": "删除文件和媒体文件？",
+  "str_delete_file_dialog_hint": "此操作无法撤销————所有接收和发送的文件和媒体都将被删除。"
 }

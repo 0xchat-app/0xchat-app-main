@@ -92,6 +92,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
             inputFormatters: [LengthLimitingTextInputFormatter(30)],
             focusNode: _currentFocusNode,
             decoration: _getInputDecoration('str_current_passphrase'.localized()),
+            obscureText: !_isOriginalPw && _currentEyeStatus,
             leftWidget: _isOriginalPw ? const SizedBox() : _getLeftWidget(_currentEyeStatus, PassphraseEyeType.currentPassphrase),
           ),
           CommonTextField(
@@ -232,8 +233,8 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     String confirmPW = _confirmTeController.text.isEmpty ? '' : _confirmTeController.text;
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
     try {
-      await changeDatabasePassword(currentDBPW, confirmPW);
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
+      await changeDatabasePassword(currentDBPW, confirmPW);
     } catch (e) {
       print(e.toString());
     }

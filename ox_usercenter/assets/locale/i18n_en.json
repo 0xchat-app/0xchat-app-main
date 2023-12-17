@@ -128,6 +128,7 @@
   "str_file_and_media": "FIle & media",
   "str_delete_all_files": "Delete all files",
   "str_delete_all_file_hint": "No received or sent files",
+  "str_delete_all_file_hint2": "${count} files with a total size of ${size} MB.",
   "str_database_time_never": "Never",
   "str_database_time_1_month": "1 month",
   "str_database_time_1_week": "1 week",
@@ -150,5 +151,10 @@
   "str_update_database_pw": "Update",
   "str_import_db_dialog_title": "Import chat database",
   "str_import_db_dialog_content": "Your current chat database will be deleted and replaced with the imported database. This action cannot be undone — your profile, contacts, messages, and files will be irretrievably lost.",
-  "str_import_db_dialog_import": "Import"
+  "str_import_db_dialog_import": "Import",
+  "str_delete_chat_profile": "Delete chat profile",
+  "str_delete_chat_profile_hint": "This action cannot be undone - your profile, contact, messages and files will be irreversibly lost.",
+  "str_delete": "Delete",
+  "str_delete_file_dialog_title": "Delete files and media?",
+  "str_delete_file_dialog_hint": "This action cannot be undone - all received and sent files and media will be deleted."
 }
