@@ -2,16 +2,18 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/widget/delete_files_selector_dialog.dart';
@@ -75,7 +77,7 @@ class DatabaseHelper{
               OXNavigator.pop(context);
               File? file = await pickDatabaseFile();
               if (file != null) {
-                await importDatabase(file.path);
+                await importDatabase(context, file.path);
               }
             }),
       ],
@@ -96,13 +98,26 @@ class DatabaseHelper{
     }
   }
 
-  static Future<void> importDatabase(String path) async {
-    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+  static Future<void> importDatabase(BuildContext context, String path) async {
+    String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    String currentDBPW = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubKey', defaultValue: '');
     String dbNewPath = await DB.sharedInstance.getDatabaseFilePath('imported_database.db');
-    String dbOldPath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
+    String dbOldPath = await DB.sharedInstance.getDatabaseFilePath(pubKey + '.db2');
     await File(path).copy(dbNewPath);
+    try {
+      await DB.sharedInstance.open('imported_database.db', version: 1, password: currentDBPW);
+    } catch (e) {
+      confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
+      return;
+    }
+    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    if (pubKey != userConfigDB.pubKey){
+      confirmDialog(context, 'str_import_db_error_title'.localized(), 'str_import_db_error_hint'.localized(), (){OXNavigator.pop(context);});
+      return;
+    }
     await replaceDatabase(dbOldPath, dbNewPath);
-    //TODO reload data
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, true);
+    confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
   }
 
   static Future<void> replaceDatabase(String oldDbPath, String newDbPath) async {
@@ -162,11 +177,6 @@ class DatabaseHelper{
       content: 'str_delete_login_dialog_hint'.localized(),
       isRowAction: true,
       actionList: [
-        // OXCommonHintAction(
-        //     text: () => Localized.text('ox_common.cancel'),
-        //     onTap: () {
-        //       OXNavigator.pop(context);
-        //     }),
         OXCommonHintAction(
             text: () => Localized.text('ox_common.ok'),
             onTap: () async {
@@ -271,5 +281,19 @@ class DatabaseHelper{
       });
     }
     return totalSize / (1024 * 1024);
+  }
+
+  static void confirmDialog( BuildContext context, String titleStr, String contentStr, Function onTap) {
+    OXCommonHintDialog.show(
+      context,
+      title: titleStr,
+      content: contentStr,
+      isRowAction: true,
+      actionList: [
+        OXCommonHintAction(
+            text: () => Localized.text('ox_common.ok'),
+            onTap: onTap),
+      ],
+    );
   }
 }

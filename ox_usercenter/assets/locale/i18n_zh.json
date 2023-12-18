@@ -152,11 +152,16 @@
   "str_import_db_dialog_title": "导入聊天数据库",
   "str_import_db_dialog_content": "您当前的聊天数据库将被删除并替换为导入的数据库。此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
   "str_import_db_dialog_import": "导入",
+  "str_import_db_error_title": "导入聊天数据库错误",
+  "str_import_db_error_hint": "无法导入他人账户，请导入自己的数据库",
+  "str_import_db_success": "聊天数据库已导入",
+  "str_import_db_success_hint": "重新启动应用程序以使用导入的聊天数据库。",
   "str_delete_chat_profile": "删除聊天资料？",
   "str_delete_chat_profile_hint": "此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
   "str_delete": "删除",
   "str_delete_file_dialog_title": "删除文件和媒体文件？",
   "str_delete_file_dialog_hint": "此操作无法撤销————所有接收和发送的文件和媒体都将被删除。",
   "str_delete_login_dialog_title": "聊天数据库已删除",
-  "str_delete_login_dialog_hint": "重新登录以创建新的聊天资料。"
+  "str_delete_login_dialog_hint": "重新登录以创建新的聊天资料。",
+  "str_update_pw_success": "数据库密码更新成功。"
 }

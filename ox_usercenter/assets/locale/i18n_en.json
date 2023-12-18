@@ -152,11 +152,16 @@
   "str_import_db_dialog_title": "Import chat database",
   "str_import_db_dialog_content": "Your current chat database will be deleted and replaced with the imported database. This action cannot be undone — your profile, contacts, messages, and files will be irretrievably lost.",
   "str_import_db_dialog_import": "Import",
+  "str_import_db_error_title": "Error importing chat database",
+  "str_import_db_error_hint": "Unable to import another person's account, please import your own database.",
+  "str_import_db_success": "Chat database imported",
+  "str_import_db_success_hint": "Restart the app to use imported chat database.",
   "str_delete_chat_profile": "Delete chat profile",
   "str_delete_chat_profile_hint": "This action cannot be undone - your profile, contact, messages and files will be irreversibly lost.",
   "str_delete": "Delete",
   "str_delete_file_dialog_title": "Delete files and media?",
   "str_delete_file_dialog_hint": "This action cannot be undone - all received and sent files and media will be deleted.",
   "str_delete_login_dialog_title": "Chat database deleted",
-  "str_delete_login_dialog_hint": "Log in again to create a new chat profile."
+  "str_delete_login_dialog_hint": "Log in again to create a new chat profile.",
+  "str_update_pw_success": "Database password updated successfully."
 }

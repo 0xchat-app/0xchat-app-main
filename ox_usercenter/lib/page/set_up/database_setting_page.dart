@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -242,7 +244,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     }
   }
 
-  void _stopConfirmDialog(bool value) {
+  void _stopConfirmDialog(bool value) async {
     if (_chatRunStatus) {
       OXCommonHintDialog.show(
         context,
@@ -265,6 +267,13 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
       );
     } else {
       _onChangedChatRunStatus(value);
+      bool isImportDB = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, defaultValue: false);
+      if (isImportDB) {
+        await OXLoading.show();
+        await OXUserInfoManager.sharedInstance.initLocalData();
+        await OXLoading.dismiss();
+        OXNavigator.pop(context);
+      }
     }
   }
 
@@ -272,9 +281,13 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     await OXLoading.show();
     if (value != _chatRunStatus) {
       _chatRunStatus = value;
-      await Future.forEach(OXRelayManager.sharedInstance.relayModelList, (element) async {
-        await Connect.sharedInstance.closeConnect(element.relayName );
-      });
+      if (_chatRunStatus) {
+        Connect.sharedInstance.connectRelays(OXRelayManager.sharedInstance.relayAddressList);
+      } else {
+        await Future.forEach(OXRelayManager.sharedInstance.relayModelList, (element) async {
+          await Connect.sharedInstance.closeConnect(element.relayName);
+        });
+      }
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
     }
     await OXLoading.dismiss();

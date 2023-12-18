@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_textfield.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
@@ -88,7 +89,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
             type: TextFieldType.normal,
             keyboardType: TextInputType.visiblePassword,
             needTopView: true,
-            title: 'Current Passphrase',
+            title: _isOriginalPw ? 'str_current_passphrase'.localized() : null,
             inputFormatters: [LengthLimitingTextInputFormatter(30)],
             focusNode: _currentFocusNode,
             decoration: _getInputDecoration('str_current_passphrase'.localized()),
@@ -234,10 +235,12 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
     try {
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
+      CommonToast.instance.show(context, 'str_update_pw_success'.localized());
       await changeDatabasePassword(currentDBPW, confirmPW);
     } catch (e) {
       print(e.toString());
     }
+    OXNavigator.pop(context);
   }
 
   Future<void> changeDatabasePassword(String currentPassword, String newPassword) async {
