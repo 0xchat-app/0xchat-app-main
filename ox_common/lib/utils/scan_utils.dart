@@ -118,7 +118,7 @@ class ScanUtils {
     } else {
       if (context.mounted) {
         OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-          'pubkey': user.pubkey,
+          'pubkey': user.pubKey,
         });
       }
     }

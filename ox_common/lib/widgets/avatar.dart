@@ -117,7 +117,7 @@ class OXUserAvatarState extends State<OXUserAvatar> {
           return ;
         }
         await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-          'userDB': user,
+          'pubkey': user.pubKey,
           'chatId': widget.chatId,
           'isSecretChat':widget.isSecretChat
         });
