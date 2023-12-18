@@ -14,6 +14,8 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 
 class ChatDataCache with OXChatObserver {
 
@@ -472,7 +474,12 @@ extension ChatDataCacheEx on ChatDataCache {
 
     List<MessageDB> allMessage = result;
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    int msgDeletePeriod = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: 0);
     await Future.forEach(allMessage, (message) async {
+      if(msgDeletePeriod > 0 && message.createTime + msgDeletePeriod < currentTime){
+        Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
+        return;
+      }
       if(message.expiration != null && message.expiration! < currentTime){
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
         return;
