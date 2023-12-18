@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
+
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -18,7 +13,6 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/page/set_up/database_passphrase.dart';

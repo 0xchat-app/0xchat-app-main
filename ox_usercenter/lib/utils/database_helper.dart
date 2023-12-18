@@ -28,17 +28,18 @@ class DatabaseHelper{
 
   static void exportDB() async {
     String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    String dbFilePath = await OXCommon.getDatabaseFilePath(pubkey + '.db2');
+    String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
     final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
-
-    fileSaver(FileSaverParams(
-      saveFiles: [
-        SaveFileInfo(
-          fileName: fileName,
-          filePath: dbFilePath,
-        ),
-      ],
-    ));
+    if (Platform.isAndroid) {
+      fileSaver(FileSaverParams(
+        saveFiles: [
+          SaveFileInfo(
+            fileName: fileName,
+            filePath: dbFilePath,
+          ),
+        ],
+      ));
+    } else if (Platform.isIOS) {}
   }
 
   static Future<List<String>?> fileSaver(FileSaverParams params) async {
@@ -81,19 +82,23 @@ class DatabaseHelper{
   }
 
   static Future<File?> pickDatabaseFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
-      return File(result.files.single.path!);
-    } else {
-      return null;
+    if (Platform.isAndroid) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
+        return File(result.files.single.path!);
+      } else {
+        return null;
+      }
+    } else if (Platform.isIOS) {
+
     }
   }
 
   static Future<void> importDatabase(String path) async {
     String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    String dbNewPath = await OXCommon.getDatabaseFilePath('imported_database.db');
-    String dbOldPath = await OXCommon.getDatabaseFilePath(pubkey + '.db2');
+    String dbNewPath = await DB.sharedInstance.getDatabaseFilePath('imported_database.db');
+    String dbOldPath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
     await File(path).copy(dbNewPath);
     await replaceDatabase(dbOldPath, dbNewPath);
     //TODO reload data
