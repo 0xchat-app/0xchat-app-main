@@ -83,7 +83,7 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => ContactUserInfoPage(
-            pubkey: params?['userDB']?.pubkey,
+            pubkey: params?['pubkey'],
             chatId: params?['chatId'],
             isSecretChat: params?['isSecretChat'] ?? false,
           ),
