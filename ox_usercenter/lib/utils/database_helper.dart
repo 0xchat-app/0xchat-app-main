@@ -8,6 +8,7 @@ import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/date_utils.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -42,7 +43,9 @@ class DatabaseHelper{
           ),
         ],
       ));
-    } else if (Platform.isIOS) {}
+    } else if (Platform.isIOS) {
+      FileUtils.exportFileIOS(dbFilePath);
+    }
   }
 
   static Future<List<String>?> fileSaver(FileSaverParams params) async {
@@ -90,12 +93,14 @@ class DatabaseHelper{
       if (result != null) {
         LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
         return File(result.files.single.path!);
-      } else {
-        return null;
       }
     } else if (Platform.isIOS) {
-
+      final filePath = await FileUtils.importFileIOS();
+      if (filePath.isNotEmpty) {
+        return File(filePath);
+      }
     }
+    return null;
   }
 
   static Future<void> importDatabase(BuildContext context, String path) async {
