@@ -17,5 +17,5 @@ class StorageKeyTool {
   static const String KEY_CHAT_MSG_DELETE_TIME_TYPE = "KEY_CHAT_MSG_DELETE_TIME_TYPE";
   static const String KEY_CHAT_MSG_DELETE_TIME = "KEY_CHAT_MSG_DELETE_TIME";
   static const String KEY_IS_ORIGINAL_PASSPHRASE = "KEY_IS_ORIGINAL_PASSPHRASE";
-
+  static const String KEY_CHAT_IMPORT_DB = "KEY_CHAT_IMPORT_DB";
 }

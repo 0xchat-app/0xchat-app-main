@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -129,7 +130,7 @@ class OXUserInfoManager {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, userDB.defaultPassword);
-    LogUtil.e('Michael: data loginSuccess friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
+    UserConfigTool.updateUserConfigDB(UserConfigDB(pubKey: userDB.pubKey));
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -138,69 +139,69 @@ class OXUserInfoManager {
 
   void addChatCallBack() async {
     Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDB ssDB) async {
-      LogUtil.e("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
+      LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatAcceptCallBack ssDB.sessionId =${ssDB.sessionId}");
+      LogUtil.d("Michael: init secretChatAcceptCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatAcceptCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatRejectCallBack ssDB.sessionId =${ssDB.sessionId}");
+      LogUtil.d("Michael: init secretChatRejectCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRejectCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatUpdateCallBack ssDB.sessionId =${ssDB.sessionId}");
+      LogUtil.d("Michael: init secretChatUpdateCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatUpdateCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
-      LogUtil.e("Michael: init secretChatCloseCallBack");
+      LogUtil.d("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
     Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
-      LogUtil.e("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
+      LogUtil.d("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.secretChatMessageCallBack(message);
     };
     Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
-      LogUtil.e("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
+      LogUtil.d("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
     Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
-      LogUtil.e('Michael: init  channelMessageCallBack');
+      LogUtil.d('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);
     };
     Groups.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
-      LogUtil.e('Michael: init  groupMessageCallBack');
+      LogUtil.d('Michael: init  groupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
 
     Contacts.sharedInstance.contactUpdatedCallBack = () {
-      LogUtil.e("Michael: init contactUpdatedCallBack");
+      LogUtil.d("Michael: init contactUpdatedCallBack");
       _fetchFinishHandler(_ContactType.contacts);
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
       OXChatBinding.sharedInstance.syncSessionTypesByContact();
     };
     Channels.sharedInstance.myChannelsUpdatedCallBack = () async {
-      LogUtil.e('Michael: init  myChannelsUpdatedCallBack');
+      LogUtil.d('Michael: init  myChannelsUpdatedCallBack');
       _fetchFinishHandler(_ContactType.channels);
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
     };
     Groups.sharedInstance.myGroupsUpdatedCallBack = () async {
-      LogUtil.e('Michael: init  myGroupsUpdatedCallBack');
+      LogUtil.d('Michael: init  myGroupsUpdatedCallBack');
       _fetchFinishHandler(_ContactType.groups);
       OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
 
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
-      LogUtil.e('Michael: init  offlinePrivateMessageFinishCallBack');
+      LogUtil.d('Michael: init  offlinePrivateMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
     };
     Contacts.sharedInstance.offlineSecretMessageFinishCallBack = () {
-      LogUtil.e('Michael: init  offlineSecretMessageFinishCallBack');
+      LogUtil.d('Michael: init  offlineSecretMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlineSecretMessageFinishCallBack();
     };
     Channels.sharedInstance.offlineChannelMessageFinishCallBack = () {
-      LogUtil.e('Michael: init  offlineChannelMessageFinishCallBack');
+      LogUtil.d('Michael: init  offlineChannelMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
@@ -222,7 +223,8 @@ class OXUserInfoManager {
       return;
     }
     Account.sharedInstance.logout();
-    LogUtil.e('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
+    UserConfigTool.clearUserConfigFromDB();
+    LogUtil.d('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
@@ -297,6 +299,7 @@ class OXUserInfoManager {
   }
 
   void _initDatas() async {
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, true);
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
