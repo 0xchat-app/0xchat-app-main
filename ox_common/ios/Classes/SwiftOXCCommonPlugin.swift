@@ -20,8 +20,6 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     
-    
-    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         print("=====>ox_common \(call.method)")
         self.result = result
@@ -85,11 +83,26 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
                 OXCQRCodeHelper.detectBarCode(UIImage.init(contentsOfFile: path), result: result)
             }
             break;
+        case "exportFile":
+            guard let controller = UIApplication.shared.delegate?.window??.rootViewController else {
+                return
+            }
+            guard let filePath = (call.arguments as? [String: String])?["filePath"] else {
+                return
+            }
+            OXCFileHelper.exportFile(atPath: filePath, sender: controller)
+        case "importFile":
+            guard let controller = UIApplication.shared.delegate?.window??.rootViewController else {
+                result("")
+                return
+            }
+            OXCFileHelper.importFile(sender: controller) { filePath in
+                result(filePath)
+            }
         default:
             break;
         }
     }
-    
     
     func getDeviceId(result:FlutterResult) {
         if let uuid = UserDefaults.standard.string(forKey: "com.ox.super_main.uuid") {

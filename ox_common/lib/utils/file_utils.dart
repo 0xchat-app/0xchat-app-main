@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 
+import '../ox_common.dart';
 
-class FileUtils{
 
-
+class FileUtils {
   static Future<void> unzip(String zipPath,String unzipPath) async{
 
     if(await File(zipPath).exists()){
@@ -60,5 +60,19 @@ class FileUtils{
       print('File already exists: $fileName');
     }
     return file;
+  }
+
+  static void exportFileIOS(String filePath) {
+    if (!Platform.isIOS) {
+      throw Exception('exportFileIOS is only available on iOS');
+    }
+    OXCommon.channel.invokeMethod('exportFile', {'filePath': filePath});
+  }
+
+  static Future<String>importFileIOS() async {
+    if (!Platform.isIOS) {
+      throw Exception('importFileIOS is only available on iOS');
+    }
+    return await OXCommon.channel.invokeMethod<String>('importFile') ?? '';
   }
 }
