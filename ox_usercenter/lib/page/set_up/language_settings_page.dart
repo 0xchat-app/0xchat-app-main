@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -93,18 +94,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   Widget _buildItem(String label,{int? index}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async {
-        final selectedIndex = index ?? 0;
-        setState(() {
-          _isShowLoading = true;
-          _selectedIndex = selectedIndex;
-        });
-        _controller.repeat();
-        await Localized.changeLocale(LocaleType.values[selectedIndex]);
-        setState(() {
-          _isShowLoading = false;
-          _controller.stop();
-        });
+      onTap: (){
+        _itemOnTap(index);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
@@ -146,5 +137,22 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   void dispose() {
     super.dispose();
     _controller.dispose();
+  }
+
+  void _itemOnTap(int? index) async {
+    final selectedIndex = index ?? 0;
+    setState(() {
+      _isShowLoading = true;
+      _selectedIndex = selectedIndex;
+    });
+    _controller.repeat();
+    await Localized.changeLocale(LocaleType.values[selectedIndex]);
+    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    userConfigDB.languageIndex = selectedIndex;
+    UserConfigTool.updateUserConfigDB(userConfigDB);
+    setState(() {
+      _isShowLoading = false;
+      _controller.stop();
+    });
   }
 }
