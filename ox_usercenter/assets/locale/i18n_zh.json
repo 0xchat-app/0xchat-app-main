@@ -156,5 +156,7 @@
   "str_delete_chat_profile_hint": "此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
   "str_delete": "删除",
   "str_delete_file_dialog_title": "删除文件和媒体文件？",
-  "str_delete_file_dialog_hint": "此操作无法撤销————所有接收和发送的文件和媒体都将被删除。"
+  "str_delete_file_dialog_hint": "此操作无法撤销————所有接收和发送的文件和媒体都将被删除。",
+  "str_delete_login_dialog_title": "聊天数据库已删除",
+  "str_delete_login_dialog_hint": "重新登录以创建新的聊天资料。"
 }

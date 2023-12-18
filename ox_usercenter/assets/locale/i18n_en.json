@@ -156,5 +156,7 @@
   "str_delete_chat_profile_hint": "This action cannot be undone - your profile, contact, messages and files will be irreversibly lost.",
   "str_delete": "Delete",
   "str_delete_file_dialog_title": "Delete files and media?",
-  "str_delete_file_dialog_hint": "This action cannot be undone - all received and sent files and media will be deleted."
+  "str_delete_file_dialog_hint": "This action cannot be undone - all received and sent files and media will be deleted.",
+  "str_delete_login_dialog_title": "Chat database deleted",
+  "str_delete_login_dialog_hint": "Log in again to create a new chat profile."
 }

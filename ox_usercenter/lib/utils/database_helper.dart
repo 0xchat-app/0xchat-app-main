@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/widget/delete_files_selector_dialog.dart';
@@ -141,12 +142,36 @@ class DatabaseHelper{
               OXNavigator.pop(context);
               try {
                 await OXLoading.show();
+                await OXUserInfoManager.sharedInstance.logout();
                 await DB.sharedInstance.closDatabase();
                 await DB.sharedInstance.deleteDatabaseFile(pubkey + '.db2');
               } catch (e) {
                 print(e.toString());
               }
               await OXLoading.dismiss();
+              deleteDBAndLoginDialog(context);
+            }),
+      ],
+    );
+  }
+
+  static void deleteDBAndLoginDialog(context) {
+    OXCommonHintDialog.show(
+      context,
+      title: 'str_delete_login_dialog_title'.localized(),
+      content: 'str_delete_login_dialog_hint'.localized(),
+      isRowAction: true,
+      actionList: [
+        // OXCommonHintAction(
+        //     text: () => Localized.text('ox_common.cancel'),
+        //     onTap: () {
+        //       OXNavigator.pop(context);
+        //     }),
+        OXCommonHintAction(
+            text: () => Localized.text('ox_common.ok'),
+            onTap: () async {
+              OXNavigator.pop(context);
+              OXNavigator.pop(context);
             }),
       ],
     );
