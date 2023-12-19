@@ -151,8 +151,8 @@ class _PasscodePageState extends State<PasscodePage> {
   void inputError() {
     OXCommonHintDialog.show(
       context,
-      title: 'Failed',
-      content: 'Passcode mismatch. Please try again.',
+      title: 'str_mismatch_title'.localized(),
+      content: 'str_mismatch_try_hint'.localized(),
       actionList: [
         OXCommonHintAction(
             text: () => 'OK',
