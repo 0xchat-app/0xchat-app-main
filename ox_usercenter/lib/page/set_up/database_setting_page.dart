@@ -231,7 +231,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         OXNavigator.pushPage(context, (context) => const DatabasePassphrase());
         break;
       case DatabaseSetItemType.exportDatabase:
-        DatabaseHelper.exportDB();
+        DatabaseHelper.exportDB(context);
         break;
       case DatabaseSetItemType.importDatabase:
         DatabaseHelper.importDB(context);
@@ -266,10 +266,12 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         ],
       );
     } else {
-      _onChangedChatRunStatus(value);
+      await _onChangedChatRunStatus(value);
       bool isImportDB = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, defaultValue: false);
       if (isImportDB) {
+        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, false);
         await OXLoading.show();
+        OXUserInfoManager.sharedInstance.resetData();
         await OXUserInfoManager.sharedInstance.initLocalData();
         await OXLoading.dismiss();
         OXNavigator.pop(context);
@@ -277,7 +279,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     }
   }
 
-  void _onChangedChatRunStatus(bool value) async {
+  Future<void> _onChangedChatRunStatus(bool value) async {
     await OXLoading.show();
     if (value != _chatRunStatus) {
       _chatRunStatus = value;

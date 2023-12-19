@@ -163,5 +163,6 @@
   "str_delete_file_dialog_hint": "This action cannot be undone - all received and sent files and media will be deleted.",
   "str_delete_login_dialog_title": "Chat database deleted",
   "str_delete_login_dialog_hint": "Log in again to create a new chat profile.",
-  "str_update_pw_success": "Database password updated successfully."
+  "str_update_pw_success": "Database password updated successfully.",
+  "str_change_default_pw_hint": "Please change the original database password first."
 }

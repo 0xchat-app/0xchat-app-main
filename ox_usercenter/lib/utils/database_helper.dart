@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -30,21 +31,26 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 ///CreateTime: 2023/12/17 19:18
 class DatabaseHelper{
 
-  static void exportDB() async {
-    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
-    final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
-    if (Platform.isAndroid) {
-      fileSaver(FileSaverParams(
-        saveFiles: [
-          SaveFileInfo(
-            fileName: fileName,
-            filePath: dbFilePath,
-          ),
-        ],
-      ));
-    } else if (Platform.isIOS) {
-      FileUtils.exportFileIOS(dbFilePath);
+  static void exportDB(BuildContext context) async {
+    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
+    if (isChanged) {
+      String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+      String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
+      final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
+      if (Platform.isAndroid) {
+        fileSaver(FileSaverParams(
+          saveFiles: [
+            SaveFileInfo(
+              fileName: fileName,
+              filePath: dbFilePath,
+            ),
+          ],
+        ));
+      } else if (Platform.isIOS) {
+        FileUtils.exportFileIOS(dbFilePath);
+      }
+    } else {
+      confirmDialog(context, Localized.text('ox_common.tips'), 'str_change_default_pw_hint'.localized(), (){OXNavigator.pop(context);});
     }
   }
 
@@ -63,6 +69,11 @@ class DatabaseHelper{
   }
 
   static void importDB(BuildContext context) async {
+    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
+    if (!isChanged) {
+      confirmDialog(context, Localized.text('ox_common.tips'), 'str_change_default_pw_hint'.localized(), (){OXNavigator.pop(context);});
+      return;
+    }
     OXCommonHintDialog.show(
       context,
       title: 'str_import_db_dialog_title'.localized(),
@@ -91,7 +102,6 @@ class DatabaseHelper{
     if (Platform.isAndroid) {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result != null) {
-        LogUtil.d('Michael: ----result.files.single.path =${result.files.single.path}');
         return File(result.files.single.path!);
       }
     } else if (Platform.isIOS) {
@@ -110,7 +120,8 @@ class DatabaseHelper{
     String dbOldPath = await DB.sharedInstance.getDatabaseFilePath(pubKey + '.db2');
     await File(path).copy(dbNewPath);
     try {
-      await DB.sharedInstance.open('imported_database.db', version: 1, password: currentDBPW);
+      await DB.sharedInstance.closDatabase();
+      await DB.sharedInstance.open('imported_database.db', version: CommonConstant.dbVersion, password: currentDBPW);
     } catch (e) {
       confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
       return;
@@ -120,6 +131,7 @@ class DatabaseHelper{
       confirmDialog(context, 'str_import_db_error_title'.localized(), 'str_import_db_error_hint'.localized(), (){OXNavigator.pop(context);});
       return;
     }
+    await DB.sharedInstance.closDatabase();
     await replaceDatabase(dbOldPath, dbNewPath);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
@@ -133,7 +145,6 @@ class DatabaseHelper{
         LogUtil.e("New database file does not exist.");
       }
       if (await oldDbFile.exists()) {
-        await DB.sharedInstance.closDatabase();
         await oldDbFile.delete();
       }
       await newDbFile.rename(oldDbPath);

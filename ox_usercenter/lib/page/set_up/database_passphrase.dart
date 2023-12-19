@@ -235,6 +235,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
     try {
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, true);
       CommonToast.instance.show(context, 'str_update_pw_success'.localized());
       await changeDatabasePassword(currentDBPW, confirmPW);
     } catch (e) {
