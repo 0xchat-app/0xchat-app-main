@@ -81,7 +81,6 @@ class OXUserInfoManager {
     ///account auto-login
     final String? localPriv = await OXCacheManager.defaultOXCacheManager.getForeverData('PrivKey');
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
-    final String? localDefaultPw = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD);
     final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
     if (localPriv != null && localPriv.isNotEmpty) {
       OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
@@ -98,7 +97,6 @@ class OXUserInfoManager {
         currentUserInfo = Account.sharedInstance.me;
         _initDatas();
         await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, tempUserDB.pubKey);
-        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, tempUserDB.defaultPassword);
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
       await initDB(localPubKey);
@@ -108,9 +106,10 @@ class OXUserInfoManager {
         _initDatas();
         _initFeedback();
       }
-    } else if (localPubKey != null && localPubKey.isNotEmpty && localDefaultPw != null && localDefaultPw.isNotEmpty) {
+    } else if (localPubKey != null && localPubKey.isNotEmpty) {
       await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey, localDefaultPw);
+      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+      LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
         _initDatas();
@@ -129,7 +128,6 @@ class OXUserInfoManager {
   Future<void> loginSuccess(UserDB userDB) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, userDB.defaultPassword);
     UserConfigTool.updateUserConfigDB(UserConfigDB(pubKey: userDB.pubKey));
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
@@ -226,8 +224,14 @@ class OXUserInfoManager {
     UserConfigTool.clearUserConfigFromDB();
     LogUtil.d('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DEFAULT_PASSWORD, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
+    resetData();
+    for (OXUserInfoObserver observer in _observers) {
+      observer.didLogout();
+    }
+  }
+
+  void resetData() async {
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,
@@ -236,9 +240,6 @@ class OXUserInfoManager {
     };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();
-    for (OXUserInfoObserver observer in _observers) {
-      observer.didLogout();
-    }
   }
 
   bool isCurrentUser(String userID) {
