@@ -10,6 +10,7 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/ox_home.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_common/event_bus.dart';
@@ -103,7 +104,7 @@ class MainState extends State<MainApp>
     with WidgetsBindingObserver, OXUserInfoObserver {
   late StreamSubscription wsSwitchStateListener;
   StreamSubscription? cacheTimeEventListener;
-  Timer? _refreshDnsTimer;
+  int lastUserInteractionTime = 0;
 
   @override
   void initState() {
@@ -139,8 +140,6 @@ class MainState extends State<MainApp>
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     wsSwitchStateListener.cancel();
-    _refreshDnsTimer?.cancel();
-    _refreshDnsTimer = null;
   }
 
   onThemeStyleChange() {
@@ -232,13 +231,22 @@ class MainState extends State<MainApp>
       case AppLifecycleState.resumed:
         if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
         getOpenAppSchemeInfo();
+        if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
+          lastUserInteractionTime = 0;
+          showPasswordDialog();
+        }
         break;
       case AppLifecycleState.paused:
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
+        lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         break;
       default:
         break;
     }
+  }
+  void showPasswordDialog() {
+    if (OXNavigator.navigatorKey.currentContext != null)
+      OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
   }
 }
 
