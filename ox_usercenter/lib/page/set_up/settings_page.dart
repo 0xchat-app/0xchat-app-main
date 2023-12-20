@@ -26,6 +26,7 @@ import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cashu_dart/api/cashu_api.dart';
 import 'package:chatcore/chat-core.dart';
 
 ///Title: settings_page
@@ -262,6 +263,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.ice) {
           OXNavigator.pushPage(context, (context) => ICEServerPage());
+        } else {
+          CashuAPI.test();
         }
       },
       child: _itemView(
