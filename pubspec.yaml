@@ -85,6 +85,7 @@ dev_dependencies:
 
 dependency_overrides:
   collection: ^1.18.0
+  logging: 1.1.1
   sqflite:
     git:
       url: https://www.github.com/davidmartos96/sqflite_sqlcipher.git

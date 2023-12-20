@@ -13,3 +13,6 @@
 [submodule "packages/flutter-webrtc"]
 	path = packages/flutter-webrtc
 	url = git@github.com:0xchat-app/flutter-webrtc.git
+[submodule "packages/cashu-dart"]
+	path = packages/cashu-dart
+	url = git@github.com:0xchat-app/cashu-dart.git
