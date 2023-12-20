@@ -68,6 +68,8 @@ dependencies:
 
   chatcore:
     path: ../../0xchat-core
+  cashu_dart:
+    path: ../../cashu-dart
   ox_cache_manager:
     path: ../ox_cache_manager
   ox_theme:
