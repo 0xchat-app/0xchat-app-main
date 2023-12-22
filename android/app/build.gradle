@@ -1,3 +1,8 @@
+plugins {
+  id 'com.android.application'
+  id 'com.google.gms.google-services'
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -21,12 +26,15 @@ if (flutterVersionName == null) {
   flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-apply plugin: 'com.google.gms.google-services'
 
 android {
-  compileSdkVersion 34
+  buildFeatures {
+    buildConfig true
+  }
+  namespace 'com.oxchat.global'
+  compileSdk 34
+  buildToolsVersion "34.0.0"
   ndkVersion "25.1.8937393"
 
   //disable resource file check
@@ -34,8 +42,8 @@ android {
   def versionParts = version.split("\\+")
   defaultConfig {
     applicationId "com.oxchat.global"
-    minSdkVersion 24
-    targetSdkVersion 34
+    minSdk 24
+    targetSdk 34
     multiDexEnabled true
     versionCode versionParts[1] as Integer
     versionName versionParts[0]
@@ -64,8 +72,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_11
-    targetCompatibility JavaVersion.VERSION_11
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
   }
   lint {
     abortOnError false

@@ -1,28 +1,36 @@
 buildscript {
     ext.kotlin_version = '1.9.10'
     repositories {
-        maven { url 'https://repo1.maven.org/maven2/' }
+        gradlePluginPortal()
         google()
+        mavenCentral()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.1'
+        classpath 'com.android.tools.build:gradle:8.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.gms:google-services:4.4.0'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
-        maven {
-            url "https://jitpack.io"
-        }
-        maven {
-            url 'https://repo1.maven.org/maven2/'
-        }
+        gradlePluginPortal()
         google()
+        mavenCentral()
+        jcenter()
+    }
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 }
 
