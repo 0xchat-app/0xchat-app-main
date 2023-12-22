@@ -8,7 +8,6 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat_ui/thirdParty/flutter_chat_types/lib/flutter_chat_types.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
