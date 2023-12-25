@@ -9,6 +9,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/verify_secure_keypad.dart';
 
@@ -31,10 +32,18 @@ class VerifyPasscodePage extends StatefulWidget {
 
 class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   String _inputPwd = '';
+  String localPasscode = '';
+  bool isFirstOpenApp = false;
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    isFirstOpenApp = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_APP_WITH_VERIFY_PASSCODE, defaultValue: false);
   }
 
   @override
@@ -60,6 +69,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
           children: [
             CommonAppBar(
               title: '',
+              canBack: false,
               backgroundColor: Colors.transparent,
             ),
             CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
@@ -113,7 +123,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
     );
   }
 
-  void _keypadValue(value) async {
+  void _keypadValue(value) {
     setState(() {
       if (value == 'x') {
         if (_inputPwd.isNotEmpty) {
@@ -124,9 +134,15 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
       }
     });
     if (_inputPwd.length == 6) {
-      String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
       if (_inputPwd == localPasscode) {
-        if (mounted) OXNavigator.pop(context);
+        if (mounted) {
+          if (isFirstOpenApp) {
+            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_APP_WITH_VERIFY_PASSCODE, false);
+            OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
+          } else {
+            OXNavigator.pop(context);
+          }
+        }
       } else {
         inputError();
       }

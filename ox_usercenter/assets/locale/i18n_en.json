@@ -168,5 +168,8 @@
   "str_authentication_failed_title": "Authentication Failed",
   "str_authentication_failed_hint": "This 0xchat is secured. The entered passcode is invalid.",
   "str_mismatch_title": "Failed",
-  "str_mismatch_try_hint": "Passcode mismatch. Please try again."
+  "str_mismatch_try_hint": "Passcode mismatch. Please try again.",
+  "str_set_success": "Setting successful",
+  "str_file_delected": "File deleted",
+  "str_export_success": "Database export successful"
 }
