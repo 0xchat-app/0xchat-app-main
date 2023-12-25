@@ -168,5 +168,8 @@
   "str_authentication_failed_title": "认证失败",
   "str_authentication_failed_hint": "0xchat 已加密。输入的密码无效。",
   "str_mismatch_title": "验证失败",
-  "str_mismatch_try_hint": "密码不匹配，请再试一次。"
+  "str_mismatch_try_hint": "密码不匹配，请再试一次。",
+  "str_set_success": "设置成功",
+  "str_file_delected": "文件已删除",
+  "str_export_success": "导出数据库成功"
 }

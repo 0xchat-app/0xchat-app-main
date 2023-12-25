@@ -73,7 +73,7 @@ class OXUserCenter extends OXFlutterModule {
         final relayName = params?['relayName'];
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
       case 'VerifyPasscodePage':
-        return OXNavigator.pushPage(context, (context) => const VerifyPasscodePage());
+        return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
     }
     return null;
   }

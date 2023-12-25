@@ -46,6 +46,7 @@ class DatabaseHelper{
             ),
           ],
         ));
+        CommonToast.instance.show(context, 'str_export_success'.localized());
       } else if (Platform.isIOS) {
         FileUtils.exportFileIOS(dbFilePath);
       }
@@ -230,7 +231,7 @@ class DatabaseHelper{
                 await OXLoading.show();
                 await DefaultCacheManager().emptyCache();//clearCachedImages
                 await clearCache();
-                CommonToast.instance.show(context, '');
+                CommonToast.instance.show(context, 'str_file_delected'.localized());
               } catch (e) {
                 print(e.toString());
               }
