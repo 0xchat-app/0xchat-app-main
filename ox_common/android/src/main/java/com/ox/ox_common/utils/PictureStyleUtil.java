@@ -82,7 +82,7 @@ public class PictureStyleUtil {
         albumWindowStyle.setAlbumAdapterItemSelectStyle(R.drawable.num_oval_black);
         if (l > (int) (255 * 0.7)) {
             int color = ContextCompat.getColor(context, R.color.bar_grey);
-            titleBarStyle.setTitleLeftBackResource(R.drawable.ps_ic_black_back);
+            titleBarStyle.setTitleLeftBackResource(R.drawable.black_back);
             titleBarStyle.setTitleTextColor(color);
             titleBarStyle.setTitleCancelTextColor(color);
 
@@ -96,7 +96,7 @@ public class PictureStyleUtil {
         }else{
 
             int color = ContextCompat.getColor(context, R.color.white);
-            titleBarStyle.setTitleLeftBackResource(R.drawable.ps_ic_back);
+            titleBarStyle.setTitleLeftBackResource(R.drawable.back);
             titleBarStyle.setTitleTextColor(color);
             titleBarStyle.setTitleCancelTextColor(color);
 

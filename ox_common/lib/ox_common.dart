@@ -62,6 +62,11 @@ class OXCommon extends OXFlutterModule {
     return filePath;
   }
 
+  static Future<bool> requestMediaPermissions(int type) async {
+    final bool result = await channel.invokeMethod('requestMediaPermissions', {'type': type});
+    return result;
+  }
+
   static Future<void> callSysShare(String filePath) async {
     await channel.invokeMethod('callSysShare', {'filePath' :  filePath});
   }
