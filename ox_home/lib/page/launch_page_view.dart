@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:rive/rive.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_home/page/home_tabbar.dart';
 
 class LaunchPageView extends StatefulWidget {
@@ -25,9 +28,16 @@ class LaunchPageViewState extends State<LaunchPageView> {
   late StateMachineController? riveControllers = null;
   late Artboard? riveArtboards = null;
 
+  String _localPasscode = '';
+
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
     _loadRiveFile();
     _onLoaded();
   }
@@ -93,11 +103,13 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 
   void _onLoaded() {
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      // Navigator.of(context)
-      //     .pushReplacement(CustomRouteFadeIn(HomeTabbarScaffold()));
-      Navigator.of(context)
-          .pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
+    Future.delayed(const Duration(milliseconds: 2500), () async {
+      if (_localPasscode.isNotEmpty) {
+        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_APP_WITH_VERIFY_PASSCODE, true);
+        if (mounted) OXModuleService.pushPage(context, 'ox_usercenter', 'VerifyPasscodePage', {});
+      } else {
+        Navigator.of(context).pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
+      }
     });
   }
 }

@@ -15,6 +15,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/page/set_up/database_passphrase.dart';
@@ -322,6 +323,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
       _selectedTimeType = result;
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, _selectedTimeType.code);
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME, _selectedTimeType.value);
+      CommonToast.instance.show(context, 'str_set_success'.localized());
       setState(() {});
     }
   }
