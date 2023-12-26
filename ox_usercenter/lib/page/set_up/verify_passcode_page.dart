@@ -19,7 +19,6 @@ import 'package:ox_usercenter/widget/verify_secure_keypad.dart';
 ///@author Michael
 ///CreateTime: 2023/12/7 18:38
 class VerifyPasscodePage extends StatefulWidget {
-
   const VerifyPasscodePage({
     Key? key,
   }) : super(key: key);
@@ -53,51 +52,54 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ThemeColor.gradientMainEnd.withOpacity(0.5),
-              ThemeColor.gradientMainStart.withOpacity(0.7),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd.withOpacity(0.5),
+                ThemeColor.gradientMainStart.withOpacity(0.7),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            CommonAppBar(
-              title: '',
-              canBack: false,
-              backgroundColor: Colors.transparent,
-            ),
-            CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
-            SizedBox(height: 36.px),
-            abbrText('Enter your Passcode', 24, ThemeColor.color0),
-            SizedBox(height: 36.px),
-            Container(
-              height: 56.px,
-              alignment: Alignment.topCenter,
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 0),
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: _itemBuild,
-                itemCount: 6,
+          child: Column(
+            children: [
+              CommonAppBar(
+                title: '',
+                canBack: false,
+                backgroundColor: Colors.transparent,
               ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            VerifySecureKeypad(
-                onChanged: _keypadValue,
-                onAuthResult: (value) {
-                  if (value && mounted) OXNavigator.pop(context);
-                }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-            SizedBox(height: 89.px),
-          ],
+              CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
+              SizedBox(height: 36.px),
+              abbrText('Enter your Passcode', 24, ThemeColor.color0),
+              SizedBox(height: 36.px),
+              Container(
+                height: 56.px,
+                alignment: Alignment.topCenter,
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 0),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: _itemBuild,
+                  itemCount: 6,
+                ),
+              ),
+              const Expanded(
+                child: SizedBox(),
+              ),
+              VerifySecureKeypad(
+                  onChanged: _keypadValue,
+                  onAuthResult: (value) {
+                    if (value && mounted) OXNavigator.pop(context);
+                  }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+              SizedBox(height: 89.px),
+            ],
+          ),
         ),
       ),
     );
