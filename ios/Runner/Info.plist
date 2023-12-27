@@ -312,5 +312,7 @@
 	<string>0xchat requires access to your camera, for scanning the QR code in the user center, taking photos or shooting videos for customer service functions.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>0xchat requires access to your microphone, to send voice messages for customer service.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>0xchat requires access to your face information for face unlock</string>
 </dict>
 </plist>
