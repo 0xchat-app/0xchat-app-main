@@ -171,5 +171,9 @@
   "str_mismatch_try_hint": "Passcode mismatch. Please try again.",
   "str_set_success": "Setting successful",
   "str_file_delected": "File deleted",
-  "str_export_success": "Database export successful"
+  "str_export_success": "Database export successful",
+  "str_passcode": "Passcode",
+  "str_create_passcode": "Create your Passcode",
+  "str_confirm_passcode": "Confirm your Passcode",
+  "str_enter_passcode": "Enter your Passcode"
 }

@@ -168,5 +168,12 @@
   "str_authentication_failed_title": "Təsdiqləmə uğursuz oldu",
   "str_authentication_failed_hint": "Bu 0xchat təmin edilmişdir. Daxil edilmiş şifrə etibarsızdır.",
   "str_mismatch_title": "Uğursuz oldu",
-  "str_mismatch_try_hint": "Şifrə uyğun deyil. Zəhmət olmasa yenidən cəhd edin."
+  "str_mismatch_try_hint": "Şifrə uyğun deyil. Zəhmət olmasa yenidən cəhd edin.",
+  "str_set_success": "Ayarlamalar uğurla tamamlandı",
+  "str_file_delected": "Fayl silindi",
+  "str_export_success": "Veritabanı ixracı uğurla tamamlandı",
+  "str_passcode": "Şifrə",
+  "str_create_passcode": "Şifrənizi yaradın",
+  "str_confirm_passcode": "Şifrənizi təsdiqləyin",
+  "str_enter_passcode": "Şifrənizi daxil edin"
 }

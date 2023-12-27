@@ -168,5 +168,12 @@
   "str_authentication_failed_title": "Неуспешно удостоверяване",
   "str_authentication_failed_hint": "Този 0xchat е защитен. Въведената парола е невалидна.",
   "str_mismatch_title": "Неуспешно",
-  "str_mismatch_try_hint": "Несъвпадение на паролата. Моля, опитайте отново."
+  "str_mismatch_try_hint": "Несъвпадение на паролата. Моля, опитайте отново.",
+  "str_set_success": "Настройката е успешна",
+  "str_file_delected": "Файлът е изтрит",
+  "str_export_success": "Експортирането на базата данни е успешно",
+  "str_passcode": "Парола",
+  "str_create_passcode": "Създайте своята парола",
+  "str_confirm_passcode": "Потвърдете вашата парола",
+  "str_enter_passcode": "Въведете вашата парола"
 }
