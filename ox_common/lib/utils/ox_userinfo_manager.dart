@@ -15,7 +15,7 @@ import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:cashu_dart/business/wallet/wallet_manager.dart';
+import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 
 abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDB? userInfo);
@@ -75,7 +75,7 @@ class OXUserInfoManager {
     else{
       LogUtil.d('[DB init] dbpw: $dbpw');
       await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
-      WalletManager.shared.setup(pubkey, dbVersion: 1, dbPassword: dbpw);
+      CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: dbpw);
     }
   }
 
