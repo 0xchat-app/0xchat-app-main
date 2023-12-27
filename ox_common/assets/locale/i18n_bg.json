@@ -106,5 +106,7 @@
   "secret_chat_rejected_tips": "${name} отхвърли вашата заявка за тайния чат",
   "you": "ти",
   "webview_more_browser": "Отвори в браузър",
-  "webview_more_copy": "Копирай връзката"
+  "webview_more_copy": "Копирай връзката",
+  "open_singer_app_error_title": "Грешка при отваряне на приложението за подпис",
+  "open_singer_app_error_content": "Не може да се намери приложението за подпис, моля проверете дали приложението не е деинсталирано."
 }

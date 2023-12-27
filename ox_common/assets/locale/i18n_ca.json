@@ -106,5 +106,7 @@
   "secret_chat_rejected_tips": "${name} ha rebutjat la teva sol·licitud de conversa secreta",
   "you": "tu",
   "webview_more_browser": "Obre en el navegador",
-  "webview_more_copy": "Copia l'enllaç"
+  "webview_more_copy": "Copia l'enllaç",
+  "open_singer_app_error_title": "Error en obrir l'aplicació de signatura",
+  "open_singer_app_error_content": "No es pot trobar l'aplicació de signatura, si us plau, comprovi si l'aplicació no ha estat desinstal·lada."
 }
