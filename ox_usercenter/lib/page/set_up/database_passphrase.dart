@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -83,18 +85,24 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
       physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
-          CommonTextField(
-            controller: _currentTeController,
-            inputEnabled: !_isOriginalPw,
-            type: TextFieldType.normal,
-            keyboardType: TextInputType.visiblePassword,
-            needTopView: true,
-            title: _isOriginalPw ? 'str_current_passphrase'.localized() : null,
-            inputFormatters: [LengthLimitingTextInputFormatter(30)],
-            focusNode: _currentFocusNode,
-            decoration: _getInputDecoration('str_current_passphrase'.localized()),
-            obscureText: !_isOriginalPw && _currentEyeStatus,
-            leftWidget: _isOriginalPw ? const SizedBox() : _getLeftWidget(_currentEyeStatus, PassphraseEyeType.currentPassphrase),
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () async {
+              await TookKit.copyKey(context, currentDBPW);
+            },
+            child: CommonTextField(
+              controller: _currentTeController,
+              inputEnabled: !_isOriginalPw,
+              type: TextFieldType.normal,
+              keyboardType: TextInputType.visiblePassword,
+              needTopView: true,
+              title: _isOriginalPw ? 'str_current_passphrase'.localized() : null,
+              inputFormatters: [LengthLimitingTextInputFormatter(30)],
+              focusNode: _currentFocusNode,
+              decoration: _getInputDecoration('str_current_passphrase'.localized()),
+              obscureText: !_isOriginalPw && _currentEyeStatus,
+              leftWidget: _isOriginalPw ? const SizedBox() : _getLeftWidget(_currentEyeStatus, PassphraseEyeType.currentPassphrase),
+            ),
           ),
           CommonTextField(
             controller: _newTeController,
