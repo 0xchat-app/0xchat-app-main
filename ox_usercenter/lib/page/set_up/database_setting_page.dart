@@ -108,8 +108,16 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
         Opacity(
           opacity: _getItemOpacity(),
           child: DatabaseItemWidget(
-            onTapCall: () {
-              DatabaseHelper.deleteFileAndMedia(context);
+            onTapCall: () async {
+              if (_chatRunStatus) {
+                return;
+              }
+              final bool result = await DatabaseHelper.deleteFileAndMedia(context);
+              if (result && mounted) {
+                setState(() {
+                  _cacheFileCount = 0;
+                });
+              }
             },
             radiusCornerList: [16.px, 16.px, 16.px, 16.px],
             switchValue: _chatRunStatus,

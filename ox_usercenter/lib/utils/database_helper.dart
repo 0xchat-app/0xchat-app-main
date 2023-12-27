@@ -204,7 +204,7 @@ class DatabaseHelper{
     );
   }
 
-  static void deleteFileAndMedia(BuildContext context) async {
+  static Future<bool> deleteFileAndMedia(BuildContext context) async {
     // var result = await showModalBottomSheet(
     //   context: context,
     //   backgroundColor: Colors.transparent,
@@ -212,7 +212,7 @@ class DatabaseHelper{
     //     return const DeleteFilesSelectorDialog();
     //   },
     // );
-    OXCommonHintDialog.show(
+    final result = await OXCommonHintDialog.show(
       context,
       title: 'str_delete_file_dialog_title'.localized(),
       content: 'str_delete_file_dialog_hint'.localized(),
@@ -221,12 +221,12 @@ class DatabaseHelper{
         OXCommonHintAction(
             text: () => Localized.text('ox_common.cancel'),
             onTap: () {
-              OXNavigator.pop(context);
+              OXNavigator.pop(context, false);
             }),
         OXCommonHintAction(
             text: () => 'str_delete'.localized(),
             onTap: () async {
-              OXNavigator.pop(context);
+              OXNavigator.pop(context, true);
               try {
                 await OXLoading.show();
                 await DefaultCacheManager().emptyCache();//clearCachedImages
@@ -239,6 +239,7 @@ class DatabaseHelper{
             }),
       ],
     );
+    return result;
   }
 
   static Future<void> clearCache() async {
