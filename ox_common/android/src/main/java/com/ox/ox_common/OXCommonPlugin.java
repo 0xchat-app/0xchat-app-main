@@ -1,27 +1,32 @@
 package com.ox.ox_common;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
+import android.provider.MediaStore;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+
 import com.ox.ox_common.activitys.PermissionActivity;
 import com.ox.ox_common.activitys.SelectPicsActivity;
 import com.ox.ox_common.provides.CustomAnalyzeCallback;
-import com.ox.ox_common.utils.LocalTools;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
+
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -42,7 +47,7 @@ import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
  * @since JDK1.8
  */
 
-public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware, ActivityCompat.OnRequestPermissionsResultCallback {
+public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
     private MethodChannel channel;
     private Context mContext;
     private final String TAG = "OXCommonPlugin";
@@ -53,7 +58,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
 
     private Result mResult;
 
-    private Activity mActivity;
+    private FlutterFragmentActivity mActivity;
+
+    private ActivityResultLauncher<String> mGetContent;
+    private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     @Override
     public void onAttachedToEngine(FlutterPluginBinding flutterPluginBinding) {
@@ -92,9 +100,13 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
                 String filePath = call.argument("filePath");
                 goSysShare(filePath);
                 break;
-            case "requestMediaPermissions":
+            case "select34MediaFilePaths":
                 int type = call.argument("type");
-                requestMediaPermissions(type);
+                select34MediaFilePaths(type);
+                break;
+            case "request34MediaPermission":
+                int mediaType = call.argument("type");
+                request34MediaPermission(mediaType);
                 break;
             default:
                 result.notImplemented();
@@ -117,29 +129,48 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
 
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
-        mActivity = binding.getActivity();
-
+        Activity activity = binding.getActivity();
+        mActivity = (FlutterFragmentActivity) activity;
+        initializeActivityResultLauncher();
         binding.addActivityResultListener(new ActivityResultListener() {
             @Override
-            public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-                Log.d("Michael", "onActivityResult--------requestCode ="+requestCode+"；resultCode ="+resultCode);
+            public boolean onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
                 if (resultCode != Activity.RESULT_OK) {
                     return false;
                 }
-
                 if (requestCode == SELECT) {
                     List<Map<String, String>> paths = (List<Map<String, String>>) data.getSerializableExtra(SelectPicsActivity.COMPRESS_PATHS);
                     mResult.success(paths);
                 } else if (requestCode == READ_IMAGE) {
-                    if (resultCode == Activity.RESULT_OK) {
-                        Intent intent1 = new Intent(mActivity, SelectPicsActivity.class);
-                        intent1.putExtras(data);
-                        mActivity.startActivityForResult(intent1, SELECT);
-                    }
+                    Intent intent1 = new Intent(mActivity, SelectPicsActivity.class);
+                    intent1.putExtras(data);
+                    mActivity.startActivityForResult(intent1, SELECT);
                 }
                 return false;
             }
         });
+    }
+
+    private void initializeActivityResultLauncher() {
+        mGetContent = mActivity.registerForActivityResult(new ActivityResultContracts.GetMultipleContents(),
+                uris -> {
+//                    Log.d("Michael", "mGetContent----uris ="+uris.toString());
+                    List<String> filePaths = urisToFileList(uris);
+//                    Log.d("Michael", "mGetContent----filePaths ="+filePaths);
+                    if (mResult != null) mResult.success(filePaths);
+                });
+        requestPermissionLauncher = mActivity.registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(), permissions -> {
+                    Boolean readMediaImagesGranted = permissions.getOrDefault(Manifest.permission.READ_MEDIA_IMAGES, false);
+                    Boolean readMediaVideoGranted = permissions.getOrDefault(Manifest.permission.READ_MEDIA_VIDEO, false);
+                    Boolean readMediaVisualUserSelectedGranted = permissions.getOrDefault(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED, false);
+                    Map<String, Boolean> mediaGranteds = new HashMap<>();
+                    mediaGranteds.put("READ_MEDIA_IMAGES", readMediaImagesGranted);
+                    mediaGranteds.put("READ_MEDIA_VIDEO", readMediaVideoGranted);
+                    mediaGranteds.put("READ_MEDIA_VISUAL_USER_SELECTED", readMediaVisualUserSelectedGranted);
+//                    Log.d("oxcommon", "requestPermissionLauncher---------readMediaImagesGranted ="+readMediaImagesGranted+"；readMediaVisualUserSelectedGranted ="+readMediaVisualUserSelectedGranted + "; readMediaVideoGranted ="+readMediaVideoGranted);
+                    if (mResult != null) mResult.success(mediaGranteds);
+                });
     }
 
     @Override
@@ -150,7 +181,16 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
         return mActivity.getDatabasePath(dbName).getPath();
     }
 
-    private void requestMediaPermissions(int type) {
+    private void select34MediaFilePaths(int type) {
+        String input = "image/*";
+        if (type == 1) {
+            input = "image/*";
+        } else if (type == 2) {
+            input = "video/*";
+        }
+        mGetContent.launch(input);
+    }
+    private void request34MediaPermission(int type) {
         ///type: 1 - image, 2 - video
         if (Build.VERSION.SDK_INT >= 34) {
             String[] permissions = null;
@@ -165,39 +205,9 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
             }
-            boolean allPermissionsGranted = true;
-            for (String permission : permissions) {
-                if (mActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false;
-                    break;
-                }
-            }
-            Log.d("Michael", "--------requestMediaPermissions------"+allPermissionsGranted);
-            if (allPermissionsGranted) {
-                mResult.success(true);
-            } else {
-                Log.d("Michael", "-------requestMediaPermissions---request---"+permissions.toString());
-                mActivity.requestPermissions(permissions, MEDIA_PERMISSIONS_34);
-            }
+            requestPermissionLauncher.launch(permissions);
         } else {
             mResult.success(false);//Unsupported Android version
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d("Michael", "--------onRequestPermissionsResult------"+requestCode);
-        if (requestCode == MEDIA_PERMISSIONS_34) {
-            // Check if all requested permissions are granted
-            boolean allPermissionsGranted = true;
-            for (int grantResult : grantResults) {
-                if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false;
-                    break;
-                }
-            }
-            Log.d("Michael", "--------onRequestPermissionsResult------"+allPermissionsGranted);
-            if (mResult != null) mResult.success(allPermissionsGranted);
         }
     }
 
@@ -241,7 +251,7 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             intent.setClass(mContext, PermissionActivity.class);
             mActivity.startActivityForResult(intent, READ_IMAGE);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
                 intent.putExtra(PermissionActivity.PERMISSIONS, new String[]{
                                 Manifest.permission.READ_MEDIA_IMAGES,
                                 Manifest.permission.READ_MEDIA_VIDEO
@@ -279,4 +289,34 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
         mActivity.startActivity(Intent.createChooser(shareIntent, "Share"));
     }
 
+    private List<String> urisToFileList(List<Uri> uris) {
+        List<String> filePaths = new ArrayList<>();
+        for (Uri uri : uris) {
+            String path = getPathFromUri(mActivity, uri);
+            if (path != null) {
+                filePaths.add(path);
+            }
+        }
+        return filePaths;
+    }
+
+    private String getPathFromUri(Context context, Uri uri) {
+        String result = null;
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            String[] projection = { MediaStore.Images.Media.DATA };
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    result = cursor.getString(column_index);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+        return result;
+    }
 }
