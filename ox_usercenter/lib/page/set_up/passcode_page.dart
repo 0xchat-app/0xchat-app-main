@@ -49,49 +49,38 @@ class _PasscodePageState extends State<PasscodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColor.color200,
-      body: Container(
-        // decoration: const BoxDecoration(
-        //   image: DecorationImage(
-        //     fit: BoxFit.cover,
-        //     image: AssetImage(
-        //       'assets/images/purple_bg.png',
-        //       package: 'kd_wallet_home',
-        //     ),
-        //   ),
-        // ),
-        child: Column(
-          children: [
-            CommonAppBar(
-              title: 'Secure Wallet',
-              centerTitle: true,
-              useLargeTitle: false,
-              backgroundColor: Colors.transparent,
+      body: Column(
+        children: [
+          CommonAppBar(
+            title: 'str_passcode'.localized(),
+            centerTitle: true,
+            useLargeTitle: false,
+            backgroundColor: Colors.transparent,
+          ),
+          SizedBox(height: 36.px),
+          abbrText(widget.type == 0 ? 'str_create_passcode'.localized() : 'str_confirm_passcode'.localized(), 24, ThemeColor.color0),
+          SizedBox(height: 36.px),
+          Container(
+            height: 56.px,
+            alignment: Alignment.topCenter,
+            child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: 0),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: _itemBuild,
+              itemCount: 6,
             ),
-            SizedBox(height: 36.px),
-            abbrText(widget.type == 0 ? 'Create your Passcode' : 'Confirm your Passcode', 24, ThemeColor.color0),
-            SizedBox(height: 36.px),
-            Container(
-              height: 56.px,
-              alignment: Alignment.topCenter,
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 0),
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: _itemBuild,
-                itemCount: 6,
-              ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            SecureKeypad(
-              key: _globalKeySecureKeypad,
-              onChanged: _keypadValue,
-            ),
-            SizedBox(height: 89.px),
-          ],
-        ),
+          ),
+          const Expanded(
+            child: SizedBox(),
+          ),
+          SecureKeypad(
+            key: _globalKeySecureKeypad,
+            onChanged: _keypadValue,
+          ),
+          SizedBox(height: 89.px),
+        ],
       ),
     );
   }

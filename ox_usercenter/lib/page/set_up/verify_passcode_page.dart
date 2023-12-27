@@ -33,7 +33,6 @@ class VerifyPasscodePage extends StatefulWidget {
 class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   String _inputPwd = '';
   String localPasscode = '';
-  bool isFirstOpenApp = false;
 
   @override
   void initState() {
@@ -43,7 +42,6 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
 
   void _loadData() async {
     localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
-    isFirstOpenApp = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_APP_WITH_VERIFY_PASSCODE, defaultValue: false);
   }
 
   @override
@@ -55,14 +53,13 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ThemeColor.gradientMainEnd.withOpacity(0.5),
-              ThemeColor.gradientMainStart.withOpacity(0.7),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage(
+              'assets/images/icon_verify_pw_bg.png',
+              package: 'ox_usercenter',
+            ),
           ),
         ),
         child: Column(
@@ -74,7 +71,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
             ),
             CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
             SizedBox(height: 36.px),
-            abbrText('Enter your Passcode', 24, ThemeColor.color0),
+            abbrText('str_enter_passcode'.localized(), 24, ThemeColor.color0),
             SizedBox(height: 36.px),
             Container(
               height: 56.px,
@@ -94,7 +91,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
             VerifySecureKeypad(
                 onChanged: _keypadValue,
                 onAuthResult: (value) {
-                  if (value && mounted) OXNavigator.pop(context);
+                  if (value && mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
                 }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
             SizedBox(height: 89.px),
           ],
@@ -135,14 +132,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
     });
     if (_inputPwd.length == 6) {
       if (_inputPwd == localPasscode) {
-        if (mounted) {
-          if (isFirstOpenApp) {
-            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_APP_WITH_VERIFY_PASSCODE, false);
-            OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
-          } else {
-            OXNavigator.pop(context);
-          }
-        }
+        if (mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
       } else {
         inputError();
       }
