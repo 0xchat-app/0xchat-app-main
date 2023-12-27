@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -55,6 +57,7 @@ import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:device_info/device_info.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -378,7 +381,30 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   // type: 1 - image, 2 - video
   Future albumPressHandler(BuildContext context, int type) async {
-    final storagePermission = await PermissionUtils.getPhotosPermission(type: type);
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(type);
+      LogUtil.e('Michael: albumPressHandler----result =${result.toString()}');
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVideoGranted = result['READ_MEDIA_VIDEO'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted || readMediaVideoGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(type);
+        LogUtil.d('Michael: albumPressHandler------filePaths =${filePaths}');
+        List<File> fileList = [];
+        await Future.forEach(filePaths, (element) async {
+          fileList.add(File(element));
+        });
+        final messageSendHandler = type == 2 ? this.sendVideoMessageSend : this.sendImageMessage;
+        messageSendHandler(context, fileList);
+        return;
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission(type: type);
+    }
     if(storagePermission){
       await _goToPhoto(context, type);
     } else {
