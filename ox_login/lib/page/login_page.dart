@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 // ox_common
@@ -214,28 +216,36 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: Adapt.px(40)),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: _loginWithAmber,
-                  child: Container(
-                    width: double.infinity,
-                    height: Adapt.px(48),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
-                        CommonImage(iconName: 'icon_login_amber.png', width: 48.px,height: 48.px, package: 'ox_login'),
-                      ],
+                Visibility(
+                  visible: Platform.isAndroid,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _loginWithAmber,
+                    child: Container(
+                      width: double.infinity,
+                      height: Adapt.px(48),
+                      margin: EdgeInsets.only(top: 40.px),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(width: double.infinity, height: 0.5.px, color: ThemeColor.color160),
+                          CommonImage(iconName: 'icon_login_amber.png', width: 48.px, height: 48.px, package: 'ox_login'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: Adapt.px(4)),
-                Text(
-                  Localized.text('ox_login.login_with_amber'),
-                  style: TextStyle(
-                    color: ThemeColor.color120,
-                    fontSize: Adapt.px(12),
+                Visibility(
+                  visible: Platform.isAndroid,
+                  child: Container(
+                    margin: EdgeInsets.only(top: 4.px),
+                    child: Text(
+                      Localized.text('ox_login.login_with_amber'),
+                      style: TextStyle(
+                        color: ThemeColor.color120,
+                        fontSize: Adapt.px(12),
+                      ),
+                    ),
                   ),
                 ),
               ],
