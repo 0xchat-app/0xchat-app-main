@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
@@ -306,6 +307,8 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
             _selectedUserList.remove(user);
           }
           setState(() {});
+        }else{
+          OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: user.pubKey,));
         }
       },
     );
