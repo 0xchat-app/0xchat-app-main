@@ -28,7 +28,7 @@ import io.flutter.plugin.common.MethodChannel;
  * @since JDK1.8
  */
 public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
-    private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.nostr/perferences";
+    private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.global/perferences";
     private Context mContext;
     private Activity mActivity;
     private MethodChannel.Result mMethodChannelResult;

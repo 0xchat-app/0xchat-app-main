@@ -72,7 +72,6 @@ android {
     abortOnError false
     checkReleaseBuilds false
   }
-  namespace 'com.oxchat.global'
 }
 
 flutter {
