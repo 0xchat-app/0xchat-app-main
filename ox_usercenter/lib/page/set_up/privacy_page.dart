@@ -251,7 +251,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             if (authResult) {
               CommonToast.instance.show(context, 'Authorized');
               await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_FACEID, true);
-              model.switchValue = false;
+              model.switchValue = true;
               setState(() {});
             } else {
               CommonToast.instance.show(context, 'Not Authorized, try again.');
