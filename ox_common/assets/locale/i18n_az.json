@@ -106,5 +106,7 @@
   "secret_chat_rejected_tips": "${name}, sizin gizli söhbət tələbinizi rədd etdi",
   "you": "siz",
   "webview_more_browser": "Brauzerdə Aç",
-  "webview_more_copy": "Keçidi Kopyala"
+  "webview_more_copy": "Keçidi Kopyala",
+  "open_singer_app_error_title": "Müğənni tətbiqini açarkən xəta",
+  "open_singer_app_error_content": "İmza tətbiqi tapılmadı, zəhmət olmasa bu tətbiqin silinmədiyini yoxlayın."
 }

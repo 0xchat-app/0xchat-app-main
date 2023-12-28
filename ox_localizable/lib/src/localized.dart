@@ -10,36 +10,36 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 *  Localized.text('key')
 * */
 enum LocaleType {
-    en,//English
-    zh,//Simplified Chinese
-    ru,//Russian
-    fr,//French
+    ar,//Arabic
+    az,//Azerbaijani
+    bg,//Bulgarian
+    ca,//Catalan
+    cs,//Czech
+    da,//danish
     de,//German
+    el,//Greek
     es,//Spanish
+    et,//estonian
+    fr,//French
+    hi,//Hindi
+    hu,//Hungarian
+    id,//Indonesian
+    it,//Italian
     ja,//Japanese
     ko,//Korean
-    pt,//Portuguese
-    vi,//Vietnamese
-    ar,//Arabic
-    th,//Thai
-    zh_tw,//Traditional Chinese
-    it,//Italian
-    tr,//Turkish
-    sv,//Swedish
-    hu,//Hungarian
+    lv,//Latvian
     nl,//Dutch
     pl,//Polish
-    el,//Greek
-    cs,//Czech
-    lv,//Latvian
-    az,//Azerbaijani
+    pt,//Portuguese
+    ru,//Russian
+    sv,//Swedish
+    th,//Thai
+    tr,//Turkish
     uk,//Ukrainian
-    bg,//Bulgarian
-    id,//Indonesian
-    et,//estonian
-    hi,//India
-    da,//danish
-    ca,//Catalan
+    vi,//Vietnamese
+    zh_tw,//Traditional Chinese
+    en,//English
+    zh,//Simplified Chinese
 }
 
 extension LocaleTypeExtension on LocaleType{
@@ -238,6 +238,71 @@ extension LocaleTypeExtension on LocaleType{
                 return 'da';
             case LocaleType.ca:
                 return 'ca';
+        }
+    }
+
+    String get languageText {
+        switch (this) {
+            case LocaleType.en:
+                return 'English';
+            case LocaleType.zh:
+                return '简体中文';
+            case LocaleType.ru:
+                return 'русский';
+            case LocaleType.fr:
+                return 'Français';
+            case LocaleType.de:
+                return 'Deutsch';
+            case LocaleType.es:
+                return 'Español';
+            case LocaleType.ja:
+                return '日本語';
+            case LocaleType.ko:
+                return '한국어';
+            case LocaleType.pt:
+                return 'Português';
+            case LocaleType.vi:
+                return 'Tiếng việt';
+            case LocaleType.ar:
+                return 'عربي';
+            case LocaleType.th:
+                return 'ภาษาไทย';
+            case LocaleType.zh_tw:
+                return '繁體中文(中國台灣)';
+            case LocaleType.it:
+                return 'Italiano';
+            case LocaleType.tr:
+                return 'Türkçe';
+            case LocaleType.sv:
+                return 'Svenska';
+            case LocaleType.hu:
+                return 'Magyar';
+            case LocaleType.nl:
+                return 'Nederlands';
+            case LocaleType.pl:
+                return 'Polski';
+            case LocaleType.el:
+                return 'Ελληνικά';
+            case LocaleType.cs:
+                return 'čeština';
+            case LocaleType.lv:
+                return 'latviski';
+            case LocaleType.az:
+                return 'Azərbaycan';
+            case LocaleType.uk:
+                return 'украї́нська мо́ва';
+            case LocaleType.bg:
+                return 'български';
+            case LocaleType.id:
+                return 'Bahasa Indonesia';
+            case LocaleType.et:
+                return 'Eesti keel';
+            case LocaleType.hi:
+                return 'தமிழ்';
+            case LocaleType.da:
+                return 'Dansk';
+            case LocaleType.ca:
+                return 'Català';
         }
     }
 }

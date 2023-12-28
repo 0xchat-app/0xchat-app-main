@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
@@ -32,6 +34,7 @@ class OXCommon extends OXFlutterModule {
     RelayDB,
     ChatSessionModel,
     MessageDB,
+    UserConfigDB,
   ];
 
   @override
@@ -52,6 +55,11 @@ class OXCommon extends OXFlutterModule {
   static Future<String> get platformVersion async {
     final String version = await channel.invokeMethod('getPlatformVersion');
     return version;
+  }
+
+  static Future<String> getDatabaseFilePath(String dbName) async {
+    final String filePath = await channel.invokeMethod('getDatabaseFilePath', {'dbName' :  dbName});
+    return filePath;
   }
 
   static Future<void> callSysShare(String filePath) async {

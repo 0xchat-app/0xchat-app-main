@@ -106,5 +106,7 @@
   "secret_chat_rejected_tips": "${name} قد رفض طلبك للدردشة السرية",
   "you": "أنت",
   "webview_more_browser": "افتح في المتصفح",
-  "webview_more_copy": "نسخ الرابط"
+  "webview_more_copy": "نسخ الرابط",
+  "open_singer_app_error_title": "حدث خطأ أثناء فتح تطبيق التوقيع",
+  "open_singer_app_error_content": "لا يمكن العثور على تطبيق التوقيع، يرجى التحقق من أن التطبيق لم يتم إلغاء تثبيته."
 }
