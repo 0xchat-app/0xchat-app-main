@@ -30,22 +30,16 @@ android {
   compileSdkVersion 33
   ndkVersion "25.1.8937393"
 
-  aaptOptions {
-    //disable .9 file check
-    cruncherEnabled = false
-  }
   //disable resource file check
-  lintOptions {
-    checkReleaseBuilds false
-    abortOnError false
-  }
-
+  def version = parsePubspecVersion()
+  def versionParts = version.split("\\+")
   defaultConfig {
     applicationId "com.oxchat.nostr"
     minSdkVersion 24
     targetSdkVersion 33
-    versionCode Integer.parseInt(VERSION_CODE)
-    versionName VERSION_NAME
+    multiDexEnabled true
+    versionCode versionParts[1] as Integer
+    versionName versionParts[0]
 
     ndk {
       abiFilters 'armeabi', "armeabi-v7a", 'arm64-v8a'
@@ -53,19 +47,8 @@ android {
     }
   }
 
-  signingConfigs {
-    release {
-      keyAlias KEY_ALIAS
-      keyPassword KEY_PWD
-      storeFile file(KEYSTORE_FILE)
-      storePassword KEYSTORE_PWD
-    }
-  }
-
   buildTypes {
     release {
-      // TODO: Add your own signing config for the release build.
-      signingConfig signingConfigs.release
       minifyEnabled true
       shrinkResources true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -75,7 +58,6 @@ android {
         abiFilters 'armeabi', 'x86', 'x86_64', 'armeabi-v7a'
         // can also add 'x86', 'x86_64', 'mips', 'mips64', 'armeabi-v7a', 'arm64-v8a'
       }
-      signingConfig signingConfigs.release
       minifyEnabled false
       shrinkResources false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -86,6 +68,11 @@ android {
     sourceCompatibility JavaVersion.VERSION_11
     targetCompatibility JavaVersion.VERSION_11
   }
+  lint {
+    abortOnError false
+    checkReleaseBuilds false
+  }
+  namespace 'com.oxchat.global'
 }
 
 flutter {
@@ -95,5 +82,21 @@ flutter {
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'androidx.multidex:multidex:2.0.1'
   implementation platform('com.google.firebase:firebase-bom:32.0.0')
+}
+
+def parsePubspecVersion() {
+  def pubspec = file('../../pubspec.yaml')
+  def version = '1.0.0+1' // Default value
+
+  if (pubspec.exists()) {
+    def contents = pubspec.readLines()
+    def versionLine = contents.find { it.startsWith('version:') }
+    if (versionLine != null) {
+      version = versionLine.split(' ')[1].trim()
+    }
+  }
+
+  return version
 }

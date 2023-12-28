@@ -9,7 +9,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_home/ox_home.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ox_chat/ox_chat.dart';
 import 'package:ox_common/event_bus.dart';
@@ -22,6 +24,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/boot_config.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_login/ox_login.dart';
@@ -103,7 +106,7 @@ class MainState extends State<MainApp>
     with WidgetsBindingObserver, OXUserInfoObserver {
   late StreamSubscription wsSwitchStateListener;
   StreamSubscription? cacheTimeEventListener;
-  Timer? _refreshDnsTimer;
+  int lastUserInteractionTime = 0;
 
   @override
   void initState() {
@@ -139,8 +142,6 @@ class MainState extends State<MainApp>
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     wsSwitchStateListener.cancel();
-    _refreshDnsTimer?.cancel();
-    _refreshDnsTimer = null;
   }
 
   onThemeStyleChange() {
@@ -230,19 +231,26 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
-        if (OXUserInfoManager.sharedInstance.isLogin) {
-          NotificationHelper.sharedInstance.setOnline();
-        }
+        if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
         getOpenAppSchemeInfo();
+        if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
+          lastUserInteractionTime = 0;
+          showPasswordDialog();
+        }
         break;
       case AppLifecycleState.paused:
-        if (OXUserInfoManager.sharedInstance.isLogin) {
-          NotificationHelper.sharedInstance.setOffline();
-        }
+        if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
+        lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         break;
       default:
         break;
     }
+  }
+
+  void showPasswordDialog() async {
+    String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    if (localPasscode.isNotEmpty && OXNavigator.navigatorKey.currentContext != null)
+      OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
   }
 }
 
