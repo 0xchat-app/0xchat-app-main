@@ -172,7 +172,6 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('Fingerprint');
       if (!mounted) return;
       if (authResult) {
-        CommonToast.instance.show(context, 'Authorized');
         widget.onAuthResult(true);
       } else {
         CommonToast.instance.show(context, 'Not Authorized, try again.');
@@ -188,7 +187,6 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
       bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('FaceID');
       if (!mounted) return;
       if (authResult) {
-        CommonToast.instance.show(context, 'Authorized');
         widget.onAuthResult(true);
       } else {
         CommonToast.instance.show(context, 'Not Authorized, try again.');
