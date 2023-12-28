@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -266,6 +267,9 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   Future<void> saveObjectList(List<NoticeModel> objectList) async {
     List<String> jsonStringList = objectList.map((obj) => json.encode(obj.noticeModelToMap(obj))).toList();
     final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
+    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    userConfigDB.notificationSettings = json.encode(jsonStringList);
+    UserConfigTool.updateUserConfigDB(userConfigDB);
   }
 
   Future<Map<int, NoticeModel>> getObjectList() async {

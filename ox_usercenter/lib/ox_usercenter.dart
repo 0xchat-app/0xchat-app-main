@@ -16,6 +16,7 @@ import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
+import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
@@ -60,7 +61,6 @@ class OXUserCenter extends OXFlutterModule {
         return OXNavigator.pushPage(context, (context) => UsercenterBadgeWallPage(userDB: userDB,));
       case 'AvatarPreviewPage':
         UserDB? userDB = params?['userDB'];
-        LogUtil.e('Michael: ');
         return OXNavigator.pushPage(context, (context) => AvatarPreviewPage(userDB: userDB),);
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
@@ -72,6 +72,8 @@ class OXUserCenter extends OXFlutterModule {
       case 'RelayDetailPage':
         final relayName = params?['relayName'];
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
+      case 'VerifyPasscodePage':
+        return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
     }
     return null;
   }

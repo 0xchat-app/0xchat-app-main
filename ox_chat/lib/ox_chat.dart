@@ -14,6 +14,8 @@ import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
+import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -50,6 +52,7 @@ class OXChat extends OXFlutterModule {
     'contactChanneDetailsPage': _contactChanneDetailsPage,
     'groupInfoPage': _groupInfoPage,
     'commonWebview': _commonWebview,
+    'zapsRecordDetail' : _zapsRecordDetail,
   };
 
   @override
@@ -80,7 +83,7 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => ContactUserInfoPage(
-            pubkey: params?['userDB']?.pubkey,
+            pubkey: params?['pubkey'],
             chatId: params?['chatId'],
             isSecretChat: params?['isSecretChat'] ?? false,
           ),
@@ -145,6 +148,20 @@ class OXChat extends OXFlutterModule {
 
   Future<void> _commonWebview(BuildContext? context,{required String url}) async {
     OXNavigator.presentPage(context!, allowPageScroll: true, (context) => CommonWebView(url), fullscreenDialog: true);
+  }
+
+  Future<void> _zapsRecordDetail(BuildContext? context,{required String invoice, required String amount, required String zapsTime}) async {
+    final zapsDetail = ZapsRecordDetail(
+      invoice: invoice,
+      amount: int.parse(amount),
+      fromPubKey: '',
+      toPubKey: '',
+      zapsTime: zapsTime,
+      description: '',
+      isConfirmed: false,
+    );
+
+    OXUserCenterInterface.jumpToZapsRecordPage(context!, zapsDetail);
   }
 
   void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){

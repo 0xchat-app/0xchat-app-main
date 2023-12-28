@@ -6,11 +6,7 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
-    final regexNostr =
-        r'(nostr:)?(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
-    final urlRegexp = RegExp(regexNostr, caseSensitive: false);
-    final match = urlRegexp.firstMatch(content);
-    return match?[0];
+    return MessageDB.getNostrScheme(content);
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
@@ -29,6 +25,14 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme);
+    } else if (nostrScheme.startsWith('nostr:naddr') ||
+        nostrScheme.startsWith('naddr')) {
+      if (nostrScheme.startsWith('nostr:')) {
+        nostrScheme = Nip21.decode(nostrScheme)!;
+      }
+      Map result = Nip19.decodeShareableEntity(nostrScheme);
+      return await addressToMessageContent(
+          result['special'], result['author'], nostrScheme);
     }
     return null;
   }
@@ -54,6 +58,21 @@ class ChatNostrSchemeHandle {
         : ChannelDB(channelId: channelId);
   }
 
+  static Future<String?> addressToMessageContent(
+      String? d, String? pubkey, String nostrScheme) async {
+    if (d == null || pubkey == null) return null;
+    Event? event = await Account.loadAddress(d, pubkey);
+    if (event != null) {
+      switch (event.kind) {
+        case 30023:
+          LongFormContent? longFormContent = Nip23.decode(event);
+          return await longFormContentToMessageContent(
+              longFormContent, nostrScheme);
+      }
+    }
+    return null;
+  }
+
   static Future<String?> eventIdToMessageContent(
       String? eventId, String nostrScheme) async {
     if (eventId != null) {
@@ -73,7 +92,8 @@ class ChatNostrSchemeHandle {
             return await noteToMessageContent(note, nostrScheme);
           case 30023:
             LongFormContent? longFormContent = Nip23.decode(event);
-            return await longFormContentToMessageContent(longFormContent, nostrScheme);
+            return await longFormContentToMessageContent(
+                longFormContent, nostrScheme);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
             ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
@@ -182,9 +202,11 @@ class ChatNostrSchemeHandle {
   static Future<String?> longFormContentToMessageContent(
       LongFormContent? longFormContent, String nostrScheme) async {
     if (longFormContent == null) return null;
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(longFormContent.pubkey);
+    UserDB? userDB =
+        await Account.sharedInstance.getUserInfo(longFormContent.pubkey);
     if (userDB?.lastUpdatedTime == 0) {
-      userDB = await Account.sharedInstance.reloadProfileFromRelay(longFormContent.pubkey);
+      userDB = await Account.sharedInstance
+          .reloadProfileFromRelay(longFormContent.pubkey);
     }
     ;
 
@@ -194,12 +216,13 @@ class ChatNostrSchemeHandle {
         module: 'ox_chat', action: 'commonWebview', params: {'url': url});
 
     String note = '';
-    if(longFormContent.title != null) note = '$note${longFormContent.title}\n\n';
-    if(longFormContent.hashtags?.isNotEmpty == true){
-      for(int i = 0; i < longFormContent.hashtags!.length; i++){
+    if (longFormContent.title != null)
+      note = '$note${longFormContent.title}\n\n';
+    if (longFormContent.hashtags?.isNotEmpty == true) {
+      for (int i = 0; i < longFormContent.hashtags!.length; i++) {
         String hashtag = longFormContent.hashtags![i];
         hashtag = hashtag.replaceAll(' ', '_');
-        if(i == 0){
+        if (i == 0) {
           note = '$note#$hashtag';
         } else {
           note = '$note #$hashtag';
@@ -215,9 +238,11 @@ class ChatNostrSchemeHandle {
       'authorIcon': '${userDB?.picture}',
       'authorName': '${userDB?.name}',
       'authorDNS': '${userDB?.dns}',
-      'createTime': '${longFormContent.publishedAt ?? longFormContent.createAt}',
+      'createTime':
+          '${longFormContent.publishedAt ?? longFormContent.createAt}',
       'note': note,
-      'image': '${longFormContent.image ?? _extractFirstImageUrl(longFormContent.content)}',
+      'image':
+          '${longFormContent.image ?? _extractFirstImageUrl(longFormContent.content)}',
       'link': link,
     };
     return jsonEncode(map);

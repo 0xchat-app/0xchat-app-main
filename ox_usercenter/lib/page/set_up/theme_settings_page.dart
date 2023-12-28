@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -146,6 +147,9 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
         ThemeManager.changeTheme(ThemeSettingType.values[selectedIndex].themeStyle);
         OXCacheManager.defaultOXCacheManager.saveForeverData('themeSetting', ThemeSettingType.values[selectedIndex].saveText);
         _selectedIndex = selectedIndex;
+        UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
+        userConfigDB.themeIndex = selectedIndex;
+        UserConfigTool.updateUserConfigDB(userConfigDB);
         setState(() { });
       },
       child: Container(

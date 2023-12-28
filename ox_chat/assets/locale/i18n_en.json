@@ -204,6 +204,9 @@
   "disabled_msg_auto_delete_system": "${username} Disabled the auto-delete timer",
   "set_normal_dm_system": "${username} Set the current conversation as normal DM",
   "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM",
+  "str_no_chats_hint": "No chats yet?\nTry ${addfriend} or ${johnchannel}",
+  "str_add_a_friend": "add a friend",
+  "str_john_a_channel": "join a channel",
   "scan_qr_code": "Scan QR code",
   "ox_request_join_item_text": "${name} request to join the group"
 }

@@ -5,11 +5,13 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
-import 'package:ox_usercenter/widget/secure_keypad.dart';
+import 'package:ox_usercenter/widget/verify_secure_keypad.dart';
 
 ///Title: verify_passcode_page
 ///Description: TODO(Fill in by oneself)
@@ -30,10 +32,16 @@ class VerifyPasscodePage extends StatefulWidget {
 
 class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   String _inputPwd = '';
+  String localPasscode = '';
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
   }
 
   @override
@@ -49,8 +57,8 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
           image: DecorationImage(
             fit: BoxFit.cover,
             image: AssetImage(
-              'assets/images/purple_bg.png',
-              package: 'kd_wallet_home',
+              'assets/images/icon_verify_pw_bg.png',
+              package: 'ox_usercenter',
             ),
           ),
         ),
@@ -58,11 +66,12 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
           children: [
             CommonAppBar(
               title: '',
+              canBack: false,
               backgroundColor: Colors.transparent,
             ),
-            CommonImage(iconName: 'icon_verify_passcode.png', width: 80.px, height: 80.px, package: 'kd_wallet_home'),
+            CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
             SizedBox(height: 36.px),
-            abbrText('Enter your Passcode', 24, ThemeColor.color0),
+            abbrText('str_enter_passcode'.localized(), 24, ThemeColor.color0),
             SizedBox(height: 36.px),
             Container(
               height: 56.px,
@@ -79,7 +88,11 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
             const Expanded(
               child: SizedBox(),
             ),
-            SecureKeypad(onChanged: _keypadValue),
+            VerifySecureKeypad(
+                onChanged: _keypadValue,
+                onAuthResult: (value) {
+                  if (value && mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
+                }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
             SizedBox(height: 89.px),
           ],
         ),
@@ -107,15 +120,19 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
     );
   }
 
-  void _keypadValue(value) async {
-    LogUtil.e('Michael: ======value =${value}');
+  void _keypadValue(value) {
     setState(() {
-      _inputPwd = value;
+      if (value == 'x') {
+        if (_inputPwd.isNotEmpty) {
+          _inputPwd = _inputPwd.substring(0, _inputPwd.length - 1);
+        }
+      } else {
+        _inputPwd += value;
+      }
     });
     if (_inputPwd.length == 6) {
-      String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
       if (_inputPwd == localPasscode) {
-        if (mounted) OXNavigator.pop(context);
+        if (mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
       } else {
         inputError();
       }
@@ -125,8 +142,8 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   void inputError() {
     OXCommonHintDialog.show(
       context,
-      title: 'Authentication Failed',
-      content: 'This wallet is secured. The entered passcode is invalid.',
+      title: 'str_authentication_failed_title'.localized(),
+      content: 'str_authentication_failed_hint'.localized(),
       actionList: [
         OXCommonHintAction(
             text: () => 'OK',

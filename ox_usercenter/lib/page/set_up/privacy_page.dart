@@ -56,7 +56,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
       backgroundColor: ThemeColor.color190,
       body: ListView.builder(
         padding: const EdgeInsets.only(bottom: 0),
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemBuilder: _itemBuild,
         itemCount: _secureModelList.length,
       ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(12))),

@@ -13,6 +13,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -160,6 +161,27 @@ extension MessageDBToUIEx on MessageDB {
               await DB.sharedInstance.update(this);
             }
           });
+        }
+        else if(Zaps.isLightningInvoice(initialText)){
+          messageFactory = CustomMessageFactory();
+          Map<String, String> req = Zaps.decodeInvoice(initialText);
+          String link = CustomURIHelper.createModuleActionURI(
+              module: 'ox_chat',
+              action: 'zapsRecordDetail',
+              params: {'invoice': initialText, 'amount': req['amount'], 'zapsTime': req['timestamp']});
+          Map<String, dynamic> map = {};
+          map['type'] = '1';
+          map['content'] = {
+            'zapper': '',
+            'invoice': initialText,
+            'amount': req['amount'],
+            'description': 'Best wishes',
+            'link': link
+          };
+          this.type = 'template';
+          this.decryptContent = jsonEncode(map);
+          contentModel.content = this.decryptContent;
+          await DB.sharedInstance.update(this);
         }
         else{
           messageFactory = TextMessageFactory();

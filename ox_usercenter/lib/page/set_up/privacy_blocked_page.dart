@@ -150,7 +150,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
           setState(() {
           });
         }else {
-          await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {'userDB': widget.blockedUsers[index],});
+          await OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {'pubkey': widget.blockedUsers[index].pubKey});
           setState(() {
           });
         }

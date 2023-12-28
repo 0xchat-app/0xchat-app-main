@@ -39,13 +39,12 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColor.color200,
+      backgroundColor: ThemeColor.color190,
       resizeToAvoidBottomInset: false,
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
         title: '',
-        backgroundColor: ThemeColor.color200,
         actions: [
           Container(
             margin: EdgeInsets.only(right: Adapt.px(24)),

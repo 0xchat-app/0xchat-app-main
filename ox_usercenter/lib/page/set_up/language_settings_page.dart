@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -9,73 +10,6 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'dart:ui' as ui;
 
-
-extension OXLanguageType on LocaleType {
-  String get languageText {
-    switch (this) {
-      case LocaleType.en:
-        return 'English';
-      case LocaleType.zh:
-        return '简体中文';
-      case LocaleType.ru:
-        return 'русский';
-      case LocaleType.fr:
-        return 'Français';
-      case LocaleType.de:
-        return 'Deutsch';
-      case LocaleType.es:
-        return 'Español';
-      case LocaleType.ja:
-        return '日本語';
-      case LocaleType.ko:
-        return '한국어';
-      case LocaleType.pt:
-        return 'Português';
-      case LocaleType.vi:
-        return 'Tiếng việt';
-      case LocaleType.ar:
-        return 'عربي';
-      case LocaleType.th:
-        return 'ภาษาไทย';
-      case LocaleType.zh_tw:
-        return '繁體中文(中國台灣)';
-      case LocaleType.it:
-        return 'Italiano';
-      case LocaleType.tr:
-        return 'Türkçe';
-      case LocaleType.sv:
-        return 'Svenska';
-      case LocaleType.hu:
-        return 'Magyar';
-      case LocaleType.nl:
-        return 'Nederlands';
-      case LocaleType.pl:
-        return 'Polski';
-      case LocaleType.el:
-        return 'Ελληνικά';
-      case LocaleType.cs:
-        return 'čeština';
-      case LocaleType.lv:
-        return 'latviski';
-      case LocaleType.az:
-        return 'Azərbaycan';
-      case LocaleType.uk:
-        return 'украї́нська мо́ва';
-      case LocaleType.bg:
-        return 'български';
-      case LocaleType.id:
-        return 'Bahasa Indonesia';
-      case LocaleType.et:
-        return 'Eesti keel';
-      case LocaleType.hi:
-        return 'தமிழ்';
-      case LocaleType.da:
-        return 'Dansk';
-      case LocaleType.ca:
-        return 'Català';
-    }
-  }
-}
 
 class LanguageSettingsPage extends StatefulWidget {
   const LanguageSettingsPage({super.key});
@@ -160,18 +94,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   Widget _buildItem(String label,{int? index}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async {
-        final selectedIndex = index ?? 0;
-        setState(() {
-          _isShowLoading = true;
-          _selectedIndex = selectedIndex;
-        });
-        _controller.repeat();
-        await Localized.changeLocale(LocaleType.values[selectedIndex]);
-        setState(() {
-          _isShowLoading = false;
-          _controller.stop();
-        });
+      onTap: (){
+        _itemOnTap(index);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
@@ -213,5 +137,22 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
   void dispose() {
     super.dispose();
     _controller.dispose();
+  }
+
+  void _itemOnTap(int? index) async {
+    final selectedIndex = index ?? 0;
+    setState(() {
+      _isShowLoading = true;
+      _selectedIndex = selectedIndex;
+    });
+    _controller.repeat();
+    await Localized.changeLocale(LocaleType.values[selectedIndex]);
+    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    userConfigDB.languageIndex = selectedIndex;
+    UserConfigTool.updateUserConfigDB(userConfigDB);
+    setState(() {
+      _isShowLoading = false;
+      _controller.stop();
+    });
   }
 }

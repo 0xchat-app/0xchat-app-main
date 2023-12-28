@@ -540,6 +540,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   @override
   renderNoDataView(BuildContext context, {String? errorTip}) {
+    String addfriendStr = 'str_add_a_friend'.localized();
+    String johnchannelStr = 'str_john_a_channel'.localized();
     return Container(
       padding: EdgeInsets.only(
         top: Adapt.px(80.0),
@@ -554,20 +556,17 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           Container(
             margin: EdgeInsets.only(top: Adapt.px(24.0)),
             child: HighlightedClickableText(
-              text: 'No chats yet?\nTry add a friend or join a channel.',
-              highlightWords: ['add a friend', 'join a channel'],
+              text: 'str_no_chats_hint'.localized({r'${addfriend}': addfriendStr,r'${johnchannel}': johnchannelStr}),
+              highlightWords: [addfriendStr, johnchannelStr],
               onWordTap: (word) async {
-                switch (word) {
-                  case 'add a friend':
-                    _gotoAddFriend();
-                    break;
-                  case 'join a channel':
-                    OXNavigator.pushPage(
-                        context,
-                        (context) => SearchPage(
-                              searchPageType: SearchPageType.discover,
-                            ));
-                    break;
+                if (word == addfriendStr) {
+                   _gotoAddFriend();
+                } else if (word == johnchannelStr) {
+                  OXNavigator.pushPage(
+                      context,
+                      (context) => SearchPage(
+                            searchPageType: SearchPageType.discover,
+                          ));
                 }
               },
             ),
