@@ -65,6 +65,7 @@ dependencies:
   audioplayers: ^3.0.1
   local_auth: ^2.1.7
   pick_or_save: ^2.2.4
+  audio_session: ^0.1.18
 
   chatcore:
     path: ../../0xchat-core
