@@ -50,64 +50,17 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            image: AssetImage(
-              'assets/images/icon_verify_pw_bg.png',
-              package: 'ox_usercenter',
-            ),
-          ),
-        ),
-        child: Column(
-          children: [
-            CommonAppBar(
-              title: '',
-              canBack: false,
-              backgroundColor: Colors.transparent,
-            ),
-            CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
-            SizedBox(height: 36.px),
-            abbrText('str_enter_passcode'.localized(), 24, ThemeColor.color0),
-            SizedBox(height: 36.px),
-            Container(
-              height: 56.px,
-              alignment: Alignment.topCenter,
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 0),
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: _itemBuild,
-                itemCount: 6,
-              ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            VerifySecureKeypad(
-                onChanged: _keypadValue,
-                onAuthResult: (value) {
-                  if (value && mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
-                }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-            SizedBox(height: 89.px),
-          ],
-=======
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                ThemeColor.gradientMainEnd.withOpacity(0.5),
-                ThemeColor.gradientMainStart.withOpacity(0.7),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage(
+                'assets/images/icon_verify_pw_bg.png',
+                package: 'ox_usercenter',
+              ),
             ),
           ),
           child: Column(
@@ -144,7 +97,6 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
               SizedBox(height: 89.px),
             ],
           ),
->>>>>>> d1ca3eb... [Michael][update] 1、disable swipe back
         ),
       ),
     );
