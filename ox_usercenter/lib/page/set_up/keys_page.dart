@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -12,6 +14,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 
 ///Title: keys_page
 ///Description: TODO(Fill in by oneself)
@@ -32,7 +35,8 @@ enum KeyType { PublicKey, PrivateKey }
 class _KeysPageState extends State<KeysPage>{
   bool _publicKeyCopyied = false;
   bool _privateKeyCopyied = false;
-  bool _isShowPrivkey = true;
+  bool _isShowPrivkey = false;
+  String _localPasscode = '';
   late UserDB userDB;
   TextEditingController _pubTextEditingController = TextEditingController();
   TextEditingController _privTextEditingController = TextEditingController();
@@ -47,10 +51,7 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   void initData() async {
-    bool isShowPrivkey = await getShowPrivkeyFlag();
-    setState(() {
-      _isShowPrivkey = isShowPrivkey;
-    });
+    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
   }
 
   @override
@@ -91,12 +92,19 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   Future<void> _changeShowPrivkeyFn(bool value) async {
-    LogUtil.e('Michael： value =${value}');
-
-    setState(() {
-      _isShowPrivkey = value;
-    });
-    await saveShowPrivkeyFlag(value);
+    if (_localPasscode.isNotEmpty && value) {
+      final result = await OXNavigator.pushPage(context, (context) => VerifyPasscodePage(needBack: true,));
+      LogUtil.e('Michael: --_changeShowPrivkeyFn--- result =${result}');
+      if (result != null && result is bool && result && mounted) {
+        setState(() {
+          _isShowPrivkey = value;
+        });
+      }
+    } else {
+      setState(() {
+        _isShowPrivkey = value;
+      });
+    }
   }
 
   Widget _itemView(KeyType keyType, String title, TextEditingController _textEditingController, bool isShowSwitch) {
@@ -215,22 +223,4 @@ class _KeysPageState extends State<KeysPage>{
     ).setPadding(EdgeInsets.only(bottom: Adapt.px(30)));
   }
 
-  Future<void> saveShowPrivkeyFlag(bool isShowPrivkey) async {
-    try {
-      await OXCacheManager.defaultOXCacheManager.saveForeverData('isShowPrivkey', isShowPrivkey);
-    } catch (e) {
-      LogUtil.e("save flag fail!");
-    }
-  }
-
-  Future<bool> getShowPrivkeyFlag() async {
-    bool isShowPrivkey;
-    try {
-      isShowPrivkey = await OXCacheManager.defaultOXCacheManager.getForeverData('isShowPrivkey');
-    } catch (e) {
-      isShowPrivkey = false;
-      LogUtil.e("get flag fail!");
-    }
-    return isShowPrivkey;
-  }
 }

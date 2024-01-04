@@ -108,6 +108,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   bool _isMute = false;
   bool _isVerifiedDNS = false;
   late UserDB userDB;
+  String myPubkey = '';
 
   // auto delete
   int get _autoDelExTime {
@@ -143,48 +144,44 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     return Contacts.sharedInstance.inBlockList(widget.pubkey ?? '');
   }
 
-  void _initModelList() {
-    modelList = [
-      TabModel(
-        iconName: 'icon_message.png',
-        onTap: _sendMsg,
-        content: Localized.text('ox_chat.send_message'),
-      ),
-      TabModel(
-        onTap: () {
-          OXNavigator.presentPage(
-            context,
-            (context) => ContactCreateSecret(userDB: userDB),
-          );
-        },
-        iconName: 'icon_secret.png',
-        content: Localized.text('ox_chat.secret_chat'),
-      ),
-      TabModel(
-        onTap: () {
-          _clickCall();
-        },
-        iconName: 'icon_chat_call.png',
-        content: Localized.text('ox_chat.call'),
-      ),
-      TabModel(
-        onTap: () => _onChangedMute(!_isMute),
-        iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
-        content: _isMute
-            ? Localized.text('ox_chat.un_mute_item')
-            : Localized.text('ox_chat.mute_item'),
-      ),
-    ];
-
-    if (widget.chatId != null) {
-      modelList.add(
+  void _initModelList() async {
+    myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (myPubkey != widget.pubkey)
+      modelList = [
         TabModel(
-          onTap: _chatMsgControlDialogWidget,
-          iconName: 'icon_more_gray.png',
-          content: Localized.text('ox_chat.more'),
+          iconName: 'icon_message.png',
+          onTap: _sendMsg,
+          content: Localized.text('ox_chat.send_message'),
         ),
-      );
-    }
+        TabModel(
+          onTap: () {
+            OXNavigator.presentPage(
+              context,
+              (context) => ContactCreateSecret(userDB: userDB),
+            );
+          },
+          iconName: 'icon_secret.png',
+          content: Localized.text('ox_chat.secret_chat'),
+        ),
+        TabModel(
+          onTap: () {
+            _clickCall();
+          },
+          iconName: 'icon_chat_call.png',
+          content: Localized.text('ox_chat.call'),
+        ),
+        TabModel(
+          onTap: () => _onChangedMute(!_isMute),
+          iconName: _isMute ? 'icon_session_mute.png' : 'icon_mute.png',
+          content: _isMute ? Localized.text('ox_chat.un_mute_item') : Localized.text('ox_chat.mute_item'),
+        ),
+        if (widget.chatId != null)
+          TabModel(
+            onTap: _chatMsgControlDialogWidget,
+            iconName: 'icon_more_gray.png',
+            content: Localized.text('ox_chat.more'),
+          ),
+      ];
 
     setState(() {});
   }
@@ -272,7 +269,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
               height: Adapt.px(24),
             ),
             _delOrAddFriendBtnView(),
-            _blockStatusBtnView(),
+            if (myPubkey != widget.pubkey) _blockStatusBtnView(),
             SizedBox(
               height: Adapt.px(44),
             ),
@@ -317,7 +314,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: Adapt.px(14),
+          vertical: Adapt.px(10),
         ),
         decoration: BoxDecoration(
           color: ThemeColor.color180,
@@ -327,29 +324,27 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             ),
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CommonImage(
-                iconName: iconName,
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                package: 'ox_chat',
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CommonImage(
+              iconName: iconName,
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              package: 'ox_chat',
+            ),
+            SizedBox(
+              height: Adapt.px(2),
+            ),
+            Text(
+              content,
+              style: TextStyle(
+                color: ThemeColor.color80,
+                fontSize: Adapt.px(10),
+                fontWeight: FontWeight.w400,
               ),
-              SizedBox(
-                height: Adapt.px(2),
-              ),
-              Text(
-                content,
-                style: TextStyle(
-                  color: ThemeColor.color80,
-                  fontSize: Adapt.px(10),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -502,9 +497,15 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   Widget _delOrAddFriendBtnView() {
-    if (_isInBlockList()) return Container();
-    bool friendsStatus = isFriend(userDB.pubKey ?? '');
-
+    bool friendsStatus = false;
+    String showTxt = '';
+    if (myPubkey == widget.pubkey) {
+      showTxt = Localized.text('ox_chat.send_message');
+    } else {
+      if (_isInBlockList()) return Container();
+      friendsStatus = isFriend(userDB.pubKey ?? '');
+      showTxt = isFriend(userDB.pubKey ?? '') == false ? Localized.text('ox_chat.add_friend') : Localized.text('ox_chat.remove_contacts');
+    }
     return GestureDetector(
       child: Container(
         width: double.infinity,
@@ -525,17 +526,15 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         ),
         alignment: Alignment.center,
         child: Text(
-          isFriend(userDB.pubKey ?? '') == false
-              ? Localized.text('ox_chat.add_friend')
-              : Localized.text('ox_chat.remove_contacts'),
+          showTxt,
           style: TextStyle(
-            color: friendsStatus ? ThemeColor.red : Colors.white,
+            color: myPubkey != widget.pubkey && friendsStatus ? ThemeColor.red : Colors.white,
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
-      onTap: friendsStatus ? _removeFriend : _addFriends,
+      onTap: myPubkey == widget.pubkey ? _sendMsg : (friendsStatus ? _removeFriend : _addFriends),
     );
   }
 
