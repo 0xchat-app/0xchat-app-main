@@ -19,8 +19,10 @@ import 'package:ox_usercenter/widget/verify_secure_keypad.dart';
 ///@author Michael
 ///CreateTime: 2023/12/7 18:38
 class VerifyPasscodePage extends StatefulWidget {
-  const VerifyPasscodePage({
+  final bool needBack;
+  VerifyPasscodePage({
     Key? key,
+    this.needBack = false,
   }) : super(key: key);
 
   @override
@@ -51,7 +53,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: widget.needBack ? null : () async => false,
       child: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
@@ -67,7 +69,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
             children: [
               CommonAppBar(
                 title: '',
-                canBack: false,
+                canBack: widget.needBack,
                 backgroundColor: Colors.transparent,
               ),
               CommonImage(iconName: 'icon_logo_ox_login.png', width: 100.px, height: 100.px, package: 'ox_login'),
@@ -92,7 +94,13 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
               VerifySecureKeypad(
                   onChanged: _keypadValue,
                   onAuthResult: (value) {
-                    if (value && mounted) OXNavigator.pop(context);
+                    if (value && mounted) {
+                      if (widget.needBack) {
+                        OXNavigator.pop(context, true);
+                      } else {
+                        OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
+                      }
+                    }
                   }).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
               SizedBox(height: 89.px),
             ],
@@ -134,7 +142,13 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
     });
     if (_inputPwd.length == 6) {
       if (_inputPwd == localPasscode) {
-        if (mounted) OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
+        if (mounted) {
+          if (widget.needBack) {
+            OXNavigator.pop(context, true);
+          } else {
+            OXModuleService.pushPage(context, 'ox_home', 'HomeTabBarPage', {});
+          }
+        }
       } else {
         inputError();
       }
