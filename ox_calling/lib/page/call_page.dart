@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_calling/manager/signaling.dart';
+import 'package:ox_calling/model/speaker_type.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
@@ -45,10 +46,11 @@ class CallPageState extends State<CallPage> {
   );
 
   bool _isMicOn = true;
-  bool _isSpeakerOn = true;
+  SpeakerType _speakerType = SpeakerType.speakerOff;
   bool _isVideoOn = true;
   double top = 120.0;
   double left = 20;
+  final GlobalKey _speakerButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -61,8 +63,9 @@ class CallPageState extends State<CallPage> {
         },
       );
       return;
+    }  else {
+      _initData();
     }
-    _initData();
     Future.delayed(const Duration(seconds: 60), (){
       if (!CallManager.instance.getInCallIng && mounted) {
         CallManager.instance.initiativeHangUp = true;
@@ -94,7 +97,7 @@ class CallPageState extends State<CallPage> {
       _isVideoOn = false;
     }
     if (!CallManager.instance.getInCallIng && !CallManager.instance.getWaitAccept) {
-      CallManager.instance.setSpeaker(true);
+      CallManager.instance.setSpeaker(SpeakerType.speakerOn);
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.initiativeHangUp = false;
@@ -103,6 +106,7 @@ class CallPageState extends State<CallPage> {
     }
     if (mounted) setState(() {});
     CallManager.instance.addObserver(counterValueChange);
+    CallManager.instance.loadAudioManager();
   }
 
   void counterValueChange(value) {
@@ -322,17 +326,33 @@ class CallPageState extends State<CallPage> {
         ||(CallManager.instance.callType == CallMessageType.video && CallManager.instance.callState == CallState.CallStateConnected)) {
       showButtons.add(
         InkWell(
-          onTap: () {
-            _isSpeakerOn = !_isSpeakerOn;
+          key: _speakerButtonKey,
+          onTap: () async {
+            final selectedSpeakerType = await showCustomDialog(context, _speakerButtonKey);
+            LogUtil.e('Michael: speakerClick-----selectedSpeakerType =${selectedSpeakerType?.name}');
+            if (selectedSpeakerType != null) {
+              _speakerType = selectedSpeakerType;
+            }
             setState(() {
-              CallManager.instance.setSpeaker(_isSpeakerOn);
+              CallManager.instance.setSpeaker(_speakerType);
             });
           },
-          child: _buildItemImg(_isSpeakerOn ? 'icon_call_speaker_on.png' : 'icon_call_speaker_off.png', 26, 48),
+          child: _buildItemImg(_getSpeakerImgName(), 26, 48),
         ),
       );
     }
     return showButtons;
+  }
+
+  String _getSpeakerImgName({SpeakerType? type}){
+    switch(type ?? _speakerType){
+      case SpeakerType.speakerOn:
+        return 'icon_call_speaker_on.png';
+        case SpeakerType.speakerOff:
+        return 'icon_call_speaker_off.png';
+      case SpeakerType.speakerOnBluetooth:
+        return 'icon_call_speaker_of_bluetooth.png';
+    }
   }
 
   Widget _buildItemImg(String icon, int wh, int outsideWH) {
@@ -434,5 +454,53 @@ class CallPageState extends State<CallPage> {
       setState(() {});
     }
 
+  }
+
+  Future<SpeakerType?> showCustomDialog(BuildContext context, GlobalKey buttonKey) async {
+    final RenderBox button = buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final position = button.localToGlobal(Offset.zero);
+    List<SpeakerType> dialogList = [SpeakerType.speakerOn, SpeakerType.speakerOff, SpeakerType.speakerOnBluetooth];
+    if (!CallManager.instance.isBluetoothHeadsetConnected) {
+      dialogList.remove(SpeakerType.speakerOnBluetooth);
+    }
+    dialogList.remove(_speakerType);
+    final SpeakerType? selectedSpeakerType = await showDialog<SpeakerType>(
+      barrierColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return Stack(
+          children: <Widget>[
+            Positioned(
+              left: position.dx,
+              top: position.dy - 16.px - (dialogList.length * 88).px,
+              child: SizedBox(
+                width: 48.px,
+                height: (dialogList.length * 88).px,
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return _speakerItemBuilder(context, index, dialogList[index]);
+                  },
+                  itemCount: dialogList.length,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    return selectedSpeakerType;
+  }
+
+  Widget _speakerItemBuilder(BuildContext context, int index, SpeakerType type) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: (){
+        OXNavigator.pop(context, type);
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 20.px),
+        child: _buildItemImg(_getSpeakerImgName(type: type), 26, 48),
+      ),
+    );
   }
 }
