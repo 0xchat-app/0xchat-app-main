@@ -37,6 +37,32 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    afterEvaluate {
+        if (it.hasProperty('android')) {
+            if (it.android.namespace == null) {
+                def manifest = new XmlSlurper().parse(file(it.android.sourceSets.main.manifest.srcFile))
+                def packageName = manifest.@package.text()
+                android.namespace = packageName
+            }
+            def javaVersion = JavaVersion.VERSION_17
+            android {
+                def androidApiVersion = 34
+                compileSdkVersion androidApiVersion
+                defaultConfig {
+                    targetSdkVersion androidApiVersion
+                }
+                compileOptions {
+                    sourceCompatibility javaVersion
+                    targetCompatibility javaVersion
+                }
+                tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                    kotlinOptions {
+                        jvmTarget = javaVersion.toString()
+                    }
+                }
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')
