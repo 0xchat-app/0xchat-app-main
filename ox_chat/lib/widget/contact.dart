@@ -111,12 +111,15 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-
+    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    for (var user in userList!) {
+      String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
+      String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
+      pinyinMap[user] = pinyin;
+    }
     userList!.sort((v1, v2) {
-      return PinyinHelper.getFirstWordPinyin((v1.nickName != null && v1.nickName!.isNotEmpty) ? v1.nickName! : v1.name!)
-          .compareTo(PinyinHelper.getFirstWordPinyin(v1.nickName != null ? v1.nickName! : v2.name!));
+      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
-
     userList!.forEach((item) {
       if (item.pubKey == '') return;
       if (item.name!.isEmpty) item.name = 'unknown';
@@ -134,13 +137,13 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
       }
       mapData[cTag]?.add(item);
     });
-
     mapData.forEach((tag, list) {
       if (list.isNotEmpty) {
         indexTagList.add(tag);
         noteList.add(Note(tag, list));
       }
     });
+
   }
 
   @override

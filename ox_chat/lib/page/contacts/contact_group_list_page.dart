@@ -66,9 +66,14 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
-
+    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    for (var user in userList!) {
+      String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
+      String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
+      pinyinMap[user] = pinyin;
+    }
     userList.sort((v1, v2) {
-      return _getFirstWord(v1).compareTo(_getFirstWord(v2));
+      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
 
     userList.forEach((item) {
