@@ -111,6 +111,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
+    int time1 = DateTime.now().millisecondsSinceEpoch;
     Map<UserDB, String> pinyinMap = Map<UserDB, String>();
     for (var user in userList!) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
@@ -127,8 +128,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
       //   mapData["☆"]?.insert(0, item);
       //   return;
       // }
-      var cTag =
-          PinyinHelper.getFirstWordPinyin((item.nickName != null && item.nickName!.isNotEmpty) ? item.nickName! : item.name!).substring(0, 1).toUpperCase();
+      var cTag = pinyinMap[item]![0].toUpperCase();
       // if (EnumTypeUtils.checkShiftOperation(item.userType!, 0)) {
       //   cTag = "☆";
       // } else if (!ALPHAS_INDEX.contains(cTag)){ cTag = '#';}
@@ -143,7 +143,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         noteList.add(Note(tag, list));
       }
     });
-
+    int time2 = DateTime.now().millisecondsSinceEpoch;
+    LogUtil.e('Michael: ------time2 - time1 =${time2 -time1}');
   }
 
   @override

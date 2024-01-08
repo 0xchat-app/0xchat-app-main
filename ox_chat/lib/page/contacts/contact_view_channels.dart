@@ -73,23 +73,14 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
     super.build(context);
     return commonStateViewWidget(
       context,
-      VisibilityDetector(
-        key: const Key('friend_list'),
-        onVisibilityChanged: (VisibilityInfo visibilityInfo) {
-          if (visibilityInfo.visibleFraction == 0.0) {
-          } else {
-            _loadData();
-          }
-        },
-        child: ChannelContact(
-          key: channelsWidgetKey,
-          data: channels,
-          chatType:  ChatType.chatChannel,
-          shrinkWrap: widget.shrinkWrap,
-          physics: widget.physics,
-          scrollController: widget.scrollController,
-          onCursorChannelsChanged: widget.onCursorChannelsChanged,
-        ),
+      ChannelContact(
+        key: channelsWidgetKey,
+        data: channels,
+        chatType:  ChatType.chatChannel,
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
+        scrollController: widget.scrollController,
+        onCursorChannelsChanged: widget.onCursorChannelsChanged,
       ),
     );
   }
