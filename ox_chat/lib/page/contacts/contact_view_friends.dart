@@ -1,15 +1,12 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/contact.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/mixin/common_ui_refresh_mixin.dart';
-import 'package:ox_common/utils/ox_chat_observer.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 /// Contact - Friends List
 const String systemUserType = "10000";
@@ -82,9 +79,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   void _loadData() {
     Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
     userList.clear();
-    tempList.forEach (( value) {
-      userList.add(value);
-    });
+    if (tempList.isNotEmpty) userList.addAll(tempList);
     _showView();
   }
 
@@ -126,33 +121,6 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     } else {
       _loadData();
     }
-  }
-
-  // @override
-  // renderNoDataView() => _emptyWidget();
-
-  Widget _emptyWidget() {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: 87.0),
-      child: Column(
-        children: <Widget>[
-          assetIcon(
-            'icon_search_user_no.png',
-            110.0,
-            110.0,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: MyText(
-              Localized.text('ox_chat.no_contacts_added'),
-              14,
-              ThemeColor.gray02,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
