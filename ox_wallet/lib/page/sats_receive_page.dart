@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
-import 'package:ox_wallet/widget/common_option_item.dart';
+import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/counter_down.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:cashu_dart/cashu_dart.dart';
@@ -25,9 +28,11 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   final TextEditingController _noteEditController = TextEditingController();
   final FocusNode _noteFocus = FocusNode();
   final FocusNode _amountFocus = FocusNode();
+  late final PayInvoiceListener payInvoiceListener;
 
   String get amount => _amountEditController.text;
   String get note => _noteEditController.text;
+  String? get invoice => _invoiceNotifier.value;
 
   @override
   void initState() {
@@ -35,6 +40,8 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _createLightningInvoice();
     _amountFocus.addListener(() => _focusChanged(_amountFocus));
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
+    payInvoiceListener = PayInvoiceListener(onChanged: _onInvoicePaid);
+    Cashu.addInvoiceListener(payInvoiceListener);
     super.initState();
   }
 
@@ -45,6 +52,10 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     } else {
       _createLightningInvoice();
     }
+  }
+
+  void _onInvoicePaid(Receipt receipt) {
+    OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.invoicePaid(amount: receipt.amount,onTap: () => OXNavigator.pop(context!),),);
   }
 
   @override
@@ -135,7 +146,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   Widget _buildAmountEdit() {
-    return CommonOptionItem.textField(
+    return CommonLabeledCard.textField(
       label: 'Amount',
       hintText: 'Enter Amount',
       suffixText: 'Sats',
@@ -146,7 +157,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   Widget _buildNoteEdit(){
-    return CommonOptionItem.textField(
+    return CommonLabeledCard.textField(
       label: 'Public',
       hintText: 'Add Public Note',
       controller: _noteEditController,
@@ -155,17 +166,15 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   Future<void> _createLightningInvoice() async {
-    try{
-      List<IMint> mintList = Cashu.mintList();
-      IMint mint = mintList.first;
-      int amountSats = int.parse(amount);
-      IInvoice? iInvoice = await Cashu.createLightningInvoice(mint: mint, amount: amountSats);
-      if(iInvoice != null && iInvoice.request.isNotEmpty){
-        _invoiceNotifier.value = iInvoice.request;
-      }
-    }catch(e){
-      LogUtil.e('');
+    int amountSats = int.parse(amount);
+    Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint, amount: amountSats);
+    if(receipt != null && receipt.request.isNotEmpty){
+      _invoiceNotifier.value = receipt.request;
+      // _expiredTimeNotifier.value = receipt.expiry;
+      _expiredTimeNotifier.value = 3600;
+      return;
     }
+    _invoiceNotifier.value = null;
   }
 
   @override
@@ -178,6 +187,20 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _noteFocus.removeListener(() => _focusChanged(_noteFocus));
     _amountFocus.dispose();
     _noteFocus.dispose();
+    Cashu.removeInvoiceListener(payInvoiceListener);
     super.dispose();
+  }
+}
+
+class PayInvoiceListener implements InvoiceListener {
+  final ValueChanged<Receipt>? onChanged;
+
+  PayInvoiceListener({this.onChanged});
+
+  @override
+  void onInvoicePaid(Receipt receipt) {
+    if (onChanged != null) {
+      onChanged!(receipt);
+    }
   }
 }

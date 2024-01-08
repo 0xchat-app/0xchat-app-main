@@ -4,6 +4,8 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_wallet/page/wallet_mint_list_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
 
 class WalletHomePage extends StatefulWidget {
@@ -77,12 +79,15 @@ class _WalletHomePageState extends State<WalletHomePage> {
                 onPressed: () => OXNavigator.pop(context),
               ),
               actions: [
-                CommonImage(
-                    iconName: 'icon_wallet_more.png',
-                    width: 24.px,
-                    height: 24.px,
-                    package: 'ox_wallet',
-                  ).setPadding(EdgeInsets.only(right: 24.px)),
+                GestureDetector(
+                  child: CommonImage(
+                      iconName: 'icon_wallet_more.png',
+                      width: 24.px,
+                      height: 24.px,
+                      package: 'ox_wallet',
+                    ).setPadding(EdgeInsets.only(right: 24.px)),
+                  onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintListPage()),
+                ),
                 ],
             ),
           ),
@@ -172,7 +177,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
               height: 4.px,
             ),
             Text(
-              "1,000 sats",
+              "${EcashManager.shared.defaultIMint.balance} sats",
               style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600),
             ),
           ],

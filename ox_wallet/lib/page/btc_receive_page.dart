@@ -18,6 +18,12 @@ class _BTCReceivePageState extends State<BTCReceivePage> {
   final String tips = '• Do not send Ordinals or any inscriptions to this address\r\n• Do not send more than 0.05BTC to this address';
 
   @override
+  void initState() {
+    _createLightningInvoice();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
@@ -55,5 +61,9 @@ class _BTCReceivePageState extends State<BTCReceivePage> {
           );
         }
     );
+  }
+
+  Future<void> _createLightningInvoice() async {
+    Future.delayed(const Duration(seconds: 5),()=> _invoiceNotifier.value = null);
   }
 }

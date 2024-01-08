@@ -17,7 +17,7 @@ class EcashQrCode extends StatelessWidget {
       width: 260.px,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.px),
-        color: controller.value == null || controller.value!.isNotEmpty ? Colors.white : ThemeColor.color100,
+        color: controller.value != null && controller.value!.isNotEmpty ? Colors.white : ThemeColor.color100,
       ),
       padding: const EdgeInsets.all(20),
       child: _buildQRCode(),
@@ -30,31 +30,28 @@ class EcashQrCode extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         onTap: () {
           controller.value = '';
-          if(onRefresh!=null){
+          if (onRefresh != null) {
             onRefresh!();
           }
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _QRLoading(controller: controller,),
-            SizedBox(height: 10.px,),
-            Text(
-              'Create failed, Refresh',
-              style: TextStyle(
-                  color: ThemeColor.color210,
-                  fontSize: 13.px,
-                  fontWeight: FontWeight.w400,
-                  height: 18.px / 13.px),
-            ),
-          ],
+        child: _buildTips(
+          child: CommonImage(
+            iconName: 'icon_set_refresh.png',
+            package: 'ox_wallet',
+            size: 48.px,
+          ),
+          tips: 'Create failed, Refresh',
         ),
       );
     }
 
     if (controller.value == '') {
-      return _QRLoading(controller: controller,);
+      return _buildTips(
+        child: _QRLoading(
+          controller: controller,
+        ),
+        tips: 'Creating...',
+      );
     }
 
     return PrettyQr(
@@ -64,12 +61,31 @@ class EcashQrCode extends StatelessWidget {
       roundEdges: true,
     );
   }
+
+  Widget _buildTips({required Widget child, required String tips}){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        child,
+        SizedBox(height: 10.px,),
+        Text(
+          tips,
+          style: TextStyle(
+              color: ThemeColor.color210.withOpacity(0.5),
+              fontSize: 13.px,
+              fontWeight: FontWeight.w400,
+              height: 18.px / 13.px),
+        ),
+      ],
+    );
+  }
 }
 
 class _QRLoading extends StatefulWidget {
   final ValueNotifier<String?> controller;
 
-  const _QRLoading({super.key, required this.controller});
+  const _QRLoading({required this.controller});
 
   @override
   State<_QRLoading> createState() => _QRLoadingState();
@@ -98,7 +114,7 @@ class _QRLoadingState extends State<_QRLoading> with SingleTickerProviderStateMi
             turns: _controller,
             child: Center(
               child: CommonImage(
-                iconName: 'icon_set_refresh.png',
+                iconName: 'icon_set_loading.png',
                 package: 'ox_wallet',
                 size: 48.px,
               ),

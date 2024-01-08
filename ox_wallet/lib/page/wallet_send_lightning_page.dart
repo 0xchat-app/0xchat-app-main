@@ -89,7 +89,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
                     TextField(
                       textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
-                        hintText: 'Invoice or Address',
+                        hintText: 'Invoice',
                         hintStyle: TextStyle(fontSize: 16.px,height: 22.px / 16.px),
                         isDense: true,
                         border: InputBorder.none,

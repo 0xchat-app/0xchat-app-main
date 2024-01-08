@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:cashu_dart/cashu_dart.dart';
 import 'wallet_send_ecash_overview_page.dart';
 
 class WalletSendEcashPage extends StatelessWidget {
@@ -73,25 +72,19 @@ class WalletSendEcashPage extends StatelessWidget {
             text: 'Continue',
             height: 48.px,
             enable: enable,
-            // onTap: () => OXNavigator.pushPage(context, (context) => const WalletSendEcashOverviewPage()),
-            onTap: () => _sendEcash(context),
+            onTap: () => _nextStep(context),
           ).setPaddingOnly(top: 24.px);
         }
     );
   }
   
-  Future<void> _sendEcash(BuildContext context) async {
-    try {
-      List<IMint> mintList = Cashu.mintList();
-      IMint mint = mintList.first;
-      if (mint.balance <= 0) {
-        CommonToast.instance.show(context, 'Insufficient mint balance');
-        return;
-      }
-      int amountSats = int.parse(amount);
-      await Cashu.sendEcash(mint: mint, amount: amountSats, memo: description);
-    } catch (e, s) {
-      LogUtil.e('');
+  Future<void> _nextStep(BuildContext context) async {
+    int balance = EcashManager.shared.defaultIMint.balance;
+    int sats = int.parse(amount);
+    if (balance <= 0 || balance < sats) {
+      CommonToast.instance.show(context, 'Insufficient mint balance');
+      return;
     }
+    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,));
   }
 }

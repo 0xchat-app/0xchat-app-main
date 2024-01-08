@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_coin_selection_page.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_new_token_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/switch_widget.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/theme_button.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/navigator/navigator.dart';
 
 class WalletSendEcashOverviewPage extends StatefulWidget {
-  const WalletSendEcashOverviewPage({super.key});
+  final int amount;
+  const WalletSendEcashOverviewPage({super.key, required this.amount});
 
   @override
   State<WalletSendEcashOverviewPage> createState() => _WalletSendEcashOverviewPageState();
@@ -28,7 +33,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
     _items = [
       CardItemModel(label: 'Payment type',content: 'Send Ecash',),
       CardItemModel(label: 'Mint',content: 'mint.tangjingxing.com',),
-      CardItemModel(label: 'Amount',content: '255 Sats',),
+      CardItemModel(label: 'Amount',content: widget.amount.toString(),),
       CardItemModel(label: 'Balance after TX',content: '45 Sats',),
       CardItemModel(
         label: 'Coin Selection',
@@ -104,7 +109,14 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
     return commonCardItemList[index];
   }
 
-  void _createToken(){
-    OXNavigator.pushPage(context, (context) => const WalletSendEcashNewTokenPage());
+  Future<void> _createToken() async {
+    await OXLoading.show();
+    String? token = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint, amount: widget.amount);
+    await OXLoading.dismiss();
+    if(token!=null){
+      OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: token,));
+      return;
+    }
+    CommonToast.instance.show(context, 'create toke failed');
   }
 }

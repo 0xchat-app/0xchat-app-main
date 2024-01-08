@@ -5,6 +5,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 
 class WalletSuccessfulPage extends StatelessWidget {
@@ -99,5 +100,18 @@ class WalletSuccessfulPage extends StatelessWidget {
             ),
           ),
     ).setPaddingOnly(bottom: 16.px, left: 24.px, right: 24.px);
+  }
+
+  factory WalletSuccessfulPage.invoicePaid({required String amount, GestureTapCallback? onTap}) {
+    return WalletSuccessfulPage(
+      title: 'Receive',
+      tips: 'Invoice Paid',
+      content: '$amount sats was added your Lightning account.',
+      bottomWidget: ThemeButton(
+        text: 'Receive another payment',
+        height: 48.px,
+        onTap: onTap,
+      ),
+    );
   }
 }
