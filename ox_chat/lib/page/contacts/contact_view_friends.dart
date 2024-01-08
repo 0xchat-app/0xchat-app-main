@@ -53,23 +53,14 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     super.build(context);
     return commonStateViewWidget(
         context,
-        VisibilityDetector(
-          key: const Key('friend_list'),
-          onVisibilityChanged: (VisibilityInfo visibilityInfo) {
-            if (visibilityInfo.visibleFraction == 0.0) {
-            } else {
-              _loadData();
-            }
-          },
-          child: ContactWidget(
-            key: contractWidgetKey,
-            data: userList,
-            shrinkWrap: widget.shrinkWrap,
-            physics: widget.physics,
-            scrollController: widget.scrollController,
-            onCursorContactsChanged: widget.onCursorContactsChanged,
-          ),
-        )
+        ContactWidget(
+          key: contractWidgetKey,
+          data: userList,
+          shrinkWrap: widget.shrinkWrap,
+          physics: widget.physics,
+          scrollController: widget.scrollController,
+          onCursorContactsChanged: widget.onCursorContactsChanged,
+        ),
     );
   }
 

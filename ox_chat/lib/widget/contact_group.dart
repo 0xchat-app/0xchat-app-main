@@ -95,14 +95,18 @@ class GroupContactState extends State<GroupContact> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-
+    Map<GroupDB, String> pinyinMap = Map<GroupDB, String>();
+    for (var groupDB in groupList) {
+      String pinyin = PinyinHelper.getFirstWordPinyin(groupDB.name);
+      pinyinMap[groupDB] = pinyin;
+    }
     groupList.sort((v1, v2) {
-      return PinyinHelper.getFirstWordPinyin(v1.name ?? '').compareTo(PinyinHelper.getFirstWordPinyin(v1.name ?? ''));
+      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
 
     groupList.forEach((item) {
       if (item.groupId == '' || item.name == '') return;
-      var cTag = PinyinHelper.getFirstWordPinyin(item.name ?? '').substring(0, 1).toUpperCase();
+      var cTag = pinyinMap[item]!.substring(0, 1).toUpperCase();
       if (!ALPHAS_INDEX.contains(cTag)) cTag = '#';
       mapData[cTag]?.add(item);
     });

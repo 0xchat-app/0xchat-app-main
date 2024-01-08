@@ -77,7 +77,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     });
 
     userList.forEach((item) {
-      var firstLetter = _getFirstWord(item)[0].toUpperCase();
+      var firstLetter = pinyinMap[item]![0].toUpperCase();
       if (!ALPHAS_INDEX.contains(firstLetter)) {
         firstLetter = '#';
       }
@@ -88,9 +88,6 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     _filteredUserList = _groupedUserList;
   }
 
-  String _getFirstWord(UserDB user){
-    return PinyinHelper.getFirstWordPinyin((user.nickName != null && user.nickName!.isNotEmpty) ? user.nickName! : user.name!).toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {

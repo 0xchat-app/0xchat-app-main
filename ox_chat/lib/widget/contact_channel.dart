@@ -96,14 +96,18 @@ class ChannelContactState extends State<ChannelContact> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-
-    channelList!.sort((v1, v2) {
-      return PinyinHelper.getFirstWordPinyin(v1.name ?? '').compareTo(PinyinHelper.getFirstWordPinyin(v1.name ?? ''));
+    Map<ChannelDB, String> pinyinMap = Map<ChannelDB, String>();
+    for (var channelDB in channelList) {
+      String pinyin = PinyinHelper.getFirstWordPinyin(channelDB.name ?? '');
+      pinyinMap[channelDB] = pinyin;
+    }
+    channelList.sort((v1, v2) {
+      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
 
-    channelList!.forEach((item) {
+    channelList.forEach((item) {
       if (item.channelId == '' || item.name == '') return;
-      var cTag = PinyinHelper.getFirstWordPinyin(item.name ?? '').substring(0, 1).toUpperCase();
+      var cTag = pinyinMap[item]![0].toUpperCase();
       if (!ALPHAS_INDEX.contains(cTag)) cTag = '#';
       mapData[cTag]?.add(item);
     });

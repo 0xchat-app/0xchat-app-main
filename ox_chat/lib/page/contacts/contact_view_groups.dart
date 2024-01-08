@@ -73,23 +73,14 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     super.build(context);
     return commonStateViewWidget(
       context,
-      VisibilityDetector(
-        key: const Key('group_list'),
-        onVisibilityChanged: (VisibilityInfo visibilityInfo) {
-          if (visibilityInfo.visibleFraction == 0.0) {
-          } else {
-            _loadData();
-          }
-        },
-        child: GroupContact(
-          key: groupsWidgetKey,
-          data: groups,
-          chatType:  ChatType.chatGroup,
-          shrinkWrap: widget.shrinkWrap,
-          physics: widget.physics,
-          scrollController: widget.scrollController,
-          onCursorGroupsChanged: widget.onCursorGroupsChanged,
-        ),
+      GroupContact(
+        key: groupsWidgetKey,
+        data: groups,
+        chatType:  ChatType.chatGroup,
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
+        scrollController: widget.scrollController,
+        onCursorGroupsChanged: widget.onCursorGroupsChanged,
       ),
     );
   }
