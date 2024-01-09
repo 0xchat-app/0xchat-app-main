@@ -111,7 +111,6 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    int time1 = DateTime.now().millisecondsSinceEpoch;
     Map<UserDB, String> pinyinMap = Map<UserDB, String>();
     for (var user in userList!) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
@@ -143,8 +142,6 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         noteList.add(Note(tag, list));
       }
     });
-    int time2 = DateTime.now().millisecondsSinceEpoch;
-    LogUtil.e('Michael: ------time2 - time1 =${time2 -time1}');
   }
 
   @override
