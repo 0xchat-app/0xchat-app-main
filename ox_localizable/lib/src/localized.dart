@@ -10,36 +10,36 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 *  Localized.text('key')
 * */
 enum LocaleType {
-    en,//English
-    zh,//Simplified Chinese
-    ru,//Russian
-    fr,//French
+    ar,//Arabic
+    az,//Azerbaijani
+    bg,//Bulgarian
+    ca,//Catalan
+    cs,//Czech
+    da,//danish
     de,//German
+    el,//Greek
     es,//Spanish
+    et,//estonian
+    fr,//French
+    hi,//Hindi
+    hu,//Hungarian
+    id,//Indonesian
+    it,//Italian
     ja,//Japanese
     ko,//Korean
-    pt,//Portuguese
-    vi,//Vietnamese
-    ar,//Arabic
-    th,//Thai
-    zh_tw,//Traditional Chinese
-    it,//Italian
-    tr,//Turkish
-    sv,//Swedish
-    hu,//Hungarian
+    lv,//Latvian
     nl,//Dutch
     pl,//Polish
-    el,//Greek
-    cs,//Czech
-    lv,//Latvian
-    az,//Azerbaijani
+    pt,//Portuguese
+    ru,//Russian
+    sv,//Swedish
+    th,//Thai
+    tr,//Turkish
     uk,//Ukrainian
-    bg,//Bulgarian
-    id,//Indonesian
-    et,//estonian
-    hi,//India
-    da,//danish
-    ca,//Catalan
+    vi,//Vietnamese
+    zh_tw,//Traditional Chinese
+    en,//English
+    zh,//Simplified Chinese
 }
 
 extension LocaleTypeExtension on LocaleType{

@@ -534,47 +534,47 @@ class OXChatBinding {
     return count;
   }
 
-  void changeChatSessionTypeAll(String pubkey, bool isBecomeContact) async {
+  Future<void> changeChatSessionTypeAll(String pubkey, bool isBecomeContact) async {
     //strangerSession to chatSession
     bool isChange = false;
     List<ChatSessionModel> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
-    for (ChatSessionModel csModel in list) {
+    await Future.forEach(list, (csModel) async {
       if(csModel.chatType == ChatType.chatChannel || csModel.chatType == ChatType.chatGroup){
-        continue;
+        return;
       }
       isChange = true;
       int? tempChatType = csModel.chatType;
       if (isBecomeContact) {
         if (csModel.chatType == ChatType.chatSecretStranger && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecret;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         } else if (csModel.chatType == ChatType.chatStranger && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatSingle;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         }
       } else {
         if (csModel.chatType == ChatType.chatSecret && (csModel.sender == pubkey || csModel.receiver == pubkey)) {
           tempChatType = ChatType.chatSecretStranger;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         } else if (csModel.chatType == ChatType.chatSingle && csModel.chatId == pubkey) {
           tempChatType = ChatType.chatStranger;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         }
       }
-    }
+    });
     if (isChange) {
       _updateUnReadStrangerSessionCount();
       sessionUpdate();
     }
   }
 
-  void updateChatSessionDB(ChatSessionModel csModel, int tempChatType){
+  Future<void> updateChatSessionDB(ChatSessionModel csModel, int tempChatType) async {
     csModel.chatType = tempChatType;
     sessionMap[csModel.chatId] = csModel;
     DB.sharedInstance.insert<ChatSessionModel>(csModel);
   }
 
-  void syncSessionTypesByContact(){
+  Future<void> syncSessionTypesByContact() async {
     //strangerSession to chatSession
     bool isChange = false;
     List<ChatSessionModel> list = OXChatBinding.sharedInstance.sessionMap.values.toList();
@@ -589,13 +589,13 @@ class OXChatBinding {
         UserDB? receiverUserDB = Contacts.sharedInstance.allContacts[csModel.receiver];
         if (senderUserDB != null || receiverUserDB != null) {
           tempChatType = ChatType.chatSecret;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         }
       } else if (csModel.chatType == ChatType.chatStranger) {
         UserDB? chatIdUserDB = Contacts.sharedInstance.allContacts[csModel.chatId];
         if (chatIdUserDB != null) {
           tempChatType = ChatType.chatSingle;
-          updateChatSessionDB(csModel, tempChatType);
+          await updateChatSessionDB(csModel, tempChatType);
         }
       }
     }
