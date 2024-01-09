@@ -85,6 +85,6 @@ class WalletSendEcashPage extends StatelessWidget {
       CommonToast.instance.show(context, 'Insufficient mint balance');
       return;
     }
-    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,));
+    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: description,));
   }
 }

@@ -13,10 +13,12 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletSendEcashOverviewPage extends StatefulWidget {
   final int amount;
-  const WalletSendEcashOverviewPage({super.key, required this.amount});
+  final String? memo;
+  const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo});
 
   @override
   State<WalletSendEcashOverviewPage> createState() => _WalletSendEcashOverviewPageState();
@@ -27,14 +29,17 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   List<CardItemModel> _items = [];
 
   bool _isCoinSelection = false;
+  int get balance => EcashManager.shared.defaultIMint.balance - widget.amount;
+  List<Proof>? _selectedProofs;
 
   @override
   void initState() {
+    int balance = EcashManager.shared.defaultIMint.balance;
     _items = [
       CardItemModel(label: 'Payment type',content: 'Send Ecash',),
-      CardItemModel(label: 'Mint',content: 'mint.tangjingxing.com',),
+      CardItemModel(label: 'Mint',content: EcashManager.shared.defaultIMint.name,),
       CardItemModel(label: 'Amount',content: widget.amount.toString(),),
-      CardItemModel(label: 'Balance after TX',content: '45 Sats',),
+      CardItemModel(label: 'Balance after TX',content: '$balance Sats',),
       CardItemModel(
         label: 'Coin Selection',
         content: 'Your Ecash balance is essentially a collection of coin-sets. Coin selection allows you to choose the coins you want to spend. Coin- sets are assigned a keyset-ID by the mint, which may change over time. Newly added keysets are highlighted in green. It is advisable to spend older sets first.',
@@ -85,11 +90,13 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
             value: _isCoinSelection,
             onChanged: (value) async {
               if (value) {
-                final result = await OXNavigator.pushPage(context, (context) => const WalletSendEcashCoinSelectionPage());
-                if(result != null && result as bool){
+                List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,));
+                if(result != null){
+                  _selectedProofs = result;
+                  int totalAmount = result.fold(0, (pre, proof) => pre + proof.amountNum);
                   _isCoinSelection = true;
                   _items.addAll([
-                    CardItemModel(label: 'Selected',content: '44/25 Sats',),
+                    CardItemModel(label: 'Selected',content: '$totalAmount/${widget.amount} Sats',),
                     CardItemModel(label: 'Change',content: 'Sats',),
                   ]);
                 }else{
@@ -98,6 +105,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
               }else{
                 _items.removeWhere((element) => element.label == 'Selected' || element.label == 'Change');
                 _isCoinSelection = false;
+                _selectedProofs =  null;
               }
               setState(() {});
             },
@@ -111,7 +119,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
 
   Future<void> _createToken() async {
     await OXLoading.show();
-    String? token = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint, amount: widget.amount);
+    String? token = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
     await OXLoading.dismiss();
     if(token!=null){
       OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: token,));

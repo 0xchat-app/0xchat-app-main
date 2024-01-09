@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_scan_page.dart';
 
 class WalletUtils {
 
@@ -31,6 +35,28 @@ class WalletUtils {
     String? imagePath = await screenshotKey.currentState?.saveScreenshotToFile();
     if (imagePath != null) {
       Share.shareFiles([imagePath]);
+    }
+  }
+
+  static Future<void> gotoScan(BuildContext context, Function(String result) onScanResult) async {
+    PermissionStatus permissionStatus = await Permission.camera.request();
+    // if (!mounted) return;
+    if (permissionStatus.isGranted) {
+      String? result = await OXNavigator.pushPage(context, (context) => CommonScanPage());
+      if (result != null) {
+        onScanResult(result);
+      }
+    } else {
+      OXCommonHintDialog.show(context,
+          content: 'Please grant access to the camera',
+          actionList: [
+            OXCommonHintAction(
+                text: () => 'Go to Settings',
+                onTap: () {
+                  openAppSettings();
+                  Navigator.pop(context);
+                }),
+          ]);
     }
   }
 }

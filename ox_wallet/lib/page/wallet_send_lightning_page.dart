@@ -5,9 +5,12 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 
@@ -29,10 +32,9 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   final TextEditingController _invoiceEditController = TextEditingController();
   final TextEditingController _amountEditController = TextEditingController();
-  final TextEditingController _noteEditController = TextEditingController();
 
   final FocusNode _invoiceFocus = FocusNode();
-  final FocusNode _amountFocus = FocusNode();
+  String get invoice => _invoiceEditController.text;
 
   @override
   void initState() {
@@ -105,10 +107,18 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
                 ),
               ),
               SizedBox(width: 8.px),
-              CommonImage(
-                iconName: 'icon_send_qrcode.png',
-                size: 24.px,
-                package: 'ox_wallet',
+              GestureDetector(
+                onTap: (){
+                  WalletUtils.gotoScan(context, (result) {
+                    _invoiceEditController.text = result;
+                    _updateSendType();
+                  },);
+                },
+                child: CommonImage(
+                  iconName: 'icon_send_qrcode.png',
+                  size: 24.px,
+                  package: 'ox_wallet',
+                ),
               ),
             ],
           ),
@@ -126,76 +136,48 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
               child: Column(
                 children: [
                   SatsAmountCard(controller: _amountEditController,enable: false,),
-                  _buildDescriptionText(),
                   _buildPayButton(),
                 ],
               )).setPaddingOnly(top: 24.px);
         });
   }
 
-  Widget _buildDescriptionText() {
-    return CommonCard(
-      verticalPadding: 24.px,
-      child: ValueListenableBuilder(
-          valueListenable: _sendType,
-          builder: (context,value,child) {
-            return TextField(
-              // controller: _noteEditController,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: ThemeColor.color0),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 18.px,vertical: 0.px),
-                isDense: true,
-                enabled: false,
-                hintText: 'This is Description',
-                // enabled: _sendType.value == SendType.address,
-              ),
-            );
-          }
-      ),
+  Widget _buildPayButton() {
+    return ThemeButton(
+      onTap: _send,
+      text: 'Pay now',
+      height: 48.px,
     ).setPaddingOnly(top: 24.px);
   }
 
-  Widget _buildPayButton() {
-    return ListenableBuilder(
-        listenable: _sendType,
-        // listenable: Listenable.merge([_amountEditController,_enableButton,_tipsType]),
-        builder: (context,child) {
-          return ThemeButton(
-            onTap: _send,
-            text: 'Pay now',
-            height: 48.px,
-            // enable: _amountEditController.text.isNotEmpty && _amountEditController.text != '0' && _enableButton.value && !(_tipsType.value < 0),
-          ).setPaddingOnly(top: 24.px);
-        }
-    );
-  }
-
-  bool? _checkLnurl(String lnurl) {
-    if (lnurl.isEmpty) return null;
-    if (lnurl.contains('@')) return true;
-    if (RegExp(r'^ln[a-zA-Z0-9]+$', caseSensitive: false).hasMatch(lnurl)) return false;
-    return null;
-  }
-
   Future<void> _updateSendType() async {
-    bool? result = _checkLnurl(_invoiceEditController.text);
-    if (result == null){
+    bool result = EcashService.isLnInvoice(invoice);
+    if (!result){
       _sendType.value = SendType.none;
-      if(_invoiceEditController.text.isNotEmpty){
-        await CommonToast.instance.show(context, '请输入正确的invoice或地址');
-      }
+      await CommonToast.instance.show(context, 'Please enter the correct Invoice');
       return;
     }
 
-    //解析Invoice
-    Future.delayed(const Duration(seconds: 2));
-    _amountEditController.text = '5434234';
+    int? amount = EcashService.decodeLightningInvoice(invoice: _invoiceEditController.text);
+    if(amount == null){
+      CommonToast.instance.show(context, 'Decode invoice failed. Please try again');
+      return;
+    }
+    _amountEditController.text = amount.toString();
     _sendType.value = SendType.invoice;
   }
 
-  void _send(){
-    OXNavigator.pushPage(context, (context) => const WalletSuccessfulPage(title: 'Send',canBack: true,));
+  void _send() {
+    OXLoading.show();
+    EcashService.payingLightningInvoice(amount: _amountEditController.text)
+        .then((result) {
+        OXLoading.dismiss();
+        if (result != null && result) {
+          OXNavigator.pushPage(context, (context) => const WalletSuccessfulPage(title: 'Send', canBack: true,));
+          return;
+        }
+        CommonToast.instance.show(context, 'Paying Lightning Invoice Failed, Please try again');
+      },
+    );
   }
 }
