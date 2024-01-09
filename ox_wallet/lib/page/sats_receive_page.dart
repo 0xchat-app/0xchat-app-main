@@ -192,7 +192,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 }
 
-class PayInvoiceListener implements InvoiceListener {
+class PayInvoiceListener implements CashuListener {
   final ValueChanged<Receipt>? onChanged;
 
   PayInvoiceListener({this.onChanged});
@@ -203,4 +203,7 @@ class PayInvoiceListener implements InvoiceListener {
       onChanged!(receipt);
     }
   }
+
+  @override
+  void onBalanceChanged(IMint mint) {}
 }
