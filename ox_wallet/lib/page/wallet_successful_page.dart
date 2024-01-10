@@ -114,4 +114,29 @@ class WalletSuccessfulPage extends StatelessWidget {
       ),
     );
   }
+
+  factory WalletSuccessfulPage.redeemClaimed({required String amount,GestureTapCallback? onTap}){
+    return WalletSuccessfulPage(
+      title: 'Redeem Ecash',
+      tips: '$amount Sats Claimed!',
+      content: 'Sent Via eNuts',
+      bottomWidget: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        child: CommonCard(
+          radius: 12.px,
+          height: 48.px,
+          child: Center(
+            child: Text(
+              'Back to dashboard',
+              style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16.px),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

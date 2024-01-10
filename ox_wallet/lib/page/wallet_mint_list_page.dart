@@ -47,9 +47,9 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             itemBuilder: (context, index) => CommonCard(
               verticalPadding: 8.px,
               child: StepIndicatorItem(
-                title: mintItems[index].name ?? '',
-                content: '${mintItems[index].balance} Sats',
-                onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementPage()),
+                title: mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL,
+                subTitle: '${mintItems[index].balance} Sats',
+                onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)),
               ),
             ),
             separatorBuilder: (context,index) => SizedBox(height: 12.px,),

@@ -66,19 +66,19 @@ class CommonLabeledCard extends StatelessWidget {
 
 class StepIndicatorItem extends StatelessWidget {
   final String? title;
-  final String? content;
-  final Widget? action;
+  final String? subTitle;
+  final Widget? content;
   final Widget? badge;
   final double contentPadding;
   final GestureTapCallback? onTap;
   final double? height;
-  const StepIndicatorItem({super.key, double? contentPadding, this.title, this.content, this.action, this.onTap, this.height, this.badge}) : contentPadding = contentPadding ?? 0;
+  const StepIndicatorItem({super.key, double? contentPadding, this.title, this.subTitle, this.content, this.onTap, this.height, this.badge}) : contentPadding = contentPadding ?? 0;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap,
+      onTap: content == null ? onTap : null,
       child: SizedBox(
         height: height,
         child: Row(
@@ -90,19 +90,34 @@ class StepIndicatorItem extends StatelessWidget {
               children: [
                 Text(title ?? '',style: TextStyle(fontWeight: FontWeight.w400,fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px),),
                 SizedBox(height: contentPadding,),
-                if(content != null) Text(content!,style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14.px,color: ThemeColor.color100,height: 20.px / 14.px),),
+                if(subTitle != null) Text(subTitle!,style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14.px,color: ThemeColor.color100,height: 20.px / 14.px),),
               ],
             ),
             const Spacer(),
-            action ??
-                CommonImage(
-                  iconName: 'icon_wallet_more_arrow.png',
-                  size: 24.px,
-                  package: 'ox_wallet',
-                )
+            Row(
+              children: [
+                badge ?? Container(),
+                content ??
+                    CommonImage(
+                      iconName: 'icon_wallet_more_arrow.png',
+                      size: 24.px,
+                      package: 'ox_wallet',
+                    )
+              ],
+            )
           ],
         ),
       ),
     );
   }
+}
+
+class StepItemModel {
+  final String? title;
+  final String? subTitle;
+  final String? content;
+  final String? badge;
+  final Function()? onTap;
+
+  StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap});
 }

@@ -4,10 +4,13 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/utils/ecash_dialog_helper.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletMintManagementPage extends StatefulWidget {
-  const WalletMintManagementPage({super.key});
+  final IMint mint;
+  const WalletMintManagementPage({super.key, required this.mint});
 
   @override
   State<WalletMintManagementPage> createState() => _WalletMintManagementPageState();
@@ -15,19 +18,27 @@ class WalletMintManagementPage extends StatefulWidget {
 
 class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
-  Map<String,String?> general = {
-    'Mint': 'mint.tangjinxing.com',
-    'Balance': '99 Sats',
-    'Show QR code': null,
-    'Custom name': null,
-    'Set ad default mint': null,
-    'More Info': null
-  };
+  List<StepItemModel> _generalList = [];
+  List<StepItemModel> _dangerZoneList = [];
+  late ValueNotifier<String> mintQrCode;
 
-  Map<String,String?> dangerZone = {
-    'Check proofs': null,
-    'Delete mint': null,
-  };
+  @override
+  void initState() {
+    _generalList = [
+      StepItemModel(title: 'Mint',content: widget.mint.mintURL),
+      StepItemModel(title: 'Balance',content: widget.mint.balance.toString()),
+      StepItemModel(title: 'Show QR code',onTap: () => EcashDialogHelper.showMintQrCode(context, mintQrCode)),
+      StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: () => EcashDialogHelper.showEditMintName(context)),
+      StepItemModel(title: 'Set as default mint'),
+      StepItemModel(title: 'More Info'),
+    ];
+    _dangerZoneList = [
+      StepItemModel(title: 'Check proofs'),
+      StepItemModel(title: 'Delete mint'),
+    ];
+    mintQrCode = ValueNotifier(widget.mint.mintURL);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,34 +51,28 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       ),
       body: Column(
         children: [
-          _buildItemList(labelName: 'GENERAL',items: general),
+          _buildItemList(labelName: 'GENERAL',items: _generalList),
           SizedBox(height: 24.px,),
-          _buildItemList(labelName: 'DANGER ZONE',items: dangerZone),
+          _buildItemList(labelName: 'DANGER ZONE',items: _dangerZoneList),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
   }
 
-  Widget _buildItem({required String title,String? value,String? badge}){
-    Widget? action ;
-
-    if (value != null) {
-      action = Text(value,style: TextStyle(fontSize: 14.px),);
-    } else {
-      action = null;
-    }
-
+  Widget _buildItem({String? title,String? content,String? badge,GestureTapCallback? onTap}){
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.px),
       child: StepIndicatorItem(
         height: 52.px,
         title: title,
-        action: action,
+        content: content != null ? Text(content, style: TextStyle(fontSize: 14.px)) : null,
+        badge: badge != null ? Text(badge, style: TextStyle(fontSize: 14.px)) : null,
+        onTap: onTap,
       ),
     );
   }
 
-  Widget _buildItemList({required String labelName, required Map<String, String?> items}){
+  Widget _buildItemList({required String labelName, required List<StepItemModel> items}){
     return CommonLabeledCard(
       label: labelName,
       child: CommonCard(
@@ -79,8 +84,10 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           itemBuilder: (context, index) => _buildItem(
-            title: items.keys.toList()[index],
-            value: items.values.toList()[index],
+            title: items[index].title,
+            content: items[index].content,
+            badge: items[index].badge,
+            onTap: items[index].onTap,
           ),
           separatorBuilder: (context,index) => Container(height: 0.5.px,color: ThemeColor.color160,),
           itemCount: items.length,
@@ -89,3 +96,4 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     );
   }
 }
+
