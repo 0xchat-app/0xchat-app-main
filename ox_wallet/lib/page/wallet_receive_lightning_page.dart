@@ -19,6 +19,7 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
 
   late final TabController _controller;
   final List<String> tabsName = const ['Sats', 'BTC'];
+  final ValueNotifier<bool> _shareController = ValueNotifier(false);
 
   @override
   void initState() {
@@ -41,11 +42,15 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
             centerTitle: true,
             useLargeTitle: false,
             actions: [
-              CommonImage(
-                iconName: 'icon_share.png',
-                size: 24.px,
-                package: 'ox_wallet',
-              ).setPaddingOnly(right: 20.px),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => _shareController.value = !_shareController.value,
+                child: CommonImage(
+                  iconName: 'icon_share.png',
+                  size: 24.px,
+                  package: 'ox_wallet',
+                ).setPaddingOnly(right: 20.px),
+              ),
             ],
           ),
           body: Column(
@@ -56,9 +61,9 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
               Expanded(
                 child: TabBarView(
                   controller: _controller,
-                  children: const [
-                    SatsReceivePage(),
-                    BTCReceivePage(),
+                  children: [
+                    SatsReceivePage(shareController: _shareController,),
+                    BTCReceivePage(shareController: _shareController,),
                   ],
                 ),
               ),

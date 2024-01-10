@@ -7,14 +7,17 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/counter_down.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_wallet/widget/screenshot_widget.dart';
 
 class SatsReceivePage extends StatefulWidget {
-  const SatsReceivePage({super.key});
+  final ValueNotifier<bool>? shareController;
+  const SatsReceivePage({super.key, this.shareController});
 
   @override
   State<SatsReceivePage> createState() => _SatsReceivePageState();
@@ -29,6 +32,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   final FocusNode _noteFocus = FocusNode();
   final FocusNode _amountFocus = FocusNode();
   late final PayInvoiceListener payInvoiceListener;
+  final _stasReceivePageScreenshotKey = GlobalKey<ScreenshotWidgetState>();
 
   String get amount => _amountEditController.text;
   String get note => _noteEditController.text;
@@ -42,6 +46,9 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
     payInvoiceListener = PayInvoiceListener(onChanged: _onInvoicePaid);
     Cashu.addInvoiceListener(payInvoiceListener);
+    widget.shareController?.addListener(() {
+      WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
+    });
     super.initState();
   }
 
@@ -91,7 +98,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
               children: [
                 _buildCountDownWidget(),
                 SizedBox(height: 16.px,),
-                EcashQrCode(controller: _invoiceNotifier,onRefresh: () => _createLightningInvoice(),),
+                ScreenshotWidget(key:_stasReceivePageScreenshotKey, child: EcashQrCode(controller: _invoiceNotifier,onRefresh: () => _createLightningInvoice(),)),
               ],
             ),
           );
