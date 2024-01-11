@@ -49,7 +49,9 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
               child: StepIndicatorItem(
                 title: mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL,
                 subTitle: '${mintItems[index].balance} Sats',
-                onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)),
+                onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)).then((value) {
+                  setState(() {});
+                }),
               ),
             ),
             separatorBuilder: (context,index) => SizedBox(height: 12.px,),

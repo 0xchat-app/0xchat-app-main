@@ -116,8 +116,8 @@ class StepItemModel {
   final String? title;
   final String? subTitle;
   final String? content;
-  final String? badge;
-  final Function()? onTap;
+  String? badge;
+  final void Function(StepItemModel value)? onTap;
 
   StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap});
 }

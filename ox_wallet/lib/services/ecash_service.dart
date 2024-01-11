@@ -67,4 +67,39 @@ class EcashService {
   static bool isLnInvoice(String invoice){
     return Cashu.isLnInvoice(invoice);
   }
+
+  static bool isCashuToken(String token){
+    return Cashu.isCashuToken(token);
+  }
+
+  static getHistoryList() async {
+    List<IHistoryEntry> historyEntry = await Cashu.getHistoryList();
+  }
+
+  static Future<IMint?> addMint(String mintURL) async {
+
+  }
+
+  static Future<bool> deleteMint(IMint mint) async {
+    try {
+      return await Cashu.deleteMint(mint);
+    } catch (e, s) {
+      LogUtil.e('Delete Mint Failed: $e\r\n$s');
+      return false;
+    }
+  }
+
+  static Future<int?> checkProofsAvailable(IMint mint) async {
+    int? result;
+    try {
+      result = await Cashu.checkProofsAvailable(mint);
+    } catch (e, s) {
+      LogUtil.e('Check Proofs Available Failed: $e\r\n$s');
+    }
+    return result;
+  }
+
+  static Future<void> editMintName(IMint mint, String name) async {
+    return await Cashu.editMintName(mint, name);
+  }
 }

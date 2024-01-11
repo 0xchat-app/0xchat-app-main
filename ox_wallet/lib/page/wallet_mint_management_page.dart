@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_wallet/page/wallet_mint_info.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/utils/ecash_dialog_helper.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 
 class WalletMintManagementPage extends StatefulWidget {
   final IMint mint;
@@ -20,23 +26,24 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
   List<StepItemModel> _generalList = [];
   List<StepItemModel> _dangerZoneList = [];
-  late ValueNotifier<String> mintQrCode;
+  late ValueNotifier<String> _mintQrCode;
+  TextEditingController? _customNameEditController;
 
   @override
   void initState() {
     _generalList = [
       StepItemModel(title: 'Mint',content: widget.mint.mintURL),
-      StepItemModel(title: 'Balance',content: widget.mint.balance.toString()),
-      StepItemModel(title: 'Show QR code',onTap: () => EcashDialogHelper.showMintQrCode(context, mintQrCode)),
-      StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: () => EcashDialogHelper.showEditMintName(context)),
+      StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
+      StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
+      StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
       StepItemModel(title: 'Set as default mint'),
-      StepItemModel(title: 'More Info'),
+      StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
     ];
     _dangerZoneList = [
-      StepItemModel(title: 'Check proofs'),
-      StepItemModel(title: 'Delete mint'),
+      StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context)),
+      StepItemModel(title: 'Delete mint',onTap: (value) => ShowModalBottomSheet.showConfirmBottomSheet(context,title: 'Delete mint?')),
     ];
-    mintQrCode = ValueNotifier(widget.mint.mintURL);
+    _mintQrCode = ValueNotifier(widget.mint.mintURL);
     super.initState();
   }
 
@@ -59,15 +66,15 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     );
   }
 
-  Widget _buildItem({String? title,String? content,String? badge,GestureTapCallback? onTap}){
+  Widget _buildItem(StepItemModel item){
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.px),
       child: StepIndicatorItem(
         height: 52.px,
-        title: title,
-        content: content != null ? Text(content, style: TextStyle(fontSize: 14.px)) : null,
-        badge: badge != null ? Text(badge, style: TextStyle(fontSize: 14.px)) : null,
-        onTap: onTap,
+        title: item.title,
+        content: item.content != null ? Text(item.content!, style: TextStyle(fontSize: 14.px)) : null,
+        badge: item.badge != null ? Text(item.badge!, style: TextStyle(fontSize: 14.px)) : null,
+        onTap: item.onTap != null ? () => item.onTap!(item) : null,
       ),
     );
   }
@@ -83,17 +90,35 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           padding: EdgeInsets.zero,
-          itemBuilder: (context, index) => _buildItem(
-            title: items[index].title,
-            content: items[index].content,
-            badge: items[index].badge,
-            onTap: items[index].onTap,
-          ),
+          itemBuilder: (context, index) =>  _buildItem(items[index]),
           separatorBuilder: (context,index) => Container(height: 0.5.px,color: ThemeColor.color160,),
           itemCount: items.length,
         ),
       ),
     );
+  }
+
+  void _editMintName(StepItemModel stepItemModel) {
+    _customNameEditController = TextEditingController();
+    _customNameEditController!.text = widget.mint.name;
+    EcashDialogHelper.showEditMintName(context,controller: _customNameEditController,onTap: (){
+      EcashService.editMintName(widget.mint, _customNameEditController!.text).then((value) {
+        OXNavigator.pop(context);
+        setState(() {
+          stepItemModel.badge =  _customNameEditController!.text;
+        });
+      }).onError((e, s) {
+        LogUtil.e('Edit Mint Name Failed: $e\r\n$s');
+        CommonToast.instance.show(context, 'Edit Mint Name Failed, Please Try again...');
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _mintQrCode.dispose();
+    _customNameEditController?.dispose();
+    super.dispose();
   }
 }
 

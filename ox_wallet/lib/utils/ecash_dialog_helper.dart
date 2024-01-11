@@ -10,7 +10,7 @@ class EcashDialogHelper {
     OXCommonHintDialog.show(context, contentView:EcashQrCode(controller: data), actionList: []);
   }
 
-  static showEditMintName(BuildContext context){
+  static showEditMintName(BuildContext context,{TextEditingController? controller,Function? onTap}){
     OXCommonHintDialog.show(context,
       contentView: Column(
         children: [
@@ -31,14 +31,16 @@ class EcashDialogHelper {
               borderRadius: BorderRadius.circular(12.px)
             ),
             child: TextField(
+              controller: controller,
               maxLines: 1,
               decoration: InputDecoration(
                 hintStyle: TextStyle(
                   color: ThemeColor.color100,
-                  fontSize: 15.px,
+                  fontSize: 14.px,
                 ),
                 contentPadding: EdgeInsets.symmetric(vertical: 10.px,horizontal: 16.px),
-                border: InputBorder.none
+                border: InputBorder.none,
+                isDense: true
               ),
             ),
           ),
@@ -48,9 +50,42 @@ class EcashDialogHelper {
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
         }),
-        OXCommonHintAction.sure(text: 'Send', onTap: ()=>{}),
+        OXCommonHintAction.sure(text: 'Save', onTap: onTap),
       ],
       isRowAction: true,
     );
+  }
+
+  static showCheckProofs(BuildContext context){
+    OXCommonHintDialog.show(context,
+        title: 'Check all the proofs？',
+        content: 'This will check if your token are spendable and will otherwise delete them.',
+        actionList: [
+          OXCommonHintAction(
+            text: () => 'NO',
+            style: OXHintActionStyle.gray,
+            onTap: () => OXNavigator.pop(context, false),
+          ),
+          OXCommonHintAction.sure(
+              text: 'YES',
+              onTap: () async {
+                OXNavigator.pop(context, true);
+              }),
+        ],
+        isRowAction: true);
+  }
+
+  static showDeleteMint(BuildContext context,ValueNotifier<String> data){
+    OXCommonHintDialog.show(context,
+        title: 'Delete Failed',
+        content: 'Unable to remove a mint with remaining balance.',
+        actionList: [
+          OXCommonHintAction.sure(
+              text: 'OK',
+              onTap: () async {
+                OXNavigator.pop(context, true);
+              }),
+        ],
+        isRowAction: true);
   }
 }
