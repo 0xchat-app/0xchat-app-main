@@ -51,6 +51,8 @@ dependencies:
     path: packages/base_framework/ox_common
   ox_push:
     path: packages/base_framework/ox_push
+  ox_wallet:
+    path: packages/business_modules/ox_wallet
 
 
   # business framework
