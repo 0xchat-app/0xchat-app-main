@@ -1,4 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
@@ -6,6 +8,7 @@ import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 enum PushMsgType{
   call,
@@ -76,6 +79,21 @@ class FirebaseMessageManager {
 
   static Future<void> initFirebase() async {
     await Firebase.initializeApp();
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+    await FirebaseCrashlytics.instance.recordError(
+        'error',
+        null,
+        reason: 'a fatal error',
+        // Pass in 'fatal' argument
+        fatal: true
+    );
   }
 
   static FirebaseMessageManager get instance => _instance;

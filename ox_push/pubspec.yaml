@@ -12,7 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  firebase_messaging: 14.6.9
+  firebase_messaging: 14.7.10
+  firebase_crashlytics: ^3.4.9
   flutter_local_notifications: 16.1.0
 
   ox_common:
