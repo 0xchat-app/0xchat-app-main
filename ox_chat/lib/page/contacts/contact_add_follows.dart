@@ -430,14 +430,15 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     });
     final OKEvent okEvent =
         await Contacts.sharedInstance.addToContact(selectFollowPubKey);
-    await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.contactUpdatedCallBack();
       for(var pubkey in selectFollowPubKey) {
         OXChatBinding.sharedInstance.changeChatSessionTypeAll(pubkey, true);
       }
+      await OXLoading.dismiss();
       OXNavigator.pop(context, true);
     } else {
+      await OXLoading.dismiss();
       CommonToast.instance.show(context, okEvent.message);
     }
   }

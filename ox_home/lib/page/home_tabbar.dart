@@ -4,6 +4,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -158,10 +159,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
             animationController: riveControllers[3],
             unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
       ];
+      if (OXUserInfoManager.sharedInstance.isLogin) {
+        fetchUnreadCount();
+      }
     });
-    if (OXUserInfoManager.sharedInstance.isLogin) {
-      fetchUnreadCount();
-    }
   }
 
   @override
@@ -230,8 +231,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
+      fetchUnreadCount();
     });
-    fetchUnreadCount();
   }
 
   @override
@@ -269,9 +270,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   fetchUnreadCount() {
     if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0 && tabBarList.length > 0) {
-      setState(() {
-        tabBarList[1].unreadMsgCount = 1;
-      });
+      tabBarList[1].unreadMsgCount = 1;
+    } else {
+      tabBarList[1].unreadMsgCount = 0;
     }
   }
 
@@ -306,9 +307,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       _showLoginPage(context);
       return;
     }
-    if (value == 1 && OXChatBinding.sharedInstance.unReadStrangerSessionCount < 1) {
-      tabBarList[1].unreadMsgCount = 0;
-    }
     setState(() {
       selectedIndex = value;
       if (OXUserInfoManager.sharedInstance.isLogin) {
@@ -330,9 +328,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
         input.value = false;
       }
     }
-    StateMachineController? animController = riveControllers[selectedIndex];
-
-    final input = animController?.findInput<bool>(riveInputs[selectedIndex]);
+    final input = riveControllers[selectedIndex]?.findInput<bool>(riveInputs[selectedIndex]);
     if (input != null) {
       input.value = true;
     }
@@ -341,8 +337,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   void prepareMessageTimer() async {
     _refreshMessagesTimer?.cancel();
     _refreshMessagesTimer = null;
-    _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+    _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 3 * 1000), (timer) {
       fetchUnreadCount();
+      setState(() {});
     });
   }
 

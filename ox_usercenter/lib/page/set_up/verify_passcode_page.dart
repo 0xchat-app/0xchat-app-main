@@ -164,7 +164,8 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
         OXCommonHintAction(
             text: () => 'OK',
             onTap: () {
-              OXNavigator.pop(context, true);
+              _inputPwd = '';
+              OXNavigator.pop(context);
             }),
       ],
     );

@@ -66,13 +66,18 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
-
+    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    for (var user in userList!) {
+      String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
+      String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
+      pinyinMap[user] = pinyin;
+    }
     userList.sort((v1, v2) {
-      return _getFirstWord(v1).compareTo(_getFirstWord(v2));
+      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
 
     userList.forEach((item) {
-      var firstLetter = _getFirstWord(item)[0].toUpperCase();
+      var firstLetter = pinyinMap[item]![0].toUpperCase();
       if (!ALPHAS_INDEX.contains(firstLetter)) {
         firstLetter = '#';
       }
@@ -83,9 +88,6 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     _filteredUserList = _groupedUserList;
   }
 
-  String _getFirstWord(UserDB user){
-    return PinyinHelper.getFirstWordPinyin((user.nickName != null && user.nickName!.isNotEmpty) ? user.nickName! : user.name!).toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {

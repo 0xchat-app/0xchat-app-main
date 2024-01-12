@@ -34,8 +34,7 @@ class _ContractsPageState extends State<ContractsPage>
     with
         SingleTickerProviderStateMixin,
         OXUserInfoObserver,
-        WidgetsBindingObserver,
-        OXChatObserver {
+        WidgetsBindingObserver {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   ScrollController _scrollController = ScrollController();
@@ -56,7 +55,6 @@ class _ContractsPageState extends State<ContractsPage>
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
-    OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
   }
@@ -64,7 +62,6 @@ class _ContractsPageState extends State<ContractsPage>
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -417,11 +414,6 @@ class _ContractsPageState extends State<ContractsPage>
     // TODO: implement didSwitchUser
   }
 
-  @override
-  void didSessionUpdate() {
-    _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
-    setState(() {});
-  }
 }
 
 class _Style {

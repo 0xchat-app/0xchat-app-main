@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/manager/signaling.dart';
+import 'package:ox_calling/model/speaker_type.dart';
 import 'package:ox_calling/page/call_floating_draggable_overlay.dart';
 import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/utils/widget_util.dart';
@@ -14,6 +15,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:audio_session/audio_session.dart';
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -47,6 +49,7 @@ class CallManager {
   OverlayEntry? overlayEntry;
   final List<ValueChanged<int>> _valueChangedCallback = <ValueChanged<int>>[];
   bool initiativeHangUp = false;
+  bool isBluetoothHeadsetConnected = false;
 
   bool get getInCallIng{
     return _inCalling;
@@ -213,8 +216,18 @@ class CallManager {
     _signaling?.switchCamera();
   }
 
-  setSpeaker(bool isSpeakerOn) async {
-    Helper.setSpeakerphoneOn(isSpeakerOn);
+  setSpeaker(SpeakerType speakerType) async {
+    switch(speakerType){
+      case SpeakerType.speakerOn:
+        Helper.setSpeakerphoneOn(true);
+        break;
+      case SpeakerType.speakerOff:
+        Helper.setSpeakerphoneOn(false);
+        break;
+      case SpeakerType.speakerOnBluetooth:
+        Helper.setSpeakerphoneOnButPreferBluetooth();
+        break;
+    }
   }
 
   muteMic() {
@@ -298,22 +311,6 @@ class CallManager {
     return content;
   }
 
-  // Future<bool> sendLocalMessage(String? sender, String? receiver, String decryptContent) async {
-  //   if (sender == null || receiver == null || sender.isEmpty || receiver.isEmpty) {
-  //     return false;
-  //   }
-  //   ChatSessionModel? chatSessionModel = await OXChatBinding.sharedInstance.getChatSession(sender, receiver, '[${callType.text}]');
-  //   if (chatSessionModel == null) {
-  //     return false;
-  //   }
-  //   OXChatInterface.sendCallMessage(
-  //       chatSessionModel,
-  //       decryptContent,
-  //       callType,
-  //       sender);
-  //   return true;
-  // }
-
   void stopTimer() {
     counter = 0;
     _timer?.cancel();
@@ -344,5 +341,32 @@ extension CallCacheObserverEx on CallManager {
     for (var callback in valueChangedCallback) {
       callback(counter);
     }
+  }
+
+  void loadAudioManager() async {
+    final session = await AudioSession.instance;
+    final devices = await session.getDevices();
+    bool isHeadphoneConnected = devices.any((device) => device.type == AudioDeviceType.wiredHeadset || device.type == AudioDeviceType.wiredHeadphones);
+    isBluetoothHeadsetConnected = devices.any(
+        (device) => device.type == AudioDeviceType.bluetoothA2dp || device.type == AudioDeviceType.bluetoothSco || device.type == AudioDeviceType.bluetoothLe);
+    session.becomingNoisyEventStream.listen((_) {
+    });
+    session.devicesChangedEventStream.listen((event) {
+      for (AudioDevice audioDevice in event.devicesAdded) {
+        //AudioDeviceType.wiredHeadphones  wiredHeadset bluetoothA2dp bluetoothSco bluetoothLe
+        if (audioDevice.type == AudioDeviceType.bluetoothA2dp ||
+            audioDevice.type == AudioDeviceType.bluetoothSco ||
+            audioDevice.type == AudioDeviceType.bluetoothLe) {
+          isBluetoothHeadsetConnected = true;
+        }
+      }
+      for (AudioDevice audioDevice in event.devicesRemoved) {
+        if (audioDevice.type == AudioDeviceType.bluetoothA2dp ||
+            audioDevice.type == AudioDeviceType.bluetoothSco ||
+            audioDevice.type == AudioDeviceType.bluetoothLe) {
+          isBluetoothHeadsetConnected = false;
+        }
+      }
+    });
   }
 }
