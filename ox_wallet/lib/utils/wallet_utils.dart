@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_scan_page.dart';
+import 'package:intl/intl.dart';
 
 class WalletUtils {
 
@@ -57,6 +58,40 @@ class WalletUtils {
                   Navigator.pop(context);
                 }),
           ]);
+    }
+  }
+
+  static String formatTimeAgo(int timestamp) {
+    DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    DateTime currentTime = DateTime.now();
+    Duration diff = currentTime.difference(givenTime);
+
+    if (diff.inDays >= 1) {
+      return 'a day ago';
+    } else if (diff.inHours >= 12) {
+      return '12 hours ago';
+    } else if (diff.inHours >= 1) {
+      return '${diff.inHours} hours ago';
+    } else if (diff.inMinutes >= 30) {
+      return '30 minutes ago';
+    } else if (diff.inMinutes >= 15) {
+      return '15 minutes ago';
+    } else {
+      return 'just now';
+    }
+  }
+
+  static String formatTimestamp(int timestamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    String formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(date);
+    return formattedDate;
+  }
+
+  static String formatToken(String token) {
+    if (token.length > 230) {
+      return '${token.substring(0, 210)}...${token.substring(token.length - 15)}';
+    } else {
+      return token;
     }
   }
 }

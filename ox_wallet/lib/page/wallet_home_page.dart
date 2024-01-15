@@ -5,8 +5,12 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_wallet/page/wallet_mint_list_page.dart';
+import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletHomePage extends StatefulWidget {
   const WalletHomePage({super.key});
@@ -24,6 +28,8 @@ class _WalletHomePageState extends State<WalletHomePage> {
 
   double _opacity = 0;
 
+  List<IHistoryEntry> _recentTransaction = [];
+
   @override
   void initState() {
     _scrollController.addListener(() {
@@ -36,6 +42,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
         if(_opacity < 0) _opacity = 0;
       });
     });
+    _getRecentTransaction();
     super.initState();
   }
 
@@ -138,9 +145,22 @@ class _WalletHomePageState extends State<WalletHomePage> {
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-                              return const TransactionItem();
+                        final record = _recentTransaction[index];
+                        final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
+                        final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
+                        return TransactionItem(
+                            title: record.type.name,
+                            subTitle: WalletUtils.formatTimeAgo(record.timestamp.toInt()),
+                            info: '$amount sats',
+                            iconName: iconName,
+                            onTap: (){
+                              if(record.type == IHistoryType.eCash || record.type == IHistoryType.lnInvoice){
+                                OXNavigator.pushPage(context, (context) => WalletTransactionRecord(entry: record,));
+                              }
+                            },
+                          );
                         },
-                        childCount: 200,
+                        childCount: _recentTransaction.length,
                       ),
                     ),
                   ],
@@ -185,31 +205,45 @@ class _WalletHomePageState extends State<WalletHomePage> {
       ),
     );
   }
+
+  _getRecentTransaction() async {
+    _recentTransaction = await EcashService.getHistoryList();
+    setState(() {});
+  }
 }
 
 class TransactionItem extends StatelessWidget {
-  const TransactionItem({super.key});
+  final String? title;
+  final String? subTitle;
+  final String? info;
+  final String? iconName;
+  final VoidCallback? onTap;
+  const TransactionItem({super.key, this.title, this.subTitle, this.info, this.onTap, this.iconName});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.px),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CommonImage(
-            iconName: 'icon_transaction_send.png',
-            size: 24.px,
-            package: 'ox_wallet',
-          ),
-          SizedBox(width: 8.px,),
-          Expanded(
-            child: _buildTile(title: 'Ecash',subTitle: '1 hour ago · This is description This is description This is description')
-          ),
-          SizedBox(width: 8.px,),
-          _buildTile(title: '-1 sat', subTitle: '~\$0.00',crossAxisAlignment: CrossAxisAlignment.end),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8.px),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CommonImage(
+              iconName: iconName ?? 'icon_transaction_send.png',
+              size: 24.px,
+              package: 'ox_wallet',
+            ),
+            SizedBox(width: 8.px,),
+            Expanded(
+              child: _buildTile(title: title ?? '',subTitle: subTitle ?? '')
+            ),
+            SizedBox(width: 8.px,),
+            _buildTile(title: info ?? '', subTitle: '',crossAxisAlignment: CrossAxisAlignment.end),
+          ],
+        ),
       ),
     );
   }

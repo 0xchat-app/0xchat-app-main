@@ -44,23 +44,23 @@ class _WalletMintInfoState extends State<WalletMintInfo> {
             ),
           ),
           _buildItem(title: 'Contact',content: '').setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Supported NUTs',content: widget.mintInfo?.nutsJson ?? '').setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Public Key',content: widget.mintInfo?.pubkey ?? '').setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Additional Information',content: widget.mintInfo?.descriptionLong ?? '').setPaddingOnly(top: 24.px),
+          _buildItem(title: 'Supported NUTs',content: widget.mintInfo?.nutsJson).setPaddingOnly(top: 24.px),
+          _buildItem(title: 'Public Key',content: widget.mintInfo?.pubkey).setPaddingOnly(top: 24.px),
+          _buildItem(title: 'Additional Information',content: widget.mintInfo?.descriptionLong).setPaddingOnly(top: 24.px),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
   }
 
-  Widget _buildItem({required String title,required String content}){
+  Widget _buildItem({String? title, String? content}){
     return CommonCard(
       verticalPadding: 15.px,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,style: TextStyle(fontSize: 14.px,height: 22.px / 14.px),),
+          Text(title ?? '',style: TextStyle(fontSize: 14.px,height: 22.px / 14.px),),
           SizedBox(height: 4.px,),
-          Text(content,style: TextStyle(fontSize: 12.px,height: 17.px / 12.px,color: ThemeColor.color0),),
+          Text('${(content?.isEmpty ?? true) ? '-' : content}',style: TextStyle(fontSize: 12.px,height: 17.px / 12.px,color: ThemeColor.color0),),
         ],
       ),
     );

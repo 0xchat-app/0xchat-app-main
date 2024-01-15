@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -37,21 +39,25 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color190,
-      appBar: CommonAppBar(
-        title: 'New Cashu token',
-        centerTitle: true,
-        useLargeTitle: false,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SatsAmountCard(controller: _controller, enable: false,).setPaddingOnly(top: 12.px),
-            _buildTokenCard(),
-            ThemeButton(text: 'Share', height: 48.px,onTap: () => WalletUtils.takeScreen(_newTokenPageScreenshotKey),).setPaddingOnly(top: 24.px)
-          ],
-        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+    return WillPopScope(
+      onWillPop: () async {return false;},
+      child: Scaffold(
+        backgroundColor: ThemeColor.color190,
+        appBar: CommonAppBar(
+          title: 'New Cashu token',
+          centerTitle: true,
+          useLargeTitle: false,
+          backCallback: () => OXNavigator.popToPage(context, pageType: const WalletHomePage().runtimeType.toString()),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              SatsAmountCard(controller: _controller, enable: false,).setPaddingOnly(top: 12.px),
+              _buildTokenCard(),
+              ThemeButton(text: 'Share', height: 48.px,onTap: () => WalletUtils.takeScreen(_newTokenPageScreenshotKey),).setPaddingOnly(top: 24.px)
+            ],
+          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+        ),
       ),
     );
   }
@@ -80,18 +86,10 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
         children: [
           Text('Token',style: TextStyle(fontSize: 14.sp),),
           SizedBox(height: 4.px,),
-          Text(formatToken(token),style: TextStyle(fontSize: 12.sp)),
+          Text(WalletUtils.formatToken(token),style: TextStyle(fontSize: 12.sp)),
         ],
       ).setPaddingOnly(top: 31.px),
     );
-  }
-
-  String formatToken(String token) {
-    if (token.length > 230) {
-      return '${token.substring(0, 210)}...${token.substring(token.length - 15)}';
-    } else {
-      return token;
-    }
   }
 
   @override

@@ -4,9 +4,14 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_wallet/page/wallet_receive_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_page.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
+import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 
 class EcashNavigationBar extends StatefulWidget {
@@ -50,7 +55,22 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                       title: 'Redeem Ecash',
                       subTitle: 'Paste & redeem a Cashu token form Clipboard.',
                       enable: false,
-                      onTap: () {
+                      onTap: () async {
+                        String? content = await WalletUtils.getClipboardData();
+                        if(content!=null && content.isNotEmpty){
+                          if(EcashService.isCashuToken(content)){
+                            (String memo, int amount)? result = await EcashService.redeemEcash(content);
+                            if(result == null) {
+                              CommonToast.instance.show(context, 'Redeem Cashu failed, Please try again');
+                              return;
+                            }
+                            await OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.redeemClaimed(amount: result.$2.toString(),onTap: () => OXNavigator.pop(context!),));
+                          }else{
+                            CommonToast.instance.show(context, 'Not a valid cashu token, Please re-enter');
+                          }
+                        }else {
+                          CommonToast.instance.show(context, 'The clipboard has no content');
+                        }
                         OXNavigator.pop(context);
                       },
                     ),
@@ -67,7 +87,9 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                   ShowModalBottomSheet.showOptionsBottomSheet(context, title: 'Receive', options: options);
                 },
               ),
-              const NavigationBarItem(label: 'Scan',iconName: 'icon_wallet_scan.png',),
+              NavigationBarItem(label: 'Scan',iconName: 'icon_wallet_scan.png',onTap: (){
+                WalletUtils.gotoScan(context, (result) => ScanUtils.analysis(context, result));
+              },),
               NavigationBarItem(
                 label: 'Send',
                 iconName: 'icon_transaction_send.png',

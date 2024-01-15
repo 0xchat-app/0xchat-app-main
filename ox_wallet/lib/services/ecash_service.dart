@@ -72,12 +72,24 @@ class EcashService {
     return Cashu.isCashuToken(token);
   }
 
-  static getHistoryList() async {
-    List<IHistoryEntry> historyEntry = await Cashu.getHistoryList();
+  static Future<List<IHistoryEntry>> getHistoryList() async {
+    List<IHistoryEntry> historyEntry = [];
+    try {
+      historyEntry = await Cashu.getHistoryList();
+    } catch (e, s) {
+      LogUtil.e('Get History List Failed: $e\r\n$s');
+    }
+    return historyEntry;
   }
 
   static Future<IMint?> addMint(String mintURL) async {
-
+    IMint? mint;
+    try {
+      mint = await Cashu.addMint(mintURL);
+    } catch (e, s) {
+      LogUtil.e('Add Mint Failed: $e\r\n$s');
+    }
+    return mint;
   }
 
   static Future<bool> deleteMint(IMint mint) async {
