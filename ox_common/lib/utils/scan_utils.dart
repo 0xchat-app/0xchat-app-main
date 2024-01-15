@@ -222,7 +222,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
         return ;
       }
       final (memo, amount) = payload;
-
+      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSuccessfulRedeemClaimedPage',{'amount':amount.toString()});
     },
   );
 
@@ -232,6 +232,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     },
     action: (String invoice, BuildContext context) async {
       final amount = Cashu.amountOfLightningInvoice(invoice);
+      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSendLightningPage',{});
     },
   );
 }
