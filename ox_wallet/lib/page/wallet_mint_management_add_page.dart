@@ -37,7 +37,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     super.initState();
     _controller.addListener(() {
       setState(() {
-        _enable = _controller.text.contains('https://');
+        _enable = _controller.text.isNotEmpty;
       });
     });
   }
@@ -141,6 +141,9 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       } else {
         CommonToast.instance.show(context, 'Add Mint Failed, Please try again.');
       }
+    },onError: (e){
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, 'invalid mint url');
     });
   }
 }

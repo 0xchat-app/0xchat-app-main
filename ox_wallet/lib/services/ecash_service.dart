@@ -83,13 +83,10 @@ class EcashService {
   }
 
   static Future<IMint?> addMint(String mintURL) async {
-    IMint? mint;
-    try {
-      mint = await Cashu.addMint(mintURL);
-    } catch (e, s) {
-      LogUtil.e('Add Mint Failed: $e\r\n$s');
+    if(!mintURL.startsWith('https://')){
+      mintURL = 'https://$mintURL';
     }
-    return mint;
+    return await Cashu.addMint(mintURL);
   }
 
   static Future<bool> deleteMint(IMint mint) async {
