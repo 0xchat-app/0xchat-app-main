@@ -79,21 +79,18 @@ class FirebaseMessageManager {
 
   static Future<void> initFirebase() async {
     await Firebase.initializeApp();
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(kReleaseMode);
+    FlutterError.onError = (FlutterErrorDetails errorDetails) {
+      if (kReleaseMode) {
+        FirebaseCrashlytics.instance.recordError(errorDetails.exceptionAsString(), errorDetails.stack, fatal: true);
+      }
     };
     PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      if (kReleaseMode) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
       return true;
     };
-    await FirebaseCrashlytics.instance.recordError(
-        'error',
-        null,
-        reason: 'a fatal error',
-        // Pass in 'fatal' argument
-        fatal: true
-    );
   }
 
   static FirebaseMessageManager get instance => _instance;
