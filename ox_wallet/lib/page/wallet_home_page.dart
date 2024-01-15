@@ -6,6 +6,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_wallet/page/wallet_mint_list_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
+import 'package:ox_wallet/services/EcashListener.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
@@ -29,6 +30,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
   double _opacity = 0;
 
   List<IHistoryEntry> _recentTransaction = [];
+  late final EcashListener _balanceChangedListener;
 
   @override
   void initState() {
@@ -43,7 +45,15 @@ class _WalletHomePageState extends State<WalletHomePage> {
       });
     });
     _getRecentTransaction();
+    _balanceChangedListener = EcashListener(onEcashBalanceChanged: _onBalanceChanged);
+    Cashu.addInvoiceListener(_balanceChangedListener);
     super.initState();
+  }
+
+  void _onBalanceChanged(IMint mint){
+    _getRecentTransaction();
+    setState(() {
+    });
   }
 
   @override

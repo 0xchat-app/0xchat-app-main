@@ -5,6 +5,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/EcashListener.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
@@ -31,7 +32,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   final TextEditingController _noteEditController = TextEditingController();
   final FocusNode _noteFocus = FocusNode();
   final FocusNode _amountFocus = FocusNode();
-  late final PayInvoiceListener payInvoiceListener;
+  late final EcashListener payInvoiceListener;
   final _stasReceivePageScreenshotKey = GlobalKey<ScreenshotWidgetState>();
 
   String get amount => _amountEditController.text;
@@ -44,7 +45,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _createLightningInvoice();
     _amountFocus.addListener(() => _focusChanged(_amountFocus));
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
-    payInvoiceListener = PayInvoiceListener(onChanged: _onInvoicePaid);
+    payInvoiceListener = EcashListener(onInvoicePaidChanged: _onInvoicePaid);
     Cashu.addInvoiceListener(payInvoiceListener);
     widget.shareController?.addListener(() {
       WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
@@ -197,20 +198,4 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     Cashu.removeInvoiceListener(payInvoiceListener);
     super.dispose();
   }
-}
-
-class PayInvoiceListener implements CashuListener {
-  final ValueChanged<Receipt>? onChanged;
-
-  PayInvoiceListener({this.onChanged});
-
-  @override
-  void onInvoicePaid(Receipt receipt) {
-    if (onChanged != null) {
-      onChanged!(receipt);
-    }
-  }
-
-  @override
-  void onBalanceChanged(IMint mint) {}
 }
