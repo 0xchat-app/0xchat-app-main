@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
@@ -27,6 +28,7 @@ import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -73,8 +75,14 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       children: [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {
-            OXNavigator.pushPage(context, (context) => const DonatePage());
+          onTap: () async {
+            // OXNavigator.pushPage(context, (context) => const DonatePage());
+            // await OXModuleService.pushPage(context,'ox_wallet', 'WalletPage',{});
+            if(Cashu.mintList().isNotEmpty){
+              await OXModuleService.pushPage(context,'ox_wallet', 'WalletHomePage',{});
+            }else{
+              await OXModuleService.pushPage(context,'ox_wallet', 'WalletPage',{});
+            }
           },
           child: Container(
             width: double.infinity,
@@ -90,7 +98,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
                 end: Alignment.centerRight,
               ),
             ),
-            child: _itemView('icon_settings_donate.png', 'ox_usercenter.donate', '', false),
+            child: _itemView('icon_settings_wallet.png', 'ox_usercenter.donate', '', false),
           ),
         ),
         SizedBox(
