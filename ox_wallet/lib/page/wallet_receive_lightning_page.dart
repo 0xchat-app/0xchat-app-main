@@ -4,9 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_wallet/page/btc_receive_page.dart';
 import 'package:ox_wallet/page/sats_receive_page.dart';
-import 'package:ox_wallet/widget/ecash_tab_bar.dart';
 
 class WalletReceiveLightningPage extends StatefulWidget {
   const WalletReceiveLightningPage({super.key});
@@ -17,13 +15,13 @@ class WalletReceiveLightningPage extends StatefulWidget {
 
 class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin{
 
-  late final TabController _controller;
-  final List<String> tabsName = const ['Sats', 'BTC'];
+  // late final TabController _controller;
+  // final List<String> tabsName = const ['Sats', 'BTC'];
   final ValueNotifier<bool> _shareController = ValueNotifier(false);
 
   @override
   void initState() {
-    _controller = TabController(length: tabsName.length, vsync: this);
+    // _controller = TabController(length: tabsName.length, vsync: this);
     super.initState();
   }
 
@@ -56,17 +54,18 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              EcashTabBar(controller: _controller, tabsName: tabsName,),
+              // EcashTabBar(controller: _controller, tabsName: tabsName,),
               SizedBox(height: 12.px,),
-              Expanded(
-                child: TabBarView(
-                  controller: _controller,
-                  children: [
-                    SatsReceivePage(shareController: _shareController,),
-                    BTCReceivePage(shareController: _shareController,),
-                  ],
-                ),
-              ),
+              // Expanded(
+              //   child: TabBarView(
+              //     controller: _controller,
+              //     children: [
+              //       SatsReceivePage(shareController: _shareController,),
+              //       BTCReceivePage(shareController: _shareController,),
+              //     ],
+              //   ),
+              // ),
+              Expanded(child: SatsReceivePage(shareController: _shareController,))
             ],
           ).setPaddingOnly(top: 12.px)
       ),
