@@ -107,6 +107,7 @@ class WalletSuccessfulPage extends StatelessWidget {
       title: 'Receive',
       tips: 'Invoice Paid',
       content: '$amount sats was added your Lightning account.',
+      canBack: false,
       bottomWidget: ThemeButton(
         text: 'Receive another payment',
         height: 48.px,
@@ -115,11 +116,12 @@ class WalletSuccessfulPage extends StatelessWidget {
     );
   }
 
-  factory WalletSuccessfulPage.redeemClaimed({required String amount,GestureTapCallback? onTap}){
+  factory WalletSuccessfulPage.redeemClaimed({required String amount,String? content, GestureTapCallback? onTap}){
     return WalletSuccessfulPage(
       title: 'Redeem Ecash',
       tips: '$amount Sats Claimed!',
-      content: 'Sent Via eNuts',
+      content: content,
+      canBack: false,
       bottomWidget: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: onTap,

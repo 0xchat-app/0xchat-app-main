@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
@@ -63,7 +64,14 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   void _onInvoicePaid(Receipt receipt) {
-    OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.invoicePaid(amount: receipt.amount,onTap: () => OXNavigator.pop(context!),),);
+    OXNavigator.pushPage(
+      context,
+      (context) => WalletSuccessfulPage.invoicePaid(
+        amount: receipt.amount,
+        onTap: () => OXNavigator.popToPage(context!,
+            pageType: const WalletHomePage().runtimeType.toString()),
+      ),
+    );
   }
 
   @override
