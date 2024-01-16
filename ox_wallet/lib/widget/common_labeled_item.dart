@@ -16,8 +16,13 @@ class CommonLabeledCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label ?? '',style: labelStyle ?? TextStyle(fontSize: 14.px,fontWeight: FontWeight.w600,color: ThemeColor.color0),),
-        SizedBox(height: padding ?? 12.px,),
+        if (label != null) ...[
+          Text(
+            label ?? '',
+            style: labelStyle ?? TextStyle(fontSize: 14.px, fontWeight: FontWeight.w600, color: ThemeColor.color0),
+          ),
+          SizedBox(height: padding ?? 12.px,),
+        ],
         child ?? Container(),
       ],
     );
@@ -28,8 +33,7 @@ class CommonLabeledCard extends StatelessWidget {
     TextStyle? style,
     String? hintText,
     TextStyle? hintStyle,
-    String? suffixText,
-    TextStyle? suffixStyle,
+    Widget? suffix,
     TextEditingController? controller,
     FocusNode? focusNode,
     TextInputType? keyboardType
@@ -40,24 +44,60 @@ class CommonLabeledCard extends StatelessWidget {
         radius: 12.px,
         verticalPadding: 12.px,
         horizontalPadding: 16.px,
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          style: style,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
-              hintText: hintText,
-              hintStyle: hintStyle ??
-                  TextStyle(fontSize: 16.px, height: 22.px / 16.px),
-              suffixText: suffixText,
-              suffixStyle: suffixStyle ??
-                  TextStyle(
-                      fontSize: 16.px,
-                      color: ThemeColor.color0,
-                      height: 22.px / 16.px)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextField(
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: InputDecoration(
+                      hintText: hintText,
+                      hintStyle: hintStyle ?? TextStyle(fontSize: 16.px,height: 22.px / 16.px),
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    controller: controller,
+                    focusNode: focusNode,
+                    keyboardType: keyboardType,
+                    maxLines: 1,
+                    showCursor: true,
+                    style: style ?? TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color0),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.px),
+            suffix ?? Container()
+          ],
+        ),
+      ),
+    );
+  }
+
+  factory CommonLabeledCard.textFieldAndScan(
+      {String? label,
+      String? hintText,
+      TextEditingController? controller,
+      FocusNode? focusNode,
+      VoidCallback? onTap}) {
+    return CommonLabeledCard.textField(
+      label: label,
+      hintText: 'Invoice',
+      controller: controller,
+      focusNode: focusNode,
+      suffix: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        child: CommonImage(
+          iconName: 'icon_send_qrcode.png',
+          size: 24.px,
+          package: 'ox_wallet',
         ),
       ),
     );

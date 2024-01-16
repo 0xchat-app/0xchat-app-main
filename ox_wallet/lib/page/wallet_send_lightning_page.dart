@@ -11,7 +11,7 @@ import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
-import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 
 enum SendType{
@@ -70,61 +70,18 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   Widget _buildInvoiceTextEdit() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Recipeint',style: TextStyle(fontSize: 14.px,fontWeight: FontWeight.w600,color: ThemeColor.color0),),
-        SizedBox(height: 12.px,),
-        CommonCard(
-          radius: 12.px,
-          verticalPadding: 12.px,
-          horizontalPadding: 16.px,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                        hintText: 'Invoice',
-                        hintStyle: TextStyle(fontSize: 16.px,height: 22.px / 16.px),
-                        isDense: true,
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      controller: _invoiceEditController,
-                      focusNode: _invoiceFocus,
-                      maxLines: 1,
-                      showCursor: true,
-                      style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color0),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 8.px),
-              GestureDetector(
-                onTap: (){
-                  WalletUtils.gotoScan(context, (result) {
-                    _invoiceEditController.text = result;
-                    _updateSendType();
-                  },);
-                },
-                child: CommonImage(
-                  iconName: 'icon_send_qrcode.png',
-                  size: 24.px,
-                  package: 'ox_wallet',
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ).setPaddingOnly(top: 12.px);
+    return CommonLabeledCard.textFieldAndScan(
+      label: 'Recipient',
+      hintText: 'Invoice',
+      controller: _invoiceEditController,
+      focusNode: _invoiceFocus,
+      onTap: (){
+        WalletUtils.gotoScan(context, (result) {
+          _invoiceEditController.text = result;
+          _updateSendType();
+        },);
+      },
+    );
   }
 
   Widget _buildVisibilityWidget() {

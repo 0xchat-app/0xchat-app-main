@@ -12,6 +12,7 @@ import 'package:ox_wallet/page/wallet_mint_list_page.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/common_labeled_item.dart';
 
 enum  ImportAction{
   import,
@@ -55,49 +56,14 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           widget.action == ImportAction.add ? SizedBox(height: 12.px,) : SizedBox(height: 100.px,child: Center(child: _buildText('Add a new mint'),),),
-          CommonCard(
-            radius: 12.px,
-            verticalPadding: 12.px,
-            horizontalPadding: 16.px,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextField(
-                        textAlignVertical: TextAlignVertical.center,
-                        decoration: InputDecoration(
-                          hintText: 'Mint URL',
-                          hintStyle: TextStyle(fontSize: 16.px,height: 22.px / 16.px),
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        controller: _controller,
-                        maxLines: 1,
-                        showCursor: true,
-                        style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color0),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 8.px),
-                GestureDetector(
-                  onTap: (){
-                    WalletUtils.gotoScan(context, (result) => _controller.text = result);
-                  },
-                  child: CommonImage(
-                    iconName: 'icon_send_qrcode.png',
-                    size: 24.px,
-                    package: 'ox_wallet',
-                  ),
-                ),
-              ],
-            ),
+          CommonLabeledCard.textFieldAndScan(
+            hintText: 'Mint URL',
+            controller: _controller,
+            onTap: (){
+              WalletUtils.gotoScan(context, (result) {
+                WalletUtils.gotoScan(context, (result) => _controller.text = result);
+              },);
+            },
           ),
           SizedBox(height: widget.action == ImportAction.add ? 24.px : 30.px),
           ThemeButton(text: widget.action == ImportAction.add ? 'Add' : 'Import',height: 48.px,enable: _enable, onTap: _addMint),

@@ -157,7 +157,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     return CommonLabeledCard.textField(
       label: 'Amount',
       hintText: 'Enter Amount',
-      suffixText: 'Sats',
+      suffix: Text('Sats',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0, height: 22.px / 16.px),),
       controller: _amountEditController,
       focusNode: _amountFocus,
       keyboardType: TextInputType.number,
