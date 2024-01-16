@@ -36,10 +36,10 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     _items.add(StepItemModel(title: 'Created Time',subTitle: WalletUtils.formatTimestamp(record.timestamp.toInt())));
     if(record.type == IHistoryType.eCash){
       _items.add(StepItemModel(title: 'Check',subTitle: 'Check if token has been spent'));
-      _items.add(StepItemModel(title: 'Token',subTitle: WalletUtils.formatToken(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
+      _items.add(StepItemModel(title: 'Token',subTitle: WalletUtils.formatString(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
     }else{
       _items.add(StepItemModel(title: 'Fee',subTitle: record.fee?.toInt().toString()));
-      _items.add(StepItemModel(title: 'Invoice',subTitle: record.value,onTap: (value) => TookKit.copyKey(context, record.value)));
+      _items.add(StepItemModel(title: 'Invoice',subTitle: WalletUtils.formatString(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
     }
   }
 

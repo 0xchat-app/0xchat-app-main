@@ -5,9 +5,23 @@ class EcashManager {
 
   EcashManager._internal();
 
-  List<IMint> get mintList => Cashu.mintList();
+  final List<IMint> _mintList = List.of(Cashu.mintList());
+
+  List<IMint> get mintList => _mintList;
 
   int get mintCount => mintList.length;
 
   IMint get defaultIMint => mintList.first;
+
+  void updateMintList(IMint mint) {
+    if (_mintList.contains(mint)) {
+      _mintList.remove(mint);
+      _mintList.insert(0, mint);
+    } else {
+      _mintList.insert(0, mint);
+    }
+  }
+
+  List<String> get mintURLs => mintList.map((element) => element.mintURL).toList();
+
 }

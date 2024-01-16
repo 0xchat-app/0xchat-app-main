@@ -86,7 +86,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
         children: [
           Text('Token',style: TextStyle(fontSize: 14.sp),),
           SizedBox(height: 4.px,),
-          Text(WalletUtils.formatToken(token),style: TextStyle(fontSize: 12.sp)),
+          Text(WalletUtils.formatString(token),style: TextStyle(fontSize: 12.sp)),
         ],
       ).setPaddingOnly(top: 31.px),
     );

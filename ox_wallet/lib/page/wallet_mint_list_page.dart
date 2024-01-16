@@ -58,7 +58,11 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             itemCount: mintItems.length,
           ),
           SizedBox(height: 24.px,),
-          ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementAddPage()),),
+          ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) => (value) {
+            if(value!=null && value){
+              setState(() {});
+            }
+          }),),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );

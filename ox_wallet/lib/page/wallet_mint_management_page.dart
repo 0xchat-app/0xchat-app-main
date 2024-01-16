@@ -7,7 +7,9 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/page/wallet_mint_info.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/utils/ecash_dialog_helper.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
@@ -28,15 +30,17 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
   List<StepItemModel> _dangerZoneList = [];
   late ValueNotifier<String> _mintQrCode;
   TextEditingController? _customNameEditController;
+  late bool _isDefaultMint;
 
   @override
   void initState() {
+    _isDefaultMint = EcashManager.shared.defaultIMint.mintURL == widget.mint.mintURL;
     _generalList = [
       StepItemModel(title: 'Mint',content: widget.mint.mintURL),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
-      StepItemModel(title: 'Set as default mint'),
+      StepItemModel(title: _isDefaultMint ? 'Remove from Default' : 'Set as default mint',onTap: _setDefaultMint),
       StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
     ];
     _dangerZoneList = [
@@ -72,7 +76,13 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       child: StepIndicatorItem(
         height: 52.px,
         title: item.title,
-        content: item.content != null ? Text(item.content!, style: TextStyle(fontSize: 14.px)) : null,
+        content: item.content != null
+            ? Expanded(
+                child: Text(WalletUtils.formatString(item.content!, 40, 20, 10),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.clip,
+                    style: TextStyle(fontSize: 14.px)))
+            : null,
         badge: item.badge != null ? Text(item.badge!, style: TextStyle(fontSize: 14.px)) : null,
         onTap: item.onTap != null ? () => item.onTap!(item) : null,
       ),
@@ -111,6 +121,14 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
         LogUtil.e('Edit Mint Name Failed: $e\r\n$s');
         CommonToast.instance.show(context, 'Edit Mint Name Failed, Please Try again...');
       });
+    });
+  }
+
+  void _setDefaultMint(StepItemModel stepItemModel) {
+    _isDefaultMint = !_isDefaultMint;
+    stepItemModel.title = _isDefaultMint ? 'Remove from Default' : 'Set as default mint';
+    EcashManager.shared.updateMintList(widget.mint);
+    setState(() {
     });
   }
 

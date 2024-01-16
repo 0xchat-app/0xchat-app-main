@@ -133,17 +133,19 @@ class StepIndicatorItem extends StatelessWidget {
                 if(subTitle != null) Text(subTitle!,style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14.px,color: ThemeColor.color100,height: 20.px / 14.px),),
               ],
             ),
-            const Spacer(),
-            Row(
-              children: [
-                badge ?? Container(),
-                content ??
-                    CommonImage(
-                      iconName: 'icon_wallet_more_arrow.png',
-                      size: 24.px,
-                      package: 'ox_wallet',
-                    )
-              ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  badge ?? Container(),
+                  content ??
+                      CommonImage(
+                        iconName: 'icon_wallet_more_arrow.png',
+                        size: 24.px,
+                        package: 'ox_wallet',
+                      )
+                ],
+              ),
             )
           ],
         ),

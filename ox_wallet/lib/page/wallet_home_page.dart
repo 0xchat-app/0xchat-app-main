@@ -52,8 +52,10 @@ class _WalletHomePageState extends State<WalletHomePage> {
 
   void _onBalanceChanged(IMint mint){
     _getRecentTransaction();
-    setState(() {
-    });
+    if(mounted){
+      setState(() {
+      });
+    }
   }
 
   @override
@@ -207,7 +209,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
               height: 4.px,
             ),
             Text(
-              "${EcashManager.shared.defaultIMint.balance} sats",
+              "${EcashService.totalBalance()} sats",
               style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600),
             ),
           ],

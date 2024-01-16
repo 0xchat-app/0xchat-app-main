@@ -111,4 +111,8 @@ class EcashService {
   static Future<void> editMintName(IMint mint, String name) async {
     return await Cashu.editMintName(mint, name);
   }
+
+  static int totalBalance() {
+    return Cashu.totalBalance();
+  }
 }

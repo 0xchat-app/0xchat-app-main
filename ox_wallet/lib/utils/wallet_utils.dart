@@ -88,11 +88,11 @@ class WalletUtils {
     return formattedDate;
   }
 
-  static String formatToken(String token) {
-    if (token.length > 230) {
-      return '${token.substring(0, 210)}...${token.substring(token.length - 15)}';
+  static String formatString(String str,[int maxLength = 230,int frontLength = 210,int backLength = 15]) {
+    if (str.length > maxLength) {
+      return '${str.substring(0, frontLength)}...${str.substring(str.length - backLength)}';
     } else {
-      return token;
+      return str;
     }
   }
 }
