@@ -88,7 +88,7 @@ class CommonLabeledCard extends StatelessWidget {
       VoidCallback? onTap}) {
     return CommonLabeledCard.textField(
       label: label,
-      hintText: 'Invoice',
+      hintText: hintText,
       controller: controller,
       focusNode: focusNode,
       suffix: GestureDetector(
@@ -153,7 +153,7 @@ class StepIndicatorItem extends StatelessWidget {
 }
 
 class StepItemModel {
-  final String? title;
+  String? title;
   final String? subTitle;
   final String? content;
   String? badge;

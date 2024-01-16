@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_wallet/widget/ecash_scan_page.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -43,7 +44,7 @@ class WalletUtils {
     PermissionStatus permissionStatus = await Permission.camera.request();
     // if (!mounted) return;
     if (permissionStatus.isGranted) {
-      String? result = await OXNavigator.pushPage(context, (context) => CommonScanPage());
+      String? result = await OXNavigator.pushPage(context, (context) => EcashScanPage());
       if (result != null) {
         onScanResult(result);
       }

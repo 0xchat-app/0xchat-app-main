@@ -5,9 +5,12 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 
 class WalletPage extends StatefulWidget {
@@ -18,6 +21,8 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
+  final _defaultMintURL = 'https://legend.lnbits.com/cashu/api/v1/AptDNABNBXv8gpuywhx6NV';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +50,7 @@ class _WalletPageState extends State<WalletPage> {
               package: 'ox_wallet',
             ).setPaddingOnly(top: 16.px),
             const Spacer(),
-            ThemeButton(height: 48.px,text: 'Use the eNuts mint',),
+            ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
             GestureDetector(
               onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementAddPage(action: ImportAction.import,callback: (){
                 OXNavigator.pushPage(context!, (context) => const WalletHomePage());
@@ -64,5 +69,17 @@ class _WalletPageState extends State<WalletPage> {
       ),
     ),
     );
+  }
+
+  void _useDefaultMint() {
+    OXLoading.show();
+    EcashService.addMint(_defaultMintURL).then((mint) {
+      OXLoading.dismiss();
+      if (mint != null) {
+        OXNavigator.pushPage(context, (context) => const WalletHomePage());
+      } else {
+        CommonToast.instance.show(context, 'Add default mint Failed, Please try again.');
+      }
+    });
   }
 }
