@@ -74,10 +74,12 @@ class ChatSendMessageHelper {
         timestamp: sendMsg.createdAt,
         roomId: session.chatId,
         id: sendMsg.id,
+        remoteId: sendMsg.id,
         title: 'Loading...',
         content: 'Loading...',
         icon: '',
         link: '',
+        sourceKey: sourceKey,
       );
       ChatNostrSchemeHandle.tryDecodeNostrScheme(message.content)
           .then((nostrSchemeContent) async {
@@ -136,9 +138,13 @@ class ChatSendMessageHelper {
       event: event,
       isLocal: isLocal,
     )
-        .then((event) {
+        .then((event) async {
       sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
+
+      final message = await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
+      if (message == null) return ;
+
+      final updatedMessage = message.copyWith(
         remoteId: event.eventId,
         status: event.status ? types.Status.sent : types.Status.error,
       );
