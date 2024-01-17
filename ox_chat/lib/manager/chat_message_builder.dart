@@ -246,7 +246,7 @@ class ChatMessageBuilder {
     }
 
     return TextSpan(children: spans, style: TextStyle(
-      fontSize: 12.sp,
+      fontSize: 14.sp,
       color: ThemeColor.color0,
       height: 1.4,
     ));
@@ -299,7 +299,7 @@ class ChatMessageBuilder {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                     color: ThemeColor.color0,
                     height: 1.4
                   ),
@@ -309,7 +309,7 @@ class ChatMessageBuilder {
                   child: Text(
                     dns,
                     style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 14.sp,
                         color: ThemeColor.color120,
                         height: 1.4
                     ),
@@ -322,7 +322,7 @@ class ChatMessageBuilder {
                   OXDateUtils.convertTimeFormatString2(createTime * 1000,
                       pattern: 'MM-dd'),
                   style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       color: ThemeColor.color120,
                       height: 1.4
                   ),
