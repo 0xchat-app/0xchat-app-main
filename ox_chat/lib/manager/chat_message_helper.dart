@@ -151,14 +151,14 @@ extension MessageDBToUIEx on MessageDB {
           messageFactory = CustomMessageFactory();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             if(nostrSchemeContent != null){
+              this.type = 'template';
+              this.decryptContent = nostrSchemeContent;
+              await DB.sharedInstance.update(this);
               final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
               final uiMessage = await this.toChatUIMessage();
               if(uiMessage != null){
                 ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
               }
-              this.type = 'template';
-              this.decryptContent = nostrSchemeContent;
-              await DB.sharedInstance.update(this);
             }
           });
         }
