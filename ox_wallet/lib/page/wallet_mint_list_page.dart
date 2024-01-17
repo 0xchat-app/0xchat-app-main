@@ -47,7 +47,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             itemBuilder: (context, index) => CommonCard(
               verticalPadding: 8.px,
               child: StepIndicatorItem(
-                title: mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL,
+                title: _mintTitle(index),
                 subTitle: '${mintItems[index].balance} Sats',
                 onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)).then((value) {
                   setState(() {});
@@ -66,5 +66,13 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
+  }
+
+  String _mintTitle(int index){
+    final defaultTitle = mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL;
+    final suffix = index == 0 ? ' (Default)' : '';
+    final result = '$defaultTitle$suffix';
+    if(EcashManager.shared.defaultIMint == null) return defaultTitle;
+    return result;
   }
 }

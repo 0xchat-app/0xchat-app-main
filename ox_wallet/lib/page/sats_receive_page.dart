@@ -182,8 +182,9 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   Future<void> _createLightningInvoice() async {
+    if(EcashManager.shared.defaultIMint == null) return;
     int amountSats = int.parse(amount);
-    Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint, amount: amountSats);
+    Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint!, amount: amountSats);
     if(receipt != null && receipt.request.isNotEmpty){
       _invoiceNotifier.value = receipt.request;
       // _expiredTimeNotifier.value = receipt.expiry;

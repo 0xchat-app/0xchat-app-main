@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -86,7 +87,8 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
   }
 
   Future<void> _getAllProof() async {
-    List<Proof> proofs = await EcashService.getAllUseProofs();
+    if(EcashManager.shared.defaultIMint == null) return;
+    List<Proof> proofs = await EcashService.getAllUseProofs(mint: EcashManager.shared.defaultIMint!);
     if(proofs.isNotEmpty){
       setState(() {
         _proofs = proofs;

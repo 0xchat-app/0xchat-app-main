@@ -34,6 +34,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
 
   @override
   void initState() {
+    EcashManager.shared.setup();
     _scrollController.addListener(() {
       setState(() {
         if(_scrollController.offset > 140) return;

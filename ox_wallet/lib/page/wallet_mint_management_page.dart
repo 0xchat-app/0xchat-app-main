@@ -34,13 +34,13 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
   @override
   void initState() {
-    _isDefaultMint = EcashManager.shared.defaultIMint.mintURL == widget.mint.mintURL;
+    _isDefaultMint = EcashManager.shared.defaultIMint?.mintURL == widget.mint.mintURL;
     _generalList = [
       StepItemModel(title: 'Mint',content: widget.mint.mintURL),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
-      StepItemModel(title: _isDefaultMint ? 'Remove from Default' : 'Set as default mint',onTap: _setDefaultMint),
+      StepItemModel(title: _isDefaultMint ? 'Remove from Default' : 'Set as default mint',onTap: _handleDefaultMint),
       StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
     ];
     _dangerZoneList = [
@@ -124,11 +124,17 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     });
   }
 
-  void _setDefaultMint(StepItemModel stepItemModel) {
-    _isDefaultMint = !_isDefaultMint;
-    stepItemModel.title = _isDefaultMint ? 'Remove from Default' : 'Set as default mint';
-    EcashManager.shared.updateMintList(widget.mint);
+  Future<void> _handleDefaultMint(StepItemModel stepItemModel) async {
+    if(_isDefaultMint){
+      await EcashManager.shared.removeDefaultMint();
+    }else{
+      await EcashManager.shared.setDefaultMint(widget.mint);
+    }
     setState(() {
+      _isDefaultMint = !_isDefaultMint;
+      stepItemModel.title =
+      _isDefaultMint ? 'Remove from Default' : 'Set as default mint';
+      if(context.mounted) CommonToast.instance.show(context, 'Updated the default mint');
     });
   }
 

@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
@@ -125,8 +126,9 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   void _send() {
+    if(EcashManager.shared.defaultIMint == null) return;
     OXLoading.show();
-    EcashService.payingLightningInvoice(amount: _amountEditController.text)
+    EcashService.payingLightningInvoice(mint: EcashManager.shared.defaultIMint!,amount: _amountEditController.text)
         .then((result) {
         OXLoading.dismiss();
         if (result != null && result) {
