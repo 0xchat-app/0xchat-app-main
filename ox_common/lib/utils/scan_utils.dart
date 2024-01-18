@@ -141,8 +141,6 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       if (isGroup) {
         // Go to group page
         final author = data['author'];
-        print('zhw====================>author: $author');
-        print('zhw====================>groupId: $groupId');
         OXModuleService.invoke('ox_chat', 'groupSharePage', [
           context
         ], {
