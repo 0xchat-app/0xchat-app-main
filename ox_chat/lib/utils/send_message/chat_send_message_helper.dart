@@ -61,6 +61,7 @@ class ChatSendMessageHelper {
     final sourceKey = jsonEncode(event);
     types.Message sendMsg = message.copyWith(
       id: event.id,
+      remoteId: event.id,
       sourceKey: sourceKey,
       expiration: senderStrategy.session.expiration == null
           ? null
@@ -74,10 +75,12 @@ class ChatSendMessageHelper {
         timestamp: sendMsg.createdAt,
         roomId: session.chatId,
         id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
         title: 'Loading...',
         content: 'Loading...',
         icon: '',
         link: '',
+        sourceKey: sourceKey,
       );
       ChatNostrSchemeHandle.tryDecodeNostrScheme(message.content)
           .then((nostrSchemeContent) async {
@@ -136,9 +139,13 @@ class ChatSendMessageHelper {
       event: event,
       isLocal: isLocal,
     )
-        .then((event) {
+        .then((event) async {
       sendFinish.value = true;
-      final updatedMessage = sendMsg.copyWith(
+
+      final message = await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
+      if (message == null) return ;
+
+      final updatedMessage = message.copyWith(
         remoteId: event.eventId,
         status: event.status ? types.Status.sent : types.Status.error,
       );
@@ -163,9 +170,11 @@ class ChatSendMessageHelper {
 
   static void _setMessageSendingStatusIfNeeded(ChatSessionModel session,
       OXValue<bool> sendFinish, types.Message message) {
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () async {
       if (!sendFinish.value) {
-        updateMessageStatus(session, message, types.Status.sending);
+        final msg = await ChatDataCache.shared.getMessage(null, session, message.id);
+        if (msg == null) return ;
+        updateMessageStatus(session, msg, types.Status.sending);
       }
     });
   }
