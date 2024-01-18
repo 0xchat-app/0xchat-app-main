@@ -49,6 +49,16 @@ class _WalletPageState extends State<WalletPage> {
               width: 100.px,
               package: 'ox_wallet',
             ).setPaddingOnly(top: 16.px),
+            Text(
+                'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16.px,
+                  color: ThemeColor.color0,
+                  height: 24.px / 16.px
+                ),
+              ).setPaddingOnly(top: 56.px),
             const Spacer(),
             ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
             GestureDetector(
