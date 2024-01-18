@@ -3,6 +3,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 
 class EcashDialogHelper {
@@ -56,7 +57,7 @@ class EcashDialogHelper {
     );
   }
 
-  static showCheckProofs(BuildContext context){
+  static showCheckProofs(BuildContext context,{Function? onConfirmTap}){
     OXCommonHintDialog.show(context,
         title: 'Check all the proofs？',
         content: 'This will check if your token are spendable and will otherwise delete them.',
@@ -70,12 +71,13 @@ class EcashDialogHelper {
               text: 'YES',
               onTap: () async {
                 OXNavigator.pop(context, true);
+                onConfirmTap?.call();
               }),
         ],
         isRowAction: true);
   }
 
-  static showDeleteMint(BuildContext context,ValueNotifier<String> data){
+  static showDeleteMint(BuildContext context){
     OXCommonHintDialog.show(context,
         title: 'Delete Failed',
         content: 'Unable to remove a mint with remaining balance.',

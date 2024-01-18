@@ -1,6 +1,5 @@
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_wallet/services/ecash_manager.dart';
 
 class EcashService {
 
@@ -104,6 +103,16 @@ class EcashService {
       result = await Cashu.checkProofsAvailable(mint);
     } catch (e, s) {
       LogUtil.e('Check Proofs Available Failed: $e\r\n$s');
+    }
+    return result;
+  }
+
+  static Future<bool?> checkEcashTokenSpendable({required IHistoryEntry entry}) async {
+    bool? result;
+    try {
+      result = await Cashu.isEcashTokenSpendableFromHistory(entry);
+    } catch (e, s) {
+      LogUtil.e('Check Ecash Token Spendable: $e\r\n$s');
     }
     return result;
   }
