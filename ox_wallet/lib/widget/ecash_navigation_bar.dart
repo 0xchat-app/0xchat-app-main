@@ -76,8 +76,8 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                     ),
                     BottomSheetItem(
                       iconName: 'icon_wallet_lightning.png',
-                      title: 'Create Lightning invoice',
-                      subTitle: 'Receive Ecash by Paying a Lightning invoice',
+                      title: 'Create Ecash',
+                      subTitle: 'Create Ecash by Paying a Lightning invoice',
                       onTap: () {
                         OXNavigator.pop(context);
                         OXNavigator.pushPage(context, (context) => const WalletReceiveLightningPage());
@@ -98,7 +98,7 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                     BottomSheetItem(
                       iconName: 'icon_wallet_send.png',
                       title: 'Send Ecash',
-                      subTitle: 'Create a Cashu token and send.',
+                      subTitle: 'Create a Cashu token and send to your friends.',
                       onTap: () {
                         OXNavigator.pop(context);
                         OXNavigator.pushPage(context, (context) => WalletSendEcashPage());
@@ -106,8 +106,8 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                     ),
                     BottomSheetItem(
                       iconName: 'icon_wallet_lightning.png',
-                      title: 'Pay Lightning invoice',
-                      subTitle: 'Send your funds to a lightning node.',
+                      title: 'Withdraw Ecash',
+                      subTitle: 'Withdraw your funds to a lightning node.',
                       onTap: () {
                         OXNavigator.pop(context);
                         OXNavigator.pushPage(context, (context) => const WalletSendLightningPage());
