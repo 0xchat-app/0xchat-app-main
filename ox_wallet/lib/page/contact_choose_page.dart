@@ -6,6 +6,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:ox_wallet/widget/contact_item.dart';
 
 const List<String> ALPHAS_INDEX = ["☆","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"];
 
@@ -50,27 +51,38 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
   void _initializeContactList() {
     if (widget.contactType == ContactType.contact) {
       _contactList = Contacts.sharedInstance.allContacts.values.toList() as List<T>;
-    } else {
-      _contactList = Groups.sharedInstance.myGroups.values.toList() as List<T>;
     }
+    if(widget.contactType == ContactType.group){
+      _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDB).owner.isNotEmpty).toList();
+    }
+    _groupedContact();
   }
 
-  groupedUser(){
+  _groupedContact(){
     for (var v in ALPHAS_INDEX) {
       _groupedContactList[v] = [];
     }
-    Map<UserDB, String> pinyinMap = <UserDB, String>{};
-    // for (var user in _contactList) {
-    //   String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
-    //   String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
-    //   pinyinMap[user] = pinyin;
-    // }
+    Map<T, String> pinyinMap = <T, String>{};
+
+    for (var contact in _contactList) {
+      String nameToConvert = '';
+      if(contact is UserDB){
+        nameToConvert = contact.nickName != null && contact.nickName!.isNotEmpty ? contact.nickName! : (contact.name ?? '');
+      }
+      if(contact is GroupDB){
+        nameToConvert = contact.name;
+      }
+
+      String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
+      pinyinMap[contact] = pinyin;
+    }
+
     _contactList.sort((v1, v2) {
       return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
     });
 
     for (var item in _contactList) {
-      var firstLetter = pinyinMap[item]![0].toUpperCase();
+      var firstLetter = pinyinMap[item]?[0].toUpperCase();
       if (!ALPHAS_INDEX.contains(firstLetter)) {
         firstLetter = '#';
       }
@@ -110,9 +122,24 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
         _buildSearchBar(),
         Expanded(
           child: ListView.builder(
-            itemCount: _contactList.length,
+            itemCount: _filteredContactList.keys.length,
             itemBuilder: (BuildContext context, int index) {
-              // return _buildUserItem(_contactList[index]);
+              String key = _filteredContactList.keys.elementAt(index);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(bottom: Adapt.px(4)),
+                    child: Text(
+                      key,
+                      style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(16),
+                          fontWeight: FontWeight.w600),
+                    ),),
+                  ..._filteredContactList[key]!.map((contact) => _buildContactItem(contact)),
+                ],
+              );
             },
           ),
         ),
@@ -235,8 +262,27 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
         ));
   }
 
-  Widget _buildUserItem(UserDB user){
-    return Container();
+  Widget _buildContactItem(T contact){
+    bool isSelected = _selectedContactList.contains(contact);
+
+    return ContactItem<T>(
+      contact: contact,
+      action: CommonImage(
+        width: Adapt.px(24),
+        height: Adapt.px(24),
+        iconName: isSelected ? 'icon_select_follows.png' : 'icon_unSelect_follows.png',
+        package: 'ox_chat',
+      ),
+      titleColor: isSelected ? ThemeColor.color0 : ThemeColor.color100,
+      onTap: () {
+        if (!isSelected) {
+          _selectedContactList.add(contact);
+        } else {
+          _selectedContactList.remove(contact);
+        }
+        setState(() {});
+      },
+    );
   }
 
   void _handlingSearch(String searchQuery){
