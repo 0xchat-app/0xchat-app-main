@@ -31,15 +31,16 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     final record = widget.entry;
     String type = widget.entry.amount > 0 ? 'Receive' : 'Send';
     _items.add(StepItemModel(title: type,subTitle: '${record.amount.toInt().abs()} sats'));
-    _items.add(StepItemModel(title: 'Memo',subTitle: record.mintsRaw));
+    _items.add(StepItemModel(title: 'Memo',subTitle: record.memo));
     _items.add(StepItemModel(title: 'Mint',subTitle: record.mints.join('\r\n')),);
     _items.add(StepItemModel(title: 'Created Time',subTitle: WalletUtils.formatTimestamp(record.timestamp.toInt())));
-    if(record.type == IHistoryType.eCash){
+    if (record.type == IHistoryType.eCash) {
       _items.add(StepItemModel(title: 'Check',subTitle: 'Check if token has been spent'));
       _items.add(StepItemModel(title: 'Token',subTitle: WalletUtils.formatString(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
-    }else{
+    } else if (record.type == IHistoryType.lnInvoice) {
       _items.add(StepItemModel(title: 'Fee',subTitle: record.fee?.toInt().toString()));
       _items.add(StepItemModel(title: 'Invoice',subTitle: WalletUtils.formatString(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
+      _items.add(StepItemModel(title: 'Payment hash',subTitle: record.paymentHash, onTap: (value) => TookKit.copyKey(context, record.paymentHash ?? '')));
     }
   }
 
