@@ -191,7 +191,7 @@ class OXCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         )
                     }
                 }
-                false
+                return@ActivityResultListener false
             }
         })
     }
