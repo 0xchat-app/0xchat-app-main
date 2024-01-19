@@ -91,11 +91,11 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
   Future<void> _checkEcashTokenSpendable() async {
     bool? result = await EcashService.checkEcashTokenSpendable(entry: widget.entry);
     int index = _items.indexWhere((item) => item.key == _tagItem);
-    if(result == null) _items[index] = StepItemModel(title: 'Check',subTitle: 'Check if token has been spent');
+    if(result == null) _items[index] = StepItemModel(key: _tagItem, title: 'Check',subTitle: 'Check if token has been spent');
     if(result != null && result) {
-      _items[index] = StepItemModel(title: 'Checked',subTitle: 'Token has been spent');
+      _items[index] = StepItemModel(key: _tagItem, title: 'Checked',subTitle: 'Token has been spent');
     } else {
-      _items[index] = StepItemModel(title: 'Checked',subTitle: 'Token is pending',badge: 'Claim token',onTap: _redeemEcash);
+      _items[index] = StepItemModel(key: _tagItem, title: 'Checked',subTitle: 'Token is pending',badge: 'Claim token',onTap: _redeemEcash);
     }
     setState(() {});
   }
@@ -108,6 +108,7 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
       if(context.mounted) CommonToast.instance.show(context,'Redeem Cashu failed, Please try again');
       return;
     }
+    if(context.mounted) CommonToast.instance.show(context,'Claim token successful');
     await _checkEcashTokenSpendable();
   }
 }
