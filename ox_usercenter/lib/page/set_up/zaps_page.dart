@@ -66,7 +66,9 @@ class _ZapsPageState extends State<ZapsPage> {
     //   YLCacheManager.defaultYLCacheManager.saveForeverData('$pubKey.defaultZapAmount',defaultZapAmount);
     // }
     // });
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override

@@ -258,7 +258,9 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
           }
         }
         await OXLoading.dismiss();
-        setState(() {});
+        if(mounted){
+          setState(() {});
+        }
       },
       materialTapTargetSize: MaterialTapTargetSize.padded,
     );
