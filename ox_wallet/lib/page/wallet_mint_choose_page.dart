@@ -76,6 +76,7 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
   Future<void> _chooseMint(IMint mint) async {
     bool result = await EcashManager.shared.setDefaultMint(mint);
     if(result && context.mounted){
+      OXNavigator.pop(context);
       switch(widget.type){
         case ChooseType.payInvoice : OXNavigator.pushPage(context, (context) => const WalletSendLightningPage());
         case ChooseType.createInvoice : OXNavigator.pushPage(context, (context) => const WalletReceiveLightningPage());
