@@ -164,9 +164,9 @@ public class SelectPicsActivity extends BaseActivity {
                             if(videoDuration < videoRecordMinSecond.intValue() || videoDuration > videoRecordMaxSecond.intValue()){
                                 String tips = "";
                                 if (videoDuration < videoRecordMinSecond.intValue()){
-                                    tips = getString(R.string.ps_select_video_min_second,videoRecordMinSecond.intValue());
+                                    tips = getString(R.string.str_select_video_min_second,videoRecordMinSecond.intValue());
                                 }else if (videoDuration > videoRecordMaxSecond.intValue()){
-                                    tips = getString(R.string.ps_select_video_max_second,videoRecordMaxSecond.intValue());
+                                    tips = getString(R.string.str_select_video_max_second,videoRecordMaxSecond.intValue());
                                 }
                                 RemindDialog tipsDialog = RemindDialog.buildDialog(SelectPicsActivity.this,tips);
                                 tipsDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {

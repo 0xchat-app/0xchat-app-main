@@ -62,6 +62,24 @@ class OXCommon extends OXFlutterModule {
     return filePath;
   }
 
+  static Future<List<String>> select34MediaFilePaths(int type) async {
+    final List<dynamic> result = await channel.invokeMethod('select34MediaFilePaths', {'type': type});
+    return result.map((e) => e.toString()).toList();
+  }
+
+  static Future<Map<String, bool>> request34MediaPermission(int type) async {
+    final Map<Object?, Object?> result = await channel.invokeMethod('request34MediaPermission', {'type': type});
+    Map<String, bool> convertedResult = {};
+    result.forEach((key, value) {
+      if (key is String && value is bool) {
+        convertedResult[key] = value;
+      } else {
+        LogUtil.e('Invalid key or value type: key=${key}, value=${value}');
+      }
+    });
+    return convertedResult;
+  }
+
   static Future<void> callSysShare(String filePath) async {
     await channel.invokeMethod('callSysShare', {'filePath' :  filePath});
   }
