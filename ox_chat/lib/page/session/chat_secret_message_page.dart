@@ -263,7 +263,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           InputMoreItemEx.album(chatGeneralHandler),
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
-          InputMoreItemEx.zaps(chatGeneralHandler, otherUser),
+          InputMoreItemEx.ecash(chatGeneralHandler, otherUser),
         ],
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),

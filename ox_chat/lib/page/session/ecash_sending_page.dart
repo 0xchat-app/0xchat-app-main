@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:chatcore/chat-core.dart';
+import 'package:cashu_dart/cashu_dart.dart';
+
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -16,10 +18,9 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class EcashSendingPage extends StatefulWidget {
 
-  EcashSendingPage(this.otherUser, this.zapsInfoCallback);
+  EcashSendingPage(this.ecashInfoCallback);
 
-  final UserDB otherUser;
-  final Function(Map result) zapsInfoCallback;
+  final Function(String token) ecashInfoCallback;
 
   @override
   _EcashSendingPageState createState() => _EcashSendingPageState();
@@ -109,19 +110,6 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
         isClose: true,
     );
 
-  Widget _buildSettingIcon() =>
-      GestureDetector(
-        onTap: () {
-
-        },
-        child: CommonImage(
-          iconName: 'icon_more_gray.png',
-          width: Adapt.px(24),
-          height: Adapt.px(24),
-          package: 'ox_chat',
-        ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16))),
-      );
-
   Widget _buildInputRow({
     String title = '',
     String placeholder = '',
@@ -203,14 +191,18 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     final amount = int.tryParse(ecashAmount) ?? 0;
     final description = ecashDescription;
     if (amount < 1) {
-      CommonToast.instance.show(context, Localized.text('ox_chat.zap_illegal_toast'));
+      CommonToast.instance.show(context, 'Ecash amount cannot be 0');
       return ;
     }
 
     OXLoading.show();
-
+    String token = '';
+    final mint = OXWalletInterface.getDefaultMint();
+    if (mint != null) {
+      token = await Cashu.sendEcash(mint: mint, amount: amount, memo: description) ?? '';
+    }
     OXLoading.dismiss();
 
-
+    widget.ecashInfoCallback.call(token);
   }
 }

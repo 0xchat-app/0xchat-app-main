@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_page.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 
 class OXWallet extends OXFlutterModule {
   @override
   // TODO: implement moduleName
-  String get moduleName => 'ox_wallet';
+  String get moduleName => OXWalletInterface.moduleName;
 
   @override
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
@@ -44,6 +47,7 @@ class OXWallet extends OXFlutterModule {
   // TODO: implement interfaces
   Map<String, Function> get interfaces => {
     'walletPageWidget': walletPageWidget,
+    'getDefaultMint': getDefaultMint,
   };
 
   @override
@@ -56,4 +60,7 @@ class OXWallet extends OXFlutterModule {
     return const WalletPage();
   }
 
+  IMint? getDefaultMint() {
+    return EcashManager.shared.defaultIMint;
+  }
 }

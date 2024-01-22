@@ -52,6 +52,7 @@ import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
+import '../../page/session/ecash_sending_page.dart';
 import '../custom_message_utils.dart';
 import '../message_parser/define.dart';
 import 'chat_reply_handler.dart';
@@ -320,9 +321,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
       if (messageDB != null) {
         EcashMessageEx(message).isOpened = true;
+        final newUIMessage = message.copyWith();
         messageDB.decryptContent = jsonEncode(message.metadata);
         await DB.sharedInstance.update(messageDB);
-        await ChatDataCache.shared.updateMessage(message: message);
+        await ChatDataCache.shared.updateMessage(session: session, message: newUIMessage);
       }
     } else {
       CommonToast.instance.show(context, 'Redeem failed.');
@@ -490,21 +492,14 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   Future ecashPressHandler(BuildContext context, UserDB user) async {
     await OXNavigator.presentPage<Map<String, String>>(
-      context, (_) => ZapsSendingPage(user, (zapsInfo) {
-      final zapper = zapsInfo['zapper'] ?? '';
-      final invoice = zapsInfo['invoice'] ?? '';
-      final amount = zapsInfo['amount'] ?? '';
-      final description = zapsInfo['description'] ?? '';
-      if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-        sendZapsMessage(context, zapper, invoice, amount, description);
-      } else {
-        ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: 'zapsPressHandler',
-          message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-        );
-      }
-    }),
+      context, (_) => EcashSendingPage((token) async {
+        if (token.isEmpty) {
+          CommonToast.instance.show(context, 'Send Ecash failed.');
+        } else {
+          await ChatMessageSendEx.sendTextMessageHandler(session.chatId, token);
+          OXNavigator.pop(context);
+        }
+      }),
     );
   }
 

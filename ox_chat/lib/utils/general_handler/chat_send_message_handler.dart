@@ -3,15 +3,16 @@ part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
 
-  static Future sendMessageHandler(
-      ChatSessionModel session,
-      types.Message message, {
+  static Future sendTextMessageHandler(
+      String receiverPubkey,
+      String text, {
         BuildContext? context,
-        ChatGeneralHandler? handler,
-        bool isResend = false,
       }) async {
-    handler ??= ChatGeneralHandler(session: session);
-    handler._sendMessageHandler( message, context: context, isResend: isResend);
+    final session = _getSessionModel(receiverPubkey, ChatType.chatSingle);
+    if (session == null) return ;
+
+    final handler = ChatGeneralHandler(session: session);
+    handler.sendTextMessage(context, text);
   }
 
   static void sendTemplatePrivateMessage({
@@ -86,7 +87,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(resendMsg, context: context, isResend: true);
   }
 
-  Future sendTextMessage(BuildContext context, String text) async {
+  Future sendTextMessage(BuildContext? context, String text) async {
     
     final mid = Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
