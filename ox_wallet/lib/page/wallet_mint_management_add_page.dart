@@ -8,6 +8,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_mint_list_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
@@ -97,6 +98,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       OXLoading.dismiss();
       if (mint != null) {
         CommonToast.instance.show(context, 'Add Mint Successful');
+        EcashManager.shared.addMint(mint);
         if(widget.callback != null) {
           widget.callback!.call();
           return;

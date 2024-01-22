@@ -160,9 +160,10 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     }
     EcashService.deleteMint(mint).then((value){
       if(value){
-        if(EcashManager.shared.isDefaultMint(mint)) EcashManager.shared.removeDefaultMint();
-        CommonToast.instance.show(context, 'Delete Mint successful');
-        return;
+        EcashManager.shared.deleteMint(mint).then((value){
+          CommonToast.instance.show(context, 'Delete Mint successful');
+          OXNavigator.pop(context);
+        });
       }
       CommonToast.instance.show(context, 'Delete Mint failed');
     });

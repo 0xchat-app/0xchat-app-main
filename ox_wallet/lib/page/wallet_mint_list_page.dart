@@ -57,7 +57,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             separatorBuilder: (context,index) => SizedBox(height: 12.px,),
             itemCount: mintItems.length,
           ),
-          SizedBox(height: 24.px,),
+          mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
           ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) => (value) {
             if(value!=null && value){
               setState(() {});
