@@ -4,6 +4,7 @@ enum CustomMessageType {
   call,
   template,
   note,
+  ecash,
 }
 
 extension CustomMessageTypeEx on CustomMessageType {
@@ -17,6 +18,8 @@ extension CustomMessageTypeEx on CustomMessageType {
         return '3';
       case CustomMessageType.note:
         return '4';
+      case CustomMessageType.ecash:
+        return '5';
       default:
         return '-1';
     }

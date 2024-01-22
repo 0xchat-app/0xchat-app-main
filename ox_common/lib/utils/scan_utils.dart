@@ -1,5 +1,6 @@
-import 'dart:convert';
+import 'dart:async';
 
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -15,7 +16,8 @@ import 'package:ox_common/utils//string_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_common/event_bus.dart';
+
+// typedef ScanHandler = FutureOr<bool> Function(String str, BuildContext context);
 
 ///Title: scan_utils
 ///Description: TODO()
@@ -35,139 +37,155 @@ class ScanUtils {
       url = url.substring(shareAppLinkDomain.length);
     }
 
-    Map<String, dynamic>? tempMap;
-    int type = CommonConstant.qrCodeUser;
-    if (url.startsWith('nprofile') ||
-        url.startsWith('nostr:nprofile') ||
-        url.startsWith('nostr:npub') ||
-        url.startsWith('npub')) {
-      tempMap = Account.decodeProfile(
-          url); //return {'pubkey': pubkey, 'relays': relays};
-    } else if (url.startsWith('nevent') ||
-        url.startsWith('nostr:nevent') ||
-        url.startsWith('nostr:note') ||
-        url.startsWith('note')) {
-      tempMap = Channels.decodeChannel(url);
-      type = Groups.sharedInstance.groups.containsKey(tempMap?['channelId']) ? CommonConstant.qrCodeGroup : CommonConstant.qrCodeChannel;
-    } else if (url.startsWith('nostr+walletconnect:')) {
-      tempMap = {'nwc': url};
-      type = CommonConstant.qrCodeNWC;
-    }
-    if (tempMap == null) {
-      return;
-    }
-    List<String> relaysList =
-        (tempMap['relays'] ?? []).cast<String>();
-    String willAddRelay = '';
-    if (relaysList.isNotEmpty) {
-      willAddRelay = OXRelayManager.sharedInstance.relayAddressList
-                  .contains(relaysList[0]) ==
-              false
-          ? relaysList[0]
-          : '';
-    }
-    if (willAddRelay.isNotEmpty) {
-      OXCommonHintDialog.show(context,
-          content: 'scan_find_not_same_hint'
-              .commonLocalized()
-              .replaceAll(r'${relay}', willAddRelay),
-          isRowAction: true,
-          actionList: [
-            OXCommonHintAction.cancel(onTap: () {
-              OXNavigator.pop(context);
-            }),
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () async {
-                  OXNavigator.pop(context);
-                  RelayModel _tempRelayModel = RelayModel(
-                    relayName: willAddRelay,
-                    canDelete: true,
-                    connectStatus: 0,
-                  );
-                  await OXRelayManager.sharedInstance
-                      .addRelaySuccess(_tempRelayModel);
-                  if (type == CommonConstant.qrCodeUser) {
-                    _showFriendInfo(context, tempMap!['pubkey']);
-                  } else if (type == CommonConstant.qrCodeChannel) {
-                    _gotoChannel(context, tempMap!['channelId']);
-                  } else if (type == CommonConstant.qrCodeGroup) {
-                    _gotoGroup(
-                        context, tempMap!['channelId'], tempMap['author']);
-                  }
-                }),
-          ]);
-    } else {
-      if (type == CommonConstant.qrCodeUser) {
-        _showFriendInfo(context, tempMap['pubkey']);
-      } else if (type == CommonConstant.qrCodeChannel) {
-        _gotoChannel(context, tempMap['channelId']);
-      } else if (type == CommonConstant.qrCodeGroup) {
-        _gotoGroup(context, tempMap['channelId'], tempMap['author']);
-      } else if (type == CommonConstant.qrCodeNWC) {
-        _gotoNWC(context, tempMap['nwc']);
+    final handlers = [
+      ScanAnalysisHandlerEx.scanUserHandler,
+      ScanAnalysisHandlerEx.scanGroupHandler,
+      ScanAnalysisHandlerEx.scanNWCHandler,
+      ScanAnalysisHandlerEx.scanCashuHandler,
+      ScanAnalysisHandlerEx.scanLnInvoiceHandler,
+    ];
+    for (var handler in handlers) {
+      if (await handler.matcher(url)) {
+        handler.action(url, context);
+        return ;
       }
     }
   }
+}
 
-  static Future<void> _showFriendInfo(
-      BuildContext context, String pubkey) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
-    if (user == null) {
-      CommonToast.instance.show(context, 'User not found');
-    } else {
-      if (context.mounted) {
-        OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-          'pubkey': user.pubKey,
-        });
-      }
-    }
-  }
+class ScanAnalysisHandler {
+  ScanAnalysisHandler({required this.matcher, required this.action});
+  FutureOr<bool> Function(String str) matcher;
+  Function(String str, BuildContext context) action;
+}
 
-  static Future<void> _gotoGroup(
-      BuildContext context, String groupId, String author) async {
-    // TODO: goto group
-    OXModuleService.invoke('ox_chat', 'groupSharePage', [
-      context
-    ], {
-      Symbol('groupPic'): '',
-      Symbol('groupName'): groupId,
-      Symbol('groupOwner'): author,
-      Symbol('groupId'): groupId,
-      Symbol('inviterPubKey'): '--',
-    });
-  }
+extension ScanAnalysisHandlerEx on ScanUtils {
 
-  static Future<void> _gotoChannel(
-      BuildContext context, String channelID) async {
-    await OXLoading.show();
-    List<ChannelDB> channelsList = [];
-    ChannelDB? c = Channels.sharedInstance.channels[channelID];
-    if (c == null) {
-      channelsList = await Channels.sharedInstance
-          .getChannelsFromRelay(channelIds: [channelID]);
-    } else {
-      channelsList = [c];
-    }
-    await OXLoading.dismiss();
-    if (channelsList.isNotEmpty) {
-      ChannelDB channelDB = channelsList[0];
-      if (context.mounted) {
-        OXModuleService.pushPage(context, 'ox_chat', 'ChatGroupMessagePage', {
-          'chatId': channelID,
-          'chatName': channelDB.name,
-          'chatType': ChatType.chatChannel,
-          'time': channelDB.createTime,
-          'avatar': channelDB.picture,
-          'groupId': channelDB.channelId,
-        });
-      }
-    }
-  }
+  static FutureOr<bool> _tryHandleRelaysFromMap(Map<String, dynamic> map, BuildContext context) {
+    List<String> relaysList = (map['relays'] ?? []).cast<String>();
+    if (relaysList.isEmpty) return true;
 
-  static Future<void> _gotoNWC(BuildContext context, String nwcURI) async {
-    NostrWalletConnection? nwc = NostrWalletConnection.fromURI(nwcURI);
+    final newRelay = relaysList.first;
+    if (OXRelayManager.sharedInstance.relayAddressList.contains(newRelay)) return true;
+
+    final completer = Completer<bool>();
     OXCommonHintDialog.show(context,
+        content: 'scan_find_not_same_hint'
+            .commonLocalized()
+            .replaceAll(r'${relay}', newRelay),
+        isRowAction: true,
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+            completer.complete(false);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                RelayModel _tempRelayModel = RelayModel(
+                  relayName: newRelay,
+                  canDelete: true,
+                  connectStatus: 0,
+                );
+                await OXRelayManager.sharedInstance.addRelaySuccess(_tempRelayModel);
+                completer.complete(true);
+              }),
+        ]);
+    return completer.future;
+  }
+
+  static ScanAnalysisHandler scanUserHandler = ScanAnalysisHandler(
+    matcher: (String str) {
+      return str.startsWith('nprofile') ||
+          str.startsWith('nostr:nprofile') ||
+          str.startsWith('nostr:npub') ||
+          str.startsWith('npub');
+    },
+    action: (String str, BuildContext context) async {
+      final failedHandle = () {
+        CommonToast.instance.show(context, 'User not found');
+      };
+
+      final data = Account.decodeProfile(str);
+      if (data == null || data.isEmpty) return failedHandle();
+
+      if (!await _tryHandleRelaysFromMap(data, context)) return true;
+
+      final pubkey = data['pubkey'] as String? ?? '';
+      UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+      if (user == null) return failedHandle();
+
+      OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
+        'pubkey': user.pubKey,
+      });
+    },
+  );
+
+  static ScanAnalysisHandler scanGroupHandler = ScanAnalysisHandler(
+    matcher: (String str) {
+      return str.startsWith('nevent') ||
+          str.startsWith('nostr:nevent') ||
+          str.startsWith('nostr:note') ||
+          str.startsWith('note');
+    },
+    action: (String str, BuildContext context) async {
+      final data = Channels.decodeChannel(str);
+      final groupId = data?['channelId'];
+      if (data == null || groupId == null || groupId is! String || groupId.isEmpty) return true;
+
+      final isGroup = Groups.sharedInstance.groups.containsKey(groupId);
+
+      if (!await _tryHandleRelaysFromMap(data, context)) return true;
+
+      if (isGroup) {
+        // Go to group page
+        final author = data['author'];
+        OXModuleService.invoke('ox_chat', 'groupSharePage', [
+          context
+        ], {
+          #groupPic: '',
+          #groupName: groupId,
+          #groupOwner: author,
+          #groupId: groupId,
+          #inviterPubKey: '--',
+        });
+      } else {
+        // Go to Channel
+        await OXLoading.show();
+        List<ChannelDB> channelsList = [];
+        ChannelDB? c = Channels.sharedInstance.channels[groupId];
+        if (c == null) {
+          channelsList = await Channels.sharedInstance
+              .getChannelsFromRelay(channelIds: [groupId]);
+        } else {
+          channelsList = [c];
+        }
+        await OXLoading.dismiss();
+        if (channelsList.isNotEmpty) {
+          ChannelDB channelDB = channelsList[0];
+          if (context.mounted) {
+            OXModuleService.pushPage(context, 'ox_chat', 'ChatGroupMessagePage', {
+              'chatId': groupId,
+              'chatName': channelDB.name,
+              'chatType': ChatType.chatChannel,
+              'time': channelDB.createTime,
+              'avatar': channelDB.picture,
+              'groupId': channelDB.channelId,
+            });
+          }
+        }
+      }
+    },
+  );
+
+  static ScanAnalysisHandler scanNWCHandler = ScanAnalysisHandler(
+    matcher: (String str) {
+      return str.startsWith('nostr+walletconnect:');
+    },
+    action: (String nwcURI, BuildContext context) async {
+      NostrWalletConnection? nwc = NostrWalletConnection.fromURI(nwcURI);
+      OXCommonHintDialog.show(context,
         title: 'scan_find_nwc_hint'.commonLocalized(),
         content: '${nwc?.relays[0]}\n${nwc?.lud16}',
         isRowAction: true,
@@ -176,16 +194,43 @@ class ScanUtils {
             OXNavigator.pop(context);
           }),
           OXCommonHintAction.sure(
-              text: Localized.text('ox_common.confirm'),
-              onTap: () async {
-                Zaps.sharedInstance.updateNWC(nwcURI);
-                await OXCacheManager.defaultOXCacheManager
-                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.isShowWalletSelector', false);
-                await OXCacheManager.defaultOXCacheManager
-                    .saveForeverData('${Account.sharedInstance.me?.pubKey}.defaultWallet', 'NWC');
-                OXNavigator.pop(context);
-                CommonToast.instance.show(context, 'Success');
-              }),
-        ]);
-  }
+            text: Localized.text('ox_common.confirm'),
+            onTap: () async {
+              Zaps.sharedInstance.updateNWC(nwcURI);
+              await OXCacheManager.defaultOXCacheManager
+                  .saveForeverData('${Account.sharedInstance.me?.pubKey}.isShowWalletSelector', false);
+              await OXCacheManager.defaultOXCacheManager
+                  .saveForeverData('${Account.sharedInstance.me?.pubKey}.defaultWallet', 'NWC');
+              OXNavigator.pop(context);
+              CommonToast.instance.show(context, 'Success');
+            },
+          ),
+        ],
+      );
+    },
+  );
+
+  static ScanAnalysisHandler scanCashuHandler = ScanAnalysisHandler(
+    matcher: (String str) {
+      return Cashu.isCashuToken(str);
+    },
+    action: (String token, BuildContext context) async {
+      final payload = await Cashu.redeemEcash(token);
+      if (payload == null) {
+        return ;
+      }
+      final (memo, amount) = payload;
+      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSuccessfulRedeemClaimedPage',{'amount':amount.toString()});
+    },
+  );
+
+  static ScanAnalysisHandler scanLnInvoiceHandler = ScanAnalysisHandler(
+    matcher: (String str) {
+      return Cashu.isLnInvoice(str);
+    },
+    action: (String invoice, BuildContext context) async {
+      final amount = Cashu.amountOfLightningInvoice(invoice);
+      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSendLightningPage',{});
+    },
+  );
 }
