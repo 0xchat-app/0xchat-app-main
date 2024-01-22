@@ -44,7 +44,7 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         iconName: 'icon_wallet_lightning.png',
         title: 'Create Lightning invoice',
         subTitle: 'Receive Ecash by Paying a Lightning invoice',
-        onTap: _receiveByLightningInvoice,
+        onTap: () => _handlePageAction(ChooseType.createInvoice),
       )
     ];
 
@@ -53,13 +53,13 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         iconName: 'icon_wallet_send.png',
         title: 'Send Ecash',
         subTitle: 'Create a Cashu token and send.',
-        onTap: _sendByCashuToken,
+        onTap: () => _handlePageAction(ChooseType.ecash),
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
         title: 'Pay Lightning invoice',
         subTitle: 'Send your funds to a lightning node.',
-        onTap: _sendByLightningInvoice,
+        onTap: () => _handlePageAction(ChooseType.payInvoice),
       )
     ];
 
@@ -129,30 +129,6 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     if(context.mounted) OXNavigator.pop(context);
   }
 
-  _receiveByLightningInvoice() async {
-    if(isUnsetDefaultMint){
-      _jumpToPage(pageBuilder: (context) => const WalletMintChoosePage(type: ChooseType.createInvoice));
-    }else{
-      _jumpToPage(pageBuilder: (context) => const WalletReceiveLightningPage());
-    }
-  }
-
-  _sendByCashuToken() async {
-    if(isUnsetDefaultMint){
-      _jumpToPage(pageBuilder: (context) => const WalletMintChoosePage(type: ChooseType.ecash));
-    }else{
-      _jumpToPage(pageBuilder: (context) => WalletSendEcashPage());
-    }
-  }
-
-  _sendByLightningInvoice() async {
-    if(isUnsetDefaultMint){
-      _jumpToPage(pageBuilder: (context) => const WalletMintChoosePage(type: ChooseType.payInvoice));
-    }else{
-      _jumpToPage(pageBuilder: (context) => const WalletSendLightningPage());
-    }
-  }
-
   void _showToast(String message) {
     if (context.mounted) CommonToast.instance.show(context, message);
   }
@@ -161,6 +137,39 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     if (context.mounted) {
       OXNavigator.pop(context);
       OXNavigator.pushPage(context, pageBuilder);
+    }
+  }
+
+  bool _hasMintAdded(){
+    if(EcashManager.shared.mintList.isEmpty){
+      _showToast('Please add the default Mint first.');
+      return false;
+    }
+    return true;
+  }
+
+  _handlePageAction(ChooseType actionType) async {
+    if (!_hasMintAdded()) return;
+
+    Widget Function(BuildContext?) pageBuilder;
+    if (isUnsetDefaultMint) {
+      pageBuilder = (context) => WalletMintChoosePage(type: actionType);
+    } else {
+      pageBuilder = actionType.defaultPageBuilder;
+    }
+    _jumpToPage(pageBuilder: pageBuilder);
+  }
+}
+
+extension ChooseTypeExtension on ChooseType {
+  Widget Function(BuildContext? context) get defaultPageBuilder {
+    switch (this) {
+      case ChooseType.createInvoice:
+        return (context) => const WalletReceiveLightningPage();
+      case ChooseType.ecash:
+        return (context) => WalletSendEcashPage();
+      case ChooseType.payInvoice:
+        return (context) => const WalletSendLightningPage();
     }
   }
 }

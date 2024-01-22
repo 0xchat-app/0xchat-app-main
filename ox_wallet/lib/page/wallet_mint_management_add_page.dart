@@ -58,11 +58,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
           CommonLabeledCard.textFieldAndScan(
             hintText: 'Mint URL',
             controller: _controller,
-            onTap: (){
-              WalletUtils.gotoScan(context, (result) {
-                WalletUtils.gotoScan(context, (result) => _controller.text = result);
-              },);
-            },
+            onTap: () => WalletUtils.gotoScan(context, (result) => _controller.text = result),
           ),
           SizedBox(height: widget.action == ImportAction.add ? 24.px : 30.px),
           ThemeButton(text: widget.action == ImportAction.add ? 'Add' : 'Import',height: 48.px,enable: _enable, onTap: _addMint),
