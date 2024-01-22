@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_chat/model/message_content_model.dart';
@@ -180,6 +181,12 @@ extension MessageDBToUIEx on MessageDB {
           };
           this.type = 'template';
           this.decryptContent = jsonEncode(map);
+          contentModel.content = this.decryptContent;
+          await DB.sharedInstance.update(this);
+        } else if (Cashu.isCashuToken(initialText)) {
+          messageFactory = CustomMessageFactory();
+          this.type = 'template';
+          this.decryptContent = jsonEncode(CustomMessageEx.ecashMetaData(token: initialText));
           contentModel.content = this.decryptContent;
           await DB.sharedInstance.update(this);
         }
@@ -394,6 +401,9 @@ extension UIMessageEx on types.Message {
         case CustomMessageType.template:
           final title = TemplateMessageEx(replyMessage).title;
           messageText = Localized.text('ox_common.message_type_template') + title;
+          break ;
+        case CustomMessageType.ecash:
+          messageText = 'Ecash';
           break ;
         default:
           break ;

@@ -56,18 +56,6 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   @override
   bool get wantKeepAlive => true;
 
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    switch (state) {
-      case AppLifecycleState.resumed:
-        break;
-      case AppLifecycleState.paused:
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);

@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
@@ -14,7 +15,6 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -51,10 +51,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import '../custom_message_utils.dart';
+import '../message_parser/define.dart';
 import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
-import 'package:ox_common/const/common_constant.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -221,6 +221,9 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.note:
           noteMessagePressHandler(context, message);
           break;
+        case CustomMessageType.ecash:
+          ecashMessagePressHandler(context, message);
+          break;
         default:
           break;
       }
@@ -298,6 +301,35 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void noteMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = NoteMessageEx(message).link;
     link.tryHandleCustomUri(context: context);
+  }
+
+  void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
+
+
+    print('zhw============>${message.remoteId}');
+    final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
+    final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
+    if (messageDB != null) {
+      message.metadata?['isOpened'] = true;
+      messageDB.decryptContent = jsonEncode(message.metadata);
+      await DB.sharedInstance.update(messageDB);
+      await ChatDataCache.shared.updateMessage(message: message);
+    }
+    return ;
+    final token = EcashMessageEx(message).token;
+    OXLoading.show();
+    final result = await Cashu.redeemEcash(token);
+    OXLoading.dismiss();
+
+    if (result != null) {
+      final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
+      final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
+      if (messageDB != null) {
+        print('zhw============>');
+      }
+    } else {
+      CommonToast.instance.show(context, 'Open failed.');
+    }
   }
 }
 
@@ -417,6 +449,26 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
+    await OXNavigator.presentPage<Map<String, String>>(
+      context, (_) => ZapsSendingPage(user, (zapsInfo) {
+      final zapper = zapsInfo['zapper'] ?? '';
+      final invoice = zapsInfo['invoice'] ?? '';
+      final amount = zapsInfo['amount'] ?? '';
+      final description = zapsInfo['description'] ?? '';
+      if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+        sendZapsMessage(context, zapper, invoice, amount, description);
+      } else {
+        ChatLogUtils.error(
+          className: 'ChatGeneralHandler',
+          funcName: 'zapsPressHandler',
+          message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+        );
+      }
+    }),
+    );
+  }
+
+  Future ecashPressHandler(BuildContext context, UserDB user) async {
     await OXNavigator.presentPage<Map<String, String>>(
       context, (_) => ZapsSendingPage(user, (zapsInfo) {
       final zapper = zapsInfo['zapper'] ?? '';

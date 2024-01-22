@@ -64,9 +64,15 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   FutureOr<String?> messageContentEncoder(types.Message message) {
-    // try use mention encoder.
-    final mentionResult = mentionHandler?.tryEncoder(message);
-    if (mentionResult != null) return mentionResult;
+
+    List<MessageContentParser> parserList = [
+      if (mentionHandler != null) mentionHandler!.tryEncoder,
+    ];
+
+    for (final fn in parserList) {
+      final result = fn(message);
+      if (result != null) return result;
+    }
 
     return null;
   }
@@ -284,6 +290,20 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
 
     _sendMessageHandler(message, context: context, isLocal: !isSendToRemote);
+  }
+
+  void sendEcashMessage(BuildContext context, String token) {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+    final message = types.TextMessage(
+      author: author,
+      createdAt: tempCreateTime,
+      id: message_id,
+      text: token,
+    );
+
+    _sendMessageHandler(message, context: context);
   }
 }
 

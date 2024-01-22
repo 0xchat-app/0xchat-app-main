@@ -4,8 +4,7 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: '>=2.19.3 <3.0.0'
-  flutter: ">=2.5.0"
+  sdk: ">=3.0.5 <4.0.0"
 
 dependencies:
   flutter:

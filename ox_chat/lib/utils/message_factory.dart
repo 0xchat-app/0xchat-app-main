@@ -403,6 +403,19 @@ class CustomMessageFactory implements MessageFactory {
             link: link,
             expiration: expiration,
           );
+
+        case CustomMessageType.ecash:
+          final token = content['token'];
+          return createEcashMessage(
+            author: author,
+            timestamp: timestamp,
+            roomId: roomId,
+            id: remoteId,
+            remoteId: remoteId,
+            sourceKey: sourceKey,
+            token: token,
+            expiration: expiration,
+          );
         default:
           return null;
       }
@@ -502,6 +515,30 @@ class CustomMessageFactory implements MessageFactory {
         note: note,
         image: image,
         link: link,
+      ),
+      type: types.MessageType.custom,
+    );
+  }
+
+  types.CustomMessage createEcashMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    required String token,
+    int? expiration,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.ecashMetaData(
+        token: token,
       ),
       type: types.MessageType.custom,
     );
