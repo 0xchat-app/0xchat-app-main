@@ -7,6 +7,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_wallet/page/wallet_backup_funds_page.dart';
 import 'package:ox_wallet/page/wallet_mint_info.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
@@ -29,6 +30,8 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
   List<StepItemModel> _generalList = [];
   List<StepItemModel> _dangerZoneList = [];
+  final List<StepItemModel> _fundList = [];
+  Map<String,List<StepItemModel>> _labelItems = {};
   late ValueNotifier<String> _mintQrCode;
   TextEditingController? _customNameEditController;
   late bool _isDefaultMint;
@@ -48,6 +51,13 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context,onConfirmTap: _checkProofs)),
       StepItemModel(title: 'Delete mint',onTap: (value) => ShowModalBottomSheet.showConfirmBottomSheet(context,title: 'Delete mint?',confirmCallback:_deleteMint)),
     ];
+    if(widget.mint.balance > 0) _fundList.add(StepItemModel(title: 'Backup funds', onTap: (value) => OXNavigator.pushPage(context, (context) => const WalletBackupFundsPage())));
+    _labelItems = {
+      'GENERAL' : _generalList,
+      'Funds' : _fundList,
+      'DANGER ZONE' : _dangerZoneList,
+    };
+    _labelItems.removeWhere((key, value) => value.isEmpty);
     _mintQrCode = ValueNotifier(widget.mint.mintURL);
     super.initState();
   }
@@ -61,12 +71,11 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
         centerTitle: true,
         useLargeTitle: false,
       ),
-      body: Column(
-        children: [
-          _buildItemList(labelName: 'GENERAL',items: _generalList),
-          SizedBox(height: 24.px,),
-          _buildItemList(labelName: 'DANGER ZONE',items: _dangerZoneList),
-        ],
+      body: ListView.separated(
+        padding: EdgeInsets.zero,
+        itemBuilder: (context, index) =>  _buildItemList(labelName: _labelItems.keys.toList()[index],items: _labelItems.values.toList()[index]),
+        separatorBuilder: (context,index) => SizedBox(height: 24.px,),
+        itemCount: _labelItems.length,
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
   }
@@ -176,4 +185,3 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     super.dispose();
   }
 }
-
