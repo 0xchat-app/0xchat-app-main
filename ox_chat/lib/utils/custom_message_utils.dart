@@ -160,5 +160,8 @@ extension EcashMessageEx on types.CustomMessage {
     return int.tryParse(metadata?['content']?['amount']) ?? 0;
   }
 
-  bool get isOpened => metadata?['content']?['isOpened'] ?? false;
+  bool get isOpened => bool.tryParse(metadata?['content']?['isOpened'] ?? false.toString()) ?? false;
+  void set isOpened(bool value) {
+    metadata?['content']?['isOpened'] = value.toString();
+  }
 }

@@ -305,30 +305,23 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
 
-
-    print('zhw============>${message.remoteId}');
-    final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
-    final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
-    if (messageDB != null) {
-      message.metadata?['isOpened'] = true;
-      messageDB.decryptContent = jsonEncode(message.metadata);
-      await DB.sharedInstance.update(messageDB);
-      await ChatDataCache.shared.updateMessage(message: message);
-    }
-    return ;
     final token = EcashMessageEx(message).token;
     OXLoading.show();
     final result = await Cashu.redeemEcash(token);
     OXLoading.dismiss();
 
     if (result != null) {
+      CommonToast.instance.show(context, 'Redeem success.');
       final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
       final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
       if (messageDB != null) {
-        print('zhw============>');
+        EcashMessageEx(message).isOpened = true;
+        messageDB.decryptContent = jsonEncode(message.metadata);
+        await DB.sharedInstance.update(messageDB);
+        await ChatDataCache.shared.updateMessage(message: message);
       }
     } else {
-      CommonToast.instance.show(context, 'Open failed.');
+      CommonToast.instance.show(context, 'Redeem failed.');
     }
   }
 }

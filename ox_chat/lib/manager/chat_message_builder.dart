@@ -138,6 +138,16 @@ class ChatMessageBuilder {
     final tintColor = isMe ? ThemeColor.white : ThemeColor.color0;
     return Container(
       padding: EdgeInsets.all(Adapt.px(10)),
+      decoration: isMe ? BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            ThemeColor.gradientMainEnd,
+            ThemeColor.gradientMainStart,
+          ],
+        ),
+      ) : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -350,23 +360,22 @@ class ChatMessageBuilder {
 
   static Widget _buildEcashMessage(types.CustomMessage message, bool isMe) {
     final description = EcashMessageEx(message).description;
-    final isOpened = true ;EcashMessageEx(message).isOpened;
-
+    final isOpened = EcashMessageEx(message).isOpened;
     return Opacity(
       opacity: isOpened ? 0.5 : 1,
       child: Container(
         width: Adapt.px(240),
         height: Adapt.px(86),
-        // decoration: BoxDecoration(
-        //   gradient: LinearGradient(
-        //     begin: Alignment.centerLeft,
-        //     end: Alignment.centerRight,
-        //     colors: [
-        //       ThemeColor.gradientMainEnd.withOpacity(0.5),
-        //       ThemeColor.gradientMainStart.withOpacity(0.5),
-        //     ],
-        //   ),
-        // ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+          ),
+        ),
         child: Column(
           children: [
             Expanded(child: Row(
