@@ -3,6 +3,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_wallet/page/contact_choose_page.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
@@ -12,6 +13,7 @@ import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
+import 'package:chatcore/chat-core.dart';
 
 class WalletSendEcashNewTokenPage extends StatefulWidget {
   final String token;
@@ -54,7 +56,8 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
             children: [
               SatsAmountCard(controller: _controller, enable: false,).setPaddingOnly(top: 12.px),
               _buildTokenCard(),
-              ThemeButton(text: 'Share', height: 48.px,onTap: () => WalletUtils.takeScreen(_newTokenPageScreenshotKey),).setPaddingOnly(top: 24.px)
+              // ThemeButton(text: 'Share', height: 48.px,onTap: () => WalletUtils.takeScreen(_newTokenPageScreenshotKey),).setPaddingOnly(top: 24.px)
+              ThemeButton(text: 'Share', height: 48.px,onTap: () => OXNavigator.presentPage(context, (context) => const ContactChoosePage<GroupDB>(contactType:ContactType.contact))),
             ],
           ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
         ),

@@ -74,4 +74,11 @@ class EcashManager {
   Future<String> _getMintURLForLocal() async {
     return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.$localKey');
   }
+
+  Future<bool> deleteMint(IMint mint) async {
+    if (isDefaultMint(mint)) {
+      await removeDefaultMint();
+    }
+    return _mintList.remove(mint);
+  }
 }

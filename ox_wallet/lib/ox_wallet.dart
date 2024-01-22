@@ -27,7 +27,15 @@ class OXWallet extends OXFlutterModule {
           ),
         );
       case 'WalletSendLightningPage':
-        return OXNavigator.pushPage(context, (context) => const WalletSendLightningPage(),);
+        return OXNavigator.pushPage(
+          context,
+          (context) => WalletSendLightningPage(
+            external: {
+              'invoice': params?['invoice'],
+              'amount': params?['amount']
+            },
+          ),
+        );
     }
     return null;
   }

@@ -20,7 +20,8 @@ enum SendType{
 }
 
 class WalletSendLightningPage extends StatefulWidget {
-  const WalletSendLightningPage({super.key});
+  final Map<String,String>? external;
+  const WalletSendLightningPage({super.key,this.external});
 
   @override
   State<WalletSendLightningPage> createState() => _WalletSendLightningPageState();
@@ -43,8 +44,22 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         _updateSendType();
       }
     });
+    _initExternalData();
     super.initState();
   }
+
+  void _initExternalData() {
+    final externalData = widget.external;
+    if (externalData != null) {
+      bool hasRequiredKeys = externalData.containsKey('invoice') && externalData.containsKey('amount');
+      if (hasRequiredKeys) {
+        _sendType.value = SendType.invoice;
+        _invoiceEditController.text = externalData['invoice']!;
+        _amountEditController.text = externalData['amount']!;
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
