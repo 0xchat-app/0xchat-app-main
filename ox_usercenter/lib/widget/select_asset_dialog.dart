@@ -1,15 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:device_info/device_info.dart';
 
 class SelectAssetDialog extends StatefulWidget {
   const SelectAssetDialog({Key? key}) : super(key: key);
@@ -83,7 +87,21 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
 
   Future<File?> openGallery() async {
     File? imgFile;
-    final storagePermission = await PermissionUtils.getPhotosPermission();
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(1);
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(1);
+        return File(filePaths[0]);
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission();
+    }
     if(storagePermission){
       OXLoading.show();
       final res = await ImagePickerUtils.pickerPaths(
@@ -95,7 +113,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
       imgFile = (res == null || res[0].path == null) ? null : File(res[0].path ?? '');
       OXLoading.dismiss();
     } else {
-      CommonToast.instance.show(context, 'Please grant permission to access the photo');
+      CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
     }
     return imgFile;
   }

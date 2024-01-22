@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -24,6 +25,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:device_info/device_info.dart';
 
 enum ChannelCreateType { create, edit }
 
@@ -430,11 +432,24 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   }
 
   void _handleImageSelection() async {
-    Map<Permission, PermissionStatus> statuses =
-        await [Permission.camera, Permission.storage].request();
-    if (statuses[Permission.camera]!.isGranted &&
-        statuses[Permission.storage]!.isGranted) {
-      File? _imgFile;
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    File? _imgFile;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(1);
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(1);
+        _imgFile = File(filePaths[0]);
+        _uploadAndRefresh(_imgFile);
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission();
+    }
+    if (storagePermission) {
       final res = await ImagePickerUtils.pickerPaths(
         galleryMode: GalleryMode.image,
         selectCount: 1,
@@ -442,24 +457,29 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         compressSize: 2048,
       );
       _imgFile = (res == null || res[0].path == null) ? null : File(res[0].path ?? '');
-      if (_imgFile != null) {
-        final String url = await UplodAliyun.uploadFileToAliyun(
-          fileType: UplodAliyunType.imageType,
-          file: _imgFile,
-          filename: _channelNameController.text +
-              DateTime.now().microsecondsSinceEpoch.toString() +
-              '_avatar01.png',
-        );
-        if (url.isNotEmpty) {
-          if (mounted) {
-            setState(() {
-              _avatarAliyunUrl = url;
-            });
-          }
+      _uploadAndRefresh(_imgFile);
+    } else {
+      CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
+      return;
+    }
+  }
+
+  void _uploadAndRefresh(File? imgFile) async {
+    if (imgFile != null) {
+      final String url = await UplodAliyun.uploadFileToAliyun(
+        fileType: UplodAliyunType.imageType,
+        file: imgFile,
+        filename: _channelNameController.text +
+            DateTime.now().microsecondsSinceEpoch.toString() +
+            '_avatar01.png',
+      );
+      if (url.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _avatarAliyunUrl = url;
+          });
         }
       }
-    } else {
-      PermissionUtils.showPermission(context, statuses);
     }
   }
 }

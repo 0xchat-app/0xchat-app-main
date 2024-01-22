@@ -121,11 +121,11 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
       margin: EdgeInsets.only(right: index == 5 ? 0 : 12.px),
       child: _inputPwd.length > index
           ? Center(
-              child: CircleAvatar(
-                radius: 6.px,
-                backgroundColor: ThemeColor.color0,
-              ),
-            )
+        child: CircleAvatar(
+          radius: 6.px,
+          backgroundColor: ThemeColor.color0,
+        ),
+      )
           : const SizedBox(),
     );
   }
