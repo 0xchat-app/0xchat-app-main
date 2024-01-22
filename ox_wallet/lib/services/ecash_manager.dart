@@ -20,6 +20,8 @@ class EcashManager {
   IMint? get defaultIMint => _defaultIMint;
   
   String get pubKey => OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+
+  bool isDefaultMint(IMint mint) => _defaultIMint == mint;
   
   setup() async {
     _mintList = List.of(Cashu.mintList());

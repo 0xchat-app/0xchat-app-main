@@ -155,11 +155,12 @@ class StepIndicatorItem extends StatelessWidget {
 }
 
 class StepItemModel {
+  final String? key;
   String? title;
-  final String? subTitle;
+  String? subTitle;
   final String? content;
   String? badge;
   final void Function(StepItemModel value)? onTap;
 
-  StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap});
+  StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap, this.key});
 }

@@ -5,6 +5,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/page/wallet_mint_info.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
@@ -34,7 +35,7 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
 
   @override
   void initState() {
-    _isDefaultMint = EcashManager.shared.defaultIMint?.mintURL == widget.mint.mintURL;
+    _isDefaultMint = EcashManager.shared.isDefaultMint(widget.mint);
     _generalList = [
       StepItemModel(title: 'Mint',content: widget.mint.mintURL),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
@@ -44,8 +45,8 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
     ];
     _dangerZoneList = [
-      StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context)),
-      StepItemModel(title: 'Delete mint',onTap: (value) => ShowModalBottomSheet.showConfirmBottomSheet(context,title: 'Delete mint?')),
+      StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context,onConfirmTap: _checkProofs)),
+      StepItemModel(title: 'Delete mint',onTap: (value) => ShowModalBottomSheet.showConfirmBottomSheet(context,title: 'Delete mint?',confirmCallback:_deleteMint)),
     ];
     _mintQrCode = ValueNotifier(widget.mint.mintURL);
     super.initState();
@@ -135,6 +136,35 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       stepItemModel.title =
       _isDefaultMint ? 'Remove from Default' : 'Set as default mint';
       if(context.mounted) CommonToast.instance.show(context, 'Updated the default mint');
+    });
+  }
+
+  void _checkProofs() {
+    OXLoading.show();
+    EcashService.checkProofsAvailable(widget.mint).then((invalidProofCount){
+      OXLoading.dismiss();
+      if(invalidProofCount == null){
+        CommonToast.instance.show(context, 'Request failed, Please try again later');
+        return;
+      }
+      CommonToast.instance.show(context, 'Delete $invalidProofCount proofs');
+    });
+  }
+
+  void _deleteMint(){
+    final mint = widget.mint;
+    OXNavigator.pop(context);
+    if(mint.balance > 0){
+      EcashDialogHelper.showDeleteMint(context);
+      return;
+    }
+    EcashService.deleteMint(mint).then((value){
+      if(value){
+        if(EcashManager.shared.isDefaultMint(mint)) EcashManager.shared.removeDefaultMint();
+        CommonToast.instance.show(context, 'Delete Mint successful');
+        return;
+      }
+      CommonToast.instance.show(context, 'Delete Mint failed');
     });
   }
 
