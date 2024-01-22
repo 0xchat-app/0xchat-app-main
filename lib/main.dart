@@ -36,6 +36,7 @@ import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/ox_usercenter.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:ox_wallet/ox_wallet.dart';
 
 import 'main.reflectable.dart';
 
@@ -87,6 +88,7 @@ Future<void> setupModules() async {
     OXChatUI().setup(),
     OxCalling().setup(),
     OxChatHome().setup(),
+    OXWallet().setup(),
   ];
   await Future.wait(setupAction);
 }
