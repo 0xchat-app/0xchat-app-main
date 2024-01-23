@@ -310,13 +310,20 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
 
+    if (EcashMessageEx(message).isOpened) return ;
+
     final token = EcashMessageEx(message).token;
     OXLoading.show();
-    final result = await Cashu.redeemEcash(token);
+    final response = await Cashu.redeemEcash(token);
     OXLoading.dismiss();
 
-    if (result != null) {
+    if (response.isSuccess) {
       CommonToast.instance.show(context, 'Redeem success.');
+    } else {
+      CommonToast.instance.show(context, response.errorMsg);
+    }
+
+    if (response.isSuccess || response.code == ResponseCode.tokenAlreadySpentError) {
       final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
       final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
       if (messageDB != null) {
@@ -326,8 +333,6 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         await DB.sharedInstance.update(messageDB);
         await ChatDataCache.shared.updateMessage(session: session, message: newUIMessage);
       }
-    } else {
-      CommonToast.instance.show(context, 'Redeem failed.');
     }
   }
 }

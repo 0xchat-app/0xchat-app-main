@@ -24,7 +24,7 @@ class EcashManager {
   bool isDefaultMint(IMint mint) => _defaultIMint == mint;
   
   setup() async {
-    _mintList = List.of(Cashu.mintList());
+    _mintList = List.of(await Cashu.mintList());
     _initDefaultMint();
   }
 

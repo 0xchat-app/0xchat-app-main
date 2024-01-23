@@ -406,6 +406,7 @@ class CustomMessageFactory implements MessageFactory {
 
         case CustomMessageType.ecash:
           final token = content['token'];
+          final isOpened = content['isOpened'];
           return createEcashMessage(
             author: author,
             timestamp: timestamp,
@@ -414,6 +415,7 @@ class CustomMessageFactory implements MessageFactory {
             remoteId: remoteId,
             sourceKey: sourceKey,
             token: token,
+            isOpened: isOpened,
             expiration: expiration,
           );
         default:
@@ -528,6 +530,7 @@ class CustomMessageFactory implements MessageFactory {
     String? remoteId,
     dynamic sourceKey,
     required String token,
+    String isOpened = '',
     int? expiration,
   }) {
     return types.CustomMessage(
@@ -539,6 +542,7 @@ class CustomMessageFactory implements MessageFactory {
       roomId: roomId,
       metadata: CustomMessageEx.ecashMetaData(
         token: token,
+        isOpened: isOpened,
       ),
       type: types.MessageType.custom,
     );
