@@ -326,7 +326,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     _refreshMessagesTimer = null;
     _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 3 * 1000), (timer) {
       fetchUnreadCount();
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 

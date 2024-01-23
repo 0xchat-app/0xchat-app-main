@@ -201,23 +201,19 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             _badgeDBList.add(element);
           }
         });
-        setState(() {});
+        if (mounted) setState(() {});
       } else {
         List<BadgeDB> badgeDB =
             await BadgesHelper.getBadgesInfoFromRelay(badgeIds);
         if (badgeDB.length > 0) {
           _badgeDBList = badgeDB;
-          if (mounted) {
-            setState(() {});
-          }
+          if (mounted) setState(() {});
         }
       }
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
       userDB.updateWith(user);
-      if(mounted){
-        setState(() {});
-      }
+      if(mounted) setState(() {});
     });
     OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
         chatName: userDB.name, pic: userDB.picture);
