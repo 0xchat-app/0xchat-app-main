@@ -218,6 +218,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   @override
   void didPromptToneCallBack(MessageDB message, int type) {
+    if (tabBarList.isEmpty) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;
     } else {
@@ -254,6 +255,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   @override
   void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
     super.didZapRecordsCallBack(zapRecordsDB);
+    if (tabBarList.isEmpty || !mounted) return;
     setState(() {
       tabBarList[3].unreadMsgCount = 1;
     });
@@ -269,26 +271,11 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   fetchUnreadCount() {
-    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0 && tabBarList.length > 0) {
+    if (tabBarList.isEmpty) return;
+    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
       tabBarList[1].unreadMsgCount = 1;
     } else {
       tabBarList[1].unreadMsgCount = 0;
-    }
-  }
-
-  updateUnreadMsgCount(int count) {
-    if(tabBarList.length > 0){
-      setState(() {
-        tabBarList[0].unreadMsgCount = count;
-      });
-    }
-  }
-
-  updateNewFriendRequestCount(int count) {
-    if(tabBarList.length > 0){
-      setState(() {
-        tabBarList[1].unreadMsgCount = count;
-      });
     }
   }
 
