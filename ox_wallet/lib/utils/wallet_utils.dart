@@ -6,7 +6,6 @@ import 'package:ox_wallet/widget/screenshot_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
-import 'package:ox_common/widgets/common_scan_page.dart';
 import 'package:intl/intl.dart';
 
 class WalletUtils {

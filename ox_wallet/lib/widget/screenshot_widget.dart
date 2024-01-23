@@ -44,7 +44,7 @@ class ScreenshotWidgetState extends State<ScreenshotWidget> {
     try {
       Uint8List? screenshotData = await takeScreenshot();
       if (screenshotData == null) return null;
-      final directory = await getTemporaryDirectory();
+      final directory = await getApplicationCacheDirectory();
       final imagePath = '${directory.path}/screenshot_${DateTime.now().millisecondsSinceEpoch}.png';
       final imageFile = File(imagePath);
       await imageFile.writeAsBytes(screenshotData);
