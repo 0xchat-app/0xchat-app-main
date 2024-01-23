@@ -64,8 +64,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
   static FutureOr<bool> _tryHandleRelaysFromMap(Map<String, dynamic> map, BuildContext context) {
     List<String> relaysList = (map['relays'] ?? []).cast<String>();
     if (relaysList.isEmpty) return true;
-
-    final newRelay = relaysList.first;
+    final newRelay = relaysList.first.replaceFirst(RegExp(r'/+$'), '');
     if (OXRelayManager.sharedInstance.relayAddressList.contains(newRelay)) return true;
 
     final completer = Completer<bool>();
