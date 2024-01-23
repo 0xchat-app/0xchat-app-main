@@ -267,9 +267,11 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   Future<void> saveObjectList(List<NoticeModel> objectList) async {
     List<String> jsonStringList = objectList.map((obj) => json.encode(obj.noticeModelToMap(obj))).toList();
     final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
-    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    userConfigDB.notificationSettings = json.encode(jsonStringList);
-    UserConfigTool.updateUserConfigDB(userConfigDB);
+    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    if (userConfigDB != null) {
+      userConfigDB.notificationSettings = json.encode(jsonStringList);
+      UserConfigTool.updateUserConfigDB(userConfigDB);
+    }
   }
 
   Future<Map<int, NoticeModel>> getObjectList() async {

@@ -127,8 +127,8 @@ class DatabaseHelper{
       confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
       return;
     }
-    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (pubKey != userConfigDB.pubKey){
+    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    if (userConfigDB == null || pubKey != userConfigDB.pubKey){
       confirmDialog(context, 'str_import_db_error_title'.localized(), 'str_import_db_error_hint'.localized(), (){OXNavigator.pop(context);});
       return;
     }

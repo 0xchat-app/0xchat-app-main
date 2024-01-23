@@ -147,10 +147,12 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
         ThemeManager.changeTheme(ThemeSettingType.values[selectedIndex].themeStyle);
         OXCacheManager.defaultOXCacheManager.saveForeverData('themeSetting', ThemeSettingType.values[selectedIndex].saveText);
         _selectedIndex = selectedIndex;
-        UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
-        userConfigDB.themeIndex = selectedIndex;
-        UserConfigTool.updateUserConfigDB(userConfigDB);
-        setState(() { });
+        UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
+        if (userConfigDB != null) {
+          userConfigDB.themeIndex = selectedIndex;
+          UserConfigTool.updateUserConfigDB(userConfigDB);
+        }
+        if (mounted) setState(() { });
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),

@@ -132,4 +132,6 @@ ox_usercenter/example/ios/Runner/GeneratedPluginRegistrant.h
 ox_usercenter/example/ios/Runner/GeneratedPluginRegistrant.m
 ox_usercenter/example/pubspec.lock
 ox_usercenter/pubspec.lock
+ox_wallet/.metadata
+ox_wallet/pubspec.lock
 Podfile

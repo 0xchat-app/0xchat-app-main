@@ -65,6 +65,8 @@ class ChatMessageBuilder {
         return _buildTemplateMessage(message, isMe);
       case CustomMessageType.note:
         return _buildNoteMessage(message, isMe);
+      case CustomMessageType.ecash:
+        return _buildEcashMessage(message, isMe);
       default:
         return SizedBox();
     }
@@ -136,6 +138,16 @@ class ChatMessageBuilder {
     final tintColor = isMe ? ThemeColor.white : ThemeColor.color0;
     return Container(
       padding: EdgeInsets.all(Adapt.px(10)),
+      decoration: isMe ? BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            ThemeColor.gradientMainEnd,
+            ThemeColor.gradientMainStart,
+          ],
+        ),
+      ) : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -342,6 +354,82 @@ class ChatMessageBuilder {
             ],
           ).setPadding(EdgeInsets.only(top: 2.px, left: 10.px, right: 10.px, bottom: 10.px)),
         ],
+      ),
+    );
+  }
+
+  static Widget _buildEcashMessage(types.CustomMessage message, bool isMe) {
+    final description = EcashMessageEx(message).description;
+    final isOpened = EcashMessageEx(message).isOpened;
+    return Opacity(
+      opacity: isOpened ? 0.5 : 1,
+      child: Container(
+        width: Adapt.px(240),
+        height: Adapt.px(86),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(child: Row(
+              children: [
+                CommonImage(
+                  iconName: 'icon_cashu_logo.png',
+                  package: 'ox_chat',
+                  size: Adapt.px(32),
+                ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
+                Expanded(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: ThemeColor.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Visibility(
+                      visible: isOpened,
+                      child: Text(
+                        'Opened',
+                        style: TextStyle(
+                          color: ThemeColor.white,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ))
+              ],
+            )),
+            Container(
+              color: ThemeColor.white.withOpacity(0.5),
+              height: 0.5,
+            ),
+            Container(
+              height: Adapt.px(25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Cashu Token',
+                    style: TextStyle(color: ThemeColor.white, fontSize: 12),),
+                  CommonImage(iconName: 'icon_zaps_0xchat.png',
+                    package: 'ox_chat',
+                    size: Adapt.px(16),)
+                ],
+              ),
+            )
+          ],
+        ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(10))),
       ),
     );
   }

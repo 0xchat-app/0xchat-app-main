@@ -147,12 +147,16 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
     });
     _controller.repeat();
     await Localized.changeLocale(LocaleType.values[selectedIndex]);
-    UserConfigDB userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    userConfigDB.languageIndex = selectedIndex;
-    UserConfigTool.updateUserConfigDB(userConfigDB);
-    setState(() {
-      _isShowLoading = false;
-      _controller.stop();
-    });
+    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
+    if (userConfigDB != null) {
+      userConfigDB.languageIndex = selectedIndex;
+      UserConfigTool.updateUserConfigDB(userConfigDB);
+    }
+    if (mounted) {
+      setState(() {
+        _isShowLoading = false;
+        _controller.stop();
+      });
+    }
   }
 }

@@ -6,15 +6,17 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -50,11 +52,14 @@ import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
+import '../../page/session/ecash_sending_page.dart';
 import '../custom_message_utils.dart';
+import '../message_parser/define.dart';
 import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:device_info/device_info.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -221,6 +226,9 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.note:
           noteMessagePressHandler(context, message);
           break;
+        case CustomMessageType.ecash:
+          ecashMessagePressHandler(context, message);
+          break;
         default:
           break;
       }
@@ -298,6 +306,34 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void noteMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = NoteMessageEx(message).link;
     link.tryHandleCustomUri(context: context);
+  }
+
+  void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
+
+    if (EcashMessageEx(message).isOpened) return ;
+
+    final token = EcashMessageEx(message).token;
+    OXLoading.show();
+    final response = await Cashu.redeemEcash(token);
+    OXLoading.dismiss();
+
+    if (response.isSuccess) {
+      CommonToast.instance.show(context, 'Redeem success.');
+    } else {
+      CommonToast.instance.show(context, response.errorMsg);
+    }
+
+    if (response.isSuccess || response.code == ResponseCode.tokenAlreadySpentError) {
+      final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
+      final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
+      if (messageDB != null) {
+        EcashMessageEx(message).isOpened = true;
+        final newUIMessage = message.copyWith();
+        messageDB.decryptContent = jsonEncode(message.metadata);
+        await DB.sharedInstance.update(messageDB);
+        await ChatDataCache.shared.updateMessage(session: session, message: newUIMessage);
+      }
+    }
   }
 }
 
@@ -378,7 +414,30 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
 
   // type: 1 - image, 2 - video
   Future albumPressHandler(BuildContext context, int type) async {
-    final storagePermission = await PermissionUtils.getPhotosPermission(type: type);
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(type);
+      LogUtil.e('Michael: albumPressHandler----result =${result.toString()}');
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVideoGranted = result['READ_MEDIA_VIDEO'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted || readMediaVideoGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(type);
+        LogUtil.d('Michael: albumPressHandler------filePaths =${filePaths}');
+        List<File> fileList = [];
+        await Future.forEach(filePaths, (element) async {
+          fileList.add(File(element));
+        });
+        final messageSendHandler = type == 2 ? this.sendVideoMessageSend : this.sendImageMessage;
+        messageSendHandler(context, fileList);
+        return;
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission(type: type);
+    }
     if(storagePermission){
       await _goToPhoto(context, type);
     } else {
@@ -433,6 +492,19 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
         );
       }
     }),
+    );
+  }
+
+  Future ecashPressHandler(BuildContext context, UserDB user) async {
+    await OXNavigator.presentPage<Map<String, String>>(
+      context, (_) => EcashSendingPage((token) async {
+        if (token.isEmpty) {
+          CommonToast.instance.show(context, 'Send Ecash failed.');
+        } else {
+          await ChatMessageSendEx.sendTextMessageHandler(session.chatId, token);
+          OXNavigator.pop(context);
+        }
+      }),
     );
   }
 

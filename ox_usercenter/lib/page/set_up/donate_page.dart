@@ -82,16 +82,18 @@ class _DonatePageState extends State<DonatePage> {
         });
       }
     });
-    final Stream<List<PurchaseDetails>> purchaseUpdated = _inAppPurchase.purchaseStream;
-    _subscription = purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
-      _listenToPurchaseUpdated(purchaseDetailsList);
-    }, onDone: () {
-      LogUtil.e('error: onDone');
-      _subscription.cancel();
-    }, onError: (Object error) {
-      // handle error here.
-      LogUtil.e('error: ${error.toString()}');
-    });
+    if(Platform.isIOS) { // donate on Android do not through GPay
+      final Stream<List<PurchaseDetails>> purchaseUpdated = _inAppPurchase.purchaseStream;
+      _subscription = purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
+        _listenToPurchaseUpdated(purchaseDetailsList);
+      }, onDone: () {
+        LogUtil.e('error: onDone');
+        _subscription.cancel();
+      }, onError: (Object error) {
+        // handle error here.
+        LogUtil.e('error: ${error.toString()}');
+      });
+    }
     _initData();
   }
 

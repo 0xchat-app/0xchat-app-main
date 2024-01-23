@@ -438,7 +438,8 @@ class _MessageState extends State<Message> {
 
     final useThemeBubbleBg = (currentUserIsAuthor
         && widget.message.type != types.MessageType.image
-        && widget.message.type != types.MessageType.video);
+        && widget.message.type != types.MessageType.video
+        && widget.message.type != types.MessageType.custom);
 
     if (widget.bubbleBuilder != null) {
       bubble = widget.bubbleBuilder!(

@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
@@ -27,6 +28,7 @@ import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -71,27 +73,16 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            OXNavigator.pushPage(context, (context) => const DonatePage());
+        _buildOption(
+          title: 'ox_usercenter.wallet',
+          iconName: 'icon_settings_wallet.png',
+          onTap: () async {
+            if ((await Cashu.mintList()).isNotEmpty) {
+              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletHomePage', {});
+            } else {
+              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletPage', {});
+            }
           },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(52),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                colors: [
-                  ThemeColor.gradientMainEnd.withOpacity(0.24),
-                  ThemeColor.gradientMainStart.withOpacity(0.24),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-            child: _itemView('icon_settings_donate.png', 'ox_usercenter.donate', '', false),
-          ),
         ),
         SizedBox(
           height: Adapt.px(24),
@@ -112,6 +103,11 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         SizedBox(
           height: Adapt.px(24),
         ),
+        _buildOption(
+            title: 'ox_usercenter.donate',
+            iconName: 'icon_settings_donate.png',
+            onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
+        SizedBox(height: Adapt.px(24),),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -275,6 +271,29 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         badge: _settingModel.settingItemType == SettingItemType.zaps
             ? _buildZapBadgeWidget()
             : Container(),
+      ),
+    );
+  }
+
+  Widget _buildOption({required String title, required String iconName, Function()? onTap}){
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              ThemeColor.gradientMainEnd.withOpacity(0.24),
+              ThemeColor.gradientMainStart.withOpacity(0.24),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: _itemView(iconName, title, '', false),
       ),
     );
   }

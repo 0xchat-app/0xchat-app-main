@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 
@@ -78,6 +79,19 @@ extension CustomMessageEx on types.CustomMessage {
     };
   }
 
+  static Map<String, dynamic> ecashMetaData({
+    required String token,
+    String isOpened = '',
+  }) {
+    return {
+      'type': CustomMessageType.ecash.value,
+      'content': {
+        'token': token,
+        'isOpened': isOpened,
+      },
+    };
+  }
+
   String get customContentString {
     try {
       return jsonEncode(metadata ?? {});
@@ -114,4 +128,45 @@ extension NoteMessageEx on types.CustomMessage {
   String get note => metadata?['content']?['note'] ?? '';
   String get image => metadata?['content']?['image'] ?? '';
   String get link => metadata?['content']?['link'] ?? '';
+}
+
+extension EcashMessageEx on types.CustomMessage {
+
+  updateDetailInfo() {
+    final token = this.token;
+    if (token.isEmpty) return ;
+
+    final info = Cashu.infoOfToken(token);
+    if (info == null) return ;
+
+    final (memo, amount) = info;
+    metadata?['content']?['memo'] = memo;
+    metadata?['content']?['amount'] = amount.toString();
+  }
+
+  String get token => metadata?['content']?['token'] ?? '';
+
+  String get description {
+    final amount = metadata?['content']?['memo'];
+    if (amount == null) {
+      updateDetailInfo();
+    }
+    return metadata?['content']?['memo'] ?? '';
+  }
+
+  int get amount {
+    final amount = metadata?['content']?['amount'];
+    if (amount == null) {
+      updateDetailInfo();
+    }
+    return int.tryParse(metadata?['content']?['amount']) ?? 0;
+  }
+
+  bool get isOpened => bool.tryParse(
+    metadata?['content']?['isOpened'] ?? false.toString(),
+    caseSensitive: false,
+  ) ?? false;
+  void set isOpened(bool value) {
+    metadata?['content']?['isOpened'] = value.toString();
+  }
 }

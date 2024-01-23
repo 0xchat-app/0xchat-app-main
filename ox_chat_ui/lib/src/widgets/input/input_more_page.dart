@@ -64,13 +64,19 @@ class _InputMorePageState extends State<InputMorePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: Adapt.px(48),
-                      height: Adapt.px(48),
+                      width: 48.px,
+                      height: 48.px,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: ThemeColor.color180,
+                      ),
                       margin: EdgeInsets.only(bottom: Adapt.px(8)),
-                      child: CommonImage(
-                        iconName: item.iconName,
-                        package: 'ox_chat_ui',
-                        useTheme: true,
+                      child: Center(
+                        child: CommonImage(
+                          iconName: item.iconName,
+                          size: 24.px,
+                          package: 'ox_chat_ui',
+                        ),
                       ),
                     ),
                     Text(

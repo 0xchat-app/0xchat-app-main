@@ -105,7 +105,7 @@ class LaunchPageViewState extends State<LaunchPageView> {
   void _onLoaded() {
     Future.delayed(const Duration(milliseconds: 2500), () async {
       if (_localPasscode.isNotEmpty) {
-        if (mounted) OXModuleService.pushPage(context, 'ox_usercenter', 'VerifyPasscodePage', {});
+        OXModuleService.pushPage(context, 'ox_usercenter', 'VerifyPasscodePage', {});
       } else {
         Navigator.of(context).pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
       }

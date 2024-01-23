@@ -142,6 +142,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       case AppLifecycleState.paused:
         _dismissSlidable();
         break;
+      default:
+        break ;
     }
   }
 

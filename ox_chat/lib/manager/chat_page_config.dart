@@ -24,6 +24,12 @@ class ChatPageConfig {
 
     // Base
     menuList.addAll([
+      if (message is types.TextMessage)
+        ItemModel(
+          Localized.text('ox_chat.message_menu_copy'),
+          AssetImageData('icon_copy.png', package: 'ox_common'),
+          MessageLongPressEventType.copy,
+        ),
       ItemModel(
         Localized.text('ox_chat.message_menu_report'),
         AssetImageData('icon_report.png', package: 'ox_chat'),
@@ -34,29 +40,13 @@ class ChatPageConfig {
         AssetImageData('icon_quote.png', package: 'ox_chat'),
         MessageLongPressEventType.quote,
       ),
-    ]);
-
-    // own message
-    if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id)) {
-      menuList.insert(0,
+      if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
         ItemModel(
           Localized.text('ox_chat.message_menu_delete'),
           AssetImageData('icon_delete.png', package: 'ox_common'),
           MessageLongPressEventType.delete,
         ),
-      );
-    }
-
-    // text message
-    if (message is types.TextMessage) {
-      menuList.insert(0,
-        ItemModel(
-          Localized.text('ox_chat.message_menu_copy'),
-          AssetImageData('icon_copy.png', package: 'ox_common'),
-          MessageLongPressEventType.copy,
-        ),
-      );
-    }
+    ]);
 
     return menuList;
   }
@@ -148,6 +138,22 @@ extension InputMoreItemEx on InputMoreItem {
             return ;
           }
           handler.zapsPressHandler(context, user);
+        },
+      );
+
+  static ecash(ChatGeneralHandler handler, UserDB? otherUser) =>
+      InputMoreItem(
+        id: 'zaps',
+        title: () => 'Ecash',
+        iconName: 'chat_ecash_icon.png',
+        action: (context) {
+          final user = otherUser;
+          if (user == null) {
+            ChatLogUtils.error(className: 'ChatPageConfig', funcName: 'ecash', message: 'user is null');
+            CommonToast.instance.show(context, 'User info not found');
+            return ;
+          }
+          handler.ecashPressHandler(context, user);
         },
       );
 
