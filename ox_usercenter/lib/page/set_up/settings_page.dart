@@ -73,33 +73,16 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
+        _buildOption(
+          title: 'ox_usercenter.wallet',
+          iconName: 'icon_settings_wallet.png',
           onTap: () async {
-            // OXNavigator.pushPage(context, (context) => const DonatePage());
-            // await OXModuleService.pushPage(context,'ox_wallet', 'WalletPage',{});
-            if(Cashu.mintList().isNotEmpty){
-              await OXModuleService.pushPage(context,'ox_wallet', 'WalletHomePage',{});
-            }else{
-              await OXModuleService.pushPage(context,'ox_wallet', 'WalletPage',{});
+            if (Cashu.mintList().isNotEmpty) {
+              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletHomePage', {});
+            } else {
+              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletPage', {});
             }
           },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(52),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                colors: [
-                  ThemeColor.gradientMainEnd.withOpacity(0.24),
-                  ThemeColor.gradientMainStart.withOpacity(0.24),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-            child: _itemView('icon_settings_wallet.png', 'ox_usercenter.donate', '', false),
-          ),
         ),
         SizedBox(
           height: Adapt.px(24),
@@ -120,6 +103,11 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         SizedBox(
           height: Adapt.px(24),
         ),
+        _buildOption(
+            title: 'ox_usercenter.donate',
+            iconName: 'icon_settings_donate.png',
+            onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
+        SizedBox(height: Adapt.px(24),),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -283,6 +271,29 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         badge: _settingModel.settingItemType == SettingItemType.zaps
             ? _buildZapBadgeWidget()
             : Container(),
+      ),
+    );
+  }
+
+  Widget _buildOption({required String title, required String iconName, Function()? onTap}){
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              ThemeColor.gradientMainEnd.withOpacity(0.24),
+              ThemeColor.gradientMainStart.withOpacity(0.24),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: _itemView(iconName, title, '', false),
       ),
     );
   }
