@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_page.dart';
@@ -51,9 +52,11 @@ class OXWallet extends OXFlutterModule {
   };
 
   @override
-  Future<void> setup() {
-    // TODO: implement setup
-    return super.setup();
+  Future<void> setup() async {
+    super.setup();
+    OXUserInfoManager.sharedInstance.initDataActions.add(() async {
+      await EcashManager.shared.setup();
+    });
   }
 
   Widget walletPageWidget(BuildContext context) {
