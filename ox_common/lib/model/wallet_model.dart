@@ -33,7 +33,7 @@ class WalletModel {
             id: '711923939',
             appId: 'com.squareup.cash',
             title: 'Cash APP',
-            scheme: 'cashapp://',
+            scheme: 'cashapppay:',
             image: 'icon_lighting_wallet_cash_app.png'),
         WalletModel(
             id: '1376878040',
