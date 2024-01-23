@@ -114,11 +114,11 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         OXLoading.show();
         final result = await EcashService.redeemEcash(content);
         OXLoading.dismiss();
-        if(result == null) {
-          _showToast('Token invalid or already claimed');
+        if(!result.isSuccess) {
+          _showToast(result.errorMsg);
           return;
         }
-        final (memo, amount) = result;
+        final (memo, amount) = result.data;
         if(context.mounted) await OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.redeemClaimed(amount: amount.toString(),content: memo,onTap: () => OXNavigator.pop(context!),));
       }else{
         _showToast('Not a valid cashu token, Please re-enter');

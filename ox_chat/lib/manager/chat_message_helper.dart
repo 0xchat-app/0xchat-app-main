@@ -403,7 +403,7 @@ extension UIMessageEx on types.Message {
           messageText = Localized.text('ox_common.message_type_template') + title;
           break ;
         case CustomMessageType.ecash:
-          messageText = 'Ecash';
+          messageText = '[Ecash]';
           break ;
         default:
           break ;

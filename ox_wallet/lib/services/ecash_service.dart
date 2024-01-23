@@ -23,14 +23,13 @@ class EcashService {
     return token;
   }
 
-  static Future<(String memo, int amount)?> redeemEcash(String ecashString) async {
-    (String memo, int amount)? result;
+  static Future<CashuResponse<(String memo, int amount)>> redeemEcash(String ecashString) async {
     try {
-      result = await Cashu.redeemEcash(ecashString);
-    }catch(e,s){
-      LogUtil.e('Create Lightning Invoice Failed: $e\r\n$s');
+      return await Cashu.redeemEcash(ecashString);
+    } catch(e, s) {
+      final msg = 'Create Lightning Invoice Failed: $e\r\n$s';
+      return CashuResponse.fromErrorMsg(msg);
     }
-    return result;
   }
 
   static int? decodeLightningInvoice({required String invoice}) {
