@@ -58,11 +58,11 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             itemCount: mintItems.length,
           ),
           mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
-          ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) => (value) {
-            if(value!=null && value){
-              setState(() {});
-            }
-          }),),
+          ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) {
+            if (value != null && value as bool) {
+                setState(() {});
+              }
+            }),),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
