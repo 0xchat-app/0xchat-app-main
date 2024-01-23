@@ -58,7 +58,6 @@ import '../message_parser/define.dart';
 import 'chat_reply_handler.dart';
 import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
-import 'package:ox_common/const/common_constant.dart';
 import 'package:device_info/device_info.dart';
 
 part 'chat_send_message_handler.dart';
@@ -498,12 +497,8 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future ecashPressHandler(BuildContext context, UserDB user) async {
     await OXNavigator.presentPage<Map<String, String>>(
       context, (_) => EcashSendingPage((token) async {
-        if (token.isEmpty) {
-          CommonToast.instance.show(context, 'Send Ecash failed.');
-        } else {
-          await ChatMessageSendEx.sendTextMessageHandler(session.chatId, token);
-          OXNavigator.pop(context);
-        }
+        await ChatMessageSendEx.sendTextMessageHandler(session.chatId, token);
+        OXNavigator.pop(context);
       }),
     );
   }
@@ -519,8 +514,6 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
       showGif: false,
       compressSize: 1024,
     );
-
-    if(res == null) return;
 
     List<File> fileList = [];
     await Future.forEach(res, (element) async {
@@ -552,7 +545,7 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
   );
 
   void _onTextChanged(String text) {
-    final chatId = session.chatId ?? '';
+    final chatId = session.chatId;
     if (chatId.isEmpty) return ;
     ChatDraftManager.shared.updateTempDraft(chatId, text);
   }
@@ -578,7 +571,7 @@ mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
     final draft = session.draft ?? '';
     if (draft.isNotEmpty) {
       chatGeneralHandler.inputController.text = draft;
-      ChatDraftManager.shared.updateTempDraft(session.chatId ?? '', draft);
+      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
     }
     super.initState();
   }

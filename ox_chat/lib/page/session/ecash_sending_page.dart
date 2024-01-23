@@ -11,7 +11,6 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -195,14 +194,26 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
       return ;
     }
 
-    OXLoading.show();
     String token = '';
     final mint = OXWalletInterface.getDefaultMint();
-    if (mint != null) {
-      token = await Cashu.sendEcash(mint: mint, amount: amount, memo: description) ?? '';
+    if (mint == null) {
+      CommonToast.instance.show(context, 'Default mint not found');
+      return ;
     }
+    OXLoading.show();
+    final response = await Cashu.sendEcash(
+      mint: mint,
+      amount: amount,
+      memo: description,
+    );
     OXLoading.dismiss();
 
+    if (!response.isSuccess) {
+      CommonToast.instance.show(context, response.errorMsg);
+      return ;
+    }
+
+    token = response.data;
     widget.ecashInfoCallback.call(token);
   }
 }
