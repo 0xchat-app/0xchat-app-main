@@ -53,6 +53,7 @@ class OXChat extends OXFlutterModule {
     'groupInfoPage': _groupInfoPage,
     'commonWebview': _commonWebview,
     'zapsRecordDetail' : _zapsRecordDetail,
+    'sendTextMsg': _sendTextMsg
   };
 
   @override
@@ -183,5 +184,9 @@ class OXChat extends OXFlutterModule {
         content,
         localTextKey:localTextKey,
     );
+  }
+
+  void _sendTextMsg(BuildContext context, String chatId, String content) {
+    ChatMessageSendEx.sendTextMessageHandler(chatId, content);
   }
 }

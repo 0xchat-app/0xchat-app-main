@@ -51,7 +51,7 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context,onConfirmTap: _checkProofs)),
       StepItemModel(title: 'Delete mint',onTap: (value) => ShowModalBottomSheet.showConfirmBottomSheet(context,title: 'Delete mint?',confirmCallback:_deleteMint)),
     ];
-    if(widget.mint.balance > 0) _fundList.add(StepItemModel(title: 'Backup funds', onTap: (value) => OXNavigator.pushPage(context, (context) => const WalletBackupFundsPage())));
+    if(widget.mint.balance > 0) _fundList.add(StepItemModel(title: 'Backup funds', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletBackupFundsPage(mint: widget.mint,))));
     _labelItems = {
       'GENERAL' : _generalList,
       'Funds' : _fundList,
