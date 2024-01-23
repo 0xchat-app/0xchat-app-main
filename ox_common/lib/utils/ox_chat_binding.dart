@@ -134,6 +134,8 @@ class OXChatBinding {
                     return Localized.text('ox_common.message_type_template') + title;
                   }
                   break ;
+                case CustomMessageType.ecash:
+                  return '[Ecash]';
                 default:
                   break ;
               }
