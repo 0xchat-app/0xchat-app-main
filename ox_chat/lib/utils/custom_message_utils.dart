@@ -81,11 +81,13 @@ extension CustomMessageEx on types.CustomMessage {
 
   static Map<String, dynamic> ecashMetaData({
     required String token,
+    String isOpened = '',
   }) {
     return {
       'type': CustomMessageType.ecash.value,
       'content': {
         'token': token,
+        'isOpened': isOpened,
       },
     };
   }
@@ -160,7 +162,10 @@ extension EcashMessageEx on types.CustomMessage {
     return int.tryParse(metadata?['content']?['amount']) ?? 0;
   }
 
-  bool get isOpened => bool.tryParse(metadata?['content']?['isOpened'] ?? false.toString()) ?? false;
+  bool get isOpened => bool.tryParse(
+    metadata?['content']?['isOpened'] ?? false.toString(),
+    caseSensitive: false,
+  ) ?? false;
   void set isOpened(bool value) {
     metadata?['content']?['isOpened'] = value.toString();
   }
