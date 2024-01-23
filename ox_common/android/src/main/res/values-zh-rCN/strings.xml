@@ -6,4 +6,6 @@
     <string name="str_picker_image_cancel">取消</string>
     <string name="str_picker_image_confirm">确定</string>
     <string name="str_picker_image_lack_request_and_goto_settings">当前应用缺少必要权限，该功能暂时无法使用。如若需要，请单击【确定】按钮前往设置中心进行权限授权。</string>
+    <string name="str_select_video_min_second">选择视频的最小时长（秒）</string>
+    <string name="str_select_video_max_second">选择视频的最大时长（秒）</string>
 </resources>

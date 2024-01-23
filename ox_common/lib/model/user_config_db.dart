@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 
 ///Title: user_config_model
 ///Description: TODO(Fill in by oneself)
@@ -46,9 +49,18 @@ extension UserConfigTool on UserConfigDB {
     await DB.sharedInstance.delete<UserConfigDB>();
   }
 
-  static Future<UserConfigDB> getUserConfigFromDB() async {
+  static Future<UserConfigDB?> getUserConfigFromDB() async {
     List<UserConfigDB> userConfigDBList = await DB.sharedInstance.objects<UserConfigDB>();
-    UserConfigDB userConfigDB = userConfigDBList[0];
+    UserConfigDB? userConfigDB;
+    if (userConfigDBList.isNotEmpty) {
+      userConfigDB = userConfigDBList[0];
+    } else {
+      UserDB? tempDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+      if (tempDB != null ){
+        userConfigDB = UserConfigDB(pubKey: tempDB.pubKey);
+        await UserConfigTool.updateUserConfigDB(userConfigDB);
+      }
+    }
     return userConfigDB;
   }
 

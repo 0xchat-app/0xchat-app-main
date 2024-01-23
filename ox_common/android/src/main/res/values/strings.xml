@@ -6,4 +6,6 @@
     <string name="str_picker_image_cancel">Cancel</string>
     <string name="str_picker_image_confirm">OK</string>
     <string name="str_picker_image_lack_request_and_goto_settings">The current app lacks the necessary permissions, and this feature is temporarily unavailable. If needed, please click the \'OK\' button to go to the settings center to grant permissions.</string>
+    <string name="str_select_video_min_second">select video min second</string>
+    <string name="str_select_video_max_second">select video max second</string>
 </resources>

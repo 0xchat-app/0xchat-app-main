@@ -23,6 +23,9 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.ox.ox_push'
+    }
     compileSdkVersion 31
 
     defaultConfig {
