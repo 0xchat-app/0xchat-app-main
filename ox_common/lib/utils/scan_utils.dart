@@ -227,7 +227,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     },
     action: (String invoice, BuildContext context) async {
       final amount = Cashu.amountOfLightningInvoice(invoice);
-      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSendLightningPage',{});
+      OXModuleService.pushPage(context, 'ox_wallet', 'WalletSendLightningPage', {'invoice': invoice, 'amount': amount.toString()});
     },
   );
 }
