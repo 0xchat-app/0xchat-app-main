@@ -39,18 +39,20 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
           centerTitle: true,
           useLargeTitle: false,
         ),
-        body: CommonLabeledCard(
-          label: 'Cashu token',
-          child: Column(
-            children: [
-              _buildCashuTokenItem(),
-              SizedBox(height: 24.px,),
-              _buildItem(title: 'Mint', content: widget.mint.mintURL),
-              SizedBox(height: 24.px,),
-              _buildItem(title: 'How does it work?',content: content),
-            ],
-          ),
-        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px))
+        body: SingleChildScrollView(
+          child: CommonLabeledCard(
+            label: 'Cashu token',
+            child: Column(
+              children: [
+                _buildCashuTokenItem(),
+                SizedBox(height: 24.px,),
+                _buildItem(title: 'Mint', content: widget.mint.mintURL),
+                SizedBox(height: 24.px,),
+                _buildItem(title: 'How does it work?',content: content),
+              ],
+            ),
+          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
+        )
     );
   }
 

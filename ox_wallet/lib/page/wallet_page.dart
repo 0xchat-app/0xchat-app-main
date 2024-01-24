@@ -10,6 +10,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 
@@ -86,6 +87,7 @@ class _WalletPageState extends State<WalletPage> {
     EcashService.addMint(_defaultMintURL).then((mint) {
       OXLoading.dismiss();
       if (mint != null) {
+        EcashManager.shared.addMint(mint);
         OXNavigator.pushPage(context, (context) => const WalletHomePage());
       } else {
         CommonToast.instance.show(context, 'Add default mint Failed, Please try again.');
