@@ -39,8 +39,9 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
   @override
   void initState() {
     _isDefaultMint = EcashManager.shared.isDefaultMint(widget.mint);
+    final mintURL = WalletUtils.formatString(widget.mint.mintURL, 40, 20, 10);
     _generalList = [
-      StepItemModel(title: 'Mint',content: widget.mint.mintURL),
+      StepItemModel(title: 'Mint',content: mintURL),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
@@ -88,12 +89,12 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
         title: item.title,
         content: item.content != null
             ? Expanded(
-                child: Text(WalletUtils.formatString(item.content!, 40, 20, 10),
+                child: Text(item.content!,
                     textAlign: TextAlign.end,
                     overflow: TextOverflow.clip,
                     style: TextStyle(fontSize: 14.px)))
             : null,
-        badge: item.badge != null ? Text(item.badge!, style: TextStyle(fontSize: 14.px)) : null,
+        badge: item.badge != null ? Flexible(child: Text(item.badge!, overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 14.px))) : null,
         onTap: item.onTap != null ? () => item.onTap!(item) : null,
       ),
     );
