@@ -40,9 +40,12 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   String get note => _noteEditController.text;
   String? get invoice => _invoiceNotifier.value;
 
+  String _amountLastInput = '', _noteLastInput = '';
+
   @override
   void initState() {
     _amountEditController.text = '21';
+    _amountLastInput = amount;
     _createLightningInvoice();
     _amountFocus.addListener(() => _focusChanged(_amountFocus));
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
@@ -55,11 +58,14 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   void _focusChanged(FocusNode focusNode) {
-    if (focusNode.hasFocus) {
-      _invoiceNotifier.value = '';
-      _expiredTimeNotifier.value = 0;
-    } else {
-      _createLightningInvoice();
+    if(!focusNode.hasFocus){
+      if(amount == _amountLastInput && note == _noteLastInput){
+        return;
+      }else{
+        _amountLastInput = amount;
+        _noteLastInput = note;
+        _createLightningInvoice();
+      }
     }
   }
 
@@ -184,6 +190,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   Future<void> _createLightningInvoice() async {
     if(EcashManager.shared.defaultIMint == null) return;
     int amountSats = int.parse(amount);
+    _updateLoadingStatus();
     Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint!, amount: amountSats);
     if(receipt != null && receipt.request.isNotEmpty){
       _invoiceNotifier.value = receipt.request;
@@ -192,6 +199,11 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
       return;
     }
     _invoiceNotifier.value = null;
+  }
+
+  void _updateLoadingStatus() {
+    _invoiceNotifier.value = '';
+    _expiredTimeNotifier.value = 0;
   }
 
   @override
