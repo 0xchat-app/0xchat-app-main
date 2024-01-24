@@ -7,7 +7,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_wallet/page/wallet_mint_list_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
-import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
@@ -162,7 +161,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
                         final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
                         return TransactionItem(
                             title: record.type.name,
-                            subTitle: WalletUtils.formatTimeAgo(record.timestamp.toInt()),
+                            subTitle: _getTransactionItemSubtitle(record),
                             info: '$amount sats',
                             iconName: iconName,
                             onTap: (){
@@ -218,9 +217,22 @@ class _WalletHomePageState extends State<WalletHomePage> {
     );
   }
 
+  String _getTransactionItemSubtitle(IHistoryEntry entry){
+    final time = WalletUtils.formatTimeAgo(entry.timestamp.toInt());
+    final memo = entry.memo?.isEmpty ?? true ? '-' : entry.memo;
+    return '$time · $memo';
+  }
+
   _getRecentTransaction() async {
     _recentTransaction = await EcashService.getHistoryList();
     setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    Cashu.removeInvoiceListener(_balanceChangedListener);
+    super.dispose();
   }
 }
 

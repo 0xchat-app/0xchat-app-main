@@ -6,7 +6,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/theme_button.dart';
-import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/ecash_common_button.dart';
 
 class WalletSuccessfulPage extends StatelessWidget {
   final String title;
@@ -81,24 +81,7 @@ class WalletSuccessfulPage extends StatelessWidget {
 
   Widget _buildBottomWidget(BuildContext context) {
     return Container(
-      child: bottomWidget ??
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => OXNavigator.pop(context),
-            child: CommonCard(
-              radius: 12.px,
-              height: 48.px,
-              child: Center(
-                child: Text(
-                  'Close',
-                  style: TextStyle(
-                      color: ThemeColor.color0,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16.px),
-                ),
-              ),
-            ),
-          ),
+      child: bottomWidget ?? EcashCommonButton(text: 'Close', onTap: () => OXNavigator.pop(context)),
     ).setPaddingOnly(bottom: 16.px, left: 24.px, right: 24.px);
   }
 
@@ -121,23 +104,7 @@ class WalletSuccessfulPage extends StatelessWidget {
       tips: '$amount Sats Claimed!',
       content: content,
       canBack: false,
-      bottomWidget: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: onTap,
-        child: CommonCard(
-          radius: 12.px,
-          height: 48.px,
-          child: Center(
-            child: Text(
-              'Back to dashboard',
-              style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16.px),
-            ),
-          ),
-        ),
-      ),
+      bottomWidget: EcashCommonButton(text: 'Back to dashboard', onTap: onTap),
     );
   }
 }

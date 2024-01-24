@@ -12,7 +12,8 @@ import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
-import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/ecash_common_button.dart';
+import 'package:ox_wallet/widget/privacy_policy_widget.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -23,6 +24,7 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final _defaultMintURL = 'https://legend.lnbits.com/cashu/api/v1/AptDNABNBXv8gpuywhx6NV';
+  final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -62,19 +64,9 @@ class _WalletPageState extends State<WalletPage> {
               ).setPaddingOnly(top: 56.px),
             const Spacer(),
             ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
-            GestureDetector(
-              onTap: () => OXNavigator.pushPage(context, (context) => WalletMintManagementAddPage(action: ImportAction.import,callback: (){
-                OXNavigator.pushPage(context!, (context) => const WalletHomePage());
-              })),
-              child: CommonCard(
-                  height: 48.px,
-                  child: Center(
-                    child: Text('Add mint URL', style: TextStyle(fontSize: 16.px, fontWeight: FontWeight.w600,color: ThemeColor.color0),
-                    ),
-                  ),
-                ).setPaddingOnly(top: 18.px),
-            ),
-              SizedBox(height: 40.px,)
+            EcashCommonButton(text: 'Add mint URL',onTap: _addMint).setPaddingOnly(top: 18.px),
+            PrivacyPolicyWidget(controller: _hasAgreedToPrivacyPolicy,).setPaddingOnly(top: 18.px),
+            SizedBox(height: 40.px,)
             ],
           ).setPadding(EdgeInsets.symmetric(horizontal: 30.px)),
       ),
@@ -82,7 +74,19 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
+  void _addMint() {
+    if (!_checkPrivacyPolicyAgreement()) return;
+    OXNavigator.pushPage(
+      context,
+      (context) => WalletMintManagementAddPage(
+        action: ImportAction.import,
+        callback: () => OXNavigator.pushPage(context!, (context) => const WalletHomePage()),
+      ),
+    );
+  }
+
   void _useDefaultMint() {
+    if(!_checkPrivacyPolicyAgreement()) return;
     OXLoading.show();
     EcashService.addMint(_defaultMintURL).then((mint) {
       OXLoading.dismiss();
@@ -93,5 +97,19 @@ class _WalletPageState extends State<WalletPage> {
         CommonToast.instance.show(context, 'Add default mint Failed, Please try again.');
       }
     });
+  }
+
+  bool _checkPrivacyPolicyAgreement() {
+    final hasAgreedToPrivacyPolicy = _hasAgreedToPrivacyPolicy.value;
+    if (!hasAgreedToPrivacyPolicy) {
+      CommonToast.instance.show(context, 'Please accept the privacy policy');
+    }
+    return hasAgreedToPrivacyPolicy;
+  }
+
+  @override
+  void dispose() {
+    _hasAgreedToPrivacyPolicy.dispose();
+    super.dispose();
   }
 }
