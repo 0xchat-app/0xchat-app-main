@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -211,7 +210,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                               color: ThemeColor.color180,
                             ),
                             child: Text(
-                              'scan_qr_code'.localized(),
+                              Localized.text('ox_chat.scan_qr_code'),
                               style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
                             ),
                           ),
@@ -230,7 +229,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                               color: ThemeColor.color180,
                             ),
                             child: Text(
-                              'str_save_image'.localized(),
+                              Localized.text('ox_chat.str_save_image'),
                               style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
                             ),
                           ),
@@ -280,20 +279,20 @@ class _ImageGalleryState extends State<ImageGallery> {
           // String str = Uri.decodeComponent(result);
           CommonToast.instance.show(
             context,
-            "str_saved_to_album".localized(),
+            Localized.text('ox_chat.str_saved_to_album'),
           );
         } else {
           Navigator.pop(context);
           CommonToast.instance.show(
             context,
-            "str_save_failed".localized(),
+            Localized.text('ox_chat.str_save_failed'),
           );
         }
       } else {
         Navigator.pop(context);
         CommonToast.instance.show(
           context,
-          "str_save_failed".localized(),
+          Localized.text('ox_chat.str_save_failed'),
         );
       }
     } else {

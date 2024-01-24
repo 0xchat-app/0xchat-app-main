@@ -185,13 +185,11 @@ class AlphaState extends State<Alpha> {
 
   double? _getDistanceToTop() {
     RenderBox? renderBox = context.findRenderObject() as RenderBox;
-    if (renderBox != null) {
-      return renderBox
-          .localToGlobal(Offset.zero)
-          .dy
-          .toInt() + (renderBox.size.height - widget.alphaItemSize! * widget.alphas!.length) / 2;
-    }
-    return null;
+    return renderBox
+        .localToGlobal(Offset.zero)
+        .dy
+        .toInt() + (renderBox.size.height - widget.alphaItemSize! * widget.alphas!.length) / 2;
+      return null;
   }
 
 }

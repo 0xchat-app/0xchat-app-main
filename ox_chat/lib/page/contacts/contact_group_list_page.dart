@@ -67,7 +67,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
       _groupedUserList[v] = [];
     });
     Map<UserDB, String> pinyinMap = Map<UserDB, String>();
-    for (var user in userList!) {
+    for (var user in userList) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
       pinyinMap[user] = pinyin;

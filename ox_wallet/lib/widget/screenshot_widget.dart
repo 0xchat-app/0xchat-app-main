@@ -38,6 +38,7 @@ class ScreenshotWidgetState extends State<ScreenshotWidget> {
       LogUtil.e('Screenshot failure: $e\r\n$s');
       return null;
     }
+    return null;
   }
 
   Future<String?> saveScreenshotToFile() async {

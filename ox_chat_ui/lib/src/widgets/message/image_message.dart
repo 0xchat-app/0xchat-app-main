@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
 
-import '../../conditional/conditional.dart';
 import '../../util.dart';
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_user.dart';

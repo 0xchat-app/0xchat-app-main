@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_common/widgets/common_image.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
-import '../../models/bubble_rtl_alignment.dart';
-import '../../models/emoji_enlargement_behavior.dart';
 import '../../util.dart';
 import '../pop_menu/custom_pop_up_menu.dart';
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_user.dart';
 import 'audio_message_page.dart';
-import 'file_message.dart';
-import 'image_message.dart';
-import 'message_status.dart';
-import 'text_message.dart';
-import 'user_avatar.dart';
 import 'video_message.dart';
 
 

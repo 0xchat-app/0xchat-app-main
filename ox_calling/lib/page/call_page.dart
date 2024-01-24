@@ -17,7 +17,6 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: call_page
 ///Description: TODO(Fill in by oneself)
@@ -101,7 +100,7 @@ class CallPageState extends State<CallPage> {
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.initiativeHangUp = false;
-        await CallManager.instance.invitePeer(widget.userDB!.pubKey!);
+        await CallManager.instance.invitePeer(widget.userDB.pubKey);
       }
     }
     if (mounted) setState(() {});

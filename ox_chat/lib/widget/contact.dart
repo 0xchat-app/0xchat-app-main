@@ -447,7 +447,7 @@ class _ContractListItemState extends State<ContractListItem> {
                   right: 0,
                   child: FutureBuilder<BadgeDB?>(
                     builder: (context, snapshot) {
-                      return (snapshot.data !=null && snapshot.data!.thumb != null) ? OXCachedNetworkImage(
+                      return (snapshot.data !=null) ? OXCachedNetworkImage(
                         imageUrl: snapshot.data?.thumb ?? '',
                         errorWidget: (context, url, error) => badgePlaceholderImage,
                         width: Adapt.px(20),
@@ -482,7 +482,7 @@ class _ContractListItemState extends State<ContractListItem> {
     if (friendUserDB == null) {
       return null;
     }
-    String badges = friendUserDB!.badges ?? '';
+    String badges = friendUserDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();

@@ -1,4 +1,3 @@
-import 'package:flutter/animation.dart';
 import 'package:rive/rive.dart';
 
 /// A tab to display in a [DotNavigationBar]

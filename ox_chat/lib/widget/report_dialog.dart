@@ -10,9 +10,6 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'dart:ui';
 
 abstract class ReportTarget {
@@ -58,7 +55,7 @@ class ReportDialogState extends State<ReportDialog> {
         topRight: const Radius.circular(20),
       ),
       child: Container(
-        height: MediaQuery.of(context).size.height - MediaQueryData.fromWindow(window).padding.top,
+        height: MediaQuery.of(context).size.height - MediaQueryData.fromView(window).padding.top,
         color: ThemeColor.color190,
         child: Column(
           children: <Widget>[

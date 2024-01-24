@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:rive/rive.dart';

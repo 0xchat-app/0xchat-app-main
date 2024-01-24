@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -16,12 +14,10 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_usercenter/model/product_list_entity.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
-import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/utils/purchase_util.dart';
 import 'package:ox_usercenter/utils/zaps_helper.dart';
@@ -242,8 +238,8 @@ class _DonatePageState extends State<DonatePage> {
   }
 
   Future<void> _requestData() async {
-    if (_mCurrentUserInfo == null || _mCurrentUserInfo!.pubKey == null) return;
-    _productList = await PurchaseUtil.getProductList(pubKey: _mCurrentUserInfo!.pubKey!);
+    if (_mCurrentUserInfo == null) return;
+    _productList = await PurchaseUtil.getProductList(pubKey: _mCurrentUserInfo!.pubKey);
     LogUtil.e("Michael: server myProductListEntity :${_productList?.toString()}");
     initStoreInfo();
   }

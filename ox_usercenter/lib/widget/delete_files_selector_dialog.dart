@@ -3,7 +3,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 
 ///Title: delete_files_selector_dialog

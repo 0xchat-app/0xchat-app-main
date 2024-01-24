@@ -328,7 +328,7 @@ class CallManager {
     overlayEntry ??= OverlayEntry(
         builder: (context) => CallFloatingDraggableOverlay(userDB: userDB),
       );
-    Overlay.of(OXNavigator.navigatorKey.currentContext!)!.insert(overlayEntry!);
+    Overlay.of(OXNavigator.navigatorKey.currentContext!).insert(overlayEntry!);
   }
 }
 

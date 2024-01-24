@@ -148,7 +148,5 @@ abstract class Message extends Equatable {
   Map<String, dynamic> toJson();
 
   @override
-  String toString() {
-    return 'Message{author: $author, createdAt: $createdAt, id: $id, metadata: $metadata, remoteId: $remoteId, repliedMessage: $repliedMessage, roomId: $roomId, showStatus: $showStatus, status: $status, type: $type, updatedAt: $updatedAt, fileEncryptionType: $fileEncryptionType, sourceKey: $sourceKey, expiration: $expiration}';
-  }
+  String toString() => 'Message{author: $author, createdAt: $createdAt, id: $id, metadata: $metadata, remoteId: $remoteId, repliedMessage: $repliedMessage, roomId: $roomId, showStatus: $showStatus, status: $status, type: $type, updatedAt: $updatedAt, fileEncryptionType: $fileEncryptionType, sourceKey: $sourceKey, expiration: $expiration}';
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -931,17 +930,17 @@ class SearchPageState extends State<SearchPage> {
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
                 item.receiver ==
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              chatId = item.sender!;
+              chatId = item.sender;
             } else if (item.sender ==
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
                 item.receiver !=
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              chatId = item.receiver!;
+              chatId = item.receiver;
             } else if (item.sender !=
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
                 item.receiver ==
                     OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
-              chatId = item.sender!;
+              chatId = item.sender;
             }
             if (messageInduceMap[chatId] == null) {
               messageInduceMap[chatId] = ChatMessage(

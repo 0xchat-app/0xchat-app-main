@@ -1,14 +1,10 @@
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../ox_chat_ui.dart';
-import '../models/bubble_rtl_alignment.dart';
 import 'patched_sliver_animated_list.dart';
 import 'state/inherited_chat_theme.dart';
-import 'state/inherited_user.dart';
-import 'typing_indicator.dart';
 
 /// Animated list that handles automatic animations and pagination.
 class ChatList extends StatefulWidget {

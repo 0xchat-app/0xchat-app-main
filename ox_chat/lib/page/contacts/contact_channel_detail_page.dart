@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -94,10 +93,9 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     _badgeDBList = [];
     _badgeRequirementsHint = Localized.text('ox_chat.badge_no_requirement_tips');
     _isMute = widget.channelDB.mute ?? false;
-    if (widget.channelDB.creator != null &&
-        widget.channelDB.creator!.isNotEmpty) {
+    if (widget.channelDB.creator.isNotEmpty) {
       final UserDB? userFromDB =
-          await Account.sharedInstance.getUserInfo(widget.channelDB.creator!);
+          await Account.sharedInstance.getUserInfo(widget.channelDB.creator);
       _showCreator = userFromDB != null ? userFromDB.name! : widget.channelDB.creator;
       if (mounted) setState(() {});
     } else {
@@ -145,7 +143,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     );
 
     bool isCreator = OXUserInfoManager.sharedInstance
-        .isCurrentUser(widget.channelDB.creator!);
+        .isCurrentUser(widget.channelDB.creator);
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       body: CustomScrollView(
@@ -645,9 +643,9 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   void _onChangedMute(bool value) async {
     await OXLoading.show();
     if (value) {
-      await Channels.sharedInstance.muteChannel(widget.channelDB.channelId!);
+      await Channels.sharedInstance.muteChannel(widget.channelDB.channelId);
     } else {
-      await Channels.sharedInstance.unMuteChannel(widget.channelDB.channelId!);
+      await Channels.sharedInstance.unMuteChannel(widget.channelDB.channelId);
     }
     final bool result =
         await OXUserInfoManager.sharedInstance.setNotification();
@@ -678,7 +676,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
               onTap: () async {
                 await OXLoading.show();
                 final OKEvent okEvent = await Channels.sharedInstance
-                    .leaveChannel(widget.channelDB.channelId!);
+                    .leaveChannel(widget.channelDB.channelId);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
                   OXChatBinding.sharedInstance.channelsUpdatedCallBack();

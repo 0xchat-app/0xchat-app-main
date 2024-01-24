@@ -12,7 +12,6 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'contact_user_info_page.dart';
 
@@ -76,7 +75,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
     await OXLoading.dismiss();
     List<DiyUserDB> db = [];
 
-    userMap.forEach((info) => {db.add(new DiyUserDB(false, info))});
+    userMap.forEach((info) => db.add(new DiyUserDB(false, info)));
     userMapList = db;
     _resetFollowsData();
     setState(() {});

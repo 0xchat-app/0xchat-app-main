@@ -1,14 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -110,7 +108,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
         showGif: false,
         compressSize: 2048,
       );
-      imgFile = (res == null || res[0].path == null) ? null : File(res[0].path ?? '');
+      imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
       OXLoading.dismiss();
     } else {
       CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));

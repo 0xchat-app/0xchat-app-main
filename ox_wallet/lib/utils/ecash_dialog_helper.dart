@@ -3,7 +3,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
-import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 
 class EcashDialogHelper {

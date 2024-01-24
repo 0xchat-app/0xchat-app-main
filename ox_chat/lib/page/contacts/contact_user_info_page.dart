@@ -1100,9 +1100,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   void _onChangedMute(bool value) async {
     await OXLoading.show();
     if (value) {
-      await Contacts.sharedInstance.muteFriend(userDB.pubKey!);
+      await Contacts.sharedInstance.muteFriend(userDB.pubKey);
     } else {
-      await Contacts.sharedInstance.unMuteFriend(userDB.pubKey!);
+      await Contacts.sharedInstance.unMuteFriend(userDB.pubKey);
     }
     final bool result =
         await OXUserInfoManager.sharedInstance.setNotification();
@@ -1146,7 +1146,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
     UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
-        'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB?.badges ?? 'badges null'}');
+        'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB.badges ?? 'badges null'}');
     if (friendUserDB == null) {
       return null;
     }
