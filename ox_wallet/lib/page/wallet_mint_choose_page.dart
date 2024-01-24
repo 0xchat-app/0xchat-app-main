@@ -25,7 +25,8 @@ enum ChooseType{
 
 class WalletMintChoosePage extends StatefulWidget {
   final ChooseType type;
-  const WalletMintChoosePage({super.key, required this.type});
+  final ValueChanged<IMint>? onChanged;
+  const WalletMintChoosePage({super.key, required this.type, this.onChanged});
 
   @override
   State<WalletMintChoosePage> createState() => _WalletMintChoosePageState();
@@ -76,6 +77,10 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
   Future<void> _chooseMint(IMint mint) async {
     bool result = await EcashManager.shared.setDefaultMint(mint);
     if(result && context.mounted){
+      if (widget.onChanged != null) {
+        widget.onChanged!.call(mint);
+        return;
+      }
       OXNavigator.pop(context);
       switch(widget.type){
         case ChooseType.payInvoice : OXNavigator.pushPage(context, (context) => const WalletSendLightningPage());
