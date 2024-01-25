@@ -4,13 +4,13 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_wallet/page/wallet_receive_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_page.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_card.dart';
-import 'package:ox_wallet/widget/common_labeled_item.dart';
 
 enum ChooseType{
   payInvoice(title: 'Cash out',tips: 'Choose a mint from which you would like to cash out your funds.'),
@@ -60,10 +60,10 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
             padding: EdgeInsets.zero,
             itemBuilder: (context, index) => CommonCard(
               verticalPadding: 8.px,
-              child: StepIndicatorItem(
+              child: _buildItem(
                 title: mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL,
                 subTitle: '${mintItems[index].balance} Sats',
-                onTap: () => _chooseMint(mintItems[index])
+                onTap: () => _chooseMint(mintItems[index]),
               ),
             ),
             separatorBuilder: (context,index) => SizedBox(height: 12.px,),
@@ -71,6 +71,33 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
           ),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
+    );
+  }
+
+  Widget _buildItem({required String title,required String subTitle,Function()? onTap}){
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title ?? '',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px,overflow: TextOverflow.ellipsis),),
+                Text(subTitle,style: TextStyle(fontSize: 14.px,height: 20.px / 14.px),),
+              ],
+            ),
+          ),
+          CommonImage(
+            iconName: 'icon_wallet_more_arrow.png',
+            size: 24.px,
+            package: 'ox_wallet',
+          )
+        ],
+      ),
     );
   }
 
