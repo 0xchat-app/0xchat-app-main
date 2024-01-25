@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -70,96 +71,111 @@ class _ImageGalleryState extends State<ImageGallery> {
   ScreenshotController screenshotController = ScreenshotController();
 
   @override
-  Widget build(BuildContext context) =>
-      WillPopScope(
-        onWillPop: () async {
-          widget.onClosePressed();
-          return false;
-        },
-        child: Dismissible(
-          key: const Key('photo_view_gallery'),
-          background: Container(color: Colors.black,),
-          direction: DismissDirection.down,
-          onDismissed: (direction) => widget.onClosePressed(),
-          child: Stack(
-            children: [
-              Screenshot(
-                controller: screenshotController,
-                child:GestureDetector(
-                  onLongPress: _showBottomMenu,
-                  child: RepaintBoundary(
-                    key: _globalKey,
-                    child: PhotoViewGallery.builder(
-                      builder: (BuildContext context, int index) {
-                        final uri = widget.images[index].uri;
-                        final encrypted = widget.images[index].encrypted;
-                        final decryptKey = widget.images[index].decryptSecret;
-                        return PhotoViewGalleryPageOptions(
-                          imageProvider: OXCachedNetworkImageProviderEx.create(
-                            context,
-                            uri,
-                            headers: widget.imageHeaders,
-                            cacheManager: encrypted
-                                ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
-                                : null,
-                          ),
-                          minScale: widget.options.minScale,
-                          maxScale: widget.options.maxScale,
-                        );
-                      },
-                      itemCount: widget.images.length,
-                      loadingBuilder: (context, event) =>
-                          _imageGalleryLoadingBuilder(event),
-                      pageController: widget.pageController,
-                      scrollPhysics: const ClampingScrollPhysics(),
-                    ),
-                  ),
+  Widget build(BuildContext context) => WillPopScope(
+    onWillPop: () async {
+      widget.onClosePressed();
+      return false;
+    },
+    child: Dismissible(
+      key: const Key('photo_view_gallery'),
+      background: Container(color: Colors.black,),
+      direction: DismissDirection.down,
+      onDismissed: (direction) => widget.onClosePressed(),
+      child: Stack(
+        children: [
+          Screenshot(
+            controller: screenshotController,
+            child:GestureDetector(
+              onLongPress: _showBottomMenu,
+              child: RepaintBoundary(
+                key: _globalKey,
+                child: PhotoViewGallery.builder(
+                  builder: (BuildContext context, int index) {
+                    final uri = widget.images[index].uri;
+                    final encrypted = widget.images[index].encrypted;
+                    final decryptKey = widget.images[index].decryptSecret;
+                    return PhotoViewGalleryPageOptions(
+                      imageProvider: OXCachedNetworkImageProviderEx.create(
+                        context,
+                        uri,
+                        headers: widget.imageHeaders,
+                        cacheManager: encrypted
+                            ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
+                            : null,
+                      ),
+                      minScale: widget.options.minScale,
+                      maxScale: widget.options.maxScale,
+                    );
+                  },
+                  itemCount: widget.images.length,
+                  loadingBuilder: (context, event) =>
+                      _imageGalleryLoadingBuilder(event),
+                  pageController: widget.pageController,
+                  scrollPhysics: const ClampingScrollPhysics(),
                 ),
               ),
-              Positioned.directional(
-                end: 16,
-                textDirection: Directionality.of(context),
-                top: 56,
-                child: CloseButton(
-                  color: Colors.white,
-                  onPressed: widget.onClosePressed,
-                ),
-              ),
-              Positioned.directional(
-                end: 16,
-                textDirection: Directionality.of(context),
-                bottom: 56,
-                child: IconButton(
-                  icon: Icon(Icons.save_alt, color: Colors.white),
-                  onPressed: () async {
-                    if (widget.images.isEmpty) return ;
-                    final pageIndex = widget.pageController.page?.round() ?? 0;
-                    final imageUri = widget.images[pageIndex].uri;
+            ),
+          ),
+          Positioned.directional(
+            end: 16,
+            textDirection: Directionality.of(context),
+            top: 56,
+            child: CloseButton(
+              color: Colors.white,
+              onPressed: widget.onClosePressed,
+            ),
+          ),
+          Positioned.directional(
+            end: 16,
+            textDirection: Directionality.of(context),
+            bottom: 56,
+            child: IconButton(
+              icon: Icon(Icons.save_alt, color: Colors.white),
+              onPressed: () async {
+                if (widget.images.isEmpty) return ;
+                final pageIndex = widget.pageController.page?.round() ?? 0;
+                final imageUri = widget.images[pageIndex].uri;
 
-                    final isNetworkImage = imageUri.startsWith('http');
-                    var result;
-                    if (isNetworkImage) {
-                      final response = await Dio().get(
+                final isNetworkImage = imageUri.startsWith('http');
+                var result;
+                if (isNetworkImage) {
+                  try {
+                    String fileName = imageUri.split('/').last.split('?').first;
+                    if (fileName.contains('.gif')) {
+                      final appDocDir = await getTemporaryDirectory();
+                      final savePath = appDocDir.path + "/image_${DateTime.now().millisecondsSinceEpoch}.gif";
+                      final response = await Dio().download(
+                          imageUri,
+                          savePath,
+                          options: Options(responseType: ResponseType.bytes));
+                      result = await ImageGallerySaver.saveFile(savePath);
+                    } else {
+                      var response = await Dio().get(
                           imageUri,
                           options: Options(responseType: ResponseType.bytes));
                       result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
-                    } else {
-                      final imageData = await File(imageUri).readAsBytes();
-                      result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
                     }
+                  } catch (e) {
+                    unawaited(CommonToast.instance.show(context, e.toString()));
+                  }
+                } else {
+                  final imageData = await File(imageUri).readAsBytes();
+                  result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+                }
 
-                    if (result != null) {
-                      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
-                    } else {
-                      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
-                    }
-                  },
-                ),
-              ),
-            ],
+                if (result != null) {
+                  unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
+                } else {
+                  unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
+                }
+              },
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
+
 
   Widget _imageGalleryLoadingBuilder(ImageChunkEvent? event) =>  Container(
     color: Colors.black,
@@ -181,85 +197,85 @@ class _ImageGalleryState extends State<ImageGallery> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: new Material(
-              type: MaterialType.transparency,
-              child: new Opacity(
-                opacity: 1, //Opacity containing a widget
-                child: new GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: new Container(
-                    decoration: BoxDecoration(
-                      color: ThemeColor.color190,
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: new Material(
+          type: MaterialType.transparency,
+          child: new Opacity(
+            opacity: 1, //Opacity containing a widget
+            child: new GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: new Container(
+                decoration: BoxDecoration(
+                  color: ThemeColor.color190,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    new GestureDetector(
+                      onTap: _identifyQRCode,
+                      child: Container(
+                        height: Adapt.px(48),
+                        padding: EdgeInsets.all(Adapt.px(8)),
+                        alignment: FractionalOffset.center,
+                        decoration: new BoxDecoration(
+                          color: ThemeColor.color180,
+                        ),
+                        child: Text(
+                          Localized.text('ox_chat.scan_qr_code'),
+                          style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        new GestureDetector(
-                          onTap: _identifyQRCode,
-                          child: Container(
-                            height: Adapt.px(48),
-                            padding: EdgeInsets.all(Adapt.px(8)),
-                            alignment: FractionalOffset.center,
-                            decoration: new BoxDecoration(
-                              color: ThemeColor.color180,
-                            ),
-                            child: Text(
-                              Localized.text('ox_chat.scan_qr_code'),
-                              style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: Adapt.px(0.5),
-                          color: ThemeColor.color160,
-                        ),
-                        new GestureDetector(
-                          onTap: _widgetShotAndSave,
-                          child: Container(
-                            height: Adapt.px(48),
-                            padding: EdgeInsets.all(Adapt.px(8)),
-                            alignment: FractionalOffset.center,
-                            decoration: new BoxDecoration(
-                              color: ThemeColor.color180,
-                            ),
-                            child: Text(
-                              Localized.text('ox_chat.str_save_image'),
-                              style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
-                            ),
-                          ),
-                        ),
-                        new Container(
-                          height: Adapt.px(2),
-                          color: ThemeColor.dark01,
-                        ),
-                        new GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            height: Adapt.px(48),
-                            padding: EdgeInsets.all(Adapt.px(8)),
-                            alignment: FractionalOffset.center,
-                            color: ThemeColor.color180,
-                            child: Text(
-                              'cancel'.commonLocalized(),
-                              style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Divider(
+                      height: Adapt.px(0.5),
+                      color: ThemeColor.color160,
                     ),
-                  ),
+                    new GestureDetector(
+                      onTap: _widgetShotAndSave,
+                      child: Container(
+                        height: Adapt.px(48),
+                        padding: EdgeInsets.all(Adapt.px(8)),
+                        alignment: FractionalOffset.center,
+                        decoration: new BoxDecoration(
+                          color: ThemeColor.color180,
+                        ),
+                        child: Text(
+                          Localized.text('ox_chat.str_save_image'),
+                          style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
+                        ),
+                      ),
+                    ),
+                    new Container(
+                      height: Adapt.px(2),
+                      color: ThemeColor.dark01,
+                    ),
+                    new GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: Adapt.px(48),
+                        padding: EdgeInsets.all(Adapt.px(8)),
+                        alignment: FractionalOffset.center,
+                        color: ThemeColor.color180,
+                        child: Text(
+                          'cancel'.commonLocalized(),
+                          style: new TextStyle(color: ThemeColor.gray02, fontSize: Adapt.px(16), fontWeight: FontWeight.normal),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
           ),
         ),
+      ),
     );
   }
 
