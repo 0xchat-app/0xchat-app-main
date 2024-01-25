@@ -42,8 +42,8 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
-        title: 'Create Ecash',
-        subTitle: 'Create Ecash by Paying a Lightning invoice',
+        title: 'Deposit Ecash',
+        subTitle: 'Deposit Ecash by Paying a Lightning invoice',
         onTap: () => _handlePageAction(ChooseType.createInvoice),
       )
     ];
