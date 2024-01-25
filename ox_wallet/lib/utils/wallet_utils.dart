@@ -94,4 +94,9 @@ class WalletUtils {
       return str;
     }
   }
+
+  static String formatAmountNumber(int number) {
+    final NumberFormat numberFormat = NumberFormat('#,##0', 'en_US');
+    return numberFormat.format(number);
+  }
 }

@@ -10,6 +10,7 @@ import 'package:ox_wallet/services/ecash_listener.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
+import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletHomePage extends StatefulWidget {
@@ -19,7 +20,7 @@ class WalletHomePage extends StatefulWidget {
   State<WalletHomePage> createState() => _WalletHomePageState();
 }
 
-class _WalletHomePageState extends State<WalletHomePage> {
+class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMixin{
   final double appBarHeight = 56.px;
 
   final ScrollController _scrollController = ScrollController();
@@ -57,6 +58,20 @@ class _WalletHomePageState extends State<WalletHomePage> {
       if(_opacity > 1) _opacity = 1;
       if(_opacity < 0) _opacity = 0;
     });
+  }
+
+  @override
+  stateViewCallBack(CommonStateView commonStateView) {
+    switch (commonStateView) {
+      case CommonStateView.CommonStateView_None:
+        break;
+      case CommonStateView.CommonStateView_NetworkError:
+        break;
+      case CommonStateView.CommonStateView_NoData:
+        break;
+      case CommonStateView.CommonStateView_NotLogin:
+        break;
+    }
   }
 
   @override
@@ -158,7 +173,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
             height: 4.px,
           ),
           Text(
-            "${EcashService.totalBalance()} sats",
+            "${WalletUtils.formatAmountNumber(EcashService.totalBalance())} sats",
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600,height: 45.px / 32.px),
           ),
@@ -168,11 +183,12 @@ class _WalletHomePageState extends State<WalletHomePage> {
   }
 
   Widget _buildInfoArea(){
+    final statusBarHeight = MediaQuery.of(context).padding.top;
     return SliverAppBar(
       backgroundColor: Colors.transparent,
       leading: Container(),
+      toolbarHeight: 140.px - statusBarHeight,
       flexibleSpace: SizedBox(
-        height: 140.px,
         child: Stack(
           children: [
             Positioned(
@@ -185,8 +201,8 @@ class _WalletHomePageState extends State<WalletHomePage> {
               top: 12.px,
               child: CommonImage(
                 iconName: 'icon_wallet_subtract.png',
-                width: 130.px,
-                height: 130.px,
+                width: 160.px,
+                height: 160.px,
                 package: 'ox_wallet',
               ),
             ),
@@ -201,7 +217,7 @@ class _WalletHomePageState extends State<WalletHomePage> {
       padding: EdgeInsets.all(24.px),
       decoration: BoxDecoration(
           color: ThemeColor.color190,
-          borderRadius: BorderRadius.horizontal(left: Radius.circular(12.px),right: Radius.circular(12.px))
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(12.px),topRight: Radius.circular(12.px))
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,26 +231,29 @@ class _WalletHomePageState extends State<WalletHomePage> {
           ),
           SizedBox(height: 16.px,),
           Expanded(
-            child: ListView.builder(
-              itemExtent: 53.px,
-              padding: EdgeInsets.only(bottom: 68.px + 10.px),
-              itemBuilder: (BuildContext context, int index){
-                final record = _recentTransaction[index];
-                final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
-                final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
-                return TransactionItem(
-                  title: record.type.name,
-                  subTitle: _getTransactionItemSubtitle(record),
-                  info: '$amount sats',
-                  iconName: iconName,
-                  onTap: (){
-                    if(record.type == IHistoryType.eCash || record.type == IHistoryType.lnInvoice){
-                      OXNavigator.pushPage(context, (context) => WalletTransactionRecord(entry: record,));
-                    }
-                  },
-                );
-              },
-              itemCount: _recentTransaction.length,
+            child: commonStateViewWidget(
+              context,
+              ListView.builder(
+                itemExtent: 53.px,
+                padding: EdgeInsets.only(bottom: 68.px + 10.px),
+                itemBuilder: (BuildContext context, int index){
+                  final record = _recentTransaction[index];
+                  final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
+                  final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
+                  return TransactionItem(
+                    title: record.type.name,
+                    subTitle: _getTransactionItemSubtitle(record),
+                    info: '$amount sats',
+                    iconName: iconName,
+                    onTap: (){
+                      if(record.type == IHistoryType.eCash || record.type == IHistoryType.lnInvoice){
+                        OXNavigator.pushPage(context, (context) => WalletTransactionRecord(entry: record,));
+                      }
+                    },
+                  );
+                },
+                itemCount: _recentTransaction.length,
+              ),
             ),
           ),
         ],
@@ -250,6 +269,9 @@ class _WalletHomePageState extends State<WalletHomePage> {
 
   _getRecentTransaction() async {
     _recentTransaction = await EcashService.getHistoryList();
+    if(_recentTransaction.isEmpty){
+      updateStateView(CommonStateView.CommonStateView_NoData);
+    }
     setState(() {});
   }
 
