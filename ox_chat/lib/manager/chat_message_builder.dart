@@ -398,7 +398,7 @@ class ChatMessageBuilder {
                     Visibility(
                       visible: isOpened,
                       child: Text(
-                        'Opened',
+                        'Redeemed',
                         style: TextStyle(
                           color: ThemeColor.white,
                           fontSize: 12.sp,
