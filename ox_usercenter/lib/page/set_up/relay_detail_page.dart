@@ -114,7 +114,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
     );
   }
 
-  Widget _buildItem({required String label,String? bodyContent,Widget? leading, Widget? actions,double? height,Color? contentColor,GestureTapCallback? onTap}){
+  Widget _buildItem({required String label,String? bodyContent,Widget? leading, Widget? actions,Color? contentColor,GestureTapCallback? onTap}){
     bool isShow = bodyContent != null && bodyContent.isNotEmpty;
 
     return GestureDetector(

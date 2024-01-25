@@ -126,8 +126,8 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Material(
-                        child: widget.menuBuilder(),
                         color: Colors.transparent,
+                        child: widget.menuBuilder(),
                       ),
                     ],
                   ),
@@ -141,7 +141,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
               ? HitTestBehavior.translucent
               : HitTestBehavior.opaque,
           onPointerDown: (PointerDownEvent event) {
-            Offset offset = event.localPosition;
+            final offset = event.localPosition;
             // If tap position in menu
             if (_menuRect.contains(
                 Offset(offset.dx - widget.horizontalMargin, offset.dy))) {
@@ -165,7 +165,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
       },
     );
     if (_overlayEntry != null) {
-      Overlay.of(context)!.insert(_overlayEntry!);
+      Overlay.of(context).insert(_overlayEntry!);
     }
   }
 
@@ -177,7 +177,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
   }
 
   void _updateView() {
-    bool menuIsShowing = _controller?.menuIsShowing ?? false;
+    final menuIsShowing = _controller?.menuIsShowing ?? false;
     widget.menuOnChange?.call(menuIsShowing);
     if (menuIsShowing) {
       _showMenu();
@@ -196,7 +196,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
       if (mounted) {
         _childBox = context.findRenderObject() as RenderBox?;
         _parentBox =
-            Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+            Overlay.of(context).context.findRenderObject() as RenderBox?;
       }
     });
   }
@@ -274,15 +274,15 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
 
   @override
   void performLayout(Size size) {
-    Size contentSize = Size.zero;
-    Size arrowSize = Size.zero;
-    Offset contentOffset = Offset(0, 0);
-    Offset arrowOffset = Offset(0, 0);
+    var contentSize = Size.zero;
+    var arrowSize = Size.zero;
+    var contentOffset = Offset(0, 0);
+    var arrowOffset = Offset(0, 0);
 
-    double anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
-    double anchorTopY = anchorOffset.dy;
-    double anchorBottomY = anchorTopY + anchorSize.height;
-    _MenuPosition menuPosition = _MenuPosition.bottomCenter;
+    final anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
+    final anchorTopY = anchorOffset.dy;
+    final anchorBottomY = anchorTopY + anchorSize.height;
+    var menuPosition = _MenuPosition.bottomCenter;
 
     if (hasChild(_MenuLayoutId.content)) {
       contentSize = layoutChild(
@@ -303,7 +303,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       );
     }
 
-    bool isTop = false;
+    var isTop = false;
     if (position == null) {
       // auto calculate position
       isTop = anchorBottomY > size.height / 2;
@@ -387,7 +387,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       contentSize.width,
       contentSize.height,
     );
-    bool isBottom = false;
+    var isBottom = false;
     if (_MenuPosition.values.indexOf(menuPosition) < 3) {
       // bottom
       isBottom = true;
@@ -417,7 +417,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
 class _ArrowClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    Path path = Path();
+    final path = Path();
     path.moveTo(0, size.height);
     path.lineTo(size.width / 2, size.height / 2);
     path.lineTo(size.width, size.height);
@@ -425,7 +425,5 @@ class _ArrowClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return true;
-  }
+  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }

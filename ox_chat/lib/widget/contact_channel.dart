@@ -4,7 +4,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -91,7 +90,7 @@ class ChannelContactState extends State<ChannelContact> {
     mapData.clear();
     noteList.clear();
 
-    if (null == channelList || channelList?.length == 0) return;
+    if (channelList.length == 0) return;
 
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
@@ -126,7 +125,7 @@ class ChannelContactState extends State<ChannelContact> {
     _initIndexBarData();
     return Material(
       color: ThemeColor.color200,
-      child: channelList == null || channelList!.isEmpty
+      child: channelList.isEmpty
           ? _emptyWidget()
           : Stack(
               alignment: AlignmentDirectional.centerEnd,
@@ -343,11 +342,11 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         context,
             (context) => ChatChannelMessagePage(
           communityItem: ChatSessionModel(
-            chatId: widget.item.channelId!,
-            groupId: widget.item.channelId!,
+            chatId: widget.item.channelId,
+            groupId: widget.item.channelId,
             chatType: ChatType.chatGroup,
             chatName: widget.item.name!,
-            createTime: widget.item.createTime!,
+            createTime: widget.item.createTime,
             avatar: widget.item.picture!,
           ),
         ),
@@ -357,11 +356,11 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         context,
         (context) => ChatChannelMessagePage(
           communityItem: ChatSessionModel(
-            chatId: widget.item.channelId!,
-            groupId: widget.item.channelId!,
+            chatId: widget.item.channelId,
+            groupId: widget.item.channelId,
             chatType: ChatType.chatChannel,
             chatName: widget.item.name!,
-            createTime: widget.item.createTime!,
+            createTime: widget.item.createTime,
             avatar: widget.item.picture!,
           ),
         ),

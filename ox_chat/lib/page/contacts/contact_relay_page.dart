@@ -5,7 +5,6 @@ import 'package:ox_common/utils/adapt.dart';
 
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:flutter/services.dart';
 
 import 'package:chatcore/chat-core.dart';
 

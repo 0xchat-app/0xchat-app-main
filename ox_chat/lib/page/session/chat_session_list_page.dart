@@ -484,7 +484,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                   OXNavigator.pop(context);
                                   final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId);
                                   if (item.chatType == ChatType.chatSecret) {
-                                    Contacts.sharedInstance.close(item.chatId!);
+                                    Contacts.sharedInstance.close(item.chatId);
                                   } else if (item.chatType == ChatType.chatSingle) {
                                     Messages.deleteMessagesFromDB(
                                       where: '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ',
@@ -628,9 +628,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                     child: FutureBuilder<BadgeDB?>(
                       initialData: _badgeCache[item.chatId],
                       builder: (context, snapshot) {
-                        return (snapshot.data != null && snapshot.data!.thumb != null)
+                        return (snapshot.data != null)
                             ? OXCachedNetworkImage(
-                                imageUrl: snapshot.data!.thumb!,
+                                imageUrl: snapshot.data!.thumb,
                                 width: Adapt.px(24),
                                 height: Adapt.px(24),
                                 fit: BoxFit.cover,
@@ -776,7 +776,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 0),
-                  child: Text(item.createTime == null ? '' : OXDateUtils.convertTimeFormatString2(item.createTime! * 1000, pattern: 'MM-dd'),
+                  child: Text(item.createTime == null ? '' : OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
                       textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
                 ),
               ],
@@ -890,18 +890,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Future<bool> _getChatSessionMute(ChatSessionModel item) async {
     bool isMute = false;
     if (item.chatType == ChatType.chatSingle) {
-      UserDB? tempUserDB = Account.sharedInstance.userCache[item.chatId!];
+      UserDB? tempUserDB = Account.sharedInstance.userCache[item.chatId];
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }
     } else if (item.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId!];
+      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
       if (channelDB != null) {
         isMute = channelDB.mute ?? false;
       }
     }
-    if (isMute != _muteCache[item.chatId!]) {
-      _muteCache[item.chatId!] = isMute;
+    if (isMute != _muteCache[item.chatId]) {
+      _muteCache[item.chatId] = isMute;
     }
     return isMute;
   }
@@ -1111,11 +1111,11 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Future<bool> _checkIsMute(MessageDB message, int type) async {
     bool isMute = false;
     if (type == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId!];
+      ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId];
       isMute = channelDB?.mute ?? false;
       return isMute;
     }
-    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender!);
+    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
     isMute = tempUserDB?.mute ?? false;
     return isMute;
   }

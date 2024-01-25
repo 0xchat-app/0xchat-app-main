@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_login/page/login_page.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_login/utils/fade_animations_custom.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 

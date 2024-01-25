@@ -7,8 +7,7 @@ class CustomTabIndicator extends Decoration {
     this.insets = EdgeInsets.zero,
     this.width = 10,
     this.gradient = const LinearGradient(colors: [Colors.red,Colors.blue]),
-  }) : assert(borderSide != null),
-        assert(insets != null);
+  });
 
   final BorderRadius? borderRadius;
   final BorderSide borderSide;
@@ -42,8 +41,6 @@ class CustomTabIndicator extends Decoration {
   BoxPainter createBoxPainter([ VoidCallback? onChanged ]) => _UnderlinePainter(this, borderRadius, gradient,onChanged);
 
   Rect _indicatorRectFor(Rect rect, TextDirection textDirection) {
-    assert(rect != null);
-    assert(textDirection != null);
     final indicator = insets.resolve(textDirection).deflateRect(rect);
 
     final cw = (indicator.left + indicator.right) / 2;
@@ -72,8 +69,7 @@ class _UnderlinePainter extends BoxPainter {
       this.borderRadius,
       this.gradient,
       super.onChanged,
-      )
-      : assert(decoration != null);
+      );
 
   final CustomTabIndicator decoration;
   final BorderRadius? borderRadius;
@@ -81,7 +77,6 @@ class _UnderlinePainter extends BoxPainter {
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    assert(configuration != null);
     assert(configuration.size != null);
     final rect = offset & configuration.size!;
     final textDirection = configuration.textDirection!;

@@ -39,7 +39,7 @@ class UserAvatar extends StatelessWidget {
     final hasImage = (author.imageUrl != null) || author.imageUrl != '';
     final initials = getUserInitials(author);
 
-    Image placeholderImage = Image.asset(
+    final placeholderImage = Image.asset(
       'assets/images/icon_user_default.png',
       fit: BoxFit.contain,
       width: Adapt.px(60),
@@ -53,7 +53,7 @@ class UserAvatar extends StatelessWidget {
           : const EdgeInsets.only(right: 8),
       child: GestureDetector(
         onTap: () => onAvatarTap?.call(author),
-        child:  Container(
+        child:  SizedBox(
           width: Adapt.px(40),
           height: Adapt.px(40),
           child: ClipRRect(

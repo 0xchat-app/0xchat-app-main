@@ -71,7 +71,7 @@ class EcashScanPageState extends State<EcashScanPage> with SingleTickerProviderS
           ),
           Positioned(
               width: MediaQuery.of(context).size.width,
-              top: MediaQueryData.fromWindow(window).padding.top,
+              top: MediaQueryData.fromView(window).padding.top,
               child: Container(
                 height: Adapt.px(56),
                 margin: EdgeInsets.only(left: Adapt.px(12), right: Adapt.px(12)),

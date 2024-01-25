@@ -341,11 +341,11 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
       context,
       (context) => ChatGroupMessagePage(
         communityItem: ChatSessionModel(
-          chatId: widget.item.groupId!,
-          groupId: widget.item.groupId!,
+          chatId: widget.item.groupId,
+          groupId: widget.item.groupId,
           chatType: ChatType.chatGroup,
-          chatName: widget.item.name!,
-          createTime: widget.item.updateTime!,
+          chatName: widget.item.name,
+          createTime: widget.item.updateTime,
           avatar: widget.item.picture ?? '',
         ),
       ),

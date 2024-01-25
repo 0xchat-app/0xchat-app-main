@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -176,7 +175,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
                     padding: EdgeInsets.all(
                       Adapt.px(8),
                     ),
-                    child: _userQrCodeUrl!.isEmpty ? Container() : _qrCodeWidget(),
+                    child: _userQrCodeUrl.isEmpty ? Container() : _qrCodeWidget(),
                   ),
                 ),
                 Container(

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +8,8 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/date_utils.dart';
-import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -163,7 +160,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                         onTap: () async {
                           OXNavigator.pop(context);
                           final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId, isStranger: true);
-                          Contacts.sharedInstance.close(item.chatId!);
+                          Contacts.sharedInstance.close(item.chatId);
                           if (count > 0) {
                             _initData();
                           }
@@ -376,12 +373,12 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   Future<bool> _getChatSessionMute(ChatSessionModel csModel) async {
     bool isMute = false;
     if (csModel.chatType == ChatType.chatStranger || csModel.chatType == ChatType.chatSecretStranger) {
-      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId!);
+      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId);
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }
     } else if (csModel.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[csModel.chatId!];
+      ChannelDB? channelDB = Channels.sharedInstance.channels[csModel.chatId];
       if (channelDB != null) {
         isMute = channelDB.mute ?? false;
       }

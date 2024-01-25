@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';

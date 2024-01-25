@@ -4,7 +4,6 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';

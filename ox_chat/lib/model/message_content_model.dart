@@ -1,8 +1,5 @@
 
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_chat_ui/ox_chat_ui.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_data_cache.dart';
 
 class MessageContentModel{
   MessageType? contentType;

@@ -7,11 +7,9 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_calling/widgets/screen_select_dialog.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 
-import '../utils/turn.dart' if (dart.library.js) '../utils/turn_web.dart';
 
 enum SignalingStatus {
   ConnectionOpen,
@@ -499,7 +497,7 @@ class SignalingManager {
   }
 
   Future<void> _createDataChannel(Session session,
-      {label: 'fileTransfer'}) async {
+      {label = 'fileTransfer'}) async {
     try {
       RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
             ..maxRetransmits = 30;

@@ -106,10 +106,8 @@ class GiphyService {
         showLoading: false,
         useCache: true,
         useCacheCallback: (NetworkResponse cacheResponse) {
-          if(cacheResponse != null) {
-            parseAndConvertResult(response: cacheResponse);
-          }
-
+          parseAndConvertResult(response: cacheResponse);
+        
           if (!completer.isCompleted) {
             completer.complete(giphyGeneralModel);
           }

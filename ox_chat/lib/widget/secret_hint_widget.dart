@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/widget/rich_text_color.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -35,7 +34,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
   @override
   void initState() {
     super.initState();
-    _ssDB = Contacts.sharedInstance.secretSessionMap[widget.chatSessionModel.chatId!];
+    _ssDB = Contacts.sharedInstance.secretSessionMap[widget.chatSessionModel.chatId];
     _relayName = (_ssDB == null || _ssDB!.relay == null || _ssDB!.relay == 'null' || _ssDB!.relay!.isEmpty) ? '' : _ssDB!.relay!;
   }
 

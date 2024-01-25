@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
 

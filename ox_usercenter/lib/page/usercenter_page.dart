@@ -321,7 +321,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   badgeImgUrl == null
                       ? Container()
                       : OXCachedNetworkImage(
-                          imageUrl: badgeImgUrl!,
+                          imageUrl: badgeImgUrl,
                           placeholder: (context, url) => placeholderImage,
                           errorWidget: (context, url, error) =>
                               placeholderImage,
@@ -373,7 +373,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(120)),
               child: OXCachedNetworkImage(
-                imageUrl: headImgUrl!,
+                imageUrl: headImgUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => placeholderImage,
                 errorWidget: (context, url, error) => placeholderImage,

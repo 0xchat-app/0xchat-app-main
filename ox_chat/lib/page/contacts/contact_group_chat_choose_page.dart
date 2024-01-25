@@ -4,7 +4,6 @@ import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class ContactGroupChatChoosePage extends ContactGroupListPage {

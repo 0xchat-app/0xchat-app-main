@@ -6,7 +6,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
 import 'giphy_grid_view.dart';
-import 'giphy_picker.dart';
 import 'giphy_search_bar.dart';
 
 class GiphySearchPage extends StatefulWidget {

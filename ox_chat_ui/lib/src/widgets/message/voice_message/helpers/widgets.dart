@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 ///
 class Widgets {
   ///
-  static circle(
+  static Container circle(
     BuildContext context,
     double width,
     Color color, {
