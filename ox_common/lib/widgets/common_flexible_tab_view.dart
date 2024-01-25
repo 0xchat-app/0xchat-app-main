@@ -22,7 +22,7 @@ mixin FlexibleTabBarViewMixin<T extends StatefulWidget> on State<T> {
 
   @mustCallSuper
   Widget build(BuildContext context) {
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _notifySize());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
     return SizedBox();
   }
 }

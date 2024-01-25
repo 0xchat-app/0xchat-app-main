@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -217,7 +216,7 @@ class OXChatBinding {
 
   ChatSessionModel? syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
     final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if ( userdb == null || userdb!.pubKey.isEmpty) {
+    if ( userdb == null || userdb.pubKey.isEmpty) {
       return null;
     }
     updateMessageDB(messageDB);
@@ -248,7 +247,7 @@ class OXChatBinding {
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         sessionModel.unreadCount = tempModel.unreadCount += 1;
-        noticePromptToneCallBack(messageDB, tempModel.chatType!);
+        noticePromptToneCallBack(messageDB, tempModel.chatType);
       }
       if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
       sessionMap[messageDB.groupId] = tempModel;
@@ -265,7 +264,7 @@ class OXChatBinding {
       }
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
         sessionModel.unreadCount = 1;
-        noticePromptToneCallBack(messageDB, sessionModel.chatType!);
+        noticePromptToneCallBack(messageDB, sessionModel.chatType);
       }
       sessionMap[messageDB.groupId] = sessionModel;
       DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
@@ -373,10 +372,10 @@ class OXChatBinding {
 
   Future<ChatSessionModel?> getChatSession(String sender, String receiver, String decryptContent) async {
     final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if ( userdb == null || userdb!.pubKey.isEmpty) {
+    if ( userdb == null || userdb.pubKey.isEmpty) {
       return null;
     }
-    String chatId = sender == userdb!.pubKey ? receiver : sender;
+    String chatId = sender == userdb.pubKey ? receiver : sender;
     ChatSessionModel? chatSessionModel = sessionMap[chatId];
     if (chatSessionModel == null) {
       UserDB? userDB = Contacts.sharedInstance.allContacts[chatId];

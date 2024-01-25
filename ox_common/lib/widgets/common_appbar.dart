@@ -1,7 +1,6 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -52,7 +51,7 @@ class MediumTitleState extends State<MediumTitle> {
     return Container(
       margin: new EdgeInsets.only(
           left: Adapt.px(15),
-          top: kToolbarHeight + MediaQueryData.fromWindow(window).padding.top),
+          top: kToolbarHeight + MediaQueryData.fromView(window).padding.top),
       child: new Text(
         widget.title,
         style: TextStyle(
@@ -76,7 +75,7 @@ class LargeTitleState extends State<LargeTitle> {
     return Container(
       margin: new EdgeInsets.only(
           left: Adapt.px(15),
-          top: kToolbarHeight + MediaQueryData.fromWindow(window).padding.top),
+          top: kToolbarHeight + MediaQueryData.fromView(window).padding.top),
       child: new Text(
         widget.title,
         style: TextStyle(

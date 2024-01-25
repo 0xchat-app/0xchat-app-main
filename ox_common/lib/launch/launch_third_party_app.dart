@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:ox_common/ox_common.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_toast.dart';

@@ -6,9 +6,7 @@ import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
-import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class DecryptedCacheManager extends CacheManager {

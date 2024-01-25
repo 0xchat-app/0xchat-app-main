@@ -15,7 +15,7 @@ class NetAdapt {
   static double? _textScaleFactor;
 
   static init({int standardW = 0, int standardH = 0}) {
-    mediaQuery = MediaQueryData.fromWindow(window);
+    mediaQuery = MediaQueryData.fromView(window);
     _width = mediaQuery?.size.width;
     _height = mediaQuery?.size.height;
     _topbarH = mediaQuery?.padding.top;

@@ -7,7 +7,6 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
-import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class OXPush extends OXFlutterModule {

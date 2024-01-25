@@ -41,8 +41,6 @@ class BadgeModel {
 
   final List<String>? benefitsIcon;
 
-
-
   BadgeModel({
     this.badgeId = '',
     this.badgeName = '',
@@ -77,31 +75,30 @@ class BadgeModel {
     }
 
     return BadgeModel(
-        badgeId: json['badgeId'] ?? '',
-        badgeName: json['badgeName'] ?? '',
-        badgeImageUrl: json['badgeImageUrl'] ?? '',
-        identifies: json['identifies'] ?? '',
-        description: json['description'] ?? '',
-        thumbUrl: json['thumbUrl'] ?? '',
-        creator: json['creator'] ?? '',
-        creatorAbout: json['creatorAbout'] ?? '',
-        howToGet: json['howToGet'] ?? '',
-        benefits: benefitList,
-        benefitsIcon: benefitIconList,
+      badgeId: json['badgeId'] ?? '',
+      badgeName: json['badgeName'] ?? '',
+      badgeImageUrl: json['badgeImageUrl'] ?? '',
+      identifies: json['identifies'] ?? '',
+      description: json['description'] ?? '',
+      thumbUrl: json['thumbUrl'] ?? '',
+      creator: json['creator'] ?? '',
+      creatorAbout: json['creatorAbout'] ?? '',
+      howToGet: json['howToGet'] ?? '',
+      benefits: benefitList,
+      benefitsIcon: benefitIconList,
     );
   }
 
   factory BadgeModel.fromBadgeDB(BadgeDB badgeDB) {
     return BadgeModel(
-      badgeId: badgeDB.id,
-      badgeName: badgeDB.name,
-      badgeImageUrl: badgeDB.image,
-      identifies: badgeDB.d,
-      description: badgeDB.description,
-      thumbUrl: badgeDB.thumb,
-      creator: badgeDB.creator,
-      createTime: badgeDB.createTime
-    );
+        badgeId: badgeDB.id,
+        badgeName: badgeDB.name,
+        badgeImageUrl: badgeDB.image,
+        identifies: badgeDB.d,
+        description: badgeDB.description,
+        thumbUrl: badgeDB.thumb,
+        creator: badgeDB.creator,
+        createTime: badgeDB.createTime);
   }
 
   @override
@@ -109,8 +106,7 @@ class BadgeModel {
     return 'BadgeModel{badgeName: $badgeName, badgeImageUrl: $badgeImageUrl, badgeId: $badgeId, identifies: $identifies, description: $description, thumbUrl: $thumbUrl, localImage: $localImage, creator: $creator, createTime: $createTime, obtainedTime: $obtainedTime},creatorAbout: $creatorAbout';
   }
 
-  static Future<List<BadgeModel>> getDefaultBadge({BuildContext? context,bool? showLoading}) async {
-
+  static Future<List<BadgeModel>> getDefaultBadge({BuildContext? context, bool? showLoading}) async {
     List<BadgeModel> defaultBadgeModelList = [];
     Completer<List<BadgeModel>> completer = Completer();
 
@@ -126,26 +122,23 @@ class BadgeModel {
           needRSA: false,
           needCommonParams: false,
           useCache: true, useCacheCallback: (NetworkResponse cacheResponse) {
-        if (cacheResponse != null) {
-          Map<String, dynamic> result = cacheResponse.data;
-          if (result['code'] == "000000") {
-            List<dynamic> badgeMapList = result['data'];
-            parseAndConvertResult(badgeMapList);
-          }
+        Map<String, dynamic> result = cacheResponse.data;
+        if (result['code'] == "000000") {
+          List<dynamic> badgeMapList = result['data'];
+          parseAndConvertResult(badgeMapList);
+        }
 
-          if(!completer.isCompleted){
-            completer.complete(defaultBadgeModelList);
-          }
+        if (!completer.isCompleted) {
+          completer.complete(defaultBadgeModelList);
         }
       });
       parseAndConvertResult(response.data);
       return defaultBadgeModelList;
-    } catch (e,s) {
+    } catch (e, s) {
       LogUtil.e("get default Badge request failed, used cache data : $e \r\n $s");
-
-      try{
+      try {
         defaultBadgeModelList = await completer.future;
-      }catch(error){
+      } catch (error) {
         LogUtil.e("retrieving cache data from future failed + $e");
       }
     }

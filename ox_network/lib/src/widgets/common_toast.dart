@@ -56,7 +56,7 @@ class CommonToast {
         ),
       );
     });
-    Overlay.of(context)?.insert(_entry!);
+    Overlay.of(context).insert(_entry!);
     Future.delayed(Duration(milliseconds: duration)).then((value) {
       // You can remove layers by calling OverlayEntry's remove method.
       _entry?.remove();

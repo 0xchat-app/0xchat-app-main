@@ -138,8 +138,7 @@ class LabeledToggle extends StatefulWidget {
         this.transitionType = TextTransitionTypes.SCALE,
         this.rotationAnimation = false,
         this.child, this.isNeedChanged,
-    })  : assert(thumbSize != null),
-          super(key: key);
+    })  : super(key: key);
 
     const LabeledToggle.theme({
         Key? key,
@@ -160,8 +159,7 @@ class LabeledToggle extends StatefulWidget {
         this.rotationAnimation = false,
         this.child, this.onTextSize, this.offTextSize,
         this.textPadding, this.isNeedChanged
-    })  : assert(thumbSize != null),
-          onThumbColor = offColor,
+    })  : onThumbColor = offColor,
           onBorderColor = offColor,
           onBkColor = onColor,
           offThumbColor = onColor,

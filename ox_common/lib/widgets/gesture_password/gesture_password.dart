@@ -32,7 +32,7 @@ class _GesturePasswordState extends State<GesturePassword> {
 
   @override
   void initState() {
-    double hor = (widget.width??MediaQueryData.fromWindow(ui.window).size.width) / 6;
+    double hor = (widget.width??MediaQueryData.fromView(ui.window).size.width) / 6;
     double ver = widget.height / 6;
     //The center point of each circle
     for (int i = 0; i < 9; i++) {
@@ -46,7 +46,7 @@ class _GesturePasswordState extends State<GesturePassword> {
   @override
   Widget build(BuildContext context) {
     var size = new Size(
-        widget.width??MediaQueryData.fromWindow(ui.window).size.width, widget.height);
+        widget.width??MediaQueryData.fromView(ui.window).size.width, widget.height);
     return new GestureDetector(
       onPanUpdate: (DragUpdateDetails details) {
         setState(() {

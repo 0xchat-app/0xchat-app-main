@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -250,18 +251,8 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             intent.setClass(mContext, PermissionActivity.class);
             mActivity.startActivityForResult(intent, READ_IMAGE);
         } else {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
-                intent.putExtra(PermissionActivity.PERMISSIONS, new String[]{
-                                Manifest.permission.READ_MEDIA_IMAGES,
-                                Manifest.permission.READ_MEDIA_VIDEO
-                        }
-                );
-                intent.setClass(mContext, PermissionActivity.class);
-                mActivity.startActivityForResult(intent, READ_IMAGE);
-            } else {
-                intent.setClass(mContext, SelectPicsActivity.class);
-                mActivity.startActivityForResult(intent, SELECT);
-            }
+            intent.setClass(mContext, SelectPicsActivity.class);
+            mActivity.startActivityForResult(intent, SELECT);
         }
     }
 

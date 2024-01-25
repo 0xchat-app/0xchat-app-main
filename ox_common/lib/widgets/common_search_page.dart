@@ -98,7 +98,7 @@ abstract class CommonSearchPageState<T extends StatefulWidget> extends State<T> 
     return PreferredSize(
         preferredSize: Size.fromHeight(Adapt.px(50)),
         child: Container(
-          margin: EdgeInsets.only(top: MediaQueryData.fromWindow(window).padding.top + Adapt.px(4),bottom: Adapt.px(12)),
+          margin: EdgeInsets.only(top: MediaQueryData.fromView(window).padding.top + Adapt.px(4),bottom: Adapt.px(12)),
           child: CommonSearchTextField(
             controller: controller,
             inputCallBack: onInputCallBack,

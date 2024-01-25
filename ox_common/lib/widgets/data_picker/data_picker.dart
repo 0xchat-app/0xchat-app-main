@@ -440,7 +440,6 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
   _BottomPickerLayout(
       this.progress,
        {
-        this.itemCount,
         this.showTitleActions,
         this.bottomPadding = 0,
       });
