@@ -49,6 +49,7 @@ class OXWallet extends OXFlutterModule {
   Map<String, Function> get interfaces => {
     'walletPageWidget': walletPageWidget,
     'getDefaultMint': getDefaultMint,
+    'isWalletAvailable': isWalletAvailable,
   };
 
   @override
@@ -65,5 +66,9 @@ class OXWallet extends OXFlutterModule {
 
   IMint? getDefaultMint() {
     return EcashManager.shared.defaultIMint;
+  }
+
+  bool isWalletAvailable() {
+    return EcashManager.shared.isWalletAvailable;
   }
 }

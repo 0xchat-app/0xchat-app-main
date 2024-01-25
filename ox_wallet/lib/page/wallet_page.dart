@@ -23,7 +23,7 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  final _defaultMintURL = 'https://legend.lnbits.com/cashu/api/v1/AptDNABNBXv8gpuywhx6NV';
+  final _defaultMintURL = 'https://8333.space:3338';
   final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(false);
 
   @override
@@ -92,6 +92,7 @@ class _WalletPageState extends State<WalletPage> {
       OXLoading.dismiss();
       if (mint != null) {
         EcashManager.shared.addMint(mint);
+        EcashManager.shared.setWalletAvailable();
         OXNavigator.pushPage(context, (context) => const WalletHomePage());
       } else {
         CommonToast.instance.show(context, 'Add default mint Failed, Please try again.');

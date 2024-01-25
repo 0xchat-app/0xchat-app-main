@@ -27,6 +27,7 @@ import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -75,7 +76,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           title: 'ox_usercenter.wallet',
           iconName: 'icon_settings_wallet.png',
           onTap: () async {
-            if ((await Cashu.mintList()).isNotEmpty) {
+            final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
+            if (isWalletAvailable) {
               await OXModuleService.pushPage(context, 'ox_wallet', 'WalletHomePage', {});
             } else {
               await OXModuleService.pushPage(context, 'ox_wallet', 'WalletPage', {});
