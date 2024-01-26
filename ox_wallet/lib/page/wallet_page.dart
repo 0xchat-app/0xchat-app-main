@@ -37,38 +37,40 @@ class _WalletPageState extends State<WalletPage> {
     body:SafeArea(
       child: SizedBox(
         width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CommonImage(
-                iconName: 'icon_wallet_logo.png',
-                size: 100.px,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CommonImage(
+                  iconName: 'icon_wallet_logo.png',
+                  size: 100.px,
+                  package: 'ox_wallet',
+                ).setPaddingOnly(top: 44.px),
+              CommonImage(
+                iconName: 'icon_wallet_symbol.png',
+                height: 25.px,
+                width: 100.px,
                 package: 'ox_wallet',
-              ).setPaddingOnly(top: 44.px),
-            CommonImage(
-              iconName: 'icon_wallet_symbol.png',
-              height: 25.px,
-              width: 100.px,
-              package: 'ox_wallet',
-            ).setPaddingOnly(top: 16.px),
-            Text(
-                'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16.px,
-                  color: ThemeColor.color0,
-                  height: 24.px / 16.px
-                ),
-              ).setPaddingOnly(top: 56.px),
-            const Spacer(),
-            ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
-            EcashCommonButton(text: 'Add mint URL',onTap: _addMint).setPaddingOnly(top: 18.px),
-            PrivacyPolicyWidget(controller: _hasAgreedToPrivacyPolicy,).setPaddingOnly(top: 18.px),
-            SizedBox(height: 40.px,)
-            ],
-          ).setPadding(EdgeInsets.symmetric(horizontal: 30.px)),
+              ).setPaddingOnly(top: 16.px),
+              Text(
+                  'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16.px,
+                    color: ThemeColor.color0,
+                    height: 24.px / 16.px
+                  ),
+                ).setPaddingOnly(top: 56.px),
+              const Spacer(),
+              ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
+              EcashCommonButton(text: 'Add mint URL',onTap: _addMint).setPaddingOnly(top: 18.px),
+              PrivacyPolicyWidget(controller: _hasAgreedToPrivacyPolicy,).setPaddingOnly(top: 18.px),
+              SizedBox(height: 40.px,)
+              ],
+            ).setPadding(EdgeInsets.symmetric(horizontal: 30.px)),
+        ),
       ),
     ),
     );
