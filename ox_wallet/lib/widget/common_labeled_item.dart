@@ -161,8 +161,9 @@ class StepItemModel {
   String? title;
   String? subTitle;
   final String? content;
+  Widget Function()? contentBuilder;
   String? badge;
   final void Function(StepItemModel value)? onTap;
 
-  StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap, this.key});
+  StepItemModel({required this.title, this.subTitle, this.content, this.contentBuilder, this.badge, this.onTap, this.key});
 }

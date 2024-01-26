@@ -26,7 +26,6 @@ import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 
 ///Title: settings_page

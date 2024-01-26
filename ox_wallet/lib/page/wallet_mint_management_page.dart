@@ -17,6 +17,7 @@ import 'package:ox_wallet/utils/ecash_dialog_helper.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
+import 'package:ox_wallet/widget/switch_widget.dart';
 
 class WalletMintManagementPage extends StatefulWidget {
   final IMint mint;
@@ -45,7 +46,7 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
-      StepItemModel(title: _isDefaultMint ? 'Remove from Default' : 'Set as default mint',onTap: _handleDefaultMint),
+      StepItemModel(title: 'Set as default mint',contentBuilder: () => SwitchWidget(value: _isDefaultMint,onChanged: _handleDefaultMint,)),
       StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
     ];
     _dangerZoneList = [
@@ -87,13 +88,11 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
       child: StepIndicatorItem(
         height: 52.px,
         title: item.title,
-        content: item.content != null
-            ? Expanded(
-                child: Text(item.content!,
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.clip,
-                    style: TextStyle(fontSize: 14.px)))
-            : null,
+        content: item.contentBuilder != null
+            ? item.contentBuilder!()
+            : (item.content != null
+            ? Expanded(child: Text(item.content!, textAlign: TextAlign.end, overflow: TextOverflow.clip, style: TextStyle(fontSize: 14.px)))
+            : null),
         badge: item.badge != null ? Flexible(child: Text(item.badge!, overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 14.px))) : null,
         onTap: item.onTap != null ? () => item.onTap!(item) : null,
       ),
@@ -135,7 +134,7 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     });
   }
 
-  Future<void> _handleDefaultMint(StepItemModel stepItemModel) async {
+  Future<void> _handleDefaultMint(bool isDefaultMint) async {
     if(_isDefaultMint){
       await EcashManager.shared.removeDefaultMint();
     }else{
@@ -143,8 +142,6 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     }
     setState(() {
       _isDefaultMint = !_isDefaultMint;
-      stepItemModel.title =
-      _isDefaultMint ? 'Remove from Default' : 'Set as default mint';
       if(context.mounted) CommonToast.instance.show(context, 'Updated the default mint');
     });
   }

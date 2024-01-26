@@ -49,28 +49,21 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
               child: _buildItem(
                 title: _mintTitle(index),
                 subTitle: '${mintItems[index].balance} Sats',
-                onTap: () => OXNavigator.pushPage(
-                    context,
-                    (context) => WalletMintManagementPage(mint: mintItems[index],)).then((value) {
-                  setState(() {});
-                }),
+                showBadge: EcashManager.shared.isDefaultMint(mintItems[index]),
+                onTap: () => _clickItem(index),
               ),
             ),
             separatorBuilder: (context,index) => SizedBox(height: 12.px,),
             itemCount: mintItems.length,
           ),
           mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
-          ThemeButton(text: 'Add Mint',height: 48.px,onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) {
-            if (value != null && value as bool) {
-                setState(() {});
-              }
-            }),),
+          ThemeButton(text: 'Add Mint',height: 48.px,onTap: _addMint),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
   }
 
-  Widget _buildItem({required String title,required String subTitle,Function()? onTap}){
+  Widget _buildItem({required String title, required String subTitle, required bool showBadge, Function()? onTap}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -82,7 +75,12 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title ?? '',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px,overflow: TextOverflow.ellipsis),),
+                Row(
+                  children: [
+                    showBadge ? CommonImage(iconName: 'icon_default_mint.png',size: 22.px,package: 'ox_wallet',).setPaddingOnly(right: 4.px) : Container(),
+                    Expanded(child: Text(title ?? '',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px,overflow: TextOverflow.ellipsis),)),
+                  ],
+                ),
                 Text(subTitle,style: TextStyle(fontSize: 14.px,height: 20.px / 14.px),),
               ],
             ),
@@ -97,11 +95,15 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
     );
   }
 
-  String _mintTitle(int index){
-    final defaultTitle = mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL;
-    final suffix = index == 0 ? ' (Default)' : '';
-    final result = '$defaultTitle$suffix';
-    if(EcashManager.shared.defaultIMint == null) return defaultTitle;
-    return result;
-  }
+  String _mintTitle(int index) => mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL;
+
+  void _clickItem(int index) => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)).then((value) {
+        setState(() {});
+      });
+
+  void _addMint() => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) {
+        if (value != null && value as bool) {
+          setState(() {});
+        }
+      });
 }
