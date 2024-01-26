@@ -55,7 +55,7 @@ class _WalletPageState extends State<WalletPage> {
                 package: 'ox_wallet',
               ).setPaddingOnly(top: 16.px),
               Text(
-                'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
+                'You can either use the default mint\r\nor\r\nintroduce custom mint',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontWeight: FontWeight.w400,
