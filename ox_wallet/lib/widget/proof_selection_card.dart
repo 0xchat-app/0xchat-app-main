@@ -58,6 +58,7 @@ class _ProofSelectionCardState extends State<ProofSelectionCard> {
           iconName: isSelected ? 'icon_item_selected.png' : 'icon_item_unselected.png',
           size: 24.px,
           package: 'ox_wallet',
+          useTheme: true,
         ) : Container(),
       ),
     );

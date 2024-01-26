@@ -3,6 +3,8 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/contact_choose_page.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
@@ -56,8 +58,13 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
             children: [
               SatsAmountCard(controller: _controller, enable: false,).setPaddingOnly(top: 12.px),
               _buildTokenCard(),
-              // ThemeButton(text: 'Share', height: 48.px,onTap: () => WalletUtils.takeScreen(_newTokenPageScreenshotKey),).setPaddingOnly(top: 24.px)
-              ThemeButton(text: 'Share', height: 48.px,onTap: () => OXNavigator.presentPage(context, (context) => const ContactChoosePage<GroupDB>(contactType:ContactType.contact))),
+              ThemeButton(
+                  text: 'Share',
+                  height: 48.px,
+                  onTap: () => OXNavigator.presentPage(
+                      context,
+                      (context) => ContactChoosePage<UserDB>(contactType: ContactType.contact, onSubmitted: _shareCashuToken,)),
+              ).setPaddingOnly(top: 24.px),
             ],
           ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
         ),
@@ -93,6 +100,17 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
         ],
       ).setPaddingOnly(top: 31.px),
     );
+  }
+
+  void _shareCashuToken(List<UserDB> userList){
+    if(userList.isEmpty){
+      CommonToast.instance.show(context, 'Please select share contact');
+      return;
+    }
+    for (var user in userList) {
+      OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,token]);
+    }
+    OXNavigator.pop(context);
   }
 
   @override

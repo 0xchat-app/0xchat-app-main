@@ -128,14 +128,16 @@ class StepIndicatorItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title ?? '',style: TextStyle(fontWeight: FontWeight.w400,fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px),),
+                Text(title ?? '',style: TextStyle(fontWeight: FontWeight.w400,fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px,overflow: TextOverflow.ellipsis),),
                 SizedBox(height: contentPadding,),
                 if(subTitle != null) Text(subTitle!,style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14.px,color: ThemeColor.color100,height: 20.px / 14.px),),
               ],
             ),
+            SizedBox(width: 8.px,),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   badge ?? Container(),
                   content ??
@@ -159,8 +161,9 @@ class StepItemModel {
   String? title;
   String? subTitle;
   final String? content;
+  Widget Function()? contentBuilder;
   String? badge;
   final void Function(StepItemModel value)? onTap;
 
-  StepItemModel({required this.title, this.subTitle, this.content, this.badge, this.onTap, this.key});
+  StepItemModel({required this.title, this.subTitle, this.content, this.contentBuilder, this.badge, this.onTap, this.key});
 }

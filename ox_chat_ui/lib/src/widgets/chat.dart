@@ -3,19 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
-import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
-import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
+import 'package:scroll_to_index/scroll_to_index.dart';
 
-import '../models/giphy_image.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../models/bubble_rtl_alignment.dart';
 import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
+import '../models/giphy_image.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
 import '../models/unread_header_data.dart';
@@ -32,7 +32,6 @@ import 'state/inherited_l10n.dart';
 import 'state/inherited_user.dart';
 import 'typing_indicator.dart';
 import 'unread_header.dart';
-import 'dart:io';
 
 enum ChatStatus {
   Unknown,
@@ -409,7 +408,7 @@ class ChatState extends State<Chat> {
   List<PreviewImage> _gallery = [];
   PageController? _galleryPageController;
   bool _hadScrolledToUnreadOnOpen = false;
-  bool _isImageViewVisible = false;
+  final bool _isImageViewVisible = false;
 
   /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
   final Map<String, int> _autoScrollIndexById = {};

@@ -43,11 +43,7 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => _shareController.value = !_shareController.value,
-                child: CommonImage(
-                  iconName: 'icon_share.png',
-                  size: 24.px,
-                  package: 'ox_wallet',
-                ).setPaddingOnly(right: 20.px),
+                child:Text('Pay',style: TextStyle(fontSize: 18.sp,color: ThemeColor.color0)).setPaddingOnly(right: 15.px, top: 5.px),
               ),
             ],
           ),

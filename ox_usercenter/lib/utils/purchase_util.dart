@@ -1,10 +1,8 @@
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_network/network_manager.dart';
 import 'package:ox_common/network/network_general.dart';
 import 'package:ox_usercenter/model/product_list_entity.dart';

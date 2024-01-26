@@ -3,9 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_helper.dart';
-import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
-import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -400,7 +398,7 @@ class ChatMessageBuilder {
                     Visibility(
                       visible: isOpened,
                       child: Text(
-                        'Opened',
+                        'Redeemed',
                         style: TextStyle(
                           color: ThemeColor.white,
                           fontSize: 12.sp,

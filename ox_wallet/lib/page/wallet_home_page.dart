@@ -7,10 +7,10 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_wallet/page/wallet_mint_list_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
-import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
+import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletHomePage extends StatefulWidget {
@@ -20,12 +20,10 @@ class WalletHomePage extends StatefulWidget {
   State<WalletHomePage> createState() => _WalletHomePageState();
 }
 
-class _WalletHomePageState extends State<WalletHomePage> {
+class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMixin{
   final double appBarHeight = 56.px;
 
   final ScrollController _scrollController = ScrollController();
-
-  double _offset = 0;
 
   double _opacity = 0;
 
@@ -34,27 +32,41 @@ class _WalletHomePageState extends State<WalletHomePage> {
 
   @override
   void initState() {
-    _scrollController.addListener(() {
-      setState(() {
-        if(_scrollController.offset > 140) return;
-        if(_scrollController.offset < 0) return;
-        _offset = _scrollController.offset;
-        _opacity = _scrollController.offset * 0.1;
-        if(_opacity > 1) _opacity = 1;
-        if(_opacity < 0) _opacity = 0;
-      });
-    });
+    _scrollController.addListener(_scrollListener);
     _getRecentTransaction();
-    _balanceChangedListener = EcashListener(onEcashBalanceChanged: _onBalanceChanged);
+    _balanceChangedListener = EcashListener(onEcashBalanceChanged: (value)=>_onBalanceChanged,onInvoicePaidChanged: (value)=>_onBalanceChanged());
     Cashu.addInvoiceListener(_balanceChangedListener);
     super.initState();
   }
 
-  void _onBalanceChanged(IMint mint){
+  void _onBalanceChanged(){
     _getRecentTransaction();
-    if(mounted){
-      setState(() {
-      });
+  }
+
+  void _scrollListener(){
+    setState(() {
+      //The height:36 ,represents the sum of font size and margins(18 + 12)
+      if(_scrollController.offset < 36) {
+        _opacity = 0;
+        return;
+      }
+      _opacity = _scrollController.offset * 0.01;
+      if(_opacity > 1) _opacity = 1;
+      if(_opacity < 0) _opacity = 0;
+    });
+  }
+
+  @override
+  stateViewCallBack(CommonStateView commonStateView) {
+    switch (commonStateView) {
+      case CommonStateView.CommonStateView_None:
+        break;
+      case CommonStateView.CommonStateView_NetworkError:
+        break;
+      case CommonStateView.CommonStateView_NoData:
+        break;
+      case CommonStateView.CommonStateView_NotLogin:
+        break;
     }
   }
 
@@ -78,107 +90,23 @@ class _WalletHomePageState extends State<WalletHomePage> {
             left: 0,
             right: 0,
             top: 0,
-            child: AppBar(
-              title: AnimatedOpacity(
-                  opacity: _opacity,
-                  duration: const Duration(milliseconds: 100),
-                  child: const Text('Wallet'),
-                ),
-                backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                icon: CommonImage(
-                  iconName: "icon_back_left_arrow.png",
-                  width: 24.px,
-                  height: 24.px,
-                  useTheme: true,
-                ),
-                onPressed: () => OXNavigator.pop(context),
-              ),
-              actions: [
-                GestureDetector(
-                  child: CommonImage(
-                      iconName: 'icon_wallet_more.png',
-                      width: 24.px,
-                      height: 24.px,
-                      package: 'ox_wallet',
-                    ).setPadding(EdgeInsets.only(right: 24.px)),
-                  onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintListPage()),
-                ),
-                ],
-            ),
+            child: _buildAppBar(),
           ),
           Positioned(
+            right: 0,
             left: 0,
-            right: -10.px,
             top: statusBarHeight + appBarHeight,
-            child: _buildTitle(),
-          ),
-          Positioned(
-              right: -20,
-              top: statusBarHeight + appBarHeight + 10,
-              child: CommonImage(
-                iconName: 'icon_wallet_subtract.png',
-                width: 160.px,
-                height: 160.px,
-                package: 'ox_wallet',
-              ),
+            height: height - (statusBarHeight + appBarHeight),
+            child: NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (context,inner){
+                return [
+                    _buildInfoArea(),
+                  ];
+                },
+              body: _buildTransactionList(),
             ),
-          AnimatedPositioned(
-              left: 0,
-              right: 0,
-              top: (statusBarHeight + appBarHeight + 140.px) - _offset,
-              // height: height - appBarHeight - statusBarHeight - 140,
-              height: height,
-              duration: const Duration(milliseconds: 100),
-              child: Container(
-                padding: EdgeInsets.all(24.px),
-                decoration: BoxDecoration(
-                  color: ThemeColor.color190,
-                  borderRadius: BorderRadius.horizontal(left: Radius.circular(12.px),right: Radius.circular(12.px))
-                ),
-                child: CustomScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Text(
-                        'Recent Transaction',
-                        style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: 16.px,
-                            fontWeight: FontWeight.w600,),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: 16.px,)
-                    ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-                        final record = _recentTransaction[index];
-                        final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
-                        final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
-                        return TransactionItem(
-                            title: record.type.name,
-                            subTitle: WalletUtils.formatTimeAgo(record.timestamp.toInt()),
-                            info: '$amount sats',
-                            iconName: iconName,
-                            onTap: (){
-                              if(record.type == IHistoryType.eCash || record.type == IHistoryType.lnInvoice){
-                                OXNavigator.pushPage(context, (context) => WalletTransactionRecord(entry: record,));
-                              }
-                            },
-                          );
-                        },
-                        childCount: _recentTransaction.length,
-                      ),
-                    ),
-                  ],
-                ),
-                ),
-              ),
+          ),
           Positioned(
               left: 51.px,
               right: 51.px,
@@ -191,26 +119,88 @@ class _WalletHomePageState extends State<WalletHomePage> {
     );
   }
 
+  Widget _buildAppBar() {
+    return AppBar(
+      title: AnimatedOpacity(
+        opacity: _opacity,
+        duration: const Duration(milliseconds: 100),
+        child: const Text('Wallet'),
+      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        icon: CommonImage(
+          iconName: "icon_back_left_arrow.png",
+          width: 24.px,
+          height: 24.px,
+          useTheme: true,
+        ),
+        onPressed: () => OXNavigator.popToRoot(context),
+      ),
+      actions: [
+        GestureDetector(
+          child: CommonImage(
+            iconName: 'icon_wallet_more.png',
+            width: 24.px,
+            height: 24.px,
+            package: 'ox_wallet',
+          ).setPadding(EdgeInsets.only(right: 24.px)),
+          onTap: () => OXNavigator.pushPage(context, (context) => const WalletMintListPage()),
+        ),
+      ],
+    );
+  }
 
   Widget _buildTitle() {
-    return Center(
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 12.px,horizontal: 24.px),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(top: 12.px,left: 24.px),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            "Wallet",
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w400,height: 25.px / 18.px),
+          ),
+          SizedBox(
+            height: 4.px,
+          ),
+          Text(
+            "${WalletUtils.formatAmountNumber(EcashService.totalBalance())} sats",
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600,height: 45.px / 32.px),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoArea(){
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    return SliverAppBar(
+      backgroundColor: Colors.transparent,
+      leading: Container(),
+      toolbarHeight: 140.px - statusBarHeight,
+      flexibleSpace: SizedBox(
+        child: Stack(
           children: [
-            Text(
-              "Wallet",
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w400),
+            Positioned(
+              left: 0,
+              right: 0,
+              child: _buildTitle(),
             ),
-            SizedBox(
-              height: 4.px,
-            ),
-            Text(
-              "${EcashService.totalBalance()} sats",
-              style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w600),
+            Positioned(
+              right: -20.px,
+              top: 12.px,
+              child: CommonImage(
+                iconName: 'icon_wallet_subtract.png',
+                width: 160.px,
+                height: 160.px,
+                package: 'ox_wallet',
+              ),
             ),
           ],
         ),
@@ -218,9 +208,74 @@ class _WalletHomePageState extends State<WalletHomePage> {
     );
   }
 
+  Widget _buildTransactionList() {
+    return Container(
+      padding: EdgeInsets.all(24.px),
+      decoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(12.px),topRight: Radius.circular(12.px))
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recent Transaction',
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: 16.px,
+              fontWeight: FontWeight.w600,),
+          ),
+          SizedBox(height: 16.px,),
+          Expanded(
+            child: commonStateViewWidget(
+              context,
+              ListView.builder(
+                itemExtent: 53.px,
+                padding: EdgeInsets.only(bottom: 68.px + 10.px),
+                itemBuilder: (BuildContext context, int index){
+                  final record = _recentTransaction[index];
+                  final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
+                  final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
+                  return TransactionItem(
+                    title: record.type.name,
+                    subTitle: _getTransactionItemSubtitle(record),
+                    info: '$amount sats',
+                    iconName: iconName,
+                    onTap: (){
+                      if(record.type == IHistoryType.eCash || record.type == IHistoryType.lnInvoice){
+                        OXNavigator.pushPage(context, (context) => WalletTransactionRecord(entry: record,));
+                      }
+                    },
+                  );
+                },
+                itemCount: _recentTransaction.length,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getTransactionItemSubtitle(IHistoryEntry entry){
+    final time = WalletUtils.formatTimeAgo(entry.timestamp.toInt());
+    final memo = entry.memo?.isEmpty ?? true ? '-' : entry.memo;
+    return '$time · $memo';
+  }
+
   _getRecentTransaction() async {
     _recentTransaction = await EcashService.getHistoryList();
-    setState(() {});
+    _recentTransaction.isEmpty ? updateStateView(CommonStateView.CommonStateView_NoData) : updateStateView(CommonStateView.CommonStateView_None);
+    if(mounted){
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    Cashu.removeInvoiceListener(_balanceChangedListener);
+    super.dispose();
   }
 }
 
@@ -247,6 +302,7 @@ class TransactionItem extends StatelessWidget {
               iconName: iconName ?? 'icon_transaction_send.png',
               size: 24.px,
               package: 'ox_wallet',
+              useTheme: true,
             ),
             SizedBox(width: 8.px,),
             Expanded(

@@ -42,8 +42,8 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
-        title: 'Create Lightning invoice',
-        subTitle: 'Receive Ecash by Paying a Lightning invoice',
+        title: 'Deposit Ecash',
+        subTitle: 'Deposit Ecash by Paying a Lightning invoice',
         onTap: () => _handlePageAction(ChooseType.createInvoice),
       )
     ];
@@ -57,8 +57,8 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
-        title: 'Pay Lightning invoice',
-        subTitle: 'Send your funds to a lightning node.',
+        title: 'Withdraw Ecash',
+        subTitle: 'Withdraw your funds to a lightning node.',
         onTap: () => _handlePageAction(ChooseType.payInvoice),
       )
     ];
@@ -193,6 +193,7 @@ class NavigationBarItem extends StatelessWidget {
             iconName: iconName,
             size: 24.px,
             package: 'ox_wallet',
+            useTheme: true,
           ),
           SizedBox(height: 4.px,),
           Text(

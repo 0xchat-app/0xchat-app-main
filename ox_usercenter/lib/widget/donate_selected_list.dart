@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_usercenter/widget/custom_gradient_border_widget.dart';
 
 class DonateSelectedList extends StatefulWidget {

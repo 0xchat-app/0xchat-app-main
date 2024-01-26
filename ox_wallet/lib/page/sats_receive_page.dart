@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
@@ -40,26 +41,33 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   String get note => _noteEditController.text;
   String? get invoice => _invoiceNotifier.value;
 
+  String _amountLastInput = '', _noteLastInput = '';
+
   @override
   void initState() {
     _amountEditController.text = '21';
+    _amountLastInput = amount;
     _createLightningInvoice();
     _amountFocus.addListener(() => _focusChanged(_amountFocus));
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
     payInvoiceListener = EcashListener(onInvoicePaidChanged: _onInvoicePaid);
     Cashu.addInvoiceListener(payInvoiceListener);
-    widget.shareController?.addListener(() {
-      WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
+    widget.shareController?.addListener(() async {
+      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
+      // WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
     });
     super.initState();
   }
 
   void _focusChanged(FocusNode focusNode) {
-    if (focusNode.hasFocus) {
-      _invoiceNotifier.value = '';
-      _expiredTimeNotifier.value = 0;
-    } else {
-      _createLightningInvoice();
+    if(!focusNode.hasFocus){
+      if(amount == _amountLastInput && note == _noteLastInput){
+        return;
+      }else{
+        _amountLastInput = amount;
+        _noteLastInput = note;
+        _createLightningInvoice();
+      }
     }
   }
 
@@ -184,6 +192,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   Future<void> _createLightningInvoice() async {
     if(EcashManager.shared.defaultIMint == null) return;
     int amountSats = int.parse(amount);
+    _updateLoadingStatus();
     Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint!, amount: amountSats);
     if(receipt != null && receipt.request.isNotEmpty){
       _invoiceNotifier.value = receipt.request;
@@ -192,6 +201,11 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
       return;
     }
     _invoiceNotifier.value = null;
+  }
+
+  void _updateLoadingStatus() {
+    _invoiceNotifier.value = '';
+    _expiredTimeNotifier.value = 0;
   }
 
   @override

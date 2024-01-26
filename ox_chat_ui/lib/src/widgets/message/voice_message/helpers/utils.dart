@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Get screen media.
 final MediaQueryData media =
-    MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+    MediaQueryData.fromView(WidgetsBinding.instance.window);
 
 /// This extention help us to make widget responsive.
 extension NumberParsing on num {

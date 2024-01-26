@@ -19,7 +19,8 @@ class ContactChoosePage<T> extends StatefulWidget {
   final ContactType? contactType;
   final String? title;
   final String? searchBarHintText;
-  const ContactChoosePage({super.key, this.contactType, this.title, this.searchBarHintText});
+  final ValueChanged<List<T>>? onSubmitted;
+  const ContactChoosePage({super.key, this.contactType, this.title, this.searchBarHintText, this.onSubmitted});
 
   @override
   State<ContactChoosePage<T>> createState() => _ContactChoosePageState<T>();
@@ -171,8 +172,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
           height: Adapt.px(24),
           useTheme: true,
         ),
-        onPressed: () {
-        }
+        onPressed: () => widget.onSubmitted?.call(_selectedContactList),
     );
   }
 

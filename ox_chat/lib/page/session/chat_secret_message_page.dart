@@ -27,7 +27,6 @@ import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -491,7 +490,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.updateChatSession(
-        widget.communityItem.chatId!,
+        widget.communityItem.chatId,
         content: 'secret_chat_accepted_tips'.localized({r"${name}": otherUser?.name ?? ''}),
       );
       OXChatBinding.sharedInstance.changeChatSessionType(widget.communityItem, true);

@@ -130,6 +130,7 @@ class BottomSheetItem extends StatelessWidget {
                   iconName: iconName,
                   size: 24.px,
                   package: 'ox_wallet',
+                  useTheme: true,
                 ),
                 SizedBox(width: 8.px,),
                 Text(title ?? '',style: TextStyle(color: ThemeColor.color0,fontSize: 16.px,fontWeight: FontWeight.w400),),

@@ -188,7 +188,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
 
     String dnsText = _dnsTextEditingController.text;
     if (dnsText.length > 0) {
-      String pubKey = widget.userDB.pubKey!;
+      String pubKey = widget.userDB.pubKey;
       String nip05Url = dnsText + dnsSuffix;
 
       Map<String, dynamic>? dnsParams = {
@@ -203,7 +203,7 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
         ], Account.sharedInstance.currentPrivkey)
       };
 
-      Map<String, dynamic>? dnsResult = await OXModuleService.invoke(
+      Map<String, dynamic>? dnsResult = OXModuleService.invoke(
           'ox_usercenter',
           'requestVerifyDNS',
           [dnsParams, context, null, null]);

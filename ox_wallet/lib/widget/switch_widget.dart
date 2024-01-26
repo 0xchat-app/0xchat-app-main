@@ -41,6 +41,7 @@ class _SwitchWidgetState extends State<SwitchWidget> {
         height: widget.height ?? 20.px,
         width: widget.width ?? 36.px,
         package: 'ox_wallet',
+        useTheme: true,
       ),
     );
   }

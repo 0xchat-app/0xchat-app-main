@@ -120,12 +120,13 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   Future<void> _createToken() async {
     if(EcashManager.shared.defaultIMint == null) return;
     await OXLoading.show();
-    String? token = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint!, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
+    final response = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint!, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
     await OXLoading.dismiss();
-    if(token!=null){
-      OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: token,));
+    if (response.isSuccess) {
+      OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: response.data,));
       return;
+    } else {
+      CommonToast.instance.show(context, response.errorMsg);
     }
-    CommonToast.instance.show(context, 'create toke failed');
   }
 }

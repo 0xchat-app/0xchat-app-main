@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';

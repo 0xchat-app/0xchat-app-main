@@ -7,7 +7,7 @@ import 'colors.dart';
 ///
 class S {
   ///
-  static innerBoxShadow() => [
+  static List<BoxShadow> innerBoxShadow() => [
         BoxShadow(color: Colors.black.withOpacity(.13)),
         BoxShadow(
           color: Colors.grey.shade200.withOpacity(1),
@@ -30,11 +30,11 @@ class S {
       ];
 
   ///
-  static radius38(BuildContext context) =>
+  static num radius38(BuildContext context) =>
       min(38, MediaQuery.of(context).size.width * .08);
 
   ///
-  static boxShadow(
+  static BoxShadow boxShadow(
     BuildContext context, {
     double opacity = .2,
     Color color = Colors.black87,
@@ -47,7 +47,7 @@ class S {
       );
 
   ///
-  static pinkShadow({Color? shadow}) => [
+  static List<BoxShadow> pinkShadow({Color? shadow}) => [
         BoxShadow(
           color: shadow ?? AppColors.pink300,
           blurRadius: 56,

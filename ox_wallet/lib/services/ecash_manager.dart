@@ -8,10 +8,13 @@ class EcashManager {
   EcashManager._internal();
 
   final localKey = 'default_mint_url';
+  final ecashAccessKey = 'wallet_access';
 
   late List<IMint> _mintList;
 
   IMint? _defaultIMint;
+
+  bool _isWalletAvailable = false;
 
   List<IMint> get mintList => _mintList;
 
@@ -22,10 +25,13 @@ class EcashManager {
   String get pubKey => OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
   bool isDefaultMint(IMint mint) => _defaultIMint == mint;
+
+  bool get isWalletAvailable => _isWalletAvailable;
   
   setup() async {
     _mintList = List.of(await Cashu.mintList());
     _initDefaultMint();
+    _isWalletAvailable = await _getEcashAccessSignForLocal();
   }
 
   Future<void> _initDefaultMint() async {
@@ -78,11 +84,24 @@ class EcashManager {
     return result;
   }
 
+  Future<void> setWalletAvailable() async {
+    await _saveEcashAccessSignForLocal(true);
+    _isWalletAvailable = true;
+  }
+
   Future<bool> _saveMintURLForLocal(String mintURL) async {
-    return await OXCacheManager.defaultOXCacheManager.saveData('$pubKey.$localKey', mintURL);
+    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$localKey', mintURL);
   }
   
   Future<String> _getMintURLForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getData('$pubKey.$localKey');
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey');
+  }
+
+  Future<bool> _saveEcashAccessSignForLocal(bool sign) async {
+    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$ecashAccessKey', sign);
+  }
+
+  Future<bool> _getEcashAccessSignForLocal()  async{
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashAccessKey',defaultValue: false);
   }
 }

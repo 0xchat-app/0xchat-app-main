@@ -13,14 +13,13 @@ class EcashService {
     return receipt;
   }
 
-  static Future<String?> sendEcash({required IMint mint, required int amount, String? memo, List<Proof>? proofs}) async {
-    String? token;
+  static Future<CashuResponse<String>> sendEcash({required IMint mint, required int amount, String? memo, List<Proof>? proofs}) async {
     try {
-      token = await Cashu.sendEcash(mint: mint, amount: amount, memo: memo ?? '',proofs: proofs);
+      return await Cashu.sendEcash(mint: mint, amount: amount, memo: memo ?? '',proofs: proofs);
     } catch (e, s) {
-      LogUtil.e('Send Ecash Failed: $e\r\n$s');
+      final msg = 'Send Ecash Failed: $e\r\n$s';
+      return CashuResponse.fromErrorMsg(msg);
     }
-    return token;
   }
 
   static Future<CashuResponse<(String memo, int amount)>> redeemEcash(String ecashString) async {
@@ -73,7 +72,7 @@ class EcashService {
   static Future<List<IHistoryEntry>> getHistoryList() async {
     List<IHistoryEntry> historyEntry = [];
     try {
-      historyEntry = await Cashu.getHistoryList();
+      historyEntry = await Cashu.getHistoryList(size: 50);
     } catch (e, s) {
       LogUtil.e('Get History List Failed: $e\r\n$s');
     }

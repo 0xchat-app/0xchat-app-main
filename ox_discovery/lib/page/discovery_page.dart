@@ -3,10 +3,8 @@ import 'dart:ui';
 
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';

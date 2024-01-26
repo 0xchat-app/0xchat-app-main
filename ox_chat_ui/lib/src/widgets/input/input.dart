@@ -121,13 +121,13 @@ class InputState extends State<Input>{
 
   ChatSessionModel? get _chatSessionModel {
     if(widget.chatId == null) return null;
-    ChatSessionModel? model = OXChatBinding.sharedInstance.sessionMap[widget.chatId];
+    final model = OXChatBinding.sharedInstance.sessionMap[widget.chatId];
     return model;
   }
 
   // auto delete
   int get _autoDelExTime {
-    int? autoDelExpiration = _chatSessionModel?.expiration;
+    final autoDelExpiration = _chatSessionModel?.expiration;
     if(autoDelExpiration == null) return 0;
     return autoDelExpiration;
   }
@@ -457,9 +457,9 @@ class InputState extends State<Input>{
 
           final username = Account.sharedInstance.me?.name ?? '';
 
-          String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
-          String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
-          String content =  time > 0 ? setMsgContent : disableMsgContent;
+          final setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
+          final disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
+          final content =  time > 0 ? setMsgContent : disableMsgContent;
 
           OXModuleService.invoke('ox_chat', 'sendSystemMsg', [
             context

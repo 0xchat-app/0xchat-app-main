@@ -14,7 +14,7 @@ class InputMoreItem {
 }
 
 class InputMorePage extends StatefulWidget {
-  const InputMorePage({Key? key, required this.items}) : super(key: key);
+  const InputMorePage({super.key, required this.items});
 
   final List<InputMoreItem> items;
 

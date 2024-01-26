@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -398,11 +396,11 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
           context,
           ChatChannelMessagePage(
             communityItem: ChatSessionModel(
-              chatId: channelDB.channelId!,
-              groupId: channelDB.channelId!,
+              chatId: channelDB.channelId,
+              groupId: channelDB.channelId,
               chatType: ChatType.chatChannel,
               chatName: channelDB.name!,
-              createTime: channelDB.createTime!,
+              createTime: channelDB.createTime,
               avatar: channelDB.picture!,
             ),
           ),
@@ -456,7 +454,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         showGif: false,
         compressSize: 2048,
       );
-      _imgFile = (res == null || res[0].path == null) ? null : File(res[0].path ?? '');
+      _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
       _uploadAndRefresh(_imgFile);
     } else {
       CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
