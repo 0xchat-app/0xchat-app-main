@@ -24,7 +24,7 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final _defaultMintURL = 'https://8333.space:3338';
-  final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(false);
+  final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(true);
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +35,19 @@ class _WalletPageState extends State<WalletPage> {
         useLargeTitle: false,
     ),
     body:SafeArea(
-      child: SizedBox(
-        width: double.infinity,
-        child: SingleChildScrollView(
+      child: SingleChildScrollView(
+        child: SizedBox(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CommonImage(
-                  iconName: 'icon_wallet_logo.png',
-                  size: 100.px,
-                  package: 'ox_wallet',
-                ).setPaddingOnly(top: 44.px),
+                iconName: 'icon_wallet_logo.png',
+                size: 100.px,
+                package: 'ox_wallet',
+              ).setPaddingOnly(top: 44.px),
               CommonImage(
                 iconName: 'icon_wallet_symbol.png',
                 height: 25.px,
@@ -54,15 +55,15 @@ class _WalletPageState extends State<WalletPage> {
                 package: 'ox_wallet',
               ).setPaddingOnly(top: 16.px),
               Text(
-                  'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+                'You can either use the pre-exisiting\r\n eNuts mint or introduce another\r\n custom mint.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
                     fontWeight: FontWeight.w400,
                     fontSize: 16.px,
                     color: ThemeColor.color0,
                     height: 24.px / 16.px
-                  ),
-                ).setPaddingOnly(top: 56.px),
+                ),
+              ).setPaddingOnly(top: 56.px),
               const Spacer(),
               ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
               EcashCommonButton(text: 'Add mint URL',onTap: _addMint).setPaddingOnly(top: 18.px),
