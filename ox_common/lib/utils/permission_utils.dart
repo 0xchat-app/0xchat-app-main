@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -37,7 +38,8 @@ class PermissionUtils{
   static Future<bool> getPhotosPermission({int type = 1}) async {
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool permissionGranted = false;
-    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt < 33) {
+    int sdkIntValue = (await plugin.androidInfo).version.sdkInt;
+    if (Platform.isAndroid && sdkIntValue < 33) {
       PermissionStatus storageStatus =await Permission.storage.request();
       if (storageStatus.isGranted) {
         permissionGranted = true;

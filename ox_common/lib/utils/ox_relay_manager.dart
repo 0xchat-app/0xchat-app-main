@@ -110,6 +110,7 @@ class OXRelayManager {
   Future<void> addRelaysSuccess(List<String> relays) async {
 
     for (String relay in relays) {
+      relay = relay.replaceFirst(RegExp(r'/+$'), '');
       RelayModel relayModel = RelayModel(
         relayName: relay,
         canDelete: true,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:ox_push/ox_push.dart';
 
 void main() {
   runApp(MyApp());

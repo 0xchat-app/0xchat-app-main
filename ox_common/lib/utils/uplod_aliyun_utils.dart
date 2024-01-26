@@ -98,12 +98,12 @@ class UplodAliyun {
           calbackBodyType: CalbackBodyType.json,
         ),
       ),
-      fileKey: "${getFileFolders(fileType)}${filename}",
+      fileKey: "${getFileFolders(fileType)}$filename",
     );
 
-    LogUtil.e("resp : ${resp}");
+    LogUtil.e("resp : $resp");
 
-    String uri = 'https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}/${getFileFolders(fileType)}${filename}';
+    String uri = 'https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}/${getFileFolders(fileType)}$filename';
     return uri;
   }
 

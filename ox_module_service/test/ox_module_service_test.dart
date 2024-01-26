@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('yl_module_service');

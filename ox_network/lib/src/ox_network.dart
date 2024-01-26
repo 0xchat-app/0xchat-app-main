@@ -108,6 +108,7 @@ class OXNetwork {
       // client.authenticateProxy = (String host, int port, String scheme, String realm) => Future.value(true);
       client.authenticateProxy = (String host, int port, String scheme, String? realm) => Future.value(true);
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      return null;
     };
     _dio.httpClientAdapter = adapter;
   }
@@ -139,18 +140,18 @@ class OXNetwork {
     bool canceledOnTouchOutside = false,
     Function(NetworkResponse response)? useCacheCallback,
   }) async {
-    if ((url == null || url.isEmpty) && (host == null || host.isEmpty) && (method == null || method.isEmpty)) {
+    if ((url.isEmpty) && (host.isEmpty) && (method.isEmpty)) {
       NetworkError error = new NetworkError(
         errorCode: NetworkCode.NETWORK_PARAMS_EXCEPTION,
         message: 'Request params error',
       );
       return Future.error(error);
     }
-    if (url == null || url.isEmpty) {
+    if (url.isEmpty) {
       url = host + method;
     }
     String cacheKey = method;
-    if (method == null || method.isEmpty) {
+    if (method.isEmpty) {
       cacheKey = url;
     }
     if (useCache && useCacheCallback != null) {
@@ -249,7 +250,7 @@ class OXNetwork {
         await DBTools.instance.openDataDB(DBTools.instance.path, DBTools.instance.tableName);
         DBTools.instance.createTable('cacheKey', 'cacheContent');
         List<Map<String, Object?>> result = await DBTools.instance.query(DBTools.instance.tableName, 'cacheKey', 'cacheContent', cacheKey);
-        if (result != null && result.length > 0) {
+        if (result.length > 0) {
           Map<String, dynamic> tempMap = result[0];
           String cacheData = tempMap['cacheContent'];
           Map<String, dynamic> cacheJson = convert.jsonDecode(cacheData);
@@ -386,9 +387,8 @@ class OXNetwork {
           message = errorResponse;
         }
       }
-    } else if (error.toString() != null) {
-      message = error.toString();
-    }
+    } else    message = error.toString();
+  
     return NetworkError(
       errorCode: errorCode,
       message: message,

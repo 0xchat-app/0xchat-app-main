@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:nostr_core_dart/nostr.dart';

@@ -21,10 +21,8 @@ class RoundTabIndicator extends Decoration {
           this.width = 0,
       }) {
         if (isRound && this.radius <= 0) {
-            if (borderSide != null) {
-                this.radius = borderSide.width / 2;
-            }
-        }
+              this.radius = borderSide.width / 2;
+                  }
     }
 
     @override
@@ -58,12 +56,10 @@ class _RoundUnderLineTabIndicatorPainter extends BoxPainter {
     EdgeInsetsGeometry get insets => decoration.insets;
 
     _RoundUnderLineTabIndicatorPainter(this.decoration, VoidCallback? onChanged)
-      : assert(decoration != null),
-          super(onChanged);
+      : super(onChanged);
 
     @override
     void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-        assert(configuration != null);
         assert(configuration.size != null);
         final Rect rect = offset & configuration.size!;
         final TextDirection textDirection = configuration.textDirection!;
@@ -97,7 +93,7 @@ class _RoundUnderLineTabIndicatorPainter extends BoxPainter {
     Rect _indicatorRectFor(Rect rect, TextDirection textDirection) {
         Rect indicator = insets.resolve(textDirection).deflateRect(rect);
         return Rect.fromLTWH(
-            decoration.width == null || ((decoration.width == 0) == 0)
+            ((decoration.width == 0) == 0)
               ? indicator.left
               : indicator.center.dx - (( decoration.width > 0 ? decoration.width :  0) / 2),
             indicator.bottom - borderSide.width,

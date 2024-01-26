@@ -22,6 +22,7 @@ class CommonButton extends StatefulWidget {
   final double cornerRadius;
   final Color? borderSideColor; // Border color
   final num? fontSize;
+  final FontWeight? fontWeight;
   final Color? fontColor;
   final num? width;
   final num? height;
@@ -42,6 +43,7 @@ class CommonButton extends StatefulWidget {
     this.cornerRadius = 4.0,
     this.buttonSize = buttonSizeType.NORMAL,
     this.padding,
+    this.fontWeight,
   }) : super(key: key);
 
   @override
@@ -102,6 +104,7 @@ class _CommonButtonState extends State<CommonButton> {
         style: TextStyle(
           color: btnTextColor,
           fontSize: Adapt.px(btnFontSize),
+          fontWeight: widget.fontWeight
         ),
       ),
     );

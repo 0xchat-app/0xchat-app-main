@@ -22,7 +22,7 @@ removeVerificationData() async{
 
 Future<String?> getLocalVerificationData() async{
     final prefs = await SharedPreferences.getInstance();
-    final String? verificationData =  await prefs.getString('verificationData');
+    final String? verificationData =  prefs.getString('verificationData');
     return verificationData;
 }
 

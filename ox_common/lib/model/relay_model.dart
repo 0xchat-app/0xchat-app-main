@@ -21,10 +21,7 @@ class RelayModel {
   String get identify => identifyWithAddress(relayName);
 
   static String identifyWithAddress(String address) {
-    if (address.endsWith('/')) {
-      return address.substring(0, address.length - 1);
-    }
-    return address;
+    return address.replaceFirst(RegExp(r'/+$'), '');
   }
 
   RelayModel({

@@ -4,13 +4,10 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-import '../model/chat_session_model.dart';
 
 class BaseAvatarWidget extends StatelessWidget {
   BaseAvatarWidget({

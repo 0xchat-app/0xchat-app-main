@@ -9,14 +9,15 @@ class LaunchThirdPartyApp{
     LogUtil.d('launch url: $url');
     Uri uri = Uri.parse(url);
     Uri storeUri = Uri.parse(storeUrl);
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri);
-    } else {
-      if (await canLaunchUrl(storeUri)) {
+    } catch (e) {
+      try {
         await launchUrl(storeUri);
-      } else {
+      } catch (e) {
         CommonToast.instance.show(context, 'Unable to open the App');
       }
     }
+
   }
 }

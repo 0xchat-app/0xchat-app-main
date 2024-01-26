@@ -1,21 +1,22 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/common_color.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/custom_scanner_overlay.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'common_image.dart';
+import 'package:device_info/device_info.dart';
 
 class CommonScanPage extends StatefulWidget {
   @override
@@ -73,7 +74,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
           ),
           Positioned(
               width: MediaQuery.of(context).size.width,
-              top: MediaQueryData.fromWindow(window).padding.top,
+              top: MediaQueryData.fromView(window).padding.top,
               child: Container(
                 height: Adapt.px(56),
                 margin: EdgeInsets.only(left: Adapt.px(12), right: Adapt.px(12)),
@@ -193,15 +194,36 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
   }
 
   void _onPicTap() async {
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: GalleryMode.image,
-      selectCount: 1,
-      showGif: false,
-      compressSize: 5120,
-    );
-    File file = File(res[0].path ?? '');
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    File? _imgFile;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(1);
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(1);
+        _imgFile = File(filePaths[0]);
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission();
+    }
+    if (storagePermission) {
+      final res = await ImagePickerUtils.pickerPaths(
+        galleryMode: GalleryMode.image,
+        selectCount: 1,
+        showGif: false,
+        compressSize: 5120,
+      );
+      _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
+    } else {
+      CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
+      return;
+    }
     try {
-      String qrcode = await OXCommon.scanPath(file.path);
+      String qrcode = await OXCommon.scanPath(_imgFile?.path ?? '');
       OXNavigator.pop(context, qrcode);
     } catch (e) {
       CommonToast.instance.show(context, "str_invalid_qr_code".commonLocalized());

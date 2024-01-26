@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
 
-/**
- * Title: encrypt_utils
- * Copyright: Copyright (c) 2023
- *
- * @author john
- * @CheckItem Fill in by oneself
- */
+/// Title: encrypt_utils
+/// Copyright: Copyright (c) 2023
+///
+/// @author john
+/// @CheckItem Fill in by oneself
 class EncryptUtils {
 
   static Encrypter? encrypter;

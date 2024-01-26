@@ -21,7 +21,7 @@ class DBTools {
   late Database _db;
   late Batch batch;
 
-  DBTools._init() {}
+  DBTools._init();
 
   Future<Database> openDataDB(String path, String tableName) async {
     _db = await openDatabase(path, version: versionCode);

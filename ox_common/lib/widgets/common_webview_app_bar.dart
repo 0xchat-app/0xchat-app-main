@@ -208,11 +208,11 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     String? url = await webViewController.currentUrl();
     if(url != null && url.isNotEmpty){
       final Uri uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
+      try {
         OXNavigator.pop(context);
-        await launchUrl(uri,mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Cannot open $url';
+        await launchUrl(uri);
+      } catch (e) {
+        print(e.toString()+'Cannot open $url');
       }
     }
   }

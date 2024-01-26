@@ -74,7 +74,7 @@ abstract class OXFlutterModule {
   /// Module listener, <eventName : List<observerHandle>>
   Map<String, List<OXObserverCallback>> observerMap = {};
 
-  dynamic? navigateToPage(
+  dynamic navigateToPage(
       BuildContext context, String pageName, Map<String, dynamic>? params);
 
   /// Add listener

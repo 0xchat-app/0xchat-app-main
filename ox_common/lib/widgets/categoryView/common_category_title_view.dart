@@ -1,7 +1,6 @@
 library dot_navigation_bar;
 export 'common_category_title_item.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/utils/adapt.dart';
