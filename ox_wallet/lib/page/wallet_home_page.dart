@@ -141,7 +141,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
           height: 24.px,
           useTheme: true,
         ),
-        onPressed: () => OXNavigator.pop(context),
+        onPressed: () => OXNavigator.popToRoot(context),
       ),
       actions: [
         GestureDetector(
