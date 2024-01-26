@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
@@ -51,8 +52,9 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
     payInvoiceListener = EcashListener(onInvoicePaidChanged: _onInvoicePaid);
     Cashu.addInvoiceListener(payInvoiceListener);
-    widget.shareController?.addListener(() {
-      WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
+    widget.shareController?.addListener(() async {
+      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
+      // WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
     });
     super.initState();
   }
