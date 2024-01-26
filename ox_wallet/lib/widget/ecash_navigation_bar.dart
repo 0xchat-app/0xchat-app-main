@@ -193,6 +193,7 @@ class NavigationBarItem extends StatelessWidget {
             iconName: iconName,
             size: 24.px,
             package: 'ox_wallet',
+            useTheme: true,
           ),
           SizedBox(height: 4.px,),
           Text(

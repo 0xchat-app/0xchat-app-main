@@ -302,6 +302,7 @@ class TransactionItem extends StatelessWidget {
               iconName: iconName ?? 'icon_transaction_send.png',
               size: 24.px,
               package: 'ox_wallet',
+              useTheme: true,
             ),
             SizedBox(width: 8.px,),
             Expanded(
