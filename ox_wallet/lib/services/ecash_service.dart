@@ -72,7 +72,7 @@ class EcashService {
   static Future<List<IHistoryEntry>> getHistoryList() async {
     List<IHistoryEntry> historyEntry = [];
     try {
-      historyEntry = await Cashu.getHistoryList();
+      historyEntry = await Cashu.getHistoryList(size: 50);
     } catch (e, s) {
       LogUtil.e('Get History List Failed: $e\r\n$s');
     }
