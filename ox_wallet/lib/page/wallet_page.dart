@@ -50,6 +50,7 @@ class _WalletPageState extends State<WalletPage> {
               height: 25.px,
               width: 100.px,
               package: 'ox_wallet',
+              useTheme: true,
             ).setPaddingOnly(top: 16.px),
             Text(
               'You can either use the default mint\r\nor\r\nintroduce custom mint',

@@ -32,6 +32,7 @@ class PrivacyPolicyWidget extends StatelessWidget {
                     iconName: value ? 'icon_item_selected.png' : 'icon_item_unselected.png',
                     size: 20.px,
                     package: 'ox_wallet',
+                    useTheme: true,
                   ),
                 );
               }
