@@ -24,6 +24,7 @@ class WalletTransactionRecord extends StatefulWidget {
 class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
 
   final List<StepItemModel> _items  = [];
+  final String _tagItem = 'check_ecash';
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     _items.add(StepItemModel(title: 'Mint',subTitle: record.mints.join('\r\n')),);
     _items.add(StepItemModel(title: 'Created Time',subTitle: WalletUtils.formatTimestamp(record.timestamp.toInt())));
     if (record.type == IHistoryType.eCash) {
-      _items.add(_getSpentStatus(widget.entry.isSpent));
+      if(widget.entry.amount < 0) _items.add(_getSpentStatus(widget.entry.isSpent));
       _items.add(StepItemModel(title: 'Token',subTitle: WalletUtils.formatString(record.value),onTap: (value) => TookKit.copyKey(context, record.value)));
     } else if (record.type == IHistoryType.lnInvoice) {
       _items.add(StepItemModel(title: 'Fee',subTitle: record.fee?.toInt().toString()));
@@ -104,18 +105,22 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     OXLoading.show();
     bool? result = await EcashService.checkEcashTokenSpendable(entry: widget.entry);
     OXLoading.dismiss();
-    int index = _items.indexOf(stepItemModel);
-    _items[index] = _getSpentStatus(result);
-    setState(() {});
+    _updateSpentStatus(_getSpentStatus(result));
   }
 
   StepItemModel _getSpentStatus(bool? isSpent) {
-    if(isSpent == null) return StepItemModel(title: 'Check',subTitle: 'Check if token has been spent',badgeBuilder: () => _searchWidget(),onTap: _checkEcashTokenSpendable);
+    if(isSpent == null) return StepItemModel(key: _tagItem, title: 'Check',subTitle: 'Check if token has been spent',badgeBuilder: () => _searchWidget(),onTap: _checkEcashTokenSpendable);
     if(isSpent) {
-      return StepItemModel(title: 'Checked',subTitle: 'Token has been spent');
+      return StepItemModel(key: _tagItem, title: 'Checked',subTitle: 'Token has been spent');
     } else {
-      return StepItemModel(title: 'Checked',subTitle: 'Token is pending',badge: 'Claim token',onTap: _redeemEcash);
+      return StepItemModel(key: _tagItem, title: 'Checked',subTitle: 'Token is pending',badge: 'Claim token',onTap: _redeemEcash);
     }
+  }
+
+  void _updateSpentStatus(StepItemModel stepItemModel) {
+    int index = _items.indexWhere((item) => item.key == _tagItem);
+    _items[index] = stepItemModel;
+    setState(() {});
   }
 
   Future<void> _redeemEcash(StepItemModel stepItemModel) async {
@@ -124,7 +129,7 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     OXLoading.dismiss();
     if (response.isSuccess) {
       if (context.mounted) CommonToast.instance.show(context, 'Claim token successful');
-      await _checkEcashTokenSpendable(stepItemModel);
+      _updateSpentStatus(_getSpentStatus(true));
     } else {
       if (context.mounted) CommonToast.instance.show(context, response.errorMsg);
     }

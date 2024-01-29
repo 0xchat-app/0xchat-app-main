@@ -230,7 +230,6 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
             child: commonStateViewWidget(
               context,
               ListView.builder(
-                itemExtent: 53.px,
                 padding: EdgeInsets.only(bottom: 68.px + 10.px),
                 itemBuilder: (BuildContext context, int index){
                   final record = _recentTransaction[index];
