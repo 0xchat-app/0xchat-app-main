@@ -332,5 +332,5 @@ extension ThemeStyleOverlayEx on ThemeStyle {
       this == ThemeStyle.dark ? Brightness.light : Brightness.dark;
 
   Color get statusBarColor =>
-      this == ThemeStyle.dark ? ThemeColor.dark01 : Colors.transparent;
+      this == ThemeStyle.dark ? ThemeColor.color200 : Colors.transparent;
 }
