@@ -1,4 +1,5 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 ///Title: chat_session_model
@@ -98,6 +99,8 @@ class ChatSessionModel extends DBObject {
   String toString() {
     return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind, expiration: $expiration}';
   }
+
+  bool get hasMultipleUsers => {ChatType.chatGroup, ChatType.chatChannel}.contains(chatType);
 }
 
 ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
