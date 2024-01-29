@@ -73,9 +73,7 @@ class OXUserInfoManager {
       LogUtil.d('[DB init] dbpw: $dbpw');
       await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
     }
-    await CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: dbpw, defaultMint: [
-      'https://8333.space:3338'
-    ]);
+    await CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: dbpw, defaultMint: []);
   }
 
   Future initLocalData() async {

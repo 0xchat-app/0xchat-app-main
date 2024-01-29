@@ -222,7 +222,7 @@ class OXActionDialog extends StatelessWidget {
 
   static Future<OXActionModel<T>?> show<T>(
     context, {
-    required List<OXActionModel> data,
+    required List<OXActionModel<T>> data,
     OXActionModel? selectedData,
     OXActionModel? cancelData,
     bool showCancelButton = true,

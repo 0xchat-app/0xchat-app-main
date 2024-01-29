@@ -121,9 +121,9 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.actions,
     this.backgroundColor,
     this.titleTextColor,
-    this.useLargeTitle = true,
+    this.useLargeTitle = false,
     this.useMediumTitle = false,
-    this.centerTitle = false,
+    this.centerTitle = true,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.leadingWidth
      }) : preferredSize = Size.fromHeight(56 +

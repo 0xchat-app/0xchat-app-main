@@ -14,4 +14,13 @@ class OXWalletInterface {
       {},
     );
   }
+
+  static bool? isWalletAvailable() {
+    return OXModuleService.invoke<bool>(
+      moduleName,
+      'isWalletAvailable',
+      [],
+      {},
+    );
+  }
 }
