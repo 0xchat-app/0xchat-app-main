@@ -76,6 +76,7 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
               iconName: _isCopied ? 'icon_item_selected.png' : 'icon_copy.png',
               size: 24.px,
               package: 'ox_wallet',
+              useTheme: true,
             ),
           ),
         ],

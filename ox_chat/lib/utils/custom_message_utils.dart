@@ -80,13 +80,13 @@ extension CustomMessageEx on types.CustomMessage {
   }
 
   static Map<String, dynamic> ecashMetaData({
-    required String token,
+    required List<String> tokenList,
     String isOpened = '',
   }) {
     return {
       'type': CustomMessageType.ecash.value,
       'content': {
-        'token': token,
+        'tokenList': tokenList,
         'isOpened': isOpened,
       },
     };
@@ -133,18 +133,23 @@ extension NoteMessageEx on types.CustomMessage {
 extension EcashMessageEx on types.CustomMessage {
 
   updateDetailInfo() {
-    final token = this.token;
-    if (token.isEmpty) return ;
+    final tokenList = this.tokenList;
+    if (tokenList.isEmpty) return ;
 
-    final info = Cashu.infoOfToken(token);
-    if (info == null) return ;
+    var memoStr = '';
+    final totalAmount = tokenList.fold(0, (pre, token) {
+      final info = Cashu.infoOfToken(token);
+      if (info == null) return pre;
+      final (memo, amount) = info;
+      memoStr = memo;
+      return pre + amount;
+    });
 
-    final (memo, amount) = info;
-    metadata?['content']?['memo'] = memo;
-    metadata?['content']?['amount'] = amount.toString();
+    metadata?['content']?['memo'] = memoStr;
+    metadata?['content']?['amount'] = totalAmount.toString();
   }
 
-  String get token => metadata?['content']?['token'] ?? '';
+  List<String> get tokenList => metadata?['content']?['tokenList'] ?? [];
 
   String get description {
     final amount = metadata?['content']?['memo'];
@@ -162,10 +167,12 @@ extension EcashMessageEx on types.CustomMessage {
     return int.tryParse(metadata?['content']?['amount']) ?? 0;
   }
 
-  bool get isOpened => bool.tryParse(
-    metadata?['content']?['isOpened'] ?? false.toString(),
-    caseSensitive: false,
-  ) ?? false;
+  bool get isOpened {
+    return bool.tryParse(
+      metadata?['content']?['isOpened'] ?? false.toString(),
+      caseSensitive: false,
+    ) ?? false;
+  }
   void set isOpened(bool value) {
     metadata?['content']?['isOpened'] = value.toString();
   }

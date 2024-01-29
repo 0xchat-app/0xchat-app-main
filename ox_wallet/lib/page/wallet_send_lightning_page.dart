@@ -147,7 +147,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
       return;
     }
     OXLoading.show();
-    EcashService.payingLightningInvoice(mint: EcashManager.shared.defaultIMint!,amount: _amountEditController.text)
+    EcashService.payingLightningInvoice(mint: EcashManager.shared.defaultIMint!, pr: _invoiceEditController.text)
         .then((result) {
         OXLoading.dismiss();
         if (result != null && result) {

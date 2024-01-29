@@ -29,12 +29,11 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   List<CardItemModel> _items = [];
 
   bool _isCoinSelection = false;
-  int get balance => EcashManager.shared.defaultIMint?.balance ?? 0 - widget.amount;
   List<Proof>? _selectedProofs;
 
   @override
   void initState() {
-    int balance = EcashManager.shared.defaultIMint!.balance;
+    int balance = EcashManager.shared.defaultIMint!.balance - widget.amount;
     _items = [
       CardItemModel(label: 'Payment type',content: 'Send Ecash',),
       CardItemModel(label: 'Mint',content: EcashManager.shared.defaultIMint?.name,),

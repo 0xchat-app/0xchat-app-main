@@ -405,19 +405,24 @@ class CustomMessageFactory implements MessageFactory {
           );
 
         case CustomMessageType.ecash:
-          final token = content['token'];
-          final isOpened = content['isOpened'];
-          return createEcashMessage(
-            author: author,
-            timestamp: timestamp,
-            roomId: roomId,
-            id: remoteId,
-            remoteId: remoteId,
-            sourceKey: sourceKey,
-            token: token,
-            isOpened: isOpened,
-            expiration: expiration,
-          );
+          try {
+            final tokenList = (content['tokenList'] as List).map((e) => e.toString()).toList();
+            final isOpened = content['isOpened'];
+            return createEcashMessage(
+              author: author,
+              timestamp: timestamp,
+              roomId: roomId,
+              id: remoteId,
+              remoteId: remoteId,
+              sourceKey: sourceKey,
+              tokenList: tokenList,
+              isOpened: isOpened,
+              expiration: expiration,
+            );
+          } catch (e) {
+            print(e);
+            return null;
+          }
         default:
           return null;
       }
@@ -529,7 +534,7 @@ class CustomMessageFactory implements MessageFactory {
     required String id,
     String? remoteId,
     dynamic sourceKey,
-    required String token,
+    required List<String> tokenList,
     String isOpened = '',
     int? expiration,
   }) {
@@ -541,7 +546,7 @@ class CustomMessageFactory implements MessageFactory {
       remoteId: remoteId,
       roomId: roomId,
       metadata: CustomMessageEx.ecashMetaData(
-        token: token,
+        tokenList: tokenList,
         isOpened: isOpened,
       ),
       type: types.MessageType.custom,

@@ -50,6 +50,7 @@ abstract class ChatStrategy {
     required String contentString,
     required String replayId,
     String? decryptSecret,
+    String? source,
   });
 
   Future doSendMessageAction({
@@ -76,6 +77,7 @@ class ChannelChatStrategy extends ChatStrategy {
     required String contentString,
     required String replayId,
     String? decryptSecret,
+    String? source,
   }) async {
     return Channels.sharedInstance.getSendChannelMessageEvent(
       receiverId,
@@ -83,6 +85,7 @@ class ChannelChatStrategy extends ChatStrategy {
       contentString,
       replyMessage: replayId,
       decryptSecret: decryptSecret,
+      source: source,
     );
   }
 
@@ -121,6 +124,7 @@ class GroupChatStrategy extends ChatStrategy {
     required String contentString,
     required String replayId,
     String? decryptSecret,
+    String? source,
   }) async {
     return Groups.sharedInstance.getSendGroupMessageEvent(
       receiverId,
@@ -128,6 +132,7 @@ class GroupChatStrategy extends ChatStrategy {
       contentString,
       replyMessage: replayId,
       decryptSecret: decryptSecret,
+      source: source,
     );
   }
 
@@ -163,6 +168,7 @@ class PrivateChatStrategy extends ChatStrategy {
     required String contentString,
     required String replayId,
     String? decryptSecret,
+    String? source,
   }) async {
     return await Contacts.sharedInstance.getSendMessageEvent(
       receiverId,
@@ -172,6 +178,7 @@ class PrivateChatStrategy extends ChatStrategy {
       kind: session.messageKind,
       expiration: session.expiration,
       decryptSecret: decryptSecret,
+      source: source,
     );
   }
 
@@ -209,6 +216,7 @@ class SecretChatStrategy extends ChatStrategy {
     required String contentString,
     required String replayId,
     String? decryptSecret,
+    String? source,
   }) async {
     return await Contacts.sharedInstance.getSendSecretMessageEvent(
       receiverId,
@@ -218,6 +226,7 @@ class SecretChatStrategy extends ChatStrategy {
       contentString,
       session.expiration,
       decryptSecret: decryptSecret,
+      source: source,
     );
   }
 

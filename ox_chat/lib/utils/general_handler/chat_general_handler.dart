@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
@@ -52,7 +53,9 @@ import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
-import '../../page/session/ecash_sending_page.dart';
+import '../../page/ecash/ecash_detail_page.dart';
+import '../../page/ecash/ecash_info.dart';
+import '../../page/ecash/ecash_sending_page.dart';
 import '../custom_message_utils.dart';
 import '../message_parser/define.dart';
 import 'chat_reply_handler.dart';
@@ -309,15 +312,46 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
 
-    if (EcashMessageEx(message).isOpened) return ;
+    final jumpDetail = (List<EcashPackageInfo> ecashInfoList) {
+      OXNavigator.pushPage(context, (context) => EcashDetailPage(
+        senderName: message.author.sourceObject?.getUserShowName() ?? '',
+        ecashList: ecashInfoList,
+        totalAmount: EcashMessageEx(message).amount,
+        description: EcashMessageEx(message).description,
+      ));
+    };
 
-    final token = EcashMessageEx(message).token;
+    final tokenList = EcashMessageEx(message).tokenList;
+
     OXLoading.show();
-    final response = await Cashu.redeemEcash(token);
+    final ecashInfoList = await EcashPackageInfoHelper.createInfoFromTokens(tokenList);
+    OXLoading.dismiss();
+
+    if (ecashInfoList == null) {
+      CommonToast.instance.show(context, 'The ecash information request failed.');
+      return ;
+    }
+
+    if (ecashInfoList.any((info) => info.redeemHistory?.isMe == true)) {
+      jumpDetail(ecashInfoList);
+      return ;
+    }
+
+    final notRedeemToken = ecashInfoList.where((info) => info.redeemHistory == null).firstOrNull;
+    if (notRedeemToken == null) {
+      CommonToast.instance.show(context, 'All tokens already spent.');
+      jumpDetail(ecashInfoList);
+      return ;
+    }
+
+    OXLoading.show();
+    final response = await Cashu.redeemEcash(notRedeemToken.token);
     OXLoading.dismiss();
 
     if (response.isSuccess) {
       CommonToast.instance.show(context, 'Redeem success.');
+      notRedeemToken.redeemHistory = EcashHistory(isMe: true, timestamp: DateTime.now().millisecondsSinceEpoch);
+      jumpDetail(ecashInfoList);
     } else {
       CommonToast.instance.show(context, response.errorMsg);
     }
@@ -494,10 +528,15 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     );
   }
 
-  Future ecashPressHandler(BuildContext context, UserDB user) async {
+  Future ecashPressHandler(BuildContext context) async {
     await OXNavigator.presentPage<Map<String, String>>(
-      context, (_) => EcashSendingPage((token) async {
-        await ChatMessageSendEx.sendTextMessageHandler(session.chatId, token);
+      context, (_) => EcashSendingPage(isGroupEcash: session.hasMultipleUsers, ecashInfoCallback: (tokenList) async {
+        if (tokenList.isEmpty) return ;
+        if (tokenList.length == 1) {
+          await sendTextMessage(context, tokenList.first);
+        } else {
+          sendEcashMessage(context, tokenList);
+        }
         OXNavigator.pop(context);
       }),
     );
