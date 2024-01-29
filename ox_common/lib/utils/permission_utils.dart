@@ -38,8 +38,7 @@ class PermissionUtils{
   static Future<bool> getPhotosPermission({int type = 1}) async {
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool permissionGranted = false;
-    int sdkIntValue = (await plugin.androidInfo).version.sdkInt;
-    if (Platform.isAndroid && sdkIntValue < 33) {
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt < 33) {
       PermissionStatus storageStatus =await Permission.storage.request();
       if (storageStatus.isGranted) {
         permissionGranted = true;
