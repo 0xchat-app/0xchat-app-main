@@ -8,6 +8,7 @@ import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 
 class OXWallet extends OXFlutterModule {
@@ -40,6 +41,10 @@ class OXWallet extends OXFlutterModule {
             },
           ),
         );
+      case 'WalletTransactionRecord':
+        return OXNavigator.pushPage(context, (context) => WalletTransactionRecord(
+          entry: params?['historyEntry'],
+        ));
     }
     return null;
   }

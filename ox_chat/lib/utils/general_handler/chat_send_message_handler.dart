@@ -58,6 +58,22 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       message: message,
       isLocal: isLocal,
       contentEncoder: messageContentEncoder,
+      sourceCreator: (message) {
+        if (message is types.CustomMessage) {
+          switch (message.customType) {
+            case CustomMessageType.ecash:
+              final tokenList = EcashMessageEx(message).tokenList;
+              if (tokenList.length > 1) {
+                return '[For ecash messages from 0xchat, use the 0xchat client to view them]';
+              } else if (tokenList.length == 1) {
+                return tokenList.first;
+              }
+              break ;
+            default: break;
+          }
+        }
+        return null;
+      }
     );
     if (errorMsg != null && errorMsg.isNotEmpty) {
       CommonToast.instance.show(context, errorMsg);
@@ -293,15 +309,16 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context, isLocal: !isSendToRemote);
   }
 
-  void sendEcashMessage(BuildContext context, String token) {
+  void sendEcashMessage(BuildContext context, List<String> tokenList) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
-    final message = types.TextMessage(
+    final message = CustomMessageFactory().createEcashMessage(
       author: author,
-      createdAt: tempCreateTime,
+      timestamp: tempCreateTime,
       id: message_id,
-      text: token,
+      roomId: session.chatId,
+      tokenList: tokenList,
     );
 
     _sendMessageHandler(message, context: context);

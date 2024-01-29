@@ -186,7 +186,7 @@ extension MessageDBToUIEx on MessageDB {
         } else if (Cashu.isCashuToken(initialText)) {
           messageFactory = CustomMessageFactory();
           this.type = 'template';
-          this.decryptContent = jsonEncode(CustomMessageEx.ecashMetaData(token: initialText));
+          this.decryptContent = jsonEncode(CustomMessageEx.ecashMetaData(tokenList: [initialText]));
           contentModel.content = this.decryptContent;
           await DB.sharedInstance.update(this);
         }

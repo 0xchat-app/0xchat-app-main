@@ -14,7 +14,7 @@ import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:chatcore/chat-core.dart';
 
-typedef MessageContentEncoder = FutureOr<String?> Function(
+typedef MessageContentCreator = FutureOr<String?> Function(
     types.Message message);
 
 class ChatSendMessageHelper {
@@ -22,7 +22,8 @@ class ChatSendMessageHelper {
     required ChatSessionModel session,
     required types.Message message,
     bool isLocal = false,
-    MessageContentEncoder? contentEncoder,
+    MessageContentCreator? contentEncoder,
+    MessageContentCreator? sourceCreator,
   }) async {
     // prepare data
     var sendFinish = OXValue(false);
@@ -53,6 +54,7 @@ class ChatSendMessageHelper {
         contentString: contentString,
         replayId: replayId,
         decryptSecret: message.decryptKey,
+        source: await sourceCreator?.call(message),
       );
     }
     if (event == null) {
@@ -135,7 +137,7 @@ class ChatSendMessageHelper {
           id: sendMsg.id,
           remoteId: sendMsg.remoteId,
           sourceKey: sourceKey,
-          token: text,
+          tokenList: [text],
           expiration: sendMsg.expiration,
         );
       }

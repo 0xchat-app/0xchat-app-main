@@ -179,6 +179,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
           InputMoreItemEx.album(chatGeneralHandler),
           InputMoreItemEx.camera(chatGeneralHandler),
           InputMoreItemEx.video(chatGeneralHandler),
+          InputMoreItemEx.ecash(chatGeneralHandler),
         ],
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),

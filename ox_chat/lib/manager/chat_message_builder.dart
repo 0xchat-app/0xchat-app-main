@@ -393,6 +393,7 @@ class ChatMessageBuilder {
                         color: ThemeColor.white,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
+                        height: 1.4,
                       ),
                     ),
                     Visibility(
@@ -402,6 +403,7 @@ class ChatMessageBuilder {
                         style: TextStyle(
                           color: ThemeColor.white,
                           fontSize: 12.sp,
+                          height: 1.4,
                         ),
                       ),
                     ),

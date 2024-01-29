@@ -140,19 +140,13 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static ecash(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static ecash(ChatGeneralHandler handler) =>
       InputMoreItem(
-        id: 'zaps',
+        id: 'ecash',
         title: () => 'Ecash',
         iconName: 'chat_ecash_icon.png',
         action: (context) {
-          final user = otherUser;
-          if (user == null) {
-            ChatLogUtils.error(className: 'ChatPageConfig', funcName: 'ecash', message: 'user is null');
-            CommonToast.instance.show(context, 'User info not found');
-            return ;
-          }
-          handler.ecashPressHandler(context, user);
+          handler.ecashPressHandler(context);
         },
       );
 
