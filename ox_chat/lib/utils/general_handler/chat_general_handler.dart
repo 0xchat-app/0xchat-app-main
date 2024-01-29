@@ -337,7 +337,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       return ;
     }
 
-    final notRedeemToken = ecashInfoList.firstWhere((info) => info.redeemHistory == null);
+    final notRedeemToken = ecashInfoList.where((info) => info.redeemHistory == null).firstOrNull;
+    if (notRedeemToken == null) {
+      CommonToast.instance.show(context, 'All tokens already spent.');
+      jumpDetail(ecashInfoList);
+      return ;
+    }
 
     OXLoading.show();
     final response = await Cashu.redeemEcash(notRedeemToken.token);
