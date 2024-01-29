@@ -1,7 +1,7 @@
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:flutter/material.dart';
 
-class EcashListener implements CashuListener {
+class EcashListener extends CashuListener {
   final ValueChanged<Receipt>? onInvoicePaidChanged;
   final ValueChanged<IMint>? onEcashBalanceChanged;
 
