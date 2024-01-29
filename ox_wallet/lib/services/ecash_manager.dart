@@ -1,11 +1,16 @@
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_wallet/services/ecash_listener.dart';
 
 class EcashManager {
   static final EcashManager shared = EcashManager._internal();
 
-  EcashManager._internal();
+  EcashManager._internal() {
+    EcashListener onMintListChangedListener = EcashListener(onMintsChanged: _onMintsChanged);
+    Cashu.addInvoiceListener(onMintListChangedListener);
+  }
 
   final localKey = 'default_mint_url';
   final ecashAccessKey = 'wallet_access';
@@ -48,6 +53,13 @@ class EcashManager {
   void _setDefaultMint(IMint? mint){
     _defaultIMint = mint;
     if(mint != null) updateMintList(mint);
+  }
+
+  _onMintsChanged(List<IMint> mints) {
+    if(!listEquals(mints, _mintList)){
+      _mintList = mints;
+      _initDefaultMint();
+    }
   }
 
   void addMint(IMint mint) {
