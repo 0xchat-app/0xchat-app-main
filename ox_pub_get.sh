@@ -9,6 +9,7 @@ businessModulesPath=${mainPath}/packages/business_modules
 oxchatCorePath=${mainPath}/packages/0xchat-core
 nostrDartPath=${mainPath}/packages/nostr-dart
 webrtcPath=${mainPath}/packages/flutter-webrtc
+cashuPath=${mainPath}/packages/cashu-dart
 
 
 #Exception
@@ -63,6 +64,7 @@ checkoutBranchByAll(){
     checkoutBranch ${oxchatCorePath}
     checkoutBranch ${nostrDartPath}
     checkoutBranch ${webrtcPath}
+    checkoutBranch ${cashuPath}
 }
 
 

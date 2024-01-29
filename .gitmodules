@@ -1,15 +1,18 @@
 [submodule "packages/base_framework"]
 	path = packages/base_framework
-	url = git@github.com:0xchat-app/0xchat-app-base.git
+	url = https://github.com/0xchat-app//0xchat-app-base.git
 [submodule "packages/business_modules"]
 	path = packages/business_modules
-	url = git@github.com:0xchat-app/0xchat-app-business.git
+	url = https://github.com/0xchat-app/0xchat-app-business.git
 [submodule "packages/0xchat-core"]
 	path = packages/0xchat-core
-	url = git@github.com:0xchat-app/0xchat-core.git
+	url = https://github.com/0xchat-app//0xchat-core.git
 [submodule "packages/nostr-dart"]
 	path = packages/nostr-dart
-	url = git@github.com:0xchat-app/nostr-dart.git
+	url = https://github.com/0xchat-app//nostr-dart.git
 [submodule "packages/flutter-webrtc"]
 	path = packages/flutter-webrtc
-	url = git@github.com:0xchat-app/flutter-webrtc.git
+	url = https://github.com/0xchat-app/flutter-webrtc.git
+[submodule "packages/cashu-dart"]
+	path = packages/cashu-dart
+	url = https://github.com/0xchat-app/cashu-dart.git

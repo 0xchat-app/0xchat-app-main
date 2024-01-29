@@ -51,6 +51,8 @@ dependencies:
     path: packages/base_framework/ox_common
   ox_push:
     path: packages/base_framework/ox_push
+  ox_wallet:
+    path: packages/business_modules/ox_wallet
 
 
   # business framework
@@ -85,6 +87,7 @@ dev_dependencies:
 
 dependency_overrides:
   collection: ^1.18.0
+  logging: 1.1.1
   sqflite:
     git:
       url: https://www.github.com/davidmartos96/sqflite_sqlcipher.git
