@@ -121,6 +121,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
                           placeholder: 'Enter quantity',
                           controller: quantityController,
                           maxLength: 3,
+                          keyboardType: TextInputType.number,
                         ).setPadding(EdgeInsets.only(top: 24.px)),
                       _buildInputRow(
                         title: packageType.amountInputTitle,
