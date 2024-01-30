@@ -134,7 +134,7 @@ class OXChatBinding {
                   }
                   break ;
                 case CustomMessageType.ecash:
-                  return '[Ecash]';
+                  return '[Cashu Token]';
                 default:
                   break ;
               }
