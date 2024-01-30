@@ -164,7 +164,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '$tokenReceiveCount out of $tokenCount Ecash have been claimed',
+              '$tokenReceiveCount out of $tokenCount cashu tokens have been redeemed',
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: 16.sp,
