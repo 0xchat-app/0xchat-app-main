@@ -148,7 +148,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    Localized.text('ox_request_join_item_text').replaceAll(r'${name}', '${userInfo.userName}'),
+                    Localized.text('ox_chat.request_join_item_text').replaceAll(r'${name}', '${userInfo.userName}'),
                     style: TextStyle(
                       color: ThemeColor.color0,
                       fontSize: Adapt.px(16),

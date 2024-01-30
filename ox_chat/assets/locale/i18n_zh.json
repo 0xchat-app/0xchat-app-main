@@ -208,5 +208,5 @@
   "str_add_a_friend": "添加一个朋友",
   "str_john_a_channel": "加入一个频道",
   "scan_qr_code": "扫描二维码",
-  "ox_request_join_item_text": "${name} 请求加入群组"
+  "request_join_item_text": "${name} 请求加入群组"
 }

@@ -208,5 +208,5 @@
   "str_add_a_friend": "add a friend",
   "str_john_a_channel": "join a channel",
   "scan_qr_code": "Scan QR code",
-  "ox_request_join_item_text": "${name} request to join the group"
+  "request_join_item_text": "${name} request to join the group"
 }
