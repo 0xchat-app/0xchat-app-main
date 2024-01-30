@@ -64,7 +64,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             case CustomMessageType.ecash:
               final tokenList = EcashMessageEx(message).tokenList;
               if (tokenList.length > 1) {
-                return '[For ecash messages from 0xchat, use the 0xchat client to view them]';
+                return '[You\'ve received eNuts via 0xchat]';
               } else if (tokenList.length == 1) {
                 return tokenList.first;
               }

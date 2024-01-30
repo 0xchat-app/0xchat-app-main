@@ -208,7 +208,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
         isCircular: false,
       ),
       title: Text(
-        user?.getUserShowName() ?? 'anonymity',
+        user?.getUserShowName() ?? 'anonym',
         style: TextStyle(
           color: ThemeColor.color0,
           fontSize: 14.sp,

@@ -5,7 +5,7 @@ class EcashPackageInfo {
   EcashPackageInfo({
     required this.token,
     required this.amount,
-    this.unit = 'sat',
+    this.unit = 'sats',
     this.redeemHistory
   });
 

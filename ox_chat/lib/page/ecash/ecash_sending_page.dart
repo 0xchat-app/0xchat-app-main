@@ -29,14 +29,14 @@ extension _PackageTypeEx on _PackageType {
     switch (this) {
       case _PackageType.single: return '';
       case _PackageType.multipleRandom: return 'Random Amount';
-      case _PackageType.multipleEqual: return 'Indentical Amount';
+      case _PackageType.multipleEqual: return 'Identical Amount';
     }
   }
 
   String get amountInputTitle {
     switch (this) {
       case _PackageType.single: return 'Amount';
-      case _PackageType.multipleRandom: return 'Total Amount';
+      case _PackageType.multipleRandom: return 'Total';
       case _PackageType.multipleEqual: return 'Amount Each';
     }
   }
