@@ -86,7 +86,7 @@
   "str_my_idcard": "My Card",
   "str_scan": "Scan",
   "str_add_friend" : "Add Friend",
-  "str_new_channel": "New Channel",
+  "str_new_channel": "Public Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
   "scan_find_nwc_hint": "Connect to this wallet?",
   "get_request_title": "Allow this website to:",
