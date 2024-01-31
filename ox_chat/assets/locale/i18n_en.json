@@ -133,7 +133,7 @@
   "session_content_mentioned": "You're mentioned",
   "session_content_draft":"Draft",
   "lightning_invoice": "Lightning Invoice",
-  "str_new_group": "New Group",
+  "str_new_group": "Private Group",
   "create_group_search_hint_text": "Who would you like to add？",
   "create_group_select_toast": "Please select at least one user",
   "next": "Next",
