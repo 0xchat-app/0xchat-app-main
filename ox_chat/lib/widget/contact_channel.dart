@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -25,8 +26,7 @@ class ChannelContact extends StatefulWidget {
   final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
-  ScrollController? scrollController;
-  CursorChannelsChanged? onCursorChannelsChanged;
+  final Widget? topWidget;
 
   ChannelContact({
     Key? key,
@@ -34,8 +34,7 @@ class ChannelContact extends StatefulWidget {
     required this.chatType,
     this.shrinkWrap = false,
     this.physics,
-    this.scrollController,
-    this.onCursorChannelsChanged,
+    this.topWidget,
   }) : super(key: key);
 
   @override
@@ -52,6 +51,7 @@ class Note {
 }
 
 class ChannelContactState extends State<ChannelContact> {
+  ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
   late List<ChannelDB> channelList;
   int defaultIndex = 0;
@@ -69,20 +69,16 @@ class ChannelContactState extends State<ChannelContact> {
     super.initState();
     channelList = widget.data;
     _initIndexBarData();
-    // scrollController.addListener(() {
-    //   double position = scrollController.offset.toDouble();
-    //   int index = _computerIndex(position);
-    //   defaultIndex = index;
-    // });
+    _scrollController.addListener(() {
+      double position = _scrollController.offset.toDouble();
+      int index = _computerIndex(position);
+      defaultIndex = index;
+    });
   }
 
   void updateContactData(List<ChannelDB> data) {
     channelList = data;
     _initIndexBarData();
-    widget.onCursorChannelsChanged?.call(Container(
-      child: _buildAlphaBar(),
-      width: 30,
-    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -135,6 +131,10 @@ class ChannelContactState extends State<ChannelContact> {
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
                 ),
+                Container(
+                  child: _buildAlphaBar(),
+                  width: 30,
+                ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
             ),
@@ -167,7 +167,7 @@ class ChannelContactState extends State<ChannelContact> {
 
   @override
   void dispose() {
-    widget.scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -194,14 +194,13 @@ class ChannelContactState extends State<ChannelContact> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
-    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
-      widget.scrollController!.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
+      _scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
     timer = Timer(Duration(milliseconds: 300), () {
@@ -235,6 +234,13 @@ class ChannelContactState extends State<ChannelContact> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
+    if (widget.topWidget != null) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: widget.topWidget,
+        ),
+      );
+    }
     noteList.forEach((item) {
       slivers.add(
         SliverStickyHeader(
@@ -255,10 +261,11 @@ class ChannelContactState extends State<ChannelContact> {
         ),
       );
     });
+    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
     slivers.add(
-      SliverStickyHeader(
-        header: SizedBox(
-          height: Adapt.px(96),
+      SliverToBoxAdapter(
+        child: Container(
+          height: fillH,
         ),
       ),
     );
