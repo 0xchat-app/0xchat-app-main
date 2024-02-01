@@ -18,7 +18,8 @@ import 'package:cashu_dart/cashu_dart.dart';
 class WalletSendEcashOverviewPage extends StatefulWidget {
   final int amount;
   final String? memo;
-  const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo});
+  final IMint mint;
+  const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo, required this.mint});
 
   @override
   State<WalletSendEcashOverviewPage> createState() => _WalletSendEcashOverviewPageState();
@@ -119,7 +120,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   Future<void> _createToken() async {
     if(EcashManager.shared.defaultIMint == null) return;
     await OXLoading.show();
-    final response = await EcashService.sendEcash(mint: EcashManager.shared.defaultIMint!, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
+    final response = await EcashService.sendEcash(mint: widget.mint, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
     await OXLoading.dismiss();
     if (response.isSuccess) {
       OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: response.data,));

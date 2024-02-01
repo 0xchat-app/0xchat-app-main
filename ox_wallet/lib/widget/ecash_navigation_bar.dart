@@ -152,11 +152,12 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     if (!_hasMintAdded()) return;
 
     Widget Function(BuildContext?) pageBuilder;
-    if (isUnsetDefaultMint) {
-      pageBuilder = (context) => WalletMintChoosePage(type: actionType);
-    } else {
-      pageBuilder = actionType.defaultPageBuilder;
-    }
+    // if (isUnsetDefaultMint) {
+    //   pageBuilder = (context) => WalletMintChoosePage(type: actionType);
+    // } else {
+    //   pageBuilder = actionType.defaultPageBuilder;
+    // }
+    pageBuilder = actionType.defaultPageBuilder;
     _jumpToPage(pageBuilder: pageBuilder);
   }
 }

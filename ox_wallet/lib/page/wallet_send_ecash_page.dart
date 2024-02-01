@@ -4,23 +4,38 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'wallet_send_ecash_overview_page.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
-class WalletSendEcashPage extends StatelessWidget {
+class WalletSendEcashPage extends StatefulWidget {
+  const WalletSendEcashPage({super.key});
+
+  @override
+  State<WalletSendEcashPage> createState() => _WalletSendEcashPageState();
+}
+
+class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  WalletSendEcashPage({super.key});
-
   String get amount => _amountController.text;
   String get description => _descriptionController.text;
-  bool get enable => amount.isNotEmpty && double.parse(amount) > 0;
+  bool get enable => amount.isNotEmpty && double.parse(amount) > 0 && _mint != null;
+
+  IMint? _mint;
+
+  @override
+  void initState() {
+    _mint = EcashManager.shared.defaultIMint;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +53,7 @@ class WalletSendEcashPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            MintIndicatorItem(mint: _mint,onChanged: _onChanged),
             SatsAmountCard(controller: _amountController,).setPaddingOnly(top: 12.px),
             _buildDescription(),
             _buildContinueButton(),
@@ -85,6 +101,12 @@ class WalletSendEcashPage extends StatelessWidget {
       CommonToast.instance.show(context, 'Insufficient mint balance');
       return;
     }
-    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: description,));
+    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: description, mint: _mint!,));
+  }
+
+  void _onChanged(IMint mint) {
+    setState(() {
+      _mint = mint;
+    });
   }
 }
