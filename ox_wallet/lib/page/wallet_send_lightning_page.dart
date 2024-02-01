@@ -143,7 +143,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   void _send() {
     if(EcashManager.shared.defaultIMint == null){
       final currentContext = context;
-      OXNavigator.pushPage(context, (context) => WalletMintChoosePage(type: ChooseType.payInvoice,onChanged: (value) => OXNavigator.pop(currentContext),));
+      OXNavigator.pushPage(context, (context) => WalletMintChoosePage(onChanged: (value) => OXNavigator.pop(currentContext),));
       return;
     }
     OXLoading.show();
