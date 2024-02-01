@@ -1,5 +1,6 @@
 
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:flutter/material.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class OXWalletInterface {
@@ -22,5 +23,20 @@ class OXWalletInterface {
       [],
       {},
     );
+  }
+
+  static Widget buildMintIndicatorItem({
+    required IMint? mint,
+    required ValueChanged<IMint>? selectedMintChange,
+  }) {
+    return OXModuleService.invoke<Widget>(
+      moduleName,
+      'buildMintIndicatorItem',
+      [],
+      {
+        #mint: mint,
+        #selectedMintChange: selectedMintChange,
+      },
+    ) ?? SizedBox();
   }
 }

@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/navigator/page_router.dart';
 
+enum OXPushPageType {
+  slideToLeft,
+  noAnimation,
+  transparent,
+}
+
 enum OXStackPageOption {
   reset,
   push,
   pop,
   replace
 }
+
 class OXNavigator extends Navigator {
 
   static final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
@@ -111,16 +118,46 @@ class OXNavigator extends Navigator {
   }
 
   @optionalTypeArgs
-  static Future<T?> pushPage<T extends Object?>(BuildContext context, Widget Function(BuildContext? context) builder,
-      {String? pageName, Object? pageId, bool fullscreenDialog = false}) {
+  static Future<T?> pushPage<T extends Object?>(
+      BuildContext? context,
+      Widget Function(BuildContext? context) builder, {
+        String? pageName,
+        Object? pageId,
+        bool fullscreenDialog = false,
+        OXPushPageType type = OXPushPageType.slideToLeft,
+      }) {
     pageName ??= builder(null).runtimeType.toString();
+    context ??= navigatorKey.currentContext;
+    if (context == null) return Future.value(null);
+
+    final routeSettings = RouteSettings(
+      name: pageName,
+      arguments: pageId,
+    );
+    PageRoute<T> route;
+
+    switch (type) {
+      case OXPushPageType.slideToLeft:
+        route = SlideLeftToRightRoute<T>(
+          fullscreenDialog: fullscreenDialog,
+          settings: routeSettings,
+          builder: builder,
+        );
+      case OXPushPageType.noAnimation:
+        route = NoAnimationPageRoute<T>(
+          builder: builder,
+          settings: routeSettings,
+        );
+      case OXPushPageType.transparent:
+        route = TransparentPageRoute<T>(
+          builder: builder,
+          settings: routeSettings,
+        );
+    }
+
     return OXNavigator.push(
       context,
-      generalPageRouter<T>(
-        builder: builder,
-        pageName: pageName,
-        pageId: pageId,
-      ),
+      route,
     );
   }
 

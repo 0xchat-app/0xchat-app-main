@@ -67,3 +67,9 @@ extension BuildContextEx on BuildContext {
     return null;
   }
 }
+
+extension BoolEx on bool {
+  bool get not {
+    return !this;
+  }
+}

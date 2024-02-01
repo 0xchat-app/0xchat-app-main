@@ -22,3 +22,40 @@ class SlideLeftToRightRoute<T> extends PageRoute<T> with CupertinoRouteTransitio
   @override
   bool get maintainState => true;
 }
+
+class TransparentPageRoute<T> extends PageRouteBuilder<T> {
+  final RouteSettings settings;
+
+  TransparentPageRoute({
+    required WidgetBuilder builder,
+    required this.settings,
+  }) : super(
+    opaque: false,
+    pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Curves.fastOutSlowIn,
+          ),
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
+class NoAnimationPageRoute<T> extends PageRouteBuilder<T> {
+  final RouteSettings settings;
+
+  NoAnimationPageRoute({
+    required WidgetBuilder builder,
+    required this.settings,
+  }) : super(
+    pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return child;
+    },
+  );
+}
