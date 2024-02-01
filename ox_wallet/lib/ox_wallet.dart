@@ -10,6 +10,7 @@ import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
+import 'package:ox_wallet/widget/mint_indicator_item.dart';
 
 class OXWallet extends OXFlutterModule {
   @override
@@ -55,6 +56,7 @@ class OXWallet extends OXFlutterModule {
     'walletPageWidget': walletPageWidget,
     'getDefaultMint': getDefaultMint,
     'isWalletAvailable': isWalletAvailable,
+    'buildMintIndicatorItem': buildMintIndicatorItem,
   };
 
   @override
@@ -75,5 +77,15 @@ class OXWallet extends OXFlutterModule {
 
   bool isWalletAvailable() {
     return EcashManager.shared.isWalletAvailable;
+  }
+
+  Widget buildMintIndicatorItem({
+    required IMint? mint,
+    required ValueChanged<IMint>? selectedMintChange,
+  }) {
+    return MintIndicatorItem(
+      mint: mint,
+      onChanged: selectedMintChange,
+    );
   }
 }

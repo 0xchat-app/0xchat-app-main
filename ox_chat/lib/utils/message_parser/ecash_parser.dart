@@ -6,7 +6,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 class EcashParser {
   static String? tryEncoder(types.Message message) {
     if (message is types.CustomMessage && message.customType == CustomMessageType.ecash) {
-      return EcashMessageEx(message).token;
+      return EcashMessageEx(message).tokenList.firstOrNull;
     }
     return null;
   }

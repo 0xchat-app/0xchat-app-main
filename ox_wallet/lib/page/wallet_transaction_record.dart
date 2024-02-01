@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/extension.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -28,8 +29,8 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
 
   @override
   void initState() {
-    _initData();
     super.initState();
+    _initData();
   }
 
   _initData(){
@@ -105,7 +106,7 @@ class _WalletTransactionRecordState extends State<WalletTransactionRecord> {
     OXLoading.show();
     bool? result = await EcashService.checkEcashTokenSpendable(entry: widget.entry);
     OXLoading.dismiss();
-    _updateSpentStatus(_getSpentStatus(result));
+    _updateSpentStatus(_getSpentStatus(result?.not));
   }
 
   StepItemModel _getSpentStatus(bool? isSpent) {

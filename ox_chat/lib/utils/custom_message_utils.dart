@@ -132,8 +132,8 @@ extension NoteMessageEx on types.CustomMessage {
 
 extension EcashMessageEx on types.CustomMessage {
 
-  updateDetailInfo() {
-    final tokenList = this.tokenList;
+  static updateDetailInfo(Map? metadata) {
+    final tokenList = getTokenListWithMetadata(metadata);
     if (tokenList.isEmpty) return ;
 
     var memoStr = '';
@@ -149,23 +149,30 @@ extension EcashMessageEx on types.CustomMessage {
     metadata?['content']?['amount'] = totalAmount.toString();
   }
 
-  List<String> get tokenList => metadata?['content']?['tokenList'] ?? [];
+  static List<String> getTokenListWithMetadata(Map? metadata) =>
+      metadata?['content']?['tokenList'] ?? [];
 
-  String get description {
+  static getDescriptionWithMetadata(Map? metadata) {
     final amount = metadata?['content']?['memo'];
     if (amount == null) {
-      updateDetailInfo();
+      EcashMessageEx.updateDetailInfo(metadata);
     }
     return metadata?['content']?['memo'] ?? '';
   }
 
-  int get amount {
+  static getAmountWithMetadata(Map? metadata) {
     final amount = metadata?['content']?['amount'];
     if (amount == null) {
-      updateDetailInfo();
+      EcashMessageEx.updateDetailInfo(metadata);
     }
     return int.tryParse(metadata?['content']?['amount']) ?? 0;
   }
+
+  List<String> get tokenList => EcashMessageEx.getTokenListWithMetadata(metadata);
+
+  String get description => EcashMessageEx.getDescriptionWithMetadata(metadata);
+
+  int get amount  => EcashMessageEx.getAmountWithMetadata(metadata);
 
   bool get isOpened {
     return bool.tryParse(

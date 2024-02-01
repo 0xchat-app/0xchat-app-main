@@ -6,9 +6,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cashu_dart/cashu_dart.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
+import 'package:ox_chat/page/ecash/ecash_sending_page.dart';
+import 'package:ox_chat/utils/chat_voice_helper.dart';
+import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_reply_handler.dart';
+import 'package:ox_chat/utils/message_parser/define.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
@@ -53,13 +58,6 @@ import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
-import '../../page/ecash/ecash_detail_page.dart';
-import '../../page/ecash/ecash_info.dart';
-import '../../page/ecash/ecash_sending_page.dart';
-import '../custom_message_utils.dart';
-import '../message_parser/define.dart';
-import 'chat_reply_handler.dart';
-import '../chat_voice_helper.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
 
@@ -254,7 +252,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     }
 
     final receiverPubkey = senderPubkey == myPubkey
-        ? (session.chatId ?? '' ): myPubkey;
+        ? session.chatId : myPubkey;
     final invoice = ZapsMessageEx(message).invoice;
     final zapper = ZapsMessageEx(message).zapper;
     final description = ZapsMessageEx(message).description;
@@ -311,62 +309,8 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   }
 
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
-
-    final jumpDetail = (List<EcashPackageInfo> ecashInfoList) {
-      OXNavigator.pushPage(context, (context) => EcashDetailPage(
-        senderName: message.author.sourceObject?.getUserShowName() ?? '',
-        ecashList: ecashInfoList,
-        totalAmount: EcashMessageEx(message).amount,
-        description: EcashMessageEx(message).description,
-      ));
-    };
-
-    final tokenList = EcashMessageEx(message).tokenList;
-
-    OXLoading.show();
-    final ecashInfoList = await EcashPackageInfoHelper.createInfoFromTokens(tokenList);
-    OXLoading.dismiss();
-
-    if (ecashInfoList == null) {
-      CommonToast.instance.show(context, 'The ecash information request failed.');
-      return ;
-    }
-
-    if (ecashInfoList.any((info) => info.redeemHistory?.isMe == true)) {
-      jumpDetail(ecashInfoList);
-      return ;
-    }
-
-    final notRedeemToken = ecashInfoList.where((info) => info.redeemHistory == null).firstOrNull;
-    if (notRedeemToken == null) {
-      CommonToast.instance.show(context, 'All tokens already spent.');
-      jumpDetail(ecashInfoList);
-      return ;
-    }
-
-    OXLoading.show();
-    final response = await Cashu.redeemEcash(notRedeemToken.token);
-    OXLoading.dismiss();
-
-    if (response.isSuccess) {
-      CommonToast.instance.show(context, 'Redeem success.');
-      notRedeemToken.redeemHistory = EcashHistory(isMe: true, timestamp: DateTime.now().millisecondsSinceEpoch);
-      jumpDetail(ecashInfoList);
-    } else {
-      CommonToast.instance.show(context, response.errorMsg);
-    }
-
-    if (response.isSuccess || response.code == ResponseCode.tokenAlreadySpentError) {
-      final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [message.remoteId]);
-      final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
-      if (messageDB != null) {
-        EcashMessageEx(message).isOpened = true;
-        final newUIMessage = message.copyWith();
-        messageDB.decryptContent = jsonEncode(message.metadata);
-        await DB.sharedInstance.update(messageDB);
-        await ChatDataCache.shared.updateMessage(session: session, message: newUIMessage);
-      }
-    }
+    final package = await EcashHelper.createPackageFromMessage(message);
+    EcashOpenDialog.show(context, package);
   }
 }
 

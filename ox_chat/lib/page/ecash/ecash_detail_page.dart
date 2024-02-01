@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/future_extension.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -20,16 +21,10 @@ class EcashDetailPage extends StatefulWidget {
 
   const EcashDetailPage({
     super.key,
-    required this.senderName,
-    required this.ecashList,
-    required this.totalAmount,
-    required this.description,
+    required this.package,
   });
 
-  final String senderName;
-  final List<EcashPackageInfo> ecashList;
-  final int totalAmount;
-  final String description;
+  final EcashPackage package;
 
   @override
   State<StatefulWidget> createState() => EcashDetailPageState();
@@ -37,20 +32,28 @@ class EcashDetailPage extends StatefulWidget {
 
 class EcashDetailPageState extends State<EcashDetailPage> {
 
+  String ownerName = '';
+
   IHistoryEntry? recordDetail;
 
-  List<EcashPackageInfo> historyList = [];
+  List<EcashTokenInfo> historyList = [];
 
-  String get senderName => widget.senderName;
-  String get totalAmount => widget.totalAmount.formatWithCommas();
-  String get description => widget.description;
+  String get totalAmount => widget.package.totalAmount.formatWithCommas();
+  String get description => widget.package.memo;
 
   String unit = 'sats';
 
   @override
   void initState() {
     super.initState();
-    historyList = widget.ecashList
+
+    Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
+      setState(() {
+        ownerName = user?.getUserShowName() ?? 'anonymity';
+      });
+    });
+
+    historyList = widget.package.tokenInfoList
         .where((info) => info.redeemHistory != null).toList()
         .cast();
 
@@ -119,7 +122,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
       children: <Widget>[
         SizedBox(height: 12.px),
         Text(
-          'Sent by ${widget.senderName}',
+          'Sent by ${ownerName}',
           style: TextStyle(
             color: ThemeColor.white,
             fontSize: 18.sp,
@@ -149,8 +152,8 @@ class EcashDetailPageState extends State<EcashDetailPage> {
   }
 
   Widget _buildHistoryList() {
-    final tokenCount = widget.ecashList.length;
-    final tokenReceiveCount = widget.ecashList.where((info) => info.redeemHistory != null).length;
+    final tokenCount = widget.package.tokenInfoList.length;
+    final tokenReceiveCount = widget.package.tokenInfoList.where((info) => info.redeemHistory != null).length;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -186,7 +189,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
     );
   }
 
-  Widget _buildHistoryItemWithEntry(EcashPackageInfo entry) {
+  Widget _buildHistoryItemWithEntry(EcashTokenInfo entry) {
     final user = entry.redeemHistory?.isMe == true ? Account.sharedInstance.me : null;
     return _buildHistoryItem(
       user,

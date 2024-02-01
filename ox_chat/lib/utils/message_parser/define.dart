@@ -8,5 +8,5 @@ abstract class MessageTransfer {
 
   bool isMatch(String text);
 
-  FutureOr<types.Message> handle(String text);
+  FutureOr<types.Message> transferFromText(String text);
 }
