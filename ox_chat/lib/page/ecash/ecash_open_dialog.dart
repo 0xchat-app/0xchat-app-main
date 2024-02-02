@@ -198,7 +198,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cashu Token',
+                'Cashu Ecash',
                 style: TextStyle(
                   color: ThemeColor.white,
                   fontSize: 12.sp,

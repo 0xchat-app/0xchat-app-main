@@ -114,7 +114,7 @@ class ChatMessageDBToUIHelper {
                   try {
                     memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
                   } catch (_) { }
-                  return '[Cashu Token] $memo';
+                  return '[Cashu Ecash] $memo';
                 default:
                   break ;
               }

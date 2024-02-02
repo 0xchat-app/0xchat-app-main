@@ -143,7 +143,7 @@ extension InputMoreItemEx on InputMoreItem {
   static ecash(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'ecash',
-        title: () => 'Cashu Token',
+        title: () => 'Cashu Ecash',
         iconName: 'chat_ecash_icon.png',
         action: (context) {
           handler.ecashPressHandler(context);
