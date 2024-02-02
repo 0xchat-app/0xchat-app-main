@@ -1,6 +1,4 @@
 
-import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 
 class OXChatInterface {
 

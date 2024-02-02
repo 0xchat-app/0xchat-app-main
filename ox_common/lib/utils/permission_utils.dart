@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
