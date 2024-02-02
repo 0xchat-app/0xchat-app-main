@@ -324,11 +324,6 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     }
   }
 
-  Future mintOnTap() async {
-    final mint = OXWalletInterface.getDefaultMint();
-    setState(() {});
-  }
-
   Future _sendButtonOnPressed() async {
     final amount = int.tryParse(ecashAmount) ?? 0;
     final ecashCount = this.ecashCount;
@@ -345,6 +340,16 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     final mint = this.mint;
     if (mint == null) {
       CommonToast.instance.show(context, 'Must select mint to send ecash');
+      return ;
+    }
+
+    if (amount > mint.balance) {
+      CommonToast.instance.show(context, 'Insufficient balance');
+      return ;
+    }
+
+    if (packageType == _PackageType.multipleRandom && amount < ecashCount) {
+      CommonToast.instance.show(context, 'The quantity cannot exceed the amount');
       return ;
     }
     
