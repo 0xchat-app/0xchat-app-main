@@ -93,7 +93,6 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       OXLoading.dismiss();
       if (mint != null) {
         CommonToast.instance.show(context, 'Add Mint Successful');
-        EcashManager.shared.addMint(mint);
         if(widget.action == ImportAction.add){
           OXNavigator.pop(context,true);
         }else{

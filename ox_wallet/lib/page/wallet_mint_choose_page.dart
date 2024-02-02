@@ -4,6 +4,8 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/theme_button.dart';
+import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
@@ -34,20 +36,28 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
         centerTitle: true,
         useLargeTitle: false,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 12.px,),
-          ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemBuilder: (context, index) => MintItem(mint: mintItems[index],onChanged: _chooseMint,),
-            separatorBuilder: (context,index) => SizedBox(height: 12.px,),
-            itemCount: mintItems.length,
-          ),
-        ],
+      body: SizedBox(
+        child: mintItems.isNotEmpty?  ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemBuilder: (context, index) => MintItem(mint: mintItems[index],onChanged: _chooseMint,),
+          separatorBuilder: (context,index) => SizedBox(height: 12.px,),
+          itemCount: mintItems.length,
+        ) : _defaultWidget(),
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
+  }
+
+  Widget _defaultWidget() {
+    return ThemeButton(text: 'Add Mint',height: 48.px,onTap: () async {
+      bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage());
+      if (result != null && result) {
+        setState(() {
+          mintItems = EcashManager.shared.mintList;
+        });
+      }
+    },);
   }
 
   Future<void> _chooseMint(IMint? mint) async {

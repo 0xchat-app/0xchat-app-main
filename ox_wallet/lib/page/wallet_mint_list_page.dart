@@ -101,9 +101,12 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         setState(() {});
       });
 
-  void _addMint() => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) {
-        if (value != null && value as bool) {
-          setState(() {});
-        }
+  void _addMint() async {
+    bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage());
+    if (result != null && result) {
+      setState(() {
+        mintItems = EcashManager.shared.mintList;
       });
+    }
+  }
 }
