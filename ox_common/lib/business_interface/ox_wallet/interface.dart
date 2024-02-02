@@ -39,4 +39,13 @@ class OXWalletInterface {
       },
     ) ?? SizedBox();
   }
+
+  static bool checkWalletActivate() {
+    return OXModuleService.invoke<bool>(
+      moduleName,
+      'checkWalletActivate',
+      [],
+      {},
+    ) ?? false;
+  }
 }
