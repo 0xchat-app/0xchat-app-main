@@ -42,15 +42,16 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => _shareController.value = !_shareController.value,
-                child:Text('Pay',style: TextStyle(fontSize: 18.sp,color: ThemeColor.color0)).setPaddingOnly(right: 15.px, top: 5.px),
+                child:Center(child: Text('Pay',style: TextStyle(fontSize: 18.sp,color: ThemeColor.color0)).setPaddingOnly(right: 20.px)),
               ),
             ],
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+          body: SatsReceivePage(shareController: _shareController,).setPaddingOnly(top: 12.px),
+          // body: Column(
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   children: [
               // EcashTabBar(controller: _controller, tabsName: tabsName,),
-              SizedBox(height: 12.px,),
+              // SizedBox(height: 12.px,),
               // Expanded(
               //   child: TabBarView(
               //     controller: _controller,
@@ -60,9 +61,9 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
               //     ],
               //   ),
               // ),
-              Expanded(child: SatsReceivePage(shareController: _shareController,))
-            ],
-          ).setPaddingOnly(top: 12.px)
+              // Expanded(child: SatsReceivePage(shareController: _shareController,))
+            // ],
+          // ).setPaddingOnly(top: 12.px)
       ),
     );
   }

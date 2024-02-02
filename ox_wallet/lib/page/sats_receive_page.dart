@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
@@ -15,6 +16,7 @@ import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/counter_down.dart';
 import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
 
 class SatsReceivePage extends StatefulWidget {
@@ -29,6 +31,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
 
   final ValueNotifier<String?> _invoiceNotifier = ValueNotifier('');
   final ValueNotifier<int> _expiredTimeNotifier = ValueNotifier(0);
+  final ValueNotifier<IMint?> _mintNotifier = ValueNotifier(null);
   final TextEditingController _amountEditController = TextEditingController();
   final TextEditingController _noteEditController = TextEditingController();
   final FocusNode _noteFocus = FocusNode();
@@ -39,23 +42,24 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   String get amount => _amountEditController.text;
   String get note => _noteEditController.text;
   String? get invoice => _invoiceNotifier.value;
+  IMint? get mint => _mintNotifier.value;
 
   String _amountLastInput = '', _noteLastInput = '';
+  late IMint? _mintLastSelected;
 
   @override
   void initState() {
+    super.initState();
+    _mintNotifier.value = EcashManager.shared.defaultIMint;
     _amountEditController.text = '21';
     _amountLastInput = amount;
+    _mintLastSelected = mint;
     _createLightningInvoice();
     _amountFocus.addListener(() => _focusChanged(_amountFocus));
     _noteFocus.addListener(() => _focusChanged(_noteFocus));
     payInvoiceListener = EcashListener(onInvoicePaidChanged: _onInvoicePaid);
     Cashu.addInvoiceListener(payInvoiceListener);
-    widget.shareController?.addListener(() async {
-      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
-      // WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
-    });
-    super.initState();
+    widget.shareController?.addListener(_shareListener);
   }
 
   void _focusChanged(FocusNode focusNode) {
@@ -81,6 +85,15 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     );
   }
 
+  void _shareListener() async {
+    if(mint == null) {
+      await CommonToast.instance.show(context, 'Please select mint first');
+      return;
+    }
+    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
+    // WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -89,14 +102,39 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              _buildSelectMintWidget(),
+              _buildVisibilityWidget(),
+            ],
+          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVisibilityWidget() {
+    return ValueListenableBuilder(
+      valueListenable: _mintNotifier,
+      builder: (context, value, child) {
+        return Visibility(
+          visible: value != null,
+          child: Column(
+            children: [
               _buildReceiveInfo(),
               _buildLightningInvoice(),
               _buildAmountEdit(),
               _buildNoteEdit(),
             ],
-          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-        ),
-      ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSelectMintWidget() {
+    return ValueListenableBuilder(
+      valueListenable: _mintNotifier,
+      builder: (context, value, child) =>
+          MintIndicatorItem(mint: value, onChanged: _onChanged),
     );
   }
 
@@ -117,7 +155,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
                 ScreenshotWidget(key:_stasReceivePageScreenshotKey, child: EcashQrCode(controller: _invoiceNotifier,onRefresh: () => _createLightningInvoice(),)),
               ],
             ),
-          );
+          ).setPaddingOnly(top: 12.px);
         }
     );
   }
@@ -189,10 +227,10 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   }
 
   Future<void> _createLightningInvoice() async {
-    if(EcashManager.shared.defaultIMint == null) return;
+    if(mint == null) return;
     int amountSats = int.parse(amount);
     _updateLoadingStatus();
-    Receipt? receipt = await EcashService.createLightningInvoice(mint: EcashManager.shared.defaultIMint!, amount: amountSats);
+    Receipt? receipt = await EcashService.createLightningInvoice(mint: mint!, amount: amountSats);
     if(receipt != null && receipt.request.isNotEmpty){
       _invoiceNotifier.value = receipt.request;
       // _expiredTimeNotifier.value = receipt.expiry;
@@ -205,6 +243,14 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
   void _updateLoadingStatus() {
     _invoiceNotifier.value = '';
     _expiredTimeNotifier.value = 0;
+  }
+
+  void _onChanged(IMint mint) {
+    _mintNotifier.value = mint;
+    if(_mintLastSelected != mint) {
+      _createLightningInvoice();
+      _mintLastSelected = mint;
+    }
   }
 
   @override

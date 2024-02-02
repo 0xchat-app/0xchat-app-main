@@ -55,6 +55,7 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
     if(context.mounted){
       OXNavigator.pop(context);
       if (widget.onChanged != null) {
+        if(EcashManager.shared.defaultIMint == null) EcashManager.shared.setDefaultMint(mint);
         widget.onChanged!.call(mint);
         return;
       }
