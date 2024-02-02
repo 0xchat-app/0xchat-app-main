@@ -124,7 +124,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
       title: AnimatedOpacity(
         opacity: _opacity,
         duration: const Duration(milliseconds: 100),
-        child: const Text('Cashu Wallet'),
+        child: const Text('Wallet'),
       ),
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -162,7 +162,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            "Cashu Wallet",
+            "Wallet",
             style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w400,height: 25.px / 18.px),
           ),
           SizedBox(
