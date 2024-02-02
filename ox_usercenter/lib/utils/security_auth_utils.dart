@@ -30,7 +30,7 @@ class SecurityAuthUtils{
       availableBiometrics = <BiometricType>[];
       print(e);
     }
-    LogUtil.e('--------availableBiometrics =${availableBiometrics}');
+    LogUtil.e('--------availableBiometrics =$availableBiometrics');
     return availableBiometrics;
   }
 
@@ -48,7 +48,7 @@ class SecurityAuthUtils{
     } on PlatformException catch (e) {
       print(e);
     }
-    LogUtil.e('Michael: ===authenticated =${authenticated}');
+    LogUtil.e('Michael: ===authenticated =$authenticated');
 
     return authenticated;
   }

@@ -14,6 +14,8 @@ import 'package:ox_common/widgets/common_loading.dart';
 ///@author Michael
 ///CreateTime: 2023/5/4 17:20
 class RelaysSelectorPage extends StatefulWidget {
+  const RelaysSelectorPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _RelaysSelectorPageState();
@@ -50,7 +52,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16)),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: double.infinity,
               height: Adapt.px(56),
               child: Row(
@@ -103,7 +105,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
 
   Widget _body() {
     return SingleChildScrollView(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -143,7 +145,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
     RelayModel _model = _relayList[index];
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: double.infinity,
           height: Adapt.px(52),
           child: ListTile(
@@ -184,7 +186,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
       inactiveThumbColor: Colors.white,
       inactiveTrackColor: ThemeColor.color160,
       onChanged: (bool value) {
-        LogUtil.e('Michael： value =${value}');
+        LogUtil.e('Michael： value =$value');
         setState(() {
           relayModel.isSelected = value;
         });

@@ -32,9 +32,9 @@ extension OXUserCenterStr on String {
   String localized([Map<String, String>? replaceArg]) {
     String text = Localized.text('ox_usercenter.$this');
     if (replaceArg != null) {
-      replaceArg.keys.forEach((key) {
+      for (var key in replaceArg.keys) {
         text = text.replaceAll(key, replaceArg[key] ?? '');
-      });
+      }
     }
     return text;
   }

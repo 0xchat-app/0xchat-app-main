@@ -27,7 +27,7 @@ class ICEServerPage extends StatefulWidget {
 class _ICEServerPageState extends State<ICEServerPage> {
   final TextEditingController _iceServerTextFieldController = TextEditingController();
   List<ICEServerModel> _connectICEServerList = [];
-  List<ICEServerModel> _recommendICEServerList = [];
+  final List<ICEServerModel> _recommendICEServerList = [];
   bool _isEditing = false;
   bool _isShowDelete = false;
   bool _isShowAdd = false;

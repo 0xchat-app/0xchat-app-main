@@ -22,6 +22,8 @@ import 'package:ox_usercenter/widget/relay_recommend_widget.dart';
 ///@author Michael
 ///CreateTime: 2023/5/4 17:20
 class RelaysPage extends StatefulWidget {
+  const RelaysPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _RelaysPageState();
@@ -248,7 +250,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
     RelayModel _model = _relayList[index];
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: double.infinity,
           height: Adapt.px(52),
           child: ListTile(

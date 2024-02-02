@@ -3,7 +3,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_wallet/page/sats_receive_page.dart';
 
 class WalletReceiveLightningPage extends StatefulWidget {

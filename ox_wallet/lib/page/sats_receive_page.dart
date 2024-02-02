@@ -10,7 +10,6 @@ import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
-import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/counter_down.dart';

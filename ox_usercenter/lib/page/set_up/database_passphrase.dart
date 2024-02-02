@@ -35,12 +35,12 @@ class DatabasePassphrase extends StatefulWidget {
 }
 
 class DatabasePassphraseState extends State<DatabasePassphrase> {
-  TextEditingController _currentTeController = TextEditingController();
-  TextEditingController _newTeController = TextEditingController();
-  TextEditingController _confirmTeController = TextEditingController();
-  FocusNode _currentFocusNode = FocusNode();
-  FocusNode _newFocusNode = FocusNode();
-  FocusNode _confirmFocusNode = FocusNode();
+  final TextEditingController _currentTeController = TextEditingController();
+  final TextEditingController _newTeController = TextEditingController();
+  final TextEditingController _confirmTeController = TextEditingController();
+  final FocusNode _currentFocusNode = FocusNode();
+  final FocusNode _newFocusNode = FocusNode();
+  final FocusNode _confirmFocusNode = FocusNode();
   bool _isOriginalPw = true;
   bool _currentEyeStatus = true;
   bool _newEyeStatus = true;

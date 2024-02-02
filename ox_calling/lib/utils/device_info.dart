@@ -10,6 +10,6 @@ class DeviceInfo {
   }
 
   static String get userAgent {
-    return 'flutter-webrtc/' + Platform.operatingSystem + '-plugin 0.0.1';
+    return 'flutter-webrtc/${Platform.operatingSystem}-plugin 0.0.1';
   }
 }

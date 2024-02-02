@@ -9,7 +9,7 @@ class DataChannelSample extends StatefulWidget {
   static String tag = 'call_sample';
   final String host;
   final int port;
-  DataChannelSample({required this.host, required this.port});
+  const DataChannelSample({super.key, required this.host, required this.port});
 
   @override
   _DataChannelSampleState createState() => _DataChannelSampleState();
@@ -46,18 +46,18 @@ class _DataChannelSampleState extends State<DataChannelSample> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("title"),
-          content: Text("accept?"),
+          title: const Text("title"),
+          content: const Text("accept?"),
           actions: <Widget>[
             MaterialButton(
-              child: Text(
+              child: const Text(
                 'Reject',
                 style: TextStyle(color: Colors.red),
               ),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             MaterialButton(
-              child: Text(
+              child: const Text(
                 'Accept',
                 style: TextStyle(color: Colors.green),
               ),
@@ -74,11 +74,11 @@ class _DataChannelSampleState extends State<DataChannelSample> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("title"),
-          content: Text("waiting"),
+          title: const Text("title"),
+          content: const Text("waiting"),
           actions: <Widget>[
             TextButton(
-              child: Text("cancel"),
+              child: const Text("cancel"),
               onPressed: () {
                 Navigator.of(context).pop(false);
                 _hangUp();
@@ -96,7 +96,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
     _signaling?.onDataChannelMessage = (_, dc, RTCDataChannelMessage data) {
       setState(() {
         if (data.isBinary) {
-          print('Got binary [' + data.binary.toString() + ']');
+          print('Got binary [${data.binary}]');
         } else {
           _text = data.text;
         }
@@ -122,7 +122,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
           setState(() {
             _session = session;
           });
-          _timer = Timer.periodic(Duration(seconds: 1), _handleDataChannelTest);
+          _timer = Timer.periodic(const Duration(seconds: 1), _handleDataChannelTest);
           break;
         case CallState.CallStateBye:
           if (_waitAccept) {
@@ -177,7 +177,7 @@ class _DataChannelSampleState extends State<DataChannelSample> {
 
   _handleDataChannelTest(Timer timer) async {
     String text =
-        'Say hello ' + timer.tick.toString() + ' times, from [$_selfId]';
+        'Say hello ${timer.tick} times, from [$_selfId]';
     _dataChannel
         ?.send(RTCDataChannelMessage.fromBinary(Uint8List(timer.tick + 1)));
     _dataChannel?.send(RTCDataChannelMessage(text));
@@ -213,10 +213,10 @@ class _DataChannelSampleState extends State<DataChannelSample> {
             ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]'
             : peer['name'] + ', ID: ${peer['id']} '),
         onTap: () => _invitePeer(context, peer['id']),
-        trailing: Icon(Icons.sms),
-        subtitle: Text('[' + peer['user_agent'] + ']'),
+        trailing: const Icon(Icons.sms),
+        subtitle: Text('${'[' + peer['user_agent']}]'),
       ),
-      Divider()
+      const Divider()
     ]);
   }
 
@@ -224,11 +224,10 @@ class _DataChannelSampleState extends State<DataChannelSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Data Channel Sample' +
-            (_selfId != null ? ' [Your ID ($_selfId)] ' : '')),
-        actions: <Widget>[
+        title: Text('Data Channel Sample${_selfId != null ? ' [Your ID ($_selfId)] ' : ''}'),
+        actions: const <Widget>[
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: Icon(Icons.settings),
             onPressed: null,
             tooltip: 'setup',
           ),
@@ -238,13 +237,13 @@ class _DataChannelSampleState extends State<DataChannelSample> {
           ? FloatingActionButton(
               onPressed: _hangUp,
               tooltip: 'Hangup',
-              child: Icon(Icons.call_end),
+              child: const Icon(Icons.call_end),
             )
           : null,
       body: _inCalling
           ? Center(
               child: Container(
-                child: Text('Recevied => ' + _text),
+                child: Text('Recevied => $_text'),
               ),
             )
           : ListView.builder(

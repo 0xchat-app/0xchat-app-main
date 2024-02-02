@@ -146,11 +146,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
           end: Alignment.bottomRight,
           colors: [
             // Daytime pattern
-            isDark ? Color(0xB2444444) : Color(0xB2FFFFFF),
-            isDark ? Color(0xB2444444) : Color(0xB2FFFFFF),
+            isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
+            isDark ? const Color(0xB2444444) : const Color(0xB2FFFFFF),
          //    Color(isDark ? 0xB2444444 : 0xB2FFFFFF),
           ],
-          stops: [
+          stops: const [
             0.1,
             1,
           ]),
@@ -170,10 +170,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
           // Color(0x66F5F5F5),
           // Color(0x66F5F5F5),
 
-          isDark ?  Color(0x0c595959) :  Color(0x66F5F5F5),
-          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
-          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
-          isDark ?  Color(0x0c595959) : Color(0x66F5F5F5),
+          isDark ?  const Color(0x0c595959) :  const Color(0x66F5F5F5),
+          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
+          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
+          isDark ?  const Color(0x0c595959) : const Color(0x66F5F5F5),
           // Dark mode
           // Color(0x0c595959),
           // Color(0x0c595959),

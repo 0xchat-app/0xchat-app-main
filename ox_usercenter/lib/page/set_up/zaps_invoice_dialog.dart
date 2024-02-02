@@ -67,7 +67,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: _itemList.length,
-                    separatorBuilder: (context, index) => Divider(height: 1),
+                    separatorBuilder: (context, index) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       WalletModel tempItem = _itemList[index];
                       return ListTile(
