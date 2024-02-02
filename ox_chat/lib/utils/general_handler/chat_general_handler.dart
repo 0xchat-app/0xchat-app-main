@@ -16,6 +16,7 @@ import 'package:ox_chat/utils/general_handler/chat_reply_handler.dart';
 import 'package:ox_chat/utils/message_parser/define.dart';
 import 'package:ox_chat/utils/send_message/chat_send_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
@@ -309,6 +310,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   }
 
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
+    if (!OXWalletInterface.checkWalletActivate()) return ;
     final package = await EcashHelper.createPackageFromMessage(message);
     EcashOpenDialog.show(context, package);
   }
@@ -473,6 +475,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future ecashPressHandler(BuildContext context) async {
+    if (!OXWalletInterface.checkWalletActivate()) return ;
     await OXNavigator.presentPage<Map<String, String>>(
       context, (_) => EcashSendingPage(isGroupEcash: session.hasMultipleUsers, ecashInfoCallback: (tokenList) async {
         if (tokenList.isEmpty) return ;
