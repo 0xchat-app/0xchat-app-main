@@ -106,7 +106,7 @@ class EcashManager {
   }
   
   Future<String> _getMintURLForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey');
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey',defaultValue: '');
   }
 
   Future<bool> _saveEcashAccessSignForLocal(bool sign) async {
