@@ -95,7 +95,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
   }
   
   Future<void> _nextStep(BuildContext context) async {
-    int balance = EcashManager.shared.defaultIMint?.balance ?? 0;
+    int balance = _mint?.balance ?? 0;
     int sats = int.parse(amount);
     if (balance <= 0 || balance < sats) {
       CommonToast.instance.show(context, 'Insufficient mint balance');

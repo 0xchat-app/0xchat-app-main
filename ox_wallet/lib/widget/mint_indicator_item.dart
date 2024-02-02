@@ -11,7 +11,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 class MintItem extends StatelessWidget {
   final IMint? mint;
   final double? height;
-  final ValueChanged<IMint>? onChanged;
+  final ValueChanged<IMint?>? onChanged;
 
   const MintItem({super.key, required this.mint, this.onChanged, this.height});
 
@@ -83,8 +83,8 @@ class MintItem extends StatelessWidget {
   String _mintTitle(IMint mint) => mint.name.isNotEmpty ? mint.name : mint.mintURL;
 
   void _onChanged() {
-    if (onChanged != null && mint != null) {
-      onChanged!(mint!);
+    if (onChanged != null) {
+      onChanged!(mint);
     }
   }
 }

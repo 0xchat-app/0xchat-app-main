@@ -34,10 +34,10 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
 
   @override
   void initState() {
-    int balance = EcashManager.shared.defaultIMint!.balance - widget.amount;
+    int balance = widget.mint.balance - widget.amount;
     _items = [
       CardItemModel(label: 'Payment type',content: 'Send Ecash',),
-      CardItemModel(label: 'Mint',content: EcashManager.shared.defaultIMint?.name,),
+      CardItemModel(label: 'Mint',content: widget.mint.name,),
       CardItemModel(label: 'Amount',content: widget.amount.toString(),),
       CardItemModel(label: 'Balance after TX',content: '$balance Sats',),
       CardItemModel(
@@ -90,7 +90,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
             value: _isCoinSelection,
             onChanged: (value) async {
               if (value) {
-                List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,));
+                List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,mint: widget.mint,));
                 if(result != null){
                   _selectedProofs = result;
                   int totalAmount = result.fold(0, (pre, proof) => pre + proof.amountNum);
@@ -118,7 +118,6 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   }
 
   Future<void> _createToken() async {
-    if(EcashManager.shared.defaultIMint == null) return;
     await OXLoading.show();
     final response = await EcashService.sendEcash(mint: widget.mint, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
     await OXLoading.dismiss();

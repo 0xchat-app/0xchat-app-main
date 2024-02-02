@@ -4,7 +4,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
@@ -51,36 +50,9 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
     );
   }
 
-  Widget _buildItem({required String title,required String subTitle,Function()? onTap}){
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title ?? '',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0,height: 22.px / 16.px,overflow: TextOverflow.ellipsis),),
-                Text(subTitle,style: TextStyle(fontSize: 14.px,height: 20.px / 14.px),),
-              ],
-            ),
-          ),
-          CommonImage(
-            iconName: 'icon_wallet_more_arrow.png',
-            size: 24.px,
-            package: 'ox_wallet',
-          )
-        ],
-      ),
-    );
-  }
-
-  Future<void> _chooseMint(IMint mint) async {
-    bool result = await EcashManager.shared.setDefaultMint(mint);
-    if(result && context.mounted){
+  Future<void> _chooseMint(IMint? mint) async {
+    if(mint == null) return;
+    if(context.mounted){
       OXNavigator.pop(context);
       if (widget.onChanged != null) {
         widget.onChanged!.call(mint);
