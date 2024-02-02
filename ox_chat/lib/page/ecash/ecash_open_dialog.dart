@@ -235,9 +235,10 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
         await EcashHelper.updateReceiptHistoryForPackage(widget.package);
         OXLoading.dismiss();
       }
-    } else {
-      updateMessageToRedeemedState(widget.package.messageId);
     }
+
+    updateMessageToRedeemedState(widget.package.messageId);
+
     popAction();
     OXNavigator.pushPage(null, (context) => EcashDetailPage(
       package: widget.package,

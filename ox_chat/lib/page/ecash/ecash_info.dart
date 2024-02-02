@@ -42,34 +42,34 @@ class EcashTokenInfo {
 @reflector
 class EcashReceiptHistory extends DBObject {
   EcashReceiptHistory({
-    required this.token,
+    required this.tokenMD5,
     required this.isMe,
     this.timestamp,
   });
 
-  final String token;
+  final String tokenMD5;
   final bool isMe;
   final int? timestamp;
 
   @override
   String toString() {
-    return '${super.toString()}, token: $token, isMe: $isMe';
+    return '${super.toString()}, tokenMD5: $tokenMD5, isMe: $isMe';
   }
 
   static List<String?> primaryKey() {
-    return ['token'];
+    return ['tokenMD5'];
   }
 
   @override
   Map<String, Object?> toMap() => {
-    'token': token,
+    'tokenMD5': tokenMD5,
     'isMe': isMe,
     'timestamp': timestamp,
   };
 
   static EcashReceiptHistory fromMap(Map<String, Object?> map) {
     return EcashReceiptHistory(
-      token: map['token'] as String,
+      tokenMD5: map['tokenMD5'] as String,
       isMe: map['isMe'] == 1,
       timestamp: map['timestamp'] as int?,
     );

@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/utils/encrypt_utils.dart';
 
 class EcashHelper {
 
@@ -17,13 +18,14 @@ class EcashHelper {
     final tokenInfoList = <EcashTokenInfo>[];
     final historyMap = await getHistoryForTokenList(tokenList);
     for (final token in tokenList) {
+      final tokenMD5 = EncryptUtils.generateMd5(token);
       final info = Cashu.infoOfToken(token);
       if (info == null) continue;
       final (_, amount) = info;
       final tokenInfo = EcashTokenInfo(
         token: token,
         amount: amount,
-        redeemHistory: historyMap[token],
+        redeemHistory: historyMap[tokenMD5],
       );
       tokenInfoList.add(tokenInfo);
     }
@@ -38,19 +40,21 @@ class EcashHelper {
   }
 
   static Future<Map<String, EcashReceiptHistory>> getHistoryForTokenList(List<String> tokenList) async {
+    final tokenMD5List = tokenList.map((token) => EncryptUtils.generateMd5(token));
     final historyByOther = (await DB.sharedInstance.objects<EcashReceiptHistory>(
-      where: 'token in (${tokenList.map((e) => '"$e"').join(',')})',
+      where: 'tokenMD5 in (${tokenMD5List.map((e) => '"$e"').join(',')})',
     ));
 
     final historyByMe = await Cashu.getHistory(value: tokenList);
 
     final Map<String, EcashReceiptHistory> result = {};
     historyByOther.forEach((entry) {
-      result[entry.token] = entry;
+      result[entry.tokenMD5] = entry;
     });
     historyByMe.forEach((entry) {
       if (entry.amount > 0) {
-        result[entry.value] = entry.toReceiptHistory();
+        final receiptEntry = entry.toReceiptHistory();
+        result[receiptEntry.tokenMD5] = receiptEntry;
       }
     });
 
@@ -59,7 +63,7 @@ class EcashHelper {
 
   static Future<EcashReceiptHistory> addReceiptHistoryForToken(String token) async {
     final history = EcashReceiptHistory(
-      token: token,
+      tokenMD5: EncryptUtils.generateMd5(token),
       isMe: false,
     );
     await DB.sharedInstance.insert<EcashReceiptHistory>(history);
@@ -114,7 +118,7 @@ class EcashHelper {
 extension IHistoryEntryEcashEx on IHistoryEntry {
   EcashReceiptHistory toReceiptHistory() =>
     EcashReceiptHistory(
-      token: value,
+      tokenMD5: EncryptUtils.generateMd5(value),
       isMe: true,
       timestamp: timestamp.toInt(),
     );
