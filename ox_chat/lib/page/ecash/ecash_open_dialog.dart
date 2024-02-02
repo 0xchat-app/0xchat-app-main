@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
@@ -43,6 +44,8 @@ class EcashOpenDialog extends StatefulWidget {
 }
 
 class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProviderStateMixin {
+
+  static const themeColor = Color(0xFF7F38CA);
 
   String ownerName = '';
   bool isRedeemed = false;
@@ -87,7 +90,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
             child: ScaleTransition(
               scale: scaleAnimation,
               child: Card(
-                color: Color(0xFF7F38CA),
+                color: themeColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -149,25 +152,28 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   Widget buildRedeemButton() {
     return Opacity(
       opacity: isRedeemed ? 0.4 : 1,
-      child: GestureDetector(
-        onTap: redeemPackage,
-        child: Container(
-          height: 44.px,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22.px),
-            color: Colors.white,
-          ),
-          child: Center(
-            child: Text(
-              isRedeemed ? 'Redeemed' : 'Redeem',
-              style: TextStyle(
-                color: ThemeColor.darkColor,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-              ),
+      child: EasyButton(
+        idleStateWidget: Center(
+          child: Text(
+            isRedeemed ? 'Redeemed' : 'Redeem',
+            style: TextStyle(
+              color: ThemeColor.darkColor,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
+        loadingStateWidget: const CircularProgressIndicator(
+          strokeWidth: 3.0,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            themeColor,
+          ),
+        ),
+        height: 44.px,
+        borderRadius: 22.px,
+        contentGap: 6.0,
+        buttonColor: Colors.white,
+        onPressed: redeemPackage,
       ),
     );
   }
@@ -220,17 +226,19 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     OXNavigator.pop(context);
   }
 
-  void jumpToDetailPage() async {
-    popAction();
+  void jumpToDetailPage([bool requestRemote = true]) async {
     final isAllReceive = widget.package.tokenInfoList
         .every((info) => info.redeemHistory != null);
     if (!isAllReceive) {
-      OXLoading.show();
-      await EcashHelper.updateReceiptHistoryForPackage(widget.package);
-      OXLoading.dismiss();
+      if (requestRemote) {
+        OXLoading.show();
+        await EcashHelper.updateReceiptHistoryForPackage(widget.package);
+        OXLoading.dismiss();
+      }
     } else {
       updateMessageToRedeemedState(widget.package.messageId);
     }
+    popAction();
     OXNavigator.pushPage(null, (context) => EcashDetailPage(
       package: widget.package,
     ));
@@ -239,9 +247,8 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   void redeemPackage() async {
     if (isRedeemed) return ;
 
-    OXLoading.show();
     final success = await EcashHelper.tryRedeemTokenList(widget.package);
-    OXLoading.dismiss();
+
     if (success == null) {
       CommonToast.instance.show(context, 'Redeem Failed, Please try again.');
       setState(() {
@@ -250,7 +257,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       return ;
     }
     if (success) {
-      jumpToDetailPage();
+      jumpToDetailPage(false);
     } else {
       CommonToast.instance.show(context, 'All tokens already spent.');
       setState(() {

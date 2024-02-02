@@ -99,7 +99,7 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
   }
 
   void _getCashuToken() async {
-    CashuResponse<String> response = await Cashu.getBackUpToken();
+    CashuResponse<String> response = await Cashu.getBackUpToken([widget.mint]);
     if(response.isSuccess){
       setState(() {
         _cashuToken = WalletUtils.formatString(response.data);
