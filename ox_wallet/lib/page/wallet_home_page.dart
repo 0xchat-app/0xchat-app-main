@@ -351,8 +351,8 @@ extension IHistoryTypeEx on IHistoryType {
   String get name {
     switch (this) {
       case IHistoryType.unknown: return 'Unknown';
-      case IHistoryType.eCash: return 'Ecash Payment';
-      case IHistoryType.lnInvoice: return 'Lightning Payment';
+      case IHistoryType.eCash: return 'Ecash';
+      case IHistoryType.lnInvoice: return 'Lightning';
       case IHistoryType.multiMintSwap: return 'Multi Mint Swap';
     }
   }
