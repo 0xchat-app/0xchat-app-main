@@ -67,6 +67,7 @@ dependencies:
   pick_or_save: ^2.2.4
   audio_session: ^0.1.18
   easy_loading_button: ^0.3.2
+  file_picker: ^6.1.1
 
   chatcore:
     path: ../../0xchat-core
