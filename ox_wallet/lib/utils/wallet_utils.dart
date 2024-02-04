@@ -99,4 +99,8 @@ class WalletUtils {
     final NumberFormat numberFormat = NumberFormat('#,##0', 'en_US');
     return numberFormat.format(number);
   }
+
+  static Future<String> loadLocalHTML(String path) async {
+    return await rootBundle.loadString(path);
+  }
 }
