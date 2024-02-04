@@ -19,9 +19,10 @@ class CommonWebView extends StatefulWidget {
   final String? title;
   final bool hideAppbar;
   final UrlCallBack? urlCallback;
+  final bool isLocalHtmlResource;
 
   CommonWebView(this.url,
-      {this.title, this.hideAppbar = false, this.urlCallback});
+      {this.title, this.hideAppbar = false, this.urlCallback, bool? isLocalHtmlResource}) : isLocalHtmlResource = isLocalHtmlResource ?? false;
 
   @override
   State<StatefulWidget> createState() {
@@ -98,9 +99,10 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
   }
 
   Widget buildWebView() {
+    final isLocalHtmlResource = (widget as CommonWebView).isLocalHtmlResource;
     return WebView(
         debuggingEnabled: kDebugMode,
-        initialUrl: Uri.encodeFull(formatUrl((widget as CommonWebView).url)),
+        initialUrl: isLocalHtmlResource ? (widget as CommonWebView).url : Uri.encodeFull(formatUrl((widget as CommonWebView).url)),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           currentController = webViewController;
