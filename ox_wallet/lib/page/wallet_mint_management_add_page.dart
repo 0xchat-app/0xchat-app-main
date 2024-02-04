@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -30,6 +31,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
 
   final TextEditingController _controller = TextEditingController();
   bool _enable = false;
+  bool get isAddAction => widget.action == ImportAction.add;
   
   @override
   void initState() {
@@ -46,21 +48,25 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: widget.action == ImportAction.add ? 'Add a new mint' : '',
+        title: '',
         centerTitle: true,
         useLargeTitle: false,
       ),
       body:Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          widget.action == ImportAction.add ? SizedBox(height: 12.px,) : SizedBox(height: 100.px,child: Center(child: _buildText('Add a new mint'),),),
-          CommonLabeledCard.textFieldAndScan(
+          SizedBox(height: 100.px,child: Center(child: _buildText(isAddAction ? 'Add a new mint' : 'Import wallet'),),),
+          isAddAction ? CommonLabeledCard.textFieldAndScan(
             hintText: 'Mint URL',
             controller: _controller,
             onTap: () => WalletUtils.gotoScan(context, (result) => _controller.text = result),
+          ) : CommonLabeledCard.textFieldAndImportFile(
+            hintText: 'Enter Restore Public Key',
+            controller: _controller,
+            onTap: _importTokenFile,
           ),
-          SizedBox(height: widget.action == ImportAction.add ? 24.px : 30.px),
-          ThemeButton(text: widget.action == ImportAction.add ? 'Add' : 'Import',height: 48.px,enable: _enable, onTap: _addMint),
+          SizedBox(height: 30.px,),
+          ThemeButton(text: isAddAction ? 'Add' : 'Import',height: 48.px,enable: _enable, onTap: isAddAction ? _addMint : _importWallet),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px))
     );
@@ -81,7 +87,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
         style: TextStyle(
           fontSize: 32.px,
           fontWeight: FontWeight.w700,
-          // color:
+          height: 44.px / 32.px
         ),
       ),
     );
@@ -106,5 +112,33 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       OXLoading.dismiss();
       CommonToast.instance.show(context, 'invalid mint url');
     });
+  }
+
+  void _importTokenFile() async {
+    try {
+      final file = await FileUtils.importFile();
+      if (file == null) return;
+      final token = await file.readAsString();
+      _controller.text = token;
+    } catch (e) {
+      _showToast('Please import the correct backup file.');
+    }
+  }
+
+  Future<void> _importWallet() async {
+    if(!EcashService.isCashuToken(_controller.text)){
+      _showToast('Invalid Cashu Token');
+      return;
+    }
+    OXLoading.show();
+    final response = await EcashService.redeemEcash(_controller.text);
+    OXLoading.dismiss();
+    final message = response.isSuccess ? 'Import Wallet successful' : response.errorMsg;
+    if (context.mounted) OXNavigator.pop(context,true);
+    _showToast(message);
+  }
+
+  void _showToast(String message) {
+    if (context.mounted) CommonToast.instance.show(context, message);
   }
 }

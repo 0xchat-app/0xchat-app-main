@@ -65,6 +65,7 @@ class _WalletPageState extends State<WalletPage> {
             SizedBox(height: 200.px,),
             ThemeButton(height: 48.px,text: 'Use the default mint',onTap: _useDefaultMint,),
             EcashCommonButton(text: 'Add mint URL',onTap: _addMint).setPaddingOnly(top: 18.px),
+            EcashCommonButton(text: 'Import wallet',onTap: _importWallet).setPaddingOnly(top: 18.px),
             PrivacyPolicyWidget(controller: _hasAgreedToPrivacyPolicy,).setPaddingOnly(top: 18.px),
             SizedBox(height: 40.px,)
             ],
@@ -79,7 +80,7 @@ class _WalletPageState extends State<WalletPage> {
     OXNavigator.pushPage(
       context,
       (context) => WalletMintManagementAddPage(
-        action: ImportAction.import,
+        action: ImportAction.add,
         callback: () => OXNavigator.pushPage(context!, (context) => const WalletHomePage()),
       ),
     );
@@ -97,6 +98,15 @@ class _WalletPageState extends State<WalletPage> {
         CommonToast.instance.show(context, 'Add default mint Failed, Please try again.');
       }
     });
+  }
+
+  void _importWallet(){
+    if(!_checkPrivacyPolicyAgreement()) return;
+    OXNavigator.pushPage(context, (context) => WalletMintManagementAddPage(
+        action: ImportAction.import,
+        callback: () => OXNavigator.pushPage(context!, (context) => const WalletHomePage()),
+      ),
+    );
   }
 
   bool _checkPrivacyPolicyAgreement() {
