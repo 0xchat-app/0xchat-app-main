@@ -119,11 +119,4 @@ class WalletUtils {
     await file.writeAsString(token);
     await FileUtils.exportFile(filePath);
   }
-
-  static Future<CashuResponse<(String memo, int amount)>?> importBackupToken() async {
-    final file = await FileUtils.importFile();
-    if (file == null) return null;
-    final token = await file.readAsString();
-    return Cashu.redeemEcash(token);
-  }
 }
