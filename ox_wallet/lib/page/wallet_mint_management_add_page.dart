@@ -18,10 +18,23 @@ enum  ImportAction{
   add
 }
 
+enum ScenarioType{
+  activate,
+  operate
+}
+
 class WalletMintManagementAddPage extends StatefulWidget {
   final ImportAction action;
+  final ScenarioType scenarioType;
   final VoidCallback? callback;
-  const WalletMintManagementAddPage({super.key, ImportAction? action, this.callback}):action = action ?? ImportAction.add;
+
+  const WalletMintManagementAddPage(
+      {super.key,
+      ImportAction? action,
+      ScenarioType? scenarioType,
+      this.callback})
+      : action = action ?? ImportAction.add,
+        scenarioType = scenarioType ?? ScenarioType.operate;
 
   @override
   State<WalletMintManagementAddPage> createState() => _WalletMintManagementAddPageState();
@@ -93,25 +106,17 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     );
   }
 
-  void _addMint() {
+  Future<void> _addMint() async {
     OXLoading.show();
-    EcashService.addMint(_controller.text).then((mint) {
-      OXLoading.dismiss();
-      if (mint != null) {
-        CommonToast.instance.show(context, 'Add Mint Successful');
-        if(widget.action == ImportAction.add){
-          OXNavigator.pop(context,true);
-        }else{
-          EcashManager.shared.setWalletAvailable();
-          widget.callback?.call();
-        }
-      } else {
-        CommonToast.instance.show(context, 'Add Mint Failed, Please try again.');
-      }
-    },onError: (e){
-      OXLoading.dismiss();
-      CommonToast.instance.show(context, 'invalid mint url');
-    });
+    final mint = await EcashService.addMint(_controller.text);
+    OXLoading.dismiss();
+    if (mint == null) {
+      _showToast('Add Mint Failed, Please try again.');
+      return;
+    }
+    
+    _showToast('Add Mint Successful');
+    _handleUseScenario();
   }
 
   void _importTokenFile() async {
@@ -134,8 +139,17 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     final response = await EcashService.redeemEcash(_controller.text);
     OXLoading.dismiss();
     final message = response.isSuccess ? 'Import Wallet successful' : response.errorMsg;
-    if (context.mounted) OXNavigator.pop(context,true);
     _showToast(message);
+    _handleUseScenario();
+  }
+
+  void _handleUseScenario() {
+    if (widget.scenarioType == ScenarioType.operate) {
+      if (context.mounted) OXNavigator.pop(context, true);
+    } else {
+      EcashManager.shared.setWalletAvailable();
+      widget.callback?.call();
+    }
   }
 
   void _showToast(String message) {
