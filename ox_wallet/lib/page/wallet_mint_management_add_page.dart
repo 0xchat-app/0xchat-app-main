@@ -138,8 +138,11 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     OXLoading.show();
     final response = await EcashService.redeemEcash(_controller.text);
     OXLoading.dismiss();
-    final message = response.isSuccess ? 'Import Wallet successful' : response.errorMsg;
-    _showToast(message);
+    if(!response.isSuccess){
+      _showToast(response.errorMsg);
+      return;
+    }
+    _showToast('Import Wallet successful');
     _handleUseScenario();
   }
 
