@@ -186,7 +186,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
     if(_sendType.value == SendType.address){
       try {
         OXLoading.show(status: 'Generating invoice');
-        invoice = await LightningUtils.getInvoice(sats, invoice);
+        invoice = await LightningUtils.getInvoice(sats, _invoiceEditController.text);
         OXLoading.dismiss();
       } catch (e, s) {
         OXLoading.dismiss();
@@ -204,7 +204,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         OXLoading.dismiss();
         _enableButton.value = true;
         if (result != null && result) {
-          OXNavigator.pushPage(context, (context) => const WalletSuccessfulPage(title: 'Send', canBack: true,));
+          OXNavigator.pushPage(context, (context) => WalletSuccessfulPage(title: 'Send', canBack: true,content: 'Payment of $amount sats successful!',));
           return;
         }
         CommonToast.instance.show(context, 'Paying Lightning Invoice Failed, Please try again');
