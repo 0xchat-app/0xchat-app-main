@@ -106,7 +106,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   Widget _buildInvoiceTextEdit() {
     return CommonLabeledCard.textFieldAndScan(
       label: 'Recipient',
-      hintText: 'Invoice',
+      hintText: 'Invoice or Address',
       controller: _invoiceEditController,
       focusNode: _invoiceFocus,
       onTap: (){
