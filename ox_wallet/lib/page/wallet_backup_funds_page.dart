@@ -5,6 +5,8 @@ import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
@@ -110,11 +112,15 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
 
   void _getCashuToken() async {
     List<IMint> mints = widget.mint == null ? EcashManager.shared.mintList : [widget.mint!];
+    OXLoading.show();
     CashuResponse<String> response = await Cashu.getBackUpToken(mints);
-    if(response.isSuccess){
-      setState(() {
-        _cashuToken = response.data;
-      });
+    OXLoading.dismiss();
+    if(!response.isSuccess) {
+      if(context.mounted) CommonToast.instance.show(context, response.errorMsg);
+      return;
     }
+    setState(() {
+      _cashuToken = response.data;
+    });
   }
 }

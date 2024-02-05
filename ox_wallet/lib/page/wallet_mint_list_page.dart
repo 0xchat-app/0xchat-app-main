@@ -12,6 +12,7 @@ import 'package:ox_wallet/page/wallet_mint_management_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 
 class WalletMintListPage extends StatefulWidget {
   const WalletMintListPage({super.key});
@@ -38,9 +39,6 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         title: 'Mints',
         centerTitle: true,
         useLargeTitle: false,
-        actions: [
-          _buildBackupWidget(),
-        ],
       ),
       body: Column(
         children: [
@@ -62,7 +60,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
           ),
           mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
           ThemeButton(text: 'Add Mint',height: 48.px,onTap: _addMint),
-          ThemeButton(text: 'Import Wallet',height: 48.px,onTap: _importWallet).setPaddingOnly(top: 24.px),
+          ThemeButton(text: 'Backup/Import wallet',height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
@@ -100,19 +98,6 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
     );
   }
 
-  Widget _buildBackupWidget() {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => OXNavigator.pushPage(context, (context) => const WalletBackupFundsPage(mint: null,),),
-      child: CommonImage(
-        iconName: 'icon_wallet_backup.png',
-        size: 24.px,
-        package: 'ox_wallet',
-        useTheme: true,
-      ).setPaddingOnly(right: 20.px),
-    );
-  }
-
   String _mintTitle(int index) => mintItems[index].name.isNotEmpty ? mintItems[index].name : mintItems[index].mintURL;
 
   void _clickItem(int index) => OXNavigator.pushPage(context, (context) => WalletMintManagementPage(mint: mintItems[index],)).then((value) {
@@ -128,7 +113,20 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
     }
   }
 
+  void _handleWalletOperation() async {
+    ShowModalBottomSheet.showSimpleOptionsBottomSheet(context, options: [
+      SimpleBottomSheetItem(title: 'Backup wallet', onTap: _backupWallet),
+      SimpleBottomSheetItem(title: 'Import wallet', onTap: _importWallet),
+    ]);
+  }
+
+  void _backupWallet() {
+    OXNavigator.pop(context);
+    OXNavigator.pushPage(context, (context) => const WalletBackupFundsPage(mint: null,),);
+  }
+
   void _importWallet() async {
+    OXNavigator.pop(context);
     bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage(action: ImportAction.import));
     if (result != null && result) {
       setState(() {
