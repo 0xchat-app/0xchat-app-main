@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -10,6 +11,7 @@ import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
+import 'package:ox_wallet/utils/lightning_utils.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
@@ -18,7 +20,8 @@ import 'package:cashu_dart/cashu_dart.dart';
 
 enum SendType{
   none,
-  invoice
+  invoice,
+  address
 }
 
 class WalletSendLightningPage extends StatefulWidget {
@@ -33,6 +36,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   final ValueNotifier<SendType> _sendType = ValueNotifier<SendType>(SendType.none);
   final ValueNotifier<IMint?> _mintNotifier = ValueNotifier(null);
+  final ValueNotifier<bool> _enableButton = ValueNotifier(true);
 
   final TextEditingController _invoiceEditController = TextEditingController();
   final TextEditingController _amountEditController = TextEditingController();
@@ -40,6 +44,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   final FocusNode _invoiceFocus = FocusNode();
   String get invoice => _invoiceEditController.text;
   IMint? get mint => _mintNotifier.value;
+  String get amount => _amountEditController.text;
 
   @override
   void initState() {
@@ -121,7 +126,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
               visible: _sendType.value != SendType.none,
               child: Column(
                 children: [
-                  SatsAmountCard(controller: _amountEditController,enable: false,),
+                  SatsAmountCard(controller: _amountEditController,enable: _sendType.value == SendType.address,),
                   _buildPayButton(),
                 ],
               )).setPaddingOnly(top: 24.px);
@@ -129,20 +134,26 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   Widget _buildPayButton() {
-    return ValueListenableBuilder(
-      valueListenable: _mintNotifier,
-      builder: (context, value, child) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([_mintNotifier,_amountEditController, _enableButton]),
+      builder: (context, child) {
+        final enable = amount.isNotEmpty && int.parse(amount) > 0 && mint != null && _enableButton.value;
         return ThemeButton(
           onTap: _send,
           text: 'Pay now',
           height: 48.px,
-          enable: value != null,
+          enable: enable,
         ).setPaddingOnly(top: 24.px);
       }
     );
   }
 
   Future<void> _updateSendType() async {
+    if (invoice.contains('@')) {
+      _sendType.value = SendType.address;
+      return;
+    }
+
     bool result = EcashService.isLnInvoice(invoice);
     if (!result){
       _sendType.value = SendType.none;
@@ -150,7 +161,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
       return;
     }
 
-    int? amount = EcashService.decodeLightningInvoice(invoice: _invoiceEditController.text);
+    int? amount = EcashService.decodeLightningInvoice(invoice: invoice);
     if(amount == null){
       CommonToast.instance.show(context, 'Decode invoice failed. Please try again');
       return;
@@ -159,21 +170,39 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
     _sendType.value = SendType.invoice;
   }
 
-  void _send() {
+  Future<void> _send() async {
     if (mint == null) {
       CommonToast.instance.show(context, 'Must select mint to withdraw ecash');
       return;
     }
     int balance = mint?.balance ?? 0;
-    int sats = int.parse(_amountEditController.text);
+    int sats = int.parse(amount);
     if (balance <= 0 || balance < sats) {
       CommonToast.instance.show(context, 'Insufficient mint balance');
       return;
     }
+    String invoice = '';
+    _enableButton.value = false;
+    if(_sendType.value == SendType.address){
+      try {
+        OXLoading.show(status: 'Generating invoice');
+        invoice = await LightningUtils.getInvoice(sats, invoice);
+        OXLoading.dismiss();
+      } catch (e, s) {
+        OXLoading.dismiss();
+        _enableButton.value = true;
+        if (context.mounted) CommonToast.instance.show(context, 'Invoice generation failed');
+        LogUtil.e("Invoice generation failed: $e\r\n$s");
+        return;
+      }
+    } else {
+      invoice = _invoiceEditController.text;
+    }
     OXLoading.show();
-    EcashService.payingLightningInvoice(mint: mint!, pr: _invoiceEditController.text)
+    EcashService.payingLightningInvoice(mint: mint!, pr: invoice)
         .then((result) {
         OXLoading.dismiss();
+        _enableButton.value = true;
         if (result != null && result) {
           OXNavigator.pushPage(context, (context) => const WalletSuccessfulPage(title: 'Send', canBack: true,));
           return;
