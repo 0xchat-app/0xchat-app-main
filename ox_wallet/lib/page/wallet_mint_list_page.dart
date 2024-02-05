@@ -108,6 +108,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         iconName: 'icon_wallet_backup.png',
         size: 24.px,
         package: 'ox_wallet',
+        useTheme: true,
       ).setPaddingOnly(right: 20.px),
     );
   }
