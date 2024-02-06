@@ -11,6 +11,8 @@ import 'package:ox_wallet/page/wallet_receive_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_page.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
+import 'package:ox_wallet/page/wallet_swap_ecash_page.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
@@ -34,8 +36,11 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
   late final List<BottomSheetItem> _receiveBottomSheetOptions;
   late final List<BottomSheetItem> _sendBottomSheetOptions;
 
+  bool get isShowSwap => EcashManager.shared.mintList.length >= 2;
+
   @override
   void initState() {
+    super.initState();
     _receiveBottomSheetOptions = [
       BottomSheetItem(
         iconName: 'icon_copy.png',
@@ -66,8 +71,9 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         onTap: () => _handlePageAction(ItemType.withdrawEcash),
       )
     ];
-
-    super.initState();
+    EcashManager.shared.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -99,6 +105,12 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
                 onTap: () => ShowModalBottomSheet.showOptionsBottomSheet(context, title: 'Receive', options: _receiveBottomSheetOptions),
               ),
               NavigationBarItem(label: 'Scan',iconName: 'icon_wallet_scan.png',onTap: () => WalletUtils.gotoScan(context, (result) => ScanUtils.analysis(context, result)),),
+              if (isShowSwap)
+                NavigationBarItem(
+                  label: 'Swap',
+                  iconName: 'icon_swap.png',
+                  onTap: () => OXNavigator.pushPage(context, (context) => const WalletSwapEcashPage()),
+                ),
               NavigationBarItem(
                 label: 'Send',
                 iconName: 'icon_transaction_send.png',
