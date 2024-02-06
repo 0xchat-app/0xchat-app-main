@@ -137,7 +137,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       CommonToast.instance
           .show(context, Localized.text('ox_common.network_connect_fail'));
     }
-    if (_userNameTextEditingController.text.length > 0) {
+    if (_userNameTextEditingController.text.isNotEmpty) {
       mCurrentUserInfo!.name = _userNameTextEditingController.text;
       mCurrentUserInfo!.about = _aboutTextEditingController.text;
 
@@ -407,7 +407,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     required String rightIconName,
     String? leftIconName,
   }) {
-    return Container(
+    return SizedBox(
       height: Adapt.px(50),
       width: double.infinity,
       child: Row(
@@ -435,7 +435,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           ),
           const Spacer(),
           isRightTitle
-              ? Container(
+              ? SizedBox(
                   child: Text(rightTitle,
                       style: TextStyle(
                         color: ThemeColor.gray4,

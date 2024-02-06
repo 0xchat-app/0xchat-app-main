@@ -27,7 +27,7 @@ extension ThemeSettingTypeText on ThemeSettingType {
 
   ThemeStyle get themeStyle {
     switch (this) {
-      case ThemeSettingType.defaultTheme:;
+      case ThemeSettingType.defaultTheme: {}
         return ui.window.platformBrightness == Brightness.dark ? ThemeStyle.dark : ThemeStyle.light;
       case ThemeSettingType.dark:
         return ThemeStyle.dark;

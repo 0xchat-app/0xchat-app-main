@@ -4,7 +4,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
 
-class EcashManager {
+class EcashManager extends ChangeNotifier {
   static final EcashManager shared = EcashManager._internal();
 
   EcashManager._internal() {
@@ -59,6 +59,7 @@ class EcashManager {
     if(!listEquals(mints, _mintList)){
       _mintList = mints;
       _initDefaultMint();
+      notifyListeners();
     }
   }
 
@@ -70,6 +71,7 @@ class EcashManager {
     if (isDefaultMint(mint)) {
       await removeDefaultMint();
     }
+    notifyListeners();
     return _mintList.remove(mint);
   }
 
@@ -106,7 +108,7 @@ class EcashManager {
   }
   
   Future<String> _getMintURLForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey');
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey',defaultValue: '');
   }
 
   Future<bool> _saveEcashAccessSignForLocal(bool sign) async {

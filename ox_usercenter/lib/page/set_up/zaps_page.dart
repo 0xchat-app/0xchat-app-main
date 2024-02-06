@@ -28,6 +28,8 @@ import 'package:ox_common/utils/scan_utils.dart';
 ///@author Michael
 ///CreateTime: 2023/5/10 17:26
 class ZapsPage extends StatefulWidget {
+  const ZapsPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _ZapsPageState();
@@ -345,8 +347,9 @@ class _ZapsPageState extends State<ZapsPage> {
               'https://nwc.getalby.com/',
               title: 'Alby - Nostr Wallet Connect',
                   urlCallback: (url){
-                      if(url.startsWith('nostr+walletconnect://'))
-                      ScanUtils.analysis(context!, url);
+                      if(url.startsWith('nostr+walletconnect://')) {
+                        ScanUtils.analysis(context!, url);
+                      }
                   },
             ),
             fullscreenDialog: true,
@@ -530,15 +533,18 @@ class _ZapsPageState extends State<ZapsPage> {
     String walletName = _walletList[index].title;
     String showName = walletName;
     if (walletName == 'NWC' && Account.sharedInstance.me?.nwcURI != null){
-      showName = '${walletName} (${Account.sharedInstance.me?.nwc?.lud16 ?? 'Connected'})';
+      showName = '$walletName (${Account.sharedInstance.me?.nwc?.lud16 ?? 'Connected'})';
     }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
         OXNavigator.pop(context);
         if(walletName == 'NWC'){
-          if(Account.sharedInstance.me?.nwcURI == null) _nwcSelectorDialog();
-          else _nwcDisconnectDialog();
+          if(Account.sharedInstance.me?.nwcURI == null) {
+            _nwcSelectorDialog();
+          } else {
+            _nwcDisconnectDialog();
+          }
         }
         if (walletName != _selectedWalletName) {
           await OXCacheManager.defaultOXCacheManager

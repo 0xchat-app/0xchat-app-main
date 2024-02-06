@@ -29,8 +29,7 @@ class ContactWidget extends StatefulWidget {
   String hostName = ''; //The current domain
   final bool shrinkWrap;
   ScrollPhysics? physics;
-  ScrollController? scrollController;
-  CursorContactsChanged? onCursorContactsChanged;
+  final Widget? topWidget;
 
   ContactWidget({
     Key? key,
@@ -40,8 +39,7 @@ class ContactWidget extends StatefulWidget {
     this.hostName = 'ox.com',
     this.shrinkWrap = false,
     this.physics,
-    this.scrollController,
-    this.onCursorContactsChanged
+    this.topWidget,
   }) : super(key: key);
 
   @override
@@ -59,6 +57,7 @@ class Note {
 
 class ContactWidgetState<T extends ContactWidget> extends State<T> {
   late List<UserDB> _data;
+  ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
   List<UserDB>? userList;
   int defaultIndex = 0;
@@ -78,11 +77,11 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     _data = widget.data;
     _initIndexBarData();
     initFromCache();
-    // scrollController!.addListener(() {
-    //   double position = scrollController!.offset.toDouble();
-    //   int index = _computerIndex(position);
-    //   defaultIndex = index;
-    // });
+    _scrollController.addListener(() {
+      double position = _scrollController.offset.toDouble();
+      int index = _computerIndex(position);
+      defaultIndex = index;
+    });
   }
 
   void initFromCache() async {}
@@ -95,10 +94,6 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   void updateContactData(List<UserDB> data) {
     _data = data;
     _initIndexBarData();
-    widget.onCursorContactsChanged?.call(Container(
-      child: _buildAlphaBar(),
-      width: 30,
-    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -157,6 +152,11 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                   slivers: _buildSlivers(context),
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
+                  controller: _scrollController,
+                ),
+                Container(
+                  child: _buildAlphaBar(),
+                  width: 30,
                 ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
@@ -190,7 +190,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
 
   @override
   void dispose() {
-    widget.scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -217,14 +217,13 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
-    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
-      widget.scrollController!.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
+      _scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
 
@@ -267,7 +266,13 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
-
+    if (widget.topWidget != null) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: widget.topWidget,
+        ),
+      );
+    }
     noteList.forEach((item) {
       slivers.add(
         SliverStickyHeader(
@@ -293,12 +298,13 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         ),
       );
     });
+    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
     slivers.add(
-        SliverStickyHeader(
-          header: SizedBox(
-            height: Adapt.px(96),
-          ),
+      SliverToBoxAdapter(
+        child: Container(
+          height: fillH,
         ),
+      ),
     );
     return slivers;
   }

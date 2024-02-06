@@ -234,7 +234,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
                 itemBuilder: (BuildContext context, int index){
                   final record = _recentTransaction[index];
                   final amount = record.amount > 0 ? '+${record.amount.toInt()}' : '${record.amount.toInt()}';
-                  final iconName = record.amount > 0 ? 'icon_transaction_receive.png' : 'icon_transaction_send.png';
+                  final iconName = record.amount > 0 ? 'icon_coin_receive.png' : 'icon_coin_send.png';
                   return TransactionItem(
                     title: record.type.name,
                     subTitle: _getTransactionItemSubtitle(record),
@@ -298,10 +298,9 @@ class TransactionItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CommonImage(
-              iconName: iconName ?? 'icon_transaction_send.png',
+              iconName: iconName ?? 'icon_coin_send.png',
               size: 24.px,
               package: 'ox_wallet',
-              useTheme: true,
             ),
             SizedBox(width: 8.px,),
             Expanded(

@@ -19,7 +19,7 @@ import 'package:ox_usercenter/widget/verify_secure_keypad.dart';
 ///CreateTime: 2023/12/7 18:38
 class VerifyPasscodePage extends StatefulWidget {
   final bool needBack;
-  VerifyPasscodePage({
+  const VerifyPasscodePage({
     Key? key,
     this.needBack = false,
   }) : super(key: key);

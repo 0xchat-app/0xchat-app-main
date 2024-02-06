@@ -382,6 +382,7 @@ class _MessageState extends State<Message> {
           child: Wrap(
             children: menuItems
                 .map((item) => GestureDetector(
+              behavior: HitTestBehavior.translucent,
               onTap: () {
                 widget.onMessageLongPressEvent?.call(widget.message, item.type);
                 _popController.hideMenu();

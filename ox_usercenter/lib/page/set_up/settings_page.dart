@@ -227,15 +227,15 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       behavior: HitTestBehavior.translucent,
       onTap: () async{
         if (_settingModel.settingItemType == SettingItemType.messageNotification) {
-          OXNavigator.pushPage(context, (context) => MessageNotificationPage()).then((value) {
+          OXNavigator.pushPage(context, (context) => const MessageNotificationPage()).then((value) {
             setState(() {});
           });
         } else if (_settingModel.settingItemType == SettingItemType.relays) {
-          OXNavigator.pushPage(context, (context) => RelaysPage()).then((value) {
+          OXNavigator.pushPage(context, (context) => const RelaysPage()).then((value) {
             setState(() {});
           });
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
-          OXNavigator.pushPage(context, (context) => KeysPage());
+          OXNavigator.pushPage(context, (context) => const KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
           if(OXChatBinding.sharedInstance.isZapBadge){
             MsgNotification(noticeNum: 0).dispatch(context);
@@ -246,17 +246,17 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
               });
             });
           }
-          OXNavigator.pushPage(context, (context) => ZapsPage());
+          OXNavigator.pushPage(context, (context) => const ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
         } else if (_settingModel.settingItemType == SettingItemType.database) {
           OXNavigator.pushPage(context, (context) => const DatabaseSettingPage());
         } else if (_settingModel.settingItemType == SettingItemType.language) {
-          OXNavigator.pushPage(context, (context) => LanguageSettingsPage());
+          OXNavigator.pushPage(context, (context) => const LanguageSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.theme) {
-          await OXNavigator.pushPage(context, (context) => ThemeSettingsPage());
+          await OXNavigator.pushPage(context, (context) => const ThemeSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.ice) {
-          OXNavigator.pushPage(context, (context) => ICEServerPage());
+          OXNavigator.pushPage(context, (context) => const ICEServerPage());
         }
       },
       child: _itemView(
@@ -368,7 +368,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   void showDeleteAccountDialog() {
     String userInput = '';
-    final matchWord = 'DELETE';
+    const matchWord = 'DELETE';
     OXCommonHintDialog.show(
       context,
       title: 'Permanently delete account',
@@ -376,7 +376,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         onChanged: (value) {
           userInput = value;
         },
-        decoration: InputDecoration(hintText: 'Type $matchWord to delete'),
+        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
       ),
       actionList: [
         OXCommonHintAction.cancel(onTap: () {

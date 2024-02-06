@@ -86,7 +86,7 @@ class SecureKeypadState extends State<SecureKeypad> {
 
   Widget _buildKeyWidget(String key) {
     if (key == '.') {
-      return SizedBox();
+      return const SizedBox();
     }
     if (key == 'x') {
       return CommonImage(

@@ -6,11 +6,13 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/theme_button.dart';
+import 'package:ox_wallet/page/wallet_backup_funds_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
 import 'package:ox_wallet/page/wallet_mint_management_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 
 class WalletMintListPage extends StatefulWidget {
   const WalletMintListPage({super.key});
@@ -58,6 +60,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
           ),
           mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
           ThemeButton(text: 'Add Mint',height: 48.px,onTap: _addMint),
+          ThemeButton(text: 'Backup/Import wallet',height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
@@ -101,9 +104,34 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         setState(() {});
       });
 
-  void _addMint() => OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage()).then((value) {
-        if (value != null && value as bool) {
-          setState(() {});
-        }
+  void _addMint() async {
+    bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage());
+    if (result != null && result) {
+      setState(() {
+        mintItems = EcashManager.shared.mintList;
       });
+    }
+  }
+
+  void _handleWalletOperation() async {
+    ShowModalBottomSheet.showSimpleOptionsBottomSheet(context, options: [
+      SimpleBottomSheetItem(title: 'Backup wallet', onTap: _backupWallet),
+      SimpleBottomSheetItem(title: 'Import wallet', onTap: _importWallet),
+    ]);
+  }
+
+  void _backupWallet() {
+    OXNavigator.pop(context);
+    OXNavigator.pushPage(context, (context) => const WalletBackupFundsPage(mint: null,),);
+  }
+
+  void _importWallet() async {
+    OXNavigator.pop(context);
+    bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage(action: ImportAction.import));
+    if (result != null && result) {
+      setState(() {
+        mintItems = EcashManager.shared.mintList;
+      });
+    }
+  }
 }

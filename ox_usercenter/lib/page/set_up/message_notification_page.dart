@@ -23,6 +23,8 @@ import 'package:ox_usercenter/model/notice_model.dart';
 ///@author Michael
 ///CreateTime: 2023/6/6 14:46
 class MessageNotificationPage extends StatefulWidget {
+  const MessageNotificationPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _MessageNotificationPageState();
@@ -31,7 +33,7 @@ class MessageNotificationPage extends StatefulWidget {
 
 class _MessageNotificationPageState extends State<MessageNotificationPage> {
   Map<int, NoticeModel> _allNoticeModel = {};
-  List<NoticeModel> _noticeModelList = [];
+  final List<NoticeModel> _noticeModelList = [];
   NoticeModel? _messageNoticeModel;
   final List<NoticeModel> _feedbackList = [];
 

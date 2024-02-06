@@ -30,11 +30,102 @@ class ChatMessageDBToUIHelper {
   static String? sessionMessageTextBuilder(MessageDB message) {
     final type = MessageDB.stringtoMessageType(message.type);
     final decryptContent = message.decryptContent;
-    if (type == MessageType.text && decryptContent.isNotEmpty) {
-      final mentionDecoderText = ChatMentionMessageEx.tryDecoder(decryptContent);
-      return mentionDecoderText;
+    return getMessagePreviewText(decryptContent, type, message.sender);
+  }
+
+  static String getMessagePreviewText(
+    String contentText,
+    MessageType type,
+    String senderId,
+  ) {
+    switch (type) {
+      case MessageType.text:
+        final mentionDecoderText = ChatMentionMessageEx.tryDecoder(contentText);
+        if (mentionDecoderText != null) return mentionDecoderText;
+
+        String? showContent;
+        if (contentText.isNotEmpty) {
+          try {
+            final decryptedContent = json.decode(contentText);
+            if (decryptedContent is Map) {
+              showContent = decryptedContent['content'] as String;
+            } else {
+              showContent = decryptedContent.toString();
+            }
+          } catch (_) { }
+        }
+        if (showContent == null) {
+          showContent = contentText;
+        }
+        return showContent;
+      case MessageType.image:
+      case MessageType.encryptedImage:
+        return Localized.text('ox_common.message_type_image');
+      case MessageType.video:
+      case MessageType.encryptedVideo:
+        return Localized.text('ox_common.message_type_video');
+      case MessageType.audio:
+      case MessageType.encryptedAudio:
+        return Localized.text('ox_common.message_type_audio');
+      case MessageType.file:
+      case MessageType.encryptedFile:
+        return Localized.text('ox_common.message_type_file');
+      case MessageType.system:
+        final key = contentText;
+        var text = '';
+        if (key.isNotEmpty) {
+          text = Localized.text(key, useOrigin: true);
+          if (key == 'ox_chat.screen_record_hint_message' ||
+              key == 'ox_chat.screenshot_hint_message') {
+            final sender = senderId;
+            var senderName = '';
+            final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(sender);
+            final userDB = Account.sharedInstance.getUserInfo(sender);
+            if (userDB is UserDB) {
+              senderName = userDB.name ?? '';
+            }
+            final name = isMe
+                ? Localized.text('ox_common.you')
+                : senderName;
+            text = text.replaceAll(r'${user}', name);
+          }
+        }
+        return text;
+      case MessageType.call:
+        return Localized.text('ox_common.message_type_call');
+      case MessageType.template:
+        if (contentText.isNotEmpty) {
+          try {
+            final decryptedContent = json.decode(contentText);
+            if (decryptedContent is Map) {
+              final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
+              final content = decryptedContent['content'];
+              switch (type) {
+                case CustomMessageType.zaps:
+                  return Localized.text('ox_common.message_type_zaps');
+                case CustomMessageType.template:
+                  if (content is Map) {
+                    final title = content['title'] ?? '';
+                    return Localized.text('ox_common.message_type_template') + title;
+                  }
+                  break ;
+                case CustomMessageType.ecash:
+                  var memo = '';
+                  try {
+                    memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
+                  } catch (_) { }
+                  return '[Cashu Ecash] $memo';
+                default:
+                  break ;
+              }
+            }
+          } catch (_) { }
+        }
+        return Localized.text('ox_common.message_type_template');
+      default:
+        return Localized.text('ox_common.message_type_unknown');
     }
-    return null;
+    return '[unknown type]';
   }
 
   static Future<types.User?> getUser(String messageSenderPubKey) async {
@@ -377,41 +468,12 @@ extension UIMessageEx on types.Message {
     if (author == null) {
       return '';
     }
-
-    final replyMessage = this;
     final authorName = author.getUserShowName();
-    String? messageText;
-    if (replyMessage is types.TextMessage) {
-      messageText = replyMessage.text;
-    } else if (replyMessage is types.ImageMessage) {
-      messageText = Localized.text('ox_common.message_type_image');
-    } else if (replyMessage is types.AudioMessage) {
-      messageText = Localized.text('ox_common.message_type_audio');
-    } else if (replyMessage is types.VideoMessage) {
-      messageText = Localized.text('ox_common.message_type_video');
-    } else if (replyMessage is types.CustomMessage) {
-      final customType = replyMessage.customType;
-      switch (customType) {
-        case CustomMessageType.zaps:
-          messageText = Localized.text('ox_common.message_type_zaps');
-          break ;
-        case CustomMessageType.call:
-          messageText = Localized.text('ox_common.message_type_call');
-          break ;
-        case CustomMessageType.template:
-          final title = TemplateMessageEx(replyMessage).title;
-          messageText = Localized.text('ox_common.message_type_template') + title;
-          break ;
-        case CustomMessageType.ecash:
-          messageText = '[Ecash]';
-          break ;
-        default:
-          break ;
-      }
-    }
-    if (messageText == null) {
-      messageText = '[unknown type]';
-    }
-    return '$authorName: $messageText';
+    final previewText = ChatMessageDBToUIHelper.getMessagePreviewText(
+      this.content,
+      this.dbMessageType(),
+      this.author.id,
+    );
+    return '$authorName: $previewText';
   }
 }

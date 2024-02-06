@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 class CommonModalBottomSheetWidget extends StatelessWidget {
@@ -25,10 +26,11 @@ class CommonModalBottomSheetWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 8.px,),
-          Text(title ?? 'Tips',style: TextStyle(fontSize: 18.px,fontWeight: FontWeight.w600,color: ThemeColor.color100,height: 25.px / 18.px),),
-          SizedBox(height: 8.px,),
-          Container(width:double.infinity,height: 0.5.px,color: ThemeColor.color160,),
+          if(title != null) ...[
+            SizedBox(height: 8.px,),
+            Text(title ?? 'Tips',style: TextStyle(fontSize: 18.px,fontWeight: FontWeight.w600,color: ThemeColor.color100,height: 25.px / 18.px),),
+            Container(width:double.infinity,height: 0.5.px,color: ThemeColor.color160,).setPaddingOnly(top: 8.px),
+          ],
           content ?? _buildButton(label: confirmContent ?? 'Delete',color: confirmContentColor ?? Colors.red,onTap: confirmCallback),
           Container(width:double.infinity,height: 8.px,color: ThemeColor.color190,),
           _buildButton(label: 'Cancel',onTap: () => OXNavigator.pop(context)),
@@ -101,6 +103,30 @@ class ShowModalBottomSheet {
       ),
     );
   }
+
+  static void showSimpleOptionsBottomSheet(
+    BuildContext context, {
+    String? title,
+    required List<SimpleBottomSheetItem> options,
+  }) {
+    show(
+      context,
+      CommonModalBottomSheetWidget(
+        title: title,
+        content: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          itemBuilder: (context, index) => SimpleBottomSheetItem(
+            title: options[index].title,
+            onTap: options[index].onTap,
+          ),
+          separatorBuilder: (context, index) => Container(height: 0.5.px, color: ThemeColor.color160,),
+          itemCount: options.length,
+        ),
+      ),
+    );
+  }
 }
 
 class BottomSheetItem extends StatelessWidget {
@@ -145,6 +171,32 @@ class BottomSheetItem extends StatelessWidget {
             SizedBox(height: 2.px,),
             Text(subTitle ?? '',style: TextStyle(color: ThemeColor.color100,fontSize: 14.px,fontWeight: FontWeight.w400))
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleBottomSheetItem extends StatelessWidget {
+  final String title;
+  final VoidCallback? onTap;
+
+  const SimpleBottomSheetItem({super.key, required this.title, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        height: 56.px,
+        alignment: Alignment.center,
+        child: Text(
+          title,
+          style: TextStyle(
+              fontSize: 16.px,
+              fontWeight: FontWeight.w400,
+              color: ThemeColor.color0),
         ),
       ),
     );

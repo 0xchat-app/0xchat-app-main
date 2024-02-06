@@ -188,11 +188,11 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       (TabViewInfo tabModel) {
         return NotificationListener<MsgNotification>(
           onNotification: (notification) {
-            if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.length > 0){
+            if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.isNotEmpty){
               tabBarList[0].unreadMsgCount = 0;
               setState(() {});
             }
-            if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.length > 0){
+            if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.isNotEmpty){
               tabBarList[3].unreadMsgCount = 0;
               setState(() {});
             }

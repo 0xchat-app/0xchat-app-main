@@ -17,9 +17,8 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 class ContactViewGroups extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final ScrollController? scrollController;
-  final CursorGroupsChanged? onCursorGroupsChanged;
-  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.scrollController, this.onCursorGroupsChanged}): super(key: key);
+  final Widget? topWidget;
+  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.topWidget}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -66,8 +65,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
         chatType:  ChatType.chatGroup,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
-        scrollController: widget.scrollController,
-        onCursorGroupsChanged: widget.onCursorGroupsChanged,
+        topWidget: widget.topWidget,
       ),
     );
   }

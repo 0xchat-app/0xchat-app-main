@@ -133,7 +133,7 @@
   "session_content_mentioned": "你被提及",
   "session_content_draft":"草稿",
   "lightning_invoice": "闪电发票",
-  "str_new_group": "新建群聊",
+  "str_new_group": "私有群聊",
   "create_group_search_hint_text": "你想添加谁？",
   "create_group_select_toast": "请至少选择一个用户",
   "next": "下一步",
@@ -208,5 +208,5 @@
   "str_add_a_friend": "添加一个朋友",
   "str_john_a_channel": "加入一个频道",
   "scan_qr_code": "扫描二维码",
-  "ox_request_join_item_text": "${name} 请求加入群组"
+  "request_join_item_text": "${name} 请求加入群组"
 }

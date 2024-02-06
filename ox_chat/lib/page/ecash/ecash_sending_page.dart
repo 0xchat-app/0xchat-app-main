@@ -29,14 +29,14 @@ extension _PackageTypeEx on _PackageType {
     switch (this) {
       case _PackageType.single: return '';
       case _PackageType.multipleRandom: return 'Random Amount';
-      case _PackageType.multipleEqual: return 'Indentical Amount';
+      case _PackageType.multipleEqual: return 'Identical Amount';
     }
   }
 
   String get amountInputTitle {
     switch (this) {
       case _PackageType.single: return 'Amount';
-      case _PackageType.multipleRandom: return 'Total Amount';
+      case _PackageType.multipleRandom: return 'Total';
       case _PackageType.multipleEqual: return 'Amount Each';
     }
   }
@@ -59,6 +59,7 @@ class EcashSendingPage extends StatefulWidget {
 class _EcashSendingPageState extends State<EcashSendingPage> {
 
   _PackageType packageType = _PackageType.single;
+  IMint? mint;
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
@@ -75,6 +76,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
   void initState() {
     super.initState();
     packageType = widget.isGroupEcash ? _PackageType.multipleRandom : _PackageType.single;
+    mint = OXWalletInterface.getDefaultMint();
   }
 
   @override
@@ -113,8 +115,13 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
                         'Ecash',
                         style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
                       ).setPadding(EdgeInsets.only(top: 24.px)),
+                      _buildMintSelector().setPadding(EdgeInsets.only(top: 24.px)),
                       if (widget.isGroupEcash)
-                        _buildTypeSelector(),
+                        _buildSelectorRow(
+                          title: 'Type',
+                          value: packageType.text,
+                          onTap: typeOnTap,
+                        ).setPadding(EdgeInsets.only(top: 24.px)),
                       if (widget.isGroupEcash)
                         _buildInputRow(
                           title: 'Quantity',
@@ -160,32 +167,22 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
         isClose: true,
     );
 
-  Widget _buildTypeSelector() {
+  Widget _buildSelectorRow({
+    required String title,
+    required String value,
+    bool isPlaceholder = false,
+    GestureTapCallback? onTap,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Type',
+          title,
           style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: Adapt.px(12)),
         GestureDetector(
-          onTap: () async {
-            final result = await OXActionDialog.show<_PackageType>(
-              context,
-              data: [
-                OXActionModel(identify: _PackageType.multipleRandom, text: _PackageType.multipleRandom.text),
-                OXActionModel(identify: _PackageType.multipleEqual, text: _PackageType.multipleEqual.text),
-              ],
-              backGroundColor: ThemeColor.color180,
-              separatorCancelColor: ThemeColor.color190,
-            );
-            if (result != null && result.identify != packageType) {
-              setState(() {
-                packageType = result.identify;
-              });
-            }
-          },
+          onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
               color: ThemeColor.color180,
@@ -197,7 +194,15 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(packageType.text),
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          color: isPlaceholder
+                              ? ThemeColor.color140
+                              : ThemeColor.color0,
+                          fontSize: 16.sp,
+                        ),
+                      ),
                     ),
                     CommonImage(
                       iconName: 'icon_more.png',
@@ -291,6 +296,34 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     );
   }
 
+  Widget _buildMintSelector() {
+    return OXWalletInterface.buildMintIndicatorItem(
+      mint: mint,
+      selectedMintChange: (mint) {
+        setState(() {
+          this.mint = mint;
+        });
+      }
+    );
+  }
+
+  Future typeOnTap() async {
+    final result = await OXActionDialog.show<_PackageType>(
+      context,
+      data: [
+        OXActionModel(identify: _PackageType.multipleRandom, text: _PackageType.multipleRandom.text),
+        OXActionModel(identify: _PackageType.multipleEqual, text: _PackageType.multipleEqual.text),
+      ],
+      backGroundColor: ThemeColor.color180,
+      separatorCancelColor: ThemeColor.color190,
+    );
+    if (result != null && result.identify != packageType) {
+      setState(() {
+        packageType = result.identify;
+      });
+    }
+  }
+
   Future _sendButtonOnPressed() async {
     final amount = int.tryParse(ecashAmount) ?? 0;
     final ecashCount = this.ecashCount;
@@ -303,14 +336,22 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
       CommonToast.instance.show(context, 'Ecash quantity cannot be 0');
       return ;
     }
-    
-    final mint = OXWalletInterface.getDefaultMint();
+
+    final mint = this.mint;
     if (mint == null) {
-      CommonToast.instance.show(context, 'Default mint not found');
+      CommonToast.instance.show(context, 'Must select mint to send ecash');
       return ;
     }
 
-    List<String> tokenList = [];
+    if (amount > mint.balance) {
+      CommonToast.instance.show(context, 'Insufficient balance');
+      return ;
+    }
+
+    if (packageType == _PackageType.multipleRandom && amount < ecashCount) {
+      CommonToast.instance.show(context, 'The quantity cannot exceed the amount');
+      return ;
+    }
     
     OXLoading.show();
     List<int> amountList = [];
@@ -326,23 +367,18 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
         break ;
     }
 
-    var errorMsg = '';
-    for (final amount in amountList) {
-      final (token, error) = await getEcashToken(mint, amount, description);
-      if (token.isEmpty) {
-        errorMsg = error;
-        break;
-      }
-      tokenList.add(token);
-    }
+    final response = await Cashu.sendEcashList(
+      mint: mint,
+      amountList: amountList,
+      memo: description,
+    );
     OXLoading.dismiss();
-
-    if (errorMsg.isNotEmpty) {
-      CommonToast.instance.show(context, errorMsg);
+    if (!response.isSuccess) {
+      CommonToast.instance.show(context, response.errorMsg);
       return ;
     }
 
-    widget.ecashInfoCallback(tokenList);
+    widget.ecashInfoCallback(response.data);
   }
 
   List<int> randomAmount(int totalAmount, int count) {

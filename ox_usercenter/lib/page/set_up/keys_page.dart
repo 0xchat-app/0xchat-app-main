@@ -21,7 +21,7 @@ import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 ///CreateTime: 2023/5/9 09:52
 class KeysPage extends StatefulWidget{
 
-  KeysPage();
+  const KeysPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -36,8 +36,8 @@ class _KeysPageState extends State<KeysPage>{
   bool _isShowPrivkey = false;
   String _localPasscode = '';
   late UserDB userDB;
-  TextEditingController _pubTextEditingController = TextEditingController();
-  TextEditingController _privTextEditingController = TextEditingController();
+  final TextEditingController _pubTextEditingController = TextEditingController();
+  final TextEditingController _privTextEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -91,8 +91,8 @@ class _KeysPageState extends State<KeysPage>{
 
   Future<void> _changeShowPrivkeyFn(bool value) async {
     if (_localPasscode.isNotEmpty && value) {
-      final result = await OXNavigator.pushPage(context, (context) => VerifyPasscodePage(needBack: true,));
-      LogUtil.e('Michael: --_changeShowPrivkeyFn--- result =${result}');
+      final result = await OXNavigator.pushPage(context, (context) => const VerifyPasscodePage(needBack: true,));
+      LogUtil.e('Michael: --_changeShowPrivkeyFn--- result =$result');
       if (result != null && result is bool && result && mounted) {
         setState(() {
           _isShowPrivkey = value;
@@ -169,7 +169,7 @@ class _KeysPageState extends State<KeysPage>{
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Container(
+                child: SizedBox(
                   width: Adapt.px(100),
                   child: TextField(
                     readOnly: true,

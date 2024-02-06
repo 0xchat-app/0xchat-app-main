@@ -35,7 +35,7 @@ class UsercenterBadgeWallPage extends StatefulWidget {
 
 class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   List<BadgeModel> _defaultBadgeModelList = [];
-  List<BadgeModel> _currentUserBadgeModelList = [];
+  final List<BadgeModel> _currentUserBadgeModelList = [];
   final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 32 + 48)) / 3;
   UserDB? _mUserInfo;
   BadgeModel? _selectedBadgeModel;
@@ -200,7 +200,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
                   SizedBox(
                     height: Adapt.px(16),
                   ),
-                  Container(
+                  SizedBox(
                     height: (_imageWH + Adapt.px(44)) * ((_defaultBadgeModelList.length / 3).ceil()),
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),

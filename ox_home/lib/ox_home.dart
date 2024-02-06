@@ -9,10 +9,6 @@ class OxChatHome extends OXFlutterModule {
   @override
   String get moduleName => 'ox_home';
 
-  @override
-  Future<void> setup() async {
-    super.setup();
-  }
 
   @override
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {

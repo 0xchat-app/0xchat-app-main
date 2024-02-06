@@ -133,7 +133,7 @@
   "session_content_mentioned": "You're mentioned",
   "session_content_draft":"Draft",
   "lightning_invoice": "Lightning Invoice",
-  "str_new_group": "New Group",
+  "str_new_group": "Private Group",
   "create_group_search_hint_text": "Who would you like to add？",
   "create_group_select_toast": "Please select at least one user",
   "next": "Next",
@@ -208,5 +208,5 @@
   "str_add_a_friend": "add a friend",
   "str_john_a_channel": "join a channel",
   "scan_qr_code": "Scan QR code",
-  "ox_request_join_item_text": "${name} request to join the group"
+  "request_join_item_text": "${name} request to join the group"
 }
