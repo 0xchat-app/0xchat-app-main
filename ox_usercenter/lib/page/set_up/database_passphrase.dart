@@ -19,6 +19,7 @@ import 'package:ox_usercenter/model/database_set_model.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:ox_usercenter/widget/database_item_widget.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 
 ///Title: database_passphrase
 ///Description: TODO(Fill in by oneself)
@@ -254,6 +255,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     await DB.sharedInstance.execute("PRAGMA rekey = '$newPassword'");
     await DB.sharedInstance.closDatabase();
     await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: newPassword);
+    await CashuManager.shared.changeDBPassword(pubkey, newPassword);
   }
 
 }
