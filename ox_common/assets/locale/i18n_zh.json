@@ -86,7 +86,7 @@
   "str_my_idcard": "我的名片",
   "str_scan": "扫一扫",
   "str_add_friend" : "添加联系人",
-  "str_new_channel": "新建频道",
+  "str_new_channel": "公开频道",
   "scan_find_not_same_hint": "您需要添加一个中继：${relay}来获取这些数据。",
   "scan_find_nwc_hint": "连接到这个钱包？",
   "get_request_title": "允许该网站：",

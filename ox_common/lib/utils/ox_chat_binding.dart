@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'dart:convert';
 
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -78,74 +75,7 @@ class OXChatBinding {
   }
 
   String showContentByMsgType(MessageDB messageDB) {
-
-    final text = sessionMessageTextBuilder?.call(messageDB);
-    if (text != null) return text;
-
-    switch (MessageDB.stringtoMessageType(messageDB.type)) {
-      case MessageType.text:
-        String? showContent;
-        final decryptContent = messageDB.decryptContent;
-        if (decryptContent.isNotEmpty) {
-          try {
-            final decryptedContent = json.decode(decryptContent);
-            if (decryptedContent is Map) {
-              showContent = decryptedContent['content'] as String;
-            } else {
-              showContent = decryptedContent.toString();
-            }
-          } catch (e) {
-            LogUtil.e('showContentByMsgType：MessageType.text =${e.toString()}');
-          }
-        }
-        if (showContent == null) showContent = decryptContent ?? '';
-        return showContent;
-      case MessageType.image:
-      case MessageType.encryptedImage:
-        return Localized.text('ox_common.message_type_image');
-      case MessageType.video:
-      case MessageType.encryptedVideo:
-        return Localized.text('ox_common.message_type_video');
-      case MessageType.audio:
-      case MessageType.encryptedAudio:
-        return Localized.text('ox_common.message_type_audio');
-      case MessageType.file:
-      case MessageType.encryptedFile:
-        return Localized.text('ox_common.message_type_file');
-      case MessageType.system:
-        return messageDB.decryptContent ?? '';
-      case MessageType.call:
-        return Localized.text('ox_common.message_type_call');
-      case MessageType.template:
-        final decryptContent = messageDB.decryptContent;
-        if (decryptContent.isNotEmpty) {
-          try {
-            final decryptedContent = json.decode(decryptContent);
-            if (decryptedContent is Map) {
-              final type = CustomMessageTypeEx.fromValue(decryptedContent['type']);
-              final content = decryptedContent['content'];
-              switch (type) {
-                case CustomMessageType.zaps:
-                  return Localized.text('ox_common.message_type_zaps');
-                case CustomMessageType.template:
-                  if (content is Map) {
-                    final title = content['title'] ?? '';
-                    return Localized.text('ox_common.message_type_template') + title;
-                  }
-                  break ;
-                case CustomMessageType.ecash:
-                  return '[Ecash]';
-                default:
-                  break ;
-              }
-            }
-          } catch (_) { }
-        }
-
-        return Localized.text('ox_common.message_type_template');
-      default:
-        return Localized.text('ox_common.message_type_unknown');
-    }
+    return sessionMessageTextBuilder?.call(messageDB) ?? '';
   }
 
   Future<int> updateChatSession(String chatId, {
