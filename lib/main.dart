@@ -162,7 +162,7 @@ class MainState extends State<MainApp>
     String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
       'getAppOpenURL',
     );
-    LogUtil.e("doHandleJumpInfo jumpInfo : ${jumpInfo}");
+    LogUtil.e("doHandleJumpInfo jumpInfo : $jumpInfo");
     if (jumpInfo.isNotEmpty) {
       BuildContext? context = OXNavigator.navigatorKey.currentContext;
       if(context == null) return;
