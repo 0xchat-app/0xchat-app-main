@@ -50,12 +50,14 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   void initState() {
     super.initState();
     _mintNotifier.value = EcashManager.shared.defaultIMint;
-    _invoiceFocus.addListener(() {
-      if(!_invoiceFocus.hasFocus){
-        _updateSendType();
-      }
-    });
+    _invoiceFocus.addListener(_focusChanged);
     _initExternalData();
+  }
+  
+  _focusChanged(){
+    if(!_invoiceFocus.hasFocus){
+      _updateSendType();
+    }
   }
 
   void _initExternalData() {
@@ -149,6 +151,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   Future<void> _updateSendType() async {
+    if (invoice.isEmpty) return;
     if (invoice.contains('@')) {
       _sendType.value = SendType.address;
       return;
@@ -210,5 +213,17 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         CommonToast.instance.show(context, 'Paying Lightning Invoice Failed, Please try again');
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _sendType.dispose();
+    _mintNotifier.dispose();
+    _enableButton.dispose();
+    _invoiceEditController.dispose();
+    _amountEditController.dispose();
+    _invoiceFocus.removeListener(_focusChanged);
+    _invoiceFocus.dispose();
+    super.dispose();
   }
 }

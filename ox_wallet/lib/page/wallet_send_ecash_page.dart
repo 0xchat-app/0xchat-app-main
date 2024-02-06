@@ -109,4 +109,11 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
       _mint = mint;
     });
   }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 }

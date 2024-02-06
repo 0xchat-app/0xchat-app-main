@@ -71,9 +71,7 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         onTap: () => _handlePageAction(ItemType.withdrawEcash),
       )
     ];
-    EcashManager.shared.addListener(() {
-      setState(() {});
-    });
+    EcashManager.shared.addListener(_mintChanged);
   }
 
   @override
@@ -160,6 +158,16 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     if(itemType.defaultPageBuilder != null){
       _jumpToPage(pageBuilder: itemType.defaultPageBuilder!);
     }
+  }
+
+  _mintChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    EcashManager.shared.removeListener(_mintChanged);
+    super.dispose();
   }
 }
 

@@ -264,6 +264,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
     _amountFocus.dispose();
     _noteFocus.dispose();
     Cashu.removeInvoiceListener(payInvoiceListener);
+    _mintNotifier.dispose();
     super.dispose();
   }
 }
