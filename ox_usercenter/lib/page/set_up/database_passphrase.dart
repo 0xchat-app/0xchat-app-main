@@ -255,7 +255,6 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
     await DB.sharedInstance.execute("PRAGMA rekey = '$newPassword'");
     await DB.sharedInstance.closDatabase();
     await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: newPassword);
-    await CashuManager.shared.changeDBPassword(pubkey, newPassword);
   }
 
 }
