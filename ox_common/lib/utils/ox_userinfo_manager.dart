@@ -8,6 +8,7 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
+import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
@@ -73,7 +74,11 @@ class OXUserInfoManager {
       LogUtil.d('[DB init] dbpw: $dbpw');
       await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
     }
-    await CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: dbpw, defaultMint: []);
+
+    {
+      final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
+      await CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: cashuDBPwd, defaultMint: []);
+    }
   }
 
   Future initLocalData() async {
