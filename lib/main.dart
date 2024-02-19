@@ -28,7 +28,6 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_login/ox_login.dart';
-import 'package:ox_push/google_push/firebase_message_manager.dart';
 import 'package:ox_push/ox_push.dart';
 import 'package:ox_calling/ox_calling.dart';
 import 'package:ox_chat_project/multi_route_utils.dart';
@@ -71,8 +70,6 @@ void main() async {
   if (Platform.isIOS) {
     runApp(MainApp(window.defaultRouteName));
   } else {
-    await FirebaseMessageManager.initFirebase();
-    FirebaseMessageManager.instance.loadListener();
     runApp(MainApp(window.defaultRouteName));
   }
 }
