@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -247,24 +249,24 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
               defaultImageName: defaultImageName,
               size: widget.size,
               imageUrl: '',
-              isCircular: true,
-              isClickable: true,
+              isCircular: widget.isCircular,
+              isClickable: widget.isClickable,
               onTap: _onTap,
             );
           }
           return GroupedAvatar(
             avatars: _avatars,
             size: widget.size,
-            isCircular: true,
-            isClickable: true,
+            isCircular: widget.isCircular,
+            isClickable: widget.isClickable,
             onTap: _onTap,
           );
         } else {
           return GroupedAvatar(
             avatars: _avatars,
             size: widget.size,
-            isCircular: true,
-            isClickable: true,
+            isCircular: widget.isCircular,
+            isClickable: widget.isClickable,
             onTap: _onTap,
           );
         }
@@ -318,6 +320,7 @@ class GroupedAvatar extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
+        alignment: Alignment.center,
         child: _buildGroupedAvatar(avatarWidgetList),
       ),
     );
@@ -359,8 +362,8 @@ class GroupedAvatar extends StatelessWidget {
       defaultImageName: defaultImageName,
       size: size,
       imageUrl: '',
-      isCircular: true,
-      isClickable: true,
+      isCircular: isCircular,
+      isClickable: isClickable,
     );
   }
 }
