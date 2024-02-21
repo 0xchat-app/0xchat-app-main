@@ -6,6 +6,7 @@ import 'dart:convert' as convert;
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/network/network_tool.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -22,6 +23,103 @@ const RESPONSE_CODE_ERROR = '900001';
 
 const String ErrorGeneralHint = 'Network connection failed, please try again later!';
 
+
+enum OXHost {
+  oxchat,
+}
+
+extension OXHostEx on OXHost {
+  Future<String?> get stringValue async {
+    final String schema = NetworkTool.instance.urlProtocol();
+    final String domain = await NetworkTool.instance.getDomainSymbol();
+    final String versionStr = NetworkTool.instance.version();
+    switch (this) {
+      case ZBHost.vip:
+        return vipHostDomainModule();
+      case ZBHost.newvip:
+        return vipHostDomainModule(module: 'newvip');
+      case ZBHost.vipContract:
+        return vipHostDomainModule(module: 'contract/user');
+      case ZBHost.trans:
+        final String server = NetworkTool.isReleaseMode ? 'trans' : 'tttrans2';
+        return schema + server + '.' + domain + '/api/m/' + versionStr + '/';
+      case ZBHost.ticker:
+        final String server =
+        NetworkTool.isReleaseMode ? 'ticker' : 'ttticker2';
+        return schema + server + '.' + domain + '/data/';
+      case ZBHost.lever:
+        return vipHostDomainModule(module: 'lever');
+      case ZBHost.user:
+        return vipHostDomainModule(module: 'user');
+      case ZBHost.agent2:
+        return vipHostDomainModule(module: 'agent2');
+      case ZBHost.sensetime:
+        final String server = NetworkTool.isReleaseMode ? 'vip' : 'ttvip2';
+        return schema +
+            server +
+            '.' +
+            domain +
+            '/api/web/sensetime/' +
+            'V1_0_0' +
+            '/';
+      case ZBHost.zfile:
+        return vipHostDomainModule(module: 'zfile');
+      case ZBHost.assets:
+        return vipHostDomainModule(module: 'assets');
+      case ZBHost.coin:
+        return vipHostDomainModule(module: 'coin');
+      case ZBHost.cross:
+        return vipHostDomainModule(module: 'cross');
+      case ZBHost.entrust:
+        return vipHostDomainModule(module: 'entrust');
+      case ZBHost.analysis:
+        final String server = NetworkTool.isReleaseMode ? 'als' : 'ttanalysis2';
+        return schema + server + '.' + domain + '/api/m/' + versionStr + '/';
+      case ZBHost.news:
+        final String server = NetworkTool.isReleaseMode ? 'news' : 'ttn';
+        return schema + server + '.' + domain + '/api/m/' + versionStr + '/';
+      case ZBHost.pledge:
+        return vipHostDomainModule(module: 'pledge');
+      case ZBHost.futures_pledge:
+        final String server = NetworkTool.isReleaseMode ? 'pledge' : 'ttvip2';
+        return schema + server + '.' + domain + '/api/m/'+ 'pledge/' + versionStr + '/';
+      case ZBHost.contractAssets:
+        return vipHostDomainModule(module: 'contract/asset');
+      case ZBHost.coupon:
+        return vipHostDomainModule(module: 'coupon');
+      case ZBHost.newkyc:
+        final String server = NetworkTool.isReleaseMode ? 'vip' : 'ttvip2';
+        return schema + server + '.' + domain + '/api/m/kyc/V1_0/';
+      case ZBHost.otc:
+        return vipHostDomainModule(module: 'otc');
+      case ZBHost.newgrid:
+        final String server = NetworkTool.isReleaseMode ? 'newgrid' : 'tradingbot';
+        return schema + server + '.' + domain + '/api/m/' + versionStr + '/';
+    }
+  }
+
+  static Future<String> vipHostDomainModule(
+      {String? module, String? paramDomain, String? port}) async {
+    final String schema = NetworkTool.instance.urlProtocol();
+    final String server = NetworkTool.isReleaseMode ? 'vip' : 'ttvip2';
+    final String domain =
+        paramDomain ?? await NetworkTool.instance.getDomainSymbol();
+    final String moduleName = (module ?? '').isEmpty ? '' : (module! + '/');
+    final String versionStr = NetworkTool.instance.version();
+    String showPort = port == null ? '' : ':$port';
+    String hostDomain = schema +
+        server +
+        '.' +
+        domain + showPort +
+        '/api/m/' +
+        moduleName +
+        versionStr +
+        '/';
+    // print("****** hostDomain vipHostDomainModule : $hostDomain");
+    return hostDomain;
+  }
+}
+
 extension General on OXNetwork {
   /// key: Specifies that the back end returns code, value: processing operations
   static Map<String, VoidCallback> proxyMap = {};
@@ -33,6 +131,7 @@ extension General on OXNetwork {
 
   Future<OXResponse> doRequest(
     BuildContext? context, {
+    OXHost? host,
     String url = '',
     Map<String, dynamic>? header,
     RequestType type = RequestType.POST,
@@ -76,6 +175,24 @@ extension General on OXNetwork {
       OXLoading.show(status: Localized.text('ox_common.loading'));
     }
     try {
+      String hostStr = await host?.stringValue ?? '';
+      if (needCommonParams) {
+        if (url != null && url.isNotEmpty) {
+          String? domain = await NetworkTool.instance.getUrlDomain(url);
+          if (domain != null) {
+            if (header == null) header = Map<String, dynamic>();
+            header["host"] = domain;
+            url = await NetworkTool.instance.dnsReplaceIp(url);
+          }
+        } else if (hostStr != null && hostStr.isNotEmpty) {
+          String? domain = await NetworkTool.instance.getUrlDomain(hostStr);
+          if (domain != null) {
+            if (header == null) header = Map<String, dynamic>();
+            header["host"] = domain;
+            hostStr = await NetworkTool.instance.dnsReplaceIp(hostStr);
+          }
+        }
+      }
       NetworkResponse result = await OXNetwork.instance.request(context,
           url: url,
           header: await getRequestHeaders(params, header),
