@@ -62,27 +62,27 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
   Widget _buildCashuTokenItem() {
     return CommonCard(
       verticalPadding: 15.px,
-      child: _cashuToken != null ? Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(child: Text(WalletUtils.formatString(_cashuToken!),style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color40),)),
-          SizedBox(width: 8.px,),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: !_isCopied ? () async {
-              await TookKit.copyKey(context, _cashuToken ?? '');
-              setState(() {
-                _isCopied = true;
-              });
-            } : null,
-            child: CommonImage(
+      child: _cashuToken != null ? GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: !_isCopied ? () async {
+          await TookKit.copyKey(context, _cashuToken ?? '');
+          setState(() {
+            _isCopied = true;
+          });
+        } : null,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: Text(WalletUtils.formatString(_cashuToken!),style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color40),)),
+            SizedBox(width: 8.px,),
+            CommonImage(
               iconName: _isCopied ? 'icon_item_selected.png' : 'icon_copy.png',
               size: 24.px,
               package: 'ox_wallet',
               useTheme: true,
             ),
-          ),
-        ],
+          ],
+        ),
       ) : const Text('-'),
     );
   }
