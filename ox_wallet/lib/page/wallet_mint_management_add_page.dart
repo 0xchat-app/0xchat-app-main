@@ -74,7 +74,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
             controller: _controller,
             onTap: () => WalletUtils.gotoScan(context, (result) => _controller.text = result),
           ) : CommonLabeledCard.textFieldAndImportFile(
-            hintText: 'Enter Restore Public Key',
+            hintText: 'Enter Restore Cashu Token',
             controller: _controller,
             onTap: _importTokenFile,
           ),
