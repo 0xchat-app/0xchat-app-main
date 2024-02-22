@@ -13,9 +13,10 @@ import 'package:ox_wallet/widget/selection_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletSendEcashCoinSelectionPage extends StatefulWidget {
+  final IMint mint;
   final int amount;
 
-  const WalletSendEcashCoinSelectionPage({super.key, required this.amount});
+  const WalletSendEcashCoinSelectionPage({super.key, required this.amount, required this.mint});
 
   @override
   State<WalletSendEcashCoinSelectionPage> createState() => _WalletSendEcashCoinSelectionPage();
@@ -87,8 +88,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
   }
 
   Future<void> _getAllProof() async {
-    if(EcashManager.shared.defaultIMint == null) return;
-    List<Proof> proofs = await EcashService.getAllUseProofs(mint: EcashManager.shared.defaultIMint!);
+    List<Proof> proofs = await EcashService.getAllUseProofs(mint: widget.mint);
     if(proofs.isNotEmpty){
       setState(() {
         _proofs = proofs;

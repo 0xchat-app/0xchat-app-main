@@ -574,7 +574,7 @@ class _DonatePageState extends State<DonatePage> {
       _inAppPurchase.buyConsumable(purchaseParam: PurchaseParam(productDetails: productDetailResponse.productDetails.first));
     } else {
       ProductDetails? buyProductDetails = _productDetails![_selectIndex];
-      _inAppPurchase.buyConsumable(purchaseParam: PurchaseParam(productDetails: buyProductDetails!));
+      _inAppPurchase.buyConsumable(purchaseParam: PurchaseParam(productDetails: buyProductDetails));
     }
   }
 }

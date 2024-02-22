@@ -5,13 +5,17 @@ import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/theme_button.dart';
+import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class WalletBackupFundsPage extends StatefulWidget {
-  final IMint mint;
+  final IMint? mint;
   const WalletBackupFundsPage({super.key, required this.mint});
 
   @override
@@ -20,7 +24,7 @@ class WalletBackupFundsPage extends StatefulWidget {
 
 class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
 
-  final content = "The existing backup process represents a rudimentary implementation. It creates a Cashu token from mints and proofs which becomes invalid after new transactions. To restore the token on a new device, follow the familiar claiming process and the old balance becomes invalid. Avoid redeeming on top of the current balance to prevent errors. It's worth mentioning that we're actively engaged in developing a seed phrase backup solution for enhanced security and convenience. Note: You can also create a backup for a single mint under 'More Button at the top right of the Home Page' > 'Select mint' > 'Backup funds'.";
+  final content = 'The backup funds process automatically consolidates and calculates the smallest proofs for efficient storage while enhancing security. However, please be aware that once the recovery is completed, the old Cashu token becomes invalid, so ensure the process is carried out securely';
   String? _cashuToken;
   bool _isCopied = false;
 
@@ -45,10 +49,9 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
             child: Column(
               children: [
                 _buildCashuTokenItem(),
-                SizedBox(height: 24.px,),
-                _buildItem(title: 'Mint', content: widget.mint.mintURL),
-                SizedBox(height: 24.px,),
-                _buildItem(title: 'How does it work?',content: content),
+                if(widget.mint != null) _buildItem(title: 'Mint', content: widget.mint?.mintURL).setPaddingOnly(top: 24.px),
+                _buildItem(title: 'How does it work?',content: content).setPaddingOnly(top: 24.px),
+                if (widget.mint == null) _buildDownloadButton(),
               ],
             ),
           ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
@@ -59,27 +62,27 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
   Widget _buildCashuTokenItem() {
     return CommonCard(
       verticalPadding: 15.px,
-      child: _cashuToken != null ? Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(child: Text(_cashuToken!,style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color40),)),
-          SizedBox(width: 8.px,),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: !_isCopied ? () async {
-              await TookKit.copyKey(context, _cashuToken ?? '');
-              setState(() {
-                _isCopied = true;
-              });
-            } : null,
-            child: CommonImage(
+      child: _cashuToken != null ? GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: !_isCopied ? () async {
+          await TookKit.copyKey(context, _cashuToken ?? '');
+          setState(() {
+            _isCopied = true;
+          });
+        } : null,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: Text(WalletUtils.formatString(_cashuToken!),style: TextStyle(fontSize: 16.px,height: 22.px / 16.px,color: ThemeColor.color40),)),
+            SizedBox(width: 8.px,),
+            CommonImage(
               iconName: _isCopied ? 'icon_item_selected.png' : 'icon_copy.png',
               size: 24.px,
               package: 'ox_wallet',
               useTheme: true,
             ),
-          ),
-        ],
+          ],
+        ),
       ) : const Text('-'),
     );
   }
@@ -98,12 +101,26 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
     );
   }
 
+  Widget _buildDownloadButton() {
+    return ThemeButton(
+      text: 'Download',
+      height: 48.px,
+      enable: _cashuToken != null,
+      onTap: () => WalletUtils.exportToken(_cashuToken ?? ''),
+    ).setPaddingOnly(top: 24.px,);
+  }
+
   void _getCashuToken() async {
-    CashuResponse<String> response = await Cashu.getBackUpToken();
-    if(response.isSuccess){
-      setState(() {
-        _cashuToken = WalletUtils.formatString(response.data);
-      });
+    List<IMint> mints = widget.mint == null ? EcashManager.shared.mintList : [widget.mint!];
+    OXLoading.show();
+    CashuResponse<String> response = await Cashu.getBackUpToken(mints);
+    OXLoading.dismiss();
+    if(!response.isSuccess) {
+      if(context.mounted) CommonToast.instance.show(context, response.errorMsg);
+      return;
     }
+    setState(() {
+      _cashuToken = response.data;
+    });
   }
 }

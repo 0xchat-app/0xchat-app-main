@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
@@ -64,6 +65,9 @@ class _SatsAmountTextFieldState extends State<SatsAmountTextField> {
                   maxLines: 1,
                   enabled: widget.enable,
                   keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   scrollPadding: EdgeInsets.zero,
                   style: TextStyle(fontSize: 24.px,color: ThemeColor.color0,height: 34.px / 24.px),
                   decoration: const InputDecoration(

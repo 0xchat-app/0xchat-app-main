@@ -15,9 +15,8 @@ const String systemUserType = "10000";
 class ContractViewFriends extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final ScrollController? scrollController;
-  final CursorContactsChanged? onCursorContactsChanged;
-  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.scrollController, this.onCursorContactsChanged}): super(key: key);
+  final Widget? topWidget;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget}): super(key: key);
 
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
@@ -57,8 +56,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
           data: userList,
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics,
-          scrollController: widget.scrollController,
-          onCursorContactsChanged: widget.onCursorContactsChanged,
+          topWidget: widget.topWidget,
         ),
     );
   }

@@ -7,9 +7,6 @@ class DeviceInfo {
   }
 
   static String get userAgent {
-    return 'flutter-webrtc/web-plugin 0.0.1 ' +
-        ' ( ' +
-        HTML.window.navigator.userAgent +
-        ' )';
+    return 'flutter-webrtc/web-plugin 0.0.1  ( ${HTML.window.navigator.userAgent} )';
   }
 }

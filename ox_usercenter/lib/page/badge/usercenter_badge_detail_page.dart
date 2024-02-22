@@ -549,7 +549,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
 }
 
 class FollowButton extends StatefulWidget {
-  const FollowButton(this.onBuildController, this.followButtonController);
+  const FollowButton(this.onBuildController, this.followButtonController, {super.key});
 
   final StreamController<void> onBuildController;
   final StreamController<bool> followButtonController;

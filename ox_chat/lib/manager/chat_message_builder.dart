@@ -420,7 +420,7 @@ class ChatMessageBuilder {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Cashu Token',
+                  Text('Cashu Ecash',
                     style: TextStyle(color: ThemeColor.white, fontSize: 12),),
                   CommonImage(iconName: 'icon_zaps_0xchat.png',
                     package: 'ox_chat',

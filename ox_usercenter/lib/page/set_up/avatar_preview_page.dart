@@ -108,7 +108,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
       width: imageWidth,
       height: imageHeight,
       child: Align(
-          alignment: Alignment(1, -0.5),
+          alignment: const Alignment(1, -0.5),
           child: imageFile != null
               ? PhotoView(
                   imageProvider: FileImage(imageFile!, scale: 1),

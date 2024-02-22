@@ -24,8 +24,8 @@ class LaunchPageViewState extends State<LaunchPageView> {
   final stateMachineNames = 'Button';
   final riveInputs = 'Press';
 
-  late StateMachineController? riveControllers = null;
-  late Artboard? riveArtboards = null;
+  late StateMachineController? riveControllers;
+  Artboard? riveArtboards;
 
   String _localPasscode = '';
 

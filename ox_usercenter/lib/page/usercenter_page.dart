@@ -353,7 +353,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   Widget buildHeadImage() {
     String headImgUrl =
         OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? "";
-    LogUtil.e("headImgUrl: ${headImgUrl}");
+    LogUtil.e("headImgUrl: $headImgUrl");
     String localAvatarPath = 'assets/images/user_image.png';
 
     Image placeholderImage = Image.asset(
@@ -363,7 +363,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
       height: Adapt.px(76),
       package: 'ox_common',
     );
-    return Container(
+    return SizedBox(
       width: Adapt.px(120),
       height: Adapt.px(120),
       child: Stack(
@@ -382,7 +382,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               ),
             ),
           ),
-          Container(
+          SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: Center(
@@ -507,7 +507,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
   @override
   void didLoginSuccess(UserDB? userInfo) {
-    if (this.mounted) {
+    if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
       });
@@ -517,7 +517,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   @override
   void didLogout() {
     LogUtil.e("useercenter.didLogout");
-    if (this.mounted) {
+    if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_NotLogin);
       });
@@ -525,7 +525,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   String getHostUrl(String url) {
-    RegExp regExp = new RegExp(r"^.*?://(.*?)/.*?$");
+    RegExp regExp = RegExp(r"^.*?://(.*?)/.*?$");
     RegExpMatch? match = regExp.firstMatch(url);
     if (match != null) {
       return match.group(1) ?? '';

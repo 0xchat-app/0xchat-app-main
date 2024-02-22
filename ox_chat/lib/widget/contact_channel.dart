@@ -22,20 +22,16 @@ typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 
 class ChannelContact extends StatefulWidget {
   final List<ChannelDB> data;
-  final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
-  ScrollController? scrollController;
-  CursorChannelsChanged? onCursorChannelsChanged;
+  final Widget? topWidget;
 
   ChannelContact({
     Key? key,
     required this.data,
-    required this.chatType,
     this.shrinkWrap = false,
     this.physics,
-    this.scrollController,
-    this.onCursorChannelsChanged,
+    this.topWidget,
   }) : super(key: key);
 
   @override
@@ -52,6 +48,7 @@ class Note {
 }
 
 class ChannelContactState extends State<ChannelContact> {
+  ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
   late List<ChannelDB> channelList;
   int defaultIndex = 0;
@@ -69,20 +66,16 @@ class ChannelContactState extends State<ChannelContact> {
     super.initState();
     channelList = widget.data;
     _initIndexBarData();
-    // scrollController.addListener(() {
-    //   double position = scrollController.offset.toDouble();
-    //   int index = _computerIndex(position);
-    //   defaultIndex = index;
-    // });
+    _scrollController.addListener(() {
+      double position = _scrollController.offset.toDouble();
+      int index = _computerIndex(position);
+      defaultIndex = index;
+    });
   }
 
   void updateContactData(List<ChannelDB> data) {
     channelList = data;
     _initIndexBarData();
-    widget.onCursorChannelsChanged?.call(Container(
-      child: _buildAlphaBar(),
-      width: 30,
-    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -135,6 +128,10 @@ class ChannelContactState extends State<ChannelContact> {
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
                 ),
+                Container(
+                  child: _buildAlphaBar(),
+                  width: 30,
+                ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
             ),
@@ -167,7 +164,7 @@ class ChannelContactState extends State<ChannelContact> {
 
   @override
   void dispose() {
-    widget.scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -194,14 +191,13 @@ class ChannelContactState extends State<ChannelContact> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
-    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
-      widget.scrollController!.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
+      _scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
     timer = Timer(Duration(milliseconds: 300), () {
@@ -235,6 +231,13 @@ class ChannelContactState extends State<ChannelContact> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
+    if (widget.topWidget != null) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: widget.topWidget,
+        ),
+      );
+    }
     noteList.forEach((item) {
       slivers.add(
         SliverStickyHeader(
@@ -247,7 +250,6 @@ class ChannelContactState extends State<ChannelContact> {
             delegate: new SliverChildBuilderDelegate(
               (context, i) => GroupContactListItem(
                 item: item.childList[i],
-                chatType: widget.chatType,
               ),
               childCount: item.childList.length,
             ),
@@ -255,10 +257,11 @@ class ChannelContactState extends State<ChannelContact> {
         ),
       );
     });
+    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
     slivers.add(
-      SliverStickyHeader(
-        header: SizedBox(
-          height: Adapt.px(96),
+      SliverToBoxAdapter(
+        child: Container(
+          height: fillH,
         ),
       ),
     );
@@ -321,12 +324,10 @@ class GroupHeaderWidget extends StatelessWidget {
 class GroupContactListItem extends StatefulWidget {
   late ChannelDB item;
   final onCheckChanged;
-  final int chatType;
 
   GroupContactListItem({
     required this.item,
     this.onCheckChanged,
-    required this.chatType,
   });
 
   @override
@@ -337,35 +338,19 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    if (widget.chatType == ChatType.chatGroup) {
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId,
-            groupId: widget.item.channelId,
-            chatType: ChatType.chatGroup,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime,
-            avatar: widget.item.picture!,
-          ),
+    OXNavigator.pushPage(
+      context,
+          (context) => ChatChannelMessagePage(
+        communityItem: ChatSessionModel(
+          chatId: widget.item.channelId,
+          groupId: widget.item.channelId,
+          chatType: ChatType.chatChannel,
+          chatName: widget.item.name!,
+          createTime: widget.item.createTime,
+          avatar: widget.item.picture!,
         ),
-      );
-    } else if (widget.chatType == ChatType.chatChannel) {
-      OXNavigator.pushPage(
-        context,
-        (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId,
-            groupId: widget.item.channelId,
-            chatType: ChatType.chatChannel,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime,
-            avatar: widget.item.picture!,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override

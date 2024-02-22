@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_wallet/widget/ecash_scan_page.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 class WalletUtils {
 
@@ -98,5 +103,20 @@ class WalletUtils {
   static String formatAmountNumber(int number) {
     final NumberFormat numberFormat = NumberFormat('#,##0', 'en_US');
     return numberFormat.format(number);
+  }
+
+  static Future<String> loadLocalHTML(String path) async {
+    return await rootBundle.loadString(path);
+  }
+
+  static Future exportToken(String token) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = '${directory.path}/cashu_temp.txt';
+    final file = File(filePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+    await file.writeAsString(token);
+    await FileUtils.exportFile(filePath);
   }
 }

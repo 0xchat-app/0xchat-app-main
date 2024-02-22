@@ -19,8 +19,8 @@ class SatsAmountCard extends StatelessWidget {
           const Text('Sats Amount'),
           SizedBox(height: 16.px,),
           SatsAmountTextField(controller: controller,enable: enable,),
-          SizedBox(height: 8.px),
-          CurrencySatsConversion(controller: controller,),
+          // SizedBox(height: 8.px),
+          // CurrencySatsConversion(controller: controller,),
         ],
       ),
     );

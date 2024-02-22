@@ -35,36 +35,13 @@ class DatabaseHelper{
       String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
       String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
       final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
+      FileUtils.exportFile(dbFilePath, fileName);
       if (Platform.isAndroid) {
-        fileSaver(FileSaverParams(
-          saveFiles: [
-            SaveFileInfo(
-              fileName: fileName,
-              filePath: dbFilePath,
-            ),
-          ],
-        ));
         CommonToast.instance.show(context, 'str_export_success'.localized());
-      } else if (Platform.isIOS) {
-        FileUtils.exportFileIOS(dbFilePath);
       }
     } else {
       confirmDialog(context, Localized.text('ox_common.tips'), 'str_change_default_pw_hint'.localized(), (){OXNavigator.pop(context);});
     }
-  }
-
-  static Future<List<String>?> fileSaver(FileSaverParams params) async {
-    final _pickOrSavePlugin = PickOrSave();
-    List<String>? result;
-    try {
-      result = await _pickOrSavePlugin.fileSaver(params: params);
-    } on PlatformException catch (e) {
-      print(e.toString());
-    } catch (e) {
-      print(e.toString());
-    }
-
-    return result;
   }
 
   static void importDB(BuildContext context) async {
@@ -88,28 +65,13 @@ class DatabaseHelper{
             text: () => 'str_import_db_dialog_import'.localized(),
             onTap: () async {
               OXNavigator.pop(context);
-              File? file = await pickDatabaseFile();
+              File? file = await FileUtils.importFile();
               if (file != null) {
                 await importDatabase(context, file.path);
               }
             }),
       ],
     );
-  }
-
-  static Future<File?> pickDatabaseFile() async {
-    if (Platform.isAndroid) {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        return File(result.files.single.path!);
-      }
-    } else if (Platform.isIOS) {
-      final filePath = await FileUtils.importFileIOS();
-      if (filePath.isNotEmpty) {
-        return File(filePath);
-      }
-    }
-    return null;
   }
 
   static Future<void> importDatabase(BuildContext context, String path) async {

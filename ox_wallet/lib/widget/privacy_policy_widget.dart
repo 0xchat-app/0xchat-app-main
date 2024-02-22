@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
+import 'package:ox_wallet/utils/wallet_utils.dart';
 
 class PrivacyPolicyWidget extends StatelessWidget {
   final ValueNotifier<bool> controller;
@@ -48,13 +50,15 @@ class PrivacyPolicyWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text('By add your mint you accept the'),
+                // const Text('By add your mint you accept the'),
+                const Text('By creating your wallet, you accept the'),
                 FittedBox(
                   child: Row(
                     children: [
-                      _highlightText(text: 'Terms of Use', onTap: () => _openLinkURL(context, url: _termsOfUser, title: 'Terms of Use')),
-                      const Text(' and '),
-                      _highlightText(text: 'Privacy Policy', onTap: () => _openLinkURL(context, url: _privacyPolicy, title: 'Privacy Policy')),
+                      // _highlightText(text: 'Terms of Use', onTap: () => _openLinkURL(context, url: _termsOfUser, title: 'Terms of Use')),
+                      // const Text(' and '),
+                      // _highlightText(text: 'Privacy Policy', onTap: () => _openLinkURL(context, url: _privacyPolicy, title: 'Privacy Policy')),
+                      _highlightText(text: 'Disclaimer', onTap: () => _openDisclaimerLocalLink(context, title: '0xchat Wallet Disclaimer')),
                     ],
                   ),
                 )
@@ -83,5 +87,11 @@ class PrivacyPolicyWidget extends StatelessWidget {
 
   void _openLinkURL(BuildContext context, {required String url, required String title}) {
     OXNavigator.presentPage(context, (context) => CommonWebView(url, title: title,),);
+  }
+
+  Future<void> _openDisclaimerLocalLink(BuildContext context,{required String title}) async {
+    String htmlContent = await WalletUtils.loadLocalHTML('packages/ox_wallet/assets/template/wallet_disclaimer.html');
+    String url = Uri.dataFromString(htmlContent, mimeType: 'text/html', encoding: Encoding.getByName('utf-8')).toString();
+    if(context.mounted) OXNavigator.presentPage(context, (context) => CommonWebView(url, title: title,isLocalHtmlResource: true,),);
   }
 }

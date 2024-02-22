@@ -25,8 +25,7 @@ class GroupContact extends StatefulWidget {
   final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
-  ScrollController? scrollController;
-  CursorGroupsChanged? onCursorGroupsChanged;
+  final Widget? topWidget;
 
   GroupContact({
     Key? key,
@@ -34,8 +33,7 @@ class GroupContact extends StatefulWidget {
     required this.chatType,
     this.shrinkWrap = false,
     this.physics,
-    this.scrollController,
-    this.onCursorGroupsChanged,
+    this.topWidget,
   }) : super(key: key);
 
   @override
@@ -52,6 +50,7 @@ class Note {
 }
 
 class GroupContactState extends State<GroupContact> {
+  ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
   late List<GroupDB> groupList;
   int defaultIndex = 0;
@@ -69,20 +68,16 @@ class GroupContactState extends State<GroupContact> {
     super.initState();
     groupList = widget.data;
     _initIndexBarData();
-    // scrollController.addListener(() {
-    //   double position = scrollController.offset.toDouble();
-    //   int index = _computerIndex(position);
-    //   defaultIndex = index;
-    // });
+    _scrollController.addListener(() {
+      double position = _scrollController.offset.toDouble();
+      int index = _computerIndex(position);
+      defaultIndex = index;
+    });
   }
 
   void updateContactData(List<GroupDB> data) {
     groupList = data;
     _initIndexBarData();
-    widget.onCursorGroupsChanged?.call(Container(
-      child: _buildAlphaBar(),
-      width: 30,
-    ), noteList.length);
   }
 
   void _initIndexBarData() {
@@ -134,6 +129,11 @@ class GroupContactState extends State<GroupContact> {
                   slivers: _buildSlivers(context),
                   physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
+                  controller: _scrollController,
+                ),
+                Container(
+                  child: _buildAlphaBar(),
+                  width: 30,
                 ),
                 _isTouchTagBar ? _buildCenterModal() : Container(),
               ],
@@ -167,7 +167,7 @@ class GroupContactState extends State<GroupContact> {
 
   @override
   void dispose() {
-    widget.scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -194,14 +194,13 @@ class GroupContactState extends State<GroupContact> {
   Timer? timer;
 
   void _onTouchCallback(int index) {
-    if (widget.scrollController == null) return;
     if (defaultIndex != index) {
       if (null != timer && timer!.isActive) {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, widget.scrollController!.position.maxScrollExtent);
-      widget.scrollController!.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
+      _scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
     timer = Timer(Duration(milliseconds: 300), () {
@@ -235,6 +234,13 @@ class GroupContactState extends State<GroupContact> {
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
+    if (widget.topWidget != null) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: widget.topWidget,
+        ),
+      );
+    }
     noteList.forEach((item) {
       slivers.add(
         SliverStickyHeader(
@@ -255,10 +261,11 @@ class GroupContactState extends State<GroupContact> {
         ),
       );
     });
+    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
     slivers.add(
-      SliverStickyHeader(
-        header: SizedBox(
-          height: Adapt.px(96),
+      SliverToBoxAdapter(
+        child: Container(
+          height: fillH,
         ),
       ),
     );
@@ -371,7 +378,11 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
               margin: EdgeInsets.only(left: Adapt.px(16)),
               child: Text(
                 widget.item.name ?? '',
-                style: TextStyle(fontSize: Adapt.px(16), color: ThemeColor.color10, fontWeight: FontWeight.w600,),
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  color: ThemeColor.color10,
+                  fontWeight: FontWeight.w600,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

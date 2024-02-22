@@ -244,7 +244,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
           setState(() {});
         } else {
           bool canCheckBiometrics = await SecurityAuthUtils.checkBiometrics();
-          LogUtil.e('--------canCheckBiometrics =${canCheckBiometrics}');
+          LogUtil.e('--------canCheckBiometrics =$canCheckBiometrics');
           if (canCheckBiometrics) {
             bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('FaceID');
             if (!mounted) return;
@@ -268,7 +268,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
           setState(() {});
         } else {
           bool canCheckBiometrics = await SecurityAuthUtils.checkBiometrics();
-          LogUtil.e('---secureWithFingerprint-----canCheckBiometrics =${canCheckBiometrics}');
+          LogUtil.e('---secureWithFingerprint-----canCheckBiometrics =$canCheckBiometrics');
           if (canCheckBiometrics) {
             bool authResult = await SecurityAuthUtils.authenticateWithBiometrics('Fingerprint');
             if (!mounted) return;

@@ -102,6 +102,29 @@ class CommonLabeledCard extends StatelessWidget {
       ),
     );
   }
+
+  factory CommonLabeledCard.textFieldAndImportFile(
+      {String? label,
+      String? hintText,
+      TextEditingController? controller,
+      FocusNode? focusNode,
+      VoidCallback? onTap}) {
+    return CommonLabeledCard.textField(
+      label: label,
+      hintText: hintText,
+      controller: controller,
+      focusNode: focusNode,
+      suffix: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        child: CommonImage(
+          iconName: 'icon_import_file.png',
+          size: 24.px,
+          package: 'ox_wallet',
+        ),
+      ),
+    );
+  }
 }
 
 class StepIndicatorItem extends StatelessWidget {

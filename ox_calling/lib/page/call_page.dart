@@ -179,7 +179,7 @@ class CallPageState extends State<CallPage> {
                 height: Adapt.px(24),
               ),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height: Adapt.px(190),
                   child: (CallManager.instance.callType == CallMessageType.audio ||
@@ -199,7 +199,7 @@ class CallPageState extends State<CallPage> {
                             _buildHint(),
                           ],
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                 ),
               ),
               SafeArea(
@@ -244,7 +244,7 @@ class CallPageState extends State<CallPage> {
                     left += details.delta.dx;
                   });
                 },
-                child: Container(
+                child: SizedBox(
                   width: 90.0,
                   height: 120.0,
                   child: ClipRRect(

@@ -53,7 +53,7 @@ class OXUserCenter extends OXFlutterModule {
       case 'UserCenterPage':
         return OXNavigator.pushPage(
           context,
-          (context) => UserCenterPage(),
+          (context) => const UserCenterPage(),
         );
       case 'UsercenterBadgeWallPage':
         UserDB? userDB = params?['userDB'];
@@ -72,15 +72,15 @@ class OXUserCenter extends OXFlutterModule {
         final relayName = params?['relayName'];
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
       case 'VerifyPasscodePage':
-        return OXNavigator.pushReplacement(context, VerifyPasscodePage());
+        return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
     }
     return null;
   }
 
    _showZapDialog(context, invoice, walletOnPress) async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
-     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubkey}.isShowWalletSelector') ?? true;;
-     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubkey}.defaultWallet') ?? '';
+     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
+     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
      if(isShowWalletSelector){
        return showDialog(
            context: context,
@@ -119,7 +119,7 @@ class OXUserCenter extends OXFlutterModule {
   }
 
   void showRelayPage(BuildContext context) {
-    OXNavigator.pushPage(context, (context) => RelaysPage());
+    OXNavigator.pushPage(context, (context) => const RelaysPage());
   }
 
   void showRelaySelectorDialog(BuildContext context) {
@@ -127,7 +127,7 @@ class OXUserCenter extends OXFlutterModule {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return RelaysSelectorPage();
+          return const RelaysSelectorPage();
         });
   }
 
@@ -136,7 +136,7 @@ class OXUserCenter extends OXFlutterModule {
   }
 
   Widget userCenterPageWidget(BuildContext context) {
-    return UserCenterPage();
+    return const UserCenterPage();
   }
 
 

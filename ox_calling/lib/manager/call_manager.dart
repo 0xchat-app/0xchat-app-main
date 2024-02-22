@@ -65,7 +65,7 @@ class CallManager {
     }
     _signaling ??= SignalingManager(host, port);
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
-      LogUtil.e('core: onCallStateChange state=${state} ; data =${data};');
+      LogUtil.e('core: onCallStateChange state=$state ; data =$data;');
       _signaling?.onParseMessage(friend, state, data, offerId);
     };
     await initRenderers();

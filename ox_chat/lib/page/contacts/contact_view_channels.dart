@@ -17,9 +17,8 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 class ContactViewChannels extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final ScrollController? scrollController;
-  final CursorChannelsChanged? onCursorChannelsChanged;
-  ContactViewChannels({Key? key, this.shrinkWrap = false, this.physics, this.scrollController, this.onCursorChannelsChanged}): super(key: key);
+  final Widget? topWidget;
+  ContactViewChannels({Key? key, this.shrinkWrap = false, this.physics, this.topWidget}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -63,11 +62,9 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
       ChannelContact(
         key: channelsWidgetKey,
         data: channels,
-        chatType:  ChatType.chatChannel,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
-        scrollController: widget.scrollController,
-        onCursorChannelsChanged: widget.onCursorChannelsChanged,
+        topWidget: widget.topWidget,
       ),
     );
   }

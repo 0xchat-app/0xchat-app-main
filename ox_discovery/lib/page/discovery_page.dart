@@ -25,6 +25,8 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import 'moments/create_moments_page.dart';
+
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({Key? key}) : super(key: key);
 
@@ -95,46 +97,15 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             child: CommonImage(
-              iconName: "nav_more_new.png",
+              iconName: "moment_add_icon.png",
               width: Adapt.px(24),
               height: Adapt.px(24),
               color: ThemeColor.color100,
+              package: 'ox_discovery',
             ),
             onTap: () {
               showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildBottomDialog());
             },
-          ),
-          SizedBox(
-            width: Adapt.px(20),
-          ),
-          SizedBox(
-            height: Adapt.px(24),
-            child: GestureDetector(
-              onTap: () {
-                OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  CommonImage(
-                    iconName: 'icon_relay_connected_amount.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                    fit: BoxFit.fill,
-                  ),
-                  SizedBox(
-                    width: Adapt.px(4),
-                  ),
-                  Text(
-                    '${OXRelayManager.sharedInstance.connectedCount}/${OXRelayManager.sharedInstance.relayAddressList.length}',
-                    style: TextStyle(
-                      fontSize: Adapt.px(14),
-                      color: ThemeColor.color100,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
           SizedBox(
             width: Adapt.px(24),
@@ -546,12 +517,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildItem(
-            Localized.text('ox_discovery.recommended_item'),
+            'Camera',
             index: 0,
             onTap: () {
-              _currentIndex.value = 0;
-              OXNavigator.pop(context);
-              _getHotChannels(type: _currentIndex.value + 1,context: context);
+              OXNavigator.pushPage(context, (context) => CreateMomentsPage());
             },
           ),
           Divider(
@@ -559,27 +528,15 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            Localized.text('ox_discovery.popular_item'),
+            'Choose from Album',
             index: 1,
             onTap: () {
-              _currentIndex.value = 1;
-              OXNavigator.pop(context);
-              _getHotChannels(type: _currentIndex.value + 1,context: context);
+              OXNavigator.pushPage(context, (context) => CreateMomentsPage());
             },
           ),
           Divider(
             color: ThemeColor.color170,
             height: Adapt.px(0.5),
-          ),
-          _buildItem(
-            Localized.text('ox_discovery.latest_item'),
-            index: 2,
-            onTap: () {
-              _currentIndex.value = 2;
-              OXNavigator.pop(context);
-              // _getHotChannels(type: _currentIndex.value + 1,context: context);
-              _getLatestChannelList();
-            },
           ),
           Container(
             height: Adapt.px(8),
@@ -588,6 +545,9 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
             OXNavigator.pop(context);
           }),
+          SizedBox(
+            height: Adapt.px(21),
+          ),
         ],
       ),
     );
@@ -605,7 +565,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           style: TextStyle(
             color: ThemeColor.color0,
             fontSize: Adapt.px(16),
-            fontWeight: index == _currentIndex.value ? FontWeight.w600 : FontWeight.w400,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ),
