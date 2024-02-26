@@ -109,5 +109,7 @@
   "webview_more_copy": "复制链接",
   "open_singer_app_error_title": "打开签名应用时出错",
   "open_singer_app_error_content": "找不到签名应用程序，请检查该应用程序是否未被卸载。",
-  "str_grant_permission_photo_hint": "请授权访问照片的权限"
+  "str_grant_permission_photo_hint": "请授权访问照片的权限",
+  "webview_more_send_to_chat": "转发给朋友",
+  "str_share": "分享"
 }
