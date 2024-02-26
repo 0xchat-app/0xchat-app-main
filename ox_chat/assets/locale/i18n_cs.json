@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontakty",
-  "contract_title_channels": "Kanály",
+  "str_title_contacts": "Kontakty",
+  "str_title_channels": "Kanály",
   "no_contacts_added": "Nebyly přidány žádné kontakty",
   "no_groups_added": "Nebyly přidány žádné skupiny",
   "no_related_users_were_found": "Nebyli nalezeni relevantní uživatelé",
@@ -140,7 +140,7 @@
   "group_name_item": "Název skupiny",
   "group_member": "Členové",
   "group_enter_hint_text": "Zadejte název skupiny",
-  "contract_title_groups": "Skupiny",
+  "str_title_groups": "Skupiny",
   "add_member_title": "Přidat členy",
   "remove_member_title": "Odebrat členy",
   "select_chat": "Vyberte chat",

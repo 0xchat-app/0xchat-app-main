@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "연락처",
-  "contract_title_channels": "채널",
+  "str_title_contacts": "연락처",
+  "str_title_channels": "채널",
   "no_contacts_added": "추가된 연락처 없음",
   "no_groups_added": "추가된 그룹 없음",
   "no_related_users_were_found": "관련된 사용자 없음",
@@ -140,7 +140,7 @@
   "group_name_item": "그룹 이름",
   "group_member": "멤버들",
   "group_enter_hint_text": "그룹 이름을 입력하세요",
-  "contract_title_groups": "그룹들",
+  "str_title_groups": "그룹들",
   "add_member_title": "멤버 추가",
   "remove_member_title": "멤버 제거",
   "select_chat": "채팅 선택",

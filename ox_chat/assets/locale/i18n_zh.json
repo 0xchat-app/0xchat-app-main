@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "联系人",
-  "contract_title_channels": "频道",
+  "str_title_contacts": "联系人",
+  "str_title_channels": "频道",
   "no_contacts_added": "没有添加联系人",
   "no_groups_added": "没有添加群组",
   "no_related_users_were_found": "没有找到相关用户",
@@ -140,7 +140,7 @@
   "group_name_item": "群聊名称",
   "group_member": "成员",
   "group_enter_hint_text": "请输入群聊名称",
-  "contract_title_groups": "群聊",
+  "str_title_groups": "群聊",
   "add_member_title": "添加成员",
   "remove_member_title": "移除成员",
   "select_chat": "选择一个聊天",
@@ -209,5 +209,8 @@
   "str_john_a_channel": "加入一个频道",
   "scan_qr_code": "扫描二维码",
   "request_join_item_text": "${name} 请求加入群组",
-  "str_share_msg_confirm_content": "确认分享消息给\"+${name}+\""
+  "str_share_msg_confirm_content": "确认分享消息给\"+${name}+\"",
+  "str_title_top_hins_contacts": "常用联系人",
+  "str_chat_historys": "聊天记录",
+  "str_recent_chats": "最近聊天"
 }

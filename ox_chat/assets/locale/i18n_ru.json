@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Контакты",
-  "contract_title_channels": "Каналы",
+  "str_title_contacts": "Контакты",
+  "str_title_channels": "Каналы",
   "no_contacts_added": "Контакты не добавлены",
   "no_groups_added": "Группы не добавлены",
   "no_related_users_were_found": "Подходящих пользователей не найдено",
@@ -140,7 +140,7 @@
   "group_name_item": "Название группы",
   "group_member": "Участники",
   "group_enter_hint_text": "Введите название группы",
-  "contract_title_groups": "Группы",
+  "str_title_groups": "Группы",
   "add_member_title": "Добавить участников",
   "remove_member_title": "Удалить участников",
   "select_chat": "Выбрать чат",

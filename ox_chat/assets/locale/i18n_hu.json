@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kapcsolatok",
-  "contract_title_channels": "Csatornák",
+  "str_title_contacts": "Kapcsolatok",
+  "str_title_channels": "Csatornák",
   "no_contacts_added": "Nincs hozzáadott kapcsolat",
   "no_groups_added": "Nincs hozzáadott csoport",
   "no_related_users_were_found": "Nincs releváns felhasználó található",
@@ -140,7 +140,7 @@
   "group_name_item": "Csoport neve",
   "group_member": "Tagok",
   "group_enter_hint_text": "Adja meg a csoport nevét",
-  "contract_title_groups": "Csoportok",
+  "str_title_groups": "Csoportok",
   "add_member_title": "Tagok hozzáadása",
   "remove_member_title": "Tagok eltávolítása",
   "select_chat": "Chat kiválasztása",

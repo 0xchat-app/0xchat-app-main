@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Contacts",
-  "contract_title_channels": "Channels",
+  "str_title_contacts": "Contacts",
+  "str_title_channels": "Channels",
   "no_contacts_added": "No contact added",
   "no_groups_added": "No group added",
   "no_related_users_were_found": "No relevant user was found",
@@ -140,7 +140,7 @@
   "group_name_item":"Group Name",
   "group_member": "Members",
   "group_enter_hint_text": "Please Enter a Group Name",
-  "contract_title_groups": "Groups",
+  "str_title_groups": "Groups",
   "add_member_title": "Add members",
   "remove_member_title": "Remove members",
   "select_chat": "Select a chat",
@@ -209,5 +209,8 @@
   "str_john_a_channel": "join a channel",
   "scan_qr_code": "Scan QR code",
   "request_join_item_text": "${name} request to join the group",
-  "str_share_msg_confirm_content": "Confirm sharing the message with \"+${name}+\""
+  "str_share_msg_confirm_content": "Confirm sharing the message with \"+${name}+\"",
+  "str_title_top_hins_contacts": "Top Hits",
+  "str_chat_historys": "Chat Histories",
+  "str_recent_chats": "Recent Chats"
 }

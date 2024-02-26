@@ -1,45 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_chat/widget/group_member_item.dart';
+import 'package:ox_chat/widget/share_item_info.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat/widget/alpha.dart';
-import 'package:lpinyin/lpinyin.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 class ChatChooseSharePage extends StatefulWidget {
   final Key? key;
-  final String? title;
-  final String? msg;
+  final String msg;
 
-  ChatChooseSharePage({this.key, this.title, this.msg}) : super(key: key);
+  ChatChooseSharePage({this.key, required this.msg}) : super(key: key);
 
   @override
   _ChatChooseSharePageState createState() => _ChatChooseSharePageState();
 }
 
-class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
-  List<UserDB> userList = [];
-  List<UserDB> _selectedUserList = [];
+class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareItemInfoMixin {
+  List<ShareSearchGroup> _recentChatList = [];
+  List<ShareSearchGroup> _filterChatList = [];
+  List<ShareSearchGroup> _showChatList = [];
+  String receiverPubkey = '';
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
-  Map<String, List<UserDB>> _groupedUserList = {};
-  Map<String, List<UserDB>> _filteredUserList = {};
+  Map<String, List<String>> _groupMembersCache = {};
   String _ShareToName = 'xxx';
+  final maxItemsCount = 3;
+  Map<ShareSearchType, bool> _showItemAll = {};
 
   @override
   void initState() {
     super.initState();
-    _fetchUserListAsync();
+    _fetchListAsync();
     _controller.addListener(() {
       if (_controller.text.isNotEmpty) {
         _isClear.value = true;
@@ -49,16 +51,32 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
     });
   }
 
-  Future<void> _fetchUserListAsync() async {
-    List<UserDB> users = await fetchUserList();
-    setState(() {
-      userList = users;
+  Future<void> _fetchListAsync() async {
+    List<ChatSessionModel> sessions = OXChatBinding.sharedInstance.sessionList;
+    sessions.sort((session1, session2) {
+      var session2CreatedTime = session2.createTime;
+      var session1CreatedTime = session1.createTime;
+      return session2CreatedTime.compareTo(session1CreatedTime);
     });
+    ShareSearchGroup searchGroup =
+        ShareSearchGroup(title: 'str_recent_chats'.localized(), type: ShareSearchType.recentChats, items: sessions);
+    _recentChatList.add(searchGroup);
+    _showChatList = _recentChatList;
+    _getGroupMembers(sessions);
+    if (this.mounted) setState(() {});
   }
 
-  Future<List<UserDB>> fetchUserList() async {
-    List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
-    return allContacts;
+  void _getGroupMembers(List<ChatSessionModel> list) async {
+    list.forEach((element) async {
+      if (element.chatType == ChatType.chatGroup) {
+        final groupId = element.groupId ?? '';
+        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
+        avatars.removeWhere((element) => element.isEmpty);
+        _groupMembersCache[groupId] = avatars;
+      }
+    });
+    updateStateView(_groupMembersCache);
   }
 
   String buildTitle() {
@@ -70,21 +88,19 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
     return Scaffold(
       appBar: CommonAppBar(
         title: buildTitle(),
-        actions: [
-          IconButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              icon: CommonImage(
-                iconName: 'icon_done.png',
-                width: 24.px,
-                height: 24.px,
-                useTheme: true,
-              ),
-              onPressed: () {
-                buildSendPressed();
-              }
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     splashColor: Colors.transparent,
+        //     highlightColor: Colors.transparent,
+        //     icon: CommonImage(
+        //       iconName: 'icon_done.png',
+        //       width: 24.px,
+        //       height: 24.px,
+        //       useTheme: true,
+        //     ),
+        //     onPressed: () {},
+        //   ),
+        // ],
       ),
       body: _buildBody(),
     );
@@ -95,26 +111,80 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
       children: [
         _buildSearchBar(),
         Expanded(
-          child: ListView.builder(
-            itemCount: _filteredUserList.keys.length,
-            itemBuilder: (BuildContext context, int index) {
-              String key = _filteredUserList.keys.elementAt(index);
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: Text(
-                      key,
-                      style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: Adapt.px(16),
-                          fontWeight: FontWeight.w600),
-                    ),margin: EdgeInsets.only(bottom: Adapt.px(4)),),
-                  ..._filteredUserList[key]!.map((user) => _buildUserItem(user)),
-                ],
+          child: GroupedListView<ShareSearchGroup, dynamic>(
+            elements: _showChatList,
+            groupBy: (element) => element.title,
+            padding: EdgeInsets.zero,
+            groupHeaderBuilder: (element) {
+              final hasMoreItems = element.items.length > maxItemsCount;
+              return Container(
+                width: double.infinity,
+                height: Adapt.px(28),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: Text(
+                        element.title,
+                        style:
+                            TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    !hasMoreItems
+                        ? Container()
+                        : GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {
+                              //_openSeeMore
+                            },
+                            child: ShaderMask(
+                              shaderCallback: (Rect bounds) {
+                                return LinearGradient(
+                                  colors: [
+                                    ThemeColor.gradientMainEnd,
+                                    ThemeColor.gradientMainStart,
+                                  ],
+                                ).createShader(Offset.zero & bounds.size);
+                              },
+                              child: Text(
+                                Localized.text('ox_chat.search_see_more'),
+                                style: TextStyle(
+                                  fontSize: Adapt.px(15),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
               );
             },
-          )
+            itemBuilder: (context, element) {
+              final items = showingItems(element);
+              return Column(
+                children: items.map((item) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        buildItemIcon(item),
+                        buildItemName(item),
+                      ],
+                    ),
+                    onTap: () {
+                      buildSendPressed(item);
+                    },
+                  );
+                }).toList(),
+              );
+              return SizedBox.shrink();
+            },
+            itemComparator: (item1, item2) => item1.title.compareTo(item2.title),
+            useStickyGroupSeparators: false,
+            floatingHeader: false,
+          ),
         ),
       ],
     ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24)));
@@ -154,8 +224,10 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
                     fontSize: Adapt.px(16),
                     fontWeight: FontWeight.w400,
                     height: Adapt.px(22.4) / Adapt.px(16),
-                    color: ThemeColor.color160,),
-                  border: InputBorder.none,),
+                    color: ThemeColor.color160,
+                  ),
+                  border: InputBorder.none,
+                ),
                 onChanged: _handlingSearch,
               ),
             ),
@@ -163,18 +235,18 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
               builder: (context, value, child) {
                 return _isClear.value
                     ? GestureDetector(
-                  onTap: () {
-                    _controller.clear();
-                    setState(() {
-                      _filteredUserList = _groupedUserList;
-                    });
-                  },
-                  child: CommonImage(
-                    iconName: 'icon_textfield_close.png',
-                    width: Adapt.px(16),
-                    height: Adapt.px(16),
-                  ),
-                )
+                        onTap: () {
+                          _controller.clear();
+                          setState(() {
+                            _filterChatList = _recentChatList;
+                          });
+                        },
+                        child: CommonImage(
+                          iconName: 'icon_textfield_close.png',
+                          width: 16.px,
+                          height: 16.px,
+                        ),
+                      )
                     : Container();
               },
               valueListenable: _isClear,
@@ -183,68 +255,76 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
         ));
   }
 
-  Widget _buildUserItem(UserDB user){
-    bool isSelected = _selectedUserList.contains(user);
-
-    return GroupMemberItem(
-      user: user,
-      action: CommonImage(
-        width: Adapt.px(24),
-        height: Adapt.px(24),
-        iconName: isSelected ? 'icon_select_follows.png' : 'icon_unSelect_follows.png',
-        package: 'ox_chat',) ,
-      titleColor: isSelected ? ThemeColor.color0 : ThemeColor.color100,
-      onTap: () {
-        if (!isSelected) {
-          _selectedUserList.add(user);
-        } else {
-          _selectedUserList.remove(user);
-        }
-        setState(() {});
-      },
-    );
-  }
-
-  groupedUser(){
-    ALPHAS_INDEX.forEach((v) {
-      _groupedUserList[v] = [];
-    });
-    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
-    for (var user in userList) {
-      String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
-      String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
-      pinyinMap[user] = pinyin;
+  List<ChatSessionModel> showingItems(ShareSearchGroup group) {
+    List<ChatSessionModel> temp = [];
+    if (_showItemAll[group.type] ?? false) {
+      return group.items;
     }
-    userList.sort((v1, v2) {
-      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
-    });
-
-    userList.forEach((item) {
-      var firstLetter = pinyinMap[item]![0].toUpperCase();
-      if (!ALPHAS_INDEX.contains(firstLetter)) {
-        firstLetter = '#';
-      }
-      _groupedUserList[firstLetter]?.add(item);
-    });
-
-    _groupedUserList.removeWhere((key, value) => value.isEmpty);
-    _filteredUserList = _groupedUserList;
+    if (group.items.length > maxItemsCount) {
+      temp = group.items.sublist(0, maxItemsCount);
+    }
+    return temp;
   }
 
-
-  void _handlingSearch(String searchQuery){
+  void _handlingSearch(String searchQuery) {
     setState(() {
-      Map<String, List<UserDB>> searchResult = {};
-      _groupedUserList.forEach((key, value) {
-        List<UserDB> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
-        searchResult[key] = tempList;
-      });
-      searchResult.removeWhere((key, value) => value.isEmpty);
-      _filteredUserList = searchResult;
+      List<ShareSearchGroup> searchResult = [];
+      List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
+      if (tempFriendList != null && tempFriendList.length > 0) {
+        List<ChatSessionModel> friendSessions = [];
+        tempFriendList.forEach((element) {
+          friendSessions.add(ChatSessionModel(
+            chatId: element.pubKey,
+            chatType: ChatType.chatSingle,
+          ));
+        });
+        searchResult.add(
+          ShareSearchGroup(
+              title: 'str_title_contacts'.localized(),
+              type: ShareSearchType.friends,
+              items: friendSessions),
+        );
+      }
+
+      List<GroupDB>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
+      if (tempGroupList != null && tempGroupList.length > 0) {
+        List<ChatSessionModel> groupSessions = [];
+        tempGroupList.forEach((element) {
+          groupSessions.add(ChatSessionModel(
+            chatId: element.groupId,
+            chatType: ChatType.chatGroup,
+          ));
+        });
+        _getGroupMembers(groupSessions);
+        searchResult.add(
+          ShareSearchGroup(
+              title: 'str_title_groups'.localized(),
+              type: ShareSearchType.groups,
+              items: groupSessions),
+        );
+      }
+      List<ChannelDB>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
+      if (tempChannelList != null && tempChannelList.length > 0) {
+        List<ChatSessionModel> channelSessions = [];
+        tempChannelList.forEach((element) {
+          channelSessions.add(ChatSessionModel(
+            chatId: element.channelId,
+            chatType: ChatType.chatChannel,
+          ));
+        });
+        searchResult.add(
+          ShareSearchGroup(
+              title: 'str_title_channels'.localized(),
+              type: ShareSearchType.channels,
+              items: channelSessions),
+        );
+      }
+
+      _filterChatList = searchResult;
     });
   }
 
-  buildSendPressed() {
+  buildSendPressed(ChatSessionModel sessionModel) {
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
         content: 'ox_chat.str_share_msg_confirm_content'.localized({r'${name}': _ShareToName}),
@@ -256,7 +336,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> {
               text: Localized.text('ox_common.str_share'),
               onTap: () async {
                 OXNavigator.pop(context, true);
-                ChatSendInvitedTemplateHelper.sendMsgToOther(_selectedUserList[0], widget.title ?? '');
+                ChatSendInvitedTemplateHelper.sendMsgToChat(sessionModel.chatId, widget.msg);
                 OXNavigator.pop(context, true);
               }),
         ],

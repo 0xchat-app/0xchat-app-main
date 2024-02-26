@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kişiler",
-  "contract_title_channels": "Kanallar",
+  "str_title_contacts": "Kişiler",
+  "str_title_channels": "Kanallar",
   "no_contacts_added": "Hiçbir kişi eklenmedi",
   "no_groups_added": "Hiçbir grup eklenmedi",
   "no_related_users_were_found": "İlgili kullanıcı bulunamadı",
@@ -140,7 +140,7 @@
   "group_name_item": "Grup Adı",
   "group_member": "Üyeler",
   "group_enter_hint_text": "Lütfen bir grup adı girin",
-  "contract_title_groups": "Gruplar",
+  "str_title_groups": "Gruplar",
   "add_member_title": "Üye ekle",
   "remove_member_title": "Üye çıkar",
   "select_chat": "Sohbeti seçin",

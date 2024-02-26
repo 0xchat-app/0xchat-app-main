@@ -25,13 +25,10 @@ class ChatSendInvitedTemplateHelper {
     });
   }
 
-  static sendMsgToOther(UserDB userDB, String msg){
-    ChatMessageSendEx.sendTemplatePrivateMessage(
-      receiverPubkey: userDB.pubKey,
-      icon: 'icon_user_default.png',
-      title: 'Share message to Chat',
-      subTitle: '',
-      link: msg,
+  static sendMsgToChat(String receiverPubkey, String msg){
+    ChatMessageSendEx.sendTextMessageHandler(
+      receiverPubkey,
+      msg,
     );
   }
 }

@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontakti",
-  "contract_title_channels": "Kanāli",
+  "str_title_contacts": "Kontakti",
+  "str_title_channels": "Kanāli",
   "no_contacts_added": "Nav pievienoti kontakti",
   "no_groups_added": "Nav pievienotas grupas",
   "no_related_users_were_found": "Nav atrasti saistīti lietotāji",
@@ -140,7 +140,7 @@
   "group_name_item": "Grupas nosaukums",
   "group_member": "Dalībnieki",
   "group_enter_hint_text": "Lūdzu, ievadiet grupas nosaukumu",
-  "contract_title_groups": "Grupas",
+  "str_title_groups": "Grupas",
   "add_member_title": "Pievienot dalībniekus",
   "remove_member_title": "Noņemt dalībniekus",
   "select_chat": "Izvēlieties tērzēšanu",
