@@ -6,6 +6,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ox_chat_project/chat_main_eventchannel.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
@@ -59,7 +60,7 @@ void main() async {
   await ThemeManager.init();
   await Localized.init();
   await setupModules();
-
+  ChatMainEventChanel.instance.setup();
   OXRelayManager.sharedInstance.loadConnectRelay();
   OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
