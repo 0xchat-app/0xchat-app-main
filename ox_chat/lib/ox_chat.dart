@@ -10,6 +10,7 @@ import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
+import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -103,6 +104,10 @@ class OXChat extends OXFlutterModule {
             groupId: params?['groupId'],
           ),
         );
+      case 'ChatChooseSharePage':
+        return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
+          title: params?['url'] ?? '',
+        ));
     }
     return null;
   }
