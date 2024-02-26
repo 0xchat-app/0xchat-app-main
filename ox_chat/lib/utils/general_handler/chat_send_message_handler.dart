@@ -2,13 +2,14 @@
 part of 'chat_general_handler.dart';
 
 extension ChatMessageSendEx on ChatGeneralHandler {
-
   static Future sendTextMessageHandler(
       String receiverPubkey,
       String text, {
+        int chatType = ChatType.chatSingle,
         BuildContext? context,
+        ChatSessionModel? session,
       }) async {
-    final session = _getSessionModel(receiverPubkey, ChatType.chatSingle);
+    session ??= _getSessionModel(receiverPubkey, chatType);
     if (session == null) return ;
 
     final handler = ChatGeneralHandler(session: session);

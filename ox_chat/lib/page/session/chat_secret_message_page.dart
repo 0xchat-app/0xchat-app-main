@@ -55,12 +55,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   SecretSessionDB? _secretSessionDB;
   UserDB? otherUser;
 
-  String get receiverPubkey =>
-      otherUser?.pubKey ??
-      (widget.communityItem.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
-          ? widget.communityItem.receiver
-          : widget.communityItem.sender) ??
-      '';
+  String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.getOtherPubkey;
 
   @override
   ChatSessionModel get session => widget.communityItem;
