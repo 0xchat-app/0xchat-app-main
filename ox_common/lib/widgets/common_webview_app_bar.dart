@@ -138,7 +138,7 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
                 _buildItem(label: Localized.text('ox_common.webview_more_send_to_chat'),onTap: ()=>_onSendToOther(context), iconName: 'icon_share_browser.png'),
                 _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
                 _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
-                _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_onShare(context), iconName: 'icon_share_link.png',),
+                _buildItem(label: Localized.text('ox_common.str_share'),onTap: ()=>_onShare(context), iconName: 'icon_share_link.png',),
               ],
             ),
           ),
