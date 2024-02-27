@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ox_chat_project/chat_main_eventchannel.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -159,24 +160,6 @@ class MainState extends State<MainApp>
     // });
   }
 
-  void getOpenAppSchemeInfo() async {
-    String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
-      'getAppOpenURL',
-    );
-    LogUtil.e("doHandleJumpInfo jumpInfo : $jumpInfo");
-    if (jumpInfo.isNotEmpty) {
-      BuildContext? context = OXNavigator.navigatorKey.currentContext;
-      if(context == null) return;
-      if(jumpInfo.startsWith(CommonConstant.APP_SCHEME)) {
-        ScanUtils.analysis(
-            context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
-      }
-      else{
-        ScanUtils.analysis(context, jumpInfo);
-      }
-    }
-  }
-
   onLocaleChange() {
     if (mounted) setState(() {});
   }
@@ -235,7 +218,7 @@ class MainState extends State<MainApp>
     switch (state) {
       case AppLifecycleState.resumed:
         if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
-        getOpenAppSchemeInfo();
+        SchemeHelper.tryHandlerForOpenAppScheme();
         if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
           lastUserInteractionTime = 0;
           showPasswordDialog();
