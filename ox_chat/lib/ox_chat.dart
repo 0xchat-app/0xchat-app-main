@@ -19,6 +19,7 @@ import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -40,6 +41,7 @@ class OXChat extends OXFlutterModule {
       await ChatDataCache.shared.setup();
     });
     OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
+    SchemeHelper.register('shareMessageWithScheme', shareMessageWithScheme);
   }
 
   @override
@@ -193,5 +195,13 @@ class OXChat extends OXFlutterModule {
 
   void _sendTextMsg(BuildContext context, String chatId, String content) {
     ChatMessageSendEx.sendTextMessageHandler(chatId, content);
+  }
+
+  void shareMessageWithScheme(String scheme, String action, Map<String, String> queryParameters) {
+    final text = queryParameters['text'] ?? '';
+    if (text.isEmpty) return ;
+    OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
+      msg: Uri.decodeFull(text),
+    ));
   }
 }
