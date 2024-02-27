@@ -374,7 +374,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
     if (_avatarAliyunUrl.isEmpty) {
       CommonToast.instance.show(context, "Please set Avatar!");
     }
-    OXLoading.show();
+    await OXLoading.show();
     final badgeId = _requirementModel.badgeId;
     List<String> requirementBadgeIdList = [];
     if (badgeId != null && badgeId.isNotEmpty) {
@@ -389,7 +389,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         requirementBadgeIdList,
         'wss://relay.0xchat.com',
       );
-      OXLoading.dismiss();
+      await OXLoading.dismiss();
       if (channelDB != null) {
         OXChatBinding.sharedInstance.createChannelSuccess(channelDB);
         OXNavigator.pushReplacement(
@@ -417,7 +417,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
 
       OKEvent okEvent =
           await Channels.sharedInstance.setChannel(widget.channelDB!);
-      OXLoading.dismiss();
+      await OXLoading.dismiss();
       if (okEvent.status) {
         await CommonToast.instance.show(context, 'channel update success');
         OXNavigator.pop(context);

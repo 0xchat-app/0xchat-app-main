@@ -13,6 +13,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 
 class ContactGroupChatCreatePage extends StatefulWidget {
   final List<UserDB> userList;
@@ -212,8 +213,10 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       CommonToast.instance.show(context, Localized.text("ox_chat.group_enter_hint_text"));
       return;
     };
+    await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
     GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, members, '${Localized.text("ox_chat.create_group_system_message")}: $name');
+    await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);
       OXNavigator.pushReplacement(
