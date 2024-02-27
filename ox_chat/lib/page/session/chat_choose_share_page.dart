@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/widget/share_item_info.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -28,7 +29,6 @@ class ChatChooseSharePage extends StatefulWidget {
 
 class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareItemInfoMixin {
   List<ShareSearchGroup> _recentChatList = [];
-  List<ShareSearchGroup> _filterChatList = [];
   List<ShareSearchGroup> _showChatList = [];
   String receiverPubkey = '';
   ValueNotifier<bool> _isClear = ValueNotifier(false);
@@ -131,54 +131,30 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
                             TextStyle(fontSize: Adapt.px(14), color: ThemeColor.color100, fontWeight: FontWeight.w600),
                       ),
                     ),
-                    !hasMoreItems
-                        ? Container()
-                        : GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onTap: () {
-                              //_openSeeMore
-                            },
-                            child: ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return LinearGradient(
-                                  colors: [
-                                    ThemeColor.gradientMainEnd,
-                                    ThemeColor.gradientMainStart,
-                                  ],
-                                ).createShader(Offset.zero & bounds.size);
-                              },
-                              child: Text(
-                                Localized.text('ox_chat.search_see_more'),
-                                style: TextStyle(
-                                  fontSize: Adapt.px(15),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
                   ],
                 ),
               );
             },
             itemBuilder: (context, element) {
-              final items = showingItems(element);
+              // final items = showingItems(element);
               return Column(
-                children: items.map((item) {
+                children: element.items.map((item) {
                   return GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         buildItemIcon(item),
+                        SizedBox(width: 16.px),
                         buildItemName(item),
                       ],
                     ),
                     onTap: () {
                       buildSendPressed(item);
                     },
-                  );
+                  ).setPadding(EdgeInsets.only(bottom: 12.px));
                 }).toList(),
-              );
+              ).setPadding(EdgeInsets.only(top: 12.px));
               return SizedBox.shrink();
             },
             itemComparator: (item1, item2) => item1.title.compareTo(item2.title),
@@ -238,7 +214,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
                         onTap: () {
                           _controller.clear();
                           setState(() {
-                            _filterChatList = _recentChatList;
+                            _showChatList = _recentChatList;
                           });
                         },
                         child: CommonImage(
@@ -268,66 +244,65 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
 
   void _handlingSearch(String searchQuery) {
     setState(() {
-      List<ShareSearchGroup> searchResult = [];
-      List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
-      if (tempFriendList != null && tempFriendList.length > 0) {
-        List<ChatSessionModel> friendSessions = [];
-        tempFriendList.forEach((element) {
-          friendSessions.add(ChatSessionModel(
-            chatId: element.pubKey,
-            chatType: ChatType.chatSingle,
-          ));
-        });
-        searchResult.add(
-          ShareSearchGroup(
-              title: 'str_title_contacts'.localized(),
-              type: ShareSearchType.friends,
-              items: friendSessions),
-        );
-      }
+      if (searchQuery.isEmpty) {
+        _showChatList = _recentChatList;
+      } else {
+        List<ShareSearchGroup> searchResult = [];
+        List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
+        if (tempFriendList != null && tempFriendList.length > 0) {
+          List<ChatSessionModel> friendSessions = [];
+          tempFriendList.forEach((element) {
+            LogUtil.e('Michael: -----element =${element.name}');
+            friendSessions.add(ChatSessionModel(
+              chatId: element.pubKey,
+              chatType: ChatType.chatSingle,
+              sender: element.pubKey,
+            ));
+          });
+          searchResult.add(
+            ShareSearchGroup(
+                title: 'str_title_contacts'.localized(), type: ShareSearchType.friends, items: friendSessions),
+          );
+        }
 
-      List<GroupDB>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
-      if (tempGroupList != null && tempGroupList.length > 0) {
-        List<ChatSessionModel> groupSessions = [];
-        tempGroupList.forEach((element) {
-          groupSessions.add(ChatSessionModel(
-            chatId: element.groupId,
-            chatType: ChatType.chatGroup,
-          ));
-        });
-        _getGroupMembers(groupSessions);
-        searchResult.add(
-          ShareSearchGroup(
-              title: 'str_title_groups'.localized(),
-              type: ShareSearchType.groups,
-              items: groupSessions),
-        );
-      }
-      List<ChannelDB>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
-      if (tempChannelList != null && tempChannelList.length > 0) {
-        List<ChatSessionModel> channelSessions = [];
-        tempChannelList.forEach((element) {
-          channelSessions.add(ChatSessionModel(
-            chatId: element.channelId,
-            chatType: ChatType.chatChannel,
-          ));
-        });
-        searchResult.add(
-          ShareSearchGroup(
-              title: 'str_title_channels'.localized(),
-              type: ShareSearchType.channels,
-              items: channelSessions),
-        );
-      }
+        List<GroupDB>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
+        if (tempGroupList != null && tempGroupList.length > 0) {
+          List<ChatSessionModel> groupSessions = [];
+          tempGroupList.forEach((element) {
+            groupSessions.add(ChatSessionModel(
+              chatId: element.groupId,
+              chatType: ChatType.chatGroup,
+            ));
+          });
+          _getGroupMembers(groupSessions);
+          searchResult.add(
+            ShareSearchGroup(title: 'str_title_groups'.localized(), type: ShareSearchType.groups, items: groupSessions),
+          );
+        }
+        List<ChannelDB>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
+        if (tempChannelList != null && tempChannelList.length > 0) {
+          List<ChatSessionModel> channelSessions = [];
+          tempChannelList.forEach((element) {
+            channelSessions.add(ChatSessionModel(
+              chatId: element.channelId,
+              chatType: ChatType.chatChannel,
+            ));
+          });
+          searchResult.add(
+            ShareSearchGroup(
+                title: 'str_title_channels'.localized(), type: ShareSearchType.channels, items: channelSessions),
+          );
+        }
 
-      _filterChatList = searchResult;
+        _showChatList = searchResult;
+      }
     });
   }
 
   buildSendPressed(ChatSessionModel sessionModel) {
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
-        content: 'ox_chat.str_share_msg_confirm_content'.localized({r'${name}': _ShareToName}),
+        content: 'str_share_msg_confirm_content'.localized({r'${name}': _ShareToName}),
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context, false);

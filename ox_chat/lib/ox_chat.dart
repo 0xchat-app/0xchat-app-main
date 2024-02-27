@@ -106,7 +106,7 @@ class OXChat extends OXFlutterModule {
         );
       case 'ChatChooseSharePage':
         return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
-          title: params?['url'] ?? '',
+          msg: params?['url'] ?? '',
         ));
     }
     return null;
