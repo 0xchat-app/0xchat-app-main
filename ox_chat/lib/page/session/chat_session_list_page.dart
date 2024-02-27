@@ -10,6 +10,7 @@ import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -91,19 +92,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXRelayManager.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
-    getOpenAppSchemeInfo();
-  }
-
-  void getOpenAppSchemeInfo() async {
-    String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
-      'getAppOpenURL',
-    );
-    if (jumpInfo.isEmpty) return;
-    if (jumpInfo.startsWith(CommonConstant.APP_SCHEME)) {
-      ScanUtils.analysis(context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
-    } else {
-      ScanUtils.analysis(context, jumpInfo);
-    }
+    SchemeHelper.tryHandlerForOpenAppScheme();
   }
 
   _navigateToLoginPage(BuildContext context) async {
