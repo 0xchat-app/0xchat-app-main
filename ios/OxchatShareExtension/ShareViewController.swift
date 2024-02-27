@@ -20,15 +20,7 @@ class ShareViewController: SLComposeServiceViewController {
         // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
     
         // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        var responder: UIResponder? = self.next
-        while let nextResponder = responder?.next {
-            if nextResponder.canPerformAction(#selector(UIApplication.openURL(_:)), withSender: nil) {
-                openApp(responder: nextResponder)
-                self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-                break
-            }
-            responder = nextResponder
-        }
+        openApp()
         self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
 
@@ -37,13 +29,13 @@ class ShareViewController: SLComposeServiceViewController {
         return []
     }
     
-    private func openApp(responder: UIResponder) {
+    private func openApp() {
         
         getShareMedia {
             guard let scheme = URL(string: "oxchat://shareMessageWithScheme") else {
                 return
             }
-            responder.perform(#selector(UIApplication.openURL(_:)), with: scheme)
+            self.extensionContext?.open(scheme)
         }
     }
     
@@ -57,7 +49,7 @@ class ShareViewController: SLComposeServiceViewController {
             for itemProvider in attachments {
                 if itemProvider.hasItemConformingToTypeIdentifier(kUTTypeURL as String) {
                     itemProvider.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (data, error) in
-                        if let url = data as? URL, let userDefaults = UserDefaults(suiteName: AppGroupHelper.appGroupId) {
+                        if let url = data as? URL {
                             AppGroupHelper.saveDataForGourp(
                                 url.absoluteString,
                                 forKey: AppGroupHelper.shareDataKey
