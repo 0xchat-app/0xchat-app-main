@@ -41,7 +41,7 @@ class OXChat extends OXFlutterModule {
       await ChatDataCache.shared.setup();
     });
     OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
-    SchemeHelper.register('shareMessageWithScheme', shareMessageWithScheme);
+    SchemeHelper.register('shareLinkWithScheme', shareLinkWithScheme);
   }
 
   @override
@@ -197,7 +197,7 @@ class OXChat extends OXFlutterModule {
     ChatMessageSendEx.sendTextMessageHandler(chatId, content);
   }
 
-  void shareMessageWithScheme(String scheme, String action, Map<String, String> queryParameters) {
+  void shareLinkWithScheme(String scheme, String action, Map<String, String> queryParameters) {
     final text = queryParameters['text'] ?? '';
     if (text.isEmpty) return ;
     OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
