@@ -21,7 +21,6 @@ class ShareViewController: SLComposeServiceViewController {
     
         // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
         openApp()
-        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     override func configurationItems() -> [Any]! {
@@ -29,13 +28,38 @@ class ShareViewController: SLComposeServiceViewController {
         return []
     }
     
+    private func openURL(url: NSURL) -> Bool {
+        do {
+            let application = try self.sharedApplication()
+            return application.performSelector(inBackground: "openURL:", with: url) != nil
+        }
+        catch {
+            return false
+        }
+    }
+
+    private func sharedApplication() throws -> UIApplication {
+        var responder: UIResponder? = self
+        while responder != nil {
+            if let application = responder as? UIApplication {
+                return application
+            }
+
+            responder = responder?.next
+        }
+
+        throw NSError(domain: "UIInputViewController+sharedApplication.swift", code: 1, userInfo: nil)
+    }
+    
     private func openApp() {
         
         getShareMedia {
-            guard let scheme = URL(string: "oxchat://shareMessageWithScheme") else {
+            guard let scheme = NSURL(string: "oxchat://shareMessageWithScheme") else {
+                self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
                 return
             }
-            self.extensionContext?.open(scheme)
+            self.openURL(url: scheme)
+            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
     
@@ -47,8 +71,9 @@ class ShareViewController: SLComposeServiceViewController {
         
         if let attachments = extensionItem.attachments {
             for itemProvider in attachments {
-                if itemProvider.hasItemConformingToTypeIdentifier(kUTTypeURL as String) {
-                    itemProvider.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (data, error) in
+                let urlIdentifier = kUTTypeURL as String
+                if itemProvider.hasItemConformingToTypeIdentifier(urlIdentifier) {
+                    itemProvider.loadItem(forTypeIdentifier: urlIdentifier, options: nil) { (data, error) in
                         if let url = data as? URL {
                             AppGroupHelper.saveDataForGourp(
                                 url.absoluteString,
