@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.oxchat.global.channel.AppPreferences;
+import com.oxchat.global.util.Constant;
 import com.oxchat.global.util.SharedPreUtils;
 
 import org.json.JSONException;
@@ -20,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
@@ -27,8 +30,6 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterFragmentActivity {
-    AppPreferences mAppPreferences;
-    private final String CODE_SHARE_NEW_MSG_TO_CHAT = "shareNewMessageToChat";
 
     public static NewMyEngineIntentBuilder withNewEngine(Class<? extends FlutterFragmentActivity> activityClass) {
         return new NewMyEngineIntentBuilder(activityClass);
@@ -59,28 +60,24 @@ public class MainActivity extends FlutterFragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handleIntent(getIntent());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         getOpenData();
+        handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent);
-        handleIntent(intent);
     }
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
-        mAppPreferences = new AppPreferences();
-        Log.e("John:", "--configureFlutterEngine--mAppPreferences =" + mAppPreferences.hashCode());
-        flutterEngine.getPlugins().add(mAppPreferences);
+        flutterEngine.getPlugins().add(new AppPreferences());
 
     }
 
@@ -111,21 +108,22 @@ public class MainActivity extends FlutterFragmentActivity {
     void handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && type != null && "text/plain".equals(type)) {
+        if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
             // Process received text (may contain URLs)
             String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            if (mAppPreferences != null) {
-                Log.e("John:", "--handleIntent--mAppPreferences =" + mAppPreferences.hashCode());
-                Log.e("John:", "--handleIntent--mAppPreferences.mCSink =" + mAppPreferences.mCSink);
-            }
-            if (mAppPreferences != null && mAppPreferences.mCSink != null)
-                Log.e("John:", "--handleIntent--mAppPreferences =" + mAppPreferences.mCSink.hashCode());
-            if (sharedText != null && mAppPreferences != null && mAppPreferences.mCSink != null) {
+            if (sharedText != null && !sharedText.isEmpty()) {
                 //use url in here
-                HashMap<String, String> event = new HashMap<>();
-                event.put("type", CODE_SHARE_NEW_MSG_TO_CHAT);
-                event.put("data", sharedText);
-                mAppPreferences.mCSink.success(event);
+                try {
+                    android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
+                    if (sp != null) {
+                        String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + URLEncoder.encode(sharedText, "UTF-8");
+                        SharedPreferences.Editor e = sp.edit();
+                        e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
+                        e.apply();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

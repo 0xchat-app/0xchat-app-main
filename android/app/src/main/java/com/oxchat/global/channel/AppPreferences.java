@@ -28,22 +28,17 @@ import io.flutter.plugin.common.MethodChannel;
  * @CheckItem Fill in by oneself
  * @since JDK1.8
  */
-public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware, EventChannel.StreamHandler {
+public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
     private static final String OX_PERFERENCES_CHANNEL = "com.oxchat.global/perferences";
-    public static final String EVENT_CHANNEL_CHAT = "oxchat_event_channel";
     private Context mContext;
     private Activity mActivity;
     private MethodChannel.Result mMethodChannelResult;
-    private EventChannel eventChannel;
-    public EventChannel.EventSink mCSink;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
         mContext = binding.getApplicationContext();
         MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), OX_PERFERENCES_CHANNEL);
         channel.setMethodCallHandler(this);
-        eventChannel = new EventChannel(binding.getBinaryMessenger(), EVENT_CHANNEL_CHAT);
-        eventChannel.setStreamHandler(this);
     }
 
     @Override
@@ -113,15 +108,5 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
             //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mActivity.startActivity(intent);
         }
-    }
-
-    @Override
-    public void onListen(Object o, EventChannel.EventSink eventSink) {
-        mCSink = eventSink;
-    }
-
-    @Override
-    public void onCancel(Object o) {
-
     }
 }
