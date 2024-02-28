@@ -201,7 +201,7 @@ class OXChat extends OXFlutterModule {
     final text = queryParameters['text'] ?? '';
     if (text.isEmpty) return ;
     OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
-      msg: Uri.decodeFull(text),
+      msg: text,
     ));
   }
 }
