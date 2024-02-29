@@ -89,6 +89,7 @@
   "un_mute_item": "Mute",
   "mute_fail_toast": "Mute(Unmute) failed, please try again later.",
   "leave_item": "Leave",
+  "join_item": "Join",
   "remark": "Remark",
   "remark_edit": "Edit Remark",
   "remark_edit_toast": "Account abnormally",

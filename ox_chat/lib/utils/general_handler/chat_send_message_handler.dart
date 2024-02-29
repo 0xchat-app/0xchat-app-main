@@ -16,16 +16,18 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     handler.sendTextMessage(context, text);
   }
 
-  static void sendTemplatePrivateMessage({
+  static void sendTemplateMessage({
     required String receiverPubkey,
     String title = '',
     String subTitle = '',
     String icon = '',
     String link = '',
+    int chatType = ChatType.chatSingle,
+    ChatSessionModel? session,
   }) {
-    final session = _getSessionModel(receiverPubkey, ChatType.chatSingle);
+    session ??= _getSessionModel(receiverPubkey,chatType);
     if (session == null) return ;
-    ChatGeneralHandler(session: session).sendTemplateMessage(title: title, content: subTitle, icon: icon, link: link);
+    ChatGeneralHandler(session: session)._sendTemplateMessage(title: title, content: subTitle, icon: icon, link: link);
   }
 
   static ChatSessionModel? _getSessionModel(String receiverPubkey, int type) {
@@ -269,7 +271,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     }
   }
 
-  void sendTemplateMessage({
+  void _sendTemplateMessage({
     BuildContext? context,
     String title = '',
     String content = '',

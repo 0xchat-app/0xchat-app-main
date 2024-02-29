@@ -125,7 +125,6 @@ class ChatMessageDBToUIHelper {
       default:
         return Localized.text('ox_common.message_type_unknown');
     }
-    return '[unknown type]';
   }
 
   static Future<types.User?> getUser(String messageSenderPubKey) async {

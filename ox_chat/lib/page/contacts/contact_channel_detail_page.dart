@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -19,6 +21,8 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+
+import '../session/chat_channel_message_page.dart';
 
 ///Title: message_channel_detail_page
 ///Description: ()
@@ -446,28 +450,25 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                           SizedBox(
                             height: Adapt.px(24),
                           ),
-                          Visibility(
-                            visible: _isJoinChannel,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onTap: () {
-                                _leaveChannel();
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: ThemeColor.color180,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                width: double.infinity,
-                                height: Adapt.px(48),
-                                child: Text(
-                                  Localized.text('ox_chat.leave_item'),
-                                  style: TextStyle(
-                                      fontSize: Adapt.px(16),
-                                      color: ThemeColor.color100),
-                                ),
-                                alignment: Alignment.center,
+                          GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {
+                              _isJoinChannel ? _leaveChannel() : _joinChannel();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: ThemeColor.color180,
+                                borderRadius: BorderRadius.circular(12),
                               ),
+                              width: double.infinity,
+                              height: Adapt.px(48),
+                              child: Text(
+                                Localized.text(_isJoinChannel ? 'ox_chat.leave_item' : 'ox_chat.join_item'),
+                                style: TextStyle(
+                                    fontSize: Adapt.px(16),
+                                    color: ThemeColor.color100),
+                              ),
+                              alignment: Alignment.center,
                             ),
                           ),
                         ],
@@ -660,6 +661,30 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     } else {
       CommonToast.instance
           .show(context, 'Mute(Unmute) failed, please try again later.');
+    }
+  }
+
+  void _joinChannel() async {
+    await OXLoading.show();
+    final OKEvent okEvent = await Channels.sharedInstance.joinChannel(widget.channelDB.channelId);
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      OXChatBinding.sharedInstance.channelsUpdatedCallBack();
+      OXNavigator.pushPage(
+        context,
+            (context) => ChatChannelMessagePage(
+          communityItem: ChatSessionModel(
+            chatId: widget.channelDB.channelId,
+            groupId: widget.channelDB.channelId,
+            chatType: ChatType.chatChannel,
+            chatName: widget.channelDB.name ?? '',
+            createTime: widget.channelDB.createTime,
+            avatar: widget.channelDB.picture ?? '',
+          ),
+        ),
+      );
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
     }
   }
 

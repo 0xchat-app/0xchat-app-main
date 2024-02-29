@@ -21,6 +21,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
@@ -301,7 +302,11 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void templateMessagePressHandler(BuildContext context, types.CustomMessage message) {
     final link = TemplateMessageEx(message).link;
-    link.tryHandleCustomUri(context: context);
+    if (link.isRemoteURL) {
+      OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(link), fullscreenDialog: true);
+    } else {
+      link.tryHandleCustomUri(context: context);
+    }
   }
 
   void noteMessagePressHandler(BuildContext context, types.CustomMessage message) {
