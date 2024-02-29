@@ -16,5 +16,7 @@
   "giphy_collect": "常用",
   "giphy_search": "搜索",
   "giphy_tips": "由GIPHY提供技术支持",
-  "chat_input_hint_text": "输入消息"
+  "chat_input_hint_text": "输入消息",
+  "giphy_use_hint": "启用Giphy功能以支持发送GIF图片，让聊天更加有趣。但由于我们使用Giphy的API接口，请求Giphy API将会向Giphy服务暴露您的IP地址。您同意启用吗？",
+  "giphy_continue": "继续"
 }
