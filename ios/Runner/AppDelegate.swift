@@ -82,7 +82,7 @@ import ox_push
         
         var urlStr = url.absoluteString
         
-        if url.host == "shareMessageWithScheme" {
+        if url.host == "shareLinkWithScheme" {
             if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true),
                 let text = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataKey) as? String {
                 
