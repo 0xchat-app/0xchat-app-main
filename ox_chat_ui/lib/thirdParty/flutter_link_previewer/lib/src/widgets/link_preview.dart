@@ -179,7 +179,7 @@ class _LinkPreviewState extends State<LinkPreview>
 
       return _containerWidget(
         animate: shouldAnimate,
-        child: aspectRatio == 1
+        child: (aspectRatio == 1 && (previewData.title != null || previewData.description != null))
             ? _minimizedBodyWidget(previewData)
             : _bodyWidget(previewData, width),
         withPadding: aspectRatio == 1,

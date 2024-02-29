@@ -197,8 +197,6 @@ Future<PreviewData> getPreviewData(
     final response = await http.get(uri, headers: {
       'User-Agent': userAgent ?? 'WhatsApp/2',
     }).timeout(requestTimeout ?? const Duration(seconds: 5));
-    final document = parser.parse(utf8.decode(response.bodyBytes));
-
     final imageRegexp = RegExp(regexImageContentType);
 
     if (imageRegexp.hasMatch(response.headers['content-type'] ?? '')) {
@@ -213,6 +211,7 @@ Future<PreviewData> getPreviewData(
         link: previewDataUrl,
       );
     }
+    final document = parser.parse(utf8.decode(response.bodyBytes));
 
     if (!_hasUTF8Charset(document)) {
       return previewData;
@@ -265,7 +264,7 @@ Future<PreviewData> getPreviewData(
 const regexEmail = r'([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)';
 
 /// Regex to check if content type is an image.
-const regexImageContentType = r'image\/*';
+const regexImageContentType = r'image/.*';
 
 /// Regex to find all links in the text.
 const regexLink =
