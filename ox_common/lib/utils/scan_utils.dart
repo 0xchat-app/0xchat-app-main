@@ -214,7 +214,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       return Cashu.isCashuToken(str);
     },
     action: (String token, BuildContext context) async {
-      final response = await Cashu.redeemEcash(token);
+      final response = await Cashu.redeemEcash(ecashString: token);
       if (!response.isSuccess) return ;
       final (memo, amount) = response.data;
       OXModuleService.pushPage(context, 'ox_wallet', 'WalletSuccessfulRedeemClaimedPage',{'amount':amount.toString()});

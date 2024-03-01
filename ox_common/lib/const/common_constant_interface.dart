@@ -22,7 +22,7 @@ abstract class ConstantInterface {
 
   String get njumpURL =>  'https://njump.me/';
 
-  String get APP_SCHEME => 'oxchat://';
+  String get APP_SCHEME => 'oxchat';
 
   String get NWC_SCHEME => 'nostr+walletconnect://';
 
