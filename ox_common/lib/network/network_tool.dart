@@ -1,5 +1,7 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 
 ///Title: network_tool
@@ -51,14 +53,12 @@ class NetworkTool {
   }
 
 
-  Future<String> dnsReplaceIp(String url) async {
+  Future<String> dnsReplaceIp(String url, String domain) async {
     String? server = await getUrlServer(url);
     if (server != null) {
-      String ip = await OXCacheManager.defaultOXCacheManager
-          .getForeverData(server, defaultValue: '');
-      String? domain = await getUrlDomain(url);
-      if (ip != null && ip.isNotEmpty && domain != null) {
-        String replaceUrl = url.replaceFirst(domain, ip);
+      String? host = Config.sharedInstance.hostConfig[CommonConstant.baseUrl];
+      if (host !=null && host.isNotEmpty) {
+        String replaceUrl = url.replaceFirst(domain, host);
         return replaceUrl;
       }
     }
