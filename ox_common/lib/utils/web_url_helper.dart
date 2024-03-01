@@ -6,8 +6,8 @@ import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' as parser show parse;
 import 'package:http/http.dart' as http show get;
 
-class PreviewDataImage {
-  PreviewDataImage({
+class WebPreviewDataImage {
+  WebPreviewDataImage({
     required this.url,
     required this.height,
     required this.width,
@@ -21,25 +21,11 @@ class PreviewDataImage {
 
   /// Image width in pixels.
   final double width;
-
-  factory PreviewDataImage.fromJson(Map<String, dynamic> json) =>
-      PreviewDataImage(
-        height: (json['height'] as num).toDouble(),
-        url: json['url'] as String,
-        width: (json['width'] as num).toDouble(),
-      );
-
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
-        'height': height,
-        'url': url,
-        'width': width,
-      };
 }
 
-class PreviewData {
+class WebPreviewData {
 
-  const PreviewData({
+  const WebPreviewData({
     this.description,
     this.image,
     this.link,
@@ -50,7 +36,7 @@ class PreviewData {
   final String? title;
 
   /// See [PreviewDataImage].
-  final PreviewDataImage? image;
+  final WebPreviewDataImage? image;
 
   /// Remote resource URL.
   final String? link;
@@ -61,22 +47,6 @@ class PreviewData {
   bool get hasTitle => title != null && title!.isNotEmpty;
   bool get hasLink => link != null && link!.isNotEmpty;
 
-  factory PreviewData.fromJson(Map<String, dynamic> json) => PreviewData(
-    description: json['description'] as String?,
-    image: json['image'] == null
-        ? null
-        : PreviewDataImage.fromJson(json['image'] as Map<String, dynamic>),
-    link: json['link'] as String?,
-    title: json['title'] as String?,
-  );
-
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
-        'description': description,
-        'image': image?.toJson(),
-        'link': link,
-        'title': title,
-      };
   @override
   String toString() {
     return '${super.toString()}, title: $title, link: $link, description: $description';
@@ -89,13 +59,11 @@ class WebURLHelper {
   static const regexEmail = r'([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)';
 
   /// Regex to check if content type is an image.
-  static const regexImageContentType = r'image/.*';
+  static const regexImageContentType = r'image\/*';
 
   /// Regex to find all links in the text.
   static const regexLink =
       r'((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?';
-
-  static const regexNostr = r'nostr:(npub|nsec|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s|$)';
 
   static String _calculateUrl(String baseUrl, String? proxy) {
     if (proxy != null) {
@@ -245,17 +213,17 @@ class WebURLHelper {
   }
 
   /// Parses provided text and returns [PreviewData] for the first found link.
-  static Future<PreviewData> getPreviewData(
+  static Future<WebPreviewData> getPreviewData(
       String text, {
         String? proxy,
         Duration? requestTimeout,
         String? userAgent,
         bool isShare = false,
       }) async {
-    const previewData = PreviewData();
+    const previewData = WebPreviewData();
 
     String? previewDataDescription;
-    PreviewDataImage? previewDataImage;
+    WebPreviewDataImage? previewDataImage;
     String? previewDataTitle;
     String? previewDataUrl;
 
@@ -286,22 +254,22 @@ class WebURLHelper {
       final response = await http.get(uri, headers: {
         'User-Agent': userAgent ?? 'WhatsApp/2',
       }).timeout(requestTimeout ?? const Duration(seconds: 5));
+      final document = parser.parse(utf8.decode(response.bodyBytes));
 
       final imageRegexp = RegExp(regexImageContentType);
+
       if (imageRegexp.hasMatch(response.headers['content-type'] ?? '')) {
         final imageSize = await _getImageSize(previewDataUrl);
-        previewDataImage = PreviewDataImage(
+        previewDataImage = WebPreviewDataImage(
           height: imageSize.height,
           url: previewDataUrl,
           width: imageSize.width,
         );
-        return PreviewData(
+        return WebPreviewData(
           image: previewDataImage,
           link: previewDataUrl,
         );
       }
-
-      final document = parser.parse(utf8.decode(response.bodyBytes));
 
       if (!_hasUTF8Charset(document)) {
         return previewData;
@@ -328,20 +296,20 @@ class WebURLHelper {
             : await _getBiggestImageUrl(imageUrls, proxy);
 
         imageSize = await _getImageSize(imageUrl);
-        previewDataImage = PreviewDataImage(
+        previewDataImage = WebPreviewDataImage(
           height: imageSize.height,
           url: imageUrl,
           width: imageSize.width,
         );
       }
-      return PreviewData(
+      return WebPreviewData(
         description: previewDataDescription,
         image: previewDataImage,
         link: previewDataUrl,
         title: previewDataTitle,
       );
     } catch (e) {
-      return PreviewData(
+      return WebPreviewData(
         description: previewDataDescription,
         image: previewDataImage,
         link: previewDataUrl,
