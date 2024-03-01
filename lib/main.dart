@@ -215,6 +215,7 @@ class MainState extends State<MainApp>
       case AppLifecycleState.resumed:
         if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
         SchemeHelper.tryHandlerForOpenAppScheme();
+        OXUserInfoManager.sharedInstance.resetHeartBeat();
         if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
           lastUserInteractionTime = 0;
           showPasswordDialog();
