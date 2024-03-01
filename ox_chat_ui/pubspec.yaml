@@ -30,9 +30,9 @@ dependencies:
   syncfusion_flutter_sliders: ^20.4.51
   screenshot: ^2.1.0
   flutter_chat_types:  #Message type template
-    path: ./lib/thirdParty/flutter_chat_types
+    path: ./flutter_chat_types
   flutter_link_previewer:
-    path: ./lib/thirdParty/flutter_link_previewer
+    path: ./flutter_link_previewer
   ox_common:
     path: ../../base_framework/ox_common
   ox_localizable:

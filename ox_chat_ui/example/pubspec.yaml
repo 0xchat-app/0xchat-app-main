@@ -45,7 +45,7 @@ dependencies:
   path_provider: ^2.0.11
   uuid: ^3.0.6
   flutter_chat_types: #Message type template
-    path: ../lib/thirdParty/flutter_chat_types
+    path: ../flutter_chat_types
 
 dev_dependencies:
 #  dart_code_metrics: ^4.21.3
