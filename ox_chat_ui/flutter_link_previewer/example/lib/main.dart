@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 
 void main() {

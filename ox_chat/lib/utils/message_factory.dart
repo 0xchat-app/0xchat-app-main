@@ -6,12 +6,12 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
-import 'package:flutter_chat_types/src/preview_data.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 abstract class MessageFactory {

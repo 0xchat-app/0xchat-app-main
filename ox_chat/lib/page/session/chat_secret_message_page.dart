@@ -14,6 +14,7 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -436,7 +437,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   void _handlePreviewDataFetched(
     types.TextMessage message,
-    types.PreviewData previewData,
+    PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(

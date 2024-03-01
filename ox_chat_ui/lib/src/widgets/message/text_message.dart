@@ -4,6 +4,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
     show LinkPreview, regexEmail, regexLink, regexNostr;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/emoji_enlargement_behavior.dart';
@@ -42,7 +43,7 @@ class TextMessage extends StatelessWidget {
   final Widget Function(String userId)? nameBuilder;
 
   /// See [LinkPreview.onPreviewDataFetched].
-  final void Function(types.TextMessage, types.PreviewData)?
+  final void Function(types.TextMessage, PreviewData)?
       onPreviewDataFetched;
 
   /// Customisation options for the [TextMessage].
@@ -67,14 +68,14 @@ class TextMessage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     if (usePreviewData && onPreviewDataFetched != null) {
-      var urlRegexp = RegExp(regexLink, caseSensitive: false);
+      var urlRegexp = RegExp(WebURLHelper.regexLink, caseSensitive: false);
       var matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
         return _linkPreview(user, width, context);
       }
 
-      urlRegexp = RegExp(regexNostr, caseSensitive: false);
+      urlRegexp = RegExp(WebURLHelper.regexNostr, caseSensitive: false);
       matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
@@ -127,7 +128,7 @@ class TextMessage extends StatelessWidget {
     );
   }
 
-  void _onPreviewDataFetched(types.PreviewData previewData) {
+  void _onPreviewDataFetched(PreviewData previewData) {
     if (message.previewData == null) {
       onPreviewDataFetched?.call(message, previewData);
     }
@@ -231,7 +232,7 @@ class TextMessageText extends StatelessWidget {
             await launchUrl(url);
           }
         },
-        pattern: regexEmail,
+        pattern: WebURLHelper.regexEmail,
         style: bodyLinkTextStyle ??
             bodyTextStyle.copyWith(
               decoration: TextDecoration.underline,
@@ -258,7 +259,7 @@ class TextMessageText extends StatelessWidget {
             }
           }
         },
-        pattern: regexLink,
+        pattern: WebURLHelper.regexLink,
         style: bodyLinkTextStyle ??
             bodyTextStyle.copyWith(
               decoration: TextDecoration.underline,
@@ -279,7 +280,7 @@ class TextMessageText extends StatelessWidget {
             }
           }
         },
-        pattern: regexNostr,
+        pattern: WebURLHelper.regexNostr,
         style: bodyLinkTextStyle ??
             bodyTextStyle.copyWith(
               decoration: TextDecoration.underline,

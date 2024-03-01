@@ -13,6 +13,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 
 void main() {
   initializeDateFormatting().then((_) => runApp(const MyApp()));
@@ -202,7 +203,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handlePreviewDataFetched(
     types.TextMessage message,
-    types.PreviewData previewData,
+    PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(

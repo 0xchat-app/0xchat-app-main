@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:flutter_linkify/flutter_linkify.dart' hide UrlLinkifier;
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../url_linkifier.dart' show UrlLinkifier;
-import '../utils.dart' show getPreviewData;
 
 /// A widget that renders text with highlighted links.
 /// Eventually unwraps to the full preview of the first found link
@@ -301,7 +300,7 @@ class _LinkPreviewState extends State<LinkPreview>
       isFetchingPreviewData = true;
     });
 
-    final previewData = await getPreviewData(
+    final previewData = await WebURLHelper.getPreviewData(
       text,
       proxy: widget.corsProxy,
       requestTimeout: widget.requestTimeout,

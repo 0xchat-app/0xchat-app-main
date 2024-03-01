@@ -1,8 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
+import 'package:ox_common/utils/web_url_helper.dart';
 import '../message.dart';
-import '../preview_data.dart' show PreviewData;
 import 'text_message.dart';
 
 part 'partial_text.g.dart';

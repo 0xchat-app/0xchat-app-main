@@ -217,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _handlePreviewDataFetched(
     types.TextMessage message,
-    types.PreviewData previewData,
+    PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
@@ -433,7 +433,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _handlePreviewDataFetched(
     types.TextMessage message,
-    types.PreviewData previewData,
+    PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
