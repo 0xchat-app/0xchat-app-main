@@ -358,4 +358,10 @@ class OXUserInfoManager {
     }
     return true;
   }
+
+  void resetHeartBeat(){//eg: backForeground
+    Account.sharedInstance.startHeartBeat();
+    NotificationHelper.sharedInstance.startHeartBeat();
+    Connect.sharedInstance.startHeartBeat();
+  }
 }
