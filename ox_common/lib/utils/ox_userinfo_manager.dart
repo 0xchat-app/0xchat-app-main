@@ -360,8 +360,8 @@ class OXUserInfoManager {
   }
 
   void resetHeartBeat(){//eg: backForeground
-    Account.sharedInstance.startHeartBeat();
-    NotificationHelper.sharedInstance.startHeartBeat();
     Connect.sharedInstance.startHeartBeat();
+    NotificationHelper.sharedInstance.startHeartBeat();
+    Account.sharedInstance.startHeartBeat();
   }
 }
