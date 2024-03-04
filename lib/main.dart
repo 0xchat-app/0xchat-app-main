@@ -167,6 +167,7 @@ class MainState extends State<MainApp>
         navigatorObservers: [MyObserver()],
         theme: ThemeData(
           brightness: ThemeManager.brightness(),
+          scaffoldBackgroundColor: ThemeColor.color190,
           fontFamily: 'Lato', //use regular for ios / thin for android
           // fontFamily: 'OX Font',
         ),
