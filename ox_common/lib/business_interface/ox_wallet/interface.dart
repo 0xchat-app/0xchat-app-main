@@ -48,4 +48,13 @@ class OXWalletInterface {
       {},
     ) ?? false;
   }
+
+  static bool openWalletHomePage() {
+    return OXModuleService.invoke<bool>(
+      moduleName,
+      'openWalletHomePage',
+      [],
+      {},
+    ) ?? false;
+  }
 }
