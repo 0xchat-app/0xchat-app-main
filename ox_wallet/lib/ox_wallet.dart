@@ -8,6 +8,7 @@ import 'package:ox_wallet/page/wallet_home_page.dart';
 import 'package:ox_wallet/page/wallet_page.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_wallet/page/wallet_safety_tips_page.dart';
 import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
@@ -60,6 +61,7 @@ class OXWallet extends OXFlutterModule {
     'isWalletAvailable': isWalletAvailable,
     'buildMintIndicatorItem': buildMintIndicatorItem,
     'checkWalletActivate': checkWalletActivate,
+    'openWalletHomePage': openWalletHomePage,
   };
 
   @override
@@ -113,5 +115,17 @@ class OXWallet extends OXFlutterModule {
         isRowAction: true);
 
     return false;
+  }
+
+  void openWalletHomePage() {
+    if (EcashManager.shared.isWalletAvailable) {
+      OXNavigator.pushPage(null, (context) => const WalletHomePage(),);
+    } else {
+      OXNavigator.pushPage(null, (context) => WalletSafetyTipsPage(
+        nextStepHandler: (context) {
+          OXNavigator.pushReplacement(context, const WalletPage());
+        },
+      ),);
+    }
   }
 }

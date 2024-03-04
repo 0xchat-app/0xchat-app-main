@@ -75,12 +75,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           title: 'ox_usercenter.wallet',
           iconName: 'icon_settings_wallet.png',
           onTap: () async {
-            final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
-            if (isWalletAvailable) {
-              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletHomePage', {});
-            } else {
-              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletPage', {});
-            }
+            OXWalletInterface.openWalletHomePage();
           },
         ),
         SizedBox(
