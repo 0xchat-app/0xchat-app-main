@@ -81,7 +81,7 @@ dependencies:
   ox_module_service:
     path: ../ox_module_service
   ox_localizable:
-    path: ../../base_framework/ox_localizable
+    path: ../ox_localizable
   ox_network:
     path: ../ox_network
 

@@ -8,12 +8,13 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_push/push/unifiedpush.dart';
 
 class OXPush extends OXFlutterModule {
 
   static bool hasSetNotification = false;
 
-  static const MethodChannel _channel = const MethodChannel('ox_push');
+  static const MethodChannel pushChannel = const MethodChannel('ox_push');
 
   @override
   // TODO: implement moduleName
@@ -23,9 +24,11 @@ class OXPush extends OXFlutterModule {
   Future<void> setup() async {
     // TODO: implement setup
     await super.setup();
-    if(Platform.isIOS){
-      _channel.setMethodCallHandler(_platformCallHandler);
+    if (Platform.isIOS) {
+      pushChannel.setMethodCallHandler(_platformCallHandler);
       OXUserInfoManager.sharedInstance.initDataActions.add(_setNotification);
+    } else if (Platform.isAndroid) {
+      UnifiedPush.initialize();
     }
   }
 
@@ -46,7 +49,7 @@ class OXPush extends OXFlutterModule {
   };
 
   void unPushId(String userId) {
-    _channel.invokeMethod('unPushId', {'userId': userId});
+    pushChannel.invokeMethod('unPushId', {'userId': userId});
   }
 
   //Set the push ID

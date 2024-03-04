@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.ox.ox_push">
+    package="com.ox.ox_push">
 
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,6 +21,14 @@
                 <action android:name="org.unifiedpush.android.connector.NEW_ENDPOINT"/>
                 <action android:name="org.unifiedpush.android.connector.REGISTRATION_FAILED" />
                 <action android:name="org.unifiedpush.android.connector.REGISTRATION_REFUSED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:enabled="true"  android:name=".EmbeddedDistributor" android:exported="false">
+            <intent-filter>
+                <action android:name="org.unifiedpush.android.distributor.feature.BYTES_MESSAGE"/>
+                <action android:name="org.unifiedpush.android.distributor.REGISTER"/>
+                <action android:name="org.unifiedpush.android.distributor.UNREGISTER"/>
             </intent-filter>
         </receiver>
     </application>

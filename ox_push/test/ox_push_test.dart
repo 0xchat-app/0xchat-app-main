@@ -1,8 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ox_push/ox_push.dart';
 
 void main() {
-  const MethodChannel channel = MethodChannel('ox_push');
+  const MethodChannel channel = MethodChannel('ox_network');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
