@@ -37,7 +37,7 @@
 -keepattributes *Annotation*
 
 
- -keep public class com.oxchat.global.R$*{
+ -keep public class com.oxchat.nostr.R$*{
     public static final int *;
  }
 

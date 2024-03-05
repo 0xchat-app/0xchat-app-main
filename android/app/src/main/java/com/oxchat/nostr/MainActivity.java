@@ -12,18 +12,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.oxchat.global.channel.AppPreferences;
-import com.oxchat.global.util.Constant;
-import com.oxchat.global.util.SharedPreUtils;
+import com.oxchat.nostr.channel.AppPreferences;
+import com.oxchat.nostr.util.Constant;
+import com.oxchat.nostr.util.SharedPreUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
