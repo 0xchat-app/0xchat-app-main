@@ -6,9 +6,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
-import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -59,7 +58,6 @@ void main() async {
   await ThemeManager.init();
   await Localized.init();
   await setupModules();
-
   OXRelayManager.sharedInstance.loadConnectRelay();
   OXServerManager.sharedInstance.loadConnectICEServer();
   await OXUserInfoManager.sharedInstance.initLocalData();
@@ -158,24 +156,6 @@ class MainState extends State<MainApp>
     // });
   }
 
-  void getOpenAppSchemeInfo() async {
-    String jumpInfo = await OXCommon.channelPreferences.invokeMethod(
-      'getAppOpenURL',
-    );
-    LogUtil.e("doHandleJumpInfo jumpInfo : $jumpInfo");
-    if (jumpInfo.isNotEmpty) {
-      BuildContext? context = OXNavigator.navigatorKey.currentContext;
-      if(context == null) return;
-      if(jumpInfo.startsWith(CommonConstant.APP_SCHEME)) {
-        ScanUtils.analysis(
-            context, jumpInfo.substring(CommonConstant.APP_SCHEME.length));
-      }
-      else{
-        ScanUtils.analysis(context, jumpInfo);
-      }
-    }
-  }
-
   onLocaleChange() {
     if (mounted) setState(() {});
   }
@@ -187,6 +167,7 @@ class MainState extends State<MainApp>
         navigatorObservers: [MyObserver()],
         theme: ThemeData(
           brightness: ThemeManager.brightness(),
+          scaffoldBackgroundColor: ThemeColor.color190,
           fontFamily: 'Lato', //use regular for ios / thin for android
           // fontFamily: 'OX Font',
         ),
@@ -234,7 +215,8 @@ class MainState extends State<MainApp>
     switch (state) {
       case AppLifecycleState.resumed:
         if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
-        getOpenAppSchemeInfo();
+        SchemeHelper.tryHandlerForOpenAppScheme();
+        OXUserInfoManager.sharedInstance.resetHeartBeat();
         if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
           lastUserInteractionTime = 0;
           showPasswordDialog();

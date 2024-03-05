@@ -12,14 +12,18 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.oxchat.nostr.channel.AppPreferences;
-import com.oxchat.nostr.util.SharedPreUtils;
+import com.oxchat.global.channel.AppPreferences;
+import com.oxchat.global.util.Constant;
+import com.oxchat.global.util.SharedPreUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -32,14 +36,14 @@ public class MainActivity extends FlutterFragmentActivity {
     }
 
     //Rewrite engine method
-    public static class NewMyEngineIntentBuilder extends NewEngineIntentBuilder{
+    public static class NewMyEngineIntentBuilder extends NewEngineIntentBuilder {
 
         protected NewMyEngineIntentBuilder(Class<? extends FlutterFragmentActivity> activityClass) {
             super(activityClass);
         }
     }
 
-    public static String getFullRoute(String route,String params){
+    public static String getFullRoute(String route, String params) {
         //Splicing parameter
         JSONObject jsonObject = new JSONObject();
         try {
@@ -62,6 +66,7 @@ public class MainActivity extends FlutterFragmentActivity {
     protected void onResume() {
         super.onResume();
         getOpenData();
+        handleIntent(getIntent());
     }
 
     @Override
@@ -76,14 +81,14 @@ public class MainActivity extends FlutterFragmentActivity {
 
     }
 
-    private void getOpenData(){
+    private void getOpenData() {
         try {
             Uri uridata = getIntent().getData();
-            if (uridata==null){
+            if (uridata == null) {
                 return;
             }
             String param = uridata.toString();
-            if(!TextUtils.isEmpty(param)) {
+            if (!TextUtils.isEmpty(param)) {
                 try {
                     android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
                     if (sp != null) {
@@ -98,5 +103,29 @@ public class MainActivity extends FlutterFragmentActivity {
         } catch (Exception e) {
             Log.e("scheme-", e.getMessage(), e);
         }
+    }
+
+    void handleIntent(Intent intent) {
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
+            // Process received text (may contain URLs)
+            String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (sharedText != null && !sharedText.isEmpty()) {
+                //use url in here
+                try {
+                    android.content.SharedPreferences sp = this.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
+                    if (sp != null) {
+                        String schemeUrl = Constant.APP_SCHEME + Constant.APP_SCHEME_SHARE + URLEncoder.encode(sharedText, "UTF-8");
+                        SharedPreferences.Editor e = sp.edit();
+                        e.putString(SharedPreUtils.PARAM_JUMP_INFO, schemeUrl);
+                        e.apply();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }

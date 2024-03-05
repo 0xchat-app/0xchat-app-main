@@ -79,10 +79,27 @@ import ox_push
     }
     
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        let urlStr = url.absoluteString
-            let userDefault = UserDefaults.standard
-            userDefault.setValue(urlStr, forKey: OPENURLAPP)
-            userDefault.synchronize()
-        return  true
+        
+        var urlStr = url.absoluteString
+        
+        if url.host == "shareLinkWithScheme" {
+            if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true),
+                let text = AppGroupHelper.loadDataForGourp(forKey: AppGroupHelper.shareDataKey) as? String {
+                
+                var queryItems = (urlComponents.queryItems ?? [])
+                queryItems.append(URLQueryItem(name: "text", value: text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))
+                urlComponents.queryItems = queryItems
+             
+                urlStr = urlComponents.url?.absoluteString ?? urlStr
+                
+                AppGroupHelper.saveDataForGourp(nil, forKey: AppGroupHelper.shareDataKey)
+            }
+        }
+        
+        let userDefault = UserDefaults.standard
+        userDefault.setValue(urlStr, forKey: OPENURLAPP)
+        userDefault.synchronize()
+        
+        return true
     }
 }
