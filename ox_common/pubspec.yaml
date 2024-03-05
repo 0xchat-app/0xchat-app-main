@@ -69,6 +69,7 @@ dependencies:
   easy_loading_button: ^0.3.2
   file_picker: ^6.1.1
   share_plus: 7.2.2
+  animated_text_kit: ^4.2.2
 
   chatcore:
     path: ../../0xchat-core
