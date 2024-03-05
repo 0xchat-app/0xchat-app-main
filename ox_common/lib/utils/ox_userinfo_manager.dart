@@ -361,7 +361,9 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     Connect.sharedInstance.startHeartBeat();
-    NotificationHelper.sharedInstance.startHeartBeat();
-    Account.sharedInstance.startHeartBeat();
+    if (DB.sharedInstance.db.isOpen) {
+      NotificationHelper.sharedInstance.startHeartBeat();
+      Account.sharedInstance.startHeartBeat();
+    }
   }
 }
