@@ -11,8 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  firebase_messaging: 14.6.9
-  flutter_local_notifications: 16.1.0
+  flutter_local_notifications: ^16.3.3
 
   ox_common:
     path: ../../base_framework/ox_common
@@ -31,6 +30,12 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the Icons class.
+  uses-material-design: true
+
+
   # This section identifies this Flutter project as a plugin project.
   # The 'pluginClass' specifies the class (in Java, Kotlin, Swift, Objective-C, etc.)
   # which should be registered in the plugin registry. This is required for

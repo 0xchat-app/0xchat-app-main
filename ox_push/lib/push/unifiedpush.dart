@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -17,10 +18,10 @@ class UnifiedPush {
     void Function(String instance)? onUnregistered,
     void Function(Uint8List message, String instance)? onMessage,
   }) async {
-    _onNewEndpoint = onNewEndpoint;
-    _onRegistrationFailed = onRegistrationFailed;
-    _onUnregistered = onUnregistered;
-    _onMessage = onMessage;
+    if (onNewEndpoint != null) _onNewEndpoint = onNewEndpoint;
+    if (onRegistrationFailed != null) _onRegistrationFailed = onRegistrationFailed;
+    if (onUnregistered != null) _onUnregistered = onUnregistered;
+    if (onMessage != null) _onMessage = onMessage;
 
     OXPush.pushChannel.setMethodCallHandler(_methodCallHandler);
     await OXPush.pushChannel.invokeMethod(pluginEventInitialized, []);
@@ -31,6 +32,7 @@ class UnifiedPush {
     final instance = call.arguments["instance"] as String;
     switch (call.method) {
       case "onNewEndpoint":
+        LogUtil.d("John: --_methodCallHandler--OnNewEndpoint----instance =${instance}---endpoint =${call.arguments["endpoint"]}");
         _onNewEndpoint?.call(call.arguments["endpoint"], instance);
         break;
       case "onRegistrationFailed":
@@ -40,6 +42,7 @@ class UnifiedPush {
         _onUnregistered?.call(instance);
         break;
       case "onMessage":
+        LogUtil.d("John: --_methodCallHandler--onMessage----message =${call.arguments["message"]}");
         _onMessage?.call(call.arguments["message"], instance);
         break;
     }
@@ -47,37 +50,32 @@ class UnifiedPush {
 
   static const noDistribAck = "noDistributorAck";
 
-  static Future<void> registerAppWithDialog(BuildContext context,
-      [String instance = defaultInstance, List<String>? features]) async {
+  static Future<void> initRegisterApp([String instance = defaultInstance, List<String>? features]) async {
     var distributor = await getDistributor();
-    final prefs = await SharedPreferences.getInstance();
+    if (distributor != null) {
+      await registerApp(instance = distributor, features = features);
+    }
+  }
+
+  static Future<String?> registerAppWithDialog(BuildContext context,
+      [String instance = defaultInstance, List<String>? features]) async {
     String? picked;
 
-    if (distributor == null) {
-      final distributors = await getDistributors(features);
-      if (distributors.isEmpty) {
-        if (!(prefs.getBool(noDistribAck) ?? false)) {
-          return showDialog(
-              context: context,
-              builder: noDistributorDialog(onDismissed: () {
-                prefs.setBool(noDistribAck, true);
-              }));
-        }
-      } else if (distributors.length == 1) {
-        picked = distributors.single;
-      } else {
-        picked = await showDialog<String>(
-          context: context,
-          builder: pickDistributorDialog(distributors),
-        );
-      }
+    final distributors = await getDistributors(features);
+    List<String> showDistributors = [];
+    showDistributors.addAll(distributors);
+    showDistributors.add(UnifiedPush.noDistribAck);
+    picked = await showDialog<String>(
+      context: context,
+      builder: pickDistributorDialog(showDistributors),
+    );
 
-      if (picked != null) {
-        await saveDistributor(picked);
-      }
+    if (picked != null ) {
+      await saveDistributor(picked);
+      await registerApp(instance = picked, features = features);
     }
 
-    await registerApp(instance = instance, features = features);
+    return picked == null ? picked : getShowTitle(picked);
   }
 
   static Future<void> removeNoDistributorDialogACK() async {
@@ -85,10 +83,8 @@ class UnifiedPush {
     prefs.remove(noDistribAck);
   }
 
-  static Future<void> registerApp(
-      [String instance = defaultInstance, List<String>? features]) async {
-    await OXPush.pushChannel.invokeMethod(
-        pluginEventRegisterApplication, [instance, jsonEncode(features ?? [])]);
+  static Future<void> registerApp([String instance = defaultInstance, List<String>? features]) async {
+    await OXPush.pushChannel.invokeMethod(pluginEventRegisterApplication, [instance, jsonEncode(features ?? [])]);
   }
 
   static Future<void> unregister([String instance = defaultInstance]) async {
@@ -96,8 +92,7 @@ class UnifiedPush {
   }
 
   static Future<List<String>> getDistributors(List<String>? features) async {
-    return (await OXPush.pushChannel
-        .invokeMethod(pluginEventGetDistributors, [jsonEncode(features ?? [])]))
+    return (await OXPush.pushChannel.invokeMethod(pluginEventGetDistributors, [jsonEncode(features ?? [])]))
         .cast<String>();
   }
 
@@ -109,11 +104,8 @@ class UnifiedPush {
     await OXPush.pushChannel.invokeMethod(pluginEventSaveDistributor, [distributor]);
   }
 
-
-  static void Function(String endpoint, String instance)? _onNewEndpoint =
-      (String e, String i) {};
+  static void Function(String endpoint, String instance)? _onNewEndpoint = (String e, String i) {};
   static void Function(String instance)? _onRegistrationFailed = (String i) {};
   static void Function(String instance)? _onUnregistered = (String i) {};
-  static void Function(Uint8List message, String instance)? _onMessage =
-      (Uint8List m, String i) {};
+  static void Function(Uint8List message, String instance)? _onMessage = (Uint8List m, String i) {};
 }

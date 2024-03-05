@@ -8,6 +8,7 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_push/push/local_notification_manager.dart';
 import 'package:ox_push/push/unifiedpush.dart';
 
 class OXPush extends OXFlutterModule {
@@ -28,7 +29,11 @@ class OXPush extends OXFlutterModule {
       pushChannel.setMethodCallHandler(_platformCallHandler);
       OXUserInfoManager.sharedInstance.initDataActions.add(_setNotification);
     } else if (Platform.isAndroid) {
-      UnifiedPush.initialize();
+      LocalNotificationManager.instance;
+      UnifiedPush.initialize(
+          onNewEndpoint: LocalNotificationManager.instance.onNewEndpoint,
+          onMessage: LocalNotificationManager.instance.onMessage);
+      UnifiedPush.initRegisterApp();
     }
   }
 
