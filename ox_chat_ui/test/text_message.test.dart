@@ -44,7 +44,7 @@ void main() {
   //             types.TextMessage(
   //               author: types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
   //               id: 'id',
-  //               previewData: types.PreviewData(
+  //               previewData: PreviewData(
   //                 description: 'Flutter',
   //                 link: 'https://flutter.dev/',
   //                 title: 'Flutter',
@@ -53,7 +53,7 @@ void main() {
   //             ),
   //           ],
   //           onPreviewDataFetched:
-  //               (types.TextMessage message, types.PreviewData previewData) =>
+  //               (types.TextMessage message, PreviewData previewData) =>
   //                   {},
   //           onSendPressed: (types.PartialText message) => {},
   //           user: const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
@@ -118,7 +118,7 @@ void main() {
   //             types.TextMessage(
   //               author: types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c'),
   //               id: 'previewId',
-  //               previewData: types.PreviewData(
+  //               previewData: PreviewData(
   //                 description: 'Flutter',
   //                 link: 'https://flutter.dev/',
   //                 title: 'Flutter',
@@ -128,7 +128,7 @@ void main() {
   //           ],
   //           onSendPressed: (types.PartialText message) => {},
   //           onPreviewDataFetched:
-  //               (types.TextMessage message, types.PreviewData previewData) =>
+  //               (types.TextMessage message, PreviewData previewData) =>
   //                   {},
   //           onMessageVisibilityChanged: (m, visible) {
   //             if (visible) {
