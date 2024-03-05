@@ -62,7 +62,6 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
       ChannelContact(
         key: channelsWidgetKey,
         data: channels,
-        chatType:  ChatType.chatChannel,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
         topWidget: widget.topWidget,

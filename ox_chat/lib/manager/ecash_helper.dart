@@ -93,7 +93,7 @@ class EcashHelper {
     var hasRedeemError = false;
     for (final tokenInfo in unreceivedToken) {
       final token = tokenInfo.token;
-      final response = await Cashu.redeemEcash(token);
+      final response = await Cashu.redeemEcash(ecashString: token);
       if (response.code == ResponseCode.tokenAlreadySpentError) {
         final history = await addReceiptHistoryForToken(token);
         tokenInfo.redeemHistory = history;

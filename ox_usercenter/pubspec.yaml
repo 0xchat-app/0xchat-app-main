@@ -31,6 +31,8 @@ dependencies:
   ox_cache_manager:
     path: ../../base_framework/ox_cache_manager
   waterfall_flow: ^3.0.2
+  ox_push:
+    path: ../../base_framework/ox_push
 
 dev_dependencies:
   flutter_test:

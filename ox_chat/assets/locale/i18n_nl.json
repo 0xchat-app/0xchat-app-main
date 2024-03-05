@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Contacten",
-  "contract_title_channels": "Kanalen",
+  "str_title_contacts": "Contacten",
+  "str_title_channels": "Kanalen",
   "no_contacts_added": "Geen contactpersonen toegevoegd",
   "no_groups_added": "Geen groepen toegevoegd",
   "no_related_users_were_found": "Geen relevante gebruikers gevonden",
@@ -140,7 +140,7 @@
   "group_name_item": "Groepsnaam",
   "group_member": "Leden",
   "group_enter_hint_text": "Voer een groepsnaam in",
-  "contract_title_groups": "Groepen",
+  "str_title_groups": "Groepen",
   "add_member_title": "Leden toevoegen",
   "remove_member_title": "Leden verwijderen",
   "select_chat": "Selecteer een chat",

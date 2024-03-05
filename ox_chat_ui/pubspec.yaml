@@ -6,6 +6,8 @@ version: 1.6.6
 homepage: https://flyer.chat
 repository: https://github.com/flyerhq/flutter_chat_ui
 
+publish_to: none
+
 environment:
   sdk: ">=2.18.0 <3.0.0"
   flutter: ">=2.0.0"
@@ -30,9 +32,9 @@ dependencies:
   syncfusion_flutter_sliders: ^20.4.51
   screenshot: ^2.1.0
   flutter_chat_types:  #Message type template
-    path: ./lib/thirdParty/flutter_chat_types
+    path: ./flutter_chat_types
   flutter_link_previewer:
-    path: ./lib/thirdParty/flutter_link_previewer
+    path: ./flutter_link_previewer
   ox_common:
     path: ../../base_framework/ox_common
   ox_localizable:

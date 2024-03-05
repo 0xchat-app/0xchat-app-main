@@ -22,6 +22,8 @@ dependencies:
   url_launcher: ^6.1.6
   flutter_chat_types: #Message type template
     path: ../flutter_chat_types
+  ox_common:
+    path: ../../../base_framework/ox_common
 
 dev_dependencies:
   dart_code_metrics: ^5.7.6

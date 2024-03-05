@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontaktid",
-  "contract_title_channels": "Kanalid",
+  "str_title_contacts": "Kontaktid",
+  "str_title_channels": "Kanalid",
   "no_contacts_added": "Ühtegi kontakti pole lisatud",
   "no_groups_added": "Ühtegi gruppi pole lisatud",
   "no_related_users_were_found": "Ühtegi seotud kasutajat ei leitud",
@@ -140,7 +140,7 @@
   "group_name_item": "Rühma nimi",
   "group_member": "Liikmed",
   "group_enter_hint_text": "Palun sisestage rühma nimi",
-  "contract_title_groups": "Rühmad",
+  "str_title_groups": "Rühmad",
   "add_member_title": "Lisa liikmeid",
   "remove_member_title": "Eemalda liikmeid",
   "select_chat": "Vali vestlus",

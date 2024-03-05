@@ -22,7 +22,6 @@ typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 
 class ChannelContact extends StatefulWidget {
   final List<ChannelDB> data;
-  final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
@@ -30,7 +29,6 @@ class ChannelContact extends StatefulWidget {
   ChannelContact({
     Key? key,
     required this.data,
-    required this.chatType,
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
@@ -252,7 +250,6 @@ class ChannelContactState extends State<ChannelContact> {
             delegate: new SliverChildBuilderDelegate(
               (context, i) => GroupContactListItem(
                 item: item.childList[i],
-                chatType: widget.chatType,
               ),
               childCount: item.childList.length,
             ),
@@ -327,12 +324,10 @@ class GroupHeaderWidget extends StatelessWidget {
 class GroupContactListItem extends StatefulWidget {
   late ChannelDB item;
   final onCheckChanged;
-  final int chatType;
 
   GroupContactListItem({
     required this.item,
     this.onCheckChanged,
-    required this.chatType,
   });
 
   @override
@@ -343,35 +338,19 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    if (widget.chatType == ChatType.chatGroup) {
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId,
-            groupId: widget.item.channelId,
-            chatType: ChatType.chatGroup,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime,
-            avatar: widget.item.picture!,
-          ),
+    OXNavigator.pushPage(
+      context,
+          (context) => ChatChannelMessagePage(
+        communityItem: ChatSessionModel(
+          chatId: widget.item.channelId,
+          groupId: widget.item.channelId,
+          chatType: ChatType.chatChannel,
+          chatName: widget.item.name!,
+          createTime: widget.item.createTime,
+          avatar: widget.item.picture!,
         ),
-      );
-    } else if (widget.chatType == ChatType.chatChannel) {
-      OXNavigator.pushPage(
-        context,
-        (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: widget.item.channelId,
-            groupId: widget.item.channelId,
-            chatType: ChatType.chatChannel,
-            chatName: widget.item.name!,
-            createTime: widget.item.createTime,
-            avatar: widget.item.picture!,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override

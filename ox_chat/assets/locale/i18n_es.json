@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Contactos",
-  "contract_title_channels": "Canales",
+  "str_title_contacts": "Contactos",
+  "str_title_channels": "Canales",
   "no_contacts_added": "Sin contactos",
   "no_groups_added": "Sin grupos",
   "no_related_users_were_found": "No se encontraron usuarios relevantes",
@@ -140,7 +140,7 @@
   "group_name_item":"Nombre del Grupo",
   "group_member": "Miembros",
   "group_enter_hint_text": "Por favor, ingresa un nombre para el grupo",
-  "contract_title_groups": "Grupos",
+  "str_title_groups": "Grupos",
   "add_member_title": "Añadir miembros",
   "remove_member_title": "Eliminar miembros",
   "select_chat": "Seleccionar un chat",

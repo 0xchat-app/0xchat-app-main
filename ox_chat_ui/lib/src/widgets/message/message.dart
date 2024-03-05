@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -153,7 +154,7 @@ class Message extends StatefulWidget {
   final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
 
   /// See [TextMessage.onPreviewDataFetched].
-  final void Function(types.TextMessage, types.PreviewData)?
+  final void Function(types.TextMessage, PreviewData)?
   onPreviewDataFetched;
 
   final Function(types.AudioMessage)? onAudioDataFetched;

@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "جهات الاتصال",
-  "contract_title_channels": "قنوات",
+  "str_title_contacts": "جهات الاتصال",
+  "str_title_channels": "قنوات",
   "no_contacts_added": "لا يوجد جهات اتصال",
   "no_groups_added": "لا يوجد مجموعات",
   "no_related_users_were_found": "لم يتم العثور على مستخدمين ذات صلة",
@@ -140,7 +140,7 @@
   "group_name_item": "اسم المجموعة",
   "group_member": "الأعضاء",
   "group_enter_hint_text": "يرجى إدخال اسم المجموعة",
-  "contract_title_groups": "المجموعات",
+  "str_title_groups": "المجموعات",
   "add_member_title": "أضف أعضاء",
   "remove_member_title": "أزل الأعضاء",
   "select_chat": "اختر الدردشة",

@@ -403,11 +403,6 @@ class _ContractListItemState extends State<ContractListItem> {
   @override
   Widget build(BuildContext context) {
     Widget iconAvatar = OXUserAvatar(user: widget.item);
-    // if (widget.item.userType == systemUserType) {
-    //   iconAvatar =
-    //       ClipRRect(borderRadius: BorderRadius.circular(76), child: assetIcon('icon_notice_avatar.png', 76, 76));
-    // }
-
     Widget badgePlaceholderImage = CommonImage(
       iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,

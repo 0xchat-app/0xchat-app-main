@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontakter",
-  "contract_title_channels": "Kanaler",
+  "str_title_contacts": "Kontakter",
+  "str_title_channels": "Kanaler",
   "no_contacts_added": "Inga kontakter tillagda",
   "no_groups_added": "Inga grupper tillagda",
   "no_related_users_were_found": "Inga relevanta användare hittades",
@@ -140,7 +140,7 @@
   "group_name_item": "Gruppnamn",
   "group_member": "Medlemmar",
   "group_enter_hint_text": "Ange ett gruppnamn",
-  "contract_title_groups": "Grupper",
+  "str_title_groups": "Grupper",
   "add_member_title": "Lägg till medlemmar",
   "remove_member_title": "Ta bort medlemmar",
   "select_chat": "Välj en chatt",

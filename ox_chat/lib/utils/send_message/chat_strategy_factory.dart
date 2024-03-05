@@ -38,12 +38,7 @@ abstract class ChatStrategy {
 
   String get receiverId => session.chatId;
 
-  String get receiverPubkey =>
-      (session.receiver !=
-              OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
-          ? session.receiver
-          : session.sender) ??
-      '';
+  String get receiverPubkey => session.getOtherPubkey;
 
   Future getSendMessageEvent({
     required MessageType messageType,

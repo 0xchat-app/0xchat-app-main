@@ -8,13 +8,16 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 import '../../models/giphy_image.dart';
 import '../../models/input_clear_mode.dart';
@@ -93,6 +96,7 @@ class Input extends StatefulWidget {
 class InputState extends State<Input>{
 
   final _itemSpacing = Adapt.px(12);
+  bool isAgreeUseGiphy = false;
 
   InputType inputType = InputType.inputTypeDefault;
   late final _inputFocusNode = FocusNode(
@@ -190,8 +194,12 @@ class InputState extends State<Input>{
         widget.options.textEditingController ?? InputTextFieldController();
     _handleSendButtonVisibilityModeChange();
     widget.onFocusNodeInitialized?.call(_inputFocusNode);
+    _getGiphyUseState();
   }
 
+  void _getGiphyUseState() async {
+    isAgreeUseGiphy = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, defaultValue: false);
+  }
 
   Widget getInputWidget(EdgeInsets buttonPadding,EdgeInsetsGeometry textPadding) =>
       Column(
@@ -202,20 +210,78 @@ class InputState extends State<Input>{
         ],
       );
 
+  Widget giphyHintView()=> Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.px),
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12.px)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CommonImage(iconName: 'icon_chat_giphy_hint.png', package: 'ox_chat_ui',),
+          SizedBox(height: 32.px),
+          Text(
+            Localized.text('ox_chat_ui.giphy_use_hint'),
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14.px,
+              color: ThemeColor.titleColor,
+              height: 1.5,
+            ),
+          ),
+          SizedBox(height: 32.px),
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, true);
+              setState(() {
+                isAgreeUseGiphy = true;
+              });
+            },
+            child: Container(
+              width: double.infinity,
+              height: 46.px,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.px),
+                color: ThemeColor.color180,
+                gradient: LinearGradient(
+                  colors: [
+                    ThemeColor.gradientMainEnd,
+                    ThemeColor.gradientMainStart,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                Localized.text('ox_chat_ui.giphy_continue'),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.px,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
 
   Widget getMyMoreView() {
     Widget? contentWidget;
     if (inputType == InputType.inputTypeMore) {
       contentWidget = InputMorePage(items: widget.items,);
     } else if (inputType == InputType.inputTypeEmoji) {
-      contentWidget = GiphyPicker(
+      contentWidget = isAgreeUseGiphy ? GiphyPicker(
           onSelected: (value) {
             if (widget.onGifSend != null) {
               widget.onGifSend!(value);
             }
           },
           textController:_textController
-      );
+      ) : giphyHintView();
     } else if (inputType == InputType.inputTypeVoice){
       contentWidget = InputVoicePage(onPressed: (_path, duration) {
         if(widget.onVoiceSend != null){

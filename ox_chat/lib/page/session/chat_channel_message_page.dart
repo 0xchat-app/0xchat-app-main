@@ -13,6 +13,7 @@ import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -279,7 +280,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
 
   void _handlePreviewDataFetched(
     types.TextMessage message,
-    types.PreviewData previewData,
+    PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (_messages[index] as types.TextMessage).copyWith(

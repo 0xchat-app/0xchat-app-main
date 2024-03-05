@@ -97,11 +97,12 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
   Future<void> _nextStep(BuildContext context) async {
     int balance = _mint?.balance ?? 0;
     int sats = int.parse(amount);
+    String memo = description.isEmpty ? 'Sent via 0xChat.' : description;
     if (balance <= 0 || balance < sats) {
       CommonToast.instance.show(context, 'Insufficient mint balance');
       return;
     }
-    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: description, mint: _mint!,));
+    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: memo, mint: _mint!,));
   }
 
   void _onChanged(IMint mint) {

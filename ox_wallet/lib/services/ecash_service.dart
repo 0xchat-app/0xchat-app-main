@@ -24,7 +24,7 @@ class EcashService {
 
   static Future<CashuResponse<(String memo, int amount)>> redeemEcash(String ecashString) async {
     try {
-      return await Cashu.redeemEcash(ecashString);
+      return await Cashu.redeemEcash(ecashString: ecashString);
     } catch(e, s) {
       final msg = 'Create Lightning Invoice Failed: $e\r\n$s';
       return CashuResponse.fromErrorMsg(msg);

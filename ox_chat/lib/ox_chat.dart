@@ -10,6 +10,7 @@ import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
+import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
@@ -18,6 +19,7 @@ import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -39,6 +41,7 @@ class OXChat extends OXFlutterModule {
       await ChatDataCache.shared.setup();
     });
     OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
+    SchemeHelper.register('shareLinkWithScheme', shareLinkWithScheme);
   }
 
   @override
@@ -103,6 +106,10 @@ class OXChat extends OXFlutterModule {
             groupId: params?['groupId'],
           ),
         );
+      case 'ChatChooseSharePage':
+        return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
+          msg: params?['url'] ?? '',
+        ));
     }
     return null;
   }
@@ -188,5 +195,13 @@ class OXChat extends OXFlutterModule {
 
   void _sendTextMsg(BuildContext context, String chatId, String content) {
     ChatMessageSendEx.sendTextMessageHandler(chatId, content);
+  }
+
+  void shareLinkWithScheme(String scheme, String action, Map<String, String> queryParameters) {
+    final text = queryParameters['text'] ?? '';
+    if (text.isEmpty) return ;
+    OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
+      msg: text,
+    ));
   }
 }

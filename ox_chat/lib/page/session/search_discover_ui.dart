@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:grouped_list/grouped_list.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/channel_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -19,6 +22,58 @@ import 'package:ox_module_service/ox_module_service.dart';
 ///CreateTime: 2023/5/29 10:27
 extension SearchDiscoverUI on SearchPageState{
 
+  void loadOnlineChannelsDataAndClear() async {
+    dataGroups.clear();
+    loadOnlineChannelsData();
+  }
+
+  void loadOnlineChannelsData() async {
+    final requestId = ++lastRequestId;
+    if (searchQuery.startsWith('nevent') ||
+        searchQuery.startsWith('nostr:') ||
+        searchQuery.startsWith('note')) {
+      Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
+      if (map != null && map.containsKey('channelId')) {
+        String decodeNote = map['channelId'].toString();
+        List<ChannelDB> channelDBList = [];
+        ChannelDB? c = Channels.sharedInstance.channels[decodeNote];
+        if (c == null) {
+          channelDBList = await Channels.sharedInstance
+              .getChannelsFromRelay(channelIds: [decodeNote]);
+        } else {
+          channelDBList = [c];
+        }
+        if (channelDBList.isNotEmpty) {
+          dataGroups.add(
+            Group(
+                title: 'Online Channels',
+                type: SearchItemType.channel,
+                items: channelDBList),
+          );
+        }
+      }
+    } else {
+      List<ChannelModel?> channelModels = await getHotChannels(
+          queryCode: searchQuery, context: context, showLoading: false);
+      LogUtil.d('Search Result: ${channelModels.length} ${channelModels}');
+      if (requestId == lastRequestId) {
+        if (channelModels.length > 0) {
+          List<ChannelDB>? tempChannelList =
+          channelModels.map((element) => element!.toChannelDB()).toList();
+          dataGroups.add(
+            Group(
+                title: 'Online Channels',
+                type: SearchItemType.channel,
+                items: tempChannelList),
+          );
+        }
+      }
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   Widget discoverPage(){
     return Scaffold(
@@ -65,7 +120,7 @@ extension SearchDiscoverUI on SearchPageState{
               return ListTile(
                 onTap: () async {
                   if(OXUserInfoManager.sharedInstance.isLogin){
-                    gotoChatGroupSession(item);
+                    gotoChatChannelSession(item);
                   }else{
                     await OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
                   }
@@ -98,7 +153,7 @@ extension SearchDiscoverUI on SearchPageState{
 
   void onDiscoverTextChanged(value) {
     searchQuery = value;
-    loadOnlineChannelsData();
+    loadOnlineChannelsDataAndClear();
   }
 
 

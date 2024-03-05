@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  share_plus: 7.2.1
 
   ox_module_service:
     path: ../../base_framework/ox_module_service/

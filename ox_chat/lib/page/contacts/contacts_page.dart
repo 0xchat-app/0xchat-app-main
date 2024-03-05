@@ -37,9 +37,9 @@ class _ContractsPageState extends State<ContractsPage>
   final PageController _pageController = PageController();
   bool _isShowTools = false;
   final tabItems = [
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_msg')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_groups')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.contract_title_channels')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
+    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
   ];
 
   @override
