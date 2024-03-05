@@ -83,5 +83,6 @@ class Adapt {
 
 extension AdaptEx on num {
   double get px => Adapt.px(this);
+  double get py => Adapt.py(this);
   double get sp => Adapt.sp(this);
 }

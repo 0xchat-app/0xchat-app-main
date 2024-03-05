@@ -5,8 +5,10 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CommonWebViewAppBar(
@@ -133,8 +135,10 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildItem(label: Localized.text('ox_common.webview_more_send_to_chat'),onTap: ()=>_onSendToOther(context), iconName: 'icon_share_browser.png'),
                 _buildItem(label: Localized.text('ox_common.webview_more_browser'),onTap: ()=>_launchURL(context), iconName: 'icon_share_browser.png'),
                 _buildItem(label: Localized.text('ox_common.webview_more_copy'),onTap: ()=>_copyURL(context), iconName: 'icon_share_link.png',),
+                _buildItem(label: Localized.text('ox_common.str_share'),onTap: ()=>_onShare(context), iconName: 'icon_share_link.png',),
               ],
             ),
           ),
@@ -223,6 +227,26 @@ class CommonWebViewAppBar extends StatelessWidget implements PreferredSizeWidget
     if(url != null && url.isNotEmpty) {
       OXNavigator.pop(context);
       TookKit.copyKey(context, url);
+    }
+  }
+
+  void _onSendToOther(BuildContext context) async {
+    WebViewController webViewController = await webViewControllerFuture!;
+    String? url = await webViewController.currentUrl();
+    if(url != null && url.isNotEmpty){
+      OXNavigator.pop(context);
+      OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_chat', 'ChatChooseSharePage', {
+        'url': url,
+      });
+    }
+  }
+
+  void _onShare(BuildContext context) async {
+    WebViewController webViewController = await webViewControllerFuture!;
+    String? url = await webViewController.currentUrl();
+    if(url != null && url.isNotEmpty){
+      OXNavigator.pop(context);
+      Share.share(url);
     }
   }
 }

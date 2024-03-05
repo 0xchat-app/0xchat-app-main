@@ -6,6 +6,7 @@ import 'dart:convert' as convert;
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/network/network_tool.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -45,6 +46,7 @@ extension General on OXNetwork {
     bool needRSA = false,
     bool useCodeHandleProxy = true,
     bool needCommonParams = true,
+    bool needHost = true,
     String? contentType,
     Function(NetworkResponse response)? useCacheCallback,
   }) async {
@@ -76,6 +78,16 @@ extension General on OXNetwork {
       OXLoading.show(status: Localized.text('ox_common.loading'));
     }
     try {
+      if (needHost) {
+        if (url.isNotEmpty) {
+          String? domain = await NetworkTool.instance.getUrlDomain(url);
+          if (domain != null) {
+            if (header == null) header = Map<String, dynamic>();
+            header["host"] = domain;
+            url = await NetworkTool.instance.dnsReplaceIp(url, domain);
+          }
+        }
+      }
       NetworkResponse result = await OXNetwork.instance.request(context,
           url: url,
           header: await getRequestHeaders(params, header),
@@ -293,12 +305,9 @@ extension General on OXNetwork {
       'osType': Platform.isAndroid ? '1' : '2',
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     };
-
     final Map<String, dynamic> allParams = {}
-      ..addAll(params ?? {})
-      ..addAll(headers ?? {});
+      ..addAll(params ?? {});
     allParams.addAll(defaultHeaders);
-
     // Sign
     final keys = allParams.keys.toList()..sort();
     final keyValues = keys.map((key) {
@@ -316,7 +325,7 @@ extension General on OXNetwork {
 
     final Map<String, dynamic> result = {}..addAll(defaultHeaders);
     result['sign'] = sign;
-
+    result..addAll(headers ?? {});
     return result;
   }
 }

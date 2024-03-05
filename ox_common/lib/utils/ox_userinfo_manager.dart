@@ -77,7 +77,7 @@ class OXUserInfoManager {
 
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
-      await CashuManager.shared.setup(pubkey, dbVersion: 1, dbPassword: cashuDBPwd, defaultMint: []);
+      await CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
     }
   }
 
@@ -357,5 +357,13 @@ class OXUserInfoManager {
       }
     }
     return true;
+  }
+
+  void resetHeartBeat(){//eg: backForeground
+    if (isLogin) {
+      Account.sharedInstance.startHeartBeat();
+      NotificationHelper.sharedInstance.startHeartBeat();
+      Connect.sharedInstance.startHeartBeat();
+    }
   }
 }

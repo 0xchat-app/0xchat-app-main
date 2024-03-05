@@ -105,7 +105,6 @@ class OXNetwork {
           'https_proxy': proxyAddress,
         });
       };
-      // client.authenticateProxy = (String host, int port, String scheme, String realm) => Future.value(true);
       client.authenticateProxy = (String host, int port, String scheme, String? realm) => Future.value(true);
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
       return null;

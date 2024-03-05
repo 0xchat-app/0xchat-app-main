@@ -109,5 +109,9 @@
   "webview_more_copy": "Copy Link",
   "open_singer_app_error_title": "Error occurred when opening the signer app",
   "open_singer_app_error_content": "The signer app could not be found. Check if the app hasn't been uninstalled.",
-  "str_grant_permission_photo_hint": "Please grant permission to access the photo"
+  "str_grant_permission_photo_hint": "Please grant permission to access the photo",
+  "webview_more_send_to_chat": "Send to Chat",
+  "str_share": "Share",
+  "str_uses_app": "Uses app ${appname}",
+  "str_disables_push_notification": "Disables Push Notifications"
 }
