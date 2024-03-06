@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
+import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_home/ox_home.dart';
@@ -27,7 +28,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_login/ox_login.dart';
-import 'package:ox_push/ox_push.dart';
+import 'package:ox_push/push_lib.dart';
 import 'package:ox_calling/ox_calling.dart';
 import 'package:ox_chat_project/multi_route_utils.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -51,21 +52,26 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
-  HttpOverrides.global = new MyHttpOverrides(); //ignore all ssl
-  initializeReflectable();
-  WidgetsFlutterBinding.ensureInitialized();
-  await ThemeManager.init();
-  await Localized.init();
-  await setupModules();
-  OXRelayManager.sharedInstance.loadConnectRelay();
-  OXServerManager.sharedInstance.loadConnectICEServer();
-  await OXUserInfoManager.sharedInstance.initLocalData();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
-  getApplicationDocumentsDirectory().then((value) {
-    LogUtil.log(content: '[App start] Application Documents Path: $value');
+  runZonedGuarded(() async{
+    WidgetsFlutterBinding.ensureInitialized();
+    HttpOverrides.global = new MyHttpOverrides(); //ignore all ssl
+    initializeReflectable();
+    await ThemeManager.init();
+    await Localized.init();
+    await setupModules();
+    OXRelayManager.sharedInstance.loadConnectRelay();
+    OXServerManager.sharedInstance.loadConnectICEServer();
+    await OXUserInfoManager.sharedInstance.initLocalData();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      ErrorUtils.logErrorToFile(details.toString());
+    };
+    runApp(MainApp(window.defaultRouteName));
+  }, (error, stackTrace) {
+    ErrorUtils.logErrorToFile(error.toString());
   });
-  runApp(MainApp(window.defaultRouteName));
 }
 
 Future<void> setupModules() async {
