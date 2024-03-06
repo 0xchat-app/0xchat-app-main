@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_push/ox_push.dart';
+import 'package:ox_push/src/ox_push.dart';
 import 'constants.dart';
 import 'dialogs.dart';
 

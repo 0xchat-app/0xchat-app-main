@@ -10,3 +10,9 @@ const pluginEventInitialized = "initialized";
 
 const featureAndroidBytesMessage =
     "org.unifiedpush.android.distributor.feature.BYTES_MESSAGE";
+
+
+//push package name
+const ppnOxchat = 'com.oxchat.nostr';
+const ppnNtfy = 'io.heckel.ntfy';
+const ppnNextPush = 'org.unifiedpush.distributor.nextpush';
