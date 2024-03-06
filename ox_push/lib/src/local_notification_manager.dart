@@ -77,21 +77,25 @@ class LocalNotificationManager {
 
 
   void onMessage(Uint8List message, String instance) async {
-
     int notificationID = 0;
     String showTitle = '';
     String showContent = '';
+    String msgType = '0';
     try {
       String result = utf8.decode(message);
-      if (instance == ppnOxchat) {
-        Map<String, dynamic> jsonMap = json.decode(result);
-        notificationID = jsonMap.hashCode;
-        showTitle = jsonMap['gcm.notification.title'];
-        showContent = jsonMap['gcm.notification.body'];
-      }
+      LogUtil.d("John: LocalNotificationManager--onMessage--result=${result}");
+      Map<String, dynamic> jsonMap = json.decode(result);
+      notificationID = jsonMap.hashCode;
+      showTitle = jsonMap['notification']?['title'] ?? '';
+      showContent = jsonMap['notification']?['body'] ?? 'default';
+      msgType = jsonMap['data']?['msgType'] ?? '0';
+      showLocalNotification(notificationID, showTitle, showContent);
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void showLocalNotification(int notificationID, String showTitle, String showContent) async {
     if (flutterLocalNotificationsPlugin == null) await LocalNotificationManager.instance.initFlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin!.show(
       notificationID,
@@ -106,6 +110,5 @@ class LocalNotificationManager {
         ),
       ),
     );
-
   }
 }
