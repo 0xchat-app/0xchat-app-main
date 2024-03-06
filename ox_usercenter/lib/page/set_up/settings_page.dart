@@ -24,10 +24,11 @@ import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
-import 'package:ox_push/push/unifiedpush.dart';
+import 'package:ox_push/push_lib.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -62,7 +63,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
     _getPackageInfo();
-    pushName = await UnifiedPush.getDistributor() ?? pushName;
+    String? distributor = await UnifiedPush.getDistributor() ;
+    pushName = distributor != null ? getShowTitle(distributor): pushName;
     setState(() {});
   }
 
@@ -107,6 +109,29 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             title: 'ox_usercenter.donate',
             iconName: 'icon_settings_donate.png',
             onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            //TODO show Tor dialog
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'str_tor_orbot_setup'.localized(),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
         SizedBox(height: Adapt.px(24),),
         GestureDetector(
           behavior: HitTestBehavior.translucent,

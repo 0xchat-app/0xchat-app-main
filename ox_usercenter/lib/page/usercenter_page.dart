@@ -17,7 +17,6 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_push/push/unifiedpush.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';

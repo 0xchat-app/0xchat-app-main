@@ -175,5 +175,6 @@
   "str_passcode": "密码",
   "str_create_passcode": "创建您的密码",
   "str_confirm_passcode": "确认您的密码",
-  "str_enter_passcode": "输入您的密码"
+  "str_enter_passcode": "输入您的密码",
+  "str_tor_orbot_setup": "Tor/Orbot 设置"
 }
