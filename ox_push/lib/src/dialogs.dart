@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_push/push/unifiedpush.dart';
+import 'package:ox_push/src/unifiedpush.dart';
+import 'package:ox_push/src/constants.dart';
 
 noDistributorDialog({required Null Function() onDismissed}) {
   return (BuildContext context) {
@@ -72,11 +73,11 @@ pickDistributorDialog(distributors) {
 }
 
 String getShowTitle(String distributor){
-  if (distributor == 'io.heckel.ntfy'){
+  if (distributor == ppnOxchat){
     return 'ntfy';
-  } else if (distributor == 'org.unifiedpush.distributor.nextpush'){
+  } else if (distributor == ppnNextPush){
     return 'NextPush';
-  } else if (distributor == 'com.oxchat.nostr'){
+  } else if (distributor == ppnOxchat){
     return '0xchat';
   } else {
     return Localized.text('ox_common.none');

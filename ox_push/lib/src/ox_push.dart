@@ -8,8 +8,8 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_push/push/local_notification_manager.dart';
-import 'package:ox_push/push/unifiedpush.dart';
+import 'package:ox_push/src/local_notification_manager.dart';
+import 'package:ox_push/src/unifiedpush.dart';
 
 class OXPush extends OXFlutterModule {
 

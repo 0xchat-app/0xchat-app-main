@@ -7,6 +7,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
+import 'package:ox_push/src/constants.dart';
 
 enum PushMsgType{
   call,
@@ -65,11 +66,9 @@ class LocalNotificationManager {
   }
 
   Future<void> onNewEndpoint(String endpoint, String instance) async {
-    LogUtil.d("John: --LocalNotificationManager--OnNewEndpoint----instance =${instance}---endpoint =${endpoint}");
-    if (instance == 'com.oxchat.nostr') {
+    if (instance == ppnOxchat) {
       Uri uri = Uri.parse(endpoint);
       String? fcmToken = uri.queryParameters['token'];
-      LogUtil.d("John: --LocalNotificationManager--OnNewEndpoint----fcmToken =${fcmToken}");
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUSH_TOKEN, fcmToken);
       OXUserInfoManager.sharedInstance.setNotification();
       LogUtil.e('Push: PushToken: $fcmToken');
@@ -78,18 +77,30 @@ class LocalNotificationManager {
 
 
   void onMessage(Uint8List message, String instance) async {
-    String result = '';
+    int notificationID = 0;
+    String showTitle = '';
+    String showContent = '';
+    String msgType = '0';
     try {
-      result = utf8.decode(message);
+      String result = utf8.decode(message);
+      LogUtil.d("John: LocalNotificationManager--onMessage--result=${result}");
+      Map<String, dynamic> jsonMap = json.decode(result);
+      notificationID = jsonMap.hashCode;
+      showTitle = jsonMap['notification']?['title'] ?? '';
+      showContent = jsonMap['notification']?['body'] ?? 'default';
+      msgType = jsonMap['data']?['msgType'] ?? '0';
+      showLocalNotification(notificationID, showTitle, showContent);
     } catch (e) {
       print(e.toString());
     }
-    LogUtil.d("John: --LocalNotificationManager--onMessage----message result=${result}");
+  }
+
+  void showLocalNotification(int notificationID, String showTitle, String showContent) async {
     if (flutterLocalNotificationsPlugin == null) await LocalNotificationManager.instance.initFlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin!.show(
-      0,//notification.hashCode, notificationID
-      'title',
-      'content',
+      notificationID,
+      showTitle,
+      showContent,
       NotificationDetails(
         android: AndroidNotificationDetails(
           channel?.id ?? '',
@@ -99,6 +110,5 @@ class LocalNotificationManager {
         ),
       ),
     );
-
   }
 }
