@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -63,7 +64,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
     _getPackageInfo();
-    String? distributor = await UnifiedPush.getDistributor() ;
+    String? distributor = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME);
     pushName = distributor != null ? getShowTitle(distributor): pushName;
     setState(() {});
   }
