@@ -19,6 +19,7 @@ class StorageKeyTool {
   static const String KEY_CHAT_IMPORT_DB = "KEY_CHAT_IMPORT_DB";
   static const String KEY_IS_CHANGE_DEFAULT_DB_PW = "KEY_IS_CHANGE_DEFAULT_DB_PW";
   static const String KEY_IS_AGREE_USE_GIPHY = "KEY_IS_AGREE_USE_GIPHY";
+  static const String KEY_DISTRIBUTOR_NAME  = "KEY_DISTRIBUTOR_NAME"; // current Distributor
 
 
   static const String APP_DOMAIN_NAME = "APP_DOMAIN_NAME"; //当前domain

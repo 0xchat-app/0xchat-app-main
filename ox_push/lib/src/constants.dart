@@ -16,3 +16,4 @@ const featureAndroidBytesMessage =
 const ppnOxchat = 'com.oxchat.nostr';
 const ppnNtfy = 'io.heckel.ntfy';
 const ppnNextPush = 'org.unifiedpush.distributor.nextpush';
+const ppnConversations = 'eu.siacs.conversations';
