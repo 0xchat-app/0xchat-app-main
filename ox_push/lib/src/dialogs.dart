@@ -73,14 +73,17 @@ pickDistributorDialog(distributors) {
 }
 
 String getShowTitle(String distributor){
-  if (distributor == ppnOxchat){
-    return 'ntfy';
-  } else if (distributor == ppnNextPush){
-    return 'NextPush';
-  } else if (distributor == ppnOxchat){
-    return '0xchat';
-  } else {
-    return Localized.text('ox_common.none');
+  switch (distributor){
+    case ppnNtfy:
+      return 'ntfy';
+    case ppnNextPush:
+      return 'NextPush';
+    case ppnConversations:
+      return 'Conversations';
+    case ppnOxchat:
+      return 'FCM';
+    default:
+      return Localized.text('ox_common.none');
   }
 }
 

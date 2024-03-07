@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+
 import 'package:ox_push/src/ox_push.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'constants.dart';
 import 'dialogs.dart';
 
@@ -25,14 +24,14 @@ class UnifiedPush {
 
     OXPush.pushChannel.setMethodCallHandler(_methodCallHandler);
     await OXPush.pushChannel.invokeMethod(pluginEventInitialized, []);
-    debugPrint("initializeCallback finished");
+    LogUtil.d("initializeCallback finished");
   }
 
   static Future<void> _methodCallHandler(MethodCall call) async {
     final instance = call.arguments["instance"] as String;
     switch (call.method) {
       case "onNewEndpoint":
-        LogUtil.d("John: --_methodCallHandler--OnNewEndpoint----instance =${instance}---endpoint =${call.arguments["endpoint"]}");
+        LogUtil.d("Push: --_methodCallHandler--OnNewEndpoint----instance =${instance}---endpoint =${call.arguments["endpoint"]}");
         _onNewEndpoint?.call(call.arguments["endpoint"], instance);
         break;
       case "onRegistrationFailed":
@@ -42,7 +41,7 @@ class UnifiedPush {
         _onUnregistered?.call(instance);
         break;
       case "onMessage":
-        LogUtil.d("John: --_methodCallHandler--onMessage----message =${call.arguments["message"]}");
+        LogUtil.d("Push: --_methodCallHandler--onMessage----message =${call.arguments["message"]}");
         _onMessage?.call(call.arguments["message"], instance);
         break;
     }
@@ -51,10 +50,13 @@ class UnifiedPush {
   static const noDistribAck = "noDistributorAck";
 
   static Future<void> initRegisterApp([String instance = defaultInstance, List<String>? features]) async {
-    var distributor = await getDistributor();
-    if (distributor != null) {
-      await registerApp(instance = distributor, features = features);
+    var distributor = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME);
+    if (distributor == null){
+      distributor = ppnOxchat;
+      await saveDistributor(distributor);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME, ppnOxchat);
     }
+    await registerApp(instance = distributor, features = features);
   }
 
   static Future<String?> registerAppWithDialog(BuildContext context,
@@ -69,18 +71,13 @@ class UnifiedPush {
       context: context,
       builder: pickDistributorDialog(showDistributors),
     );
-
     if (picked != null ) {
-      await saveDistributor(picked);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME, picked);
+      await saveDistributor(picked); //unable to store fake distributor —— noDistributorAck
       await registerApp(instance = picked, features = features);
     }
 
     return picked == null ? picked : getShowTitle(picked);
-  }
-
-  static Future<void> removeNoDistributorDialogACK() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(noDistribAck);
   }
 
   static Future<void> registerApp([String instance = defaultInstance, List<String>? features]) async {

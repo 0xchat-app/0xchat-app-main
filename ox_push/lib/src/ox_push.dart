@@ -30,7 +30,7 @@ class OXPush extends OXFlutterModule {
       OXUserInfoManager.sharedInstance.initDataActions.add(_setNotification);
     } else if (Platform.isAndroid) {
       LocalNotificationManager.instance;
-      UnifiedPush.initialize(
+      await UnifiedPush.initialize(
           onNewEndpoint: LocalNotificationManager.instance.onNewEndpoint,
           onMessage: LocalNotificationManager.instance.onMessage);
       UnifiedPush.initRegisterApp();
