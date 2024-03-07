@@ -66,7 +66,7 @@ import ox_push
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let deviceTokenStr = deviceToken.map { String(format: "%02.2hhx", arguments: [$0]) }.joined()
         print(deviceTokenStr)
-        OXPushPlugin.channel()?.invokeMethod("savePushToken", arguments: deviceTokenStr)
+        OXPushPlugin.channel?.invokeMethod("savePushToken", arguments: deviceTokenStr)
     }
     
     override func applicationDidBecomeActive(_ application: UIApplication) {
