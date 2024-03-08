@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "รายชื่อผู้ติดต่อ",
-  "contract_title_channels": "ช่อง",
+  "str_title_contacts": "รายชื่อผู้ติดต่อ",
+  "str_title_channels": "ช่อง",
   "no_contacts_added": "ไม่มีผู้ติดต่อที่ถูกเพิ่ม",
   "no_groups_added": "ไม่มีกลุ่มที่ถูกเพิ่ม",
   "no_related_users_were_found": "ไม่พบผู้ใช้ที่เกี่ยวข้อง",
@@ -140,7 +140,7 @@
   "group_name_item": "ชื่อกลุ่ม",
   "group_member": "สมาชิก",
   "group_enter_hint_text": "กรุณาใส่ชื่อกลุ่ม",
-  "contract_title_groups": "กลุ่ม",
+  "str_title_groups": "กลุ่ม",
   "add_member_title": "เพิ่มสมาชิก",
   "remove_member_title": "ลบสมาชิก",
   "select_chat": "เลือกแชท",

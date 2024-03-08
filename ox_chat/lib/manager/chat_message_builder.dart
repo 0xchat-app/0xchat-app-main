@@ -178,6 +178,7 @@ class ChatMessageBuilder {
           imageUrl: icon,
           height: 48.px,
           width: 48.px,
+          fit: BoxFit.cover,
         ).setPadding(EdgeInsets.only(left: 10.px));
       }
       else {

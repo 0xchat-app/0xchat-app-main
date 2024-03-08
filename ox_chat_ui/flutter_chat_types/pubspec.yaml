@@ -6,6 +6,8 @@ version: 0.0.1
 homepage: https://flyer.chat
 repository: https://github.com/flyerhq/flutter_chat_types
 
+publish_to: none
+
 environment:
   sdk: '>=2.18.0 <3.0.0'
   flutter: ">=2.0.0"
@@ -15,7 +17,7 @@ dependencies:
   json_annotation: ^4.8.0
   meta: ^1.8.0
   chatcore:
-    path: ../../../../../0xchat-core
+    path: ../../../0xchat-core
 
 dev_dependencies:
   build_runner: ^2.3.2

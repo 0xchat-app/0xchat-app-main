@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Əlaqələr",
-  "contract_title_channels": "Kanallar",
+  "str_title_contacts": "Əlaqələr",
+  "str_title_channels": "Kanallar",
   "no_contacts_added": "Heç bir əlaqə əlavə edilməyib",
   "no_groups_added": "Heç bir qrup əlavə edilməyib",
   "no_related_users_were_found": "Əlaqəli istifadəçi tapılmadı",
@@ -140,7 +140,7 @@
   "group_name_item": "Qrup Adı",
   "group_member": "Üzvlər",
   "group_enter_hint_text": "Zəhmət olmasa Qrup Adı daxil edin",
-  "contract_title_groups": "Qruplar",
+  "str_title_groups": "Qruplar",
   "add_member_title": "Üzvlər əlavə et",
   "remove_member_title": "Üzvləri çıxar",
   "select_chat": "Söhbəti seçin",

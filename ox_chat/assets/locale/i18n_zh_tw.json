@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "聯絡人",
-  "contract_title_channels": "頻道",
+  "str_title_contacts": "聯絡人",
+  "str_title_channels": "頻道",
   "no_contacts_added": "未添加聯絡人",
   "no_groups_added": "未添加群組",
   "no_related_users_were_found": "未找到相關用戶",
@@ -140,7 +140,7 @@
   "group_name_item": "群組名稱",
   "group_member": "成員",
   "group_enter_hint_text": "請輸入群組名稱",
-  "contract_title_groups": "群組",
+  "str_title_groups": "群組",
   "add_member_title": "添加成員",
   "remove_member_title": "移除成員",
   "select_chat": "選擇聊天",

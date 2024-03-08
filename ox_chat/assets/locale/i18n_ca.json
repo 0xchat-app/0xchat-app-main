@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Contactes",
-  "contract_title_channels": "Canals",
+  "str_title_contacts": "Contactes",
+  "str_title_channels": "Canals",
   "no_contacts_added": "No s'ha afegit cap contacte",
   "no_groups_added": "No s'ha afegit cap grup",
   "no_related_users_were_found": "No s'ha trobat cap usuari rellevant",
@@ -140,7 +140,7 @@
   "group_name_item": "Nom del Grup",
   "group_member": "Membres",
   "group_enter_hint_text": "Si us plau, introdueix un nom per al grup",
-  "contract_title_groups": "Grups",
+  "str_title_groups": "Grups",
   "add_member_title": "Afegeix membres",
   "remove_member_title": "Elimina membres",
   "select_chat": "Selecciona un xat",

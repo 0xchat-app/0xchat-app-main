@@ -217,9 +217,7 @@ class ChatDataCache with OXChatObserver {
   Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message, bool isLocal) async {
 
     final sessionId = session.chatId;
-    final receiverPubkey = session.receiver != OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey
-        ? session.receiver
-        : session.sender;
+    final receiverPubkey = session.getOtherPubkey;
 
     // send message
     var sendFinish = OXValue(false);

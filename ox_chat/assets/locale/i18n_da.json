@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontakter",
-  "contract_title_channels": "Kanaler",
+  "str_title_contacts": "Kontakter",
+  "str_title_channels": "Kanaler",
   "no_contacts_added": "Ingen kontakt tilføjet",
   "no_groups_added": "Ingen gruppe tilføjet",
   "no_related_users_were_found": "Ingen relevant bruger blev fundet",
@@ -140,7 +140,7 @@
   "group_name_item": "Gruppenavn",
   "group_member": "Medlemmer",
   "group_enter_hint_text": "Indtast venligst et gruppenavn",
-  "contract_title_groups": "Grupper",
+  "str_title_groups": "Grupper",
   "add_member_title": "Tilføj medlemmer",
   "remove_member_title": "Fjern medlemmer",
   "select_chat": "Vælg en chat",

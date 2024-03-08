@@ -15,7 +15,7 @@ class ChatSendInvitedTemplateHelper {
 
     String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupPic':groupPic,'groupName':groupName,'groupId': groupId,'inviterPubKey':inviterPubKey,'groupOwner':groupOwner});
     selectedUserList.forEach((element) {
-      ChatMessageSendEx.sendTemplatePrivateMessage(
+      ChatMessageSendEx.sendTemplateMessage(
         receiverPubkey: element.pubKey,
         icon: 'icon_group_default.png',
         title: 'Group Chat Invitation',

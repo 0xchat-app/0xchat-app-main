@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:photo_view/photo_view.dart' show PhotoViewComputedScale;
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -304,7 +305,7 @@ class Chat extends StatefulWidget {
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
 
   /// See [Message.onPreviewDataFetched].
-  final void Function(types.TextMessage, types.PreviewData)?
+  final void Function(types.TextMessage, PreviewData)?
       onPreviewDataFetched;
 
   final Function(types.AudioMessage)? onAudioDataFetched;
@@ -848,7 +849,7 @@ class ChatState extends State<Chat> {
 
     void _onPreviewDataFetched(
         types.TextMessage message,
-        types.PreviewData previewData,
+        PreviewData previewData,
         ) {
       widget.onPreviewDataFetched?.call(message, previewData);
     }

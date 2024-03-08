@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Kontak",
-  "contract_title_channels": "Saluran",
+  "str_title_contacts": "Kontak",
+  "str_title_channels": "Saluran",
   "no_contacts_added": "Tidak ada kontak yang ditambahkan",
   "no_groups_added": "Tidak ada grup yang ditambahkan",
   "no_related_users_were_found": "Tidak ada pengguna terkait yang ditemukan",
@@ -140,7 +140,7 @@
   "group_name_item": "Nama Grup",
   "group_member": "Anggota",
   "group_enter_hint_text": "Harap Masukkan Nama Grup",
-  "contract_title_groups": "Grup",
+  "str_title_groups": "Grup",
   "add_member_title": "Tambah anggota",
   "remove_member_title": "Hapus anggota",
   "select_chat": "Pilih obrolan",

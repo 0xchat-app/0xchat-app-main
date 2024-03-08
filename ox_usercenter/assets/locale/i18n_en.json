@@ -175,5 +175,6 @@
   "str_passcode": "Passcode",
   "str_create_passcode": "Create your Passcode",
   "str_confirm_passcode": "Confirm your Passcode",
-  "str_enter_passcode": "Enter your Passcode"
+  "str_enter_passcode": "Enter your Passcode",
+  "str_tor_orbot_setup": "Tor/Orbot setup"
 }

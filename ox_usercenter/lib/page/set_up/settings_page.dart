@@ -24,9 +24,11 @@ import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_push/push_lib.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -44,20 +46,26 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
-
-  Future<bool>? _isShowZapBadge;
-
+  bool _isShowZapBadge = false;
+  String pushName = 'Push Picker';
   final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
   @override
   void initState() {
     super.initState();
     OXChatBinding.sharedInstance.addObserver(this);
-    _isShowZapBadge = _getZapBadge();
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
-    _getPackageInfo();
+    _loadData();
+  }
+
+  void _loadData() async {
     _settingModelList = SettingModel.getItemData(_settingModelList);
+    _isShowZapBadge = _getZapBadge();
+    _getPackageInfo();
+    String? distributor = await UnifiedPush.getDistributor() ;
+    pushName = distributor != null ? getShowTitle(distributor): pushName;
+    setState(() {});
   }
 
   @override
@@ -75,12 +83,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           title: 'ox_usercenter.wallet',
           iconName: 'icon_settings_wallet.png',
           onTap: () async {
-            final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
-            if (isWalletAvailable) {
-              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletHomePage', {});
-            } else {
-              await OXModuleService.pushPage(context, 'ox_wallet', 'WalletPage', {});
-            }
+            OXWalletInterface.openWalletHomePage();
           },
         ),
         SizedBox(
@@ -106,6 +109,53 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             title: 'ox_usercenter.donate',
             iconName: 'icon_settings_donate.png',
             onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            //TODO show Tor dialog
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'str_tor_orbot_setup'.localized(),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            pushName = await UnifiedPush.registerAppWithDialog(context) ?? 'Push Picker';
+            setState(() {});
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              pushName,
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
         SizedBox(height: Adapt.px(24),),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -180,29 +230,23 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
                 fontSize: Adapt.px(16),
               ),
             ),
-              trailing: FutureBuilder(
-                future: _getZapBadge(),
-                builder: (context,snapshot) {
-                  final isShowZapBadge = snapshot.data ?? false;
-                    return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      isShowZapBadge ? badge ?? Container() : Container(),
-                      Text(
-                        rightContent,
-                        style: TextStyle(
-                          color: ThemeColor.color100,
-                          fontSize: Adapt.px(16),
-                        ),
-                      ),
-                      showArrow ? CommonImage(
-                        iconName: 'icon_arrow_more.png',
-                        width: Adapt.px(24),
-                        height: Adapt.px(24),
-                      ) : Container(),
-                    ],
-                  );
-                }
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _isShowZapBadge ? badge ?? Container() : Container(),
+                  Text(
+                    rightContent,
+                    style: TextStyle(
+                      color: ThemeColor.color100,
+                      fontSize: Adapt.px(16),
+                    ),
+                  ),
+                  showArrow ? CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ) : Container(),
+                ],
               )),
         ),
         showDivider
@@ -311,7 +355,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     OXChatBinding.sharedInstance.removeObserver(this);
   }
 
-  Future<bool> _getZapBadge() async {
+  bool _getZapBadge() {
     return OXChatBinding.sharedInstance.isZapBadge;
   }
 

@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "コンタクト",
-  "contract_title_channels": "チャンネル",
+  "str_title_contacts": "コンタクト",
+  "str_title_channels": "チャンネル",
   "no_contacts_added": "コンタクトなし",
   "no_groups_added": "グループなし",
   "no_related_users_were_found": "関連するユーザーが見つかりません",
@@ -140,7 +140,7 @@
   "group_name_item":"グループ名",
   "group_member": "メンバー",
   "group_enter_hint_text": "グループ名を入力してください",
-  "contract_title_groups": "グループ",
+  "str_title_groups": "グループ",
   "add_member_title": "メンバーを追加",
   "remove_member_title": "メンバーを削除",
   "select_chat": "チャットを選択",

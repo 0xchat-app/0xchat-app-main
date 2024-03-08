@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Контакти",
-  "contract_title_channels": "Канали",
+  "str_title_contacts": "Контакти",
+  "str_title_channels": "Канали",
   "no_contacts_added": "Няма добавени контакти",
   "no_groups_added": "Няма добавени групи",
   "no_related_users_were_found": "Не бяха намерени свързани потребители",
@@ -140,7 +140,7 @@
   "group_name_item": "Име на групата",
   "group_member": "Членове",
   "group_enter_hint_text": "Моля, въведете име на групата",
-  "contract_title_groups": "Групи",
+  "str_title_groups": "Групи",
   "add_member_title": "Добавете членове",
   "remove_member_title": "Премахнете членове",
   "select_chat": "Изберете чат",

@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Danh bạ",
-  "contract_title_channels": "Kênh",
+  "str_title_contacts": "Danh bạ",
+  "str_title_channels": "Kênh",
   "no_contacts_added": "Không có liên hệ",
   "no_groups_added": "Không có nhóm",
   "no_related_users_were_found": "Không tìm thấy người dùng liên quan",
@@ -140,7 +140,7 @@
   "group_name_item": "Tên nhóm",
   "group_member": "Thành viên",
   "group_enter_hint_text": "Vui lòng nhập tên nhóm",
-  "contract_title_groups": "Nhóm",
+  "str_title_groups": "Nhóm",
   "add_member_title": "Thêm thành viên",
   "remove_member_title": "Xóa thành viên",
   "select_chat": "Chọn cuộc trò chuyện",

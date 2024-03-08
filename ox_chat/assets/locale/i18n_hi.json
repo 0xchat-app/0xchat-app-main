@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "संपर्क",
-  "contract_title_channels": "चैनल्स",
+  "str_title_contacts": "संपर्क",
+  "str_title_channels": "चैनल्स",
   "no_contacts_added": "कोई संपर्क नहीं जोड़ा गया",
   "no_groups_added": "कोई समूह नहीं जोड़ा गया",
   "no_related_users_were_found": "कोई संबंधित उपयोगकर्ता नहीं मिला",
@@ -140,7 +140,7 @@
   "group_name_item": "समूह का नाम",
   "group_member": "सदस्य",
   "group_enter_hint_text": "कृपया समूह का नाम दर्ज करें",
-  "contract_title_groups": "समूह",
+  "str_title_groups": "समूह",
   "add_member_title": "सदस्य जोड़ें",
   "remove_member_title": "सदस्य हटाएं",
   "select_chat": "चैट चुनें",

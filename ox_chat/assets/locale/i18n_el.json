@@ -1,6 +1,6 @@
 {
-  "contract_title_msg": "Επαφές",
-  "contract_title_channels": "Κανάλια",
+  "str_title_contacts": "Επαφές",
+  "str_title_channels": "Κανάλια",
   "no_contacts_added": "Δεν έχουν προστεθεί επαφές",
   "no_groups_added": "Δεν έχουν προστεθεί ομάδες",
   "no_related_users_were_found": "Δεν βρέθηκαν σχετικοί χρήστες",
@@ -140,7 +140,7 @@
   "group_name_item": "Όνομα Ομάδας",
   "group_member": "Μέλη",
   "group_enter_hint_text": "Παρακαλώ εισάγετε όνομα ομάδας",
-  "contract_title_groups": "Ομάδες",
+  "str_title_groups": "Ομάδες",
   "add_member_title": "Προσθήκη μελών",
   "remove_member_title": "Αφαίρεση μελών",
   "select_chat": "Επιλέξτε συνομιλία",
