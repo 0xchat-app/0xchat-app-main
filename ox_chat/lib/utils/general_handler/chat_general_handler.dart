@@ -7,6 +7,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/page/contacts/user_list_page.dart';
+import 'package:ox_chat/page/ecash/ecash_condition.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
 import 'package:ox_chat/page/ecash/ecash_sending_page.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
@@ -126,7 +128,7 @@ class ChatGeneralHandler {
     if (userListGetter == null) return ;
 
     final mentionHandler = ChatMentionHandler();
-    userListGetter(session).then((userList) {
+    userListGetter().then((userList) {
       mentionHandler.allUser = userList;
     });
     mentionHandler.inputController = inputController;
@@ -229,6 +231,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
           noteMessagePressHandler(context, message);
           break;
         case CustomMessageType.ecash:
+        case CustomMessageType.ecashV2:
           ecashMessagePressHandler(context, message);
           break;
         default:
@@ -317,7 +320,49 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   void ecashMessagePressHandler(BuildContext context, types.CustomMessage message) async {
     if (!OXWalletInterface.checkWalletActivate()) return ;
     final package = await EcashHelper.createPackageFromMessage(message);
-    EcashOpenDialog.show(context, package);
+    EcashOpenDialog.show(
+      context: context,
+      package: package,
+      approveOnTap: () async {
+        if (message.customType != CustomMessageType.ecashV2) return ;
+
+        await Future.wait([
+          ecashApproveHandler(context, message),
+          Future.delayed(const Duration(seconds: 1)),
+        ]);
+
+        OXNavigator.pop(context);
+      },
+    );
+  }
+
+  Future ecashApproveHandler(BuildContext context, types.CustomMessage message) async {
+    final tokenList = EcashV2MessageEx(message).tokenList;
+    final signatureTokenList = <String>[];
+    for (var token in tokenList) {
+      final newToken = await EcashHelper.addSignatureToToken(token);
+      if (newToken.isEmpty) {
+        CommonToast.instance.show(context, 'Signature failure');
+        return ;
+      }
+      signatureTokenList.add(newToken);
+    }
+
+    final signees = <EcashSignee>[];
+    EcashV2MessageEx(message).signees.forEach((signee) {
+      if (OXUserInfoManager.sharedInstance.isCurrentUser(signee.$1)) {
+        signees.add((signee.$1, 'finished'));
+      } else {
+        signees.add(signee);
+      }
+    });
+
+    sendEcashMessage(
+      context,
+      tokenList: signatureTokenList,
+      receiverPubkeys: EcashV2MessageEx(message).receiverPubkeys,
+      signees: signees,
+    );
   }
 }
 
@@ -478,19 +523,41 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     }),
     );
   }
-
   Future ecashPressHandler(BuildContext context) async {
     if (!OXWalletInterface.checkWalletActivate()) return ;
     await OXNavigator.presentPage<Map<String, String>>(
-      context, (_) => EcashSendingPage(isGroupEcash: session.hasMultipleUsers, ecashInfoCallback: (tokenList) async {
-        if (tokenList.isEmpty) return ;
-        if (tokenList.length == 1) {
-          await sendTextMessage(context, tokenList.first);
-        } else {
-          sendEcashMessage(context, tokenList);
-        }
-        OXNavigator.pop(context);
-      }),
+      context, (_) =>
+        EcashSendingPage(
+          isGroupEcash: session.hasMultipleUsers,
+          singleReceiver: !session.hasMultipleUsers ? otherUser : null,
+          membersGetter: () async {
+            final getter = session.userListGetter;
+            return getter?.call();
+          },
+          ecashInfoCallback: (ecash) async {
+            final (
+              List<String> tokenList,
+              List<String> receiverPubkeys,
+              List<String> signeePubkeys,
+              _,
+            ) = ecash;
+            if (tokenList.isEmpty) return ;
+
+            if (tokenList.length == 1 && receiverPubkeys.isEmpty && signeePubkeys.isEmpty) {
+              await sendTextMessage(context, tokenList.first);
+            } else {
+              sendEcashMessage(
+                context,
+                tokenList: tokenList,
+                receiverPubkeys: receiverPubkeys,
+                signees: signeePubkeys.map((pubkey) {
+                  return (pubkey, '');
+                }).toList(),
+              );
+            }
+            OXNavigator.pop(context);
+          },
+        ),
     );
   }
 

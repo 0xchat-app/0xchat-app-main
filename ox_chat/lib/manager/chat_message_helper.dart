@@ -110,6 +110,7 @@ class ChatMessageDBToUIHelper {
                   }
                   break ;
                 case CustomMessageType.ecash:
+                case CustomMessageType.ecashV2:
                   var memo = '';
                   try {
                     memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
@@ -276,7 +277,7 @@ extension MessageDBToUIEx on MessageDB {
         } else if (Cashu.isCashuToken(initialText)) {
           messageFactory = CustomMessageFactory();
           this.type = 'template';
-          this.decryptContent = jsonEncode(CustomMessageEx.ecashMetaData(tokenList: [initialText]));
+          this.decryptContent = jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText]));
           contentModel.content = this.decryptContent;
           await DB.sharedInstance.update(this);
         }

@@ -1,14 +1,19 @@
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
+import 'package:ox_common/utils/future_extension.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -65,6 +70,8 @@ class ChatMessageBuilder {
         return _buildNoteMessage(message, isMe);
       case CustomMessageType.ecash:
         return _buildEcashMessage(message, isMe);
+      case CustomMessageType.ecashV2:
+        return _buildEcashV2Message(message, isMe);
       default:
         return SizedBox();
     }
@@ -405,6 +412,105 @@ class ChatMessageBuilder {
                           color: ThemeColor.white,
                           fontSize: 12.sp,
                           height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ))
+              ],
+            )),
+            Container(
+              color: ThemeColor.white.withOpacity(0.5),
+              height: 0.5,
+            ),
+            Container(
+              height: Adapt.px(25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Cashu Ecash',
+                    style: TextStyle(color: ThemeColor.white, fontSize: 12),),
+                  CommonImage(iconName: 'icon_zaps_0xchat.png',
+                    package: 'ox_chat',
+                    size: Adapt.px(16),)
+                ],
+              ),
+            )
+          ],
+        ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(10))),
+      ),
+    );
+  }
+
+  static Widget _buildEcashV2Message(types.CustomMessage message, bool isMe) {
+    final description = EcashV2MessageEx(message).description;
+    final isOpened = EcashV2MessageEx(message).isOpened;
+    final receivers = EcashV2MessageEx(message).receiverPubkeys
+        .map((pubkey) => Account.sharedInstance.getUserInfo(pubkey))
+        .where((user) => user is UserDB)
+        .toList()
+        .cast<UserDB>();
+    final signees = EcashV2MessageEx(message).signees;
+
+    var subTitle = '';
+    if (isOpened) {
+      subTitle = 'Redeemed';
+    } else if (signees.isNotEmpty && signees.any((signee) => signee.$2.isEmpty)) {
+      subTitle = 'Waiting for multi-signature';
+    } else if (receivers.isNotEmpty) {
+      final userNames = EcashHelper.userListText(receivers, showUserCount: 1,);
+      subTitle = '''$userNames's exclusive Ecash''';
+    }
+
+    return Opacity(
+      opacity: isOpened ? 0.5 : 1,
+      child: Container(
+        width: Adapt.px(240),
+        height: Adapt.px(86),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(child: Row(
+              children: [
+                CommonImage(
+                  iconName: 'icon_cashu_logo.png',
+                  package: 'ox_chat',
+                  size: Adapt.px(32),
+                ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
+                Expanded(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: ThemeColor.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                    ),
+                    Visibility(
+                      visible: subTitle.isNotEmpty,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subTitle,
+                          maxLines: 2,
+                          style: TextStyle(
+                            color: ThemeColor.white,
+                            fontSize: 12.sp,
+                            height: 1.4,
+                          ),
                         ),
                       ),
                     ),

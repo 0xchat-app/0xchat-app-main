@@ -406,8 +406,10 @@ class CustomMessageFactory implements MessageFactory {
 
         case CustomMessageType.ecash:
           try {
-            final tokenList = (content['tokenList'] as List).map((e) => e.toString()).toList();
-            final isOpened = content['isOpened'];
+            final tokenList = (content[EcashMessageEx.metaTokenListKey] as List)
+                .map((e) => e.toString())
+                .toList();
+            final isOpened = content[EcashMessageEx.metaIsOpenedKey] ?? '';
             return createEcashMessage(
               author: author,
               timestamp: timestamp,
@@ -423,6 +425,44 @@ class CustomMessageFactory implements MessageFactory {
             print(e);
             return null;
           }
+
+        case CustomMessageType.ecashV2:
+          try {
+            final tokenListRaw = content[EcashV2MessageEx.metaTokenListKey];
+            List<String> tokenList = [];
+            if (tokenListRaw is List) {
+              tokenList = tokenListRaw
+                  .map((e) => e.toString())
+                  .toList();
+            }
+
+            final receiverPubkeysRaw = content[EcashV2MessageEx.metaReceiverPubkeysKey];
+            List<String> receiverPubkeys = [];
+            if (receiverPubkeysRaw is List) {
+              receiverPubkeys = receiverPubkeysRaw
+                  .map((e) => e.toString())
+                  .toList();
+            }
+            return createEcashMessage(
+              author: author,
+              timestamp: timestamp,
+              roomId: roomId,
+              id: remoteId,
+              remoteId: remoteId,
+              sourceKey: sourceKey,
+              tokenList: tokenList,
+              receiverPubkeys: receiverPubkeys,
+              signees: EcashV2MessageEx.getSigneesWithMetadata(contentMap),
+              validityDate: content[EcashV2MessageEx.metaValidityDateKey] ?? '',
+              isOpened: content[EcashV2MessageEx.metaIsOpenedKey] ?? '',
+              expiration: expiration,
+            );
+          } catch (e, stack) {
+            print(e);
+            print(stack);
+            return null;
+          }
+
         default:
           return null;
       }
@@ -458,6 +498,7 @@ class CustomMessageFactory implements MessageFactory {
         description: description,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
     );
   }
 
@@ -488,6 +529,7 @@ class CustomMessageFactory implements MessageFactory {
         link: link,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
     );
   }
 
@@ -524,6 +566,7 @@ class CustomMessageFactory implements MessageFactory {
         link: link,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
     );
   }
 
@@ -535,6 +578,9 @@ class CustomMessageFactory implements MessageFactory {
     String? remoteId,
     dynamic sourceKey,
     required List<String> tokenList,
+    List<String> receiverPubkeys = const [],
+    List<EcashSignee> signees = const [],
+    String validityDate = '',
     String isOpened = '',
     int? expiration,
   }) {
@@ -545,11 +591,15 @@ class CustomMessageFactory implements MessageFactory {
       sourceKey: sourceKey,
       remoteId: remoteId,
       roomId: roomId,
-      metadata: CustomMessageEx.ecashMetaData(
+      metadata: CustomMessageEx.ecashV2MetaData(
         tokenList: tokenList,
+        receiverPubkeys: receiverPubkeys,
+        signees: signees,
+        validityDate: validityDate,
         isOpened: isOpened,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
     );
   }
 }

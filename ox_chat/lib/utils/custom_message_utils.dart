@@ -6,8 +6,12 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 
 extension CustomMessageEx on types.CustomMessage {
+
+  static const metaTypeKey = 'type';
+  static const metaContentKey = 'content';
+
   CustomMessageType? get customType =>
-      CustomMessageTypeEx.fromValue(metadata?['type']);
+      CustomMessageTypeEx.fromValue(metadata?[CustomMessageEx.metaTypeKey]);
 
   static Map<String, dynamic> zapsMetaData({
     required String zapper,
@@ -16,8 +20,8 @@ extension CustomMessageEx on types.CustomMessage {
     required String description,
   }) {
     return {
-      'type': CustomMessageType.zaps.value,
-      'content': {
+      CustomMessageEx.metaTypeKey: CustomMessageType.zaps.value,
+      CustomMessageEx.metaContentKey: {
         'zapper': zapper,
         'invoice': invoice,
         'amount': amount,
@@ -31,8 +35,8 @@ extension CustomMessageEx on types.CustomMessage {
     required CallMessageType type,
   }) {
     return {
-      'type': CustomMessageType.call.value,
-      'content': {
+      CustomMessageEx.metaTypeKey: CustomMessageType.call.value,
+      CustomMessageEx.metaContentKey: {
         'text': text,
         'type': type.value,
       },
@@ -46,8 +50,8 @@ extension CustomMessageEx on types.CustomMessage {
     required String link,
   }) {
     return {
-      'type': CustomMessageType.template.value,
-      'content': {
+      CustomMessageEx.metaTypeKey: CustomMessageType.template.value,
+      CustomMessageEx.metaContentKey: {
         'title': title,
         'content': content,
         'icon': icon,
@@ -66,8 +70,8 @@ extension CustomMessageEx on types.CustomMessage {
     required String link,
   }) {
     return {
-      'type': CustomMessageType.note.value,
-      'content': {
+      CustomMessageEx.metaTypeKey: CustomMessageType.note.value,
+      CustomMessageEx.metaContentKey: {
         'authorIcon': authorIcon,
         'authorName': authorName,
         'authorDNS': authorDNS,
@@ -84,13 +88,40 @@ extension CustomMessageEx on types.CustomMessage {
     String isOpened = '',
   }) {
     return {
-      'type': CustomMessageType.ecash.value,
-      'content': {
-        'tokenList': tokenList,
-        'isOpened': isOpened,
+      CustomMessageEx.metaTypeKey: CustomMessageType.ecash.value,
+      CustomMessageEx.metaContentKey: {
+        EcashMessageEx.metaTokenListKey: tokenList,
+        EcashMessageEx.metaIsOpenedKey: isOpened,
       },
     };
   }
+
+  static Map<String, dynamic> ecashV2MetaData({
+    required List<String> tokenList,
+    List<String> receiverPubkeys = const [],
+    List<EcashSignee> signees = const [],
+    String validityDate = '',
+    String isOpened = '',
+  }) {
+    return {
+      CustomMessageEx.metaTypeKey: CustomMessageType.ecashV2.value,
+      CustomMessageEx.metaContentKey: {
+        EcashV2MessageEx.metaTokenListKey: tokenList,
+        EcashV2MessageEx.metaIsOpenedKey: isOpened,
+        if (receiverPubkeys.isNotEmpty)
+          EcashV2MessageEx.metaReceiverPubkeysKey: receiverPubkeys,
+        if (signees.isNotEmpty)
+          EcashV2MessageEx.metaSigneesKey: signees.map((e) => {
+            EcashV2MessageEx.metaSigneesPubkeyKey: e.$1,
+            EcashV2MessageEx.metaSigneesSignatureKey: e.$2,
+          }).toList(),
+        if (validityDate.isNotEmpty)
+          EcashV2MessageEx.metaValidityDateKey: validityDate,
+      },
+    };
+  }
+
+
 
   String get customContentString {
     try {
@@ -102,35 +133,56 @@ extension CustomMessageEx on types.CustomMessage {
 }
 
 extension ZapsMessageEx on types.CustomMessage {
-  String get zapper => metadata?['content']?['zapper'] ?? '';
-  String get invoice => metadata?['content']?['invoice'] ?? '';
-  int get amount => int.tryParse(metadata?['content']?['amount'] ?? '') ?? 0;
-  String get description => metadata?['content']?['description'] ?? '';
+  String get zapper => metadata?[CustomMessageEx.metaContentKey]?['zapper'] ?? '';
+  String get invoice => metadata?[CustomMessageEx.metaContentKey]?['invoice'] ?? '';
+  int get amount => int.tryParse(metadata?[CustomMessageEx.metaContentKey]?['amount'] ?? '') ?? 0;
+  String get description => metadata?[CustomMessageEx.metaContentKey]?['description'] ?? '';
 }
 
 extension CallMessageEx on types.CustomMessage {
-  String get callText => metadata?['content']?['text'] ?? '';
-  CallMessageType? get callType => CallMessageTypeEx.fromValue(metadata?['content']?['type']);
+  String get callText => metadata?[CustomMessageEx.metaContentKey]?['text'] ?? '';
+  CallMessageType? get callType => CallMessageTypeEx.fromValue(metadata?[CustomMessageEx.metaContentKey]?['type']);
 }
 
 extension TemplateMessageEx on types.CustomMessage {
-  String get title => metadata?['content']?['title'] ?? '';
-  String get content => metadata?['content']?['content'] ?? '';
-  String get icon => metadata?['content']?['icon'] ?? '';
-  String get link => metadata?['content']?['link'] ?? '';
+  String get title => metadata?[CustomMessageEx.metaContentKey]?['title'] ?? '';
+  String get content => metadata?[CustomMessageEx.metaContentKey]?['content'] ?? '';
+  String get icon => metadata?[CustomMessageEx.metaContentKey]?['icon'] ?? '';
+  String get link => metadata?[CustomMessageEx.metaContentKey]?['link'] ?? '';
 }
 
 extension NoteMessageEx on types.CustomMessage {
-  String get authorIcon => metadata?['content']?['authorIcon'] ?? '';
-  String get authorName => metadata?['content']?['authorName'] ?? '';
-  String get authorDNS => metadata?['content']?['authorDNS'] ?? '';
-  int get createTime => int.tryParse(metadata?['content']?['createTime'] ?? '') ?? 0;
-  String get note => metadata?['content']?['note'] ?? '';
-  String get image => metadata?['content']?['image'] ?? '';
-  String get link => metadata?['content']?['link'] ?? '';
+  String get authorIcon => metadata?[CustomMessageEx.metaContentKey]?['authorIcon'] ?? '';
+  String get authorName => metadata?[CustomMessageEx.metaContentKey]?['authorName'] ?? '';
+  String get authorDNS => metadata?[CustomMessageEx.metaContentKey]?['authorDNS'] ?? '';
+  int get createTime => int.tryParse(metadata?[CustomMessageEx.metaContentKey]?['createTime'] ?? '') ?? 0;
+  String get note => metadata?[CustomMessageEx.metaContentKey]?['note'] ?? '';
+  String get image => metadata?[CustomMessageEx.metaContentKey]?['image'] ?? '';
+  String get link => metadata?[CustomMessageEx.metaContentKey]?['link'] ?? '';
 }
 
 extension EcashMessageEx on types.CustomMessage {
+
+  static const metaTokenListKey = 'tokenList';
+  static const metaIsOpenedKey = 'isOpened';
+  static const metaMemoKey = 'memo';
+  static const metaAmountKey = 'amount';
+  static const metaValidityDateKey = 'validityDate';
+
+  /// MetaData Format Example:
+  /// {
+  ///   'type': CustomMessageType.ecash.value,
+  ///   'content':
+  ///   {
+  ///     'tokenList':
+  ///     [
+  ///       ...
+  ///     ],
+  ///     'isOpened': 'true',
+  ///     'memo': 'xxxxx',    // temp
+  ///     'amount': '21',     // temp
+  ///   },
+  /// }
 
   static updateDetailInfo(Map? metadata) {
     final tokenList = getTokenListWithMetadata(metadata);
@@ -140,47 +192,188 @@ extension EcashMessageEx on types.CustomMessage {
     final totalAmount = tokenList.fold(0, (pre, token) {
       final info = Cashu.infoOfToken(token);
       if (info == null) return pre;
-      final (memo, amount) = info;
+      final (memo, amount, _) = info;
       memoStr = memo;
       return pre + amount;
     });
 
-    metadata?['content']?['memo'] = memoStr;
-    metadata?['content']?['amount'] = totalAmount.toString();
+    metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaMemoKey] = memoStr;
+    metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaAmountKey] = totalAmount.toString();
   }
 
   static List<String> getTokenListWithMetadata(Map? metadata) =>
-      metadata?['content']?['tokenList'] ?? [];
+      metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaTokenListKey] ?? [];
 
-  static getDescriptionWithMetadata(Map? metadata) {
-    final amount = metadata?['content']?['memo'];
+  static String getDescriptionWithMetadata(Map? metadata) {
+    final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaMemoKey];
     if (amount == null) {
       EcashMessageEx.updateDetailInfo(metadata);
     }
-    return metadata?['content']?['memo'] ?? '';
+    return metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaMemoKey] ?? '';
   }
 
-  static getAmountWithMetadata(Map? metadata) {
-    final amount = metadata?['content']?['amount'];
+  static int getAmountWithMetadata(Map? metadata) {
+    final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaAmountKey];
     if (amount == null) {
       EcashMessageEx.updateDetailInfo(metadata);
     }
-    return int.tryParse(metadata?['content']?['amount']) ?? 0;
+    return int.tryParse(metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaAmountKey]) ?? 0;
   }
 
   List<String> get tokenList => EcashMessageEx.getTokenListWithMetadata(metadata);
 
   String get description => EcashMessageEx.getDescriptionWithMetadata(metadata);
 
-  int get amount  => EcashMessageEx.getAmountWithMetadata(metadata);
+  int get amount => EcashMessageEx.getAmountWithMetadata(metadata);
 
   bool get isOpened {
     return bool.tryParse(
-      metadata?['content']?['isOpened'] ?? false.toString(),
+      metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaIsOpenedKey] ?? false.toString(),
       caseSensitive: false,
     ) ?? false;
   }
+
   void set isOpened(bool value) {
-    metadata?['content']?['isOpened'] = value.toString();
+    metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaIsOpenedKey] = value.toString();
+  }
+}
+
+typedef EcashSignee = (String pubkey, String flag);
+extension EcashV2MessageEx on types.CustomMessage {
+
+  static const metaTokenListKey = 'tokenList';
+  static const metaSigneesKey = 'signees';
+  static const metaSigneesPubkeyKey = 'pubkey';
+  static const metaSigneesSignatureKey = 'signature';
+  static const metaReceiverPubkeysKey = 'receiverPubkeys';
+  static const metaMemoKey = 'memo';
+  static const metaAmountKey = 'amount';
+  static const metaValidityDateKey = 'validityDate';
+  static const metaIsOpenedKey = 'isOpened';
+
+  /// MetaData Format Example:
+  /// {
+  ///   'type': CustomMessageType.ecashV2.value,
+  ///   'content':
+  ///   {
+  ///     'tokenList':
+  ///     [
+  ///       ...
+  ///     ],
+  ///     'isOpened': 'true',
+  ///     'signees':
+  ///     [
+  ///       {
+  ///         'pubkey': '...',
+  ///         'signature': '...',
+  ///       },
+  ///       ...
+  ///     ],
+  ///     'receiverPubkeys':
+  ///     [
+  ///       ...
+  ///     ],
+  ///     'memo': 'xxxxx',    // temp
+  ///     'amount': '21',     // temp
+  ///     'validityDate': '1689418329',   // temp
+  ///   },
+  /// }
+
+  static updateDetailInfo(Map? metadata) {
+    final tokenList = getTokenListWithMetadata(metadata);
+    if (tokenList.isEmpty) return ;
+
+    var memoStr = '';
+    bool isSecretSetupFlag = false;
+    final totalAmount = tokenList.fold(0, (pre, token) {
+      final info = Cashu.infoOfToken(token);
+      if (info == null) return pre;
+      final (memo, amount, secretData) = info;
+      if (secretData.isNotEmpty && !isSecretSetupFlag) {
+        // Setup secret data
+        if (secretData.firstOrNull == 'P2PK' && secretData.length >= 2) {
+          final validityDate = NutP2PKHelper.getLockTimeWithSecret(secretData);
+          if (validityDate.isNotEmpty) {
+            metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] = validityDate;
+            isSecretSetupFlag = true;
+          }
+        }
+      }
+      memoStr = memo;
+      return pre + amount;
+    });
+
+    metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaMemoKey] = memoStr;
+    metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaAmountKey] = totalAmount.toString();
+  }
+
+  static List<String> getTokenListWithMetadata(Map? metadata) =>
+      metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaTokenListKey] ?? [];
+
+  static String getDescriptionWithMetadata(Map? metadata) {
+    final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaMemoKey];
+    if (amount == null) {
+      EcashV2MessageEx.updateDetailInfo(metadata);
+    }
+    return metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaMemoKey] ?? '';
+  }
+
+  static int getAmountWithMetadata(Map? metadata) {
+    final amount = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaAmountKey];
+    if (amount == null) {
+      EcashV2MessageEx.updateDetailInfo(metadata);
+    }
+    return int.tryParse(metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaAmountKey]) ?? 0;
+  }
+
+  static List<EcashSignee> getSigneesWithMetadata(Map? metadata) {
+    final signees = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaSigneesKey];
+    if (signees is! List) return [];
+    return signees.map((entry) {
+      if (entry is Map) {
+        return (
+        entry[EcashV2MessageEx.metaSigneesPubkeyKey] as String? ?? '',
+        entry[EcashV2MessageEx.metaSigneesSignatureKey] as String? ?? '',
+        );
+      }
+      return null;
+    }).where((e) => e != null && e.$1.isNotEmpty).toList().cast();
+  }
+
+  static List<String> getReceiverPubkeysWithMetadata(Map? metadata) {
+    return metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaReceiverPubkeysKey] ?? [];
+  }
+
+  static String getValidityDateWithMetadata(Map? metadata) {
+    final result = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] ?? '';
+    if (result is! String || result.isEmpty) {
+      EcashV2MessageEx.updateDetailInfo(metadata);
+    }
+    return metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] ?? '';
+  }
+
+  static bool getIsOpenedWithMetadata(Map? metadata) {
+    return bool.tryParse(
+      metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaIsOpenedKey] ?? false.toString(),
+      caseSensitive: false,
+    ) ?? false;
+  }
+
+  List<String> get tokenList => EcashV2MessageEx.getTokenListWithMetadata(metadata);
+
+  String get description => EcashV2MessageEx.getDescriptionWithMetadata(metadata);
+
+  int get amount => EcashV2MessageEx.getAmountWithMetadata(metadata);
+
+  List<EcashSignee> get signees => EcashV2MessageEx.getSigneesWithMetadata(metadata);
+
+  List<String> get receiverPubkeys => EcashV2MessageEx.getReceiverPubkeysWithMetadata(metadata);
+
+  String get validityDate => EcashV2MessageEx.getValidityDateWithMetadata(metadata);
+
+  bool get isOpened => EcashV2MessageEx.getIsOpenedWithMetadata(metadata);
+
+  void set isOpened(bool value) {
+    metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaIsOpenedKey] = value.toString();
   }
 }
