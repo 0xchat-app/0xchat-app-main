@@ -7,11 +7,11 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
@@ -19,6 +19,7 @@ import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
+import 'package:ox_usercenter/page/set_up/logs_file_page.dart';
 import 'package:ox_usercenter/page/set_up/message_notification_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
@@ -109,6 +110,27 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             title: 'ox_usercenter.donate',
             iconName: 'icon_settings_donate.png',
             onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => OXNavigator.pushPage(context, (context) => const LogsFilePage()),
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Send logs to DEV',
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
         SizedBox(height: Adapt.px(24),),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
