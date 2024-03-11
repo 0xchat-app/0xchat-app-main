@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ox_common/navigator/dialog_router.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -142,16 +143,14 @@ class OXActionDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                item.iconName == null
-                    ? SizedBox()
-                    : CommonImage(
-                  iconName: item.iconName ?? '',
-                  width: Adapt.px(20),
-                  height: Adapt.px(20),
-                  package: item.package ?? '',
-                  useTheme: item.isUseTheme,
-                ),
-                SizedBox(width: Adapt.px(10),),
+                if (item.iconName != null)
+                  CommonImage(
+                    iconName: item.iconName ?? '',
+                    width: Adapt.px(20),
+                    height: Adapt.px(20),
+                    package: item.package ?? '',
+                    useTheme: item.isUseTheme,
+                  ).setPaddingOnly(right: 10.px),
                 Text(
                   item.text,
                   style: TextStyle(
