@@ -162,13 +162,16 @@ class OXNavigator extends Navigator {
   }
 
   static Future<T?> presentPage<T extends Object?>(
-      BuildContext context,
+      BuildContext? context,
       Widget Function(BuildContext? context) builder, {
         String? pageName,
         Object? pageId,
         bool fullscreenDialog = false,
         bool allowPageScroll = false,
       }) {
+    context ??= navigatorKey.currentContext;
+    if (context == null) return Future.value(null);
+
     pageName ??= builder(null).runtimeType.toString();
     if (fullscreenDialog) {
       return OXNavigator.push(
