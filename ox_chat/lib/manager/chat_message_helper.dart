@@ -149,9 +149,70 @@ extension MessageDBToUIEx on MessageDB {
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     // ContentModel
-    final decryptContent = this.decryptContent;
+    final contentModel = getContentModel();
 
-    MessageContentModel contentModel = MessageContentModel();
+    // Author
+    final author = await getAuthor();
+    if (author == null) return null;
+
+    logger?.printMessage = '2';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    // Status
+    final msgStatus = getStatus();
+
+    // MessageTime
+    final messageTimestamp = this.createTime * 1000;
+
+    // ChatId
+    final chatId = getRoomId();
+    if (chatId == null) return null;
+
+    logger?.printMessage = '3';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    logger?.printMessage = '4 ${contentModel.contentType}';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    // Message UI Model Creator
+    MessageFactory messageFactory = await getMessageFactory(
+      contentModel,
+      isMentionMessageCallback,
+    );
+
+    logger?.printMessage = '5';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    // Encryption type
+    final fileEncryptionType = getEncryptionType(contentModel);
+
+    // RepliedMessage
+    final repliedMessage = await getRepliedMessage(loadRepliedMessage);
+
+    // Execute create
+    final result = messageFactory.createMessage(
+      author: author,
+      timestamp: messageTimestamp,
+      roomId: chatId,
+      remoteId: messageId,
+      sourceKey: plaintEvent,
+      contentModel: contentModel,
+      status: msgStatus,
+      fileEncryptionType: fileEncryptionType,
+      repliedMessage: repliedMessage,
+      previewData: this.previewData,
+      decryptKey: this.decryptSecret,
+      expiration: this.expiration,
+    );
+
+    logger?.printMessage = '6 $result';
+    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+
+    return result;
+  }
+
+  MessageContentModel getContentModel() {
+    final contentModel = MessageContentModel();
     contentModel.mid = messageId;
     contentModel.contentType = MessageDB.stringtoMessageType(this.type);
     try {
@@ -168,72 +229,91 @@ extension MessageDBToUIEx on MessageDB {
       contentModel.content = decryptContent;
     }
 
-    // Author
-    final senderId = this.sender;
-    final author = await ChatMessageDBToUIHelper.getUser(senderId);
+    return contentModel;
+  }
+
+  Future<types.User?> getAuthor() async {
+    final author = await ChatMessageDBToUIHelper.getUser(sender);
     if (author == null) {
       ChatLogUtils.error(
         className: 'MessageDBToUIEx',
-        funcName: 'convertMessageDBToUIModel',
+        funcName: 'getAuthor',
         message: 'author is null',
       );
-      return null;
     }
+    return author;
+  }
 
-    logger?.printMessage = '2';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
-
-    // Status
-    final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(senderId);
+  UIMessage.Status getStatus() {
+    final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(sender);
     final status = this.status; // 0 sending, 1 sent, 2 fail 3 recall
-    UIMessage.Status msgStatus;
     switch (status) {
       case 0:
-        msgStatus = UIMessage.Status.sending;
-        break ;
+        return UIMessage.Status.sending;
       case 1:
       case 3:
-        msgStatus = senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
-        break ;
+        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
       case 2:
-        msgStatus = UIMessage.Status.error;
-        break ;
+        return UIMessage.Status.error;
       default :
-        msgStatus = senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
+        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
     }
+  }
 
-    // MessageTime
-    final messageTimestamp = this.createTime * 1000;
-
-    // ChatId
-    final chatId = getRoomId();
+  String? getRoomId() {
+    String? chatId;
+    final groupId = this.groupId;
+    final senderId = this.sender;
+    final receiverId = this.receiver;
+    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (groupId.isNotEmpty) {
+      chatId = groupId;
+    } else if (senderId.isNotEmpty && senderId == receiverId) {
+      chatId = senderId;
+    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
+      chatId = senderId;
+    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
+      chatId = receiverId;
+    }
     if (chatId == null) {
       ChatLogUtils.error(
         className: 'MessageDBToUIEx',
         funcName: 'convertMessageDBToUIModel',
         message: 'chatId is null',
       );
-      return null;
     }
+    return chatId;
+  }
 
-    logger?.printMessage = '3';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+  types.EncryptionType getEncryptionType(MessageContentModel contentModel) {
+    switch (contentModel.contentType) {
+      case MessageType.encryptedImage:
+      case MessageType.encryptedVideo:
+      case MessageType.encryptedAudio:
+        return UIMessage.EncryptionType.encrypted;
+      default:
+        return UIMessage.EncryptionType.none;
+    }
+  }
 
-    // MessageType & mid & MessageId
-    final mid = contentModel.mid;
+
+  Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
+    if (replyId.isNotEmpty && loadRepliedMessage) {
+      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
+      final messageList = result['messages'];
+      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
+        final repliedMessageDB = messageList.first;
+        return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
+      }
+    }
+    return null;
+  }
+
+  Future<MessageFactory> getMessageFactory(
+    MessageContentModel contentModel,
+    [VoidCallback? isMentionMessageCallback = null]
+  ) async {
     final messageType = contentModel.contentType;
-    if (mid == null || mid.isEmpty) {
-      ChatLogUtils.error(
-        className: 'MessageDBToUIEx',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'messageType: $messageType, mid: $mid',
-      );
-      return null;
-    }
-
-    logger?.printMessage = '4 $messageType';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
-
     MessageFactory messageFactory;
     switch (messageType) {
       case MessageType.text:
@@ -242,7 +322,7 @@ extension MessageDBToUIEx on MessageDB {
           contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
           messageFactory = CustomMessageFactory();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
-            if(nostrSchemeContent != null){
+            if(nostrSchemeContent != null) {
               this.type = 'template';
               this.decryptContent = nostrSchemeContent;
               await DB.sharedInstance.update(this);
@@ -322,71 +402,10 @@ extension MessageDBToUIEx on MessageDB {
           funcName: 'convertMessageDBToUIModel',
           message: 'unknown message type',
         );
-        return null;
+        messageFactory = TextMessageFactory();
     }
 
-    logger?.printMessage = '5';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
-
-    UIMessage.EncryptionType fileEncryptionType;
-    switch (messageType) {
-      case MessageType.encryptedImage:
-      case MessageType.encryptedVideo:
-      case MessageType.encryptedAudio:
-        fileEncryptionType = UIMessage.EncryptionType.encrypted;
-        break ;
-      default:
-        fileEncryptionType = UIMessage.EncryptionType.none;
-    }
-
-    // repliedMessage
-    types.Message? repliedMessage;
-    if (replyId.isNotEmpty && loadRepliedMessage) {
-      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
-      final messageList = result['messages'];
-      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
-        final repliedMessageDB = messageList.first;
-        repliedMessage = await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
-      }
-    }
-
-    final result = messageFactory.createMessage(
-      author: author,
-      timestamp: messageTimestamp,
-      roomId: chatId,
-      remoteId: messageId,
-      sourceKey: plaintEvent,
-      contentModel: contentModel,
-      status: msgStatus,
-      fileEncryptionType: fileEncryptionType,
-      repliedMessage: repliedMessage,
-      previewData: this.previewData,
-      decryptKey: this.decryptSecret,
-      expiration: this.expiration,
-    );
-
-    logger?.printMessage = '6 $result';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
-
-    return result;
-  }
-
-  String? getRoomId() {
-    String? chatId;
-    final groupId = this.groupId;
-    final senderId = this.sender;
-    final receiverId = this.receiver;
-    final currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    if (groupId.isNotEmpty) {
-      chatId = groupId;
-    } else if (senderId.isNotEmpty && senderId == receiverId) {
-      chatId = senderId;
-    } else if (senderId.isNotEmpty && senderId != currentUserPubKey) {
-      chatId = senderId;
-    } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
-      chatId = receiverId;
-    }
-    return chatId;
+    return messageFactory;
   }
 }
 
