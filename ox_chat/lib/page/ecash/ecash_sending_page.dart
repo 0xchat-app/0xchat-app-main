@@ -13,6 +13,7 @@ import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -693,7 +694,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   Future createEcashForSingleType(
     IMint mint,
     int amount,
-    int lockTime,
+    int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
@@ -701,12 +702,18 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     final singleReceiver = widget.singleReceiver;
     if (singleReceiver == null) return CashuResponse.fromErrorMsg('Receiver pubkey is empty.');
 
+    final currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (currentUser == null) return CashuResponse.fromErrorMsg('Please login and try again.');
 
     OXLoading.show();
     final response = await Cashu.sendEcashToPublicKeys(
       mint: mint,
       amount: amount,
-      publicKeys: [EcashCondition.pubkeyWithUser(singleReceiver)],
+      publicKeys: [
+        EcashCondition.pubkeyWithUser(singleReceiver),
+        if (lockTime == null)
+          EcashCondition.pubkeyWithUser(currentUser)
+      ],
       refundPubKeys: [refundPubkey],
       memo: ecashDescription,
       locktime: lockTime,
@@ -730,7 +737,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     IMint mint,
     List<int> amountList,
     List<UserDB> signee,
-    int lockTime,
+    int? lockTime,
   ) async {
 
     final signeePubkey = signee.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
@@ -768,7 +775,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     int amount,
     List<UserDB> receiver,
     List<UserDB> signee,
-    int lockTime,
+    int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
