@@ -234,15 +234,7 @@ class _ContractsPageState extends State<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            if (_selectedIndex == 0) {
-              SearchPage(
-                searchPageType: SearchPageType.singleFriend,
-              ).show(context);
-            } else if (_selectedIndex == 1) {
-              SearchPage(
-                searchPageType: SearchPageType.singleChannel,
-              ).show(context);
-            }
+            SearchPage(searchPageType: SearchPageType.all).show(context);
           },
           child: Container(
             width: double.infinity,
@@ -272,8 +264,7 @@ class _ContractsPageState extends State<ContractsPage>
                   width: Adapt.px(8),
                 ),
                 MyText(
-                  'search'.localized() +
-                      (_selectedIndex == 0 ? 'search_tips_suffix_friend'.localized() : 'search_tips_suffix_channel'.localized()),
+                  'search'.localized(),
                   15,
                   ThemeColor.color150,
                   fontWeight: FontWeight.w400,
@@ -291,7 +282,7 @@ class _ContractsPageState extends State<ContractsPage>
                 padding: EdgeInsets.only(left: Adapt.px(24)),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                itemCount: 2,
+                itemCount: _getButtonCount(),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return _inkWellWidget(
@@ -331,8 +322,8 @@ class _ContractsPageState extends State<ContractsPage>
     OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
   }
 
-  void _gotoCreateGroup() {
-    OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+  int _getButtonCount(){
+    return _selectedIndex == 0 ? 2 : _selectedIndex == 1 ?  1 : 0;
   }
 
   @override

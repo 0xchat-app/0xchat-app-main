@@ -57,16 +57,13 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return commonStateViewWidget(
-      context,
-      GroupContact(
-        key: groupsWidgetKey,
-        data: groups,
-        chatType:  ChatType.chatGroup,
-        shrinkWrap: widget.shrinkWrap,
-        physics: widget.physics,
-        topWidget: widget.topWidget,
-      ),
+    return GroupContact(
+      key: groupsWidgetKey,
+      data: groups,
+      chatType:  ChatType.chatGroup,
+      shrinkWrap: widget.shrinkWrap,
+      physics: widget.physics,
+      topWidget: widget.topWidget,
     );
   }
 
