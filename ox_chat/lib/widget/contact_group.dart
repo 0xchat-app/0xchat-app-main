@@ -155,7 +155,7 @@ class GroupContactState extends State<GroupContact> {
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              Localized.text('ox_chat.no_contacts_added'),
+              Localized.text('ox_chat.no_groups_added'),
               14,
               ThemeColor.gray02,
             ),
