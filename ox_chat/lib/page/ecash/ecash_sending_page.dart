@@ -13,6 +13,7 @@ import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/num_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -78,7 +79,8 @@ class EcashSendingPage extends StatefulWidget {
   _EcashSendingPageState createState() => _EcashSendingPageState();
 }
 
-class _EcashSendingPageState extends State<EcashSendingPage> {
+class _EcashSendingPageState extends State<EcashSendingPage> with
+    TickerProviderStateMixin {
 
   _PackageType packageType = _PackageType.single;
   IMint? mint;
@@ -98,11 +100,19 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
 
   double get sectionSpacing => 16.px;
 
+  AnimationController? advancedController;
+
   @override
   void initState() {
     super.initState();
     packageType = widget.isGroupEcash ? _PackageType.multipleRandom : _PackageType.single;
     mint = OXWalletInterface.getDefaultMint();
+
+
+    advancedController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
   }
 
   @override
@@ -205,7 +215,8 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
 
                         _buildSectionView(
                           title: 'Advanced',
-                          children: _buildAdvanceItems(),
+                          children:_buildAdvanceItems(),
+                          controller: advancedController,
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         _buildSatsText().setPadding(EdgeInsets.only(top: sectionSpacing)),
@@ -237,29 +248,99 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
   Widget _buildSectionView({
     required String title,
     required List<Widget> children,
+    AnimationController? controller,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+
+    Widget content = Column(
       children: [
-        Text(
-          title,
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-        ),
         SizedBox(height: Adapt.px(12)),
         Container(
           decoration: BoxDecoration(
-          color: ThemeColor.color180,
+            color: ThemeColor.color180,
             borderRadius: BorderRadius.circular(16),
           ),
           child: ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            itemCount: children.length,
-            itemBuilder: (_, int index) => children[index],
-            separatorBuilder: (_, __) => Divider(height: 1,)
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: children.length,
+              itemBuilder: (_, int index) => children[index],
+              separatorBuilder: (_, __) => Divider(height: 1,)
           ),
         ),
+      ],
+    );
+    if (controller != null) {
+      final foldHeightAnimation = Tween<double>(begin: 0.0, end: 1).animate(
+        CurvedAnimation(
+          parent: controller,
+          curve: Curves.easeInOut,
+        ),
+      );
+      final foldOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: controller,
+          curve: const Interval(0.5, 1, curve: Curves.easeIn),
+        ),
+      );
+      content = AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return Opacity(
+            opacity: foldOpacityAnimation.value,
+            child: SizeTransition(
+              axis: Axis.vertical,
+              sizeFactor: foldHeightAnimation,
+              child: child,
+            ),
+          );
+        },
+        child: content,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+            ),
+            Spacer(),
+            if (controller != null)
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => setState(() {
+                  if (controller.isAnimating) {
+                    controller.status == AnimationStatus.forward
+                        ? controller.reverse()
+                        : controller.forward();
+                  } else if (controller.status == AnimationStatus.completed) {
+                    controller.reverse();
+                  } else {
+                    controller.forward();
+                  }
+                }),
+                child: AnimatedBuilder(
+                  animation: controller,
+                  builder: (_, child) {
+                    return Transform.rotate(
+                      angle: controller.value * pi,
+                      child: child,
+                    );
+                  },
+                  child: CommonImage(
+                    iconName: 'icon_badge_arrow_down.png',
+                    size: 20.px,
+                    package: 'ox_chat',
+                  ),
+                ).setPaddingOnly(left: 40.px),
+              )
+          ],
+        ),
+        content,
       ],
     );
   }
@@ -613,7 +694,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
   Future createEcashForSingleType(
     IMint mint,
     int amount,
-    int lockTime,
+    int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
@@ -621,12 +702,18 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     final singleReceiver = widget.singleReceiver;
     if (singleReceiver == null) return CashuResponse.fromErrorMsg('Receiver pubkey is empty.');
 
+    final currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (currentUser == null) return CashuResponse.fromErrorMsg('Please login and try again.');
 
     OXLoading.show();
     final response = await Cashu.sendEcashToPublicKeys(
       mint: mint,
       amount: amount,
-      publicKeys: [EcashCondition.pubkeyWithUser(singleReceiver)],
+      publicKeys: [
+        EcashCondition.pubkeyWithUser(singleReceiver),
+        if (lockTime == null)
+          EcashCondition.pubkeyWithUser(currentUser)
+      ],
       refundPubKeys: [refundPubkey],
       memo: ecashDescription,
       locktime: lockTime,
@@ -650,7 +737,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     IMint mint,
     List<int> amountList,
     List<UserDB> signee,
-    int lockTime,
+    int? lockTime,
   ) async {
 
     final signeePubkey = signee.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
@@ -688,7 +775,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> {
     int amount,
     List<UserDB> receiver,
     List<UserDB> signee,
-    int lockTime,
+    int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
     if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');

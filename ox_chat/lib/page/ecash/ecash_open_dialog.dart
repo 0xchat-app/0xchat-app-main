@@ -57,9 +57,9 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   bool isRedeemed = false;
   bool isForOtherUser = false;
 
-  bool needSignature = false;
+  bool isNeedSignature = false;
   bool isFinishSignature = true;
-  bool nextSignatureIsMe = false;
+  bool isTurnToSign = false;
 
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
@@ -71,10 +71,10 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     isRedeemed = widget.package.isRedeemed;
     isForOtherUser = widget.package.isForOtherUser;
 
-    needSignature = widget.package.signees.isNotEmpty;
-    if (needSignature) {
+    isNeedSignature = widget.package.signees.isNotEmpty;
+    if (isNeedSignature) {
       isFinishSignature = widget.package.isFinishSignature;
-      nextSignatureIsMe = widget.package.nextSignatureIsMe;
+      isTurnToSign = widget.package.nextSignatureIsMe;
     }
 
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
@@ -152,8 +152,17 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildSubtitle() {
+    var text = '$ownerName\'s Ecash';
+    if (isNeedSignature && !isFinishSignature) {
+      if (isTurnToSign) {
+        text += ', Waiting for your signature';
+      } else {
+        text += ', Waiting for multi-signature';
+      }
+    }
     return Text(
-      '$ownerName\'s Ecash',
+      text,
+      textAlign: TextAlign.center,
       style: TextStyle(
         color: Colors.white,
         fontSize: 12.sp,
@@ -173,8 +182,8 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
   Widget buildOptionArea() {
     Widget? child;
-    if (needSignature && (!isFinishSignature || isForOtherUser)) {
-      child = nextSignatureIsMe
+    if (isNeedSignature && (!isFinishSignature || isForOtherUser)) {
+      child = isTurnToSign
           ? buildSignatureOption()
           : buildSignatureProcessView().setPaddingOnly(top: 24.px);
     }
