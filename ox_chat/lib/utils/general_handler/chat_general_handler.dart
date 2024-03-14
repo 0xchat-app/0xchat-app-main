@@ -7,8 +7,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
-import 'package:ox_chat/page/contacts/user_list_page.dart';
-import 'package:ox_chat/page/ecash/ecash_condition.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
 import 'package:ox_chat/page/ecash/ecash_sending_page.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
@@ -523,6 +521,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     }),
     );
   }
+
   Future ecashPressHandler(BuildContext context) async {
     if (!OXWalletInterface.checkWalletActivate()) return ;
     await OXNavigator.presentPage<Map<String, String>>(

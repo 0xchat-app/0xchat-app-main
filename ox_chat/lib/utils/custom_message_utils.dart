@@ -326,8 +326,8 @@ extension EcashV2MessageEx on types.CustomMessage {
     return int.tryParse(metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaAmountKey]) ?? 0;
   }
 
-  static List<EcashSignee> getSigneesWithMetadata(Map? metadata) {
-    final signees = metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaSigneesKey];
+  static List<EcashSignee> getSigneesWithContentMap(Map contentMap) {
+    final signees = contentMap[EcashV2MessageEx.metaSigneesKey];
     if (signees is! List) return [];
     return signees.map((entry) {
       if (entry is Map) {
@@ -338,6 +338,12 @@ extension EcashV2MessageEx on types.CustomMessage {
       }
       return null;
     }).where((e) => e != null && e.$1.isNotEmpty).toList().cast();
+  }
+
+  static List<EcashSignee> getSigneesWithMetadata(Map? metadata) {
+    final contentMap = metadata?[CustomMessageEx.metaContentKey];
+    if (contentMap is! Map) return [];
+    return getSigneesWithContentMap(contentMap);
   }
 
   static List<String> getReceiverPubkeysWithMetadata(Map? metadata) {

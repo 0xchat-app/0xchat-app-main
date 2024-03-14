@@ -122,7 +122,7 @@ class ChatMessageDBToUIHelper {
             }
           } catch (_) { }
         }
-        return Localized.text('ox_common.message_type_template');
+        return Localized.text('ox_common.message_type_unknown');
       default:
         return Localized.text('ox_common.message_type_unknown');
     }
@@ -135,6 +135,8 @@ class ChatMessageDBToUIHelper {
 }
 
 extension MessageDBToUIEx on MessageDB {
+
+  String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
@@ -221,7 +223,7 @@ extension MessageDBToUIEx on MessageDB {
         contentModel.content = decryptedContent['content'];
         contentModel.duration = decryptedContent['duration'];
       } else if (decryptedContent is String) {
-        contentModel.content = decryptedContent.toString();
+        contentModel.content = decryptedContent;
       }
     } catch (e) {}
 
@@ -314,17 +316,14 @@ extension MessageDBToUIEx on MessageDB {
     [VoidCallback? isMentionMessageCallback = null]
   ) async {
     final messageType = contentModel.contentType;
-    MessageFactory messageFactory;
     switch (messageType) {
       case MessageType.text:
         final initialText = contentModel.content ?? '';
-        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null){
+        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
           contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
-          messageFactory = CustomMessageFactory();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             if(nostrSchemeContent != null) {
-              this.type = 'template';
-              this.decryptContent = nostrSchemeContent;
+              parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
               await DB.sharedInstance.update(this);
               final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
               final uiMessage = await this.toChatUIMessage();
@@ -333,79 +332,77 @@ extension MessageDBToUIEx on MessageDB {
               }
             }
           });
-        }
-        else if(Zaps.isLightningInvoice(initialText)){
-          messageFactory = CustomMessageFactory();
+          return CustomMessageFactory();
+        } else if(Zaps.isLightningInvoice(initialText)) {
           Map<String, String> req = Zaps.decodeInvoice(initialText);
-          String link = CustomURIHelper.createModuleActionURI(
-              module: 'ox_chat',
-              action: 'zapsRecordDetail',
-              params: {'invoice': initialText, 'amount': req['amount'], 'zapsTime': req['timestamp']});
-          Map<String, dynamic> map = {};
-          map['type'] = '1';
-          map['content'] = {
-            'zapper': '',
-            'invoice': initialText,
-            'amount': req['amount'],
-            'description': 'Best wishes',
-            'link': link
-          };
-          this.type = 'template';
-          this.decryptContent = jsonEncode(map);
-          contentModel.content = this.decryptContent;
-          await DB.sharedInstance.update(this);
-        } else if (Cashu.isCashuToken(initialText)) {
-          messageFactory = CustomMessageFactory();
-          this.type = 'template';
-          this.decryptContent = jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText]));
-          contentModel.content = this.decryptContent;
-          await DB.sharedInstance.update(this);
-        }
-        else{
-          messageFactory = TextMessageFactory();
-          final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
-            if (mentions.isEmpty) return ;
-            final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
-            if (hasCurrentUser) {
-              isMentionMessageCallback?.call();
-            }
-          });
-          if (mentionDecodeText != null) {
-            contentModel.content = mentionDecodeText;
+          final amount = req['amount'] ?? '';
+          if (amount.isNotEmpty) {
+            Map<String, dynamic> map = CustomMessageEx.zapsMetaData(
+                zapper: '',
+                invoice: initialText,
+                amount: amount,
+                description: 'Best wishes'
+            );
+            parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
+            contentModel.content = this.decryptContent;
+            await DB.sharedInstance.update(this);
+            return CustomMessageFactory();
           }
+        } else if (Cashu.isCashuToken(initialText)) {
+          parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
+          contentModel.content = this.decryptContent;
+          await DB.sharedInstance.update(this);
+          return CustomMessageFactory();
         }
-        break ;
+
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+          if (mentions.isEmpty) return ;
+          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+          if (hasCurrentUser) {
+            isMentionMessageCallback?.call();
+          }
+        });
+        if (mentionDecodeText != null) {
+          contentModel.content = mentionDecodeText;
+        }
+        return TextMessageFactory();
       case MessageType.image:
       case MessageType.encryptedImage:
-        messageFactory = ImageMessageFactory();
-        break ;
+        return ImageMessageFactory();
       case MessageType.video:
       case MessageType.encryptedVideo:
-        messageFactory = VideoMessageFactory();
-        break ;
+        return VideoMessageFactory();
       case MessageType.audio:
       case MessageType.encryptedAudio:
-        messageFactory = AudioMessageFactory();
-        break ;
+        return AudioMessageFactory();
       case MessageType.call:
-        messageFactory = CallMessageFactory();
-        break ;
+        return CallMessageFactory();
       case MessageType.system:
-        messageFactory = SystemMessageFactory();
-        break ;
+        return SystemMessageFactory();
       case MessageType.template:
-        messageFactory = CustomMessageFactory();
-        break ;
+        final customInfo = CustomMessageFactory.parseFromContentString(contentModel.content ?? '');
+        if (customInfo != null) {
+          return CustomMessageFactory();
+        }
       default:
         ChatLogUtils.error(
           className: 'MessageDBToUIEx',
           funcName: 'convertMessageDBToUIModel',
           message: 'unknown message type',
         );
-        messageFactory = TextMessageFactory();
     }
 
-    return messageFactory;
+    parseTo(type: MessageType.text, decryptContent: unknownMessageText);
+    contentModel.content = unknownMessageText;
+    return TextMessageFactory();
+  }
+
+  void parseTo({
+    required MessageType type,
+    required String decryptContent
+  }) {
+    this.type = MessageDB.messageTypeToString(type);
+    this.decryptContent = decryptContent;
   }
 }
 

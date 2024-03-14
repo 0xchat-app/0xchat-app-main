@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -18,21 +19,24 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/network/network_general.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
+import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
-
-
-
+import 'package:ox_network/network_manager.dart';
+import 'package:path_provider/path_provider.dart';
 
 class OXChat extends OXFlutterModule {
-
   @override
   Future<void> setup() async {
     super.setup();
@@ -56,7 +60,9 @@ class OXChat extends OXFlutterModule {
     'groupInfoPage': _groupInfoPage,
     'commonWebview': _commonWebview,
     'zapsRecordDetail' : _zapsRecordDetail,
-    'sendTextMsg': _sendTextMsg
+    'sendTextMsg': _sendTextMsg,
+    'sendTemplateMessage': _sendTemplateMessage,
+    'openWebviewForEncryptedFile': openWebviewForEncryptedFile,
   };
 
   @override
@@ -195,6 +201,65 @@ class OXChat extends OXFlutterModule {
 
   void _sendTextMsg(BuildContext context, String chatId, String content) {
     ChatMessageSendEx.sendTextMessageHandler(chatId, content);
+  }
+
+  void _sendTemplateMessage(
+    BuildContext? context, {
+      String receiverPubkey = '',
+      String title = '',
+      String subTitle = '',
+      String icon = '',
+      String link = '',
+      int chatType = ChatType.chatSingle,
+  }) {
+    ChatMessageSendEx.sendTemplateMessage(
+      receiverPubkey: receiverPubkey,
+      title: title,
+      subTitle: subTitle,
+      icon: icon,
+      link: link,
+      chatType: chatType,
+    );
+  }
+
+  void openWebviewForEncryptedFile(
+    BuildContext context, {
+      String url = '',
+      String key = '',
+  }) async {
+
+    if (url.isEmpty || key.isEmpty) return ;
+
+    // Download
+    final uri = Uri.parse(url);
+    final dir = await getTemporaryDirectory();
+    final encryptedFile = File('${dir.path}/Tmp/${uri.pathSegments.lastOrNull}');
+    final response = await OXNetwork.instance.doDownload(
+      url,
+      encryptedFile.path,
+      showLoading: true,
+      context: context,
+    );
+
+    if (response == null || response.statusCode != 200) {
+      CommonToast.instance.show(context, 'File download failure.');
+      return;
+    }
+
+    // Decrypt
+    final decryptedFile = File('${dir.path}/Tmp/tmp-${uri.pathSegments.lastOrNull}');
+    AesEncryptUtils.decryptFile(encryptedFile, decryptedFile, key);
+
+    // Open on page
+    var fileURL = decryptedFile.path;
+    if (fileURL.isEmpty || fileURL.isRemoteURL) return ;
+    if (!fileURL.isFileURL) {
+      fileURL = 'file://$fileURL';
+    }
+    await OXNavigator.pushPage(context, (context) => CommonWebView(fileURL));
+
+    encryptedFile.delete();
+    decryptedFile.delete();
   }
 
   void shareLinkWithScheme(String scheme, String action, Map<String, String> queryParameters) {

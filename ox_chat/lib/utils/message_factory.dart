@@ -317,6 +317,23 @@ class SystemMessageFactory implements MessageFactory {
 }
 
 class CustomMessageFactory implements MessageFactory {
+
+  static ({CustomMessageType type, Map content})? parseFromContentString(String contentString) {
+
+    try {
+      final contentMap = json.decode(contentString);
+      if (contentMap is! Map) return null;
+
+      final type = CustomMessageTypeEx.fromValue(contentMap['type']);
+      final content = contentMap['content'];
+      if (type == null || content is! Map) return null;
+
+      return (type: type, content: content);
+    } catch (_) {
+      return null;
+    }
+  }
+
   types.Message? createMessage({
     required types.User author,
     required int timestamp,
@@ -334,140 +351,137 @@ class CustomMessageFactory implements MessageFactory {
     final contentString = contentModel.content;
     if (contentString == null) return null;
 
-    try {
-      final contentMap = json.decode(contentString);
-      if (contentMap is! Map) return null;
+    final info = CustomMessageFactory.parseFromContentString(contentString);
+    if (info == null) return null;
 
-      final type = CustomMessageTypeEx.fromValue(contentMap['type']);
-      final content = contentMap['content'];
-      if (type == null || content is! Map) return null;
+    final type = info.type;
+    final content = info.content;
 
-      switch (type) {
-        case CustomMessageType.zaps:
-          final zapper = content['zapper'];
-          final invoice = content['invoice'];
-          final amount = content['amount'];
-          final description = content['description'];
-          return createZapsMessage(
+    switch (type) {
+      case CustomMessageType.zaps:
+        final zapper = content['zapper'];
+        final invoice = content['invoice'];
+        final amount = content['amount'];
+        final description = content['description'];
+        return createZapsMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          zapper: zapper,
+          invoice: invoice,
+          amount: amount,
+          description: description,
+          expiration: expiration,
+        );
+
+      case CustomMessageType.template:
+        final title = content['title'];
+        final contentStr = content['content'];
+        final icon = content['icon'];
+        final link = content['link'];
+        return createTemplateMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          title: title,
+          content: contentStr,
+          icon: icon,
+          link: link,
+          expiration: expiration,
+        );
+
+      case CustomMessageType.note:
+        final authorIcon = content['authorIcon'];
+        final authorName = content['authorName'];
+        final authorDNS = content['authorDNS'];
+        final createTime = content['createTime'];
+        final note = content['note'];
+        final image = content['image'];
+        final link = content['link'];
+        return createNoteMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          authorIcon: authorIcon,
+          authorName: authorName,
+          authorDNS: authorDNS,
+          createTime: createTime,
+          note: note,
+          image: image,
+          link: link,
+          expiration: expiration,
+        );
+
+      case CustomMessageType.ecash:
+        try {
+          final tokenList = (content[EcashMessageEx.metaTokenListKey] as List)
+              .map((e) => e.toString())
+              .toList();
+          final isOpened = content[EcashMessageEx.metaIsOpenedKey] ?? '';
+          return createEcashMessage(
             author: author,
             timestamp: timestamp,
             roomId: roomId,
             id: remoteId,
             remoteId: remoteId,
             sourceKey: sourceKey,
-            zapper: zapper,
-            invoice: invoice,
-            amount: amount,
-            description: description,
+            tokenList: tokenList,
+            isOpened: isOpened,
             expiration: expiration,
           );
-        case CustomMessageType.template:
-          final title = content['title'];
-          final contentStr = content['content'];
-          final icon = content['icon'];
-          final link = content['link'];
-          return createTemplateMessage(
-            author: author,
-            timestamp: timestamp,
-            roomId: roomId,
-            id: remoteId,
-            remoteId: remoteId,
-            sourceKey: sourceKey,
-            title: title,
-            content: contentStr,
-            icon: icon,
-            link: link,
-            expiration: expiration,
-          );
-        case CustomMessageType.note:
-          final authorIcon = content['authorIcon'];
-          final authorName = content['authorName'];
-          final authorDNS = content['authorDNS'];
-          final createTime = content['createTime'];
-          final note = content['note'];
-          final image = content['image'];
-          final link = content['link'];
-          return createNoteMessage(
-            author: author,
-            timestamp: timestamp,
-            roomId: roomId,
-            id: remoteId,
-            remoteId: remoteId,
-            sourceKey: sourceKey,
-            authorIcon: authorIcon,
-            authorName: authorName,
-            authorDNS: authorDNS,
-            createTime: createTime,
-            note: note,
-            image: image,
-            link: link,
-            expiration: expiration,
-          );
+        } catch (e) {
+          print(e);
+          return null;
+        }
 
-        case CustomMessageType.ecash:
-          try {
-            final tokenList = (content[EcashMessageEx.metaTokenListKey] as List)
+      case CustomMessageType.ecashV2:
+        try {
+          final tokenListRaw = content[EcashV2MessageEx.metaTokenListKey];
+          List<String> tokenList = [];
+          if (tokenListRaw is List) {
+            tokenList = tokenListRaw
                 .map((e) => e.toString())
                 .toList();
-            final isOpened = content[EcashMessageEx.metaIsOpenedKey] ?? '';
-            return createEcashMessage(
-              author: author,
-              timestamp: timestamp,
-              roomId: roomId,
-              id: remoteId,
-              remoteId: remoteId,
-              sourceKey: sourceKey,
-              tokenList: tokenList,
-              isOpened: isOpened,
-              expiration: expiration,
-            );
-          } catch (e) {
-            print(e);
-            return null;
           }
 
-        case CustomMessageType.ecashV2:
-          try {
-            final tokenListRaw = content[EcashV2MessageEx.metaTokenListKey];
-            List<String> tokenList = [];
-            if (tokenListRaw is List) {
-              tokenList = tokenListRaw
-                  .map((e) => e.toString())
-                  .toList();
-            }
-
-            final receiverPubkeysRaw = content[EcashV2MessageEx.metaReceiverPubkeysKey];
-            List<String> receiverPubkeys = [];
-            if (receiverPubkeysRaw is List) {
-              receiverPubkeys = receiverPubkeysRaw
-                  .map((e) => e.toString())
-                  .toList();
-            }
-            return createEcashMessage(
-              author: author,
-              timestamp: timestamp,
-              roomId: roomId,
-              id: remoteId,
-              remoteId: remoteId,
-              sourceKey: sourceKey,
-              tokenList: tokenList,
-              receiverPubkeys: receiverPubkeys,
-              signees: EcashV2MessageEx.getSigneesWithMetadata(contentMap),
-              validityDate: content[EcashV2MessageEx.metaValidityDateKey] ?? '',
-              isOpened: content[EcashV2MessageEx.metaIsOpenedKey] ?? '',
-              expiration: expiration,
-            );
-          } catch (e, stack) {
-            print(e);
-            print(stack);
-            return null;
+          final receiverPubkeysRaw = content[EcashV2MessageEx.metaReceiverPubkeysKey];
+          List<String> receiverPubkeys = [];
+          if (receiverPubkeysRaw is List) {
+            receiverPubkeys = receiverPubkeysRaw
+                .map((e) => e.toString())
+                .toList();
           }
-
-        default:
+          return createEcashMessage(
+            author: author,
+            timestamp: timestamp,
+            roomId: roomId,
+            id: remoteId,
+            remoteId: remoteId,
+            sourceKey: sourceKey,
+            tokenList: tokenList,
+            receiverPubkeys: receiverPubkeys,
+            signees: EcashV2MessageEx.getSigneesWithContentMap(content),
+            validityDate: content[EcashV2MessageEx.metaValidityDateKey] ?? '',
+            isOpened: content[EcashV2MessageEx.metaIsOpenedKey] ?? '',
+            expiration: expiration,
+          );
+        } catch (e, stack) {
+          print(e);
+          print(stack);
           return null;
-      }
-    } catch (e) {
-      return null;
+        }
+
+      default:
+        return null;
     }
   }
 
