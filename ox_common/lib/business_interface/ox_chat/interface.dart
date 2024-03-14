@@ -21,12 +21,12 @@ class OXChatInterface {
       title: title,
       subTitle: subtitle,
       link: CustomURIHelper.createModuleActionURI(
-          module: OXChatInterface.moduleName,
-          action: 'openWebviewForEncryptedFile',
-          params: {
-            'url': url,
-            'key': key,
-          }
+        module: OXChatInterface.moduleName,
+        action: 'openWebviewForEncryptedFile',
+        params: {
+          'url': url,
+          'key': key,
+        },
       ),
     );
     return true;
