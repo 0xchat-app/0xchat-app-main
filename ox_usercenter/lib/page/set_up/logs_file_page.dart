@@ -92,7 +92,7 @@ class _LogsFilePageState extends State<LogsFilePage> {
   void _uploadAndSendLog(File file) async {
     OXCommonHintDialog.show(context,
         title: 'Hint',
-        content: 'Are you sure you want to send this log file to the developer water783?',
+        content: 'Send the log file to the developer water783 (npub10td4yrp6cl9kmjp9x5yd7r8pm96a5j07lk5mtj2kw39qf8frpt8qm9x2wl)?',
         actionList: [
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
