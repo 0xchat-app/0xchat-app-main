@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -250,16 +252,31 @@ class OXChat extends OXFlutterModule {
     final decryptedFile = File('${dir.path}/Tmp/tmp-${uri.pathSegments.lastOrNull}');
     AesEncryptUtils.decryptFile(encryptedFile, decryptedFile, key);
 
-    // Open on page
-    var fileURL = decryptedFile.path;
-    if (fileURL.isEmpty || fileURL.isRemoteURL) return ;
-    if (!fileURL.isFileURL) {
-      fileURL = 'file://$fileURL';
+    if (Platform.isAndroid){
+      String fileContent = await loadFileByAndroid(decryptedFile);
+      await OXNavigator.pushPage(context, (context) => CommonWebView(fileContent, isLocalHtmlResource: true,));
+    } else {
+      // Open on page
+      var fileURL = decryptedFile.path;
+      if (fileURL.isEmpty || fileURL.isRemoteURL) return ;
+      if (!fileURL.isFileURL) {
+        fileURL = 'file://$fileURL';
+      }
+      await OXNavigator.pushPage(context, (context) => CommonWebView(fileURL));
     }
-    await OXNavigator.pushPage(context, (context) => CommonWebView(fileURL));
-
     encryptedFile.delete();
     decryptedFile.delete();
+  }
+
+  Future<String> loadFileByAndroid(File file) async {
+    String fileContent = '';
+    final content = await file.readAsString();
+    fileContent = Uri.dataFromString(
+      content,
+      mimeType: 'text/html',
+      encoding: Encoding.getByName('utf-8'),
+    ).toString();
+    return fileContent;
   }
 
   void shareLinkWithScheme(String scheme, String action, Map<String, String> queryParameters) {
