@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'dart:io';
 
 ///Title: error_utils
@@ -31,13 +36,30 @@ class ErrorUtils{
 
   static Future<void> sendLogs(BuildContext context, File logFile) async {
     if (await logFile.exists()) {
+      String createEncryptKey = bytesToHex(MessageDB.getRandomSecret());
       String fileName = logFile.path.substring(logFile.path.lastIndexOf('/') + 1);
-      final String url = await UplodAliyun.uploadFileToAliyun(
-        fileType: UplodAliyunType.logType,
-        file: logFile,
-        filename: fileName,
-      );
-      LogUtil.e('John: sendLogs----url =${url}');
+      try {
+        String url = await UplodAliyun.uploadFileToAliyun(
+          fileType: UplodAliyunType.logType,
+          file: logFile,
+          filename: fileName,
+          encryptedKey: createEncryptKey,
+        );
+        if (url.isNotEmpty) {
+          OXChatInterface.sendEncryptedFileMessage(
+            context,
+            url: url,
+            receiverPubkey: '7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace',
+            key: createEncryptKey,
+            title: 'Log File',
+            subtitle: fileName,
+          );
+          CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+        }
+      } catch (e) {
+        CommonToast.instance.show(context, e.toString());
+      }
+
     }
   }
 }
