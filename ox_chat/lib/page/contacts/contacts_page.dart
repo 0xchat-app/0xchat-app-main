@@ -6,6 +6,7 @@ import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
+import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -276,7 +277,7 @@ class _ContractsPageState extends State<ContractsPage>
         if (_isShowTools)
           Container(
             alignment: Alignment.centerLeft,
-            height: Adapt.px(68),
+            height: _selectedIndex != 2 ? 68.px : 24.px,
             color: ThemeColor.color200,
             child: ListView.builder(
                 padding: EdgeInsets.only(left: Adapt.px(24)),
@@ -288,10 +289,11 @@ class _ContractsPageState extends State<ContractsPage>
                     return _inkWellWidget(
                         content: Localized.text('ox_chat.string_request_title'),
                         onTap: () {
-                          OXNavigator.pushPage(
-                            context,
-                                (context) => ContactRequest(),
-                          );
+                          if (_selectedIndex == 1) {
+                            OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId: null));
+                          } else {
+                            OXNavigator.pushPage(context, (context) => ContactRequest());
+                          }
                         });
                   }
                   return _inkWellWidget(

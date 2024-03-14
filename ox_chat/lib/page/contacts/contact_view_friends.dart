@@ -74,15 +74,9 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   void _showView() {
     if (this.mounted) {
       contractWidgetKey.currentState?.updateContactData(userList);
-      if (userList.length == 0) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-        });
-      }
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
     }
   }
 

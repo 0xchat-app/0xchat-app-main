@@ -89,6 +89,7 @@
   "un_mute_item": "铃声",
   "mute_fail_toast": "静音(取消静音)失败，请稍后再试。",
   "leave_item": "退出频道",
+  "join_item": "加入",
   "remark": "备注",
   "remark_edit": "编辑备注",
   "remark_edit_toast": "账户异常",
@@ -208,9 +209,9 @@
   "str_add_a_friend": "添加一个朋友",
   "str_john_a_channel": "加入一个频道",
   "scan_qr_code": "扫描二维码",
-  "request_join_item_text": "${name} 请求加入群组",
   "str_share_msg_confirm_content": "确认分享消息给\"+${name}+\"",
   "str_title_top_hins_contacts": "常用联系人",
   "str_chat_historys": "聊天记录",
-  "str_recent_chats": "最近聊天"
+  "str_recent_chats": "最近聊天",
+  "no_channel_added": "没有添加频道"
 }
