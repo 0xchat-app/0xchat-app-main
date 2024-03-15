@@ -7,7 +7,7 @@ import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/error_utils.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -15,7 +15,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
-import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
@@ -26,9 +25,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_push/push_lib.dart';
 
 ///Title: settings_page
@@ -48,7 +45,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
   bool _isShowZapBadge = false;
-  String pushName = 'Push Picker';
   final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
 
   @override
@@ -63,15 +59,21 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   void _loadData() async {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
-    _getPackageInfo();
-    String? distributor = await UnifiedPush.getDistributor() ;
-    pushName = distributor != null ? getShowTitle(distributor): pushName;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return _body();
+    return Scaffold(
+      appBar: CommonAppBar(
+        title: 'str_settings'.localized(),
+      ),
+      backgroundColor: ThemeColor.color200,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
+        child: _body(),
+      ),
+    );
   }
 
   Widget _body() {
@@ -80,16 +82,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildOption(
-          title: 'ox_usercenter.wallet',
-          iconName: 'icon_settings_wallet.png',
-          onTap: () async {
-            OXWalletInterface.openWalletHomePage();
-          },
-        ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Adapt.px(16)),
@@ -101,34 +93,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             shrinkWrap: true,
             itemBuilder: _itemBuild,
             itemCount: _settingModelList.length,
-          ),
-        ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
-        _buildOption(
-            title: 'ox_usercenter.donate',
-            iconName: 'icon_settings_donate.png',
-            onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage())),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () => OXNavigator.pushPage(context, (context) => const LogsFilePage()),
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              'Send logs to DEV',
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
           ),
         ),
         SizedBox(height: Adapt.px(24),),
@@ -147,30 +111,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             alignment: Alignment.center,
             child: Text(
               'str_tor_orbot_setup'.localized(),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () async {
-            pushName = await UnifiedPush.registerAppWithDialog(context) ?? 'Push Picker';
-            setState(() {});
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              pushName,
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(15),
@@ -230,57 +170,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     );
   }
 
-  Widget _itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge}) {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          height: Adapt.px(52),
-          alignment: Alignment.center,
-          child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-            leading: CommonImage(
-              iconName: iconName,
-              width: Adapt.px(32),
-              height: Adapt.px(32),
-              package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
-            ),
-            title: Text(
-              Localized.text(title),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
-              ),
-            ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _isShowZapBadge ? badge ?? Container() : Container(),
-                  Text(
-                    rightContent,
-                    style: TextStyle(
-                      color: ThemeColor.color100,
-                      fontSize: Adapt.px(16),
-                    ),
-                  ),
-                  showArrow ? CommonImage(
-                    iconName: 'icon_arrow_more.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                  ) : Container(),
-                ],
-              )),
-        ),
-        showDivider
-            ? Divider(
-                height: Adapt.px(0.5),
-                color: ThemeColor.color160,
-              )
-            : Container(),
-      ],
-    );
-  }
-
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
     if(_settingModel.settingItemType == SettingItemType.language){
@@ -323,9 +212,11 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           await OXNavigator.pushPage(context, (context) => const ThemeSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.ice) {
           OXNavigator.pushPage(context, (context) => const ICEServerPage());
+        } else if (_settingModel.settingItemType == SettingItemType.devLog) {
+          OXNavigator.pushPage(context, (context) => const LogsFilePage());
         }
       },
-      child: _itemView(
+      child: itemView(
         _settingModel.iconName,
         _settingModel.title,
         _settingModel.rightContent,
@@ -336,29 +227,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         badge: _settingModel.settingItemType == SettingItemType.zaps
             ? _buildZapBadgeWidget()
             : Container(),
-      ),
-    );
-  }
-
-  Widget _buildOption({required String title, required String iconName, Function()? onTap}){
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: Adapt.px(52),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              ThemeColor.gradientMainEnd.withOpacity(0.24),
-              ThemeColor.gradientMainStart.withOpacity(0.24),
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
-        child: _itemView(iconName, title, '', false),
+        isShowZapBadge : _isShowZapBadge,
       ),
     );
   }
@@ -406,6 +275,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
                 OXNavigator.pop(context);
                 await OXLoading.show();
                 await OXUserInfoManager.sharedInstance.logout();
+                OXNavigator.pop(context);
                 await OXLoading.dismiss();
               }),
         ],
@@ -466,21 +336,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     );
   }
 
-  void _getPackageInfo() {
-    String version = '1.0.0';
-    PackageInfo.fromPlatform().then((value) {
-      version = value.version;
-
-      setState(() {
-        _settingModelList.add(SettingModel(
-          iconName: 'icon_settings_version.png',
-          title: 'ox_usercenter.version',
-          rightContent: version,
-        ));
-      });
-    });
-  }
-
   onThemeStyleChange() {
     if (mounted) setState(() {});
   }
@@ -491,4 +346,78 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
 }
 
+Widget buildOption({required String title, required String iconName, Function()? onTap}){
+  return GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onTap: onTap,
+    child: Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            ThemeColor.gradientMainEnd.withOpacity(0.24),
+            ThemeColor.gradientMainStart.withOpacity(0.24),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: itemView(iconName, title, '', false),
+    ),
+  );
+}
+
+
+Widget itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge, bool isShowZapBadge = false}) {
+  return Column(
+    children: [
+      Container(
+        width: double.infinity,
+        height: Adapt.px(52),
+        alignment: Alignment.center,
+        child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
+            leading: CommonImage(
+              iconName: iconName,
+              width: Adapt.px(32),
+              height: Adapt.px(32),
+              package: iconName == 'icon_mute.png' ? 'ox_common' : 'ox_usercenter',
+            ),
+            title: Text(
+              Localized.text(title),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(16),
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                isShowZapBadge ? badge ?? Container() : Container(),
+                Text(
+                  rightContent,
+                  style: TextStyle(
+                    color: ThemeColor.color100,
+                    fontSize: Adapt.px(16),
+                  ),
+                ),
+                showArrow ? CommonImage(
+                  iconName: 'icon_arrow_more.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                ) : Container(),
+              ],
+            )),
+      ),
+      showDivider
+          ? Divider(
+        height: Adapt.px(0.5),
+        color: ThemeColor.color160,
+      )
+          : Container(),
+    ],
+  );
+}
 

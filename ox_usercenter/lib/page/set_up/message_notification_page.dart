@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +13,14 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_push/push_lib.dart';
 import 'package:ox_usercenter/model/notice_model.dart';
+import 'package:ox_usercenter/page/set_up/settings_page.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 
 ///Title: message_notification_page
 ///Description: TODO(Fill in by oneself)
@@ -36,6 +41,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   final List<NoticeModel> _noticeModelList = [];
   NoticeModel? _messageNoticeModel;
   final List<NoticeModel> _feedbackList = [];
+  String _pushName = '0xchat';
 
   @override
   void initState() {
@@ -44,6 +50,8 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   }
 
   void _loadData() async {
+    String? distributor = await UnifiedPush.getDistributor() ;
+    _pushName = distributor != null ? getShowTitle(distributor): _pushName;
     _allNoticeModel = await getObjectList();
     bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
     if (!containsNotification) {
@@ -128,13 +136,11 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
             ),
             child: _messageNoticeModel != null ? _itemContent(_messageNoticeModel!, height: Adapt.px(80)) : const SizedBox(),
           ),
-          SizedBox(
-            height: Adapt.px(12),
-          ),
+          SizedBox(height: Adapt.px(12)),
+          Platform.isAndroid ? _itemPushAppPicker() : const SizedBox(),
+          Platform.isAndroid ? SizedBox(height: Adapt.px(12)) : const SizedBox(),
           _buildCardItem(_feedbackList),
-          SizedBox(
-            height: Adapt.px(12),
-          ),
+          SizedBox(height: Adapt.px(12)),
           _buildCardItem(_noticeModelList),
         ],
       ),
@@ -168,6 +174,56 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         padding: const EdgeInsets.only(bottom: 0),
         itemBuilder: (context,index)=> _itemBuild(context, index, noticeModelList),
         itemCount: noticeModelList.length,
+      ),
+    );
+  }
+
+  Widget _itemPushAppPicker(){
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () async {
+        _pushName = await UnifiedPush.registerAppWithDialog(context) ?? 'Push Picker';
+        setState(() {});
+      },
+      child: Container(
+        width: double.infinity,
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Adapt.px(16)),
+          color: ThemeColor.color180,
+        ),
+        alignment: Alignment.center,
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
+          title: Text(
+            'str_push_app'.localized(),
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: 16.px,
+            ),
+          ),
+          trailing: SizedBox(
+            width: Adapt.px(140),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  _pushName,
+                  style: TextStyle(
+                    color: ThemeColor.color100,
+                    fontSize: 14.px,
+                  ),
+                ),
+                CommonImage(
+                  iconName: 'icon_arrow_more.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
