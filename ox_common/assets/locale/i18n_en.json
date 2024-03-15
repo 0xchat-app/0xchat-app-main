@@ -113,5 +113,6 @@
   "webview_more_send_to_chat": "Send to Chat",
   "str_share": "Share",
   "str_uses_app": "Uses app ${appname}",
-  "str_disables_push_notification": "Disables Push Notifications"
+  "str_disables_push_notification": "Disables Push Notifications",
+  "str_select_push_app_title": "Please select push application"
 }

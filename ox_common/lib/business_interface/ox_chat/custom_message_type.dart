@@ -4,7 +4,8 @@ enum CustomMessageType {
   call,
   template,
   note,
-  ecash,
+  ecash,    // normal token
+  ecashV2,  // support specifying recipient & signature
 }
 
 extension CustomMessageTypeEx on CustomMessageType {
@@ -20,6 +21,8 @@ extension CustomMessageTypeEx on CustomMessageType {
         return '4';
       case CustomMessageType.ecash:
         return '5';
+      case CustomMessageType.ecashV2:
+        return '6';
       default:
         return '-1';
     }

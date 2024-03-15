@@ -21,8 +21,13 @@ class CommonWebView extends StatefulWidget {
   final UrlCallBack? urlCallback;
   final bool isLocalHtmlResource;
 
-  CommonWebView(this.url,
-      {this.title, this.hideAppbar = false, this.urlCallback, bool? isLocalHtmlResource}) : isLocalHtmlResource = isLocalHtmlResource ?? false;
+  CommonWebView(
+    this.url,{
+    this.title,
+    this.hideAppbar = false,
+    this.urlCallback,
+    bool? isLocalHtmlResource,
+  }) : isLocalHtmlResource = isLocalHtmlResource ?? false;
 
   @override
   State<StatefulWidget> createState() {
@@ -31,13 +36,13 @@ class CommonWebView extends StatefulWidget {
   }
 }
 
-class CommonWebViewState<T extends StatefulWidget> extends State<T>
+class CommonWebViewState<T extends CommonWebView> extends State<T>
     with CommonJSMethodMixin<T> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   late WebViewController currentController;
 
-  get controller => _controller;
+  Future<WebViewController> get controller => _controller.future;
 
   double loadProgress = 0;
   bool showProgress = false;
@@ -60,7 +65,7 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
         ? WillPopScope(
             child: _root(),
             onWillPop: () async {
-              WebViewController webViewController = await _controller.future;
+              WebViewController webViewController = await controller;
               if (await webViewController.canGoBack()) {
                 webViewController.goBack();
                 return false;
@@ -72,7 +77,7 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
 
   _root() {
     return Scaffold(
-      appBar: !(widget as CommonWebView).hideAppbar ? _renderAppBar() : null,
+      appBar: !widget.hideAppbar ? _renderAppBar() : null,
       body: Builder(builder: (BuildContext context) {
         return buildBody();
       }),
@@ -83,7 +88,7 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
     return Column(
       children: [
         Visibility(
-          visible: !(widget as CommonWebView).hideAppbar && showProgress,
+          visible: !widget.hideAppbar && showProgress,
           child: LinearProgressIndicator(
             value: loadProgress.toDouble(),
             minHeight: 3,
@@ -99,10 +104,12 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
   }
 
   Widget buildWebView() {
-    final isLocalHtmlResource = (widget as CommonWebView).isLocalHtmlResource;
+    final isLocalHtmlResource = widget.isLocalHtmlResource;
     return WebView(
         debuggingEnabled: kDebugMode,
-        initialUrl: isLocalHtmlResource ? (widget as CommonWebView).url : Uri.encodeFull(formatUrl((widget as CommonWebView).url)),
+        initialUrl: isLocalHtmlResource
+            ? widget.url
+            : Uri.encodeFull(formatUrl(widget.url)),
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           currentController = webViewController;
@@ -124,15 +131,15 @@ class CommonWebViewState<T extends StatefulWidget> extends State<T>
           }
         },
         navigationDelegate: (navigationDelegate) async {
-          (widget as CommonWebView).urlCallback?.call(navigationDelegate.url);
+          widget.urlCallback?.call(navigationDelegate.url);
           return NavigationDecision.navigate;
         });
   }
 
   _renderAppBar() {
     return CommonWebViewAppBar(
-      title: Text('${(widget as CommonWebView).title ?? ""}'),
-      webViewControllerFuture: _controller.future,
+      title: Text('${widget.title ?? ""}'),
+      webViewControllerFuture: controller,
     );
   }
 

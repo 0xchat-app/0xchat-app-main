@@ -163,5 +163,6 @@ extension StringUtil on String {
   }
 
   bool get isRemoteURL => RegExp(r'https?:\/\/').hasMatch(this);
+  bool get isFileURL => RegExp(r'file:\/\/').hasMatch(this.toLowerCase());
 }
 

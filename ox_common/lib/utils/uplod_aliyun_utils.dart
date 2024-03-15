@@ -18,6 +18,7 @@ enum UplodAliyunType {
   imageType,
   voiceType,
   videoType,
+  logType,
 }
 
 class UplodAliyun {
@@ -81,6 +82,7 @@ class UplodAliyun {
   }
 
   static Future<String> uploadFile(String filepath, UplodAliyunType fileType, String filename) async {
+    String fileFolder = getFileFolders(fileType);
     Response<dynamic> resp = await Client().putObjectFile(
       filepath,
       option: PutRequestOption(
@@ -98,23 +100,24 @@ class UplodAliyun {
           calbackBodyType: CalbackBodyType.json,
         ),
       ),
-      fileKey: "${getFileFolders(fileType)}$filename",
+      fileKey: "$fileFolder$filename",
     );
-
     LogUtil.e("resp : $resp");
 
-    String uri = 'https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}/${getFileFolders(fileType)}$filename';
+    String uri = 'https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}/$fileFolder$filename';
     return uri;
   }
 
   static String getFileFolders(UplodAliyunType fileType) {
-    if (fileType == UplodAliyunType.imageType) {
-      return 'images/';
-    } else if (fileType == UplodAliyunType.videoType) {
-      return 'video/';
-    } else if (fileType == UplodAliyunType.voiceType) {
-      return 'voice/';
+    switch(fileType){
+      case UplodAliyunType.imageType:
+        return 'images/';
+      case UplodAliyunType.videoType:
+        return 'video/';
+      case UplodAliyunType.voiceType:
+        return 'voice/';
+      case UplodAliyunType.logType:
+        return 'logs/';
     }
-    return '';
   }
 }
