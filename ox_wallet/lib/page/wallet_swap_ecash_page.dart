@@ -130,7 +130,10 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       if(receipt == null) throw SwapException(Localized.text('ox_wallet.swap_failed'));
 
       final result = await EcashService.payingLightningInvoice(mint: _sendMintNotifier.value!, pr: receipt.request);
-      if(result == null || !result) throw SwapException(Localized.text('ox_wallet.swap_failed'));
+      if(result == null || !result) {
+        await Cashu.deleteLightningInvoice(receipt);
+        throw SwapException(Localized.text('ox_wallet.swap_failed'));
+      }
 
       final response = await Cashu.checkReceiptCompleted(receipt);
       if(!response.isSuccess) throw SwapException(Localized.text('ox_wallet.swap_failed'));
