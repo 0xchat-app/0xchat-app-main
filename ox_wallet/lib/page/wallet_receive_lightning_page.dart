@@ -4,6 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_wallet/page/sats_receive_page.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletReceiveLightningPage extends StatefulWidget {
   const WalletReceiveLightningPage({super.key});
@@ -35,14 +36,14 @@ class _WalletReceiveLightningPageState extends State<WalletReceiveLightningPage>
       child: Scaffold(
           backgroundColor: ThemeColor.color190,
           appBar: CommonAppBar(
-            title: 'Receive',
+            title: Localized.text('ox_wallet.receive_text'),
             centerTitle: true,
             useLargeTitle: false,
             actions: [
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => _shareController.value = !_shareController.value,
-                child:Center(child: Text('Pay',style: TextStyle(fontSize: 18.sp,color: ThemeColor.color0)).setPaddingOnly(right: 20.px)),
+                child:Center(child: Text(Localized.text('ox_wallet.pay_text'),style: TextStyle(fontSize: 18.sp,color: ThemeColor.color0)).setPaddingOnly(right: 20.px)),
               ),
             ],
           ),

@@ -12,6 +12,7 @@ import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 enum  ImportAction{
   import,
@@ -68,18 +69,27 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       body:Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 100.px,child: Center(child: _buildText(isAddAction ? 'Add a new mint' : 'Import wallet'),),),
-          isAddAction ? CommonLabeledCard.textFieldAndScan(
-            hintText: 'Mint URL',
+          SizedBox(
+              height: 100.px,
+              child: Center(
+                child: _buildText(
+                  isAddAction
+                      ? Localized.text('ox_wallet.add_new_mint')
+                      : Localized.text('ox_wallet.import_wallet'),
+                ),
+              ),
+            ),
+            isAddAction ? CommonLabeledCard.textFieldAndScan(
+            hintText: Localized.text('ox_wallet.mint_url_hint_text'),
             controller: _controller,
             onTap: () => WalletUtils.gotoScan(context, (result) => _controller.text = result),
           ) : CommonLabeledCard.textFieldAndImportFile(
-            hintText: 'Enter Restore Cashu Token',
+            hintText: Localized.text('ox_wallet.restore_cashu_hint_text'),
             controller: _controller,
             onTap: _importTokenFile,
           ),
           SizedBox(height: 30.px,),
-          ThemeButton(text: isAddAction ? 'Add' : 'Import',height: 48.px,enable: _enable, onTap: isAddAction ? _addMint : _importWallet),
+          ThemeButton(text: isAddAction ? Localized.text('ox_wallet.add') : Localized.text('ox_wallet.import'),height: 48.px,enable: _enable, onTap: isAddAction ? _addMint : _importWallet),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px))
     );
@@ -111,11 +121,11 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
     final mint = await EcashService.addMint(_controller.text);
     OXLoading.dismiss();
     if (mint == null) {
-      _showToast('Add Mint Failed, Please try again.');
+      _showToast(Localized.text("ox_wallet.add_mint_failed_tips"));
       return;
     }
     
-    _showToast('Add Mint Successful');
+    _showToast(Localized.text("ox_wallet.add_mint_success_tips"));
     _handleUseScenario();
   }
 
@@ -126,13 +136,13 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       final token = await file.readAsString();
       _controller.text = token;
     } catch (e) {
-      _showToast('Please import the correct backup file.');
+      _showToast(Localized.text("ox_wallet.import_invalid_tips"));
     }
   }
 
   Future<void> _importWallet() async {
     if(!EcashService.isCashuToken(_controller.text)){
-      _showToast('Invalid Cashu Token');
+      _showToast(Localized.text("ox_wallet.invalid_cashu_token"));
       return;
     }
     OXLoading.show();
@@ -142,7 +152,7 @@ class _WalletMintManagementAddPageState extends State<WalletMintManagementAddPag
       _showToast(response.errorMsg);
       return;
     }
-    _showToast('Import Wallet successful');
+    _showToast(Localized.text("ox_wallet.import_success_tips"));
     _handleUseScenario();
   }
 

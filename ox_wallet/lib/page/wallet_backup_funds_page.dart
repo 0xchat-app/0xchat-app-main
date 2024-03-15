@@ -13,6 +13,7 @@ import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletBackupFundsPage extends StatefulWidget {
   final IMint? mint;
@@ -24,7 +25,7 @@ class WalletBackupFundsPage extends StatefulWidget {
 
 class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
 
-  final content = 'The backup funds process automatically consolidates and calculates the smallest proofs for efficient storage while enhancing security. However, please be aware that once the recovery is completed, the old Cashu token becomes invalid, so ensure the process is carried out securely';
+  final content = Localized.text('ox_wallet.backup_funds_instruction');
   String? _cashuToken;
   bool _isCopied = false;
 
@@ -39,18 +40,18 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
     return Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'Backup funds',
+          title: Localized.text('ox_wallet.backup_funds_title'),
           centerTitle: true,
           useLargeTitle: false,
         ),
         body: SingleChildScrollView(
           child: CommonLabeledCard(
-            label: 'Cashu token',
+            label: Localized.text('ox_wallet.cashu_token'),
             child: Column(
               children: [
                 _buildCashuTokenItem(),
-                if(widget.mint != null) _buildItem(title: 'Mint', content: widget.mint?.mintURL).setPaddingOnly(top: 24.px),
-                _buildItem(title: 'How does it work?',content: content).setPaddingOnly(top: 24.px),
+                if(widget.mint != null) _buildItem(title: Localized.text('ox_wallet.mint'), content: widget.mint?.mintURL).setPaddingOnly(top: 24.px),
+                _buildItem(title: Localized.text('ox_wallet.how_to_operate'),content: content).setPaddingOnly(top: 24.px),
                 if (widget.mint == null) _buildDownloadButton(),
               ],
             ),
@@ -103,7 +104,7 @@ class _WalletBackupFundsPageState extends State<WalletBackupFundsPage> {
 
   Widget _buildDownloadButton() {
     return ThemeButton(
-      text: 'Download',
+      text: Localized.text('ox_wallet.download_button'),
       height: 48.px,
       enable: _cashuToken != null,
       onTap: () => WalletUtils.exportToken(_cashuToken ?? ''),

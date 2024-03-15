@@ -16,6 +16,7 @@ import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletSendEcashNewTokenPage extends StatefulWidget {
   final String token;
@@ -48,7 +49,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
       child: Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'New Cashu token',
+          title: Localized.text('ox_wallet.new_cashu_token'),
           centerTitle: true,
           useLargeTitle: false,
           backCallback: () => OXNavigator.popToPage(context, pageType: const WalletHomePage().runtimeType.toString()),
@@ -59,7 +60,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
               SatsAmountCard(controller: _controller, enable: false,).setPaddingOnly(top: 12.px),
               _buildTokenCard(),
               ThemeButton(
-                  text: 'Share',
+                  text: Localized.text('ox_wallet.share'),
                   height: 48.px,
                   onTap: () => OXNavigator.presentPage(
                       context,
@@ -104,7 +105,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
 
   void _shareCashuToken(List<UserDB> userList){
     if(userList.isEmpty){
-      CommonToast.instance.show(context, 'Please select share contact');
+      CommonToast.instance.show(context, Localized.text('ox_wallet.share_selected_tips'));
       return;
     }
     for (var user in userList) {

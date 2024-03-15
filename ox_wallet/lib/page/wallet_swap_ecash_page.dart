@@ -14,6 +14,7 @@ import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletSwapEcashPage extends StatefulWidget {
   const WalletSwapEcashPage({super.key});
@@ -37,7 +38,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'Swap Ecash',
+          title: Localized.text('ox_wallet.swap_ecash'),
           centerTitle: true,
           useLargeTitle: false,
         ),
@@ -70,12 +71,12 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
             child: Column(
               children: [
                 _buildSelectMintWidget(
-                  'From',
+                  Localized.text('ox_wallet.from'),
                   _sendMintNotifier,
                   onChanged: (mint) => _mintChanged(mint, _sendMintNotifier, _receiveNotifier),
                 ).setPaddingOnly(top: 12.px),
                 _buildSelectMintWidget(
-                  'To',
+                  Localized.text('ox_wallet.to'),
                   _receiveNotifier,
                   onChanged: (mint) => _mintChanged(mint, _receiveNotifier, _sendMintNotifier),
                 ).setPaddingOnly(top: 24.px),
@@ -92,7 +93,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
         builder: (context, child) {
           return ThemeButton(
             onTap: _swap,
-            text: 'Swap',
+            text: Localized.text('ox_wallet.swap'),
             height: 48.px,
             enable: _isValid(),
           ).setPaddingOnly(top: 24.px);
@@ -122,20 +123,29 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
     try{
       if(!_isValid()) return;
       int amount = int.parse(_amountEditController.text);
-      if(_sendMintNotifier.value!.balance < amount) throw SwapException('Insufficient balance');
+      if(_sendMintNotifier.value!.balance < amount) throw SwapException(Localized.text('ox_wallet.swap_insufficient_balance'));
 
       OXLoading.show();
       final receipt = await EcashService.createLightningInvoice(mint: _receiveNotifier.value!, amount: amount);
-      if(receipt == null) throw SwapException('Swap failed');
+      if(receipt == null) throw SwapException(Localized.text('ox_wallet.swap_failed'));
 
       final result = await EcashService.payingLightningInvoice(mint: _sendMintNotifier.value!, pr: receipt.request);
-      if(result == null || !result) throw SwapException('Swap failed');
+      if(result == null || !result) throw SwapException(Localized.text('ox_wallet.swap_failed'));
 
       final response = await Cashu.checkReceiptCompleted(receipt);
-      if(!response.isSuccess) throw SwapException('Swap failed');
+      if(!response.isSuccess) throw SwapException(Localized.text('ox_wallet.swap_failed'));
       OXLoading.dismiss();
       setState(() {});
-      if(context.mounted) OXNavigator.pushPage(context, (context) => WalletSuccessfulPage(title: 'Swap', canBack: true,content: 'Swap of $amount sats successful!',));
+      if (context.mounted) {
+        OXNavigator.pushPage(
+          context,
+          (context) => WalletSuccessfulPage(
+            title: Localized.text('ox_wallet.swap'),
+            canBack: true,
+            content: Localized.text('ox_wallet.swap_success_tips').replaceAll(r'${amount}', '$amount'),
+          ),
+        );
+      }
     } catch (e) {
       OXLoading.dismiss();
       if (e is SwapException) if (context.mounted) CommonToast.instance.show(context, e.message);

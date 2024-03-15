@@ -7,6 +7,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_wallet/page/wallet_mint_choose_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class MintItem extends StatelessWidget {
   final IMint? mint;
@@ -67,7 +68,7 @@ class MintItem extends StatelessWidget {
                     Text('${mint!.balance} Sats',style: TextStyle(height: 20.px / 14.px),),
                   ],
                 ),
-              ) : const Expanded(child: Text('Please select mint first')),
+              ) : Expanded(child: Text(Localized.text('ox_wallet.select_mint_text'))),
               CommonImage(
                 iconName: 'icon_wallet_more_arrow.png',
                 size: 24.px,

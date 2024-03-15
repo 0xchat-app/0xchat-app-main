@@ -9,6 +9,7 @@ import 'package:ox_wallet/page/wallet_mint_management_add_page.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletMintChoosePage extends StatefulWidget {
   final ValueChanged<IMint>? onChanged;
@@ -32,7 +33,7 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Select Mint',
+        title: Localized.text('ox_wallet.select_mint_title'),
         centerTitle: true,
         useLargeTitle: false,
       ),
@@ -50,7 +51,7 @@ class _WalletMintChoosePageState extends State<WalletMintChoosePage> {
   }
 
   Widget _defaultWidget() {
-    return ThemeButton(text: 'Add Mint',height: 48.px,onTap: () async {
+    return ThemeButton(text: Localized.text('ox_wallet.add_mint_button'),height: 48.px,onTap: () async {
       bool? result = await OXNavigator.pushPage(context, (context) => const WalletMintManagementAddPage());
       if (result != null && result) {
         setState(() {

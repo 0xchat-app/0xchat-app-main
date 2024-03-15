@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -11,6 +10,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_wallet/widget/proof_selection_card.dart';
 import 'package:ox_wallet/widget/selection_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletSendEcashCoinSelectionPage extends StatefulWidget {
   final IMint mint;
@@ -43,7 +43,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Coin selection',
+        title: Localized.text('ox_wallet.coin_selection'),
         centerTitle: true,
         useLargeTitle: false,
       ),
@@ -77,7 +77,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
       builder: (context,value,child) {
         return SafeArea(
             child: ThemeButton(
-              text: 'Confirm',
+              text: Localized.text('ox_wallet.confirm'),
               height: 48.px,
               enable: value,
               onTap: () => OXNavigator.pop(context, _selectedProofs),
