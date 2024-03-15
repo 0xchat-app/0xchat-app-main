@@ -8,7 +8,7 @@ import 'package:ox_push/src/ox_push.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'constants.dart';
-import 'dialogs.dart';
+import 'push_picker_dialogs.dart';
 
 class UnifiedPush {
   static Future<void> initialize({
@@ -66,10 +66,12 @@ class UnifiedPush {
     final distributors = await getDistributors(features);
     List<String> showDistributors = [];
     showDistributors.addAll(distributors);
-    showDistributors.add(UnifiedPush.noDistribAck);
-    picked = await showDialog<String>(
+    picked = await showModalBottomSheet(
       context: context,
-      builder: pickDistributorDialog(showDistributors),
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return PushPickerDialog(distributors: showDistributors,);
+      },
     );
     if (picked != null ) {
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME, picked);
