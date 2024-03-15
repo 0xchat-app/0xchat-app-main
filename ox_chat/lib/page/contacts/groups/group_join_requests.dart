@@ -38,7 +38,7 @@ class UserRequestInfo {
 }
 
 class GroupJoinRequests extends StatefulWidget {
-  final String groupId;
+  final String? groupId;
 
   GroupJoinRequests({required this.groupId});
   @override

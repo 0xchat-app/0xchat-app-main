@@ -6,6 +6,7 @@ import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
+import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -234,15 +235,7 @@ class _ContractsPageState extends State<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            if (_selectedIndex == 0) {
-              SearchPage(
-                searchPageType: SearchPageType.singleFriend,
-              ).show(context);
-            } else if (_selectedIndex == 1) {
-              SearchPage(
-                searchPageType: SearchPageType.singleChannel,
-              ).show(context);
-            }
+            SearchPage(searchPageType: SearchPageType.all).show(context);
           },
           child: Container(
             width: double.infinity,
@@ -272,8 +265,7 @@ class _ContractsPageState extends State<ContractsPage>
                   width: Adapt.px(8),
                 ),
                 MyText(
-                  'search'.localized() +
-                      (_selectedIndex == 0 ? 'search_tips_suffix_friend'.localized() : 'search_tips_suffix_channel'.localized()),
+                  'search'.localized(),
                   15,
                   ThemeColor.color150,
                   fontWeight: FontWeight.w400,
@@ -285,22 +277,23 @@ class _ContractsPageState extends State<ContractsPage>
         if (_isShowTools)
           Container(
             alignment: Alignment.centerLeft,
-            height: Adapt.px(68),
+            height: _selectedIndex != 2 ? 68.px : 24.px,
             color: ThemeColor.color200,
             child: ListView.builder(
                 padding: EdgeInsets.only(left: Adapt.px(24)),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                itemCount: 2,
+                itemCount: _getButtonCount(),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return _inkWellWidget(
                         content: Localized.text('ox_chat.string_request_title'),
                         onTap: () {
-                          OXNavigator.pushPage(
-                            context,
-                                (context) => ContactRequest(),
-                          );
+                          if (_selectedIndex == 1) {
+                            OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId: null));
+                          } else {
+                            OXNavigator.pushPage(context, (context) => ContactRequest());
+                          }
                         });
                   }
                   return _inkWellWidget(
@@ -331,8 +324,8 @@ class _ContractsPageState extends State<ContractsPage>
     OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
   }
 
-  void _gotoCreateGroup() {
-    OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+  int _getButtonCount(){
+    return _selectedIndex == 0 ? 2 : _selectedIndex == 1 ?  1 : 0;
   }
 
   @override

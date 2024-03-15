@@ -118,23 +118,23 @@ class ChannelContactState extends State<ChannelContact> {
     _initIndexBarData();
     return Material(
       color: ThemeColor.color200,
-      child: channelList.isEmpty
-          ? _emptyWidget()
-          : Stack(
-              alignment: AlignmentDirectional.centerEnd,
-              children: <Widget>[
-                CustomScrollView(
-                  slivers: _buildSlivers(context),
-                  physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
-                  shrinkWrap: widget.shrinkWrap,
-                ),
-                Container(
+      child: Stack(
+        alignment: AlignmentDirectional.centerEnd,
+        children: <Widget>[
+          CustomScrollView(
+            slivers: _buildSlivers(context),
+            physics: widget.physics ?? BouncingScrollPhysics(),
+            shrinkWrap: widget.shrinkWrap,
+          ),
+          channelList.isEmpty
+              ? SizedBox()
+              : Container(
                   child: _buildAlphaBar(),
                   width: 30,
                 ),
-                _isTouchTagBar ? _buildCenterModal() : Container(),
-              ],
-            ),
+          _isTouchTagBar ? _buildCenterModal() : Container(),
+        ],
+      ),
     );
   }
 
@@ -145,14 +145,14 @@ class ChannelContactState extends State<ChannelContact> {
       child: Column(
         children: <Widget>[
           assetIcon(
-            'icon_search_user_no.png',
+            'icon_group_no.png',
             110.0,
             110.0,
           ),
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              Localized.text('ox_chat.no_contacts_added'),
+              Localized.text('ox_chat.no_channel_added'),
               14,
               ThemeColor.gray02,
             ),
@@ -238,33 +238,38 @@ class ChannelContactState extends State<ChannelContact> {
         ),
       );
     }
-    noteList.forEach((item) {
-      slivers.add(
-        SliverStickyHeader(
-          header: Visibility(
-              visible: item.tag != "☆",
-              child: GroupHeaderWidget(
-                tag: item.tag,
-              )),
-          sliver: SliverList(
-            delegate: new SliverChildBuilderDelegate(
-              (context, i) => GroupContactListItem(
-                item: item.childList[i],
+    if (channelList.isEmpty) {
+      slivers.add(SliverToBoxAdapter(child: _emptyWidget()));
+    } else {
+      noteList.forEach((item) {
+        slivers.add(
+          SliverStickyHeader(
+            header: Visibility(
+                visible: item.tag != "☆",
+                child: GroupHeaderWidget(
+                  tag: item.tag,
+                )),
+            sliver: SliverList(
+              delegate: new SliverChildBuilderDelegate(
+                    (context, i) =>
+                    GroupContactListItem(
+                      item: item.childList[i],
+                    ),
+                childCount: item.childList.length,
               ),
-              childCount: item.childList.length,
             ),
+          ),
+        );
+      });
+      double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
+      slivers.add(
+        SliverToBoxAdapter(
+          child: Container(
+            height: fillH,
           ),
         ),
       );
-    });
-    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
-    slivers.add(
-      SliverToBoxAdapter(
-        child: Container(
-          height: fillH,
-        ),
-      ),
-    );
+    }
     return slivers;
   }
 

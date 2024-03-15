@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_usercenter/page/set_up/dev_log_detail_page.dart';
+import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:path_provider/path_provider.dart';
 
 ///Title: logs_file_page
@@ -18,7 +23,6 @@ import 'package:path_provider/path_provider.dart';
 ///@author Michael
 ///CreateTime: 2024/3/11 15:23
 class LogsFilePage extends StatefulWidget {
-
   const LogsFilePage({Key? key}) : super(key: key);
 
   @override
@@ -45,6 +49,11 @@ class _LogsFilePageState extends State<LogsFilePage> {
         _filePaths.add(file);
       }
     }
+    _filePaths.sort((a, b) {
+      DateTime aModified = a.lastModifiedSync();
+      DateTime bModified = b.lastModifiedSync();
+      return bModified.compareTo(aModified);
+    });
 
     setState(() {});
   }
@@ -54,58 +63,66 @@ class _LogsFilePageState extends State<LogsFilePage> {
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(
-        title: 'Send Log To DEV',
+        title: 'str_dev_log'.localized(),
+        backgroundColor: ThemeColor.color200,
       ),
       body: ListView.builder(
         itemCount: _filePaths.length,
         itemBuilder: (BuildContext context, int index) {
           File file = _filePaths.elementAt(index);
-          String fileName = file.path.substring(file.path.lastIndexOf('/')+1);
+          String fileName = file.path.substring(file.path.lastIndexOf('/') + 1);
+          String timestampStr = fileName.split('_').last.split('.').first;
+          int timestamp = int.parse(timestampStr);
+          String fileChangedTime = OXDateUtils.formatTimestamp(timestamp, pattern: 'yyyy-MM-dd HH:mm:ss');
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: (){
-              _uploadAndSendLog(file);
+            onTap: () {
+              OXNavigator.pushPage(context, (context) => DevLogDetailPage(file: file));
             },
             child: Column(
               children: [
+                SizedBox(height: 12.px),
                 Container(
-                  height: 44.px,
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 12.px),
-                  child: Text(
-                    fileName,
-                    style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w600),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.px),
+                    color: ThemeColor.color180,
+                  ),
+                  child: Container(
+                    height: 58.px,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fileChangedTime,
+                              style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              fileName,
+                              style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        CommonImage(
+                          iconName: 'icon_arrow_more.png',
+                          width: 24.px,
+                          height: 24.px,
+                        )
+                      ],
+                    ),
                   ),
                 ),
-                Divider(
-                  height: Adapt.px(0.5),
-                  color: ThemeColor.color160,
-                )
               ],
-            ),
+            ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
           );
         },
       ),
     );
   }
 
-  void _uploadAndSendLog(File file) async {
-    OXCommonHintDialog.show(context,
-        title: 'Hint',
-        content: 'Are you sure you want to send this log file to the developer water783?',
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context);
-          }),
-          OXCommonHintAction.sure(
-              text: Localized.text('ox_common.confirm'),
-              onTap: () async {
-                OXNavigator.pop(context);
-                await OXLoading.show();
-                await ErrorUtils.sendLogs(context, file);
-                await OXLoading.dismiss();
-              }),
-        ],
-        isRowAction: true);
-  }
+
 }

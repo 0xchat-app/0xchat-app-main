@@ -110,6 +110,7 @@ class ChatMessageDBToUIHelper {
                   }
                   break ;
                 case CustomMessageType.ecash:
+                case CustomMessageType.ecashV2:
                   var memo = '';
                   try {
                     memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
@@ -121,7 +122,7 @@ class ChatMessageDBToUIHelper {
             }
           } catch (_) { }
         }
-        return Localized.text('ox_common.message_type_template');
+        return Localized.text('ox_common.message_type_unknown');
       default:
         return Localized.text('ox_common.message_type_unknown');
     }
@@ -134,6 +135,8 @@ class ChatMessageDBToUIHelper {
 }
 
 extension MessageDBToUIEx on MessageDB {
+
+  String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
@@ -148,207 +151,47 @@ extension MessageDBToUIEx on MessageDB {
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     // ContentModel
-    final decryptContent = this.decryptContent;
-
-    MessageContentModel contentModel = MessageContentModel();
-    contentModel.mid = messageId;
-    contentModel.contentType = MessageDB.stringtoMessageType(this.type);
-    try {
-      final decryptedContent = json.decode(decryptContent);
-      if (decryptedContent is Map) {
-        contentModel.content = decryptedContent['content'];
-        contentModel.duration = decryptedContent['duration'];
-      } else if (decryptedContent is String) {
-        contentModel.content = decryptedContent.toString();
-      }
-    } catch (e) {}
-
-    if (contentModel.content == null) {
-      contentModel.content = decryptContent;
-    }
+    final contentModel = getContentModel();
 
     // Author
-    final senderId = this.sender;
-    final author = await ChatMessageDBToUIHelper.getUser(senderId);
-    if (author == null) {
-      ChatLogUtils.error(
-        className: 'MessageDBToUIEx',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'author is null',
-      );
-      return null;
-    }
+    final author = await getAuthor();
+    if (author == null) return null;
 
     logger?.printMessage = '2';
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
     // Status
-    final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(senderId);
-    final status = this.status; // 0 sending, 1 sent, 2 fail 3 recall
-    UIMessage.Status msgStatus;
-    switch (status) {
-      case 0:
-        msgStatus = UIMessage.Status.sending;
-        break ;
-      case 1:
-      case 3:
-        msgStatus = senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
-        break ;
-      case 2:
-        msgStatus = UIMessage.Status.error;
-        break ;
-      default :
-        msgStatus = senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
-    }
+    final msgStatus = getStatus();
 
     // MessageTime
     final messageTimestamp = this.createTime * 1000;
 
     // ChatId
     final chatId = getRoomId();
-    if (chatId == null) {
-      ChatLogUtils.error(
-        className: 'MessageDBToUIEx',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'chatId is null',
-      );
-      return null;
-    }
+    if (chatId == null) return null;
 
     logger?.printMessage = '3';
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
-    // MessageType & mid & MessageId
-    final mid = contentModel.mid;
-    final messageType = contentModel.contentType;
-    if (mid == null || mid.isEmpty) {
-      ChatLogUtils.error(
-        className: 'MessageDBToUIEx',
-        funcName: 'convertMessageDBToUIModel',
-        message: 'messageType: $messageType, mid: $mid',
-      );
-      return null;
-    }
-
-    logger?.printMessage = '4 $messageType';
+    logger?.printMessage = '4 ${contentModel.contentType}';
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
-    MessageFactory messageFactory;
-    switch (messageType) {
-      case MessageType.text:
-        final initialText = contentModel.content ?? '';
-        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null){
-          contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
-          messageFactory = CustomMessageFactory();
-          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
-            if(nostrSchemeContent != null){
-              this.type = 'template';
-              this.decryptContent = nostrSchemeContent;
-              await DB.sharedInstance.update(this);
-              final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
-              final uiMessage = await this.toChatUIMessage();
-              if(uiMessage != null){
-                ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
-              }
-            }
-          });
-        }
-        else if(Zaps.isLightningInvoice(initialText)){
-          messageFactory = CustomMessageFactory();
-          Map<String, String> req = Zaps.decodeInvoice(initialText);
-          String link = CustomURIHelper.createModuleActionURI(
-              module: 'ox_chat',
-              action: 'zapsRecordDetail',
-              params: {'invoice': initialText, 'amount': req['amount'], 'zapsTime': req['timestamp']});
-          Map<String, dynamic> map = {};
-          map['type'] = '1';
-          map['content'] = {
-            'zapper': '',
-            'invoice': initialText,
-            'amount': req['amount'],
-            'description': 'Best wishes',
-            'link': link
-          };
-          this.type = 'template';
-          this.decryptContent = jsonEncode(map);
-          contentModel.content = this.decryptContent;
-          await DB.sharedInstance.update(this);
-        } else if (Cashu.isCashuToken(initialText)) {
-          messageFactory = CustomMessageFactory();
-          this.type = 'template';
-          this.decryptContent = jsonEncode(CustomMessageEx.ecashMetaData(tokenList: [initialText]));
-          contentModel.content = this.decryptContent;
-          await DB.sharedInstance.update(this);
-        }
-        else{
-          messageFactory = TextMessageFactory();
-          final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
-            if (mentions.isEmpty) return ;
-            final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
-            if (hasCurrentUser) {
-              isMentionMessageCallback?.call();
-            }
-          });
-          if (mentionDecodeText != null) {
-            contentModel.content = mentionDecodeText;
-          }
-        }
-        break ;
-      case MessageType.image:
-      case MessageType.encryptedImage:
-        messageFactory = ImageMessageFactory();
-        break ;
-      case MessageType.video:
-      case MessageType.encryptedVideo:
-        messageFactory = VideoMessageFactory();
-        break ;
-      case MessageType.audio:
-      case MessageType.encryptedAudio:
-        messageFactory = AudioMessageFactory();
-        break ;
-      case MessageType.call:
-        messageFactory = CallMessageFactory();
-        break ;
-      case MessageType.system:
-        messageFactory = SystemMessageFactory();
-        break ;
-      case MessageType.template:
-        messageFactory = CustomMessageFactory();
-        break ;
-      default:
-        ChatLogUtils.error(
-          className: 'MessageDBToUIEx',
-          funcName: 'convertMessageDBToUIModel',
-          message: 'unknown message type',
-        );
-        return null;
-    }
+    // Message UI Model Creator
+    MessageFactory messageFactory = await getMessageFactory(
+      contentModel,
+      isMentionMessageCallback,
+    );
 
     logger?.printMessage = '5';
     ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
 
-    UIMessage.EncryptionType fileEncryptionType;
-    switch (messageType) {
-      case MessageType.encryptedImage:
-      case MessageType.encryptedVideo:
-      case MessageType.encryptedAudio:
-        fileEncryptionType = UIMessage.EncryptionType.encrypted;
-        break ;
-      default:
-        fileEncryptionType = UIMessage.EncryptionType.none;
-    }
+    // Encryption type
+    final fileEncryptionType = getEncryptionType(contentModel);
 
-    // repliedMessage
-    types.Message? repliedMessage;
-    if (replyId.isNotEmpty && loadRepliedMessage) {
-      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
-      final messageList = result['messages'];
-      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
-        final repliedMessageDB = messageList.first;
-        repliedMessage = await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
-      }
-    }
+    // RepliedMessage
+    final repliedMessage = await getRepliedMessage(loadRepliedMessage);
 
+    // Execute create
     final result = messageFactory.createMessage(
       author: author,
       timestamp: messageTimestamp,
@@ -370,6 +213,55 @@ extension MessageDBToUIEx on MessageDB {
     return result;
   }
 
+  MessageContentModel getContentModel() {
+    final contentModel = MessageContentModel();
+    contentModel.mid = messageId;
+    contentModel.contentType = MessageDB.stringtoMessageType(this.type);
+    try {
+      final decryptedContent = json.decode(decryptContent);
+      if (decryptedContent is Map) {
+        contentModel.content = decryptedContent['content'];
+        contentModel.duration = decryptedContent['duration'];
+      } else if (decryptedContent is String) {
+        contentModel.content = decryptedContent;
+      }
+    } catch (e) {}
+
+    if (contentModel.content == null) {
+      contentModel.content = decryptContent;
+    }
+
+    return contentModel;
+  }
+
+  Future<types.User?> getAuthor() async {
+    final author = await ChatMessageDBToUIHelper.getUser(sender);
+    if (author == null) {
+      ChatLogUtils.error(
+        className: 'MessageDBToUIEx',
+        funcName: 'getAuthor',
+        message: 'author is null',
+      );
+    }
+    return author;
+  }
+
+  UIMessage.Status getStatus() {
+    final senderIsMe = OXUserInfoManager.sharedInstance.isCurrentUser(sender);
+    final status = this.status; // 0 sending, 1 sent, 2 fail 3 recall
+    switch (status) {
+      case 0:
+        return UIMessage.Status.sending;
+      case 1:
+      case 3:
+        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
+      case 2:
+        return UIMessage.Status.error;
+      default :
+        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
+    }
+  }
+
   String? getRoomId() {
     String? chatId;
     final groupId = this.groupId;
@@ -385,7 +277,132 @@ extension MessageDBToUIEx on MessageDB {
     } else if (receiverId.isNotEmpty && receiverId != currentUserPubKey) {
       chatId = receiverId;
     }
+    if (chatId == null) {
+      ChatLogUtils.error(
+        className: 'MessageDBToUIEx',
+        funcName: 'convertMessageDBToUIModel',
+        message: 'chatId is null',
+      );
+    }
     return chatId;
+  }
+
+  types.EncryptionType getEncryptionType(MessageContentModel contentModel) {
+    switch (contentModel.contentType) {
+      case MessageType.encryptedImage:
+      case MessageType.encryptedVideo:
+      case MessageType.encryptedAudio:
+        return UIMessage.EncryptionType.encrypted;
+      default:
+        return UIMessage.EncryptionType.none;
+    }
+  }
+
+
+  Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
+    if (replyId.isNotEmpty && loadRepliedMessage) {
+      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
+      final messageList = result['messages'];
+      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
+        final repliedMessageDB = messageList.first;
+        return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
+      }
+    }
+    return null;
+  }
+
+  Future<MessageFactory> getMessageFactory(
+    MessageContentModel contentModel,
+    [VoidCallback? isMentionMessageCallback = null]
+  ) async {
+    final messageType = contentModel.contentType;
+    switch (messageType) {
+      case MessageType.text:
+        final initialText = contentModel.content ?? '';
+        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
+          contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
+          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
+            if(nostrSchemeContent != null) {
+              parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
+              await DB.sharedInstance.update(this);
+              final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
+              final uiMessage = await this.toChatUIMessage();
+              if(uiMessage != null){
+                ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
+              }
+            }
+          });
+          return CustomMessageFactory();
+        } else if(Zaps.isLightningInvoice(initialText)) {
+          Map<String, String> req = Zaps.decodeInvoice(initialText);
+          final amount = req['amount'] ?? '';
+          if (amount.isNotEmpty) {
+            Map<String, dynamic> map = CustomMessageEx.zapsMetaData(
+                zapper: '',
+                invoice: initialText,
+                amount: amount,
+                description: 'Best wishes'
+            );
+            parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
+            contentModel.content = this.decryptContent;
+            await DB.sharedInstance.update(this);
+            return CustomMessageFactory();
+          }
+        } else if (Cashu.isCashuToken(initialText)) {
+          parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
+          contentModel.content = this.decryptContent;
+          await DB.sharedInstance.update(this);
+          return CustomMessageFactory();
+        }
+
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+          if (mentions.isEmpty) return ;
+          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+          if (hasCurrentUser) {
+            isMentionMessageCallback?.call();
+          }
+        });
+        if (mentionDecodeText != null) {
+          contentModel.content = mentionDecodeText;
+        }
+        return TextMessageFactory();
+      case MessageType.image:
+      case MessageType.encryptedImage:
+        return ImageMessageFactory();
+      case MessageType.video:
+      case MessageType.encryptedVideo:
+        return VideoMessageFactory();
+      case MessageType.audio:
+      case MessageType.encryptedAudio:
+        return AudioMessageFactory();
+      case MessageType.call:
+        return CallMessageFactory();
+      case MessageType.system:
+        return SystemMessageFactory();
+      case MessageType.template:
+        final customInfo = CustomMessageFactory.parseFromContentString(contentModel.content ?? '');
+        if (customInfo != null) {
+          return CustomMessageFactory();
+        }
+      default:
+        ChatLogUtils.error(
+          className: 'MessageDBToUIEx',
+          funcName: 'convertMessageDBToUIModel',
+          message: 'unknown message type',
+        );
+    }
+
+    parseTo(type: MessageType.text, decryptContent: unknownMessageText);
+    contentModel.content = unknownMessageText;
+    return TextMessageFactory();
+  }
+
+  void parseTo({
+    required MessageType type,
+    required String decryptContent
+  }) {
+    this.type = MessageDB.messageTypeToString(type);
+    this.decryptContent = decryptContent;
   }
 }
 

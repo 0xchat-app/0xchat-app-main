@@ -66,12 +66,19 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           switch (message.customType) {
             case CustomMessageType.ecash:
               final tokenList = EcashMessageEx(message).tokenList;
-              if (tokenList.length > 1) {
-                return '[You\'ve received cashu token via 0xchat]';
-              } else if (tokenList.length == 1) {
+              if (tokenList.length == 1) {
                 return tokenList.first;
+              } else {
+                return '''[You've received cashu token via 0xchat]''';
               }
-              break ;
+            case CustomMessageType.ecashV2:
+              final tokenList = EcashV2MessageEx(message).tokenList;
+              final signees = EcashV2MessageEx(message).signees;
+              if (tokenList.length == 1 && signees.isEmpty) {
+                return tokenList.first;
+              } else {
+                return '''[You've received cashu token via 0xchat]''';
+              }
             default: break;
           }
         }
@@ -312,7 +319,12 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context, isLocal: !isSendToRemote);
   }
 
-  void sendEcashMessage(BuildContext context, List<String> tokenList) {
+  void sendEcashMessage(BuildContext context, {
+    required List<String> tokenList,
+    List<String> receiverPubkeys = const [],
+    List<EcashSignee> signees = const [],
+    String validityDate = '',
+  }) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -322,6 +334,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       id: message_id,
       roomId: session.chatId,
       tokenList: tokenList,
+      receiverPubkeys: receiverPubkeys,
+      signees: signees,
+      validityDate: validityDate,
     );
 
     _sendMessageHandler(message, context: context);

@@ -176,5 +176,12 @@
   "str_create_passcode": "创建您的密码",
   "str_confirm_passcode": "确认您的密码",
   "str_enter_passcode": "输入您的密码",
-  "str_tor_orbot_setup": "Tor/Orbot 设置"
+  "str_tor_orbot_setup": "Tor/Orbot 设置",
+  "str_settings": "设置",
+  "str_dev_log": "开发者日志",
+  "str_push_app": "推送通知",
+  "str_send_dev_log_detail": "开发者日志详情",
+  "str_log_filemtime": "文件最后修改时间",
+  "str_send_log_to_dev": "发送给开发者",
+  "str_send_log_to_dev_dialog_content": "将日志文件发送给开发者water783"
 }

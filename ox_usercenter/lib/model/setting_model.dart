@@ -75,6 +75,12 @@ class SettingModel {
         rightContent: ThemeManager.getCurrentThemeStyle().value(),
         settingItemType: SettingItemType.theme
     ));
+    settingModelList.add(SettingModel(
+        iconName: 'icon_settings_dev_log.png',
+        title: 'ox_usercenter.str_dev_log',
+        rightContent: '',
+        settingItemType: SettingItemType.devLog
+    ));
     return settingModelList;
   }
 }
@@ -89,5 +95,6 @@ enum SettingItemType {
   ice,
   language,
   theme,
+  devLog,
   none,
 }

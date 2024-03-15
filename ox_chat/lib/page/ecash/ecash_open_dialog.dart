@@ -24,20 +24,26 @@ import 'ecash_detail_page.dart';
 class EcashOpenDialog extends StatefulWidget {
   EcashOpenDialog({
     required this.package,
+    required this.approveOnTap,
   });
 
   final EcashPackage package;
+  final VoidCallback approveOnTap;
 
   @override
   State<StatefulWidget> createState() => EcashOpenDialogState();
 
-  static Future<bool?> show(
-    BuildContext context,
-    EcashPackage package,
-  ) {
+  static Future<bool?> show({
+    BuildContext? context,
+    required EcashPackage package,
+    required VoidCallback approveOnTap,
+  }) {
     return OXNavigator.pushPage<bool>(
       context,
-      (context) => EcashOpenDialog(package: package),
+      (context) => EcashOpenDialog(
+        package: package,
+        approveOnTap: approveOnTap,
+      ),
       type: OXPushPageType.transparent,
     );
   }
@@ -49,6 +55,11 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
   String ownerName = '';
   bool isRedeemed = false;
+  bool isForOtherUser = false;
+
+  bool isNeedSignature = false;
+  bool isFinishSignature = true;
+  bool isTurnToSign = false;
 
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
@@ -58,6 +69,14 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     super.initState();
     prepareAnimation();
     isRedeemed = widget.package.isRedeemed;
+    isForOtherUser = widget.package.isForOtherUser;
+
+    isNeedSignature = widget.package.signees.isNotEmpty;
+    if (isNeedSignature) {
+      isFinishSignature = widget.package.isFinishSignature;
+      isTurnToSign = widget.package.nextSignatureIsMe;
+    }
+
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
       setState(() {
         ownerName = user?.getUserShowName() ?? 'anonymity';
@@ -103,7 +122,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
                       buildTitle().setPaddingOnly(top: 60.px),
                       buildSubtitle().setPaddingOnly(top: 4.px),
                       buildIcon().setPaddingOnly(top: 40.px),
-                      buildRedeemButton().setPaddingOnly(top: 47.px),
+                      buildOptionArea(),
                       buildViewDetailButton().setPaddingOnly(top: 12.px),
                       buildBottomView().setPaddingOnly(top: 12.px),
                     ],
@@ -118,8 +137,11 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildTitle() {
+    final text = isForOtherUser
+        ? 'For ${EcashHelper.userListText(widget.package.receiver)} only'
+        : widget.package.memo;
     return Text(
-      widget.package.memo,
+      text,
       style: TextStyle(
         color: Colors.white,
         fontSize: 24.sp,
@@ -130,8 +152,17 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildSubtitle() {
+    var text = '$ownerName\'s Ecash';
+    if (isNeedSignature && !isFinishSignature) {
+      if (isTurnToSign) {
+        text += ', Waiting for your signature';
+      } else {
+        text += ', Waiting for multi-signature';
+      }
+    }
     return Text(
-      '$ownerName\'s Ecash',
+      text,
+      textAlign: TextAlign.center,
       style: TextStyle(
         color: Colors.white,
         fontSize: 12.sp,
@@ -146,6 +177,82 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       width: 88.px,
       iconName: "icon_cashu_nut.png",
       package: 'ox_chat',
+    );
+  }
+
+  Widget buildOptionArea() {
+    Widget? child;
+    if (isNeedSignature && (!isFinishSignature || isForOtherUser)) {
+      child = isTurnToSign
+          ? buildSignatureOption()
+          : buildSignatureProcessView().setPaddingOnly(top: 24.px);
+    }
+    if (child == null) {
+      child = isForOtherUser
+          ? SizedBox()
+          : buildRedeemOption();
+    }
+
+    return Container(
+      height: 127.px,
+      child: child,
+    );
+  }
+
+  Widget buildSignatureProcessView() {
+    final signees = widget.package.signees;
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      itemCount: signees.length,
+      itemBuilder: (_, int index) {
+        final (user, signature) = signees[index];
+        final isFinish = signature.isNotEmpty;
+        final color = ThemeColor.white.withOpacity(isFinish ? 1 : 0.6);
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(user.getUserShowName()),
+            Container(
+              width: 15.px,
+              height: 15.px,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: color,
+                  width: 1,
+                ),
+              ),
+              child: isFinish
+                  ? Icon(
+                Icons.check,
+                color: color,
+                size: 13.px,
+              ) : null,
+            )
+          ],
+        );
+      },
+      separatorBuilder: (_, __) => Divider(height: 4.px,)
+    );
+  }
+
+  Widget buildSignatureOption() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        buildApproveButton(),
+      ]
+    );
+  }
+
+  Widget buildRedeemOption() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        buildRedeemButton()
+      ],
     );
   }
 
@@ -175,6 +282,32 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
         buttonColor: Colors.white,
         onPressed: redeemPackage,
       ),
+    );
+  }
+
+  Widget buildApproveButton() {
+    return EasyButton(
+      idleStateWidget: Center(
+        child: Text(
+          'Approve',
+          style: TextStyle(
+            color: ThemeColor.darkColor,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      loadingStateWidget: const CircularProgressIndicator(
+        strokeWidth: 3.0,
+        valueColor: AlwaysStoppedAnimation<Color>(
+          themeColor,
+        ),
+      ),
+      height: 44.px,
+      borderRadius: 22.px,
+      contentGap: 6.0,
+      buttonColor: Colors.white,
+      onPressed: widget.approveOnTap,
     );
   }
 
@@ -227,9 +360,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   void jumpToDetailPage([bool requestRemote = true]) async {
-    final isAllReceive = widget.package.tokenInfoList
-        .every((info) => info.redeemHistory != null);
-    if (!isAllReceive) {
+    if (!widget.package.isAllReceive) {
       if (requestRemote) {
         OXLoading.show();
         await EcashHelper.updateReceiptHistoryForPackage(widget.package);
@@ -237,7 +368,9 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       }
     }
 
-    updateMessageToRedeemedState(widget.package.messageId);
+    if (widget.package.isAllReceive || widget.package.isRedeemed) {
+      updateMessageToRedeemedState(widget.package.messageId);
+    }
 
     popAction();
     OXNavigator.pushPage(null, (context) => EcashDetailPage(
