@@ -2,17 +2,17 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_discovery/enum/moment_enum.dart';
 
 import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
+import '../widgets/horizontal_scroll_widget.dart';
+import '../widgets/nine_palace_grid_picture_widget.dart';
 
 
 class PublicMomentsPage extends StatefulWidget {
@@ -92,8 +92,10 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           MomentRichText(
             text: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
           ),
-          // _ninePalaceGridPictureWidget(),
-          _quoteMomentWidget(),
+          NinePalaceGridPictureWidget(
+            width: 248.px,
+          ),
+          HorizontalScrollWidget(),
           MomentWidgets.momentOption(showMomentOptionData),
           // _momentOptionWidget(),
         ],
@@ -153,125 +155,4 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
     ));
   }
 
-  Widget _quoteMomentWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1.px,
-          color: ThemeColor.color160,
-        ),
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            11.5.px,
-          ),
-        ),
-      ),
-      height: 250.px,
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(11.5.px),
-              topRight: Radius.circular(11.5.px),
-            ),
-            child: Container(
-              height: 172.px,
-              color: ThemeColor.color100,
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(12.px),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    bottom: 4.px,
-                  ),
-                  child: Row(
-                    children: [
-                      MomentWidgets.clipImage(
-                        imageName: 'moment_avatar.png',
-                        borderRadius: 20.px,
-                        imageSize: 20.px,
-                      ),
-                      Text(
-                        'Satoshi',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w500,
-                          color: ThemeColor.color0,
-                        ),
-                      ).setPadding(
-                        EdgeInsets.symmetric(
-                          horizontal: 4.px,
-                        ),
-                      ),
-                      Text(
-                        'Satosh@0xchat.com· 45s ago',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.color120,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: ThemeColor.color0,
-                      fontSize: 12.px,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _momentContentWidget() {
-    return Container();
-  }
-
-  Widget _momentMediaWidget() {
-    return Container();
-  }
-
-  Widget _ninePalaceGridPictureWidget() {
-    return Container(
-      width: 248.px,
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 9,
-        itemBuilder: (context, index) {
-          if (index == 8) {
-            return Container(
-              child: CommonImage(
-                iconName: "add_moment.png",
-                package: 'ox_discovery',
-              ),
-            );
-          }
-          return MomentWidgets.clipImage(
-            imageName: 'moment_avatar.png',
-            borderRadius: 8.px,
-            imageSize: 20.px,
-          );
-        },
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10.px,
-          mainAxisSpacing: 10.px,
-          childAspectRatio: 1,
-        ),
-      ),
-    );
-  }
 }

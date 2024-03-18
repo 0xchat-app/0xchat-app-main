@@ -78,7 +78,6 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
               _notificationsItemWidget(),
               _notificationsItemWidget(),
               _notificationsItemWidget(),
-
             ],
           ),
         ),
@@ -116,7 +115,6 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                   left: 8.px,
                 ),
                 child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(

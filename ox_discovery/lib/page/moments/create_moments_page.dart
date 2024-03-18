@@ -18,6 +18,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 
 import '../../utils/moment_widgets.dart';
+import '../widgets/horizontal_scroll_widget.dart';
+import '../widgets/nine_palace_grid_picture_widget.dart';
 
 
 class CreateMomentsPage extends StatefulWidget {
@@ -83,8 +85,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _ninePalaceGridPictureWidget(),
+              NinePalaceGridPictureWidget(),
               _videoWidget(),
+              HorizontalScrollWidget(),
               Container(
                 child: _placeholderImage == null
                     ? SizedBox()
@@ -94,47 +97,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               _visibleContactsWidget(),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _ninePalaceGridPictureWidget(){
-    return  Container(
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 9,
-        itemBuilder: (context, index) {
-          if(index == 8){
-            return Container(
-              width: 104.px,
-              height: 104.px,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    Adapt.px(8.px),
-                  ),
-                ),
-              ),
-              child: CommonImage(
-                iconName: "add_moment.png",
-                size: 104.px,
-                package: 'ox_discovery',
-              ),
-            );
-          }
-          return MomentWidgets.clipImage(
-            imageName: 'moment_avatar.png',
-            borderRadius: 8.px,
-            imageSize: 104.px,
-          );
-        },
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // 每行四项
-          crossAxisSpacing: 10.px, // 水平间距
-          mainAxisSpacing: 10.px, // 垂直间距
-          childAspectRatio: 1, // 网格项的宽高比
         ),
       ),
     );

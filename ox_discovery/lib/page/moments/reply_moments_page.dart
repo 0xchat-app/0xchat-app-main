@@ -8,9 +8,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_discovery/enum/moment_enum.dart';
 
-import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 
@@ -244,3 +242,4 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 }
+

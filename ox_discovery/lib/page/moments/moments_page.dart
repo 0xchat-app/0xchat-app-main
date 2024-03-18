@@ -117,7 +117,8 @@ class _MomentsPageState extends State<MomentsPage> {
                 children: [
                   _momentUserInfoWidget(),
                   MomentRichText(
-                    text: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+                    text:
+                        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
                   ),
                   _quoteMomentWidget(),
                   MomentWidgets.momentOption(showMomentOptionData),
@@ -130,7 +131,7 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-  Widget _showRepliesWidget(){
+  Widget _showRepliesWidget() {
     return Container(
       padding: EdgeInsets.only(
         left: 12.px,
@@ -158,59 +159,54 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-
-
-
-
-
-
   Widget _momentUserInfoWidget() {
     return Container(
-        child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              Container(
-                margin: EdgeInsets.only(
-                  left: 10.px,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Satoshi',
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: 14.px,
-                        fontWeight: FontWeight.w500,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            child: Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(
+                    left: 10.px,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Satoshi',
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: 14.px,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ).setPaddingOnly(
+                        right: 4.px,
                       ),
-                    ).setPaddingOnly(
-                      right: 4.px,
-                    ),
-                    Text(
-                      'Satosh@0xchat.com· 45s ago',
-                      style: TextStyle(
-                        color: ThemeColor.color120,
-                        fontSize: 12.px,
-                        fontWeight: FontWeight.w400,
+                      Text(
+                        'Satosh@0xchat.com· 45s ago',
+                        style: TextStyle(
+                          color: ThemeColor.color120,
+                          fontSize: 12.px,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        CommonImage(
-          iconName: 'more_moment_icon.png',
-          size: 20.px,
-          package: 'ox_discovery',
-        )
-      ],
-    ));
+          CommonImage(
+            iconName: 'more_moment_icon.png',
+            size: 20.px,
+            package: 'ox_discovery',
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _quoteMomentWidget() {
@@ -294,38 +290,6 @@ class _MomentsPageState extends State<MomentsPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _ninePalaceGridPictureWidget() {
-    return Container(
-      width: 248.px,
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 9,
-        itemBuilder: (context, index) {
-          if (index == 8) {
-            return Container(
-              child: CommonImage(
-                iconName: "add_moment.png",
-                package: 'ox_discovery',
-              ),
-            );
-          }
-          return MomentWidgets.clipImage(
-            imageName: 'moment_avatar.png',
-            borderRadius: 8.px,
-            imageSize: 20.px,
-          );
-        },
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10.px,
-          mainAxisSpacing: 10.px,
-          childAspectRatio: 1,
-        ),
       ),
     );
   }

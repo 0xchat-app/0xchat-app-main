@@ -6,16 +6,18 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MomentRichText extends StatelessWidget {
-  const MomentRichText({
+  MomentRichText({
     super.key,
     required this.text,
     this.textSize,
     this.defaultTextColor,
+    this.maxLines,
   });
 
   final String text;
   final double? textSize;
   final Color? defaultTextColor;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,8 @@ class MomentRichText extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: RichText(
         textAlign: TextAlign.left,
+        overflow: TextOverflow.ellipsis,
+        maxLines: maxLines ?? 100,
         text: TextSpan(
           style: TextStyle(color: defaultTextColor ?? ThemeColor.color0, fontSize: textSize ?? 16.px),
           children: textSpans,
