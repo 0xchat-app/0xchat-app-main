@@ -141,7 +141,7 @@ class StepIndicatorItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: content == null ? onTap : null,
+      onTap: onTap,
       child: SizedBox(
         height: height,
         child: Row(

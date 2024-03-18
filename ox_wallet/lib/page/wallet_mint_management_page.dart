@@ -3,6 +3,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -42,12 +43,12 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     _isDefaultMint = EcashManager.shared.isDefaultMint(widget.mint);
     final mintURL = WalletUtils.formatString(widget.mint.mintURL, 40, 20, 10);
     _generalList = [
-      StepItemModel(title: 'Mint',content: mintURL),
+      StepItemModel(title: 'Mint', content: mintURL, onTap: (_) => TookKit.copyKey(context, mintURL),),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
       StepItemModel(title: 'Set as default mint',contentBuilder: () => SwitchWidget(value: _isDefaultMint,onChanged: _handleDefaultMint,)),
-      StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mintInfo: widget.mint.info,))),
+      StepItemModel(title: 'More Info', onTap: (value) => OXNavigator.pushPage(context, (context) => WalletMintInfo(mint: widget.mint,))),
     ];
     _dangerZoneList = [
       StepItemModel(title: 'Check proofs',onTap: (value) => EcashDialogHelper.showCheckProofs(context,onConfirmTap: _checkProofs)),
@@ -89,11 +90,15 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
         height: 52.px,
         title: item.title,
         content: item.contentBuilder != null
-            ? item.contentBuilder!()
-            : (item.content != null
-            ? Expanded(child: Text(item.content!, textAlign: TextAlign.end, overflow: TextOverflow.clip, style: TextStyle(fontSize: 14.px)))
-            : null),
-        badge: item.badge != null ? Flexible(child: Text(item.badge!, overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 14.px))) : null,
+            ? item.contentBuilder?.call()
+            : (
+              item.content != null
+                  ? Expanded(child: Text(item.content!, textAlign: TextAlign.end, overflow: TextOverflow.clip, style: TextStyle(fontSize: 14.px)))
+                  : null
+              ),
+        badge: item.badge != null
+            ? Flexible(child: Text(item.badge!, overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 14.px)))
+            : null,
         onTap: item.onTap != null ? () => item.onTap!(item) : null,
       ),
     );

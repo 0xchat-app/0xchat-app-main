@@ -119,6 +119,10 @@ class EcashService {
     return await Cashu.editMintName(mint, name);
   }
 
+  static Future<bool> fetchMintInfo(IMint mint) {
+    return Cashu.fetchMintInfo(mint);
+  }
+
   static int totalBalance() {
     return Cashu.totalBalance();
   }
