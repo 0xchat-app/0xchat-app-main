@@ -24,7 +24,7 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  final _defaultMintURL = 'https://8333.space:3338';
+  final _defaultMintURL = 'https://mint.0xchat.com';
   final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(true);
 
   @override
