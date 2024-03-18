@@ -64,7 +64,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         await Groups.sharedInstance.getRequestList(groupId: widget.groupId);
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
-      requestJoinList.forEach((MessageDB msgDB) async {
+      await Future.forEach(requestJoinList, (msgDB) async {
         GroupDB? groupDB = await Groups.sharedInstance.groups[msgDB.groupId];
         UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
