@@ -26,7 +26,6 @@ import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_push/push_lib.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -67,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     return Scaffold(
       appBar: CommonAppBar(
         title: 'str_settings'.localized(),
+        backgroundColor: ThemeColor.color200,
       ),
       backgroundColor: ThemeColor.color200,
       body: SingleChildScrollView(
