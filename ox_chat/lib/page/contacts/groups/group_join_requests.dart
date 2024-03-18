@@ -4,6 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -65,13 +66,12 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
       await Future.forEach(requestJoinList, (msgDB) async {
-        GroupDB? groupDB = await Groups.sharedInstance.groups[msgDB.groupId];
+        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
         UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
         String time = OXDateUtils.convertTimeFormatString2(
             msgDB.createTime * 1000,
             pattern: 'MM-dd');
-
         requestList.add(new UserRequestInfo(
           messageDB: msgDB,
           userName: userDB?.name ?? '--',
@@ -84,7 +84,6 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         ));
       });
     }
-
     requestUserList = requestList;
     setState(() {});
   }
@@ -99,21 +98,23 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         title: Localized.text('ox_chat.join_request'),
         backgroundColor: ThemeColor.color190,
       ),
-      body: Container(
-        child: Column(
-          children: _showRequestsListView(),
-        ),
+      body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                UserRequestInfo userModel = requestUserList.elementAt(index);
+                return _userRequestItem(userModel);
+              },
+              childCount: requestUserList.length,
+            ),
+          ),
+        ],
       ),
     );
   }
-  // _emptyWidget
 
-  List<Widget> _showRequestsListView(){
-    if(requestUserList.length == 0) return [_emptyWidget()].toList();
-    return  requestUserList
-        .map((userModel) => _userRequestItem(userModel))
-        .toList();
-  }
 
   Widget _userRequestItem(UserRequestInfo userInfo) {
     Widget placeholderImage = CommonImage(
