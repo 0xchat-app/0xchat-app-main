@@ -195,12 +195,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             ),
             child: const TextField(
               decoration: InputDecoration(
-                border: InputBorder.none, // 去除下划线
-                focusedBorder: InputBorder.none, // 获得焦点时的边框样式
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 hintText: 'Add a caption...',
               ),
-              keyboardType: TextInputType.multiline, // 设置键盘类型为多行文本
-              maxLines: null, // 设置为null使文本框自动扩展行数以适应文本
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
             ),
           ),
           Container(

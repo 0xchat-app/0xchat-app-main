@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -8,7 +7,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_discovery/enum/moment_enum.dart';
 
 import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
@@ -87,13 +85,13 @@ class _MomentsPageState extends State<MomentsPage> {
   Widget _momentItemWidget() {
     return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch, // 这会使得所有子Widget尽可能填充可用的垂直空间
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Column(
             children: [
               MomentWidgets.clipImage(
                 imageName: 'moment_avatar.png',
-                borderRadius: 40.px, // 假设.px是一个已经定义的扩展方法
+                borderRadius: 40.px,
                 imageSize: 40.px,
               ),
               Expanded(
@@ -101,13 +99,12 @@ class _MomentsPageState extends State<MomentsPage> {
                   margin: EdgeInsets.symmetric(
                     vertical: 4.px,
                   ),
-                  width: 1.0, // 直线的宽度
-                  color: ThemeColor.color160, // 直线的颜色
+                  width: 1.0,
+                  color: ThemeColor.color160,
                 ),
               ),
             ],
           ),
-          // ... 其他Row子Widget ...
           Expanded(
             child: Container(
               margin: EdgeInsets.all(8.px),
@@ -116,15 +113,14 @@ class _MomentsPageState extends State<MomentsPage> {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // 让列尽可能地包裹其内容
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _momentUserInfoWidget(), // 假设这些函数返回相应的Widget
+                  _momentUserInfoWidget(),
                   MomentRichText(
                     text: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
                   ),
                   _quoteMomentWidget(),
                   MomentWidgets.momentOption(showMomentOptionData),
-                  // _momentOptionWidget(),
                 ],
               ),
             ),
@@ -302,14 +298,6 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-  Widget _momentContentWidget() {
-    return Container();
-  }
-
-  Widget _momentMediaWidget() {
-    return Container();
-  }
-
   Widget _ninePalaceGridPictureWidget() {
     return Container(
       width: 248.px,
@@ -333,64 +321,11 @@ class _MomentsPageState extends State<MomentsPage> {
           );
         },
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // 每行四项
-          crossAxisSpacing: 10.px, // 水平间距
-          mainAxisSpacing: 10.px, // 垂直间距
-          childAspectRatio: 1, // 网格项的宽高比
+          crossAxisCount: 3,
+          crossAxisSpacing: 10.px,
+          mainAxisSpacing: 10.px,
+          childAspectRatio: 1,
         ),
-      ),
-    );
-  }
-
-  Widget _momentOptionWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            Adapt.px(8),
-          ),
-        ),
-        color: ThemeColor.color180,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.px,
-        vertical: 12.px,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _iconTextWidget(type: EMomentOptionType.reply),
-          _iconTextWidget(type: EMomentOptionType.repost),
-          _iconTextWidget(type: EMomentOptionType.like),
-          _iconTextWidget(type: EMomentOptionType.zaps),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconTextWidget({required EMomentOptionType type}) {
-    return Container(
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-              right: 4.px,
-            ),
-            child: CommonImage(
-              iconName: type.getIconName,
-              size: 16.px,
-              package: 'ox_discovery',
-            ),
-          ),
-          Text(
-            type.text,
-            style: TextStyle(
-              color: ThemeColor.color80,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
-            ),
-          )
-        ],
       ),
     );
   }

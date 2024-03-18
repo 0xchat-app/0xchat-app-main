@@ -266,72 +266,11 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           );
         },
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // 每行四项
-          crossAxisSpacing: 10.px, // 水平间距
-          mainAxisSpacing: 10.px, // 垂直间距
-          childAspectRatio: 1, // 网格项的宽高比
+          crossAxisCount: 3,
+          crossAxisSpacing: 10.px,
+          mainAxisSpacing: 10.px,
+          childAspectRatio: 1,
         ),
-      ),
-    );
-  }
-
-  Widget _momentOptionWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            Adapt.px(8),
-          ),
-        ),
-        color: ThemeColor.color180,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.px,
-        vertical: 12.px,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _iconTextWidget(
-              type:EMomentOptionType.reply
-          ),
-          _iconTextWidget(
-              type:EMomentOptionType.repost
-          ),
-          _iconTextWidget(
-              type:EMomentOptionType.like
-          ),
-          _iconTextWidget(
-              type:EMomentOptionType.zaps
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconTextWidget({required EMomentOptionType type }) {
-    return Container(
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-              right: 4.px,
-            ),
-            child: CommonImage(
-              iconName: type.getIconName,
-              size: 16.px,
-              package: 'ox_discovery',
-            ),
-          ),
-          Text(
-            type.text,
-            style: TextStyle(
-              color: ThemeColor.color80,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
-            ),
-          )
-        ],
       ),
     );
   }

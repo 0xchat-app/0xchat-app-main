@@ -29,6 +29,7 @@ import 'moments/create_moments_page.dart';
 import 'moments/moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'moments/notifications_moments_page.dart';
+import 'moments/reply_moments_page.dart';
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({Key? key}) : super(key: key);
@@ -523,7 +524,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             'Camera',
             index: 0,
             onTap: () {
-              OXNavigator.pushPage(context, (context) => MomentsPage());
+              OXNavigator.pushPage(context, (context) => ReplyMomentsPage());
             },
           ),
           Divider(
@@ -534,7 +535,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             'Choose from Album',
             index: 1,
             onTap: () {
-              OXNavigator.pushPage(context, (context) => MomentsPage());
+              OXNavigator.pushPage(context, (context) => ReplyMomentsPage());
             },
           ),
           Divider(

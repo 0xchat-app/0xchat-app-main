@@ -1,13 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; //
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MomentRichText extends StatelessWidget {
-  const MomentRichText({required this.text});
+  const MomentRichText({
+    super.key,
+    required this.text,
+    this.textSize,
+    this.defaultTextColor,
+  });
 
   final String text;
+  final double? textSize;
+  final Color? defaultTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +27,7 @@ class MomentRichText extends StatelessWidget {
       child: RichText(
         textAlign: TextAlign.left,
         text: TextSpan(
-          style: TextStyle(color: ThemeColor.color0, fontSize: 16),
+          style: TextStyle(color: defaultTextColor ?? ThemeColor.color0, fontSize: textSize ?? 16.px),
           children: textSpans,
         ),
       ),
