@@ -5,10 +5,9 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MomentRichText extends StatelessWidget {
-  final String text =
-      "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
+  const MomentRichText({required this.text});
 
-  const MomentRichText({Key? key}) : super(key: key);
+  final String text;
 
   @override
   Widget build(BuildContext context) {

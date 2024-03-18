@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 
+import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 
@@ -74,6 +75,8 @@ class _MomentsPageState extends State<MomentsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _momentItemWidget(),
+              _momentItemWidget(),
+              _showRepliesWidget(),
             ],
           ),
         ),
@@ -95,8 +98,11 @@ class _MomentsPageState extends State<MomentsPage> {
               ),
               Expanded(
                 child: Container(
-                  width: 2.0, // 直线的宽度
-                  color: Colors.red, // 直线的颜色
+                  margin: EdgeInsets.symmetric(
+                    vertical: 4.px,
+                  ),
+                  width: 1.0, // 直线的宽度
+                  color: ThemeColor.color160, // 直线的颜色
                 ),
               ),
             ],
@@ -104,15 +110,21 @@ class _MomentsPageState extends State<MomentsPage> {
           // ... 其他Row子Widget ...
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(8.0),
+              margin: EdgeInsets.all(8.px),
+              padding: EdgeInsets.only(
+                bottom: 16.px,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min, // 让列尽可能地包裹其内容
                 children: [
                   _momentUserInfoWidget(), // 假设这些函数返回相应的Widget
-                  MomentRichText(),
+                  MomentRichText(
+                    text: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+                  ),
                   _quoteMomentWidget(),
-                  _momentOptionWidget(),
+                  MomentWidgets.momentOption(showMomentOptionData),
+                  // _momentOptionWidget(),
                 ],
               ),
             ),
@@ -122,45 +134,36 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
+  Widget _showRepliesWidget(){
+    return Container(
+      padding: EdgeInsets.only(
+        left: 12.px,
+      ),
+      child: Row(
+        children: [
+          CommonImage(
+            iconName: 'more_vertical_icon.png',
+            size: 16.px,
+            package: 'ox_discovery',
+          ),
+          SizedBox(
+            width: 20.px,
+          ),
+          Text(
+            'Show replies',
+            style: TextStyle(
+              color: ThemeColor.purple2,
+              fontSize: 12.px,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  // Widget _momentItemWidget() {
-  //   return Row(
-  //     crossAxisAlignment: CrossAxisAlignment.start, // 使得所有子Widget在顶部对齐
-  //     children: [
-  //       Column(
-  //         children: [
-  //           MomentWidgets.clipImage(
-  //             imageName: 'moment_avatar.png',
-  //             borderRadius: 40.px, // 这里假设.px是一个已经定义的扩展方法
-  //             imageSize: 40.px,
-  //           ),
-  //           Expanded(
-  //             child: Container(
-  //               width: 2.0, // 直线的宽度
-  //               color: Colors.red, // 直线的颜色
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       SizedBox(width: 8.0), // 为头像和直线以及旁边内容之间提供一些水平间距
-  //       Expanded(
-  //         child: Container(
-  //           padding: EdgeInsets.all(8.0),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             mainAxisSize: MainAxisSize.min, // 让列尽可能地包裹其内容
-  //             children: [
-  //               _momentUserInfoWidget(), // 假设这些函数返回相应的Widget
-  //               MomentRichText(),
-  //               _quoteMomentWidget(),
-  //               _momentOptionWidget(),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+
+
 
 
 
@@ -178,8 +181,8 @@ class _MomentsPageState extends State<MomentsPage> {
                 margin: EdgeInsets.only(
                   left: 10.px,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Satoshi',
@@ -188,6 +191,8 @@ class _MomentsPageState extends State<MomentsPage> {
                         fontSize: 14.px,
                         fontWeight: FontWeight.w500,
                       ),
+                    ).setPaddingOnly(
+                      right: 4.px,
                     ),
                     Text(
                       'Satosh@0xchat.com· 45s ago',
@@ -214,6 +219,9 @@ class _MomentsPageState extends State<MomentsPage> {
 
   Widget _quoteMomentWidget() {
     return Container(
+      margin: EdgeInsets.only(
+        bottom: 8.px,
+      ),
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.px,
@@ -225,7 +233,7 @@ class _MomentsPageState extends State<MomentsPage> {
           ),
         ),
       ),
-      height: 250.px,
+      // height: 250.px,
       child: Column(
         children: [
           ClipRRect(

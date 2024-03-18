@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 
+import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 
@@ -88,10 +89,13 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _momentUserInfoWidget(),
-          MomentRichText(),
+          MomentRichText(
+            text: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+          ),
           // _ninePalaceGridPictureWidget(),
           _quoteMomentWidget(),
-          _momentOptionWidget(),
+          MomentWidgets.momentOption(showMomentOptionData),
+          // _momentOptionWidget(),
         ],
       ),
     );
