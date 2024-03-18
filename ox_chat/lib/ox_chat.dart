@@ -88,9 +88,7 @@ class OXChat extends OXFlutterModule {
           ),
         );
       case 'SearchPage':
-        return SearchPage(
-          searchPageType: SearchPageType.discover,
-        ).show(context);
+        return SearchPage().show(context);
       case 'ContactUserInfoPage':
         return OXNavigator.pushPage(
           context,
