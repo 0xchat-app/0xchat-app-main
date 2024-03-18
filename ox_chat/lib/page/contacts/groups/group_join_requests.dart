@@ -9,7 +9,6 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -115,12 +114,20 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     );
   }
 
-  Widget _userRequestItem(UserRequestInfo userInfo) {
-    Widget placeholderImage = CommonImage(
-      iconName: 'user_image.png',
-      width: Adapt.px(76),
-      height: Adapt.px(76),
+  Widget _buildAvatar(UserRequestInfo userInfo) {
+    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender];
+    return OXUserAvatar(
+      user: otherDB,
+      imageUrl: userInfo.userPic,
+      size: Adapt.px(60),
+      isClickable: true,
+      onReturnFromNextPage: () {
+        setState(() { });
+      },
     );
+  }
+
+  Widget _userRequestItem(UserRequestInfo userInfo) {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: Adapt.px(12),
@@ -128,17 +135,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(60),
-            child: OXCachedNetworkImage(
-              errorWidget: (context, url, error) => placeholderImage,
-              placeholder: (context, url) => placeholderImage,
-              fit: BoxFit.fill,
-              imageUrl: userInfo.userPic,
-              width: Adapt.px(60),
-              height: Adapt.px(60),
-            ),
-          ),
+          _buildAvatar(userInfo),
           Expanded(
             child: Container(
               padding: EdgeInsets.only(
