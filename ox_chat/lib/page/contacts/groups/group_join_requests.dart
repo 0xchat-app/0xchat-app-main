@@ -101,7 +101,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
       body: CustomScrollView(
         physics: BouncingScrollPhysics(),
         slivers: [
-          SliverList(
+          requestUserList.length > 0 ? SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 UserRequestInfo userModel = requestUserList.elementAt(index);
@@ -109,12 +109,11 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
               },
               childCount: requestUserList.length,
             ),
-          ),
+          ) : _emptyWidget(),
         ],
       ),
     );
   }
-
 
   Widget _userRequestItem(UserRequestInfo userInfo) {
     Widget placeholderImage = CommonImage(
@@ -246,25 +245,28 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   Widget _emptyWidget() {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: 87.0),
-      child: Column(
-        children: <Widget>[
-          CommonImage(
-            iconName: 'icon_no_login.png',
-            width: Adapt.px(90),
-            height: Adapt.px(90),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: MyText(
-              Localized.text('ox_chat.request_join_no_data'),
-              14,
-              ThemeColor.gray02,
+    return SliverToBoxAdapter(
+      child: Container(
+        alignment: Alignment.topCenter,
+        margin: EdgeInsets.only(top: 87.0),
+        child: Column(
+          children: <Widget>[
+            CommonImage(
+                iconName: 'icon_search_user_no.png',
+                width: Adapt.px(90),
+                height: Adapt.px(90),
+                package: 'ox_chat'
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: MyText(
+                Localized.text('ox_chat.request_join_no_data'),
+                14,
+                ThemeColor.gray02,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
