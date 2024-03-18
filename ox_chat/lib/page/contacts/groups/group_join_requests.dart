@@ -71,6 +71,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         String time = OXDateUtils.convertTimeFormatString2(
             msgDB.createTime * 1000,
             pattern: 'MM-dd');
+        bool _isExpanded = checkIfTextOverflows(msgDB.decryptContent, _contentTextStyle(), 250.px);
         requestList.add(new UserRequestInfo(
           messageDB: msgDB,
           userName: userDB?.name ?? '--',
@@ -79,7 +80,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           userPic: userDB?.picture ?? '--',
           groupId: msgDB.groupId,
           content: msgDB.decryptContent,
-          isShowMore: false,
+          isShowMore: !_isExpanded,
         ));
       });
     }
@@ -203,16 +204,30 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
               userInfo.content,
               softWrap: userInfo.isShowMore,
               overflow: userInfo.isShowMore ? null : TextOverflow.ellipsis,
-              style: TextStyle(
-                color: ThemeColor.color120,
-                fontSize: Adapt.px(14),
-                fontWeight: FontWeight.w400,
-              ),
+              style: _contentTextStyle(),
             ),
           ),
           _showMoreBtnWidget(userInfo),
         ],
       ),
+    );
+  }
+
+  bool checkIfTextOverflows(String text, TextStyle style, double maxWidth) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+
+    return textPainter.didExceedMaxLines;
+  }
+
+  TextStyle _contentTextStyle(){
+    return TextStyle(
+      color: ThemeColor.color120,
+      fontSize: Adapt.px(14),
+      fontWeight: FontWeight.w400,
     );
   }
 
