@@ -8,6 +8,8 @@ import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -38,7 +40,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         TickerProviderStateMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        CommonStateViewMixin {
+        CommonStateViewMixin, OXChatObserver {
   late ScrollController _nestedScrollController;
   int selectedIndex = 0;
 
@@ -53,6 +55,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   late String _version = '1.0.0';
 
   bool _isVerifiedDNS = false;
+  bool _isShowZapBadge = false;
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     imageCache.clear();
     imageCache.maximumSize = 10;
     OXUserInfoManager.sharedInstance.addObserver(this);
+    OXChatBinding.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
@@ -80,8 +84,17 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+    super.didZapRecordsCallBack(zapRecordsDB);
+    setState(() {
+      _isShowZapBadge = _getZapBadge();
+    });
+  }
+
+  @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
+    OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -100,7 +113,12 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _initInterface() async {
+    _isShowZapBadge = _getZapBadge();
     if (mounted) setState(() {});
+  }
+
+  bool _getZapBadge() {
+    return OXChatBinding.sharedInstance.isZapBadge;
   }
 
   //get user selected Badge Info from DB
@@ -336,7 +354,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     badgeImgUrl == null
-                        ? Container()
+                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() : Container())
                         : OXCachedNetworkImage(
                       imageUrl: badgeImgUrl,
                       placeholder: (context, url) => placeholderImage,
@@ -462,6 +480,17 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 )
               : Container(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildZapBadgeWidget(){
+    return Container(
+      color: Colors.transparent,
+      width: Adapt.px(6),
+      height: Adapt.px(6),
+      child: const Image(
+        image: AssetImage("assets/images/unread_dot.png"),
       ),
     );
   }
