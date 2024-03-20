@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
+import '../widgets/moment_option_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   const MomentsPage({Key? key}) : super(key: key);
@@ -121,7 +122,7 @@ class _MomentsPageState extends State<MomentsPage> {
                         "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
                   ),
                   _quoteMomentWidget(),
-                  MomentWidgets.momentOption(showMomentOptionData),
+                  MomentOptionWidget(),
                 ],
               ),
             ),

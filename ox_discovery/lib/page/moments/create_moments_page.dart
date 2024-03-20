@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -17,13 +18,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/horizontal_scroll_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
 
-
 class CreateMomentsPage extends StatefulWidget {
-  const CreateMomentsPage({Key? key}) : super(key: key);
+  final EMomentType type;
+
+  CreateMomentsPage({Key? key, required this.type}) : super(key: key);
 
   @override
   State<CreateMomentsPage> createState() => _CreateMomentsPageState();
@@ -31,7 +34,6 @@ class CreateMomentsPage extends StatefulWidget {
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
   File? _placeholderImage;
-
 
   @override
   void initState() {
@@ -45,64 +47,107 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
-        backgroundColor: ThemeColor.color200,
-        actions: [
-          GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.only(right: Adapt.px(24)),
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  'Post',
-                  style: TextStyle(
-                    fontSize: 16.px,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(Adapt.px(20)),
+          topLeft: Radius.circular(Adapt.px(20)),
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildAppBar(),
+            Container(
+              padding: EdgeInsets.only(
+                left: 24.px,
+                right: 24.px,
+                bottom: 100.px,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _pictureWidget(),
+                  _videoWidget(),
+                  _quoteWidget(),
+                  // Container(
+                  //   child: _placeholderImage == null
+                  //       ? SizedBox()
+                  //       : Image.file(_placeholderImage!),
+                  // ),
+                  _captionWidget(),
+                  _visibleContactsWidget(),
+                ],
               ),
             ),
-            onTap: () {},
-          ),
-        ],
-        title: 'New Moments',
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              NinePalaceGridPictureWidget(),
-              _videoWidget(),
-              HorizontalScrollWidget(),
-              Container(
-                child: _placeholderImage == null
-                    ? SizedBox()
-                    : Image.file(_placeholderImage!),
-              ),
-              _captionWidget(),
-              _visibleContactsWidget(),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
+  Widget _buildAppBar() {
+    return Container(
+      height: Adapt.px(57),
+      margin: EdgeInsets.only(bottom: Adapt.px(16)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            child: CommonImage(
+              iconName: "icon_back_left_arrow.png",
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: true,
+            ),
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+          ),
+          Text(
+            'New Moments',
+            style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: Adapt.px(16),
+                color: ThemeColor.color0),
+          ),
+          GestureDetector(
+            onTap: () {},
+            child: ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: [
+                    ThemeColor.gradientMainEnd,
+                    ThemeColor.gradientMainStart,
+                  ],
+                ).createShader(Offset.zero & bounds.size);
+              },
+              child: Text(
+                'Post',
+                style: TextStyle(
+                  fontSize: Adapt.px(16),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).setPadding(EdgeInsets.symmetric(
+      horizontal: 24.px,
+    ));
+  }
+
+  Widget _pictureWidget() {
+    return widget.type != EMomentType.picture
+        ? const SizedBox()
+        : NinePalaceGridPictureWidget();
+  }
+
   Widget _videoWidget() {
+    if (widget.type != EMomentType.video) return const SizedBox();
     return GestureDetector(
       onTap: () {
         _goToPhoto(context, 2);
@@ -125,8 +170,17 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
+  Widget _quoteWidget() {
+    return widget.type != EMomentType.quote
+        ? const SizedBox()
+        : HorizontalScrollWidget();
+  }
+
   Widget _captionWidget() {
     return Container(
+      padding: EdgeInsets.only(
+        top: 12.px,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -165,20 +219,20 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               maxLines: null,
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(
-              top: 12.px,
-            ),
-            decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.px),
-                topRight: Radius.circular(16.px),
-              ),
-            ),
-            child: _captionToTopicListWidget(),
-            // _captionToUserListWidget(),
-          ),
+          // Container(
+          //   margin: EdgeInsets.only(
+          //     top: 12.px,
+          //   ),
+          //   decoration: BoxDecoration(
+          //     color: ThemeColor.color180,
+          //     borderRadius: BorderRadius.only(
+          //       topLeft: Radius.circular(16.px),
+          //       topRight: Radius.circular(16.px),
+          //     ),
+          //   ),
+          //   child: _captionToTopicListWidget(),
+          //   // _captionToUserListWidget(),
+          // ),
         ],
       ),
     );
@@ -249,7 +303,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
-  Widget _captionToTopicListWidget(){
+  Widget _captionToTopicListWidget() {
     return Column(
       children: [
         _captionToTopicWidget(),
@@ -260,7 +314,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       ],
     );
   }
-
 
   Widget _captionToTopicWidget() {
     return Container(
