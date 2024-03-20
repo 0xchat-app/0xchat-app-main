@@ -12,6 +12,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
@@ -475,6 +476,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _visibleToUser(){
-
+    OXNavigator.pushPage(context, (context) => const VisibilitySelectionPage());
   }
 }
