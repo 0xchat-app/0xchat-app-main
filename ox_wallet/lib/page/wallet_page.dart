@@ -93,7 +93,7 @@ class _WalletPageState extends State<WalletPage> {
     OXLoading.show();
     EcashService.addMint(_defaultMintURL).then((mint) {
       OXLoading.dismiss();
-      if (mint != null) {
+      if (mint != null || EcashManager.shared.mintList.any((mint) => mint.mintURL.toLowerCase() == _defaultMintURL.toLowerCase())) {
         EcashManager.shared.setWalletAvailable();
         OXNavigator.pushPage(context, (context) => const WalletHomePage());
       } else {
