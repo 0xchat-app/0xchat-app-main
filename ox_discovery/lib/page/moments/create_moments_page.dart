@@ -476,6 +476,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _visibleToUser(){
-    OXNavigator.pushPage(context, (context) => const VisibilitySelectionPage());
+    OXNavigator.presentPage(context, (context) => const VisibilitySelectionPage());
   }
 }
