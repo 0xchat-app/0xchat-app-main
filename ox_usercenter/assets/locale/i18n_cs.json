@@ -72,6 +72,8 @@
   "cancel_purchase": "Zrušit nákup",
   "pay_invoice_title": "Zaplatit fakturu lightning",
   "copy_invoice_title": "Kopírovat fakturu",
+  "select_ecash_wallet_title": "Vyberte peněženku Ecash",
+  "my_ecash_mallet": "Moje peněženka Ecash",
   "select_wallet_title": "Vyberte peněženku lighting",
   "select": "Vybrat",
   "selected": "Vybráno",

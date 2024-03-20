@@ -72,6 +72,8 @@
   "cancel_purchase": "Скасувати покупку",
   "pay_invoice_title": "Оплатити рахунок-фактуру",
   "copy_invoice_title": "Копіювати рахунок-фактуру",
+  "select_ecash_wallet_title": "Вибрати гаманець Ecash",
+  "my_ecash_mallet": "Мій гаманець Ecash",
   "select_wallet_title": "Виберіть гаманець lighting",
   "select": "Вибрати",
   "selected": "Вибрано",

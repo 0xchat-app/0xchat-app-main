@@ -72,6 +72,8 @@
   "cancel_purchase": "取消购买",
   "pay_invoice_title": "支付闪电账单",
   "copy_invoice_title": "复制账单",
+  "select_ecash_wallet_title": "选择 Ecash 钱包",
+  "my_ecash_mallet": "我的 Ecash 钱包",
   "select_wallet_title": "选择一个闪电钱包",
   "select": "选择",
   "selected": "已选择",

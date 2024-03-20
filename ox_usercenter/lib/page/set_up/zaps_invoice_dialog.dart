@@ -43,23 +43,74 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
           color: ThemeColor.color190,
         ),
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
-        child: SingleChildScrollView(
-          child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 24.px,),
-                _topView(),
-                SizedBox(height: 24.px,),
-                buildEcashWalletSection(),
-                SizedBox(height: 24.px,),
-                buildLightingWallectSection(),
-              ],
+        child: Column(
+          children: [
+            SizedBox(height: 24.px,),
+            _buildTitleBar(),
+            SizedBox(height: 24.px,),
+            Expanded(
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _topView(),
+                      SizedBox(height: 24.px,),
+                      buildEcashWalletSection(),
+                      SizedBox(height: 24.px,),
+                      buildLightingWallectSection(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleBar() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Align(
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.pay_invoice_title'),
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                color: ThemeColor.color0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
-      ),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            OXNavigator.pop(context);
+          },
+          child: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: [
+                  ThemeColor.gradientMainEnd,
+                  ThemeColor.gradientMainStart,
+                ],
+              ).createShader(Offset.zero & bounds.size);
+            },
+            child: Text(
+              Localized.text('ox_common.complete'),
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -68,47 +119,6 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  Localized.text('ox_usercenter.pay_invoice_title'),
-                  style: TextStyle(
-                    fontSize: Adapt.px(16),
-                    color: ThemeColor.color0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                OXNavigator.pop(context);
-              },
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  Localized.text('ox_common.complete'),
-                  style: TextStyle(
-                    fontSize: Adapt.px(16),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 24.px,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

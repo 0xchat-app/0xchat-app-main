@@ -72,6 +72,8 @@
   "cancel_purchase": "Alışı ləğv et",
   "pay_invoice_title": "Yıldırımlı fakturanı ödə",
   "copy_invoice_title": "Fakturanı kopyala",
+  "select_ecash_wallet_title": "Ecash cüzdanı seçin",
+  "my_ecash_mallet": "Mənim Ecash cüzdanım",
   "select_wallet_title": "Bir yıldırımlı cüzdan seçin",
   "select": "Seç",
   "selected": "Seçilib",

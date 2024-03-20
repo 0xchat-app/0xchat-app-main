@@ -72,6 +72,8 @@
   "cancel_purchase": "Satın almayı iptal et",
   "pay_invoice_title": "Lightning faturasını öde",
   "copy_invoice_title": "Fatura kopyala",
+  "select_ecash_wallet_title": "Ecash cüzdanı seç",
+  "my_ecash_mallet": "Benim Ecash cüzdanım",
   "select_wallet_title": "Bir lightning cüzdanı seç",
   "select": "Seç",
   "selected": "Seçildi",

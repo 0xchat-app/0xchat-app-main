@@ -72,6 +72,8 @@
   "cancel_purchase": "購入をキャンセル",
   "pay_invoice_title": "ライトニング請求書を支払う",
   "copy_invoice_title": "請求書をコピー",
+  "select_ecash_wallet_title": "Ecashウォレットを選択",
+  "my_ecash_mallet": "私のEcashウォレット",
   "select_wallet_title": "ライトニングウォレットを選択",
   "select": "選択",
   "selected": "選択済み",

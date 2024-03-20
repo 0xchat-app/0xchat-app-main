@@ -72,6 +72,8 @@
   "cancel_purchase": "Ακύρωση αγοράς",
   "pay_invoice_title": "Πληρώστε το τιμολόγιο κεραυνού",
   "copy_invoice_title": "Αντιγραφή τιμολογίου",
+  "select_ecash_wallet_title": "Επιλέξτε πορτοφόλι Ecash",
+  "my_ecash_mallet": "Το πορτοφόλι Ecash μου",
   "select_wallet_title": "Επιλέξτε ένα πορτοφόλι κεραυνού",
   "select": "Επιλογή",
   "selected": "Επιλεγμένο",

@@ -72,6 +72,8 @@
   "cancel_purchase": "Отменить покупку",
   "pay_invoice_title": "Оплатить молниеносный счет",
   "copy_invoice_title": "Копировать счет",
+  "select_ecash_wallet_title": "Выбрать кошелек Ecash",
+  "my_ecash_mallet": "Мой кошелек Ecash",
   "select_wallet_title": "Выберите молниеносный кошелек",
   "select": "Выбрать",
   "selected": "Выбрано",

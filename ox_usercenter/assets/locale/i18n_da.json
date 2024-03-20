@@ -72,6 +72,8 @@
   "cancel_purchase": "Annuller køb",
   "pay_invoice_title": "Betal lightning faktura",
   "copy_invoice_title": "Kopier faktura",
+  "select_ecash_wallet_title": "Vælg Ecash tegnebog",
+  "my_ecash_mallet": "Min Ecash tegnebog",
   "select_wallet_title": "Vælg en lightning tegnebog",
   "select": "Vælg",
   "selected": "Valgt",
