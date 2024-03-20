@@ -98,7 +98,7 @@ class _WalletSendEcashCoinSelectionPage extends State<WalletSendEcashCoinSelecti
 
   void _onChanged(List<Proof> items){
     int totalAmount = items.fold(0, (pre, proof) => pre + proof.amountNum);
-    if(totalAmount > widget.amount){
+    if(totalAmount >= widget.amount){
       _enable.value = true;
     }else{
       _enable.value = false;

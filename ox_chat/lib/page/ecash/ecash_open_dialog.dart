@@ -10,6 +10,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
@@ -79,7 +80,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
       setState(() {
-        ownerName = user?.getUserShowName() ?? 'anonymity';
+        ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
       });
     });
     animationController.forward(from: 0);
@@ -262,7 +263,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       child: EasyButton(
         idleStateWidget: Center(
           child: Text(
-            isRedeemed ? 'Redeemed' : 'Redeem',
+            isRedeemed ? 'ecash_redeemed'.localized() : 'ecash_redeem'.localized(),
             style: TextStyle(
               color: ThemeColor.darkColor,
               fontSize: 14.sp,
@@ -289,7 +290,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     return EasyButton(
       idleStateWidget: Center(
         child: Text(
-          'Approve',
+          'ecash_approve'.localized(),
           style: TextStyle(
             color: ThemeColor.darkColor,
             fontSize: 14.sp,
@@ -315,7 +316,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     return GestureDetector(
       onTap: jumpToDetailPage,
       child: Text(
-        'view detail',
+        'ecash_view_detail'.localized(),
         style: TextStyle(
           color: Colors.white,
           decoration: TextDecoration.underline,
@@ -337,7 +338,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cashu Ecash',
+                'ecash_token_name'.localized(),
                 style: TextStyle(
                   color: ThemeColor.white,
                   fontSize: 12.sp,
@@ -384,7 +385,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     final success = await EcashHelper.tryRedeemTokenList(widget.package);
 
     if (success == null) {
-      CommonToast.instance.show(context, 'Redeem Failed, Please try again.');
+      CommonToast.instance.show(context, 'ecash_redeem_failed_hint'.localized());
       setState(() {
         isRedeemed = widget.package.isRedeemed;
       });
@@ -393,7 +394,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     if (success) {
       jumpToDetailPage(false);
     } else {
-      CommonToast.instance.show(context, 'All tokens already spent.');
+      CommonToast.instance.show(context, 'ecash_tokens_already_spent'.localized());
       setState(() {
         isRedeemed = widget.package.isRedeemed;
       });
