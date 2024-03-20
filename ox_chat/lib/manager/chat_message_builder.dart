@@ -8,6 +8,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -407,7 +408,7 @@ class ChatMessageBuilder {
                     Visibility(
                       visible: isOpened,
                       child: Text(
-                        'Redeemed',
+                        'ecash_redeemed'.localized(),
                         style: TextStyle(
                           color: ThemeColor.white,
                           fontSize: 12.sp,
@@ -428,7 +429,7 @@ class ChatMessageBuilder {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Cashu Ecash',
+                  Text('ecash_token_name'.localized(),
                     style: TextStyle(color: ThemeColor.white, fontSize: 12),),
                   CommonImage(iconName: 'icon_zaps_0xchat.png',
                     package: 'ox_chat',
@@ -454,9 +455,9 @@ class ChatMessageBuilder {
 
     var subTitle = '';
     if (isOpened) {
-      subTitle = 'Redeemed';
+      subTitle = 'ecash_redeemed'.localized();
     } else if (signees.isNotEmpty && signees.any((signee) => signee.$2.isEmpty)) {
-      subTitle = 'Waiting for multi-signature';
+      subTitle = 'ecash_waiting_for_signature'.localized();
     } else if (receivers.isNotEmpty) {
       final userNames = EcashHelper.userListText(receivers, showUserCount: 1,);
       subTitle = '''$userNames's exclusive Ecash''';
@@ -527,7 +528,7 @@ class ChatMessageBuilder {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Cashu Ecash',
+                  Text('ecash_token_name'.localized(),
                     style: TextStyle(color: ThemeColor.white, fontSize: 12),),
                   CommonImage(iconName: 'icon_zaps_0xchat.png',
                     package: 'ox_chat',
