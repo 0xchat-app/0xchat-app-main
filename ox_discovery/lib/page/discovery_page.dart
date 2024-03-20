@@ -470,7 +470,6 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         users.add(user);
       }
     }
-
     return users;
   }
 
@@ -515,7 +514,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color:  ThemeColor.color160,
+        color:  ThemeColor.color180,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -524,6 +523,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             'Camera',
             index: 0,
             onTap: () {
+              OXNavigator.pop(context);
               OXNavigator.presentPage(
                 context,
                     (context) => CreateMomentsPage(type:EMomentType.picture),
@@ -538,6 +538,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             'Choose from Album',
             index: 1,
             onTap: () {
+              OXNavigator.pop(context);
               OXNavigator.presentPage(
                 context,
                     (context) => CreateMomentsPage(type:EMomentType.video),

@@ -374,37 +374,40 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                   color: ThemeColor.color0),
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.px,
-            ),
-            height: 48.px,
-            decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  Adapt.px(12),
-                ),
+          GestureDetector(
+            onTap: _visibleToUser,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.px,
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'My Contacts',
-                  style: TextStyle(
-                    fontSize: 16.px,
-                    color: ThemeColor.color0,
-                    fontWeight: FontWeight.w400,
+              height: 48.px,
+              decoration: BoxDecoration(
+                color: ThemeColor.color180,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    Adapt.px(12),
                   ),
                 ),
-                CommonImage(
-                  iconName: 'moment_more_icon.png',
-                  size: 24.px,
-                  package: 'ox_discovery',
-                ),
-              ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'My Contacts',
+                    style: TextStyle(
+                      fontSize: 16.px,
+                      color: ThemeColor.color0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  CommonImage(
+                    iconName: 'moment_more_icon.png',
+                    size: 24.px,
+                    package: 'ox_discovery',
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -469,5 +472,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       // ChatVideoPlayPage
       // FileImage(File(uri));
     }
+  }
+
+  void _visibleToUser(){
+
   }
 }
