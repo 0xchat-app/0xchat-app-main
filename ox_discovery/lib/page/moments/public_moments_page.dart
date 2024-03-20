@@ -5,22 +5,13 @@ import 'package:avatar_stack/positions.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../model/moment_model.dart';
-import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
-import '../widgets/horizontal_scroll_widget.dart';
-import '../widgets/moment_option_widget.dart';
-import '../widgets/nine_palace_grid_picture_widget.dart';
-import 'create_moments_page.dart';
+import '../widgets/moment_widget.dart';
 import 'notifications_moments_page.dart';
 
 class PublicMomentsPage extends StatefulWidget {
@@ -55,127 +46,21 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _newMomentTipsWidget(),
-            _momentItemWidget(EMomentType.picture),
-            _momentItemWidget(EMomentType.content),
-            _momentItemWidget(EMomentType.video),
-            _momentItemWidget(EMomentType.quote),
+            MomentWidget(type:EMomentType.picture),
+            MomentWidget(type:EMomentType.content),
+            MomentWidget(type:EMomentType.video),
+            MomentWidget(type:EMomentType.quote),
           ],
         ),
       ),
     );
   }
 
-  Widget _momentItemWidget(EMomentType type) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 12.px,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _momentUserInfoWidget(),
-          MomentRichText(
-            text:
-                "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
-          ),
-          _momentTypeWidget(type),
-          MomentOptionWidget(),
-          // _momentOptionWidget()
-        ],
-      ),
-    );
-  }
-
-  Widget _momentTypeWidget(EMomentType type) {
-    Widget contentWidget = const SizedBox(width: 0);
-       switch (type) {
-      case EMomentType.picture:
-        contentWidget = NinePalaceGridPictureWidget(
-          width: 248.px,
-        ).setPadding(EdgeInsets.only(bottom: 12.px));
-        break;
-      case EMomentType.quote:
-        contentWidget = HorizontalScrollWidget();
-        break;
-      case EMomentType.video:
-        contentWidget = Container(
-          margin: EdgeInsets.only(
-            bottom: 12.px,
-          ),
-          decoration: BoxDecoration(
-            color: ThemeColor.color100,
-            borderRadius: BorderRadius.all(
-              Radius.circular(
-                Adapt.px(12),
-              ),
-            ),
-          ),
-          width: 210.px,
-          height: 154.px,
-        );
-        break;
-      case EMomentType.content:
-        break;
-    }
-    return contentWidget;
-  }
-
-  Widget _momentUserInfoWidget() {
-    return Container(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            child: Row(
-              children: [
-                MomentWidgets.clipImage(
-                  imageName: 'moment_avatar.png',
-                  borderRadius: 40.px,
-                  imageSize: 40.px,
-                ),
-                Container(
-                  margin: EdgeInsets.only(
-                    left: 10.px,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Satoshi',
-                        style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: 14.px,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        'Satosh@0xchat.com· 45s ago',
-                        style: TextStyle(
-                          color: ThemeColor.color120,
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          CommonImage(
-            iconName: 'more_moment_icon.png',
-            size: 20.px,
-            package: 'ox_discovery',
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _newMomentTipsWidget() {
     Widget _wrapContainerWidget(
-        {required Widget leftWidget, required String rightContent,required GestureTapCallback onTap}) {
+        {required Widget leftWidget,
+        required String rightContent,
+        required GestureTapCallback onTap}) {
       return GestureDetector(
         onTap: onTap,
         child: Container(
@@ -219,7 +104,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
         children: [
           _wrapContainerWidget(
             onTap: () {
-              OXNavigator.pushPage(context, (context) => NotificationsMomentsPage());
+              OXNavigator.pushPage(
+                  context, (context) => NotificationsMomentsPage());
             },
             leftWidget: _memberAvatarWidget(),
             rightContent: '10 new pots',
@@ -229,7 +115,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           ),
           _wrapContainerWidget(
             onTap: () {
-              OXNavigator.pushPage(context, (context) => NotificationsMomentsPage());
+              OXNavigator.pushPage(
+                  context, (context) => NotificationsMomentsPage());
             },
             leftWidget: MomentWidgets.clipImage(
               imageName: 'moment_avatar.png',
@@ -269,10 +156,9 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
     List<ImageProvider<Object>> avatarList = [];
     for (var n = 0; n < renderCount; n++) {
-      avatarList.add( const AssetImage('assets/images/moment_avatar.png',
+      avatarList.add(const AssetImage('assets/images/moment_avatar.png',
           package: 'ox_discovery'));
     }
     return avatarList;
   }
-
 }

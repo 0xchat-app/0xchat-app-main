@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -100,6 +101,38 @@ class MomentWidgets {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget videoMoment(){
+    return GestureDetector(
+      onTap: () {},
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(
+              bottom: 12.px,
+            ),
+            decoration: BoxDecoration(
+              color: ThemeColor.color100,
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  Adapt.px(12),
+                ),
+              ),
+            ),
+            width: 210.px,
+            height: 154.px,
+          ),
+          CommonImage(
+            iconName: 'play_moment_icon.png',
+            package: 'ox_discovery',
+            size: 60.0.px,
+            color: Colors.white,
           ),
         ],
       ),

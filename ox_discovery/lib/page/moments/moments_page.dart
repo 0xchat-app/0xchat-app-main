@@ -8,10 +8,12 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/moment_option_widget.dart';
+import '../widgets/moment_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   const MomentsPage({Key? key}) : super(key: key);
@@ -73,6 +75,7 @@ class _MomentsPageState extends State<MomentsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              MomentWidget(type:EMomentType.picture),
               _momentItemWidget(),
               _momentItemWidget(),
               _showRepliesWidget(),

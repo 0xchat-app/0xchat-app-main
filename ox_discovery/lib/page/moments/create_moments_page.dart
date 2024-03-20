@@ -153,21 +153,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       onTap: () {
         _goToPhoto(context, 2);
       },
-      child: Container(
-        margin: EdgeInsets.symmetric(
-          vertical: 12.px,
-        ),
-        width: 210.px,
-        height: 160.px,
-        decoration: BoxDecoration(
-          color: ThemeColor.color180,
-          borderRadius: BorderRadius.all(
-            Radius.circular(
-              Adapt.px(16),
-            ),
-          ),
-        ),
-      ),
+      child: MomentWidgets.videoMoment(),
     );
   }
 

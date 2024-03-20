@@ -48,20 +48,20 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   void initState() {
     super.initState();
-    OXUserInfoManager.sharedInstance.addObserver(this);
-    OXRelayManager.sharedInstance.addObserver(this);
-    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
-    Localized.addLocaleChangedCallback(onLocaleChange);
-    WidgetsBinding.instance.addObserver(this);
-    String localAvatarPath = 'assets/images/icon_group_default.png';
-    _placeholderImage = Image.asset(
-      localAvatarPath,
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_common',
-    );
-    _getHotChannels(type: _currentIndex.value + 1,context: context);
+    // OXUserInfoManager.sharedInstance.addObserver(this);
+    // OXRelayManager.sharedInstance.addObserver(this);
+    // ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+    // Localized.addLocaleChangedCallback(onLocaleChange);
+    // WidgetsBinding.instance.addObserver(this);
+    // String localAvatarPath = 'assets/images/icon_group_default.png';
+    // _placeholderImage = Image.asset(
+    //   localAvatarPath,
+    //   fit: BoxFit.cover,
+    //   width: Adapt.px(76),
+    //   height: Adapt.px(76),
+    //   package: 'ox_common',
+    // );
+    // _getHotChannels(type: _currentIndex.value + 1,context: context);
   }
 
   @override

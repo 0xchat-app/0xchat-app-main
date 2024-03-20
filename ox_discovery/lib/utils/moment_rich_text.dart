@@ -1,9 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; //
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:ox_common/widgets/common_webview.dart';
+import 'package:ox_module_service/ox_module_service.dart';
+
+import '../page/moments/moments_page.dart';
+import '../page/moments/topic_moment_page.dart';
 
 class MomentRichText extends StatelessWidget {
   MomentRichText({
@@ -31,7 +37,9 @@ class MomentRichText extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         maxLines: maxLines ?? 100,
         text: TextSpan(
-          style: TextStyle(color: defaultTextColor ?? ThemeColor.color0, fontSize: textSize ?? 16.px),
+          style: TextStyle(
+              color: defaultTextColor ?? ThemeColor.color0,
+              fontSize: textSize ?? 16.px),
           children: textSpans,
         ),
       ),
@@ -40,18 +48,25 @@ class MomentRichText extends StatelessWidget {
 
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     final List<TextSpan> spans = [];
-    final RegExp regex = RegExp(r"#(\w+)|@(\w+)|(https?:\/\/[^\s]+)|(Read More)|\n");
+    final RegExp regex =
+        RegExp(r"#(\w+)|@(\w+)|(https?:\/\/[^\s]+)|(Read More)|\n");
 
     int lastMatchEnd = 0;
     regex.allMatches(text).forEach((match) {
       final beforeMatch = text.substring(lastMatchEnd, match.start);
       if (beforeMatch.isNotEmpty) {
-        spans.add(TextSpan(text: beforeMatch));
+        spans.add(TextSpan(
+          text: beforeMatch,
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              OXNavigator.pushPage(context, (context) => MomentsPage());
+            },
+        ));
       }
 
       final matchText = match.group(0);
       if (matchText == '\n') {
-        spans.add(TextSpan(text: '\n'));
+        spans.add(const TextSpan(text: '\n'));
       } else {
         spans.add(_buildLinkSpan(matchText!, context));
       }
@@ -79,22 +94,18 @@ class MomentRichText extends StatelessWidget {
 
   void _onTextTap(String text, BuildContext context) {
     if (text.startsWith('#')) {
-      print('Navigate to topic: $text');
+      OXNavigator.pushPage(context, (context) => TopicMomentPage(title: text));
     } else if (text.startsWith('@')) {
-      print('Navigate to user: $text');
+      final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+      OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
+        'pubkey': pubKey,
+      });
     } else if (text.startsWith('http')) {
-      print('Open URL: $text');
-      _launchURL(text);
+      OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text), fullscreenDialog: true);
     } else if (text == 'Read More ') {
       print('Navigate to Read More');
-    }
-  }
-
-  void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
     } else {
-      print('Could not launch $url');
+      OXNavigator.pushPage(context, (context) => const MomentsPage());
     }
   }
 }

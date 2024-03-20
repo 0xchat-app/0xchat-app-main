@@ -5,7 +5,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/contact_choose_page.dart';
+// import 'package:ox_common/widgets/contact_choose_page.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/widgets/flexible_selector.dart';
 import 'package:chatcore/chat-core.dart';
@@ -153,13 +153,13 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
             _currentVisibleType = VisibleType.values[index];
           });
           if (isSpecial) {
-            OXNavigator.presentPage(
-              context,
-              (context) => ContactChoosePage<UserDB>(
-                contactType: ContactType.contact,
-                onSubmitted: _selectedOnChanged,
-              ),
-            );
+            // OXNavigator.presentPage(
+            //   context,
+            //   (context) => ContactChoosePage<UserDB>(
+            //     contactType: ContactType.contact,
+            //     onSubmitted: _selectedOnChanged,
+            //   ),
+            // );
           }
         },
       ),
