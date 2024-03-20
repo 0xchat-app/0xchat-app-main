@@ -11,7 +11,7 @@
   "delete": "删除",
   "search": "搜索",
   "search_tips_prefix": "尝试搜索",
-  "search_tips_suffix_all": " 私聊, 朋友, 频道",
+  "search_tips_suffix_all": " 私聊, 朋友, 群, 频道",
   "search_tips_suffix_friend": " 朋友",
   "search_tips_suffix_channel": " 频道",
   "search_channel_tips": "尝试搜索频道",
@@ -213,5 +213,6 @@
   "str_title_top_hins_contacts": "常用联系人",
   "str_chat_historys": "聊天记录",
   "str_recent_chats": "最近聊天",
-  "no_channel_added": "没有添加频道"
+  "str_no_channel_added": "没有添加频道",
+  "str_leave_group": "退出群聊"
 }

@@ -11,7 +11,7 @@
   "delete": "Delete",
   "search": "Search",
   "search_tips_prefix": "Try searching for",
-  "search_tips_suffix_all": " chats, friends, channels",
+  "search_tips_suffix_all": " chats, friends, groups, channels",
   "search_tips_suffix_friend": " friends",
   "search_tips_suffix_channel": " channels",
   "search_channel_tips": "Try searching to discover channels",
@@ -213,5 +213,6 @@
   "str_title_top_hins_contacts": "Top Hits",
   "str_chat_historys": "Chat Histories",
   "str_recent_chats": "Recent Chats",
-  "no_channel_added": "No channel added"
+  "str_no_channel_added": "No channel added",
+  "str_leave_group": "Leave"
 }

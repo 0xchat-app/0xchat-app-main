@@ -152,7 +152,7 @@ class ChannelContactState extends State<ChannelContact> {
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: MyText(
-              Localized.text('ox_chat.no_channel_added'),
+              Localized.text('ox_chat.str_no_channel_added'),
               14,
               ThemeColor.gray02,
             ),
