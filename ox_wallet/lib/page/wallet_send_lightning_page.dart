@@ -25,9 +25,15 @@ enum SendType{
   address
 }
 
+typedef InvoiceInfo = ({String invoice, String amount});
+
 class WalletSendLightningPage extends StatefulWidget {
-  final Map<String,String>? external;
-  const WalletSendLightningPage({super.key,this.external});
+  final InvoiceInfo? defaultInvoice;
+
+  const WalletSendLightningPage({
+    super.key,
+    this.defaultInvoice,
+  });
 
   @override
   State<WalletSendLightningPage> createState() => _WalletSendLightningPageState();
@@ -62,13 +68,17 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   void _initExternalData() {
-    final externalData = widget.external;
-    if (externalData != null) {
-      bool hasRequiredKeys = externalData.containsKey('invoice') && externalData.containsKey('amount');
-      if (hasRequiredKeys) {
+    final defaultInvoice = widget.defaultInvoice;
+    if (defaultInvoice != null) {
+      final invoice = defaultInvoice.invoice;
+      if (invoice.isNotEmpty) {
+        var amount = defaultInvoice.amount;
+        if (amount.isEmpty) {
+          amount = Cashu.amountOfLightningInvoice(invoice)?.toString() ?? '';
+        }
         _sendType.value = SendType.invoice;
-        _invoiceEditController.text = externalData['invoice']!;
-        _amountEditController.text = externalData['amount']!;
+        _invoiceEditController.text = invoice;
+        _amountEditController.text = amount;
       }
     }
   }

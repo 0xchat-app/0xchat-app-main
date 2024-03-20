@@ -39,10 +39,10 @@ class OXWallet extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => WalletSendLightningPage(
-            external: {
-              'invoice': params?['invoice'],
-              'amount': params?['amount']
-            },
+            defaultInvoice: (
+              invoice: params?['invoice'] ?? '',
+              amount: params?['amount'] ?? '',
+            ),
           ),
         );
       case 'WalletTransactionRecord':
@@ -62,6 +62,7 @@ class OXWallet extends OXFlutterModule {
     'buildMintIndicatorItem': buildMintIndicatorItem,
     'checkWalletActivate': checkWalletActivate,
     'openWalletHomePage': openWalletHomePage,
+    'walletSendLightningPage': walletSendLightningPage,
   };
 
   @override
@@ -128,4 +129,12 @@ class OXWallet extends OXFlutterModule {
       ),);
     }
   }
+
+  Widget walletSendLightningPage({String? invoice, String? amount}) =>
+      WalletSendLightningPage(
+        defaultInvoice: (
+        invoice: invoice ?? '',
+        amount: amount ?? '',
+        ),
+      );
 }

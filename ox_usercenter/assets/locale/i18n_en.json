@@ -72,6 +72,8 @@
   "cancel_purchase": "Cancel purchase",
   "pay_invoice_title": "Pay the lightning invoice",
   "copy_invoice_title": "Copy invoice",
+  "select_ecash_wallet_title": "Select Ecash wallet",
+  "my_ecash_mallet": "My Ecash wallet",
   "select_wallet_title": "Select a lighting wallet",
   "select": "Select",
   "selected": "Selected",

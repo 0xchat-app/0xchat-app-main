@@ -54,7 +54,7 @@
   "share": "Share",
   "share_selected_tips": "Please select share contact",
   "recipient": "Recipient",
-  "invoice_hint_text": "Invoice or Address'",
+  "invoice_hint_text": "Invoice or Address",
   "pay_now_button": "Pay now",
   "invoice_valid_tips": "Please enter the correct Invoice",
   "invoice_decode_failed_tips": "Decode invoice failed. Please try again",

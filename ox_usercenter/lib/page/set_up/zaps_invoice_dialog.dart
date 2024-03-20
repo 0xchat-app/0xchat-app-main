@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
-import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -42,53 +42,21 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
           borderRadius: BorderRadius.circular(Adapt.px(12)),
           color: ThemeColor.color190,
         ),
-        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(16)),
+        padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _topView(),
-              Text(
-                Localized.text('ox_usercenter.select_wallet_title'),
-                style: TextStyle(
-                  fontSize: Adapt.px(16),
-                  color: ThemeColor.color0,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: Adapt.px(12),),
-              Container(
-                decoration: BoxDecoration(
-                  color: ThemeColor.color180,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: _itemList.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      WalletModel tempItem = _itemList[index];
-                      return ListTile(
-                        title: Text(
-                          tempItem.title,
-                          style: TextStyle(
-                            fontSize: Adapt.px(16),
-                            color: ThemeColor.color0,
-                          ),
-                        ),
-                        leading: CommonImage(
-                          iconName: tempItem.image,
-                          width: Adapt.px(32),
-                          height: Adapt.px(32),
-                          package: 'ox_usercenter',
-                        ),
-                        onTap: ()=> _onTap(tempItem),
-                      );
-                    }),
-              ),
-            ],
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 24.px,),
+                _topView(),
+                SizedBox(height: 24.px,),
+                buildEcashWalletSection(),
+                SizedBox(height: 24.px,),
+                buildLightingWallectSection(),
+              ],
+            ),
           ),
         ),
       ),
@@ -140,9 +108,7 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
             ),
           ],
         ),
-        SizedBox(
-          height: Adapt.px(30),
-        ),
+        SizedBox(height: 24.px,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -209,7 +175,100 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
           ),
         ),
       ],
-    ).setPadding(EdgeInsets.only(bottom: Adapt.px(42)));
+    );
+  }
+
+  Widget buildEcashWalletSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          Localized.text('ox_usercenter.select_ecash_wallet_title'),
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: Adapt.px(12),),
+        Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              ListTile(
+                title: Text(
+                  Localized.text('ox_usercenter.my_ecash_mallet'),
+                  style: TextStyle(
+                    fontSize: Adapt.px(16),
+                    color: ThemeColor.color0,
+                  ),
+                ),
+                leading: CommonImage(
+                  iconName: 'icon_settings_wallet.png',
+                  width: Adapt.px(32),
+                  height: Adapt.px(32),
+                  package: 'ox_usercenter',
+                ),
+                onTap: ecashWalletOnTap,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildLightingWallectSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          Localized.text('ox_usercenter.select_wallet_title'),
+          style: TextStyle(
+            fontSize: Adapt.px(16),
+            color: ThemeColor.color0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: Adapt.px(12),),
+        Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: _itemList.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                WalletModel tempItem = _itemList[index];
+                return ListTile(
+                  title: Text(
+                    tempItem.title,
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      color: ThemeColor.color0,
+                    ),
+                  ),
+                  leading: CommonImage(
+                    iconName: tempItem.image,
+                    width: Adapt.px(32),
+                    height: Adapt.px(32),
+                    package: 'ox_usercenter',
+                  ),
+                  onTap: ()=> _onTap(tempItem),
+                );
+              }),
+        ),
+      ],
+    );
   }
 
   void _onTap(WalletModel walletModel) async {
@@ -230,5 +289,12 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
     } else if (Platform.isAndroid) {
       LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl ?? '', context: context);
     }
+  }
+
+  void ecashWalletOnTap() {
+    final ecashSendingPage = OXWalletInterface.walletSendLightningPage(
+      invoice: widget.invoice,
+    );
+    OXNavigator.pushReplacement(context, ecashSendingPage);
   }
 }
