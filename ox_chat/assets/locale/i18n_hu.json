@@ -240,5 +240,12 @@
   "ecash_token_name": "Cashu Token",
   "ecash_redeem_failed_hint": "A beváltás nem sikerült, kérjük, próbálja újra.",
   "ecash_tokens_already_spent": "Minden token már el lett költve.",
-  "ecash_waiting_for_signature": "Várakozás többszörös aláírásra"
+  "ecash_waiting_for_signature": "Várakozás többszörös aláírásra",
+  "ecash_signer_error_hint": "Az aláíró (${userName}) nem lehet a címzett",
+  "ecash_recipient_error_hint": "A címzett (${userName}) nem lehet aláíró",
+  "ecash_for_users_only": "Csak ${userNames} számára",
+  "ecash_owner_title": "${ownerName} Ecash-e",
+  "ecash_wait_my_signature_title": "${ownerName} Ecash-e, várakozás a te aláírásodra",
+  "ecash_wait_other_signature_title": "${ownerName} Ecash-e, több aláírásra várakozás",
+  "ecash_exclusive_title": "${userNames} kizárólagos Ecash-e"
 }

@@ -240,5 +240,12 @@
   "ecash_token_name": "Token Cashu",
   "ecash_redeem_failed_hint": "El canje ha fallado, por favor intente de nuevo.",
   "ecash_tokens_already_spent": "Todos los tokens ya han sido gastados.",
-  "ecash_waiting_for_signature": "Esperando multi-firma"
+  "ecash_waiting_for_signature": "Esperando multi-firma",
+  "ecash_signer_error_hint": "El firmante (${userName}) no puede ser el receptor",
+  "ecash_recipient_error_hint": "El receptor (${userName}) no puede ser un firmante",
+  "ecash_for_users_only": "Solo para ${userNames}",
+  "ecash_owner_title": "Ecash de ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash de ${ownerName}, esperando tu firma",
+  "ecash_wait_other_signature_title": "Ecash de ${ownerName}, esperando firma múltiple",
+  "ecash_exclusive_title": "Ecash exclusivo de ${userNames}"
 }

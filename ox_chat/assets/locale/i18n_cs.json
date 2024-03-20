@@ -240,5 +240,12 @@
   "ecash_token_name": "Token Cashu",
   "ecash_redeem_failed_hint": "Uplatnění se nezdařilo, zkuste to prosím znovu.",
   "ecash_tokens_already_spent": "Všechny tokeny již byly utraceny.",
-  "ecash_waiting_for_signature": "Čekání na více podpisů"
+  "ecash_waiting_for_signature": "Čekání na více podpisů",
+  "ecash_signer_error_hint": "Signatář(${userName}) nemůže být příjemcem",
+  "ecash_recipient_error_hint": "Příjemce(${userName}) nemůže být signatářem",
+  "ecash_for_users_only": "Pouze pro ${userNames}",
+  "ecash_owner_title": "Ecash od ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash od ${ownerName}, čeká na váš podpis",
+  "ecash_wait_other_signature_title": "Ecash od ${ownerName}, čeká na více podpisů",
+  "ecash_exclusive_title": "Exkluzivní Ecash od ${userNames}"
 }

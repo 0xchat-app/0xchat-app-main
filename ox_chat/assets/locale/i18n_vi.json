@@ -240,5 +240,12 @@
   "ecash_token_name": "Token Cashu",
   "ecash_redeem_failed_hint": "Đổi thất bại, vui lòng thử lại.",
   "ecash_tokens_already_spent": "Tất cả token đã được sử dụng.",
-  "ecash_waiting_for_signature": "Đang chờ chữ ký đa phần"
+  "ecash_waiting_for_signature": "Đang chờ chữ ký đa phần",
+  "ecash_signer_error_hint": "Người ký (${userName}) không thể là người nhận",
+  "ecash_recipient_error_hint": "Người nhận (${userName}) không thể là người ký",
+  "ecash_for_users_only": "Chỉ dành cho ${userNames}",
+  "ecash_owner_title": "Ecash của ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash của ${ownerName}, đang chờ chữ ký của bạn",
+  "ecash_wait_other_signature_title": "Ecash của ${ownerName}, đang chờ chữ ký từ nhiều người",
+  "ecash_exclusive_title": "Ecash độc quyền của ${userNames}"
 }

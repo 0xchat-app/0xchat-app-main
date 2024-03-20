@@ -240,5 +240,12 @@
   "ecash_token_name": "Token Cashu",
   "ecash_redeem_failed_hint": "Échec du rachat, veuillez réessayer.",
   "ecash_tokens_already_spent": "Tous les jetons ont déjà été dépensés.",
-  "ecash_waiting_for_signature": "En attente de multi-signature"
+  "ecash_waiting_for_signature": "En attente de multi-signature",
+  "ecash_signer_error_hint": "Le signataire (${userName}) ne peut pas être le destinataire",
+  "ecash_recipient_error_hint": "Le destinataire (${userName}) ne peut pas être un signataire",
+  "ecash_for_users_only": "Uniquement pour ${userNames}",
+  "ecash_owner_title": "Ecash de ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash de ${ownerName}, en attente de votre signature",
+  "ecash_wait_other_signature_title": "Ecash de ${ownerName}, en attente de signature multiple",
+  "ecash_exclusive_title": "Ecash exclusif de ${userNames}"
 }

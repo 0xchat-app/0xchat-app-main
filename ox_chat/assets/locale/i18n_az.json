@@ -239,5 +239,12 @@
   "ecash_token_name": "Cashu Token",
   "ecash_redeem_failed_hint": "Geri alma uğursuz oldu, zəhmət olmasa yenidən cəhd edin.",
   "ecash_tokens_already_spent": "Bütün tokenlər artıq xərclənib.",
-  "ecash_waiting_for_signature": "Çoxlu imza gözlənilir"
+  "ecash_waiting_for_signature": "Çoxlu imza gözlənilir",
+  "ecash_signer_error_hint": "İmzalayan(${userName}) alıcı ola bilməz",
+  "ecash_recipient_error_hint": "Alıcı(${userName}) imzaçı ola bilməz",
+  "ecash_for_users_only": "Yalnız ${userNames} üçün",
+  "ecash_owner_title": "${ownerName}'nin Ecash'i",
+  "ecash_wait_my_signature_title": "${ownerName}'nin Ecash'i, sizin imzanızı gözləyir",
+  "ecash_wait_other_signature_title": "${ownerName}'nin Ecash'i, çoxlu imza gözləyir",
+  "ecash_exclusive_title": "${userNames}'nin özəl Ecash'i"
 }

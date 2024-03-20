@@ -240,5 +240,12 @@
   "ecash_token_name": "Cashu Token",
   "ecash_redeem_failed_hint": "Inlösen misslyckades, försök igen.",
   "ecash_tokens_already_spent": "Alla tokens har redan spenderats.",
-  "ecash_waiting_for_signature": "Väntar på flera signaturer"
+  "ecash_waiting_for_signature": "Väntar på flera signaturer",
+  "ecash_signer_error_hint": "Signeraren (${userName}) kan inte vara mottagaren",
+  "ecash_recipient_error_hint": "Mottagaren (${userName}) kan inte vara en undertecknare",
+  "ecash_for_users_only": "Endast för ${userNames}",
+  "ecash_owner_title": "${ownerName}s Ecash",
+  "ecash_wait_my_signature_title": "${ownerName}s Ecash, väntar på din signatur",
+  "ecash_wait_other_signature_title": "${ownerName}s Ecash, väntar på flera signaturer",
+  "ecash_exclusive_title": "${userNames}s exklusiva Ecash"
 }

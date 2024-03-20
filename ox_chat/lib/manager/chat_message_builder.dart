@@ -460,7 +460,9 @@ class ChatMessageBuilder {
       subTitle = 'ecash_waiting_for_signature'.localized();
     } else if (receivers.isNotEmpty) {
       final userNames = EcashHelper.userListText(receivers, showUserCount: 1,);
-      subTitle = '''$userNames's exclusive Ecash''';
+      subTitle = 'ecash_exclusive_title'.localized({
+        r'${userNames}': userNames,
+      });
     }
 
     return Opacity(

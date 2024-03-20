@@ -139,7 +139,9 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
   Widget buildTitle() {
     final text = isForOtherUser
-        ? 'For ${EcashHelper.userListText(widget.package.receiver)} only'
+        ? 'ecash_for_users_only'.localized({
+            r'${userNames}': EcashHelper.userListText(widget.package.receiver)
+          })
         : widget.package.memo;
     return Text(
       text,
@@ -153,12 +155,18 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildSubtitle() {
-    var text = '$ownerName\'s Ecash';
+    var text = 'ecash_owner_title'.localized({
+      r'${ownerName}': ownerName,
+    });
     if (isNeedSignature && !isFinishSignature) {
       if (isTurnToSign) {
-        text += ', Waiting for your signature';
+        text = 'ecash_wait_my_signature_title'.localized({
+          r'${ownerName}': ownerName,
+        });
       } else {
-        text += ', Waiting for multi-signature';
+        text = 'ecash_wait_other_signature_title'.localized({
+          r'${ownerName}': ownerName,
+        });
       }
     }
     return Text(

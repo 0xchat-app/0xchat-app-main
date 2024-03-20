@@ -240,5 +240,12 @@
   "ecash_token_name": "Токен Cashu",
   "ecash_redeem_failed_hint": "Не удалось использовать, попробуйте снова.",
   "ecash_tokens_already_spent": "Все токены уже использованы.",
-  "ecash_waiting_for_signature": "Ожидание мультиподписи"
+  "ecash_waiting_for_signature": "Ожидание мультиподписи",
+  "ecash_signer_error_hint": "Подписывающий (${userName}) не может быть получателем",
+  "ecash_recipient_error_hint": "Получатель (${userName}) не может быть подписантом",
+  "ecash_for_users_only": "Только для ${userNames}",
+  "ecash_owner_title": "Ecash ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash ${ownerName}, ожидает вашей подписи",
+  "ecash_wait_other_signature_title": "Ecash ${ownerName}, ожидание множественной подписи",
+  "ecash_exclusive_title": "Эксклюзивный Ecash ${userNames}"
 }

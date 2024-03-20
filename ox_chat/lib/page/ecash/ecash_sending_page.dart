@@ -562,7 +562,12 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
-            CommonToast.instance.show(context, 'Signer(${duplicateUser.getUserShowName()}) cannot be the recipient');
+            CommonToast.instance.show(
+              context,
+              'ecash_recipient_error_hint'.localized({
+                r'${userName}': duplicateUser.getUserShowName(),
+              }),
+            );
             return false;
           }
 
@@ -607,7 +612,12 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
-            CommonToast.instance.show(context, 'Recipient(${duplicateUser.getUserShowName()}) cannot be a signee');
+            CommonToast.instance.show(
+              context,
+              'ecash_signer_error_hint'.localized({
+                r'${userName}': duplicateUser.getUserShowName(),
+              }),
+            );
             return false;
           }
 

@@ -240,5 +240,12 @@
   "ecash_token_name": "โทเค็น Cashu",
   "ecash_redeem_failed_hint": "การแลกไม่สำเร็จ กรุณาลองอีกครั้ง",
   "ecash_tokens_already_spent": "โทเค็นทั้งหมดได้ถูกใช้ไปแล้ว",
-  "ecash_waiting_for_signature": "รอลายเซ็นหลายตัว"
+  "ecash_waiting_for_signature": "รอลายเซ็นหลายตัว",
+  "ecash_signer_error_hint": "ผู้ลงนาม (${userName}) ไม่สามารถเป็นผู้รับได้",
+  "ecash_recipient_error_hint": "ผู้รับ (${userName}) ไม่สามารถเป็นผู้ลงนามได้",
+  "ecash_for_users_only": "สำหรับ ${userNames} เท่านั้น",
+  "ecash_owner_title": "Ecash ของ ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash ของ ${ownerName}, รอลายเซ็นของคุณ",
+  "ecash_wait_other_signature_title": "Ecash ของ ${ownerName}, รอลายเซ็นหลายตัว",
+  "ecash_exclusive_title": "Ecash พิเศษของ ${userNames}"
 }

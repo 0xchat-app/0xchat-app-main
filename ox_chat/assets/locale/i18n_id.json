@@ -240,5 +240,12 @@
   "ecash_token_name": "Token Cashu",
   "ecash_redeem_failed_hint": "Penebusan gagal, silakan coba lagi.",
   "ecash_tokens_already_spent": "Semua token sudah dihabiskan.",
-  "ecash_waiting_for_signature": "Menunggu multi-tanda tangan"
+  "ecash_waiting_for_signature": "Menunggu multi-tanda tangan",
+  "ecash_signer_error_hint": "Penandatangan (${userName}) tidak bisa menjadi penerima",
+  "ecash_recipient_error_hint": "Penerima (${userName}) tidak bisa menjadi penandatangan",
+  "ecash_for_users_only": "Hanya untuk ${userNames}",
+  "ecash_owner_title": "Ecash milik ${ownerName}",
+  "ecash_wait_my_signature_title": "Ecash milik ${ownerName}, menunggu tanda tangan Anda",
+  "ecash_wait_other_signature_title": "Ecash milik ${ownerName}, menunggu tanda tangan multi",
+  "ecash_exclusive_title": "Ecash eksklusif milik ${userNames}"
 }

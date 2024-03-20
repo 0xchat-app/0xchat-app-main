@@ -240,5 +240,12 @@
   "ecash_token_name": "Cashu 토큰",
   "ecash_redeem_failed_hint": "상환 실패, 다시 시도해 주세요.",
   "ecash_tokens_already_spent": "모든 토큰이 이미 사용되었습니다.",
-  "ecash_waiting_for_signature": "다중 서명 대기 중"
+  "ecash_waiting_for_signature": "다중 서명 대기 중",
+  "ecash_signer_error_hint": "서명자(${userName})는 수령인이 될 수 없습니다",
+  "ecash_recipient_error_hint": "수령인(${userName})은 서명자가 될 수 없습니다",
+  "ecash_for_users_only": "${userNames}만을 위한",
+  "ecash_owner_title": "${ownerName}의 Ecash",
+  "ecash_wait_my_signature_title": "${ownerName}의 Ecash, 당신의 서명을 기다리는 중",
+  "ecash_wait_other_signature_title": "${ownerName}의 Ecash, 다중 서명을 기다리는 중",
+  "ecash_exclusive_title": "${userNames}의 독점적인 Ecash"
 }

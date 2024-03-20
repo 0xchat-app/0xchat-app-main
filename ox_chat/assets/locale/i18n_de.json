@@ -240,5 +240,12 @@
   "ecash_token_name": "Cashu Token",
   "ecash_redeem_failed_hint": "Einlösen fehlgeschlagen, bitte erneut versuchen.",
   "ecash_tokens_already_spent": "Alle Token wurden bereits ausgegeben.",
-  "ecash_waiting_for_signature": "Warten auf Mehrfach-Unterschrift"
+  "ecash_waiting_for_signature": "Warten auf Mehrfach-Unterschrift",
+  "ecash_signer_error_hint": "Unterzeichner (${userName}) kann nicht der Empfänger sein",
+  "ecash_recipient_error_hint": "Empfänger (${userName}) kann kein Unterzeichner sein",
+  "ecash_for_users_only": "Nur für ${userNames}",
+  "ecash_owner_title": "${ownerName}s Ecash",
+  "ecash_wait_my_signature_title": "${ownerName}s Ecash, wartet auf Ihre Unterschrift",
+  "ecash_wait_other_signature_title": "${ownerName}s Ecash, wartet auf Mehrfachunterschriften",
+  "ecash_exclusive_title": "${userNames}s exklusives Ecash"
 }

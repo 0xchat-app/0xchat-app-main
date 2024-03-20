@@ -240,5 +240,12 @@
   "ecash_token_name": "عملة كاشو",
   "ecash_redeem_failed_hint": "فشل الاسترداد، الرجاء المحاولة مرة أخرى.",
   "ecash_tokens_already_spent": "تم إنفاق جميع العملات.",
-  "ecash_waiting_for_signature": "في انتظار التوقيع المتعدد"
+  "ecash_waiting_for_signature": "في انتظار التوقيع المتعدد",
+  "ecash_signer_error_hint": "الموقع(${userName}) لا يمكن أن يكون المستلم",
+  "ecash_recipient_error_hint": "المستلم(${userName}) لا يمكن أن يكون واحد من الموقعين",
+  "ecash_for_users_only": "لـ ${userNames} فقط",
+  "ecash_owner_title": "إيكاش ${ownerName}",
+  "ecash_wait_my_signature_title": "إيكاش ${ownerName}، في انتظار توقيعك",
+  "ecash_wait_other_signature_title": "إيكاش ${ownerName}، في انتظار التوقيع المتعدد",
+  "ecash_exclusive_title": "إيكاش حصري لـ ${userNames}"
 }

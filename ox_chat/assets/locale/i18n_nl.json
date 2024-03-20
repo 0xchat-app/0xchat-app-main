@@ -240,5 +240,12 @@
   "ecash_token_name": "Cashu Token",
   "ecash_redeem_failed_hint": "Inwisselen mislukt, probeer het opnieuw.",
   "ecash_tokens_already_spent": "Alle tokens zijn al uitgegeven.",
-  "ecash_waiting_for_signature": "Wachten op meervoudige handtekening"
+  "ecash_waiting_for_signature": "Wachten op meervoudige handtekening",
+  "ecash_signer_error_hint": "Ondertekenaar (${userName}) kan niet de ontvanger zijn",
+  "ecash_recipient_error_hint": "Ontvanger (${userName}) kan geen ondertekenaar zijn",
+  "ecash_for_users_only": "Alleen voor ${userNames}",
+  "ecash_owner_title": "${ownerName}'s Ecash",
+  "ecash_wait_my_signature_title": "${ownerName}'s Ecash, wachtend op uw handtekening",
+  "ecash_wait_other_signature_title": "${ownerName}'s Ecash, wachtend op meerdere handtekeningen",
+  "ecash_exclusive_title": "${userNames}'s exclusieve Ecash"
 }
