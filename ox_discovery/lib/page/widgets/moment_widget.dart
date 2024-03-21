@@ -19,7 +19,14 @@ class MomentWidget extends StatefulWidget {
   final EMomentType type;
   final String momentContent;
   final List<MomentOption>? momentOptionList;
-  MomentWidget({super.key, required this.type, required this.momentContent,this.momentOptionList});
+  final GestureTapCallback? clickMomentCallback;
+  MomentWidget({
+    super.key,
+    required this.type,
+    required this.momentContent,
+    this.momentOptionList,
+    this.clickMomentCallback,
+  });
 
   @override
   _MomentWidgetState createState() => _MomentWidgetState();
@@ -34,9 +41,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentItemWidget() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
-        OXNavigator.pushPage(context, (context) => MomentsPage());
-      },
+      onTap: () => widget.clickMomentCallback?.call(),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(

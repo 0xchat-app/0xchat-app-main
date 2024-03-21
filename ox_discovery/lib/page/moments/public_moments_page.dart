@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/moment_widget.dart';
+import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 
 class PublicMomentsPage extends StatefulWidget {
@@ -34,7 +35,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
+    String content =
+        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -47,10 +49,34 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _newMomentTipsWidget(),
-            MomentWidget(type:EMomentType.picture,momentContent: content),
-            MomentWidget(type:EMomentType.content,momentContent: content),
-            MomentWidget(type:EMomentType.video,momentContent: content),
-            MomentWidget(type:EMomentType.quote,momentContent: content),
+            MomentWidget(
+              type: EMomentType.picture,
+              momentContent: content,
+              clickMomentCallback: () {
+                OXNavigator.pushPage(context, (context) => MomentsPage());
+              },
+            ),
+            MomentWidget(
+              type: EMomentType.content,
+              momentContent: content,
+              clickMomentCallback: () {
+                OXNavigator.pushPage(context, (context) => MomentsPage());
+              },
+            ),
+            MomentWidget(
+              type: EMomentType.video,
+              momentContent: content,
+              clickMomentCallback: () {
+                OXNavigator.pushPage(context, (context) => MomentsPage());
+              },
+            ),
+            MomentWidget(
+              type: EMomentType.quote,
+              momentContent: content,
+              clickMomentCallback: () {
+                OXNavigator.pushPage(context, (context) => MomentsPage());
+              },
+            ),
           ],
         ),
       ),
