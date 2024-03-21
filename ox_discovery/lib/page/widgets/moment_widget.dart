@@ -46,7 +46,7 @@ class _MomentWidgetState extends State<MomentWidget> {
             MomentRichText(
               text:
                   "qwe #0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
-            ),
+            ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _momentTypeWidget(widget.type),
             MomentOptionWidget(),
           ],

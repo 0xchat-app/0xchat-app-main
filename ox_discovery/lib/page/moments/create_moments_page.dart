@@ -5,18 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_appbar.dart';
-import 'package:ox_common/model/channel_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 
 import '../../enum/moment_enum.dart';
@@ -196,7 +192,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 ),
               ),
             ),
-            child: const TextField(
+            child: TextField(
               decoration: InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,

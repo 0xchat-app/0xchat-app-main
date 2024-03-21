@@ -31,7 +31,6 @@ class MomentRichText extends StatelessWidget {
 
     return Container(
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.all(8.0),
       child: RichText(
         textAlign: TextAlign.left,
         overflow: TextOverflow.ellipsis,

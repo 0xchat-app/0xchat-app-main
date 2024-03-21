@@ -9,11 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/moment_option_widget.dart';
 import '../widgets/moment_widget.dart';
+import '../widgets/simple_moment_reply_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   const MomentsPage({Key? key}) : super(key: key);
@@ -23,6 +23,8 @@ class MomentsPage extends StatefulWidget {
 }
 
 class _MomentsPageState extends State<MomentsPage> {
+  bool _isShowMask = false;
+
   @override
   void initState() {
     super.initState();
@@ -35,54 +37,89 @@ class _MomentsPageState extends State<MomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
         backgroundColor: ThemeColor.color200,
-        actions: [
-          GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.only(right: Adapt.px(24)),
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  'Clear',
-                  style: TextStyle(
-                    fontSize: 16.px,
-                    fontWeight: FontWeight.w600,
+        appBar: CommonAppBar(
+          backgroundColor: ThemeColor.color200,
+          actions: [
+            GestureDetector(
+              child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(right: Adapt.px(24)),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      colors: [
+                        ThemeColor.gradientMainEnd,
+                        ThemeColor.gradientMainStart,
+                      ],
+                    ).createShader(Offset.zero & bounds.size);
+                  },
+                  child: Text(
+                    'Clear',
+                    style: TextStyle(
+                      fontSize: 16.px,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
+              onTap: () {},
             ),
-            onTap: () {},
-          ),
-        ],
-        title: 'Moment',
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MomentWidget(type:EMomentType.picture),
-              _momentItemWidget(),
-              _momentItemWidget(),
-              _showRepliesWidget(),
-            ],
-          ),
+          ],
+          title: 'Moment',
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: 24.px,
+                  right: 24.px,
+                  bottom: 100.px,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MomentWidget(type: EMomentType.picture),
+                    _momentItemWidget(),
+                    _momentItemWidget(),
+                    _showRepliesWidget(),
+                  ],
+                ),
+              ),
+            ),
+            _isShowMaskWidget(),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 20,
+              child: SimpleMomentReplyWidget(
+                  isFocusedCallback:(focusStatus){
+                    if(focusStatus == _isShowMask) return;
+                    setState(() {
+                      _isShowMask = focusStatus;
+                    });
+                  }
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _isShowMaskWidget() {
+    if (!_isShowMask) return const SizedBox();
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      color: Colors.transparent,
     );
   }
 

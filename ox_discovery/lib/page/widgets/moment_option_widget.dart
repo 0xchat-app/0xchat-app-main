@@ -23,29 +23,32 @@ class MomentOptionWidget extends StatefulWidget {
 class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            Adapt.px(8),
+    return GestureDetector(
+      onTap: (){},
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(
+              Adapt.px(8),
+            ),
           ),
+          color: ThemeColor.color180,
         ),
-        color: ThemeColor.color180,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.px,
-        vertical: 12.px,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: showMomentOptionData.map((MomentOption option) {
-          EMomentOptionType type = option.type;
-          return _iconTextWidget(
-            type: type,
-            onTap: _onTapCallback(type),
-            clickNum: option.clickNum,
-          );
-        }).toList(),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12.px,
+          vertical: 12.px,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: showMomentOptionData.map((MomentOption option) {
+            EMomentOptionType type = option.type;
+            return _iconTextWidget(
+              type: type,
+              onTap: _onTapCallback(type),
+              clickNum: option.clickNum,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -75,6 +78,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }) {
     final content = clickNum == null ? type.text : clickNum.toString();
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () => onTap?.call(),
       child: Row(
         children: [
