@@ -17,6 +17,7 @@ import 'package:video_compress/video_compress.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets.dart';
+import '../widgets/Intelligent_input_box_widget.dart';
 import '../widgets/horizontal_scroll_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
 
@@ -32,6 +33,8 @@ class CreateMomentsPage extends StatefulWidget {
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
   File? _placeholderImage;
 
+  bool _isInputFocused = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,41 +47,49 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: ThemeColor.color190,
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(Adapt.px(20)),
-          topLeft: Radius.circular(Adapt.px(20)),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.color190,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(Adapt.px(20)),
+            topLeft: Radius.circular(Adapt.px(20)),
+          ),
         ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            Container(
-              padding: EdgeInsets.only(
-                left: 24.px,
-                right: 24.px,
-                bottom: 100.px,
+        child: SingleChildScrollView(
+          reverse: _isInputFocused,
+          child: Column(
+            children: [
+              _buildAppBar(),
+              Container(
+                padding: EdgeInsets.only(
+                  left: 24.px,
+                  right: 24.px,
+                  bottom: 100.px,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _videoWidget(),
+
+                    _pictureWidget(),
+                    _quoteWidget(),
+                    // Container(
+                    //   child: _placeholderImage == null
+                    //       ? SizedBox()
+                    //       : Image.file(_placeholderImage!),
+                    // ),
+                    _captionWidget(),
+                    _visibleContactsWidget(),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _pictureWidget(),
-                  _videoWidget(),
-                  _quoteWidget(),
-                  // Container(
-                  //   child: _placeholderImage == null
-                  //       ? SizedBox()
-                  //       : Image.file(_placeholderImage!),
-                  // ),
-                  _captionWidget(),
-                  _visibleContactsWidget(),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -110,7 +121,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 color: ThemeColor.color0),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: _postMoment,
             child: ShaderMask(
               shaderCallback: (Rect bounds) {
                 return LinearGradient(
@@ -140,7 +151,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _pictureWidget() {
     return widget.type != EMomentType.picture
         ? const SizedBox()
-        : NinePalaceGridPictureWidget();
+        : NinePalaceGridPictureWidget(isEdit:true);
   }
 
   Widget _videoWidget() {
@@ -179,159 +190,13 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                   color: ThemeColor.color0),
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.px,
-            ),
-            height: 134.px,
-            decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  Adapt.px(12),
-                ),
-              ),
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: 'Add a caption...',
-              ),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-            ),
-          ),
-          // Container(
-          //   margin: EdgeInsets.only(
-          //     top: 12.px,
-          //   ),
-          //   decoration: BoxDecoration(
-          //     color: ThemeColor.color180,
-          //     borderRadius: BorderRadius.only(
-          //       topLeft: Radius.circular(16.px),
-          //       topRight: Radius.circular(16.px),
-          //     ),
-          //   ),
-          //   child: _captionToTopicListWidget(),
-          //   // _captionToUserListWidget(),
-          // ),
-        ],
-      ),
-    );
-  }
-
-  Widget _captionToUserListWidget() {
-    return Column(
-      children: [
-        _captionToUserWidget(),
-        _captionToUserWidget(),
-        _captionToUserWidget(),
-        _captionToUserWidget(),
-        _captionToUserWidget(),
-      ],
-    );
-  }
-
-  Widget _captionToUserWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: ThemeColor.color160,
-            width: 1.px,
-          ),
-        ),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: 10.px,
-        horizontal: 12.px,
-      ),
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-              right: 12.px,
-            ),
-            color: Colors.black,
-            width: 24.px,
-            height: 24.px,
-          ),
-          Container(
-            child: Row(
-              children: [
-                Text(
-                  '昵称',
-                  style: TextStyle(
-                    color: ThemeColor.color0,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14.px,
-                  ),
-                ).setPaddingOnly(
-                  right: 8.px,
-                ),
-                Text(
-                  '0xchat@satosh.com',
-                  style: TextStyle(
-                    color: ThemeColor.color100,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14.px,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _captionToTopicListWidget() {
-    return Column(
-      children: [
-        _captionToTopicWidget(),
-        _captionToTopicWidget(),
-        _captionToTopicWidget(),
-        _captionToTopicWidget(),
-        _captionToTopicWidget(),
-      ],
-    );
-  }
-
-  Widget _captionToTopicWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: ThemeColor.color160,
-            width: 1.px,
-          ),
-        ),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: 10.px,
-        horizontal: 16.px,
-      ),
-      child: Row(
-        children: [
-          Text(
-            '#1232424',
-            style: TextStyle(
-              fontSize: 14.px,
-              color: ThemeColor.color0,
-              fontWeight: FontWeight.w600,
-            ),
-          ).setPaddingOnly(
-            right: 8.px,
-          ),
-          Text(
-            'Treding',
-            style: TextStyle(
-              fontSize: 14.px,
-              color: ThemeColor.color100,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
+          IntelligentInputBoxWidget(
+              hintText: 'Add a caption...',
+              isFocusedCallback: (bool isFocus) {
+                setState(() {
+                  _isInputFocused = isFocus;
+                });
+              }),
         ],
       ),
     );
@@ -457,7 +322,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }
   }
 
-  void _visibleToUser(){
-    OXNavigator.presentPage(context, (context) => const VisibilitySelectionPage());
+  void _visibleToUser() {
+    OXNavigator.presentPage(
+        context, (context) => const VisibilitySelectionPage());
+  }
+
+  void _postMoment() {
+    OXNavigator.pop(context);
   }
 }

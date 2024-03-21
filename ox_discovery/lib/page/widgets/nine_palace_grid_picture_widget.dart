@@ -7,18 +7,22 @@ import '../../utils/moment_widgets.dart';
 
 class NinePalaceGridPictureWidget extends StatefulWidget {
   final double? width;
+  final bool isEdit;
 
-  NinePalaceGridPictureWidget({super.key, this.width});
+  NinePalaceGridPictureWidget({super.key, this.width, this.isEdit = false});
 
   @override
   _NinePalaceGridPictureWidgetState createState() =>
       _NinePalaceGridPictureWidgetState();
 }
 
-class _NinePalaceGridPictureWidgetState
-    extends State<NinePalaceGridPictureWidget> {
+class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidget> {
+
+  final int picNum = 7;
+
   @override
   Widget build(BuildContext context) {
+    int itemCount = widget.isEdit ? picNum + 1 : picNum;
     return Container(
       width: widget.width ?? double.infinity,
       child: AspectRatio(
@@ -26,9 +30,9 @@ class _NinePalaceGridPictureWidgetState
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: 9,
+          itemCount: itemCount,
           itemBuilder: (context, index) {
-            if (index == 8) {
+            if (widget.isEdit && index + 1 == itemCount ) {
               return Container(
                 child: CommonImage(
                   iconName: "add_moment.png",

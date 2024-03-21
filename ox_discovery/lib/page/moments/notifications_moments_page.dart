@@ -21,6 +21,14 @@ class NotificationsMomentsPage extends StatefulWidget {
 }
 
 class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
+  List<ENotificationsMomentType> notificationsList = [
+    ENotificationsMomentType.quote,
+    ENotificationsMomentType.repost,
+    ENotificationsMomentType.like,
+    ENotificationsMomentType.reply,
+    ENotificationsMomentType.zaps
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +47,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         backgroundColor: ThemeColor.color200,
         actions: [
           GestureDetector(
+            onTap: _clearNotifications,
             child: Container(
               alignment: Alignment.center,
               margin: EdgeInsets.only(right: 24.px),
@@ -60,31 +69,59 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                 ),
               ),
             ),
-            onTap: () {},
           ),
         ],
         title: 'Notifications',
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.only(
-            bottom: 60.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _notificationsItemWidget(type: ENotificationsMomentType.quote),
-              _notificationsItemWidget(type: ENotificationsMomentType.repost),
-              _notificationsItemWidget(type: ENotificationsMomentType.like),
-              _notificationsItemWidget(type: ENotificationsMomentType.reply),
-              _notificationsItemWidget(type: ENotificationsMomentType.zaps),
-              _notificationsItemWidget(type: ENotificationsMomentType.quote),
-              _notificationsItemWidget(type: ENotificationsMomentType.repost),
-              _notificationsItemWidget(type: ENotificationsMomentType.like),
-              _notificationsItemWidget(type: ENotificationsMomentType.reply),
-              _notificationsItemWidget(type: ENotificationsMomentType.zaps),
-            ],
-          ),
+      body: _bodyWidget(),
+    );
+  }
+
+  Widget _bodyWidget(){
+    if(notificationsList.isEmpty) return _noDataWidget();
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: 60.px,
+        ),
+        child: ListView.builder(
+          primary: false,
+          controller: null,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: notificationsList.length,
+          itemBuilder: (context, index) {
+            return _notificationsItemWidget(type: notificationsList[index]);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _noDataWidget(){
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 120.px,
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            CommonImage(
+              iconName: 'icon_no_data.png',
+              width: Adapt.px(90),
+              height: Adapt.px(90),
+            ),
+            Text(
+              'No Notifications !',
+              style: TextStyle(
+                fontSize: 16.px,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color100,
+              ),
+            ).setPaddingOnly(
+              top: 24.px,
+            ),
+          ],
         ),
       ),
     );
@@ -145,7 +182,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                       children: [
                         Container(
                           margin: EdgeInsets.only(
-                              right: 4.px,
+                            right: 4.px,
                           ),
                           child: CommonImage(
                             iconName: type.getIconName,
@@ -163,18 +200,18 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
             ],
           ),
           if (type != ENotificationsMomentType.reply)
-          Container(
-            width: 60.px,
-            height: 60.px,
-            decoration: BoxDecoration(
-              color: ThemeColor.color100,
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  8.px,
+            Container(
+              width: 60.px,
+              height: 60.px,
+              decoration: BoxDecoration(
+                color: ThemeColor.color100,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    8.px,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -216,5 +253,11 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         maxLines: 10,
       ),
     );
+  }
+
+  void _clearNotifications(){
+    setState(() {
+      notificationsList = [];
+    });
   }
 }

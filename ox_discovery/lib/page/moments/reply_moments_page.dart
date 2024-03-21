@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_image.dart';
 
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
+import '../widgets/Intelligent_input_box_widget.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
   const ReplyMomentsPage({Key? key}) : super(key: key);
@@ -32,50 +33,60 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColor.color200,
-      appBar: CommonAppBar(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
         backgroundColor: ThemeColor.color200,
-        actions: [
-          GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.only(right: Adapt.px(24)),
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  'Post',
-                  style: TextStyle(
-                    fontSize: 16.px,
-                    fontWeight: FontWeight.w600,
+        appBar: CommonAppBar(
+          backgroundColor: ThemeColor.color200,
+          actions: [
+            GestureDetector(
+              onTap: _postMoment,
+              child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(right: Adapt.px(24)),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      colors: [
+                        ThemeColor.gradientMainEnd,
+                        ThemeColor.gradientMainStart,
+                      ],
+                    ).createShader(Offset.zero & bounds.size);
+                  },
+                  child: Text(
+                    'Post',
+                    style: TextStyle(
+                      fontSize: 16.px,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
             ),
-            onTap: () {},
-          ),
-        ],
-        title: 'Reply',
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _momentItemWidget(),
-              _replyContentWidget(),
-              _mediaWidget(),
-            ],
+          ],
+          title: 'Reply',
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.px,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _momentItemWidget(),
+                IntelligentInputBoxWidget(
+                  hintText: 'Post your reply',
+                ).setPaddingOnly(
+                  top: 12.px
+                ),
+                _mediaWidget(),
+              ],
+            ),
           ),
         ),
       ),
@@ -186,6 +197,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
             defaultTextColor: ThemeColor.color120,
           ),
           Container(
+            margin: EdgeInsets.only(
+              top: 12.px,
+            ),
             padding: EdgeInsets.symmetric(
               horizontal: 16.px,
             ),
@@ -241,5 +255,8 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       ),
     );
   }
-}
 
+  void _postMoment(){
+    OXNavigator.pop(context);
+  }
+}
