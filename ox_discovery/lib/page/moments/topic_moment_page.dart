@@ -27,6 +27,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
   @override
   Widget build(BuildContext context) {
+    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(
@@ -41,10 +42,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MomentWidget(type:EMomentType.picture),
-              MomentWidget(type:EMomentType.content),
-              MomentWidget(type:EMomentType.video),
-              MomentWidget(type:EMomentType.quote),
+              MomentWidget(type:EMomentType.picture,momentContent: content),
+              MomentWidget(type:EMomentType.content,momentContent: content),
+              MomentWidget(type:EMomentType.video,momentContent: content),
+              MomentWidget(type:EMomentType.quote,momentContent: content),
             ],
           ),
         ),

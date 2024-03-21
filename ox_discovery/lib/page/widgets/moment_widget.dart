@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../enum/moment_enum.dart';
+import '../../model/moment_model.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 import 'horizontal_scroll_widget.dart';
@@ -16,7 +17,9 @@ import 'nine_palace_grid_picture_widget.dart';
 
 class MomentWidget extends StatefulWidget {
   final EMomentType type;
-  MomentWidget({super.key, required this.type});
+  final String momentContent;
+  final List<MomentOption>? momentOptionList;
+  MomentWidget({super.key, required this.type, required this.momentContent,this.momentOptionList});
 
   @override
   _MomentWidgetState createState() => _MomentWidgetState();
@@ -44,11 +47,10 @@ class _MomentWidgetState extends State<MomentWidget> {
           children: [
             _momentUserInfoWidget(),
             MomentRichText(
-              text:
-                  "qwe #0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+              text: widget.momentContent,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _momentTypeWidget(widget.type),
-            MomentOptionWidget(),
+            MomentOptionWidget(momentOptionList: widget.momentOptionList,),
           ],
         ),
       ),

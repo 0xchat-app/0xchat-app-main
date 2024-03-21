@@ -34,6 +34,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -46,10 +47,10 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _newMomentTipsWidget(),
-            MomentWidget(type:EMomentType.picture),
-            MomentWidget(type:EMomentType.content),
-            MomentWidget(type:EMomentType.video),
-            MomentWidget(type:EMomentType.quote),
+            MomentWidget(type:EMomentType.picture,momentContent: content),
+            MomentWidget(type:EMomentType.content,momentContent: content),
+            MomentWidget(type:EMomentType.video,momentContent: content),
+            MomentWidget(type:EMomentType.quote,momentContent: content),
           ],
         ),
       ),

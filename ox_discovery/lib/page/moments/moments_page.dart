@@ -86,7 +86,11 @@ class _MomentsPageState extends State<MomentsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MomentWidget(type: EMomentType.picture),
+                    MomentWidget(
+                      type: EMomentType.picture,
+                      momentContent:
+                          "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+                    ),
                     _momentItemWidget(),
                     _momentItemWidget(),
                     _showRepliesWidget(),
@@ -99,14 +103,12 @@ class _MomentsPageState extends State<MomentsPage> {
               left: 0,
               right: 0,
               bottom: 20,
-              child: SimpleMomentReplyWidget(
-                  isFocusedCallback:(focusStatus){
-                    if(focusStatus == _isShowMask) return;
-                    setState(() {
-                      _isShowMask = focusStatus;
-                    });
-                  }
-              ),
+              child: SimpleMomentReplyWidget(isFocusedCallback: (focusStatus) {
+                if (focusStatus == _isShowMask) return;
+                setState(() {
+                  _isShowMask = focusStatus;
+                });
+              }),
             ),
           ],
         ),
