@@ -397,7 +397,8 @@ class SearchPageState extends State<SearchPage> {
                     title: item.name,
                     subTitle: item.subtitle,
                     onTap: () {
-                      switch (element.type) {
+                      SearchItemType tempType = item.relatedCount > 1 ? SearchItemType.messagesGroup : SearchItemType.message;
+                      switch (tempType) {
                         case SearchItemType.messagesGroup:
                           _gotoSingleRelatedPage(item);
                           break;
@@ -838,6 +839,15 @@ class SearchPageState extends State<SearchPage> {
         OXNavigator.pushPage(
           context,
           (context) => ChatSecretMessagePage(
+            communityItem: sessionModel,
+            anchorMsgId: item.msgId,
+          ),
+        );
+        break;
+      case ChatType.chatGroup:
+        OXNavigator.pushPage(
+          context,
+              (context) => ChatGroupMessagePage(
             communityItem: sessionModel,
             anchorMsgId: item.msgId,
           ),
