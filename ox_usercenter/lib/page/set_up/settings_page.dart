@@ -70,6 +70,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       ),
       backgroundColor: ThemeColor.color200,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
         child: _body(),
       ),
@@ -93,29 +94,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             shrinkWrap: true,
             itemBuilder: _itemBuild,
             itemCount: _settingModelList.length,
-          ),
-        ),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () async {
-            //TODO show Tor dialog
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              'str_tor_orbot_setup'.localized(),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
           ),
         ),
         SizedBox(height: Adapt.px(24),),
