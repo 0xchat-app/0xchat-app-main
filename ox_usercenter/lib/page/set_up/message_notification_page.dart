@@ -50,8 +50,10 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
   }
 
   void _loadData() async {
-    String? distributor = await UnifiedPush.getDistributor() ;
-    _pushName = distributor != null ? getShowTitle(distributor): _pushName;
+    if (Platform.isAndroid) {
+      String? distributor = await UnifiedPush.getDistributor();
+      _pushName = distributor != null ? getShowTitle(distributor) : _pushName;
+    }
     _allNoticeModel = await getObjectList();
     bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
     if (!containsNotification) {

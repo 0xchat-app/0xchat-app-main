@@ -264,7 +264,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           onRefresh: _onRefresh,
           onLoading: null,
           child: CustomScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: _topSearch(),
