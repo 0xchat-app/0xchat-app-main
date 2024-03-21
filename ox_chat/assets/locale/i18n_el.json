@@ -247,5 +247,6 @@
   "ecash_owner_title": "Το Ecash του ${ownerName}",
   "ecash_wait_my_signature_title": "Το Ecash του ${ownerName}, περιμένει την υπογραφή σας",
   "ecash_wait_other_signature_title": "Το Ecash του ${ownerName}, περιμένει πολλαπλές υπογραφές",
+  "ecash_my_signature_complete_title": "Ecash του ${ownerName}, Η υπογραφή σας ολοκληρώθηκε",
   "ecash_exclusive_title": "Το αποκλειστικό Ecash του ${userNames}"
 }

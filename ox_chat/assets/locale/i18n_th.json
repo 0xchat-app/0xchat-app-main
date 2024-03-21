@@ -247,5 +247,6 @@
   "ecash_owner_title": "Ecash ของ ${ownerName}",
   "ecash_wait_my_signature_title": "Ecash ของ ${ownerName}, รอลายเซ็นของคุณ",
   "ecash_wait_other_signature_title": "Ecash ของ ${ownerName}, รอลายเซ็นหลายตัว",
+  "ecash_my_signature_complete_title": "Ecash ของ ${ownerName}, ลายเซ็นของคุณเสร็จสมบูรณ์",
   "ecash_exclusive_title": "Ecash พิเศษของ ${userNames}"
 }

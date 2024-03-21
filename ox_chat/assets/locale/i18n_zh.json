@@ -259,5 +259,6 @@
   "ecash_owner_title": "${ownerName}的Ecash",
   "ecash_wait_my_signature_title": "${ownerName}的Ecash，等待您的签名",
   "ecash_wait_other_signature_title": "${ownerName}的Ecash，等待多重签名",
+  "ecash_my_signature_complete_title": "${ownerName}的Ecash，您的签名已完成",
   "ecash_exclusive_title": "${userNames}专属的Ecash"
 }

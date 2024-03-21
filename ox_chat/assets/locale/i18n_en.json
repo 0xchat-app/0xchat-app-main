@@ -259,5 +259,6 @@
   "ecash_owner_title": "${ownerName}'s Ecash",
   "ecash_wait_my_signature_title": "${ownerName}'s Ecash, Waiting for your signature",
   "ecash_wait_other_signature_title": "${ownerName}'s Ecash, Waiting for multi-signature",
+  "ecash_my_signature_complete_title": "${ownerName}'s Ecash, Your signature completed",
   "ecash_exclusive_title": "${userNames}'s exclusive Ecash"
 }

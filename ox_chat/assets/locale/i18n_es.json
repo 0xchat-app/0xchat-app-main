@@ -247,5 +247,6 @@
   "ecash_owner_title": "Ecash de ${ownerName}",
   "ecash_wait_my_signature_title": "Ecash de ${ownerName}, esperando tu firma",
   "ecash_wait_other_signature_title": "Ecash de ${ownerName}, esperando firma múltiple",
+  "ecash_my_signature_complete_title": "Ecash de ${ownerName}, Tu firma completada",
   "ecash_exclusive_title": "Ecash exclusivo de ${userNames}"
 }

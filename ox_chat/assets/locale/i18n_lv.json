@@ -247,5 +247,6 @@
   "ecash_owner_title": "${ownerName} Ecash",
   "ecash_wait_my_signature_title": "${ownerName} Ecash, gaida jūsu parakstu",
   "ecash_wait_other_signature_title": "${ownerName} Ecash, gaida vairāku parakstu",
+  "ecash_my_signature_complete_title": "${ownerName} Ecash, Jūsu paraksts ir pabeigts",
   "ecash_exclusive_title": "${userNames} ekskluzīvais Ecash"
 }

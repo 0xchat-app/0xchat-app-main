@@ -247,5 +247,6 @@
   "ecash_owner_title": "${ownerName} का Ecash",
   "ecash_wait_my_signature_title": "${ownerName} का Ecash, आपके हस्ताक्षर की प्रतीक्षा में",
   "ecash_wait_other_signature_title": "${ownerName} का Ecash, मल्टी-हस्ताक्षर की प्रतीक्षा में",
+  "ecash_my_signature_complete_title": "${ownerName} का Ecash, आपके हस्ताक्षर पूर्ण हो गए",
   "ecash_exclusive_title": "${userNames} का विशेष Ecash"
 }

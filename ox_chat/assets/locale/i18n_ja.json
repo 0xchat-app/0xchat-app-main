@@ -247,5 +247,6 @@
   "ecash_owner_title": "${ownerName}のEcash",
   "ecash_wait_my_signature_title": "${ownerName}のEcash、あなたの署名を待っています",
   "ecash_wait_other_signature_title": "${ownerName}のEcash、複数の署名を待っています",
+  "ecash_my_signature_complete_title": "${ownerName}のEcash、あなたの署名が完了しました",
   "ecash_exclusive_title": "${userNames}専用のEcash"
 }

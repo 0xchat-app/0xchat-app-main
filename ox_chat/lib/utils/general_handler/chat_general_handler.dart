@@ -361,6 +361,8 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
       receiverPubkeys: EcashV2MessageEx(message).receiverPubkeys,
       signees: signees,
     );
+
+    EcashHelper.setMessageSigned(message.id);
   }
 }
 

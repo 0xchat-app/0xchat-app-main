@@ -247,5 +247,6 @@
   "ecash_owner_title": "${ownerName}의 Ecash",
   "ecash_wait_my_signature_title": "${ownerName}의 Ecash, 당신의 서명을 기다리는 중",
   "ecash_wait_other_signature_title": "${ownerName}의 Ecash, 다중 서명을 기다리는 중",
+  "ecash_my_signature_complete_title": "${ownerName}의 Ecash, 당신의 서명이 완료되었습니다",
   "ecash_exclusive_title": "${userNames}의 독점적인 Ecash"
 }

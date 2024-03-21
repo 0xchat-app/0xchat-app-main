@@ -61,6 +61,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   bool isNeedSignature = false;
   bool isFinishSignature = true;
   bool isTurnToSign = false;
+  bool isMessageSigned = false;
 
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
@@ -76,6 +77,12 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     if (isNeedSignature) {
       isFinishSignature = widget.package.isFinishSignature;
       isTurnToSign = widget.package.nextSignatureIsMe;
+
+      EcashHelper.isMessageSigned(widget.package.messageId).then((value) {
+        setState(() {
+          isMessageSigned = value;
+        });
+      });
     }
 
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
@@ -159,7 +166,11 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       r'${ownerName}': ownerName,
     });
     if (isNeedSignature && !isFinishSignature) {
-      if (isTurnToSign) {
+      if (isMessageSigned) {
+        text = 'ecash_my_signature_complete_title'.localized({
+          r'${ownerName}': ownerName,
+        });
+      } else if (isTurnToSign) {
         text = 'ecash_wait_my_signature_title'.localized({
           r'${ownerName}': ownerName,
         });
@@ -295,28 +306,31 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildApproveButton() {
-    return EasyButton(
-      idleStateWidget: Center(
-        child: Text(
-          'ecash_approve'.localized(),
-          style: TextStyle(
-            color: ThemeColor.darkColor,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+    return Opacity(
+      opacity: isMessageSigned ? 0.4 : 1,
+      child: EasyButton(
+        idleStateWidget: Center(
+          child: Text(
+            'ecash_approve'.localized(),
+            style: TextStyle(
+              color: ThemeColor.darkColor,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-      loadingStateWidget: const CircularProgressIndicator(
-        strokeWidth: 3.0,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          themeColor,
+        loadingStateWidget: const CircularProgressIndicator(
+          strokeWidth: 3.0,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            themeColor,
+          ),
         ),
+        height: 44.px,
+        borderRadius: 22.px,
+        contentGap: 6.0,
+        buttonColor: Colors.white,
+        onPressed: widget.approveOnTap,
       ),
-      height: 44.px,
-      borderRadius: 22.px,
-      contentGap: 6.0,
-      buttonColor: Colors.white,
-      onPressed: widget.approveOnTap,
     );
   }
 

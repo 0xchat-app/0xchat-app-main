@@ -246,5 +246,6 @@
   "ecash_owner_title": "${ownerName}'nin Ecash'i",
   "ecash_wait_my_signature_title": "${ownerName}'nin Ecash'i, sizin imzanızı gözləyir",
   "ecash_wait_other_signature_title": "${ownerName}'nin Ecash'i, çoxlu imza gözləyir",
+  "ecash_my_signature_complete_title": "${ownerName}'in Ecash'ı, İmzan tamamlandı",
   "ecash_exclusive_title": "${userNames}'nin özəl Ecash'i"
 }

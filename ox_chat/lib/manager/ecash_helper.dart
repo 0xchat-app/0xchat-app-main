@@ -8,6 +8,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
+import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -199,6 +200,19 @@ class EcashHelper {
     } else {
       return names;
     }
+  }
+
+  static Future<bool> isMessageSigned(String messageId) async {
+    return (await DB.sharedInstance.objects<EcashSignatureRecord>(
+      where: 'messageId = ?',
+      whereArgs: [messageId],
+    )).isNotEmpty;
+  }
+
+  static Future<bool> setMessageSigned(String messageId) async {
+    return (await DB.sharedInstance.insert<EcashSignatureRecord>(
+      EcashSignatureRecord(messageId: messageId),
+    )) == 1;
   }
 }
 
