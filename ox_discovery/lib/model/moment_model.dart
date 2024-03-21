@@ -16,7 +16,7 @@ class MomentOption {
 List<MomentOption> showMomentOptionData = [
   MomentOption(
     type: EMomentOptionType.reply,
-    clickNum: 100,
+    clickNum: 0,
   ),
   MomentOption(
     type: EMomentOptionType.repost,

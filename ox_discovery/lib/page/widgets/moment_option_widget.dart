@@ -14,7 +14,9 @@ import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
 class MomentOptionWidget extends StatefulWidget {
-  MomentOptionWidget({super.key});
+
+  final List<MomentOption>? momentOptionList;
+  MomentOptionWidget({super.key,this.momentOptionList});
 
   @override
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
@@ -40,7 +42,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: showMomentOptionData.map((MomentOption option) {
+          children: (widget.momentOptionList ?? showMomentOptionData).map((MomentOption option) {
             EMomentOptionType type = option.type;
             return _iconTextWidget(
               type: type,
@@ -76,7 +78,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     GestureTapCallback? onTap,
     int? clickNum,
   }) {
-    final content = clickNum == null ? type.text : clickNum.toString();
+    final content = clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => onTap?.call(),
