@@ -113,9 +113,9 @@ class _LogsFilePageState extends State<LogsFilePage> {
             ),
             child: Container(
               height: 58.px,
-              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 16.px),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
