@@ -16,7 +16,9 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -301,6 +303,54 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             title: 'str_settings'.localized(),
             iconName: 'icon_settings.png',
             onTap: () => OXNavigator.pushPage(context, (context) => const SettingsPage()),
+          ),
+        ),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _logout();
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.sign_out'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: Adapt.px(24),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _deleteAccountHandler();
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.delete_account'),
+              style: TextStyle(
+                color: ThemeColor.red1,
+                fontSize: Adapt.px(15),
+              ),
+            ),
           ),
         ),
         SizedBox(
@@ -595,6 +645,81 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
       setState(() {});
     });
+  }
+
+  void _deleteAccountHandler() {
+    OXCommonHintDialog.show(context,
+      title: Localized.text('ox_usercenter.warn_title'),
+      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context);
+        }),
+        OXCommonHintAction.sure(
+          text: Localized.text('ox_common.confirm'),
+          onTap: () async {
+            OXNavigator.pop(context);
+            showDeleteAccountDialog();
+          },
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
+  void showDeleteAccountDialog() {
+    String userInput = '';
+    const matchWord = 'DELETE';
+    OXCommonHintDialog.show(
+      context,
+      title: 'Permanently delete account',
+      contentView: TextField(
+        onChanged: (value) {
+          userInput = value;
+        },
+        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
+      ),
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context);
+        }),
+        OXCommonHintAction(
+          text: () => 'Delete',
+          style: OXHintActionStyle.red,
+          onTap: () async {
+            OXNavigator.pop(context);
+            if (userInput == matchWord) {
+              await OXLoading.show();
+              await OXUserInfoManager.sharedInstance.logout();
+              await OXLoading.dismiss();
+            }
+            OXNavigator.pop(context);
+          },
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
+  void _logout() async {
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                await OXLoading.show();
+                await OXUserInfoManager.sharedInstance.logout();
+                OXNavigator.pop(context);
+                await OXLoading.dismiss();
+              }),
+        ],
+        isRowAction: true);
   }
 
   @override

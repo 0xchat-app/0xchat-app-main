@@ -69,82 +69,24 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         backgroundColor: ThemeColor.color200,
       ),
       backgroundColor: ThemeColor.color200,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
-        child: _body(),
-      ),
+      body: _body(),
     );
   }
 
   Widget _body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
-          ),
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 0),
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: _itemBuild,
-            itemCount: _settingModelList.length,
-          ),
-        ),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _logout();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.sign_out'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _deleteAccountHandler();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.delete_account'),
-              style: TextStyle(
-                color: ThemeColor.red1,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
+      child: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 0),
+        physics: const BouncingScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: _itemBuild,
+        itemCount: _settingModelList.length,
+      ),
     );
   }
 
@@ -236,81 +178,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       child: const Image(
         image: AssetImage("assets/images/unread_dot.png"),
       ),
-    );
-  }
-
-  void _logout() async {
-    OXCommonHintDialog.show(context,
-        title: Localized.text('ox_usercenter.warn_title'),
-        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context);
-          }),
-          OXCommonHintAction.sure(
-              text: Localized.text('ox_common.confirm'),
-              onTap: () async {
-                OXNavigator.pop(context);
-                await OXLoading.show();
-                await OXUserInfoManager.sharedInstance.logout();
-                OXNavigator.pop(context);
-                await OXLoading.dismiss();
-              }),
-        ],
-        isRowAction: true);
-  }
-
-  void _deleteAccountHandler() {
-    OXCommonHintDialog.show(context,
-      title: Localized.text('ox_usercenter.warn_title'),
-      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
-      actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction.sure(
-          text: Localized.text('ox_common.confirm'),
-          onTap: () async {
-            OXNavigator.pop(context);
-            showDeleteAccountDialog();
-          },
-        ),
-      ],
-      isRowAction: true,
-    );
-  }
-
-  void showDeleteAccountDialog() {
-    String userInput = '';
-    const matchWord = 'DELETE';
-    OXCommonHintDialog.show(
-      context,
-      title: 'Permanently delete account',
-      contentView: TextField(
-        onChanged: (value) {
-          userInput = value;
-        },
-        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
-      ),
-      actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction(
-          text: () => 'Delete',
-          style: OXHintActionStyle.red,
-          onTap: () async {
-            OXNavigator.pop(context);
-            if (userInput == matchWord) {
-              await OXLoading.show();
-              await OXUserInfoManager.sharedInstance.logout();
-              await OXLoading.dismiss();
-            }
-            OXNavigator.pop(context);
-          },
-        ),
-      ],
-      isRowAction: true,
     );
   }
 
