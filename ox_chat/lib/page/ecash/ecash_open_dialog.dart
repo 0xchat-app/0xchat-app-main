@@ -10,6 +10,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
@@ -60,6 +61,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   bool isNeedSignature = false;
   bool isFinishSignature = true;
   bool isTurnToSign = false;
+  bool isMessageSigned = false;
 
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
@@ -75,11 +77,17 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     if (isNeedSignature) {
       isFinishSignature = widget.package.isFinishSignature;
       isTurnToSign = widget.package.nextSignatureIsMe;
+
+      EcashHelper.isMessageSigned(widget.package.messageId).then((value) {
+        setState(() {
+          isMessageSigned = value;
+        });
+      });
     }
 
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
       setState(() {
-        ownerName = user?.getUserShowName() ?? 'anonymity';
+        ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
       });
     });
     animationController.forward(from: 0);
@@ -138,7 +146,9 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
   Widget buildTitle() {
     final text = isForOtherUser
-        ? 'For ${EcashHelper.userListText(widget.package.receiver)} only'
+        ? 'ecash_for_users_only'.localized({
+            r'${userNames}': EcashHelper.userListText(widget.package.receiver)
+          })
         : widget.package.memo;
     return Text(
       text,
@@ -152,12 +162,22 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildSubtitle() {
-    var text = '$ownerName\'s Ecash';
+    var text = 'ecash_owner_title'.localized({
+      r'${ownerName}': ownerName,
+    });
     if (isNeedSignature && !isFinishSignature) {
-      if (isTurnToSign) {
-        text += ', Waiting for your signature';
+      if (isMessageSigned) {
+        text = 'ecash_my_signature_complete_title'.localized({
+          r'${ownerName}': ownerName,
+        });
+      } else if (isTurnToSign) {
+        text = 'ecash_wait_my_signature_title'.localized({
+          r'${ownerName}': ownerName,
+        });
       } else {
-        text += ', Waiting for multi-signature';
+        text = 'ecash_wait_other_signature_title'.localized({
+          r'${ownerName}': ownerName,
+        });
       }
     }
     return Text(
@@ -262,7 +282,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       child: EasyButton(
         idleStateWidget: Center(
           child: Text(
-            isRedeemed ? 'Redeemed' : 'Redeem',
+            isRedeemed ? 'ecash_redeemed'.localized() : 'ecash_redeem'.localized(),
             style: TextStyle(
               color: ThemeColor.darkColor,
               fontSize: 14.sp,
@@ -286,28 +306,31 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildApproveButton() {
-    return EasyButton(
-      idleStateWidget: Center(
-        child: Text(
-          'Approve',
-          style: TextStyle(
-            color: ThemeColor.darkColor,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+    return Opacity(
+      opacity: isMessageSigned ? 0.4 : 1,
+      child: EasyButton(
+        idleStateWidget: Center(
+          child: Text(
+            'ecash_approve'.localized(),
+            style: TextStyle(
+              color: ThemeColor.darkColor,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-      loadingStateWidget: const CircularProgressIndicator(
-        strokeWidth: 3.0,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          themeColor,
+        loadingStateWidget: const CircularProgressIndicator(
+          strokeWidth: 3.0,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            themeColor,
+          ),
         ),
+        height: 44.px,
+        borderRadius: 22.px,
+        contentGap: 6.0,
+        buttonColor: Colors.white,
+        onPressed: widget.approveOnTap,
       ),
-      height: 44.px,
-      borderRadius: 22.px,
-      contentGap: 6.0,
-      buttonColor: Colors.white,
-      onPressed: widget.approveOnTap,
     );
   }
 
@@ -315,7 +338,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     return GestureDetector(
       onTap: jumpToDetailPage,
       child: Text(
-        'view detail',
+        'ecash_view_detail'.localized(),
         style: TextStyle(
           color: Colors.white,
           decoration: TextDecoration.underline,
@@ -337,7 +360,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cashu Ecash',
+                'ecash_token_name'.localized(),
                 style: TextStyle(
                   color: ThemeColor.white,
                   fontSize: 12.sp,
@@ -384,7 +407,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     final success = await EcashHelper.tryRedeemTokenList(widget.package);
 
     if (success == null) {
-      CommonToast.instance.show(context, 'Redeem Failed, Please try again.');
+      CommonToast.instance.show(context, 'ecash_redeem_failed_hint'.localized());
       setState(() {
         isRedeemed = widget.package.isRedeemed;
       });
@@ -393,7 +416,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     if (success) {
       jumpToDetailPage(false);
     } else {
-      CommonToast.instance.show(context, 'All tokens already spent.');
+      CommonToast.instance.show(context, 'ecash_tokens_already_spent'.localized());
       setState(() {
         isRedeemed = widget.package.isRedeemed;
       });

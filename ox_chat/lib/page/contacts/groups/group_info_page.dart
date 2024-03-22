@@ -453,7 +453,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Widget _leaveBtnWidget() {
     if (!_isGroupMember) return Container();
-    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.leave_item');
+    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
@@ -484,7 +484,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     String tips = _isGroupOwner
         ? Localized.text('ox_chat.delete_group_tips')
         : Localized.text('ox_chat.leave_group_tips');
-    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.leave_item');
+    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

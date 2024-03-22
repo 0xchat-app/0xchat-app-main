@@ -12,6 +12,7 @@ import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/ecash_navigation_bar.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletHomePage extends StatefulWidget {
   const WalletHomePage({super.key});
@@ -124,7 +125,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
       title: AnimatedOpacity(
         opacity: _opacity,
         duration: const Duration(milliseconds: 100),
-        child: const Text('Wallet'),
+        child: Text(Localized.text('ox_wallet.wallet_text')),
       ),
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -162,7 +163,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            "Wallet",
+            Localized.text('ox_wallet.wallet_text'),
             style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w400,height: 25.px / 18.px),
           ),
           SizedBox(
@@ -219,7 +220,7 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recent Transaction',
+            Localized.text('ox_wallet.recent_transaction_text'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: 16.px,

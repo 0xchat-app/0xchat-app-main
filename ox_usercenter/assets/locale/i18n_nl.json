@@ -72,6 +72,8 @@
   "cancel_purchase": "Aankoop annuleren",
   "pay_invoice_title": "Betaal de lightning-factuur",
   "copy_invoice_title": "Factuur kopiëren",
+  "select_ecash_wallet_title": "Selecteer Ecash portemonnee",
+  "my_ecash_mallet": "Mijn Ecash portemonnee",
   "select_wallet_title": "Selecteer een lighting portemonnee",
   "select": "Selecteren",
   "selected": "Geselecteerd",

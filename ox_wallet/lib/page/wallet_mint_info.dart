@@ -4,11 +4,12 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 
 class WalletMintInfo extends StatefulWidget {
-  final MintInfo? mintInfo;
-  const WalletMintInfo({super.key, this.mintInfo});
+  final IMint mint;
+  const WalletMintInfo({super.key, required this.mint});
 
   @override
   State<WalletMintInfo> createState() => _WalletMintInfoState();
@@ -16,9 +17,19 @@ class WalletMintInfo extends StatefulWidget {
 
 class _WalletMintInfoState extends State<WalletMintInfo> {
 
+  MintInfo? mintInfo;
+
   @override
   void initState() {
     super.initState();
+    mintInfo = widget.mint.info;
+    EcashService.fetchMintInfo(widget.mint).then((success) {
+      if (success) {
+        setState(() {
+          mintInfo = widget.mint.info;
+        });
+      }
+    });
   }
 
   @override
@@ -36,17 +47,35 @@ class _WalletMintInfoState extends State<WalletMintInfo> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(widget.mintInfo?.name ?? '',style: TextStyle(color: ThemeColor.color0,fontSize: 24.px,),),
+                Text(mintInfo?.name ?? '',style: TextStyle(color: ThemeColor.color0,fontSize: 24.px,),),
                 SizedBox(height: 4.px,),
-                Text('Version: ${widget.mintInfo?.version ?? ''}',style: TextStyle(color: ThemeColor.color100,fontSize: 12.px,),),
-                Text(widget.mintInfo?.description ?? '',style: TextStyle(color: ThemeColor.color100,fontSize: 12.px,),),
+                Text('Version: ${mintInfo?.version ?? ''}',style: TextStyle(color: ThemeColor.color100,fontSize: 12.px,),),
+                Text(mintInfo?.description ?? '',style: TextStyle(color: ThemeColor.color100,fontSize: 12.px,),),
               ],
             ),
           ),
-          _buildItem(title: 'Contact',content: '').setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Supported NUTs',content: widget.mintInfo?.nutsJson).setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Public Key',content: widget.mintInfo?.pubkey).setPaddingOnly(top: 24.px),
-          _buildItem(title: 'Additional Information',content: widget.mintInfo?.descriptionLong).setPaddingOnly(top: 24.px),
+          _buildItem(
+            title: 'Contact',
+            content: mintInfo?.contact
+                .map((entry) {
+                  entry = entry.where((e) => e.isNotEmpty).toList();
+                  if (entry.length < 2) return '';
+
+                  final key = entry.removeAt(0);
+                  return '$key: ${entry.join(', ')}';
+                })
+                .where((str) => str.isNotEmpty)
+                .join('\n'),
+          ).setPaddingOnly(top: 24.px),
+          _buildItem(
+            title: 'Supported NUTs',
+            content: mintInfo?.nutsInfo
+                .where((nutInfo) => !NutsSupportInfo.mandatoryNut.contains(nutInfo.nutNum))
+                .map((nutInfo) => 'NUT - ${nutInfo.nutNum.toString().padLeft(2, '0')}')
+                .join('\n'),
+          ).setPaddingOnly(top: 24.px),
+          _buildItem(title: 'Public Key',content: mintInfo?.pubkey).setPaddingOnly(top: 24.px),
+          _buildItem(title: 'Additional Information',content: mintInfo?.description).setPaddingOnly(top: 24.px),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
@@ -60,7 +89,14 @@ class _WalletMintInfoState extends State<WalletMintInfo> {
         children: [
           Text(title ?? '',style: TextStyle(fontSize: 14.px,height: 22.px / 14.px),),
           SizedBox(height: 4.px,),
-          Text('${(content?.isEmpty ?? true) ? '-' : content}',style: TextStyle(fontSize: 12.px,height: 17.px / 12.px,color: ThemeColor.color0),),
+          Text(
+            '${(content?.isEmpty ?? true) ? '-' : content}',
+            style: TextStyle(
+              fontSize: 12.px,
+              height: 1.6,
+              color: ThemeColor.color0,
+            ),
+          ),
         ],
       ),
     );

@@ -63,8 +63,7 @@ class SearchTxtUtil{
         );
       }
       List<MessageDB> messages = tempMap['messages'];
-      LogUtil.e(
-          'Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
+      LogUtil.e('Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
@@ -73,10 +72,10 @@ class SearchTxtUtil{
               messageInduceMap[item.groupId] = ChatMessage(
                 item.groupId,
                 item.messageId ?? '',
-                Channels.sharedInstance.myChannels[item.groupId]?.name ?? '',
+                _getName(item),
                 item.decryptContent,
-                Channels.sharedInstance.myChannels[item.groupId]?.picture ?? '',
-                ChatType.chatChannel,
+                _getPicUrl(item),
+                item.chatType ?? ChatType.chatChannel,
                 1,
               );
             } else {
@@ -86,19 +85,17 @@ class SearchTxtUtil{
               '${messageInduceMap[item.groupId]!.relatedCount} related messages';
             }
           });
-          LogUtil.e(
-              'Michael: messageInduceMap.length =${messageInduceMap.length}');
+          LogUtil.e('Michael: messageInduceMap.length =${messageInduceMap.length}');
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
             chatMessageList.add(ChatMessage(
               element.groupId,
               element.messageId ?? '',
-              Channels.sharedInstance.myChannels[element.groupId]?.name ?? '',
+              _getName(element),
               element.decryptContent,
-              Channels.sharedInstance.myChannels[element.groupId]?.picture ??
-                  '',
-              ChatType.chatChannel,
+              _getPicUrl(element),
+              element.chatType ?? ChatType.chatChannel,
               1,
             ));
           });
@@ -137,36 +134,28 @@ class SearchTxtUtil{
         );
       }
       List<MessageDB> messages = tempMap['messages'];
-      LogUtil.e(
-          'Michael: loadPrivateChatMsgWithSearchTxt messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
           messages.forEach((item) {
             String chatId = '';
-            if (item.sender ==
-                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            if (item.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+                || item.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.sender;
-            } else if (item.sender ==
-                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver !=
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            } else if (item.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+                || item.receiver != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.receiver;
-            } else if (item.sender !=
-                OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ||
-                item.receiver ==
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
+            } else if (item.sender == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+                || item.receiver == OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
               chatId = item.sender;
             }
             if (messageInduceMap[chatId] == null) {
               messageInduceMap[chatId] = ChatMessage(
                 chatId,
                 item.messageId ?? '',
-                Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
+                Account.sharedInstance.userCache[chatId]?.name ?? '',
                 item.decryptContent,
-                Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
+                Account.sharedInstance.userCache[chatId]?.picture ?? '',
                 ChatType.chatSingle,
                 1,
               );
@@ -177,17 +166,15 @@ class SearchTxtUtil{
               '${messageInduceMap[chatId]!.relatedCount} related messages';
             }
           });
-          LogUtil.e(
-              'Michael: messageInduceMap.length =${messageInduceMap.length}');
           chatMessageList = messageInduceMap.values.toList();
         } else {
           messages.forEach((element) {
             chatMessageList.add(ChatMessage(
               chatId,
               element.messageId ?? '',
-              Contacts.sharedInstance.allContacts[chatId]?.name ?? '',
+              Account.sharedInstance.userCache[chatId]?.name ?? '',
               element.decryptContent,
-              Contacts.sharedInstance.allContacts[chatId]?.picture ?? '',
+              Account.sharedInstance.userCache[chatId]?.picture ?? '',
               ChatType.chatSingle,
               1,
             ));
@@ -198,5 +185,29 @@ class SearchTxtUtil{
       LogUtil.e('Michael: e =${e}');
     }
     return chatMessageList;
+  }
+
+  static String _getName(MessageDB messageDB){
+    String name = '';
+    if (messageDB.chatType == ChatType.chatChannel) {
+      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      name = channelDB?.name ?? messageDB.groupId;
+    } else {
+      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      name = groupDBDB?.name ?? messageDB.groupId;
+    }
+    return name;
+  }
+
+  static String _getPicUrl(MessageDB messageDB){
+    String picUrl = '';
+    if (messageDB.chatType == ChatType.chatChannel) {
+      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      picUrl = channelDB?.picture ?? '';
+    } else {
+      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      picUrl = groupDBDB?.picture ?? '';
+    }
+    return picUrl;
   }
 }

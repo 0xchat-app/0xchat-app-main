@@ -1,5 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 enum EcashValidDuration {
@@ -15,11 +16,11 @@ enum EcashValidDuration {
 
   String get text {
     switch (this) {
-      case EcashValidDuration.permanent: return 'Permanent';
-      case EcashValidDuration.hour1: return '1 Hour';
-      case EcashValidDuration.day1: return '1 Day';
-      case EcashValidDuration.day7: return '7 Day';
-      case EcashValidDuration.day30: return '30 Day';
+      case EcashValidDuration.permanent: return 'ecash_permanent'.localized();
+      case EcashValidDuration.hour1: return 'ecash_1_hour'.localized();
+      case EcashValidDuration.day1: return 'ecash_1_day'.localized();
+      case EcashValidDuration.day7: return 'ecash_7_day'.localized();
+      case EcashValidDuration.day30: return 'ecash_30_day'.localized();
     }
   }
 }

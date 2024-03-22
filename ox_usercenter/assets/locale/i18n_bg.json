@@ -72,6 +72,8 @@
   "cancel_purchase": "Отказ от покупка",
   "pay_invoice_title": "Платете фактурата",
   "copy_invoice_title": "Копирайте фактурата",
+  "select_ecash_wallet_title": "Изберете Ecash портфейл",
+  "my_ecash_mallet": "Моят Ecash портфейл",
   "select_wallet_title": "Изберете портфейл за осветление",
   "select": "Изберете",
   "selected": "Избран",

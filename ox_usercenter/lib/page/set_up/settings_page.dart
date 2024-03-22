@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -26,7 +27,6 @@ import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_push/push_lib.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   late List<SettingModel> _settingModelList = [];
   bool _isShowZapBadge = false;
   final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+  double  fillH = 200;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   void _loadData() async {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
+    fillH = Adapt.screenH() - 60.px - 52.px * _settingModelList.length;
     setState(() {});
   }
 
@@ -67,104 +69,35 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     return Scaffold(
       appBar: CommonAppBar(
         title: 'str_settings'.localized(),
+        backgroundColor: ThemeColor.color200,
       ),
       backgroundColor: ThemeColor.color200,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
-        child: _body(),
-      ),
+      body: _body(),
     );
   }
 
   Widget _body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Adapt.px(16)),
-            color: ThemeColor.color180,
-          ),
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 0),
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: _itemBuild,
-            itemCount: _settingModelList.length,
-          ),
-        ),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () async {
-            //TODO show Tor dialog
-          },
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
           child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(Adapt.px(16)),
               color: ThemeColor.color180,
             ),
-            alignment: Alignment.center,
-            child: Text(
-              'str_tor_orbot_setup'.localized(),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
+            margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
+            child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: 0),
+              physics: const BouncingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: _itemBuild,
+              itemCount: _settingModelList.length,
             ),
           ),
         ),
-        SizedBox(height: Adapt.px(24),),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _logout();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.sign_out'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _deleteAccountHandler();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.delete_account'),
-              style: TextStyle(
-                color: ThemeColor.red1,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
+        SliverToBoxAdapter(
+          child: SizedBox(height: fillH < Adapt.screenH() ? fillH.abs() : 50.px),
         ),
       ],
     );
@@ -172,15 +105,17 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
-    if(_settingModel.settingItemType == SettingItemType.language){
+    if (_settingModel.settingItemType == SettingItemType.language) {
       _settingModel.rightContent = Localized.getCurrentLanguage().languageText;
     }
-    if( _settingModel.settingItemType == SettingItemType.theme){
-      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value() == ThemeSettingType.light.saveText ? Localized.text('ox_usercenter.theme_color_light') : Localized.text('ox_usercenter.theme_color_dart');
+    if (_settingModel.settingItemType == SettingItemType.theme) {
+      _settingModel.rightContent = ThemeManager.getCurrentThemeStyle().value() == ThemeSettingType.light.saveText
+          ? Localized.text('ox_usercenter.theme_color_light')
+          : Localized.text('ox_usercenter.theme_color_dart');
     }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async{
+      onTap: () async {
         if (_settingModel.settingItemType == SettingItemType.messageNotification) {
           OXNavigator.pushPage(context, (context) => const MessageNotificationPage()).then((value) {
             setState(() {});
@@ -192,10 +127,10 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => const KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
-          if(OXChatBinding.sharedInstance.isZapBadge){
+          if (OXChatBinding.sharedInstance.isZapBadge) {
             MsgNotification(noticeNum: 0).dispatch(context);
             OXChatBinding.sharedInstance.isZapBadge = false;
-            OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value){
+            OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value) {
               setState(() {
                 _isShowZapBadge = _getZapBadge();
               });
@@ -221,19 +156,15 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         _settingModel.title,
         _settingModel.rightContent,
         index == _settingModelList.length - 1 ? false : true,
-        showArrow: _settingModel.settingItemType == SettingItemType.none
-            ? false
-            : true,
-        badge: _settingModel.settingItemType == SettingItemType.zaps
-            ? _buildZapBadgeWidget()
-            : Container(),
-        isShowZapBadge : _isShowZapBadge,
+        showArrow: _settingModel.settingItemType == SettingItemType.none ? false : true,
+        badge: _settingModel.settingItemType == SettingItemType.zaps ? _buildZapBadgeWidget() : Container(),
+        isShowZapBadge: _isShowZapBadge,
       ),
     );
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB, {Function? onValue}) {
     super.didZapRecordsCallBack(zapRecordsDB);
     setState(() {
       _isShowZapBadge = _getZapBadge();
@@ -258,81 +189,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
       child: const Image(
         image: AssetImage("assets/images/unread_dot.png"),
       ),
-    );
-  }
-
-  void _logout() async {
-    OXCommonHintDialog.show(context,
-        title: Localized.text('ox_usercenter.warn_title'),
-        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
-        actionList: [
-          OXCommonHintAction.cancel(onTap: () {
-            OXNavigator.pop(context);
-          }),
-          OXCommonHintAction.sure(
-              text: Localized.text('ox_common.confirm'),
-              onTap: () async {
-                OXNavigator.pop(context);
-                await OXLoading.show();
-                await OXUserInfoManager.sharedInstance.logout();
-                OXNavigator.pop(context);
-                await OXLoading.dismiss();
-              }),
-        ],
-        isRowAction: true);
-  }
-
-  void _deleteAccountHandler() {
-    OXCommonHintDialog.show(context,
-      title: Localized.text('ox_usercenter.warn_title'),
-      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
-      actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction.sure(
-          text: Localized.text('ox_common.confirm'),
-          onTap: () async {
-            OXNavigator.pop(context);
-            showDeleteAccountDialog();
-          },
-        ),
-      ],
-      isRowAction: true,
-    );
-  }
-
-  void showDeleteAccountDialog() {
-    String userInput = '';
-    const matchWord = 'DELETE';
-    OXCommonHintDialog.show(
-      context,
-      title: 'Permanently delete account',
-      contentView: TextField(
-        onChanged: (value) {
-          userInput = value;
-        },
-        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
-      ),
-      actionList: [
-        OXCommonHintAction.cancel(onTap: () {
-          OXNavigator.pop(context);
-        }),
-        OXCommonHintAction(
-          text: () => 'Delete',
-          style: OXHintActionStyle.red,
-          onTap: () async {
-            OXNavigator.pop(context);
-            if (userInput == matchWord) {
-              await OXLoading.show();
-              await OXUserInfoManager.sharedInstance.logout();
-              await OXLoading.dismiss();
-            }
-            OXNavigator.pop(context);
-          },
-        ),
-      ],
-      isRowAction: true,
     );
   }
 

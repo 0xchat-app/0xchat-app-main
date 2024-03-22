@@ -72,6 +72,8 @@
   "cancel_purchase": "Cancel·la la compra",
   "pay_invoice_title": "Paga la factura de llum",
   "copy_invoice_title": "Còpia factura",
+  "select_ecash_wallet_title": "Seleccioneu la cartera Ecash",
+  "my_ecash_mallet": "La meva cartera Ecash",
   "select_wallet_title": "Selecciona una cartera de llum",
   "select": "Selecciona",
   "selected": "Seleccionat",

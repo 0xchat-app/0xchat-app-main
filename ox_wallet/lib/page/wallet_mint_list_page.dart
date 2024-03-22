@@ -13,6 +13,7 @@ import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/common_card.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletMintListPage extends StatefulWidget {
   const WalletMintListPage({super.key});
@@ -36,7 +37,7 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
-        title: 'Mints',
+        title: Localized.text('ox_wallet.mints'),
         centerTitle: true,
         useLargeTitle: false,
       ),
@@ -59,8 +60,8 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
             itemCount: mintItems.length,
           ),
           mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
-          ThemeButton(text: 'Add Mint',height: 48.px,onTap: _addMint),
-          ThemeButton(text: 'Backup/Import wallet',height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
+          ThemeButton(text: Localized.text('ox_wallet.add_mint_button'),height: 48.px,onTap: _addMint),
+          ThemeButton(text: Localized.text('ox_wallet.backup_wallet_button'),height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
     );
@@ -115,8 +116,8 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
 
   void _handleWalletOperation() async {
     ShowModalBottomSheet.showSimpleOptionsBottomSheet(context, options: [
-      SimpleBottomSheetItem(title: 'Backup wallet', onTap: _backupWallet),
-      SimpleBottomSheetItem(title: 'Import wallet', onTap: _importWallet),
+      SimpleBottomSheetItem(title: Localized.text('ox_wallet.backup_wallet'), onTap: _backupWallet),
+      SimpleBottomSheetItem(title: Localized.text('ox_wallet.import_wallet'), onTap: _importWallet),
     ]);
   }
 

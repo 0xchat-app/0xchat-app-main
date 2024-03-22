@@ -72,6 +72,8 @@
   "cancel_purchase": "取消购买",
   "pay_invoice_title": "支付闪电账单",
   "copy_invoice_title": "复制账单",
+  "select_ecash_wallet_title": "选择 Ecash 钱包",
+  "my_ecash_mallet": "我的 Ecash 钱包",
   "select_wallet_title": "选择一个闪电钱包",
   "select": "选择",
   "selected": "已选择",
@@ -183,5 +185,6 @@
   "str_send_dev_log_detail": "开发者日志详情",
   "str_log_filemtime": "文件最后修改时间",
   "str_send_log_to_dev": "发送给开发者",
-  "str_send_log_to_dev_dialog_content": "将日志文件发送给开发者water783"
+  "str_send_log_to_dev_dialog_content": "将日志文件发送给开发者water783",
+  "str_send_log_to_dev_hint": "当你的设备出现异常或者闪退的时候，会存储log到你的本地。你可以选择发送给dev，帮助我们改善产品，也可以选择无视它。"
 }

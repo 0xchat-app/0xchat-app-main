@@ -72,6 +72,8 @@
   "cancel_purchase": "Anuluj zakup",
   "pay_invoice_title": "Zapłać fakturę błyskawiczną",
   "copy_invoice_title": "Kopiuj fakturę",
+  "select_ecash_wallet_title": "Wybierz portfel Ecash",
+  "my_ecash_mallet": "Mój portfel Ecash",
   "select_wallet_title": "Wybierz portfel lighting",
   "select": "Wybierz",
   "selected": "Wybrany",

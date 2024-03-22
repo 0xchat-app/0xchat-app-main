@@ -1,6 +1,5 @@
 
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 typedef EcashPackageSignee = (UserDB user, String flag);

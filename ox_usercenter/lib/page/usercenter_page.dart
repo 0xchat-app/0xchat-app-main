@@ -8,13 +8,17 @@ import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -38,7 +42,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         TickerProviderStateMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        CommonStateViewMixin {
+        CommonStateViewMixin, OXChatObserver {
   late ScrollController _nestedScrollController;
   int selectedIndex = 0;
 
@@ -53,6 +57,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   late String _version = '1.0.0';
 
   bool _isVerifiedDNS = false;
+  bool _isShowZapBadge = false;
 
   @override
   void initState() {
@@ -60,6 +65,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     imageCache.clear();
     imageCache.maximumSize = 10;
     OXUserInfoManager.sharedInstance.addObserver(this);
+    OXChatBinding.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
@@ -80,8 +86,17 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+    super.didZapRecordsCallBack(zapRecordsDB);
+    setState(() {
+      _isShowZapBadge = _getZapBadge();
+    });
+  }
+
+  @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
+    OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -100,7 +115,12 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _initInterface() async {
+    _isShowZapBadge = _getZapBadge();
     if (mounted) setState(() {});
+  }
+
+  bool _getZapBadge() {
+    return OXChatBinding.sharedInstance.isZapBadge;
   }
 
   //get user selected Badge Info from DB
@@ -285,6 +305,54 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             onTap: () => OXNavigator.pushPage(context, (context) => const SettingsPage()),
           ),
         ),
+        SizedBox(height: Adapt.px(24),),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _logout();
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.sign_out'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: Adapt.px(24),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            _deleteAccountHandler();
+          },
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.delete_account'),
+              style: TextStyle(
+                color: ThemeColor.red1,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
         SizedBox(
           height: Adapt.px(130),
         ),
@@ -336,7 +404,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     badgeImgUrl == null
-                        ? Container()
+                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() : Container())
                         : OXCachedNetworkImage(
                       imageUrl: badgeImgUrl,
                       placeholder: (context, url) => placeholderImage,
@@ -466,6 +534,17 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     );
   }
 
+  Widget _buildZapBadgeWidget(){
+    return Container(
+      color: Colors.transparent,
+      width: Adapt.px(6),
+      height: Adapt.px(6),
+      child: const Image(
+        image: AssetImage("assets/images/unread_dot.png"),
+      ),
+    );
+  }
+
   Widget buildHeadPubKey() {
     String encodedPubKey =
         OXUserInfoManager.sharedInstance.currentUserInfo?.encodedPubkey ?? '';
@@ -566,6 +645,81 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
 
       setState(() {});
     });
+  }
+
+  void _deleteAccountHandler() {
+    OXCommonHintDialog.show(context,
+      title: Localized.text('ox_usercenter.warn_title'),
+      content: Localized.text('ox_usercenter.delete_account_dialog_content'),
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context);
+        }),
+        OXCommonHintAction.sure(
+          text: Localized.text('ox_common.confirm'),
+          onTap: () async {
+            OXNavigator.pop(context);
+            showDeleteAccountDialog();
+          },
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
+  void showDeleteAccountDialog() {
+    String userInput = '';
+    const matchWord = 'DELETE';
+    OXCommonHintDialog.show(
+      context,
+      title: 'Permanently delete account',
+      contentView: TextField(
+        onChanged: (value) {
+          userInput = value;
+        },
+        decoration: const InputDecoration(hintText: 'Type $matchWord to delete'),
+      ),
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context);
+        }),
+        OXCommonHintAction(
+          text: () => 'Delete',
+          style: OXHintActionStyle.red,
+          onTap: () async {
+            OXNavigator.pop(context);
+            if (userInput == matchWord) {
+              await OXLoading.show();
+              await OXUserInfoManager.sharedInstance.logout();
+              await OXLoading.dismiss();
+            }
+            OXNavigator.pop(context);
+          },
+        ),
+      ],
+      isRowAction: true,
+    );
+  }
+
+  void _logout() async {
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_usercenter.warn_title'),
+        content: Localized.text('ox_usercenter.sign_out_dialog_content'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                await OXLoading.show();
+                await OXUserInfoManager.sharedInstance.logout();
+                OXNavigator.pop(context);
+                await OXLoading.dismiss();
+              }),
+        ],
+        isRowAction: true);
   }
 
   @override

@@ -72,6 +72,8 @@
   "cancel_purchase":"Annulla acquisto",
   "pay_invoice_title":"Paga la fattura lightning",
   "copy_invoice_title":"Copia fattura",
+  "select_ecash_wallet_title": "Seleziona portafoglio Ecash",
+  "my_ecash_mallet": "Il mio portafoglio Ecash",
   "select_wallet_title":"Seleziona un portafoglio lighting",
   "select":"Seleziona",
   "selected":"Selezionato",

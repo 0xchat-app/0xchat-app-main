@@ -17,6 +17,7 @@ import 'package:ox_wallet/widget/common_labeled_item.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_wallet/widget/sats_amount_card.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 enum SendType{
   none,
@@ -24,9 +25,15 @@ enum SendType{
   address
 }
 
+typedef InvoiceInfo = ({String invoice, String amount});
+
 class WalletSendLightningPage extends StatefulWidget {
-  final Map<String,String>? external;
-  const WalletSendLightningPage({super.key,this.external});
+  final InvoiceInfo? defaultInvoice;
+
+  const WalletSendLightningPage({
+    super.key,
+    this.defaultInvoice,
+  });
 
   @override
   State<WalletSendLightningPage> createState() => _WalletSendLightningPageState();
@@ -61,13 +68,17 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
   }
 
   void _initExternalData() {
-    final externalData = widget.external;
-    if (externalData != null) {
-      bool hasRequiredKeys = externalData.containsKey('invoice') && externalData.containsKey('amount');
-      if (hasRequiredKeys) {
+    final defaultInvoice = widget.defaultInvoice;
+    if (defaultInvoice != null) {
+      final invoice = defaultInvoice.invoice;
+      if (invoice.isNotEmpty) {
+        var amount = defaultInvoice.amount;
+        if (amount.isEmpty) {
+          amount = Cashu.amountOfLightningInvoice(invoice)?.toString() ?? '';
+        }
         _sendType.value = SendType.invoice;
-        _invoiceEditController.text = externalData['invoice']!;
-        _amountEditController.text = externalData['amount']!;
+        _invoiceEditController.text = invoice;
+        _amountEditController.text = amount;
       }
     }
   }
@@ -82,7 +93,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'Send',
+          title: Localized.text('ox_wallet.send_text'),
           centerTitle: true,
           useLargeTitle: false,
         ),
@@ -107,8 +118,8 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   Widget _buildInvoiceTextEdit() {
     return CommonLabeledCard.textFieldAndScan(
-      label: 'Recipient',
-      hintText: 'Invoice or Address',
+      label: Localized.text('ox_wallet.recipient'),
+      hintText: Localized.text('ox_wallet.invoice_hint_text'),
       controller: _invoiceEditController,
       focusNode: _invoiceFocus,
       onTap: (){
@@ -142,7 +153,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         final enable = amount.isNotEmpty && int.parse(amount) > 0 && mint != null && _enableButton.value;
         return ThemeButton(
           onTap: _send,
-          text: 'Pay now',
+          text: Localized.text('ox_wallet.pay_now_button'),
           height: 48.px,
           enable: enable,
         ).setPaddingOnly(top: 24.px);
@@ -160,13 +171,13 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
     bool result = EcashService.isLnInvoice(invoice);
     if (!result){
       _sendType.value = SendType.none;
-      await CommonToast.instance.show(context, 'Please enter the correct Invoice');
+      await CommonToast.instance.show(context, Localized.text('ox_wallet.invoice_valid_tips'));
       return;
     }
 
     int? amount = EcashService.decodeLightningInvoice(invoice: invoice);
     if(amount == null){
-      CommonToast.instance.show(context, 'Decode invoice failed. Please try again');
+      CommonToast.instance.show(context, Localized.text('ox_wallet.invoice_decode_failed_tips'));
       return;
     }
     _amountEditController.text = amount.toString();
@@ -175,26 +186,26 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
 
   Future<void> _send() async {
     if (mint == null) {
-      CommonToast.instance.show(context, 'Must select mint to withdraw ecash');
+      CommonToast.instance.show(context, Localized.text('ox_wallet.withdraw_valid_tips'));
       return;
     }
     int balance = mint?.balance ?? 0;
     int sats = int.parse(amount);
     if (balance <= 0 || balance < sats) {
-      CommonToast.instance.show(context, 'Insufficient mint balance');
+      CommonToast.instance.show(context, Localized.text('ox_wallet.send_insufficient_balance'));
       return;
     }
     String invoice = '';
     _enableButton.value = false;
     if(_sendType.value == SendType.address){
       try {
-        OXLoading.show(status: 'Generating invoice');
+        OXLoading.show(status: Localized.text('ox_wallet.generating_invoice'));
         invoice = await LightningUtils.getInvoice(sats, _invoiceEditController.text);
         OXLoading.dismiss();
       } catch (e, s) {
         OXLoading.dismiss();
         _enableButton.value = true;
-        if (context.mounted) CommonToast.instance.show(context, 'Invoice generation failed');
+        if (context.mounted) CommonToast.instance.show(context, Localized.text('ox_wallet.generate_invoice_failed'));
         LogUtil.e("Invoice generation failed: $e\r\n$s");
         return;
       }
@@ -207,10 +218,17 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         OXLoading.dismiss();
         _enableButton.value = true;
         if (result != null && result) {
-          OXNavigator.pushPage(context, (context) => WalletSuccessfulPage(title: 'Send', canBack: true,content: 'Payment of $amount sats successful!',));
+          OXNavigator.pushPage(
+            context,
+            (context) => WalletSuccessfulPage(
+              title: Localized.text('ox_wallet.send_text'),
+              canBack: true,
+              content: Localized.text('ox_wallet.swap_success_tips').replaceAll(r'${amount}', amount),
+            ),
+          );
           return;
         }
-        CommonToast.instance.show(context, 'Paying Lightning Invoice Failed, Please try again');
+        CommonToast.instance.show(context, Localized.text('ox_wallet.pay_invoice_failed'));
       },
     );
   }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 
 import '../../models/giphy_general_model.dart';
 import '../../models/giphy_image.dart';
@@ -46,17 +50,21 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
 
   int _selectedIndex = 0;
 
+  bool _isAgreeUseGiphy = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: GiphyCategory.values.length, vsync: this);
-
+    _getGiphyUseState();
     _tabController.addListener(() {
-      setState(() {
-        _selectedIndex = _tabController.index;
-      });
+      _selectedIndex = _tabController.index;
+      setState(() {});
     });
+  }
+
+  void _getGiphyUseState() async {
+    _isAgreeUseGiphy = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, defaultValue: false);
   }
 
   @override
@@ -80,7 +88,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
                 height: Adapt.px(12),
               ),
             ),
-          GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS && GiphyCategory.values[_selectedIndex] != GiphyCategory.COLLECT ? SliverPadding(
+          _isAgreeUseGiphy && GiphyCategory.values[_selectedIndex] != GiphyCategory.EMOJIS && GiphyCategory.values[_selectedIndex] != GiphyCategory.COLLECT ? SliverPadding(
               padding: EdgeInsets.only(bottom: Adapt.px(12)),
               sliver: SliverToBoxAdapter(
                 child: GiphySearchBar(
@@ -107,6 +115,9 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
                   if (item.name == 'EMOJIS') {
                     return InputFacePage(textController: widget.textController,);
                   }
+                  if (!_isAgreeUseGiphy && (GiphyCategory.values[_selectedIndex] == GiphyCategory.GIFS || GiphyCategory.values[_selectedIndex] == GiphyCategory.STICKERS)){
+                    return _giphyHintView();
+                  }
                   return GiphyGridView(
                     category: item,
                     onSelected: widget.onSelected,
@@ -125,4 +136,63 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
     _tabController.dispose();
     _scrollController.dispose();
   }
+
+  Widget _giphyHintView()=> Container(
+    padding: EdgeInsets.symmetric(horizontal: 24.px),
+    decoration: BoxDecoration(
+      color: ThemeColor.color190,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(12.px)),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CommonImage(iconName: 'icon_chat_giphy_hint.png', package: 'ox_chat_ui', width: 163.9.px, height: 35.px),
+        SizedBox(height: 32.px),
+        Text(
+          Localized.text('ox_chat_ui.giphy_use_hint'),
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14.px,
+            color: ThemeColor.titleColor,
+            height: 1.5,
+          ),
+        ),
+        SizedBox(height: 32.px),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, true);
+            setState(() {
+              _isAgreeUseGiphy = true;
+            });
+          },
+          child: Container(
+            width: 160.px,
+            height: 46.px,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.px),
+              color: ThemeColor.color180,
+              gradient: LinearGradient(
+                colors: [
+                  ThemeColor.gradientMainEnd,
+                  ThemeColor.gradientMainStart,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_chat_ui.giphy_continue'),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.px,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

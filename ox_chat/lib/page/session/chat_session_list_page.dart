@@ -264,7 +264,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           onRefresh: _onRefresh,
           onLoading: null,
           child: CustomScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: _topSearch(),
@@ -641,6 +641,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     switch (item.chatType) {
       case ChatType.chatChannel:
         showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
+        if (showName.isEmpty) showName = Channels.encodeChannel(item.chatId, null, null);
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
@@ -648,6 +649,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         break;
       case ChatType.chatGroup:
         showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
+        if (showName.isEmpty) showName = Groups.encodeGroup(item.chatId, null, null);
         break;
       case ChatType.chatNotice:
         showName = item.chatName ?? '';

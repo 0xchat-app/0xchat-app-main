@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'platform/platform.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 enum PressType {
   longPress,
@@ -225,6 +226,8 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
         // },
         onLongPress: () {
           if (widget.pressType == PressType.longPress && _canResponse) {
+            FeedbackType type = FeedbackType.impact;
+            Vibrate.feedback(type);
             _controller?.showMenu();
           }
         },

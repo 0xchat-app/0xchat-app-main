@@ -6,6 +6,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class PrivacyPolicyWidget extends StatelessWidget {
   final ValueNotifier<bool> controller;
@@ -51,14 +52,14 @@ class PrivacyPolicyWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // const Text('By add your mint you accept the'),
-                const Text('By creating your wallet, you accept the'),
+                Text(Localized.text('ox_wallet.privacy_policy_tips')),
                 FittedBox(
                   child: Row(
                     children: [
                       // _highlightText(text: 'Terms of Use', onTap: () => _openLinkURL(context, url: _termsOfUser, title: 'Terms of Use')),
                       // const Text(' and '),
                       // _highlightText(text: 'Privacy Policy', onTap: () => _openLinkURL(context, url: _privacyPolicy, title: 'Privacy Policy')),
-                      _highlightText(text: 'Disclaimer', onTap: () => _openDisclaimerLocalLink(context, title: '0xchat Wallet Disclaimer')),
+                      _highlightText(text: Localized.text('ox_wallet.disclaimer_text'), onTap: () => _openDisclaimerLocalLink(context, title: '0xchat Wallet Disclaimer')),
                     ],
                   ),
                 )

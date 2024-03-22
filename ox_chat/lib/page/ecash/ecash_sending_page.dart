@@ -38,18 +38,18 @@ extension _PackageTypeEx on _PackageType {
   String get text {
     switch (this) {
       case _PackageType.single: return '';
-      case _PackageType.multipleRandom: return 'Random Amount';
-      case _PackageType.multipleEqual: return 'Identical Amount';
-      case _PackageType.exclusive: return 'Exclusive';
+      case _PackageType.multipleRandom: return 'ecash_random_amount'.localized();
+      case _PackageType.multipleEqual: return 'ecash_identical_amount'.localized();
+      case _PackageType.exclusive: return 'ecash_exclusive'.localized();
     }
   }
 
   String get amountInputTitle {
     switch (this) {
-      case _PackageType.single: return 'Amount';
-      case _PackageType.multipleRandom: return 'Total';
-      case _PackageType.multipleEqual: return 'Amount Each';
-      case _PackageType.exclusive: return 'Amount';
+      case _PackageType.single: return 'zap_amount'.localized();
+      case _PackageType.multipleRandom: return 'ecash_total'.localized();
+      case _PackageType.multipleEqual: return 'ecash_amount_each'.localized();
+      case _PackageType.exclusive: return 'zap_amount'.localized();
     }
   }
 }
@@ -148,14 +148,14 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
                     child: Column(
                       children: [
                         Text(
-                          'Ecash',
+                          'ecash_text'.localized(),
                           style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
                         _buildMintSelector().setPadding(EdgeInsets.only(top:sectionSpacing)),
 
                         if (widget.isGroupEcash)
                           _buildSectionView(
-                            title: 'Type',
+                            title: 'ecash_type'.localized(),
                             children: [
                               _buildSelectorRow(
                                 value: packageType.text,
@@ -166,10 +166,10 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
 
                         if (packageType == _PackageType.exclusive)
                           _buildSectionView(
-                            title: 'Send to',
+                            title: 'ecash_send_to'.localized(),
                             children: [
                               _buildSelectorRow(
-                                value: receiverText.orDefault('Send to'),
+                                value: receiverText.orDefault('ecash_send_to'.localized()),
                                 isPlaceholder: receiverText.isEmpty,
                                 onTap: receiverOnTap,
                               ),
@@ -178,10 +178,10 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
 
                         if (widget.isGroupEcash && packageType != _PackageType.exclusive)
                           _buildSectionView(
-                            title: 'Quantity',
+                            title: 'ecash_quantity'.localized(),
                             children: [
                               _buildInputRow(
-                                placeholder: 'Enter quantity',
+                                placeholder: 'ecash_enter_quantity'.localized(),
                                 controller: quantityController,
                                 maxLength: 3,
                                 keyboardType: TextInputType.number,
@@ -195,7 +195,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
                             _buildInputRow(
                               placeholder: defaultSatsValue,
                               controller: amountController,
-                              suffix: 'Sats',
+                              suffix: 'ecash_sats'.localized(),
                               maxLength: 9,
                               keyboardType: TextInputType.number,
                             )
@@ -214,7 +214,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         _buildSectionView(
-                          title: 'Advanced',
+                          title: 'ecash_advanced'.localized(),
                           children:_buildAdvanceItems(),
                           controller: advancedController,
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
@@ -489,13 +489,13 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   List<Widget> _buildAdvanceItems() {
     return [
       _buildSelectorOptionRow(
-        title: 'Validity',
+        title: 'ecash_validity'.localized(),
         value: condition.validDuration.text,
         onTap: validityOnTap,
       ),
       if (widget.isGroupEcash)
         _buildSelectorOptionRow(
-          title: 'Multi-signature',
+          title: 'ecash_multi_signature'.localized(),
           value: signessText,
           onTap: signatureOnTap,
         ),
@@ -513,7 +513,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
           style: TextStyle(fontSize: 48.sp, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Sats',
+          'ecash_sats'.localized(),
           style: TextStyle(fontSize: 16.sp),
         ).setPadding(EdgeInsets.only(top: 7.px, left: 4.px)),
       ],
@@ -562,7 +562,12 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
-            CommonToast.instance.show(context, 'Signer(${duplicateUser.getUserShowName()}) cannot be the recipient');
+            CommonToast.instance.show(
+              context,
+              'ecash_recipient_error_hint'.localized({
+                r'${userName}': duplicateUser.getUserShowName(),
+              }),
+            );
             return false;
           }
 
@@ -607,7 +612,12 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
-            CommonToast.instance.show(context, 'Recipient(${duplicateUser.getUserShowName()}) cannot be a signee');
+            CommonToast.instance.show(
+              context,
+              'ecash_signer_error_hint'.localized({
+                r'${userName}': duplicateUser.getUserShowName(),
+              }),
+            );
             return false;
           }
 
@@ -630,27 +640,27 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     final validityDate = condition.lockTimeFromNow;
 
     if (amount < 1) {
-      CommonToast.instance.show(context, 'Ecash amount cannot be 0');
+      CommonToast.instance.show(context, 'ecash_amount_empty_hint'.localized());
       return ;
     }
     if (packageType != _PackageType.exclusive && ecashCount < 1) {
-      CommonToast.instance.show(context, 'Ecash quantity cannot be 0');
+      CommonToast.instance.show(context, 'ecash_quantity_empty_hint'.localized());
       return ;
     }
 
     final mint = this.mint;
     if (mint == null) {
-      CommonToast.instance.show(context, 'Must select mint to send ecash');
+      CommonToast.instance.show(context, 'ecash_mint_unselected_hint'.localized());
       return ;
     }
 
     if (amount > mint.balance) {
-      CommonToast.instance.show(context, 'Insufficient balance');
+      CommonToast.instance.show(context, 'ecash_insufficient_balance_hint'.localized());
       return ;
     }
 
     if (packageType == _PackageType.multipleRandom && amount < ecashCount) {
-      CommonToast.instance.show(context, 'The quantity cannot exceed the amount');
+      CommonToast.instance.show(context, 'ecash_quantity_exceed_amount_hint'.localized());
       return ;
     }
 
@@ -697,13 +707,13 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
-    if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
+    if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_refund_pubkey_empty_hint'.localized());
 
     final singleReceiver = widget.singleReceiver;
-    if (singleReceiver == null) return CashuResponse.fromErrorMsg('Receiver pubkey is empty.');
+    if (singleReceiver == null) return CashuResponse.fromErrorMsg('ecash_receiver_pubkey_empty_hint'.localized());
 
     final currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if (currentUser == null) return CashuResponse.fromErrorMsg('Please login and try again.');
+    if (currentUser == null) return CashuResponse.fromErrorMsg('ecash_not_login_hint'.localized());
 
     OXLoading.show();
     final response = await Cashu.sendEcashToPublicKeys(
@@ -743,7 +753,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     final signeePubkey = signee.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
 
     final refundPubkey = condition.refundPubkey ?? '';
-    if (signeePubkey.isNotEmpty && refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
+    if (signeePubkey.isNotEmpty && refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_refund_pubkey_empty_hint'.localized());
 
     OXLoading.show();
     final response = await Cashu.sendEcashList(
@@ -778,10 +788,10 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';
-    if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('Refund pubkey is empty.');
+    if (refundPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_refund_pubkey_empty_hint'.localized());
 
     final receiverPubkey = receiver.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
-    if (receiverPubkey.isEmpty) return CashuResponse.fromErrorMsg('"Recipient" is not selected.');
+    if (receiverPubkey.isEmpty) return CashuResponse.fromErrorMsg('ecash_recipient_unselected_hint'.localized());
 
     final signeePubkey = signee.map((user) => EcashCondition.pubkeyWithUser(user)).toList();
 
@@ -851,5 +861,5 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   }
 
   String get receiverText => EcashHelper.userListText(condition.receiver);
-  String get signessText => EcashHelper.userListText(condition.signees, noneText: 'None');
+  String get signessText => EcashHelper.userListText(condition.signees, noneText: Localized.text('ox_common.none'));
 }

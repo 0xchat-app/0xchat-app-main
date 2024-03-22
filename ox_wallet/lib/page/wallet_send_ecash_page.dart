@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'wallet_send_ecash_overview_page.dart';
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class WalletSendEcashPage extends StatefulWidget {
   const WalletSendEcashPage({super.key});
@@ -45,7 +46,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color190,
         appBar: CommonAppBar(
-          title: 'Send Ecash',
+          title: Localized.text('ox_wallet.send_ecash'),
           centerTitle: true,
           useLargeTitle: false,
         ),
@@ -73,7 +74,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
           border: InputBorder.none,
           contentPadding: EdgeInsets.zero,
           isDense: true,
-          hintText: 'This is Description',
+          hintText: Localized.text('ox_wallet.description_hint_text'),
           hintStyle: TextStyle(fontSize: 13.sp)
         ),
       ),
@@ -85,7 +86,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
         valueListenable: _amountController,
         builder: (context,value,child) {
           return ThemeButton(
-            text: 'Continue',
+            text: Localized.text('ox_wallet.continue_button'),
             height: 48.px,
             enable: enable,
             onTap: () => _nextStep(context),
@@ -99,7 +100,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
     int sats = int.parse(amount);
     String memo = description.isEmpty ? 'Sent via 0xChat.' : description;
     if (balance <= 0 || balance < sats) {
-      CommonToast.instance.show(context, 'Insufficient mint balance');
+      CommonToast.instance.show(context, Localized.text('ox_wallet.send_insufficient_balance'));
       return;
     }
     OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: memo, mint: _mint!,));

@@ -72,6 +72,8 @@
   "cancel_purchase": "खरीदारी रद्द करें",
   "pay_invoice_title": "लाइटनिंग इनवॉइस का भुगतान करें",
   "copy_invoice_title": "इनवॉइस कॉपी करें",
+  "select_ecash_wallet_title": "Ecash वॉलेट चुनें",
+  "my_ecash_mallet": "मेरा Ecash वॉलेट",
   "select_wallet_title": "एक लाइटनिंग वॉलेट चुनें",
   "select": "चुनें",
   "selected": "चुना हुआ",
