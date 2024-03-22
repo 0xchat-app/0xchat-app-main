@@ -180,10 +180,10 @@
   "str_enter_passcode": "Enter your Passcode",
   "str_tor_orbot_setup": "Tor/Orbot setup",
   "str_settings": "Settings",
-  "str_dev_log": "DEV Log",
+  "str_dev_log": "Developer",
   "str_push_app": "Push Application",
-  "str_send_dev_log_detail": "DEV Log Detail",
+  "str_send_dev_log_detail": "Dev Log Detail",
   "str_log_filemtime": "Log Filemtime",
-  "str_send_log_to_dev": "Send to DEV",
+  "str_send_log_to_dev": "Send to Dev",
   "str_send_log_to_dev_dialog_content": "Send the log file to the developer water783"
 }

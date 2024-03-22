@@ -87,6 +87,7 @@ class _DevLogDetailPageState extends State<DevLogDetailPage> {
                       style: TextStyle(
                         fontSize: 14.px,
                         color: ThemeColor.color100,
+                          fontWeight: FontWeight.w400
                       ),
                     ),
                     Text(
@@ -94,6 +95,7 @@ class _DevLogDetailPageState extends State<DevLogDetailPage> {
                       style: TextStyle(
                         fontSize: 14.px,
                         color: ThemeColor.color0,
+                          fontWeight: FontWeight.w400
                       ),
                     ),
                   ],
@@ -113,11 +115,12 @@ class _DevLogDetailPageState extends State<DevLogDetailPage> {
                   style: TextStyle(
                     fontSize: 14.px,
                     color: ThemeColor.color100,
+                      fontWeight: FontWeight.w400
                   ),
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(left: 16.px, top: 4.px),
+                padding: EdgeInsets.only(left: 16.px),
                 height: 200.px,
                 child: SingleChildScrollView(
                   child: Text(
@@ -125,6 +128,7 @@ class _DevLogDetailPageState extends State<DevLogDetailPage> {
                     style: TextStyle(
                       fontSize: 12.px,
                       color: ThemeColor.color0,
+                        fontWeight: FontWeight.w400
                     ),
                   ),
                 ),

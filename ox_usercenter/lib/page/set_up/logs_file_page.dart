@@ -99,11 +99,11 @@ class _LogsFilePageState extends State<LogsFilePage> {
                           children: [
                             Text(
                               fileChangedTime,
-                              style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w400),
                             ),
                             Text(
                               fileName,
-                              style: TextStyle(color: ThemeColor.color0, fontSize: 16.px, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: ThemeColor.color100, fontSize: 14.px, fontWeight: FontWeight.w400),
                             ),
                           ],
                         ),
