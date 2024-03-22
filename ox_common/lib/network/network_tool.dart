@@ -56,7 +56,7 @@ class NetworkTool {
   Future<String> dnsReplaceIp(String url, String domain) async {
     String? server = await getUrlServer(url);
     if (server != null) {
-      String? host = Config.sharedInstance.hostConfig[CommonConstant.baseUrl];
+      String? host = Config.sharedInstance.hostConfig[domain];
       if (host !=null && host.isNotEmpty) {
         String replaceUrl = url.replaceFirst(domain, host);
         replaceUrl = replaceUrl.replaceFirst('https://', 'http://');

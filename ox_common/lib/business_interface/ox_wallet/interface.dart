@@ -57,4 +57,15 @@ class OXWalletInterface {
       {},
     ) ?? false;
   }
+
+  static walletSendLightningPage({String? invoice, String? amount}) {
+    return OXModuleService.invoke(
+      'ox_wallet',
+      'walletSendLightningPage',
+      [], {
+        #invoice: invoice,
+        #amount: amount,
+      },
+    );
+  }
 }

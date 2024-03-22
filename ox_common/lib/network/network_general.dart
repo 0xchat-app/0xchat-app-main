@@ -6,7 +6,7 @@ import 'dart:convert' as convert;
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/network/network_tool.dart';
+import 'package:ox_common/network/network_interceptor.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -35,7 +35,7 @@ extension General on OXNetwork {
   Future<OXResponse> doRequest(
     BuildContext? context, {
     String url = '',
-    Map<String, dynamic>? header,
+    Map<String, String>? header,
     RequestType type = RequestType.POST,
     Map<String, dynamic>? params,
     bool useCache = false,
@@ -80,12 +80,9 @@ extension General on OXNetwork {
     try {
       if (needHost) {
         if (url.isNotEmpty) {
-          String? domain = await NetworkTool.instance.getUrlDomain(url);
-          if (domain != null) {
-            if (header == null) header = Map<String, dynamic>();
-            header["host"] = domain;
-            url = await NetworkTool.instance.dnsReplaceIp(url, domain);
-          }
+          final result = await NetworkInterceptor.modifyRequest(url: url, headers: header);
+          url = result.url;
+          header = result.headers;
         }
       }
       NetworkResponse result = await OXNetwork.instance.request(context,
