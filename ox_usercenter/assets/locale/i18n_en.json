@@ -185,5 +185,6 @@
   "str_send_dev_log_detail": "Dev Log Detail",
   "str_log_filemtime": "Log Filemtime",
   "str_send_log_to_dev": "Send to Dev",
-  "str_send_log_to_dev_dialog_content": "Send the log file to the developer water783"
+  "str_send_log_to_dev_dialog_content": "Send the log file to the developer water783",
+  "str_send_log_to_dev_hint": "When your device encounters an anomaly or crashes, it will store logs locally. You can choose to send these to the developers to help us improve the product, or you can choose to ignore them."
 }
