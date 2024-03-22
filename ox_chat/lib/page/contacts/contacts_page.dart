@@ -296,7 +296,7 @@ class _ContractsPageState extends State<ContractsPage>
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return _inkWellWidget(
-                        content: Localized.text('ox_chat.string_request_title'),
+                        content: Localized.text(_selectedType == ContactsItemType.group ? 'ox_chat.join_request' : 'ox_chat.string_request_title'),
                         onTap: () {
                           if (_selectedType == ContactsItemType.group) {
                             OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId: null));
