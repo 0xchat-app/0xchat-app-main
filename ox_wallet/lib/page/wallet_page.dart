@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -24,7 +26,7 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  final _defaultMintURL = 'https://mint.0xchat.com';
+  String get _defaultMintURL => 'https://${Config.sharedInstance.mintHost}';
   final ValueNotifier<bool> _hasAgreedToPrivacyPolicy = ValueNotifier(true);
 
   @override
