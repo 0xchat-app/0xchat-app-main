@@ -127,7 +127,7 @@ class OXWallet extends OXFlutterModule {
         nextStepHandler: (context) {
           EcashManager.shared.setWalletSafeTipsSeen();
           if (EcashManager.shared.isWalletAvailable) {
-            OXNavigator.pushPage(null, (context) => const WalletHomePage(),);
+            OXNavigator.pushReplacement(context, const WalletHomePage(),);
           } else {
             OXNavigator.pushReplacement(context, const WalletPage());
           }
