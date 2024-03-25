@@ -122,14 +122,24 @@ class OXWallet extends OXFlutterModule {
   }
 
   void openWalletHomePage() {
+    if (!EcashManager.shared.isWalletSafeTipsSeen) {
+      OXNavigator.pushPage(null, (context) => WalletSafetyTipsPage(
+        nextStepHandler: (context) {
+          EcashManager.shared.setWalletSafeTipsSeen();
+          if (EcashManager.shared.isWalletAvailable) {
+            OXNavigator.pushPage(null, (context) => const WalletHomePage(),);
+          } else {
+            OXNavigator.pushReplacement(context, const WalletPage());
+          }
+        },
+      ),);
+      return ;
+    }
+
     if (EcashManager.shared.isWalletAvailable) {
       OXNavigator.pushPage(null, (context) => const WalletHomePage(),);
     } else {
-      OXNavigator.pushPage(null, (context) => WalletSafetyTipsPage(
-        nextStepHandler: (context) {
-          OXNavigator.pushReplacement(context, const WalletPage());
-        },
-      ),);
+      OXNavigator.pushPage(null, (context) => const WalletPage(),);
     }
   }
 

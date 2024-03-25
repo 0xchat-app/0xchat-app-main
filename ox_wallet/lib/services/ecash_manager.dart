@@ -14,12 +14,15 @@ class EcashManager extends ChangeNotifier {
 
   final localKey = 'default_mint_url';
   final ecashAccessKey = 'wallet_access';
+  final ecashSafeTipsSeenKey = 'wallet_safe_tips_seen';
 
   late List<IMint> _mintList;
 
   IMint? _defaultIMint;
 
   bool _isWalletAvailable = false;
+
+  bool _isWalletSafeTipsSeen = false;
 
   List<IMint> get mintList => _mintList;
 
@@ -32,11 +35,14 @@ class EcashManager extends ChangeNotifier {
   bool isDefaultMint(IMint mint) => _defaultIMint == mint;
 
   bool get isWalletAvailable => _isWalletAvailable;
+
+  bool get isWalletSafeTipsSeen => _isWalletSafeTipsSeen;
   
   setup() async {
     _mintList = List.of(await Cashu.mintList());
     _initDefaultMint();
     _isWalletAvailable = await _getEcashAccessSignForLocal();
+    _isWalletSafeTipsSeen = await _getEcashSafeTipsSeen();
   }
 
   Future<void> _initDefaultMint() async {
@@ -103,19 +109,32 @@ class EcashManager extends ChangeNotifier {
     _isWalletAvailable = true;
   }
 
+  Future<void> setWalletSafeTipsSeen() async {
+    await _saveEcashSafeTipsSeen(true);
+    _isWalletSafeTipsSeen = true;
+  }
+
   Future<bool> _saveMintURLForLocal(String mintURL) async {
     return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$localKey', mintURL);
   }
   
   Future<String> _getMintURLForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey',defaultValue: '');
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey', defaultValue: '');
   }
 
   Future<bool> _saveEcashAccessSignForLocal(bool sign) async {
     return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$ecashAccessKey', sign);
   }
 
-  Future<bool> _getEcashAccessSignForLocal()  async{
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashAccessKey',defaultValue: false);
+  Future<bool> _getEcashAccessSignForLocal() async {
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashAccessKey', defaultValue: false);
+  }
+
+  Future<bool> _saveEcashSafeTipsSeen(bool seen) async {
+    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$ecashSafeTipsSeenKey', seen);
+  }
+
+  Future<bool> _getEcashSafeTipsSeen() async {
+    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashSafeTipsSeenKey', defaultValue: false);
   }
 }
