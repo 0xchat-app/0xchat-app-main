@@ -283,10 +283,12 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 isShowDivider: true,
                 onTap: () => OXNavigator.pushPage(context, (context) => const DonatePage()),
               ),
-              _topItemBuild(
-                title: 'version'.localized(),
+              buildOption(
+                title: 'ox_usercenter.version',
                 iconName: 'icon_settings_version.png',
-                isShowDivider: false,
+                rightContent: _version,
+                showArrow: false,
+                decoration: const BoxDecoration(),
                 onTap: (){},
               ),
             ],

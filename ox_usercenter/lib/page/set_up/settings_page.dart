@@ -202,14 +202,14 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
 }
 
-Widget buildOption({required String title, required String iconName, Function()? onTap}){
+Widget buildOption({required String title, required String iconName, String rightContent = '', bool showArrow = true, Function()? onTap, Decoration? decoration}){
   return GestureDetector(
     behavior: HitTestBehavior.translucent,
     onTap: onTap,
     child: Container(
       width: double.infinity,
       height: Adapt.px(52),
-      decoration: BoxDecoration(
+      decoration: decoration ?? BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
           colors: [
@@ -220,7 +220,7 @@ Widget buildOption({required String title, required String iconName, Function()?
           end: Alignment.centerRight,
         ),
       ),
-      child: itemView(iconName, title, '', false),
+      child: itemView(iconName, title, rightContent, false, showArrow: showArrow),
     ),
   );
 }
