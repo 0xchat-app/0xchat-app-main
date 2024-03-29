@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autentifikācija Neizdevās",
   "str_authentication_failed_hint": "Šis 0xchat ir aizsargāts. Ievadītā parole ir nederīga.",
   "str_mismatch_title": "Neizdevās",
-  "str_mismatch_try_hint": "Paroles nesakrīt. Lūdzu, mēģiniet vēlreiz."
+  "str_mismatch_try_hint": "Paroles nesakrīt. Lūdzu, mēģiniet vēlreiz.",
+  "str_data_revovery": "Datu Atkopšana"
 }

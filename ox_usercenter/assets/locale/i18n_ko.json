@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "인증 실패",
   "str_authentication_failed_hint": "이 0xchat은 보안되어 있습니다. 입력한 비밀번호가 유효하지 않습니다.",
   "str_mismatch_title": "실패",
-  "str_mismatch_try_hint": "비밀번호가 일치하지 않습니다. 다시 시도해주세요."
+  "str_mismatch_try_hint": "비밀번호가 일치하지 않습니다. 다시 시도해주세요.",
+  "str_data_revovery": "데이터 복구"
 }

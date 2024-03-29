@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Помилка автентифікації",
   "str_authentication_failed_hint": "Цей 0xchat захищений. Введений пароль недійсний.",
   "str_mismatch_title": "Помилка",
-  "str_mismatch_try_hint": "Невідповідність паролів. Будь ласка, спробуйте знову."
+  "str_mismatch_try_hint": "Невідповідність паролів. Будь ласка, спробуйте знову.",
+  "str_data_revovery": "Відновлення Даних"
 }

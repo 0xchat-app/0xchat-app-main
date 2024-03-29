@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Échec de l'authentification",
   "str_authentication_failed_hint": "0xchat est crypté. Le mot de passe entré est invalide.",
   "str_mismatch_title": "Échec de la vérification",
-  "str_mismatch_try_hint": "Les mots de passe ne correspondent pas, veuillez réessayer."
+  "str_mismatch_try_hint": "Les mots de passe ne correspondent pas, veuillez réessayer.",
+  "str_data_revovery": "Récupération de Données"
 }

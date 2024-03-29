@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Hitelesítés Sikertelen",
   "str_authentication_failed_hint": "Ez a 0xchat biztosítva van. Az beírt jelszó érvénytelen.",
   "str_mismatch_title": "Sikertelen",
-  "str_mismatch_try_hint": "A jelszavak nem egyeznek. Kérjük, próbálja újra."
+  "str_mismatch_try_hint": "A jelszavak nem egyeznek. Kérjük, próbálja újra.",
+  "str_data_revovery": "Adatmentés"
 }

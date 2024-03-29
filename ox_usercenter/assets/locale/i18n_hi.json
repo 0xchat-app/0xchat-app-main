@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "प्रमाणीकरण विफल",
   "str_authentication_failed_hint": "0xchat एन्क्रिप्टेड है। दर्ज किया गया पासवर्ड अमान्य है।",
   "str_mismatch_title": "सत्यापन विफल",
-  "str_mismatch_try_hint": "पासवर्ड मेल नहीं खाते, कृपया फिर से प्रयास करें।"
+  "str_mismatch_try_hint": "पासवर्ड मेल नहीं खाते, कृपया फिर से प्रयास करें।",
+  "str_data_revovery": "डेटा रिकवरी"
 }

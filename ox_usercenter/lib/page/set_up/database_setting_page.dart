@@ -278,10 +278,6 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
       bool isImportDB = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, defaultValue: false);
       if (isImportDB) {
         await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, false);
-        await OXLoading.show();
-        OXUserInfoManager.sharedInstance.resetData();
-        await OXUserInfoManager.sharedInstance.initLocalData();
-        await OXLoading.dismiss();
         OXNavigator.pop(context);
       }
     }

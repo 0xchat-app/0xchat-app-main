@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "การตรวจสอบไม่ผ่าน",
   "str_authentication_failed_hint": "แชท 0xchat นี้มีความปลอดภัย รหัสผ่านที่ป้อนไม่ถูกต้อง",
   "str_mismatch_title": "ล้มเหลว",
-  "str_mismatch_try_hint": "รหัสผ่านไม่ตรงกัน โปรดลองอีกครั้ง"
+  "str_mismatch_try_hint": "รหัสผ่านไม่ตรงกัน โปรดลองอีกครั้ง",
+  "str_data_revovery": "การกู้คืนข้อมูล"
 }

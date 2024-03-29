@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autentisering misslyckades",
   "str_authentication_failed_hint": "Denna 0xchat är säkrad. Den angivna lösenkoden är ogiltig.",
   "str_mismatch_title": "Misslyckades",
-  "str_mismatch_try_hint": "Lösenkod matchar inte. Försök igen."
+  "str_mismatch_try_hint": "Lösenkod matchar inte. Försök igen.",
+  "str_data_revovery": "Dataåterställning"
 }

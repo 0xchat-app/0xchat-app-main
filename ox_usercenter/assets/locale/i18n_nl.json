@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Authenticatie mislukt",
   "str_authentication_failed_hint": "Deze 0xchat is beveiligd. De ingevoerde toegangscode is ongeldig.",
   "str_mismatch_title": "Mislukt",
-  "str_mismatch_try_hint": "Wachtwoord komt niet overeen. Probeer het opnieuw."
+  "str_mismatch_try_hint": "Wachtwoord komt niet overeen. Probeer het opnieuw.",
+  "str_data_revovery": "Gegevensherstel"
 }

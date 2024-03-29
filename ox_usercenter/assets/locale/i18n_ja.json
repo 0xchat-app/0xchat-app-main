@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "認証失敗",
   "str_authentication_failed_hint": "この0xchatは保護されています。入力されたパスコードは無効です。",
   "str_mismatch_title": "失敗",
-  "str_mismatch_try_hint": "パスコードが一致しません。もう一度お試しください。"
+  "str_mismatch_try_hint": "パスコードが一致しません。もう一度お試しください。",
+  "str_data_revovery": "データ復旧"
 }

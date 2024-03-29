@@ -177,5 +177,6 @@
   "str_passcode": "رمز المرور",
   "str_create_passcode": "أنشئ رمز المرور الخاص بك",
   "str_confirm_passcode": "تأكيد رمز المرور الخاص بك",
-  "str_enter_passcode": "أدخل رمز المرور الخاص بك"
+  "str_enter_passcode": "أدخل رمز المرور الخاص بك",
+  "str_data_revovery": "استعادة البيانات"
 }

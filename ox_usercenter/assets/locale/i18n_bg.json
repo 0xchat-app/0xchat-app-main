@@ -177,5 +177,6 @@
   "str_passcode": "Парола",
   "str_create_passcode": "Създайте своята парола",
   "str_confirm_passcode": "Потвърдете вашата парола",
-  "str_enter_passcode": "Въведете вашата парола"
+  "str_enter_passcode": "Въведете вашата парола",
+  "str_data_revovery": "Възстановяване на Данни"
 }

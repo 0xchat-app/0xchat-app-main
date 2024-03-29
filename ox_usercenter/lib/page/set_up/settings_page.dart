@@ -4,6 +4,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -12,6 +13,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
@@ -25,6 +27,7 @@ import 'package:ox_usercenter/page/set_up/privacy_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/theme_settings_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_page.dart';
+import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
 
@@ -147,6 +150,18 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           await OXNavigator.pushPage(context, (context) => const ThemeSettingsPage());
         } else if (_settingModel.settingItemType == SettingItemType.ice) {
           OXNavigator.pushPage(context, (context) => const ICEServerPage());
+        } else if (_settingModel.settingItemType == SettingItemType.dataRevovery) {
+          final file = await FileUtils.importFile();
+          if (file != null) {
+            OXLoading.show();
+            final success = await ImportDataTools.unzipAndProcessFile(file);
+            OXLoading.dismiss();
+            if (success) {
+              CommonToast.instance.show(context, 'Import successfully');
+            } else {
+              CommonToast.instance.show(context, 'Import failure');
+            }
+          }
         } else if (_settingModel.settingItemType == SettingItemType.devLog) {
           OXNavigator.pushPage(context, (context) => const LogsFilePage());
         }

@@ -15,6 +15,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:path_provider/path_provider.dart';
@@ -67,7 +68,9 @@ class DatabaseHelper{
               OXNavigator.pop(context);
               File? file = await FileUtils.importFile();
               if (file != null) {
+                OXLoading.show();
                 await importDatabase(context, file.path);
+                OXLoading.dismiss();
               }
             }),
       ],
@@ -93,7 +96,17 @@ class DatabaseHelper{
       return;
     }
     await DB.sharedInstance.closDatabase();
-    await replaceDatabase(dbOldPath, dbNewPath);
+
+    await ImportDataTools.importTableData(
+      sourceDBPath: dbNewPath,
+      sourceDBPwd: currentDBPW,
+      targetDBPath: dbOldPath,
+      targetDBPwd: currentDBPW,
+    );
+
+    OXUserInfoManager.sharedInstance.resetData();
+    await OXUserInfoManager.sharedInstance.initLocalData();
+
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
   }

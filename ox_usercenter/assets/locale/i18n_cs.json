@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Selhání ověření",
   "str_authentication_failed_hint": "Tento 0xchat je zabezpečen. Zadané heslo je neplatné.",
   "str_mismatch_title": "Selhání",
-  "str_mismatch_try_hint": "Neshoda hesla. Prosím zkuste to znovu."
+  "str_mismatch_try_hint": "Neshoda hesla. Prosím zkuste to znovu.",
+  "str_data_revovery": "Obnova Dat"
 }
