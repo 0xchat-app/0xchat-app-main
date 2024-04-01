@@ -39,11 +39,7 @@ class _ContractsPageState extends State<ContractsPage>
   ContactsItemType _selectedType = ContactsItemType.contact;
   final PageController _pageController = PageController();
   bool _isShowTools = false;
-  final tabItems = [
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
-  ];
+  late List<CommonCategoryTitleItem> tabItems;
   int _addGroupRequestCount = 0;
 
   @override
@@ -51,7 +47,22 @@ class _ContractsPageState extends State<ContractsPage>
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
+    Localized.addLocaleChangedCallback(onLocaleChange);
+    _loadData();
+  }
+
+  void _loadData() {
     _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
+    tabItems = [
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
+    ];
+  }
+
+  onLocaleChange() {
+    _loadData();
+    if (mounted) setState(() {});
   }
 
   @override

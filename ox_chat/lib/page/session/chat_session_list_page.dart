@@ -8,6 +8,7 @@ import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
+import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
@@ -571,26 +572,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
-      String showPicUrl = '';
-      String localAvatarPath = '';
-      switch (item.chatType) {
-        case ChatType.chatChannel:
-          showPicUrl = Channels.sharedInstance.channels[item.chatId]?.picture ?? '';
-          localAvatarPath = 'icon_group_default.png';
-          break;
-        case ChatType.chatSingle:
-        case ChatType.chatSecret:
-          showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
-          localAvatarPath = 'user_image.png';
-          break;
-        case ChatType.chatGroup:
-          showPicUrl = Groups.sharedInstance.groups[item.chatId]?.picture ?? '';
-          localAvatarPath = 'icon_group_default.png';
-          break;
-        case ChatType.chatNotice:
-          localAvatarPath = 'icon_request_avatar.png';
-          break;
-      }
+      String showPicUrl = ChatSessionUtils.getChatIcon(item);
+      String localAvatarPath = ChatSessionUtils.getChatDefaultIcon(item);
       return Container(
         width: Adapt.px(60),
         height: Adapt.px(60),
@@ -637,24 +620,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModel item) {
-    String showName = '';
-    switch (item.chatType) {
-      case ChatType.chatChannel:
-        showName = Channels.sharedInstance.channels[item.chatId]?.name ?? '';
-        if (showName.isEmpty) showName = Channels.encodeChannel(item.chatId, null, null);
-        break;
-      case ChatType.chatSingle:
-      case ChatType.chatSecret:
-        showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
-        break;
-      case ChatType.chatGroup:
-        showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
-        if (showName.isEmpty) showName = Groups.encodeGroup(item.chatId, null, null);
-        break;
-      case ChatType.chatNotice:
-        showName = item.chatName ?? '';
-        break;
-    }
+    String showName = ChatSessionUtils.getChatName(item);
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
       child: item.chatType == ChatType.chatSecret
@@ -689,7 +655,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
               ],
             )
-          : Text(showName, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, style: _Style.newsTitle()),
+          : MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600),
       constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
       // width: Adapt.px(135),
     );
@@ -721,20 +687,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                           Row(
                             children: <Widget>[
                               _buildItemName(item),
-                              FutureBuilder<bool>(
-                                initialData: _muteCache[item.chatId],
-                                builder: (context, snapshot) {
-                                  return (snapshot.data ?? false)
-                                      ? CommonImage(
-                                          iconName: 'icon_session_mute.png',
-                                          width: Adapt.px(16),
-                                          height: Adapt.px(16),
-                                          package: 'ox_chat',
-                                        )
-                                      : Container();
-                                },
-                                future: _getChatSessionMute(item),
-                              ),
+                              _getChatSessionMute(item)
+                                  ? CommonImage(
+                                iconName: 'icon_session_mute.png',
+                                width: Adapt.px(16),
+                                height: Adapt.px(16),
+                                package: 'ox_chat',
+                              )
+                                  : Container(),
                             ],
                           ),
                           Padding(
@@ -755,13 +715,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                FutureBuilder<bool>(
-                  initialData: _muteCache[item.chatId],
-                  builder: (context, snapshot) {
-                    return _buildReadWidget(item, snapshot.data ?? false);
-                  },
-                  future: _getChatSessionMute(item),
-                ),
+                _buildReadWidget(item),
                 SizedBox(
                   height: Adapt.px(18),
                 ),
@@ -878,27 +832,17 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     CommonToast.instance.show(context, Localized.text('ox_chat.services'));
   }
 
-  Future<bool> _getChatSessionMute(ChatSessionModel item) async {
-    bool isMute = false;
-    if (item.chatType == ChatType.chatSingle) {
-      UserDB? tempUserDB = Account.sharedInstance.userCache[item.chatId];
-      if (tempUserDB != null) {
-        isMute = tempUserDB.mute ?? false;
-      }
-    } else if (item.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[item.chatId];
-      if (channelDB != null) {
-        isMute = channelDB.mute ?? false;
-      }
-    }
+  bool _getChatSessionMute(ChatSessionModel item) {
+    bool isMute = ChatSessionUtils.getChatMute(item);
     if (isMute != _muteCache[item.chatId]) {
       _muteCache[item.chatId] = isMute;
     }
     return isMute;
   }
 
-  Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
-    int read = announceItem.unreadCount;
+  Widget _buildReadWidget(ChatSessionModel item) {
+    int read = item.unreadCount;
+    bool isMute = _getChatSessionMute(item);
     if (isMute) {
       if (read > 0) {
         return ClipOval(
@@ -1154,13 +1098,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 }
 
 class _Style {
-  static TextStyle newsTitle() {
-    return new TextStyle(
-      fontSize: Adapt.px(16),
-      fontWeight: FontWeight.w600,
-      color: ThemeColor.color10,
-    );
-  }
 
   static TextStyle newsContentSub() {
     return new TextStyle(

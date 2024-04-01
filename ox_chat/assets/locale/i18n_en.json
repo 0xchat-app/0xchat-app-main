@@ -209,7 +209,7 @@
   "str_add_a_friend": "add a friend",
   "str_john_a_channel": "join a channel",
   "scan_qr_code": "Scan QR code",
-  "str_share_msg_confirm_content": "Confirm sharing the message with \"+${name}+\"",
+  "str_share_msg_confirm_content": "Confirm sharing the message with \"${name}\"",
   "str_title_top_hins_contacts": "Top Hits",
   "str_chat_historys": "Chat Histories",
   "str_recent_chats": "Recent Chats",
