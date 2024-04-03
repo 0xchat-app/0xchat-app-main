@@ -213,7 +213,7 @@ class MainState extends State<MainApp>
     commonEventBus.fire(AppLifecycleStateEvent(state));
     switch (state) {
       case AppLifecycleState.resumed:
-        if (Platform.isIOS && OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
+        if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOnline();
         SchemeHelper.tryHandlerForOpenAppScheme();
         OXUserInfoManager.sharedInstance.resetHeartBeat();
         if (lastUserInteractionTime != 0 && DateTime.now().millisecondsSinceEpoch - lastUserInteractionTime > const Duration(minutes: 5).inMilliseconds) {
