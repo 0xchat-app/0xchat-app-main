@@ -77,7 +77,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             case "getDatabaseFilePath":
                 String dbName = call.argument("dbName");
                 String databasefile = getDatabaseFilePath(dbName);
-                result.success(databasefile);
+                if (mResult != null) {
+                    mResult.success(databasefile);
+                    mResult = null;
+                }
                 break;
             case "scan_path":
                 String path = call.argument("path");
@@ -90,11 +93,15 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             case "backToDesktop":
                 if (mResult != null) {
                     mResult.success(true);
+                    mResult = null;
                     mActivity.moveTaskToBack(false);
                 }
                 break;
             case "getPlatformVersion":
-                result.success("Android ${android.os.Build.VERSION.RELEASE}");
+                if (mResult != null) {
+                    mResult.success("Android ${android.os.Build.VERSION.RELEASE}");
+                    mResult = null;
+                }
                 break;
             case "callSysShare":
                 String filePath = call.argument("filePath");
@@ -140,7 +147,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
                 }
                 if (requestCode == SELECT) {
                     List<Map<String, String>> paths = (List<Map<String, String>>) data.getSerializableExtra(SelectPicsActivity.COMPRESS_PATHS);
-                    mResult.success(paths);
+                    if (mResult != null) {
+                        mResult.success(paths);
+                        mResult = null;
+                    }
                 } else if (requestCode == READ_IMAGE) {
                     Intent intent1 = new Intent(mActivity, SelectPicsActivity.class);
                     intent1.putExtras(data);
@@ -157,7 +167,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
 //                    Log.d("Michael", "mGetContent----uris ="+uris.toString());
                     List<String> filePaths = urisToFileList(uris);
 //                    Log.d("Michael", "mGetContent----filePaths ="+filePaths);
-                    if (mResult != null) mResult.success(filePaths);
+                    if (mResult != null) {
+                        mResult.success(filePaths);
+                        mResult = null;
+                    }
                 });
         requestPermissionLauncher = mActivity.registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(), permissions -> {
@@ -169,7 +182,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
                     mediaGranteds.put("READ_MEDIA_VIDEO", readMediaVideoGranted);
                     mediaGranteds.put("READ_MEDIA_VISUAL_USER_SELECTED", readMediaVisualUserSelectedGranted);
 //                    Log.d("oxcommon", "requestPermissionLauncher---------readMediaImagesGranted ="+readMediaImagesGranted+"；readMediaVisualUserSelectedGranted ="+readMediaVisualUserSelectedGranted + "; readMediaVideoGranted ="+readMediaVideoGranted);
-                    if (mResult != null) mResult.success(mediaGranteds);
+                    if (mResult != null) {
+                        mResult.success(mediaGranteds);
+                        mResult = null;
+                    }
                 });
     }
 
@@ -207,7 +223,10 @@ public class OXCommonPlugin implements FlutterPlugin, MethodCallHandler, Activit
             }
             requestPermissionLauncher.launch(permissions);
         } else {
-            mResult.success(false);//Unsupported Android version
+            if (mResult != null) {
+                mResult.success(false);//Unsupported Android version
+                mResult = null;
+            }
         }
     }
 
