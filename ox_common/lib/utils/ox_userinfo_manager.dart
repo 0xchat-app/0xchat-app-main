@@ -310,11 +310,11 @@ class OXUserInfoManager {
       fn();
     });
     Relays.sharedInstance.init().then((value) {
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
+      Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
+      Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
       BadgesHelper.sharedInstance.init();
       Zaps.sharedInstance.init();
-      Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
-      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
-      Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
       _initMessage();
     });
     Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
@@ -361,9 +361,9 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     if (isLogin) {
+      Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();
-      Connect.sharedInstance.startHeartBeat();
     }
   }
 }
