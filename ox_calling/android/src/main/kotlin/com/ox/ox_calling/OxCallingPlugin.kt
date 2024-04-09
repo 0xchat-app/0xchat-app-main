@@ -21,6 +21,8 @@ class OxCallingPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private lateinit var mContext: Context
+  private var mResult: Result? = null
+
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     mContext = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "ox_calling")
@@ -28,8 +30,10 @@ class OxCallingPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    mResult = result
     if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
+      mResult?.success("Android ${android.os.Build.VERSION.RELEASE}")
+      mResult = null
     } else if (call.method == "setSpeakerStatus") {
       var userSetValue = call.argument<Boolean>("isSpeakerOn")!!
       val audioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -38,9 +42,11 @@ class OxCallingPlugin: FlutterPlugin, MethodCallHandler {
     } else if (call.method == "switchAudioOutput") {
       val output: Int = call.argument("output") !!
       switchAudioOutput(output)
-      result.success(null)
+      mResult?.success(null)
+      mResult = null
     } else {
-      result.notImplemented()
+      mResult?.notImplemented()
+      mResult = null
     }
   }
 
