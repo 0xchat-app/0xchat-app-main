@@ -71,42 +71,50 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         mMethodChannelResult = result;
         HashMap paramsMap = null;
-        if (call.arguments != null && call.arguments instanceof HashMap) {
+        if (call.arguments instanceof HashMap) {
             paramsMap = (HashMap) call.arguments;
         }
-        if (call.method.equals("getAppOpenURL")) {
-            SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
-            String jumpInfo = preferences.getString(SharedPreUtils.PARAM_JUMP_INFO, "");
-            result.success(jumpInfo);
-
-            SharedPreferences.Editor e = preferences.edit();
-            e.putString(SharedPreUtils.PARAM_JUMP_INFO, "");
-            e.apply();
-        } else if (call.method.equals("changeTheme")) {
-            int themeStyle = (int) paramsMap.get("themeStyle");
-            SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
-            preferences.edit().putInt("themeStyle", themeStyle);
-            if (themeStyle == 0) {
-                //TODO light
-            } else {
-                //TODO Dark
+        switch (call.method) {
+            case "getAppOpenURL" -> {
+                SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
+                String jumpInfo = preferences.getString(SharedPreUtils.PARAM_JUMP_INFO, "");
+                if (mMethodChannelResult != null) {
+                    mMethodChannelResult.success(jumpInfo);
+                    mMethodChannelResult = null;
+                }
+                SharedPreferences.Editor e = preferences.edit();
+                e.putString(SharedPreUtils.PARAM_JUMP_INFO, "");
+                e.apply();
             }
-        } else if (call.method.equals("showFlutterActivity")) {
-
-            String route = null;
-            if (paramsMap.containsKey("route")) {
-                route = (String) paramsMap.get("route");
+            case "changeTheme" -> {
+                int themeStyle = 0;
+                if (paramsMap != null && paramsMap.containsKey("themeStyle")) {
+                    themeStyle = (int) paramsMap.get("themeStyle");
+                }
+                SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
+                preferences.edit().putInt("themeStyle", themeStyle);
+                if (themeStyle == 0) {
+                    //TODO light
+                } else {
+                    //TODO Dark
+                }
             }
-            String params = null;
-            if (paramsMap.containsKey("params")) {
-                params = (String) paramsMap.get("params");
+            case "showFlutterActivity" -> {
+                String route = null;
+                if (paramsMap != null && paramsMap.containsKey("route")) {
+                    route = (String) paramsMap.get("route");
+                }
+                String params = null;
+                if (paramsMap.containsKey("params")) {
+                    params = (String) paramsMap.get("params");
+                }
+                Intent intent = MultiEngineActivity
+                        .withNewEngine(MultiEngineActivity.class)
+                        .initialRoute(MultiEngineActivity.getFullRoute(route, params))
+                        .build(mContext);
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mActivity.startActivity(intent);
             }
-            Intent intent = MultiEngineActivity
-                    .withNewEngine(MultiEngineActivity.class)
-                    .initialRoute(MultiEngineActivity.getFullRoute(route, params))
-                    .build(mContext);
-            //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mActivity.startActivity(intent);
         }
     }
 }
