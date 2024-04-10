@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -5,6 +6,7 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -24,10 +26,20 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:video_compress/video_compress.dart';
 
 import '../enum/moment_enum.dart';
 import 'moments/create_moments_page.dart';
 import 'moments/public_moments_page.dart';
+
+
+import 'package:flutter/cupertino.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:path/path.dart' as Path;
+import '../../enum/moment_enum.dart';
+import '../../utils/moment_widgets.dart';
+
 
 
 class DiscoveryPage extends StatefulWidget {
@@ -535,7 +547,23 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            'Choose from Album',
+            'Choose Image',
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              _goToPhoto(context,1);
+              // OXNavigator.presentPage(
+              //   context,
+              //       (context) => CreateMomentsPage(type:EMomentType.video),
+              // );
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            'Choose Video',
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
@@ -629,5 +657,67 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
   onLocaleChange() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _goToPhoto(BuildContext context, int type) async {
+    // type: 1 - image, 2 - video
+    final isVideo = type == 2;
+    // final messageSendHandler = this.sendVideoMessageSend;
+
+    // if()
+
+    final res = await ImagePickerUtils.pickerPaths(
+      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
+      selectCount: 1,
+      showGif: false,
+      compressSize: 1024,
+    );
+
+    List<File> fileList = [];
+    await Future.forEach(res, (element) async {
+      final entity = element;
+      final file = File(entity.path ?? '');
+      fileList.add(file);
+    });
+    print('=====fileList====$fileList');
+
+    // messageSendHandler(context, fileList);
+  }
+
+  Future sendVideoMessageSend(BuildContext context, List<File> images) async {
+    for (final result in images) {
+      // OXLoading.show();
+      final bytes = await result.readAsBytes();
+      final uint8list = await VideoCompress.getByteThumbnail(result.path,
+          quality: 50, // default(100)
+          position: -1 // default(-1)
+      );
+      final image = await decodeImageFromList(uint8list!);
+      Directory directory = await getTemporaryDirectory();
+      String thumbnailDirPath = '${directory.path}/thumbnails';
+      await Directory(thumbnailDirPath).create(recursive: true);
+
+      // Save the thumbnail to a file
+      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
+      File thumbnailFile = File(thumbnailPath);
+      await thumbnailFile.writeAsBytes(uint8list);
+
+      String message_id = const Uuid().v4();
+      String fileName = '${message_id}${Path.basename(result.path)}';
+      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+
+      // _placeholderImage = thumbnailFile;
+      setState(() {});
+      // uri: thumbnailPath,
+      //
+      //   height: image.height.toDouble(),
+      // metadata: {
+      // "videoUrl": result.path.toString(),
+      // },
+      // uri: thumbnailPath,
+      // width: image.width.toDouble(),
+      // ChatVideoPlayPage
+      // FileImage(File(uri));
+    }
   }
 }

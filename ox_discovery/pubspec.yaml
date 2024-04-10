@@ -15,8 +15,8 @@ dependencies:
   avatar_stack: any
 #  carousel_slider: ^4.1.1
   flutter_carousel_widget: ^1.2.3
+  path: ^1.8.0
   video_compress: ^3.1.2
-
 
   ox_module_service:
     path: ../../base_framework/ox_module_service
