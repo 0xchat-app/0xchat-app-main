@@ -3,17 +3,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
-import 'package:uuid/uuid.dart';
-import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:video_compress/video_compress.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets.dart';
@@ -23,8 +18,11 @@ import '../widgets/nine_palace_grid_picture_widget.dart';
 
 class CreateMomentsPage extends StatefulWidget {
   final EMomentType type;
-
-  CreateMomentsPage({Key? key, required this.type}) : super(key: key);
+  final List<String>? imageList;
+  final String? videoPath;
+  final String? videoImagePath;
+  const CreateMomentsPage({Key? key, required this.type, this.imageList,this.videoPath,this.videoImagePath})
+      : super(key: key);
 
   @override
   State<CreateMomentsPage> createState() => _CreateMomentsPageState();
@@ -32,6 +30,8 @@ class CreateMomentsPage extends StatefulWidget {
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
   File? _placeholderImage;
+
+  List<String> addImageList = [];
 
   bool _isInputFocused = false;
 
@@ -149,25 +149,25 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _pictureWidget() {
-    return widget.type != EMomentType.picture
-        ? const SizedBox()
-        : NinePalaceGridPictureWidget(isEdit:true);
+    if (widget.type != EMomentType.picture) return const SizedBox();
+    return NinePalaceGridPictureWidget(
+      isEdit: true,
+      imageList: _getImageList(),
+      addImageCallback: (List<String> newImageList) {
+        addImageList = [...addImageList, ...newImageList];
+        setState(() {});
+      },
+    );
   }
 
   Widget _videoWidget() {
     if (widget.type != EMomentType.video) return const SizedBox();
-    return GestureDetector(
-      onTap: () {
-        _goToPhoto(context, 2);
-      },
-      child: MomentWidgets.videoMoment(),
-    );
+    return MomentWidgets.videoMoment(context,widget.videoPath ?? '',widget.videoImagePath ?? '');
   }
 
   Widget _quoteWidget() {
-    return widget.type != EMomentType.quote
-        ? const SizedBox()
-        : HorizontalScrollWidget();
+    if (widget.type != EMomentType.quote) return const SizedBox();
+    return HorizontalScrollWidget();
   }
 
   Widget _captionWidget() {
@@ -263,65 +263,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
-  Future<void> _goToPhoto(BuildContext context, int type) async {
-    // type: 1 - image, 2 - video
-    final isVideo = type == 2;
-    final messageSendHandler = this.sendVideoMessageSend;
-
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
-      selectCount: 1,
-      showGif: false,
-      compressSize: 1024,
-    );
-
-    List<File> fileList = [];
-    await Future.forEach(res, (element) async {
-      final entity = element;
-      final file = File(entity.path ?? '');
-      fileList.add(file);
-    });
-
-    messageSendHandler(context, fileList);
-  }
-
-  Future sendVideoMessageSend(BuildContext context, List<File> images) async {
-    for (final result in images) {
-      // OXLoading.show();
-      final bytes = await result.readAsBytes();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-          );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      _placeholderImage = thumbnailFile;
-      setState(() {});
-      // uri: thumbnailPath,
-      //
-      //   height: image.height.toDouble(),
-      // metadata: {
-      // "videoUrl": result.path.toString(),
-      // },
-      // uri: thumbnailPath,
-      // width: image.width.toDouble(),
-      // ChatVideoPlayPage
-      // FileImage(File(uri));
-    }
-  }
-
   void _visibleToUser() {
     OXNavigator.presentPage(
         context, (context) => const VisibilitySelectionPage());
@@ -329,5 +270,13 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   void _postMoment() {
     OXNavigator.pop(context);
+  }
+
+  List<String> _getImageList() {
+    List<String> containsImageList = [
+      ...widget.imageList ?? [],
+      ...addImageList
+    ];
+    return containsImageList;
   }
 }

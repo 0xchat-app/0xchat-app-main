@@ -5,14 +5,14 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/moment_rich_text.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
-import '../enum/moment_enum.dart';
-import '../model/moment_model.dart';
 
 class MomentWidgets {
   static Widget clipImage({
-    required String imageName,
     required double borderRadius,
+    String? imageName,
+    Widget? child,
     double imageHeight = 20,
     double imageWidth = 20,
     double? imageSize,
@@ -22,12 +22,13 @@ class MomentWidgets {
       borderRadius: BorderRadius.circular(
         borderRadius,
       ),
-      child: CommonImage(
-        iconName: imageName,
-        width: imageSize ?? imageWidth,
-        height: imageSize ?? imageHeight,
-        package: package,
-      ),
+      child: child ??
+          CommonImage(
+            iconName: imageName ?? '',
+            width: imageSize ?? imageWidth,
+            height: imageSize ?? imageHeight,
+            package: package,
+          ),
     );
   }
 
@@ -107,9 +108,13 @@ class MomentWidgets {
     );
   }
 
-  static Widget videoMoment(){
+  static Widget videoMoment(context, String videoUrl, String? videoImagePath) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        OXModuleService.pushPage(context, 'ox_chat', 'ChatVideoPlayPage', {
+          'videoUrl': videoUrl,
+        });
+      },
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -128,12 +133,22 @@ class MomentWidgets {
             width: 210.px,
             height: 154.px,
           ),
+          MomentWidgets.clipImage(
+            borderRadius: 16,
+            child: videoImagePath != null
+                ? Image.asset(
+                    videoImagePath,
+                    width: 210.px,
+                    fit: BoxFit.fill,
+                  )
+                : const SizedBox(),
+          ),
           CommonImage(
             iconName: 'play_moment_icon.png',
             package: 'ox_discovery',
             size: 60.0.px,
             color: Colors.white,
-          ),
+          )
         ],
       ),
     );

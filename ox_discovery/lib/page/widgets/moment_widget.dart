@@ -68,13 +68,14 @@ class _MomentWidgetState extends State<MomentWidget> {
       case EMomentType.picture:
         contentWidget = NinePalaceGridPictureWidget(
           width: 248.px,
+          imageList: [],
         ).setPadding(EdgeInsets.only(bottom: 12.px));
         break;
       case EMomentType.quote:
         contentWidget = HorizontalScrollWidget();
         break;
       case EMomentType.video:
-        contentWidget = MomentWidgets.videoMoment();
+        contentWidget = MomentWidgets.videoMoment(context,'',null);
         break;
       case EMomentType.content:
         break;

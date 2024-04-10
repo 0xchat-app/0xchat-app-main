@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'dart:ui';
 
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
@@ -32,15 +33,9 @@ import '../enum/moment_enum.dart';
 import 'moments/create_moments_page.dart';
 import 'moments/public_moments_page.dart';
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as Path;
-import '../../enum/moment_enum.dart';
-import '../../utils/moment_widgets.dart';
-
-
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({Key? key}) : super(key: key);
@@ -50,7 +45,12 @@ class DiscoveryPage extends StatefulWidget {
 }
 
 class _DiscoveryPageState extends State<DiscoveryPage>
-    with AutomaticKeepAliveClientMixin, OXUserInfoObserver, WidgetsBindingObserver, OXRelayObserver, CommonStateViewMixin {
+    with
+        AutomaticKeepAliveClientMixin,
+        OXUserInfoObserver,
+        WidgetsBindingObserver,
+        OXRelayObserver,
+        CommonStateViewMixin {
   final RefreshController _refreshController = RefreshController();
   late Image _placeholderImage;
 
@@ -101,7 +101,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(Localized.text('ox_discovery.discovery'), TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor)).width;
+    double mm = boundingTextSize(
+            Localized.text('ox_discovery.discovery'),
+            TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(20),
+                color: ThemeColor.titleColor))
+        .width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: AppBar(
@@ -119,7 +125,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               package: 'ox_discovery',
             ),
             onTap: () {
-              showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildBottomDialog());
+              showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => _buildBottomDialog());
             },
           ),
           SizedBox(
@@ -134,8 +143,14 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             Container(
               constraints: BoxConstraints(maxWidth: mm),
               child: GradientText(Localized.text('ox_discovery.discovery'),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: Adapt.px(20), color: ThemeColor.titleColor),
-                  colors: [ThemeColor.gradientMainStart, ThemeColor.gradientMainEnd]),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Adapt.px(20),
+                      color: ThemeColor.titleColor),
+                  colors: [
+                    ThemeColor.gradientMainStart,
+                    ThemeColor.gradientMainEnd
+                  ]),
             ),
             SizedBox(
               width: Adapt.px(24),
@@ -152,7 +167,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         enablePullUp: false,
         onRefresh: _onRefresh,
         onLoading: null,
-        child: SingleChildScrollView(
+        child: const SingleChildScrollView(
           child: Column(
             children: [
               // _topSearch(),
@@ -167,7 +182,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
   Widget bodyWidget() {
     return ListView.builder(
-      padding: EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
+      padding: EdgeInsets.only(
+          left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
       primary: false,
       controller: null,
       physics: const NeverScrollableScrollPhysics(),
@@ -183,9 +199,9 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   }
 
   void _onRefresh() async {
-    if(_currentIndex.value == 2){
+    if (_currentIndex.value == 2) {
       _getLatestChannelList();
-    }else{
+    } else {
       _getHotChannels(type: _currentIndex.value + 1);
     }
     _refreshController.refreshCompleted();
@@ -205,7 +221,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                   child: Container(
                       decoration: BoxDecoration(
                         color: ThemeColor.color190,
-                        borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
+                        borderRadius:
+                            BorderRadius.all(Radius.circular(Adapt.px(16))),
                       ),
                       child: Column(
                         children: [
@@ -222,14 +239,16 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                         imageUrl: item?.picture ?? '',
                                         fit: BoxFit.cover,
                                         width: double.infinity,
-                                        errorWidget: (context,url,error) => _placeholderImage,
+                                        errorWidget: (context, url, error) =>
+                                            _placeholderImage,
                                       ),
                                     ),
                                   ),
                                   Positioned.fill(
                                     child: ClipRect(
                                       child: BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                        filter: ImageFilter.blur(
+                                            sigmaX: 6, sigmaY: 6),
                                         child: Container(
                                           color: Colors.transparent,
                                         ),
@@ -239,21 +258,27 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                                 ],
                               ),
                               Container(
-                                margin: EdgeInsets.only(left: Adapt.px(20), top: Adapt.px(53)),
+                                margin: EdgeInsets.only(
+                                    left: Adapt.px(20), top: Adapt.px(53)),
                                 padding: EdgeInsets.all(Adapt.px(1)),
                                 decoration: BoxDecoration(
                                   color: ThemeColor.color190,
-                                  border: Border.all(color: ThemeColor.color180, width: Adapt.px(3)),
-                                  borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
+                                  border: Border.all(
+                                      color: ThemeColor.color180,
+                                      width: Adapt.px(3)),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(Adapt.px(8))),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4))),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(Adapt.px(4))),
                                   child: OXCachedNetworkImage(
                                     imageUrl: item?.picture ?? '',
                                     height: Adapt.px(60),
                                     width: Adapt.px(60),
                                     fit: BoxFit.cover,
-                                    errorWidget: (context,url,error) => _placeholderImage,
+                                    errorWidget: (context, url, error) =>
+                                        _placeholderImage,
                                   ),
                                 ),
                               )
@@ -263,17 +288,22 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                             height: Adapt.px(10),
                           ),
                           Container(
-                            margin: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
+                            margin: EdgeInsets.only(
+                                left: Adapt.px(16), right: Adapt.px(16)),
                             alignment: Alignment.bottomLeft,
                             child: Text(
                               item?.channelName ?? '',
                               maxLines: 1,
-                              style: TextStyle(color: ThemeColor.color0, fontSize: 24, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: ThemeColor.color0,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                           Container(
                             height: Adapt.px(20),
-                            margin: EdgeInsets.only(left: Adapt.px(16), right: Adapt.px(16)),
+                            margin: EdgeInsets.only(
+                                left: Adapt.px(16), right: Adapt.px(16)),
                             alignment: Alignment.bottomLeft,
                             child: FutureBuilder(
                                 future: _getCreator(item?.owner ?? ''),
@@ -299,23 +329,32 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                               ),
                               FutureBuilder(
                                 initialData: const [].cast<String>(),
-                                future: _getChannelMembersAvatars(item?.latestChatUsers ?? []),
+                                future: _getChannelMembersAvatars(
+                                    item?.latestChatUsers ?? []),
                                 builder: (context, snapshot) {
                                   List<String> avatars = snapshot.data ?? [];
-                                  return avatars.isEmpty ? const SizedBox() : _buildAvatarStack(avatars);
+                                  return avatars.isEmpty
+                                      ? const SizedBox()
+                                      : _buildAvatarStack(avatars);
                                 },
                               ),
-                              item?.msgCount != null ? Expanded(
-                                child: Text(
-                                  '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
-                                  style: TextStyle(
-                                    fontSize: Adapt.px(13),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ):Container(),
+                              item?.msgCount != null
+                                  ? Expanded(
+                                      child: Text(
+                                        '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
+                                        style: TextStyle(
+                                          fontSize: Adapt.px(13),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
                             ],
-                          ).setPadding(EdgeInsets.only(bottom: Adapt.px(item?.msgCount !=null || item?.latestChatUsers !=null ? 20 : 0))),
+                          ).setPadding(EdgeInsets.only(
+                              bottom: Adapt.px(item?.msgCount != null ||
+                                      item?.latestChatUsers != null
+                                  ? 20
+                                  : 0))),
                         ],
                       )),
                 )),
@@ -323,7 +362,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
               if (isLogin) {
                 LogUtil.e("groupId : ${item?.channelId}");
-                OXModuleService.pushPage(context, 'ox_chat', 'ChatGroupMessagePage', {
+                OXModuleService.pushPage(
+                    context, 'ox_chat', 'ChatGroupMessagePage', {
                   'chatId': item?.channelId,
                   'chatName': item?.channelName,
                   'chatType': ChatType.chatChannel,
@@ -332,7 +372,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                   'groupId': item?.channelId,
                 });
               } else {
-                await OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+                await OXModuleService.pushPage(
+                    context, "ox_login", "LoginPage", {});
               }
             },
           ));
@@ -340,7 +381,6 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   }
 
   Widget _buildAvatarStack(List<String> avatarURLs) {
-
     final avatarCount = min(avatarURLs.length, 4);
     avatarURLs = avatarURLs.sublist(0, avatarCount);
 
@@ -365,17 +405,21 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             laying: StackLaying.first),
         borderColor: ThemeColor.color180,
         height: Adapt.px(32),
-        avatars: avatarURLs.map((url) {
-          if (url.isEmpty) {
-            return const AssetImage('assets/images/user_image.png', package: 'ox_common');
-          } else {
-            return OXCachedNetworkImageProviderEx.create(
-              context,
-              url,
-              height: Adapt.px(26),
-            );
-          }
-        }).toList().cast<ImageProvider>(),
+        avatars: avatarURLs
+            .map((url) {
+              if (url.isEmpty) {
+                return const AssetImage('assets/images/user_image.png',
+                    package: 'ox_common');
+              } else {
+                return OXCachedNetworkImageProviderEx.create(
+                  context,
+                  url,
+                  height: Adapt.px(26),
+                );
+              }
+            })
+            .toList()
+            .cast<ImageProvider>(),
       ),
     );
   }
@@ -405,7 +449,12 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           children: [
             Container(
               margin: EdgeInsets.only(left: Adapt.px(18)),
-              child: CommonImage(iconName: 'icon_chat_search.png', width: Adapt.px(24), height: Adapt.px(24), fit: BoxFit.cover, package: 'ox_chat'),
+              child: CommonImage(
+                  iconName: 'icon_chat_search.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                  fit: BoxFit.cover,
+                  package: 'ox_chat'),
             ),
             SizedBox(
               width: Adapt.px(8),
@@ -424,11 +473,15 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     );
   }
 
-  static Size boundingTextSize(String text, TextStyle style, {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
+  static Size boundingTextSize(String text, TextStyle style,
+      {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
     if (text.isEmpty) {
       return Size.zero;
     }
-    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr, text: TextSpan(text: text, style: style), maxLines: maxLines)
+    final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(text: text, style: style),
+        maxLines: maxLines)
       ..layout(maxWidth: maxWidth);
     return textPainter.size;
   }
@@ -443,7 +496,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           ),
           Text(
             leftTitle,
-            style: TextStyle(color: ThemeColor.titleColor, fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: ThemeColor.titleColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           // CommonImage(
@@ -459,8 +515,10 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     );
   }
 
-  Future<void> _getHotChannels({required int type,BuildContext? context}) async {
-    List<ChannelModel> channels = await getHotChannels(type: type,context: context);
+  Future<void> _getHotChannels(
+      {required int type, BuildContext? context}) async {
+    List<ChannelModel> channels =
+        await getHotChannels(type: type, context: context);
 
     if (channels.isEmpty) {
       setState(() {
@@ -501,7 +559,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   Future<void> _getLatestChannelList() async {
     try {
       OXLoading.show(status: Localized.text('ox_common.loading'));
-      List<ChannelDB> channelDBList = await Channels.sharedInstance.getChannelsFromRelay();
+      List<ChannelDB> channelDBList =
+          await Channels.sharedInstance.getChannelsFromRelay();
       OXLoading.dismiss();
       List<ChannelModel> channels = channelDBList
           .map((channelDB) => ChannelModel.fromChannelDB(channelDB))
@@ -526,7 +585,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color:  ThemeColor.color180,
+        color: ThemeColor.color180,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -536,10 +595,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 0,
             onTap: () {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(
-                context,
-                    (context) => CreateMomentsPage(type:EMomentType.picture),
-              );
+              _openCamera(context);
             },
           ),
           Divider(
@@ -551,7 +607,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              _goToPhoto(context,1);
+              _goToAlbum(context, 1);
               // OXNavigator.presentPage(
               //   context,
               //       (context) => CreateMomentsPage(type:EMomentType.video),
@@ -567,10 +623,11 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(
-                context,
-                    (context) => CreateMomentsPage(type:EMomentType.video),
-              );
+              _goToAlbum(context, 2);
+              // OXNavigator.presentPage(
+              //   context,
+              //       (context) => CreateMomentsPage(type:EMomentType.video),
+              // );
             },
           ),
           Divider(
@@ -592,7 +649,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     );
   }
 
-  Widget _buildItem(String title, {required int index, GestureTapCallback? onTap}) {
+  Widget _buildItem(String title,
+      {required int index, GestureTapCallback? onTap}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       child: Container(
@@ -636,14 +694,12 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
   @override
   void didAddRelay(RelayModel? relayModel) {
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
   void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -659,16 +715,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     if (mounted) setState(() {});
   }
 
-  Future<void> _goToPhoto(BuildContext context, int type) async {
-    // type: 1 - image, 2 - video
+  Future<void> _goToAlbum(BuildContext context, int type) async {
     final isVideo = type == 2;
-    // final messageSendHandler = this.sendVideoMessageSend;
-
-    // if()
+    final messageSendHandler = isVideo ? _dealWithVideo : _dealWithPicture;
 
     final res = await ImagePickerUtils.pickerPaths(
       galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
-      selectCount: 1,
+      selectCount: 9,
       showGif: false,
       compressSize: 1024,
     );
@@ -679,19 +732,32 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       final file = File(entity.path ?? '');
       fileList.add(file);
     });
-    print('=====fileList====$fileList');
 
-    // messageSendHandler(context, fileList);
+    messageSendHandler(context, fileList);
   }
 
-  Future sendVideoMessageSend(BuildContext context, List<File> images) async {
+  Future _dealWithPicture(BuildContext context, List<File> images) async {
+    List<String> imageList = [];
+    for (final result in images) {
+      String fileName = Path.basename(result.path);
+      fileName = fileName.substring(13);
+      imageList.add(result.path.toString());
+    }
+
+    OXNavigator.presentPage(
+      context,
+      (context) =>
+          CreateMomentsPage(type: EMomentType.picture, imageList: imageList),
+    );
+  }
+
+  Future _dealWithVideo(BuildContext context, List<File> images) async {
     for (final result in images) {
       // OXLoading.show();
-      final bytes = await result.readAsBytes();
       final uint8list = await VideoCompress.getByteThumbnail(result.path,
           quality: 50, // default(100)
           position: -1 // default(-1)
-      );
+          );
       final image = await decodeImageFromList(uint8list!);
       Directory directory = await getTemporaryDirectory();
       String thumbnailDirPath = '${directory.path}/thumbnails';
@@ -702,22 +768,24 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       File thumbnailFile = File(thumbnailPath);
       await thumbnailFile.writeAsBytes(uint8list);
 
-      String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      // _placeholderImage = thumbnailFile;
-      setState(() {});
-      // uri: thumbnailPath,
-      //
-      //   height: image.height.toDouble(),
-      // metadata: {
-      // "videoUrl": result.path.toString(),
-      // },
-      // uri: thumbnailPath,
-      // width: image.width.toDouble(),
-      // ChatVideoPlayPage
-      // FileImage(File(uri));
+      OXNavigator.presentPage(
+        context,
+        (context) => CreateMomentsPage(
+          type: EMomentType.video,
+          videoPath: result.path.toString(),
+          videoImagePath: thumbnailPath,
+        ),
+      );
     }
+  }
+
+  Future<void> _openCamera(BuildContext context) async {
+    Media? res = await ImagePickerUtils.openCamera(
+      cameraMimeType: CameraMimeType.photo,
+      compressSize: 1024,
+    );
+    if(res == null) return;
+    final file = File(res.path ?? '');
+    _dealWithPicture(context,[file]);
   }
 }
