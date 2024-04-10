@@ -72,6 +72,8 @@
   "cancel_purchase": "Atcelt pirkumu",
   "pay_invoice_title": "Apmaksāt rēķinu",
   "copy_invoice_title": "Kopēt rēķinu",
+  "select_ecash_wallet_title": "Izvēlieties Ecash maku",
+  "my_ecash_mallet": "Mans Ecash mak",
   "select_wallet_title": "Izvēlēties Lighting maksa",
   "select": "Izvēlēties",
   "selected": "Izvēlēts",

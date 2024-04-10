@@ -13,6 +13,7 @@ import 'package:ox_wallet/page/wallet_send_lightning_page.dart';
 import 'package:ox_wallet/page/wallet_successful_page.dart';
 import 'package:ox_wallet/page/wallet_transaction_record.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
+import 'package:ox_wallet/services/ecash_network_interceptor.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
 
 class OXWallet extends OXFlutterModule {
@@ -39,10 +40,10 @@ class OXWallet extends OXFlutterModule {
         return OXNavigator.pushPage(
           context,
           (context) => WalletSendLightningPage(
-            external: {
-              'invoice': params?['invoice'],
-              'amount': params?['amount']
-            },
+            defaultInvoice: (
+              invoice: params?['invoice'] ?? '',
+              amount: params?['amount'] ?? '',
+            ),
           ),
         );
       case 'WalletTransactionRecord':
@@ -62,6 +63,7 @@ class OXWallet extends OXFlutterModule {
     'buildMintIndicatorItem': buildMintIndicatorItem,
     'checkWalletActivate': checkWalletActivate,
     'openWalletHomePage': openWalletHomePage,
+    'walletSendLightningPage': walletSendLightningPage,
   };
 
   @override
@@ -70,6 +72,8 @@ class OXWallet extends OXFlutterModule {
     OXUserInfoManager.sharedInstance.initDataActions.add(() async {
       await EcashManager.shared.setup();
     });
+
+    CashuConfig.addNetworkInterceptor(EcashNetworkInterceptor());
   }
 
   Widget walletPageWidget(BuildContext context) {
@@ -118,14 +122,32 @@ class OXWallet extends OXFlutterModule {
   }
 
   void openWalletHomePage() {
+    if (!EcashManager.shared.isWalletSafeTipsSeen) {
+      OXNavigator.pushPage(null, (context) => WalletSafetyTipsPage(
+        nextStepHandler: (context) {
+          EcashManager.shared.setWalletSafeTipsSeen();
+          if (EcashManager.shared.isWalletAvailable) {
+            OXNavigator.pushReplacement(context, const WalletHomePage(),);
+          } else {
+            OXNavigator.pushReplacement(context, const WalletPage());
+          }
+        },
+      ),);
+      return ;
+    }
+
     if (EcashManager.shared.isWalletAvailable) {
       OXNavigator.pushPage(null, (context) => const WalletHomePage(),);
     } else {
-      OXNavigator.pushPage(null, (context) => WalletSafetyTipsPage(
-        nextStepHandler: (context) {
-          OXNavigator.pushReplacement(context, const WalletPage());
-        },
-      ),);
+      OXNavigator.pushPage(null, (context) => const WalletPage(),);
     }
   }
+
+  Widget walletSendLightningPage({String? invoice, String? amount}) =>
+      WalletSendLightningPage(
+        defaultInvoice: (
+        invoice: invoice ?? '',
+        amount: amount ?? '',
+        ),
+      );
 }

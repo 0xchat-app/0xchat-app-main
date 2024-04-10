@@ -72,6 +72,8 @@
   "cancel_purchase": "Cancelar compra",
   "pay_invoice_title": "Pagar a fatura relâmpago",
   "copy_invoice_title": "Copiar fatura",
+  "select_ecash_wallet_title": "Selecionar carteira Ecash",
+  "my_ecash_mallet": "Minha carteira Ecash",
   "select_wallet_title": "Selecione uma carteira relâmpago",
   "select": "Selecionar",
   "selected": "Selecionado",

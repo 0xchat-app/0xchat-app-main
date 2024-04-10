@@ -72,6 +72,8 @@
   "cancel_purchase": "Avbryt köp",
   "pay_invoice_title": "Betala blixtfakturan",
   "copy_invoice_title": "Kopiera faktura",
+  "select_ecash_wallet_title": "Välj Ecash plånbok",
+  "my_ecash_mallet": "Min Ecash plånbok",
   "select_wallet_title": "Välj en blixtplånbok",
   "select": "Välj",
   "selected": "Vald",

@@ -72,6 +72,8 @@
   "cancel_purchase": "Annuler l'achat",
   "pay_invoice_title": "Payer la facture éclair",
   "copy_invoice_title": "Copier la facture",
+  "select_ecash_wallet_title": "Sélectionnez le portefeuille Ecash",
+  "my_ecash_mallet": "Mon portefeuille Ecash",
   "select_wallet_title": "Sélectionnez un portefeuille éclair",
   "select": "Sélectionner",
   "selected": "Sélectionné",

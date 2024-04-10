@@ -16,6 +16,7 @@ import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 enum ItemType{
   redeemEcash,
@@ -44,15 +45,15 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     _receiveBottomSheetOptions = [
       BottomSheetItem(
         iconName: 'icon_copy.png',
-        title: 'Redeem Ecash',
-        subTitle: 'Paste & redeem a Cashu token form Clipboard.',
+        title: Localized.text('ox_wallet.redeem_ecash_title'),
+        subTitle: Localized.text('ox_wallet.redeem_ecash_instruction'),
         enable: false,
         onTap: _redeemCashuToken,
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
-        title: 'Deposit Ecash',
-        subTitle: 'Deposit Ecash by Paying a Lightning invoice',
+        title: Localized.text('ox_wallet.deposit_ecash_title'),
+        subTitle: Localized.text('ox_wallet.deposit_ecash_instruction'),
         onTap: () => _handlePageAction(ItemType.depositEcash),
       )
     ];
@@ -60,14 +61,14 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     _sendBottomSheetOptions = [
       BottomSheetItem(
         iconName: 'icon_wallet_send.png',
-        title: 'Send Ecash',
-        subTitle: 'Create a Cashu token and send.',
+        title: Localized.text('ox_wallet.send_ecash_title'),
+        subTitle: Localized.text('ox_wallet.send_ecash_instruction'),
         onTap: () => _handlePageAction(ItemType.sendEcash),
       ),
       BottomSheetItem(
         iconName: 'icon_wallet_lightning.png',
-        title: 'Withdraw Ecash',
-        subTitle: 'Withdraw your funds to a lightning node.',
+        title: Localized.text('ox_wallet.withdraw_ecash_title'),
+        subTitle: Localized.text('ox_wallet.withdraw_ecash_instruction'),
         onTap: () => _handlePageAction(ItemType.withdrawEcash),
       )
     ];
@@ -98,19 +99,24 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               NavigationBarItem(
-                label: 'Receive',
+                label: Localized.text('ox_wallet.receive_text'),
                 iconName: 'icon_transaction_receive.png',
                 onTap: () => ShowModalBottomSheet.showOptionsBottomSheet(context, title: 'Receive', options: _receiveBottomSheetOptions),
               ),
-              NavigationBarItem(label: 'Scan',iconName: 'icon_wallet_scan.png',onTap: () => WalletUtils.gotoScan(context, (result) => ScanUtils.analysis(context, result)),),
+              NavigationBarItem(
+                label: Localized.text('ox_wallet.scan_text'),
+                iconName: 'icon_wallet_scan.png',
+                onTap: () => WalletUtils.gotoScan(
+                    context, (result) => ScanUtils.analysis(context, result)),
+              ),
               if (isShowSwap)
                 NavigationBarItem(
-                  label: 'Swap',
+                  label: Localized.text('ox_wallet.swap_text'),
                   iconName: 'icon_swap.png',
                   onTap: () => OXNavigator.pushPage(context, (context) => const WalletSwapEcashPage()),
                 ),
               NavigationBarItem(
-                label: 'Send',
+                label: Localized.text('ox_wallet.send_text'),
                 iconName: 'icon_transaction_send.png',
                 onTap: () => ShowModalBottomSheet.showOptionsBottomSheet(context, title: 'Send', options: _sendBottomSheetOptions),
               ),
@@ -135,10 +141,10 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
         final (memo, amount) = result.data;
         if(context.mounted) await OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.redeemClaimed(amount: amount.toString(),content: memo,onTap: () => OXNavigator.pop(context!),));
       }else{
-        _showToast('Not a valid cashu token, Please re-enter');
+        _showToast(Localized.text('ox_wallet.valid_cashu_token_tips'));
       }
     }else {
-      _showToast('The clipboard has no content');
+      _showToast(Localized.text('ox_wallet.clipboard_no_content_tips'));
     }
     if(context.mounted) OXNavigator.pop(context);
   }

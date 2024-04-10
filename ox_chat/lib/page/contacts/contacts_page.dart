@@ -6,8 +6,11 @@ import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
+import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -33,21 +36,33 @@ class _ContractsPageState extends State<ContractsPage>
         SingleTickerProviderStateMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver {
-  int _selectedIndex = 0;
+  ContactsItemType _selectedType = ContactsItemType.contact;
   final PageController _pageController = PageController();
   bool _isShowTools = false;
-  final tabItems = [
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
-    CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
-  ];
+  late List<CommonCategoryTitleItem> tabItems;
+  int _addGroupRequestCount = 0;
 
   @override
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
+    Localized.addLocaleChangedCallback(onLocaleChange);
+    _loadData();
+  }
+
+  void _loadData() {
     _isShowTools = OXUserInfoManager.sharedInstance.isLogin;
+    tabItems = [
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
+      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
+    ];
+  }
+
+  onLocaleChange() {
+    _loadData();
+    if (mounted) setState(() {});
   }
 
   @override
@@ -81,15 +96,15 @@ class _ContractsPageState extends State<ContractsPage>
             items: tabItems,
             onTap: (int value) {
               setState(() {
-                _selectedIndex = value;
+                _selectedType = ContactsItemType.values.elementAt(value);
               });
               _pageController.animateToPage(
-                _selectedIndex,
+                value,
                 duration: const Duration(milliseconds: 2),
                 curve: Curves.linear,
               );
             },
-            selectedIndex: _selectedIndex,
+            selectedIndex: _selectedType.index,
           ),
         ),
         actions: <Widget>[
@@ -118,9 +133,11 @@ class _ContractsPageState extends State<ContractsPage>
         physics: const BouncingScrollPhysics(),
         controller: _pageController,
         onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          _selectedType = ContactsItemType.values.elementAt(index);
+          if (_selectedType == ContactsItemType.group) {
+            _getRequestAddGroupLength();
+          }
+          setState(() {});
         },
         children: [
           ContractViewFriends(
@@ -176,8 +193,12 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   Widget _unReadCount() {
-    int _unReadStrangerSessionCount =
-        OXChatBinding.sharedInstance.unReadStrangerSessionCount;
+    int _unReadStrangerSessionCount = 0;
+    if (_selectedType == ContactsItemType.contact) {
+      _unReadStrangerSessionCount = OXChatBinding.sharedInstance.unReadStrangerSessionCount;
+    } else if (_selectedType == ContactsItemType.group) {
+        _unReadStrangerSessionCount = _addGroupRequestCount;
+    }
     if (_unReadStrangerSessionCount > 0 && _unReadStrangerSessionCount < 10) {
       return ClipOval(
         child: Container(
@@ -234,15 +255,7 @@ class _ContractsPageState extends State<ContractsPage>
       children: [
         InkWell(
           onTap: () {
-            if (_selectedIndex == 0) {
-              SearchPage(
-                searchPageType: SearchPageType.singleFriend,
-              ).show(context);
-            } else if (_selectedIndex == 1) {
-              SearchPage(
-                searchPageType: SearchPageType.singleChannel,
-              ).show(context);
-            }
+            SearchPage(searchPageType: SearchPageType.all).show(context);
           },
           child: Container(
             width: double.infinity,
@@ -272,8 +285,7 @@ class _ContractsPageState extends State<ContractsPage>
                   width: Adapt.px(8),
                 ),
                 MyText(
-                  'search'.localized() +
-                      (_selectedIndex == 0 ? 'search_tips_suffix_friend'.localized() : 'search_tips_suffix_channel'.localized()),
+                  'search'.localized(),
                   15,
                   ThemeColor.color150,
                   fontWeight: FontWeight.w400,
@@ -285,22 +297,23 @@ class _ContractsPageState extends State<ContractsPage>
         if (_isShowTools)
           Container(
             alignment: Alignment.centerLeft,
-            height: Adapt.px(68),
+            height: _selectedType != ContactsItemType.channel ? 68.px : 24.px,
             color: ThemeColor.color200,
             child: ListView.builder(
                 padding: EdgeInsets.only(left: Adapt.px(24)),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                itemCount: 2,
+                itemCount: _getButtonCount(),
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return _inkWellWidget(
-                        content: Localized.text('ox_chat.string_request_title'),
+                        content: Localized.text(_selectedType == ContactsItemType.group ? 'ox_chat.join_request' : 'ox_chat.string_request_title'),
                         onTap: () {
-                          OXNavigator.pushPage(
-                            context,
-                                (context) => ContactRequest(),
-                          );
+                          if (_selectedType == ContactsItemType.group) {
+                            OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId: null));
+                          } else {
+                            OXNavigator.pushPage(context, (context) => ContactRequest());
+                          }
                         });
                   }
                   return _inkWellWidget(
@@ -319,20 +332,45 @@ class _ContractsPageState extends State<ContractsPage>
                       }
                     },
                   );
-
-                  return Container();
                 }),
           ),
       ],
     );
   }
 
+  void _getRequestAddGroupLength() async {
+    List<MessageDB> requestJoinList =
+    await Groups.sharedInstance.getRequestList();
+    List<UserRequestInfo> requestList = [];
+    if (requestJoinList.length > 0) {
+      await Future.forEach(requestJoinList, (msgDB) async {
+        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
+        UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
+        String time = OXDateUtils.convertTimeFormatString2(
+            msgDB.createTime * 1000,
+            pattern: 'MM-dd');
+        requestList.add(new UserRequestInfo(
+          messageDB: msgDB,
+          userName: userDB?.name ?? '--',
+          createTime: time,
+          groupName: groupDB?.name ?? '--',
+          userPic: userDB?.picture ?? '--',
+          groupId: msgDB.groupId,
+          content: msgDB.decryptContent,
+          isShowMore: false,
+        ));
+      });
+    }
+    _addGroupRequestCount = requestList.length;
+    setState(() {});
+  }
+
   void _gotoAddFriend() {
     OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
   }
 
-  void _gotoCreateGroup() {
-    OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+  int _getButtonCount(){
+    return _selectedType == ContactsItemType.contact ? 2 : _selectedType == ContactsItemType.group ?  1 : 0;
   }
 
   @override
@@ -364,4 +402,10 @@ class _Style {
       color: Colors.white,
     );
   }
+}
+
+enum ContactsItemType{
+  contact,
+  group,
+  channel,
 }

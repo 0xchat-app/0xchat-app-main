@@ -187,8 +187,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _initData() async {
-    userDB = UserDB(pubKey: widget.pubkey);
-    userDB = await Account.sharedInstance.getUserInfo(widget.pubkey) ?? userDB;
+    userDB = Account.sharedInstance.userCache[widget.pubkey] ?? UserDB(pubKey: widget.pubkey);
     _isMute = userDB.mute ?? false;
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
@@ -312,7 +311,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: Adapt.px(10),
+          vertical: Adapt.px(8),
         ),
         decoration: BoxDecoration(
           color: ThemeColor.color180,
@@ -1112,6 +1111,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       setState(() {
         _isMute = value;
         userDB.mute = value;
+        _initModelList();
       });
     } else {
       CommonToast.instance

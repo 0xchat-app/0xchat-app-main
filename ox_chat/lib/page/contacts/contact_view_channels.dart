@@ -81,15 +81,9 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   void _showView() {
     if (this.mounted) {
       channelsWidgetKey.currentState?.updateContactData(channels);
-      if (channels.length == 0) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-        });
-      }
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
     }
   }
 
@@ -120,29 +114,6 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
       });
     }
     _refreshController.refreshCompleted();
-  }
-
-  // @override
-  // renderNoDataView() => _emptyWidget();
-
-  Widget _emptyWidget() {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: Adapt.px(87)),
-      child: Column(
-        children: <Widget>[
-          assetIcon(
-            'icon_group_no.png',
-            110.0,
-            110.0,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: Adapt.px(20)),
-            child: MyText('no_hotchat_added', 14, ThemeColor.gray02),
-          ),
-        ],
-      ),
-    );
   }
 
   @override

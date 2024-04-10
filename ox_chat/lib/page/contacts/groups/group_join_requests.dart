@@ -4,11 +4,11 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -38,7 +38,7 @@ class UserRequestInfo {
 }
 
 class GroupJoinRequests extends StatefulWidget {
-  final String groupId;
+  final String? groupId;
 
   GroupJoinRequests({required this.groupId});
   @override
@@ -64,14 +64,14 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         await Groups.sharedInstance.getRequestList(groupId: widget.groupId);
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
-      requestJoinList.forEach((MessageDB msgDB) async {
-        GroupDB? groupDB = await Groups.sharedInstance.groups[msgDB.groupId];
+      await Future.forEach(requestJoinList, (msgDB) async {
+        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
         UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
         String time = OXDateUtils.convertTimeFormatString2(
             msgDB.createTime * 1000,
             pattern: 'MM-dd');
-
+        bool _isExpanded = checkIfTextOverflows(msgDB.decryptContent, _contentTextStyle(), 250.px);
         requestList.add(new UserRequestInfo(
           messageDB: msgDB,
           userName: userDB?.name ?? '--',
@@ -80,11 +80,10 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
           userPic: userDB?.picture ?? '--',
           groupId: msgDB.groupId,
           content: msgDB.decryptContent,
-          isShowMore: false,
+          isShowMore: !_isExpanded,
         ));
       });
     }
-
     requestUserList = requestList;
     setState(() {});
   }
@@ -99,28 +98,37 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
         title: Localized.text('ox_chat.join_request'),
         backgroundColor: ThemeColor.color190,
       ),
-      body: Container(
-        child: Column(
-          children: _showRequestsListView(),
-        ),
+      body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          requestUserList.length > 0 ? SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                UserRequestInfo userModel = requestUserList.elementAt(index);
+                return _userRequestItem(userModel);
+              },
+              childCount: requestUserList.length,
+            ),
+          ) : _emptyWidget(),
+        ],
       ),
     );
   }
-  // _emptyWidget
 
-  List<Widget> _showRequestsListView(){
-    if(requestUserList.length == 0) return [_emptyWidget()].toList();
-    return  requestUserList
-        .map((userModel) => _userRequestItem(userModel))
-        .toList();
+  Widget _buildAvatar(UserRequestInfo userInfo) {
+    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender];
+    return OXUserAvatar(
+      user: otherDB,
+      imageUrl: userInfo.userPic,
+      size: Adapt.px(60),
+      isClickable: true,
+      onReturnFromNextPage: () {
+        setState(() { });
+      },
+    );
   }
 
   Widget _userRequestItem(UserRequestInfo userInfo) {
-    Widget placeholderImage = CommonImage(
-      iconName: 'user_image.png',
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-    );
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: Adapt.px(12),
@@ -128,17 +136,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(60),
-            child: OXCachedNetworkImage(
-              errorWidget: (context, url, error) => placeholderImage,
-              placeholder: (context, url) => placeholderImage,
-              fit: BoxFit.fill,
-              imageUrl: userInfo.userPic,
-              width: Adapt.px(60),
-              height: Adapt.px(60),
-            ),
-          ),
+          _buildAvatar(userInfo),
           Expanded(
             child: Container(
               padding: EdgeInsets.only(
@@ -206,16 +204,30 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
               userInfo.content,
               softWrap: userInfo.isShowMore,
               overflow: userInfo.isShowMore ? null : TextOverflow.ellipsis,
-              style: TextStyle(
-                color: ThemeColor.color120,
-                fontSize: Adapt.px(14),
-                fontWeight: FontWeight.w400,
-              ),
+              style: _contentTextStyle(),
             ),
           ),
           _showMoreBtnWidget(userInfo),
         ],
       ),
+    );
+  }
+
+  bool checkIfTextOverflows(String text, TextStyle style, double maxWidth) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+
+    return textPainter.didExceedMaxLines;
+  }
+
+  TextStyle _contentTextStyle(){
+    return TextStyle(
+      color: ThemeColor.color120,
+      fontSize: Adapt.px(14),
+      fontWeight: FontWeight.w400,
     );
   }
 
@@ -245,25 +257,28 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   Widget _emptyWidget() {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: 87.0),
-      child: Column(
-        children: <Widget>[
-          CommonImage(
-            iconName: 'icon_no_login.png',
-            width: Adapt.px(90),
-            height: Adapt.px(90),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: MyText(
-              Localized.text('ox_chat.request_join_no_data'),
-              14,
-              ThemeColor.gray02,
+    return SliverToBoxAdapter(
+      child: Container(
+        alignment: Alignment.topCenter,
+        margin: EdgeInsets.only(top: 87.0),
+        child: Column(
+          children: <Widget>[
+            CommonImage(
+                iconName: 'icon_search_user_no.png',
+                width: Adapt.px(90),
+                height: Adapt.px(90),
+                package: 'ox_chat'
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: MyText(
+                Localized.text('ox_chat.request_join_no_data'),
+                14,
+                ThemeColor.gray02,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -49,7 +49,6 @@ class _DonatePageState extends State<DonatePage> {
   UserDB? _mCurrentUserInfo;
   String _invoice = '';
   int _selectIndex = 1;
-  final double bottomHeight = 80;
   final TextEditingController _customStasTextController = TextEditingController();
   final FocusNode _customStasTextFocusNode = FocusNode();
   bool _isAppleOrGooglePay = false;
@@ -95,13 +94,9 @@ class _DonatePageState extends State<DonatePage> {
 
   void _initData() async {
     _mCurrentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if(Platform.isAndroid) {
-      _isAppleOrGooglePay = false;
-      _setSatsData();
-    } else {
-      await _requestData();
-      _setThirdPay();
-    }
+    _isAppleOrGooglePay = false;
+    _setSatsData();
+    _requestData();
   }
 
   Future<void> initStoreInfo() async {
@@ -308,51 +303,49 @@ class _DonatePageState extends State<DonatePage> {
   }
 
   Widget _body() {
-    return Stack(
+    return Column(
       children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: bottomHeight),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              CommonImage(
-                iconName: 'logo_icon.png',
-                width: Adapt.px(180),
-                height: Adapt.px(180),
-                useTheme: true,
-              ),
-              Text(
-                Localized.text('ox_usercenter.donate_tips'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: Adapt.px(16),
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.color0,
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CommonImage(
+                  iconName: 'logo_icon.png',
+                  width: Adapt.px(180),
+                  height: Adapt.px(180),
+                  useTheme: true,
                 ),
-              ),
-              SizedBox(
-                height: Adapt.px(24),
-              ),
-              DonateSelectedList(
-                title: Localized.text('ox_usercenter.donate_title'),
-                customStasInputBox: Platform.isAndroid ? _buildCustomSatsItem() : null,
-                item: _buildDonateItem(),
-                currentIndex: _selectIndex,
-                onSelected: (index) {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  _customStasTextController.text = donateItems[index].sats.toString();
-                  setState(() {
-                    _selectIndex = index;
-                  });
-                },
-              ),
-            ],
+                Text(
+                  Localized.text('ox_usercenter.donate_tips'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: Adapt.px(16),
+                    fontWeight: FontWeight.w400,
+                    color: ThemeColor.color0,
+                  ),
+                ),
+                SizedBox(
+                  height: Adapt.px(24),
+                ),
+                DonateSelectedList(
+                  title: Localized.text('ox_usercenter.donate_title'),
+                  customStasInputBox: Platform.isAndroid ? _buildCustomSatsItem() : null,
+                  item: _buildDonateItem(),
+                  currentIndex: _selectIndex,
+                  onSelected: (index) {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    _customStasTextController.text = donateItems[index].sats.toString();
+                    setState(() {
+                      _selectIndex = index;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-        Positioned(
-          child: _buildBottomWidget(),
-          bottom: 0,
-        )
+        _buildBottomWidget(),
       ],
     );
   }
@@ -387,9 +380,8 @@ class _DonatePageState extends State<DonatePage> {
   Widget _buildBottomWidget() {
     return Container(
       alignment: Alignment.center,
-      height: Adapt.px(bottomHeight),
       width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.symmetric(horizontal: Adapt.px(24)),
+      padding: EdgeInsets.all(24.px),
       decoration: BoxDecoration(
           color: ThemeColor.color190,
           border: Border(
@@ -397,45 +389,47 @@ class _DonatePageState extends State<DonatePage> {
             width: Adapt.px(0.5),
             color: ThemeColor.color160,
           ))),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () async {
-          FocusScope.of(context).requestFocus(FocusNode());
-          try {
-            if (_isAppleOrGooglePay) {
-              _buyConsumable();
-            } else {
-              if (_selectIndex == -1 && _customStasTextController.text.isEmpty) {
-                CommonToast.instance.show(context, "Please manually enter stas or select any option to make a donation.");
-                return;
-              } else if (_selectIndex == -1 && _customStasTextController.text.isNotEmpty) {
-                await _getInvoice(double.parse(_customStasTextController.text).toInt());
+      child: SafeArea(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () async {
+            FocusScope.of(context).requestFocus(FocusNode());
+            try {
+              if (_isAppleOrGooglePay) {
+                _buyConsumable();
               } else {
-                await _getInvoice(donateItems[_selectIndex].sats);
+                if (_selectIndex == -1 && _customStasTextController.text.isEmpty) {
+                  CommonToast.instance.show(context, "Please manually enter stas or select any option to make a donation.");
+                  return;
+                } else if (_selectIndex == -1 && _customStasTextController.text.isNotEmpty) {
+                  await _getInvoice(double.parse(_customStasTextController.text).toInt());
+                } else {
+                  await _getInvoice(donateItems[_selectIndex].sats);
+                }
+                await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoice});
               }
-              await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoice});
-              }
-          } catch (error) {
-            return;
-          }
-        },
-        child: Container(
-          alignment: Alignment.center,
-          height: Adapt.px(48),
-          decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                colors: [
-                  ThemeColor.gradientMainEnd,
-                  ThemeColor.gradientMainStart,
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )),
-          child: Text(
-            Localized.text('ox_usercenter.donate'),
-            style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0),
+            } catch (error) {
+              return;
+            }
+          },
+          child: Container(
+            alignment: Alignment.center,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+                color: ThemeColor.color180,
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [
+                    ThemeColor.gradientMainEnd,
+                    ThemeColor.gradientMainStart,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )),
+            child: Text(
+              Localized.text('ox_usercenter.donate'),
+              style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color0),
+            ),
           ),
         ),
       ),

@@ -72,6 +72,8 @@
   "cancel_purchase": "إلغاء الشراء",
   "pay_invoice_title": "دفع فاتورة البرق",
   "copy_invoice_title": "نسخ الفاتورة",
+  "select_ecash_wallet_title": "اختر محفظة إيكاش",
+  "my_ecash_mallet": "محفظتي إيكاش",
   "select_wallet_title": "اختر محفظة البرق",
   "select": "اختيار",
   "selected": "مختار",

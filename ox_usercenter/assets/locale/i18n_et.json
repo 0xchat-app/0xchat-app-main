@@ -72,6 +72,8 @@
   "cancel_purchase": "Tühista ost",
   "pay_invoice_title": "Maksa välk arve",
   "copy_invoice_title": "Kopeeri arve",
+  "select_ecash_wallet_title": "Valige Ecash rahakott",
+  "my_ecash_mallet": "Minu Ecash rahakott",
   "select_wallet_title": "Vali valgustus rahakott",
   "select": "Vali",
   "selected": "Valitud",

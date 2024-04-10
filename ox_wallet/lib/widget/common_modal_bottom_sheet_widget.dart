@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class CommonModalBottomSheetWidget extends StatelessWidget {
   final String? title;
@@ -33,7 +34,7 @@ class CommonModalBottomSheetWidget extends StatelessWidget {
           ],
           content ?? _buildButton(label: confirmContent ?? 'Delete',color: confirmContentColor ?? Colors.red,onTap: confirmCallback),
           Container(width:double.infinity,height: 8.px,color: ThemeColor.color190,),
-          _buildButton(label: 'Cancel',onTap: () => OXNavigator.pop(context)),
+          _buildButton(label: Localized.text('ox_wallet.cancel'),onTap: () => OXNavigator.pop(context)),
           SizedBox(height: Adapt.px(bottomHeight),),
         ],
       ),

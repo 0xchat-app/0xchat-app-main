@@ -143,24 +143,24 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   Widget build(BuildContext context) {
     return Material(
       color: ThemeColor.color200,
-      child: userList == null || userList!.isEmpty
-          ? _emptyWidget()
-          : Stack(
-              alignment: AlignmentDirectional.centerEnd,
-              children: <Widget>[
-                CustomScrollView(
-                  slivers: _buildSlivers(context),
-                  physics: widget.physics ?? AlwaysScrollableScrollPhysics(),
-                  shrinkWrap: widget.shrinkWrap,
-                  controller: _scrollController,
-                ),
-                Container(
+      child: Stack(
+        alignment: AlignmentDirectional.centerEnd,
+        children: <Widget>[
+          CustomScrollView(
+            slivers: _buildSlivers(context),
+            physics: widget.physics ?? BouncingScrollPhysics(),
+            shrinkWrap: widget.shrinkWrap,
+            controller: _scrollController,
+          ),
+          userList == null || userList!.isEmpty
+              ? SizedBox()
+              : Container(
                   child: _buildAlphaBar(),
                   width: 30,
                 ),
-                _isTouchTagBar ? _buildCenterModal() : Container(),
-              ],
-            ),
+          _isTouchTagBar ? _buildCenterModal() : Container(),
+        ],
+      ),
     );
   }
 
@@ -273,39 +273,43 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         ),
       );
     }
-    noteList.forEach((item) {
-      slivers.add(
-        SliverStickyHeader(
-          header: Visibility(
-            visible: item.tag != "☆",
-            child: HeaderWidget(
-              tag: item.tag,
+    if (userList == null || userList!.isEmpty) {
+      slivers.add(SliverToBoxAdapter(child: _emptyWidget()));
+    } else {
+      noteList.forEach((item) {
+        slivers.add(
+          SliverStickyHeader(
+            header: Visibility(
+              visible: item.tag != "☆",
+              child: HeaderWidget(
+                tag: item.tag,
+              ),
+            ),
+            sliver: SliverList(
+              delegate: new SliverChildBuilderDelegate(
+                (context, i) {
+                  return ContractListItem(
+                    item: item.childList[i],
+                    editable: widget.editable,
+                    onCheckChanged: _onCheckChangedListener,
+                    hostName: widget.hostName,
+                  );
+                },
+                childCount: item.childList.length,
+              ),
             ),
           ),
-          sliver: SliverList(
-            delegate: new SliverChildBuilderDelegate(
-              (context, i) {
-                return ContractListItem(
-                  item: item.childList[i],
-                  editable: widget.editable,
-                  onCheckChanged: _onCheckChangedListener,
-                  hostName: widget.hostName,
-                );
-              },
-              childCount: item.childList.length,
-            ),
+        );
+      });
+      double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
+      slivers.add(
+        SliverToBoxAdapter(
+          child: Container(
+            height: fillH,
           ),
         ),
       );
-    });
-    double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
-    slivers.add(
-      SliverToBoxAdapter(
-        child: Container(
-          height: fillH,
-        ),
-      ),
-    );
+    }
     return slivers;
   }
 

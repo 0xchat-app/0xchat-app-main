@@ -12,7 +12,7 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
-typedef UserListGetter = Future<List<UserDB>> Function(ChatSessionModel session);
+typedef UserListGetter = Future<List<UserDB>> Function();
 
 extension ChatSessionModelMentionEx on ChatSessionModel {
 
@@ -29,10 +29,10 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
     }
   }
 
-  Future<List<UserDB>> _userListGetterByMessageList(ChatSessionModel session) async {
+  Future<List<UserDB>> _userListGetterByMessageList() async {
     final completer = Completer<List<UserDB>>();
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    ChatDataCache.shared.getSessionMessage(session).then((messageList) {
+    ChatDataCache.shared.getSessionMessage(this).then((messageList) {
       final userList = Set<UserDB>();
       messageList.forEach((msg) {
         final userDB = msg.author.sourceObject;
@@ -47,9 +47,9 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
     return completer.future;
   }
 
-  Future<List<UserDB>> _userListGetterByGroupMember(ChatSessionModel session) async {
+  Future<List<UserDB>> _userListGetterByGroupMember() async {
     final completer = Completer<List<UserDB>>();
-    final members = Groups.sharedInstance.groups[session.groupId]?.members;
+    final members = Groups.sharedInstance.groups[groupId]?.members;
     if (members == null) {
       completer.complete([]);
     } else {

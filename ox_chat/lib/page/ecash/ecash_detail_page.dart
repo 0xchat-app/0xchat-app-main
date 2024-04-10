@@ -4,6 +4,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:intl/intl.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
@@ -49,7 +50,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
 
     Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
       setState(() {
-        ownerName = user?.getUserShowName() ?? 'anonymity';
+        ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
       });
     });
 
@@ -211,7 +212,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
         isCircular: false,
       ),
       title: Text(
-        user?.getUserShowName() ?? 'anonym',
+        user?.getUserShowName() ?? 'ecash_anonymity'.localized(),
         style: TextStyle(
           color: ThemeColor.color0,
           fontSize: 14.sp,

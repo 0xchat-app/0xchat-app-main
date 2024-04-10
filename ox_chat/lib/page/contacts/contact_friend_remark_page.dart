@@ -124,7 +124,7 @@ class _ContactFriendRemarkPageState extends State<ContactFriendRemarkPage> {
       OXNavigator.pop(context);
       return ;
     }
-    if(pubKey == null){
+    if(pubKey.isEmpty){
       CommonToast.instance.show(context, Localized.text('ox_chat.remark_edit_toast'),);
       return;
     }

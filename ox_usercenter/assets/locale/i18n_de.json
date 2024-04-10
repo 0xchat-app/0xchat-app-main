@@ -72,6 +72,8 @@
   "cancel_purchase": "Kauf abbrechen",
   "pay_invoice_title": "Blitzrechnung bezahlen",
   "copy_invoice_title": "Rechnung kopieren",
+  "select_ecash_wallet_title": "Wählen Sie Ecash Wallet",
+  "my_ecash_mallet": "Mein Ecash Wallet",
   "select_wallet_title": "Wählen Sie eine Blitz-Brieftasche",
   "select": "Auswählen",
   "selected": "Ausgewählt",

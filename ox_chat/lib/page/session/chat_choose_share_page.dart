@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/widget/share_item_info.dart';
 import 'package:ox_common/log_util.dart';
@@ -305,6 +306,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
   }
 
   buildSendPressed(ChatSessionModel sessionModel) {
+    _ShareToName = ChatSessionUtils.getChatName(sessionModel);
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
         content: 'str_share_msg_confirm_content'.localized({r'${name}': _ShareToName}),

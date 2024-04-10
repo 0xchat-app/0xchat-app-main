@@ -411,7 +411,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               width: Adapt.px(8),
             ),
             Text(
-              Localized.text('ox_discovery.channel_search_hint_text'),
+              Localized.text('ox_chat.search'),
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(15),

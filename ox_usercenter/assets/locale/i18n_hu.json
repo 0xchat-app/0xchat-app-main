@@ -72,6 +72,8 @@
   "cancel_purchase": "Vásárlás megszakítása",
   "pay_invoice_title": "Fizessen a villám számlára",
   "copy_invoice_title": "Számla másolása",
+  "select_ecash_wallet_title": "Válassza ki az Ecash tárcát",
+  "my_ecash_mallet": "Az én Ecash tárcám",
   "select_wallet_title": "Válasszon egy villám pénztárcát",
   "select": "Választ",
   "selected": "Kiválasztva",

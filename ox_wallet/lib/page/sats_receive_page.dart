@@ -18,6 +18,7 @@ import 'package:ox_wallet/widget/ecash_qr_code.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_wallet/widget/mint_indicator_item.dart';
 import 'package:ox_wallet/widget/screenshot_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class SatsReceivePage extends StatefulWidget {
   final ValueNotifier<bool>? shareController;
@@ -87,7 +88,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
 
   void _shareListener() async {
     if(mint == null) {
-      await CommonToast.instance.show(context, 'Please select mint first');
+      await CommonToast.instance.show(context, Localized.text('ox_wallet.select_mint_text'));
       return;
     }
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
@@ -169,7 +170,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
         builder: (context,value,child) {
           return _expiredTimeNotifier.value > 0 ? Column(
             children: [
-              Text('Invoice Expires In',style: TextStyle(fontSize: 13.sp,fontWeight: FontWeight.w400,color: ThemeColor.color100),),
+              Text(Localized.text('ox_wallet.invoice_expire_text'),style: TextStyle(fontSize: 13.sp,fontWeight: FontWeight.w400,color: ThemeColor.color100),),
               SizedBox(height: 2.px,),
               CounterDown(second: _expiredTimeNotifier.value),
             ],
@@ -186,7 +187,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Lightning Invoice',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0),),
+          Text(Localized.text('ox_wallet.lightning_invoice'),style: TextStyle(fontSize: 16.px,color: ThemeColor.color0),),
           SizedBox(height: 4.px,),
           ValueListenableBuilder(
               valueListenable: _invoiceNotifier,
@@ -208,8 +209,8 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
 
   Widget _buildAmountEdit() {
     return CommonLabeledCard.textField(
-      label: 'Amount',
-      hintText: 'Enter Amount',
+      label: Localized.text('ox_wallet.amount_title'),
+      hintText: Localized.text('ox_wallet.amount_hint_text'),
       suffix: Text('Sats',style: TextStyle(fontSize: 16.px,color: ThemeColor.color0, height: 22.px / 16.px),),
       controller: _amountEditController,
       focusNode: _amountFocus,
@@ -219,8 +220,8 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
 
   Widget _buildNoteEdit(){
     return CommonLabeledCard.textField(
-      label: 'Public',
-      hintText: 'Add Public Note',
+      label: Localized.text('ox_wallet.public_title'),
+      hintText: Localized.text('ox_wallet.public_hint_text'),
       controller: _noteEditController,
       focusNode: _noteFocus,
     ).setPaddingOnly(top: 16.px);

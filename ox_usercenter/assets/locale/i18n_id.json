@@ -72,6 +72,8 @@
   "cancel_purchase": "Batal pembelian",
   "pay_invoice_title": "Bayar faktur lightning",
   "copy_invoice_title": "Salin faktur",
+  "select_ecash_wallet_title": "Pilih dompet Ecash",
+  "my_ecash_mallet": "Dompet Ecash saya",
   "select_wallet_title": "Pilih dompet lightning",
   "select": "Pilih",
   "selected": "Terpilih",

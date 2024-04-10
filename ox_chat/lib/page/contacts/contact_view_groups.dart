@@ -62,7 +62,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
       GroupContact(
         key: groupsWidgetKey,
         data: groups,
-        chatType:  ChatType.chatGroup,
+        chatType: ChatType.chatGroup,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
         topWidget: widget.topWidget,
@@ -82,15 +82,9 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   void _showView() {
     if (this.mounted) {
       groupsWidgetKey.currentState?.updateContactData(groups);
-      if (groups.length == 0) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-        });
-      }
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
     }
   }
 
@@ -123,29 +117,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     _refreshController.refreshCompleted();
   }
 
-  // @override
-  // renderNoDataView() => _emptyWidget();
-
-  Widget _emptyWidget() {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: Adapt.px(87)),
-      child: Column(
-        children: <Widget>[
-          assetIcon(
-            'icon_group_no.png',
-            110.0,
-            110.0,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: Adapt.px(20)),
-            child: MyText('no_hotchat_added', 14, ThemeColor.gray02),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void didLoginSuccess(UserDB? userInfo) {
     LogUtil.e('Topic List didLoginStateChanged : $userInfo');
@@ -169,19 +140,8 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   @override
-  void didCreateGroup(GroupDB? groupDB) {
-    _loadData();
-  }
-
-  @override
   void didGroupsUpdatedCallBack() {
     _loadData();
   }
 
-
-
-  @override
-  void didDeleteGroup(GroupDB? groupDB) {
-    _loadData();
-  }
 }

@@ -82,15 +82,15 @@ class OXUserCenter extends OXFlutterModule {
      bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
      String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
      if(isShowWalletSelector){
-       return showDialog(
-           context: context,
-           barrierDismissible: true,
-           builder: (BuildContext context) {
-             return ZapsInvoiceDialog(
-               invoice: invoice,
-               walletOnPress: walletOnPress,
-             );
-           });
+       return OXNavigator.presentPage(
+         context,
+         (context) {
+           return ZapsInvoiceDialog(
+             invoice: invoice,
+             walletOnPress: walletOnPress,
+           );
+         },
+       );
      }
      else if(defaultWalletName == 'NWC'){
        OXLoading.show();
