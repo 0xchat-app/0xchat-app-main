@@ -43,7 +43,7 @@ class _WalletMintManagementPageState extends State<WalletMintManagementPage> {
     _isDefaultMint = EcashManager.shared.isDefaultMint(widget.mint);
     final mintURL = WalletUtils.formatString(widget.mint.mintURL, 40, 20, 10);
     _generalList = [
-      StepItemModel(title: 'Mint', content: mintURL, onTap: (_) => TookKit.copyKey(context, mintURL),),
+      StepItemModel(title: 'Mint', content: mintURL, onTap: (_) => TookKit.copyKey(context, widget.mint.mintURL),),
       StepItemModel(title: 'Balance',content: '${widget.mint.balance} Sats'),
       StepItemModel(title: 'Show QR code',onTap: (value) => EcashDialogHelper.showMintQrCode(context, _mintQrCode)),
       StepItemModel(title: 'Custom name',badge: widget.mint.name,onTap: _editMintName),
