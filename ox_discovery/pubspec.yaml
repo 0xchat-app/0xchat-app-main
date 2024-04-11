@@ -30,6 +30,8 @@ dependencies:
     path: ../../base_framework/ox_localizable
   ox_cache_manager:
     path: ../../base_framework/ox_cache_manager
+  ox_chat_ui:
+    path: ../../business_modules/ox_chat_ui
 
 
 dev_dependencies:

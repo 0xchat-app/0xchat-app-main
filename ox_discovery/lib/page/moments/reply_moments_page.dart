@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -9,9 +10,12 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
+import '../../utils/album_utils.dart';
 import '../../utils/moment_rich_text.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
+
+import 'package:flutter/cupertino.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
   const ReplyMomentsPage({Key? key}) : super(key: key);
@@ -21,6 +25,10 @@ class ReplyMomentsPage extends StatefulWidget {
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
+  final TextEditingController _textController = TextEditingController();
+
+  String? _showImage;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +37,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   @override
   void dispose() {
     super.dispose();
+    _textController.dispose();
   }
 
   @override
@@ -80,10 +89,10 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               children: [
                 _momentItemWidget(),
                 IntelligentInputBoxWidget(
+                  imageUrl: _showImage,
+                  textController: _textController,
                   hintText: 'Post your reply',
-                ).setPaddingOnly(
-                  top: 12.px
-                ),
+                ).setPaddingOnly(top: 12.px),
                 _mediaWidget(),
               ],
             ),
@@ -187,53 +196,23 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  Widget _replyContentWidget() {
-    return Container(
-      child: Column(
-        children: [
-          MomentRichText(
-            text: "Reply to @Satosh",
-            textSize: 14.px,
-            defaultTextColor: ThemeColor.color120,
-          ),
-          Container(
-            margin: EdgeInsets.only(
-              top: 12.px,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.px,
-            ),
-            height: 134.px,
-            decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  Adapt.px(12),
-                ),
-              ),
-            ),
-            child: const TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: 'Post your reply',
-              ),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _mediaWidget() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.px),
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              AlbumUtils.openAlbum(
+                context,
+                type: 1,
+                selectCount: 1,
+                callback: (List<String> imageList) {
+                  _showImage = imageList[0];
+                  setState(() {});
+                },
+              );
+            },
             child: CommonImage(
               iconName: 'chat_image_icon.png',
               size: 24.px,
@@ -244,7 +223,13 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
             width: 12.px,
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => _buildEmojiDialog(),
+              );
+            },
             child: CommonImage(
               iconName: 'chat_emoti_icon.png',
               size: 24.px,
@@ -256,7 +241,25 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  void _postMoment(){
+  Widget _buildEmojiDialog() {
+    return Container(
+      padding: EdgeInsets.all(6.px),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color: ThemeColor.color190,
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: 250.px,
+          child: InputFacePage(
+            textController: _textController,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _postMoment() {
     OXNavigator.pop(context);
   }
 }

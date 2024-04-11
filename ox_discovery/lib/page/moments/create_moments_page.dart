@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -34,6 +33,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   List<String> addImageList = [];
 
   bool _isInputFocused = false;
+
+  final TextEditingController _textController = TextEditingController();
 
   @override
   void initState() {
@@ -191,6 +192,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             ),
           ),
           IntelligentInputBoxWidget(
+              textController: _textController,
               hintText: 'Add a caption...',
               isFocusedCallback: (bool isFocus) {
                 setState(() {

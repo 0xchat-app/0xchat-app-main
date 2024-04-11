@@ -1,13 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_rich_text.dart';
+import '../../utils/moment_widgets.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
   final Function(bool isFocused)? isFocusedCallback;
-  SimpleMomentReplyWidget({super.key,this.isFocusedCallback});
+  const SimpleMomentReplyWidget({super.key,this.isFocusedCallback});
 
   @override
   _SimpleMomentReplyWidgetState createState() => _SimpleMomentReplyWidgetState();
@@ -17,6 +21,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
   bool _isFocused = false;
+  String? imageUrl;
+  bool isShowEmoji = false;
 
   @override
   void initState() {
@@ -24,6 +30,9 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     super.initState();
     _replyFocusNode.addListener(() {
       widget.isFocusedCallback?.call(_replyFocusNode.hasFocus);
+      if(!_replyFocusNode.hasFocus){
+        isShowEmoji = false;
+      }
       setState(() {
         _isFocused = _replyFocusNode.hasFocus;
       });
@@ -47,6 +56,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         children: [
           _postYourReplyHeadWidget(),
           _postYourReplyContentWidget(),
+          _buildEmojiDialog(),
         ],
       ),
     );
@@ -60,7 +70,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           MomentRichText(
             text: 'Reply to @Satosh',
@@ -119,20 +129,40 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
           ),
         ),
       ),
-      child: TextField(
-        focusNode: _replyFocusNode,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          hintText: 'Post your reply',
-          hintStyle: TextStyle(
-            color: ThemeColor.color120,
-          ),
-        ),
-        keyboardType: TextInputType.multiline,
-        maxLines: 1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _showImageWidget(),
+          TextField(
+            controller: _replyController,
+            focusNode: _replyFocusNode,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              hintText: 'Post your reply',
+              hintStyle: TextStyle(
+                color: ThemeColor.color120,
+              ),
+            ),
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+          )
+        ],
       ),
     );
+  }
+
+  Widget _showImageWidget(){
+    if(imageUrl == null) return const SizedBox();
+    return MomentWidgets.clipImage(
+      borderRadius: 8.px,
+      child: Image.asset(
+        imageUrl!,
+        width: 100.px,
+        fit: BoxFit.fill,
+        height: 100.px,
+      ),
+    ).setPaddingOnly(top: 12.px);
   }
 
   Widget _mediaWidget() {
@@ -143,7 +173,17 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              AlbumUtils.openAlbum(
+                context,
+                type:1,
+                selectCount: 1,
+                callback: (List<String> imageList){
+                  imageUrl = imageList[0];
+                  setState(() {});
+                }
+              );
+            },
             child: CommonImage(
               iconName: 'chat_image_icon.png',
               size: 24.px,
@@ -154,7 +194,11 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
             width: 12.px,
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                isShowEmoji = !isShowEmoji;
+              });
+            },
             child: CommonImage(
               iconName: 'chat_emoti_icon.png',
               size: 24.px,
@@ -162,6 +206,26 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmojiDialog() {
+    if(!isShowEmoji) return const SizedBox();
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(6.px),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color: ThemeColor.color190,
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: 180.px,
+          child: InputFacePage(
+            textController: _replyController,
+          ),
+        ),
       ),
     );
   }

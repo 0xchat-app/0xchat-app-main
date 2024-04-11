@@ -30,6 +30,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:video_compress/video_compress.dart';
 
 import '../enum/moment_enum.dart';
+import '../utils/album_utils.dart';
 import 'moments/create_moments_page.dart';
 import 'moments/public_moments_page.dart';
 
@@ -124,6 +125,9 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               color: ThemeColor.color100,
               package: 'ox_discovery',
             ),
+            onLongPress: (){
+              OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
+            },
             onTap: () {
               showModalBottomSheet(
                   context: context,
@@ -595,7 +599,13 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 0,
             onTap: () {
               OXNavigator.pop(context);
-              _openCamera(context);
+              AlbumUtils.openCamera(context, (List<String> imageList) {
+                OXNavigator.presentPage(
+                  context,
+                  (context) => CreateMomentsPage(
+                      type: EMomentType.picture, imageList: imageList),
+                );
+              });
             },
           ),
           Divider(
@@ -607,11 +617,16 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              _goToAlbum(context, 1);
-              // OXNavigator.presentPage(
-              //   context,
-              //       (context) => CreateMomentsPage(type:EMomentType.video),
-              // );
+              AlbumUtils.openAlbum(context, type: 1,
+                  callback: (List<String> imageList) {
+                OXNavigator.presentPage(
+                  context,
+                  (context) => CreateMomentsPage(
+                    type: EMomentType.picture,
+                    imageList: imageList,
+                  ),
+                );
+              });
             },
           ),
           Divider(
@@ -623,11 +638,17 @@ class _DiscoveryPageState extends State<DiscoveryPage>
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              _goToAlbum(context, 2);
-              // OXNavigator.presentPage(
-              //   context,
-              //       (context) => CreateMomentsPage(type:EMomentType.video),
-              // );
+              AlbumUtils.openAlbum(context, type: 2,
+                  callback: (List<String> imageList) {
+                OXNavigator.presentPage(
+                  context,
+                  (context) => CreateMomentsPage(
+                    type: EMomentType.video,
+                    videoPath: imageList[0],
+                    videoImagePath: imageList[1],
+                  ),
+                );
+              });
             },
           ),
           Divider(
@@ -713,79 +734,5 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
   onLocaleChange() {
     if (mounted) setState(() {});
-  }
-
-  Future<void> _goToAlbum(BuildContext context, int type) async {
-    final isVideo = type == 2;
-    final messageSendHandler = isVideo ? _dealWithVideo : _dealWithPicture;
-
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,
-      selectCount: 9,
-      showGif: false,
-      compressSize: 1024,
-    );
-
-    List<File> fileList = [];
-    await Future.forEach(res, (element) async {
-      final entity = element;
-      final file = File(entity.path ?? '');
-      fileList.add(file);
-    });
-
-    messageSendHandler(context, fileList);
-  }
-
-  Future _dealWithPicture(BuildContext context, List<File> images) async {
-    List<String> imageList = [];
-    for (final result in images) {
-      String fileName = Path.basename(result.path);
-      fileName = fileName.substring(13);
-      imageList.add(result.path.toString());
-    }
-
-    OXNavigator.presentPage(
-      context,
-      (context) =>
-          CreateMomentsPage(type: EMomentType.picture, imageList: imageList),
-    );
-  }
-
-  Future _dealWithVideo(BuildContext context, List<File> images) async {
-    for (final result in images) {
-      // OXLoading.show();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-          );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      OXNavigator.presentPage(
-        context,
-        (context) => CreateMomentsPage(
-          type: EMomentType.video,
-          videoPath: result.path.toString(),
-          videoImagePath: thumbnailPath,
-        ),
-      );
-    }
-  }
-
-  Future<void> _openCamera(BuildContext context) async {
-    Media? res = await ImagePickerUtils.openCamera(
-      cameraMimeType: CameraMimeType.photo,
-      compressSize: 1024,
-    );
-    if(res == null) return;
-    final file = File(res.path ?? '');
-    _dealWithPicture(context,[file]);
   }
 }

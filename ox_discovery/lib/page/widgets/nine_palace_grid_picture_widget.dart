@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:path/path.dart' as Path;
+import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets.dart';
 
 class NinePalaceGridPictureWidget extends StatefulWidget {
@@ -50,7 +47,7 @@ class _NinePalaceGridPictureWidgetState
                 ? 'assets/images/add_moment.png'
                 : imageList[index];
             return GestureDetector(
-              onTap: isShowAddIcon ? _openPhoto : () {},
+              onTap: () => _photoOption(isShowAddIcon),
               child: MomentWidgets.clipImage(
                 borderRadius: 8.px,
                 child: Image.asset(
@@ -74,6 +71,15 @@ class _NinePalaceGridPictureWidgetState
     );
   }
 
+  void _photoOption(bool isShowAddIcon) {
+    if (!isShowAddIcon) return;
+    AlbumUtils.openAlbum(context,
+        type: 1, selectCount: 9 - widget.imageList.length,
+        callback: (List<String> imageList) {
+      widget.addImageCallback?.call(imageList);
+    });
+  }
+
   double _getAspectRatio(int length) {
     if (length >= 1 && length <= 3) {
       return 3.0;
@@ -90,34 +96,5 @@ class _NinePalaceGridPictureWidgetState
     if (widget.isEdit && widget.imageList.length < 9)
       showImageList.add('add_moment.png');
     return showImageList;
-  }
-
-  Future<void> _openPhoto() async {
-    int selectCount = 9 - widget.imageList.length;
-    final res = await ImagePickerUtils.pickerPaths(
-      galleryMode: GalleryMode.image,
-      selectCount: selectCount,
-      showGif: false,
-      compressSize: 1024,
-    );
-
-    List<File> fileList = [];
-    await Future.forEach(res, (element) async {
-      final entity = element;
-      final file = File(entity.path ?? '');
-      fileList.add(file);
-    });
-
-    _updateImage(fileList);
-  }
-
-  Future _updateImage(List<File> images) async {
-    List<String> list = [];
-    for (final result in images) {
-      String fileName = Path.basename(result.path);
-      fileName = fileName.substring(13);
-      list.add(result.path.toString());
-    }
-    widget.addImageCallback?.call(list);
   }
 }

@@ -211,7 +211,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
     switch (type) {
       case EMomentType.picture:
         contentWidget = NinePalaceGridPictureWidget(
+          imageList: [],
           width: 248.px,
+          addImageCallback: (list){},
         ).setPadding(EdgeInsets.only(bottom: 12.px));
         break;
       case EMomentType.quote:

@@ -9,7 +9,15 @@ import '../../utils/moment_widgets.dart';
 class IntelligentInputBoxWidget extends StatefulWidget {
   final String hintText;
   final Function(bool isFocused)? isFocusedCallback;
-  IntelligentInputBoxWidget({super.key,this.hintText = '---',this.isFocusedCallback});
+  final TextEditingController textController;
+  final String? imageUrl;
+  const IntelligentInputBoxWidget({
+    super.key,
+    this.hintText = '---',
+    this.isFocusedCallback,
+    this.imageUrl,
+    required this.textController,
+  });
 
   @override
   _IntelligentInputBoxWidgetState createState() =>
@@ -17,19 +25,16 @@ class IntelligentInputBoxWidget extends StatefulWidget {
 }
 
 class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
-  final TextEditingController _textController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
-
 
   bool isShowUserList = false;
   bool isShowTopicList = false;
 
-
   @override
   void initState() {
     super.initState();
-    _textController.addListener(() {
-      final text = _textController.text;
+    widget.textController.addListener(() {
+      final text = widget.textController.text;
       bool isShowUser = text.isNotEmpty && text[text.length - 1] == '@';
       bool isShowTopic = text.isNotEmpty && text[text.length - 1] == '#';
 
@@ -44,18 +49,12 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     });
   }
 
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
-  }
-
   void _insertText(String textToInsert) {
-    final text = _textController.text;
-    final textSelection = _textController.selection;
+    final text = widget.textController.text;
+    final textSelection = widget.textController.selection;
     final newText =
         text.replaceRange(textSelection.start, textSelection.end, textToInsert);
-    _textController.value = _textController.value.copyWith(
+    widget.textController.value = widget.textController.value.copyWith(
       text: newText,
       selection: TextSelection.collapsed(offset: newText.length),
     );
@@ -69,14 +68,17 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.px,
+              padding: EdgeInsets.only(
+                left: 16.px,
+                right: 16.px,
+                bottom: 50.px,
               ),
-              height: 134.px,
+              // height: 134.px,
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
                 borderRadius: BorderRadius.all(
@@ -85,16 +87,22 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                   ),
                 ),
               ),
-              child: TextField(
-                controller: _textController,
-                focusNode: _replyFocusNode,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: widget.hintText,
-                ),
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _showImageWidget(),
+                  TextField(
+                    controller: widget.textController,
+                    focusNode: _replyFocusNode,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      hintText: widget.hintText,
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                  )
+                ],
               ),
             ),
             _selectListWidget(),
@@ -102,6 +110,20 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
         ),
       ),
     );
+  }
+
+  Widget _showImageWidget(){
+    String? image = widget.imageUrl;
+    if(image == null) return const SizedBox();
+    return MomentWidgets.clipImage(
+      borderRadius: 8.px,
+      child: Image.asset(
+        image,
+        width: 100.px,
+        fit: BoxFit.fill,
+        height: 100.px,
+      ),
+    ).setPaddingOnly(top: 12.px);
   }
 
   Widget _selectListWidget() {
