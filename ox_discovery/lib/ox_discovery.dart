@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
+import 'package:ox_discovery/page/moments/personal_moments_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_common/navigator/navigator.dart';
 
@@ -30,6 +31,9 @@ class OXDiscovery  extends OXFlutterModule {
           context,
               (context) => const DiscoveryPage(),
         );
+      case 'PersonMomentsPage':
+        return OXNavigator.pushPage(
+            context, (context) => const PersonMomentsPage());
     }
     return null;
   }

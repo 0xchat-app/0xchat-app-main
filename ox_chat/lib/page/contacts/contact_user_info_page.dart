@@ -59,6 +59,7 @@ enum OtherInfoItemType {
   Pubkey,
   Badges,
   Mute,
+  Moments
 }
 
 extension OtherInfoItemStr on OtherInfoItemType {
@@ -74,6 +75,8 @@ extension OtherInfoItemStr on OtherInfoItemType {
         return Localized.text('ox_chat.badges');
       case OtherInfoItemType.Mute:
         return Localized.text('ox_chat.mute_item');
+      case OtherInfoItemType.Moments:
+        return 'Moments';
     }
   }
 }
@@ -373,6 +376,15 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             iconName: 'icon_settings_badges.png',
             iconPackage: 'ox_usercenter',
             type: OtherInfoItemType.Badges,
+          ),
+          Divider(
+            height: Adapt.px(0.5),
+            color: ThemeColor.color160,
+          ),
+          _itemView(
+            iconName: 'icon_moment.png',
+            iconPackage: 'ox_chat',
+            type: OtherInfoItemType.Moments,
           ),
         ],
       ),
@@ -1139,6 +1151,13 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         {
           'userDB': userDB,
         },
+      );
+    } else if(type == OtherInfoItemType.Moments) {
+      OXModuleService.pushPage(
+        context,
+        'ox_discovery',
+        'PersonMomentsPage',
+        {},
       );
     }
   }
