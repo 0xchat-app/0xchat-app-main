@@ -6,7 +6,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
-import '../../utils/moment_rich_text.dart';
+import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
@@ -72,7 +72,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          MomentRichText(
+          MomentRichTextWidget(
             text: 'Reply to @Satosh',
             textSize: 12.px,
             defaultTextColor: ThemeColor.color120,

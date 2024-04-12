@@ -93,8 +93,9 @@ class _NinePalaceGridPictureWidgetState
 
   List<String> _getShowImageList() {
     List<String> showImageList = widget.imageList;
-    if (widget.isEdit && widget.imageList.length < 9)
+    if (widget.isEdit && widget.imageList.length < 9) {
       showImageList.add('add_moment.png');
+    }
     return showImageList;
   }
 }

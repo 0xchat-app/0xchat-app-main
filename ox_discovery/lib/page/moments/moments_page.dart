@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../utils/moment_rich_text.dart';
+import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/moment_option_widget.dart';
 import '../widgets/moment_widget.dart';
@@ -159,7 +159,7 @@ class _MomentsPageState extends State<MomentsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _momentUserInfoWidget(),
-                  MomentRichText(
+                  MomentRichTextWidget(
                     text:
                         "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
                   ),

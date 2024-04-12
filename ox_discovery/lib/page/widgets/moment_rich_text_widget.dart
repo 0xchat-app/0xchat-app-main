@@ -8,11 +8,16 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-import '../page/moments/moments_page.dart';
-import '../page/moments/topic_moment_page.dart';
+import '../moments/moments_page.dart';
+import '../moments/topic_moment_page.dart';
 
-class MomentRichText extends StatelessWidget {
-  MomentRichText({
+class MomentRichTextWidget extends StatefulWidget {
+  final String text;
+  final double? textSize;
+  final Color? defaultTextColor;
+  final int? maxLines;
+
+  const MomentRichTextWidget({
     super.key,
     required this.text,
     this.textSize,
@@ -20,26 +25,52 @@ class MomentRichText extends StatelessWidget {
     this.maxLines,
   });
 
-  final String text;
-  final double? textSize;
-  final Color? defaultTextColor;
-  final int? maxLines;
+  @override
+  _MomentRichTextWidgetState createState() => _MomentRichTextWidgetState();
+}
+
+class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
+  bool isShowMore = false;
 
   @override
   Widget build(BuildContext context) {
-    final textSpans = _buildTextSpans(text, context);
+    final textSpans = _buildTextSpans(widget.text, context);
 
     return Container(
       alignment: Alignment.centerLeft,
-      child: RichText(
-        textAlign: TextAlign.left,
-        overflow: TextOverflow.ellipsis,
-        maxLines: maxLines ?? 100,
-        text: TextSpan(
-          style: TextStyle(
-              color: defaultTextColor ?? ThemeColor.color0,
-              fontSize: textSize ?? 16.px),
-          children: textSpans,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.ellipsis,
+            maxLines: isShowMore ? 100 : 4,
+            text: TextSpan(
+              style: TextStyle(
+                  color: widget.defaultTextColor ?? ThemeColor.color0,
+                  fontSize: widget.textSize ?? 16.px),
+              children: textSpans,
+            ),
+          ),
+          _isShowMoreWidget(),
+        ],
+      ),
+    );
+  }
+
+  Widget _isShowMoreWidget() {
+    if (isShowMore) return const SizedBox();
+    return GestureDetector(
+      onTap: () {
+        isShowMore = true;
+        setState(() {});
+      },
+      child: Text(
+        'Read More',
+        style: TextStyle(
+          color: ThemeColor.purple2,
+          fontSize: 14.px,
+          fontWeight: FontWeight.w400,
         ),
       ),
     );
@@ -48,7 +79,7 @@ class MomentRichText extends StatelessWidget {
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     final List<TextSpan> spans = [];
     final RegExp regex =
-        RegExp(r"#(\w+)|@(\w+)|(https?:\/\/[^\s]+)|(Read More)|\n");
+        RegExp(r"#(\w+)|@(\w+)|(https?:\/\/[^\s]+)|\n");
 
     int lastMatchEnd = 0;
     regex.allMatches(text).forEach((match) {
@@ -94,17 +125,24 @@ class MomentRichText extends StatelessWidget {
   void _onTextTap(String text, BuildContext context) {
     if (text.startsWith('#')) {
       OXNavigator.pushPage(context, (context) => TopicMomentPage(title: text));
-    } else if (text.startsWith('@')) {
-      final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+      return;
+    }
+    if (text.startsWith('@')) {
+      final pubKey =
+          OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
       OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
         'pubkey': pubKey,
       });
-    } else if (text.startsWith('http')) {
-      OXNavigator.presentPage(context, allowPageScroll: true, (context) => CommonWebView(text), fullscreenDialog: true);
-    } else if (text == 'Read More ') {
-      print('Navigate to Read More');
-    } else {
-      OXNavigator.pushPage(context, (context) => const MomentsPage());
+      return;
     }
+    if (text.startsWith('http')) {
+      OXNavigator.presentPage(
+          context,
+          allowPageScroll: true,
+          (context) => CommonWebView(text),
+          fullscreenDialog: true);
+      return;
+    }
+    OXNavigator.pushPage(context, (context) => const MomentsPage());
   }
 }

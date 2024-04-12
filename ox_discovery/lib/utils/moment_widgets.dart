@@ -4,7 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_discovery/utils/moment_rich_text.dart';
+import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 
@@ -93,7 +93,7 @@ class MomentWidgets {
                   ),
                 ),
                 Container(
-                  child: MomentRichText(
+                  child: MomentRichTextWidget(
                     text:
                         "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
                     textSize: 12.px,

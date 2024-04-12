@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 import '../../utils/album_utils.dart';
-import '../../utils/moment_rich_text.dart';
+import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 
@@ -179,7 +179,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   ),
                 ],
               ),
-              MomentRichText(
+              MomentRichTextWidget(
                 text:
                     "#0xchat it's worth noting that Satoshi Nakamoto's true identity ",
                 textSize: 12.px,

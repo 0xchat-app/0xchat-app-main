@@ -4,10 +4,11 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../enum/moment_enum.dart';
 import '../../model/moment_model.dart';
-import '../../utils/moment_rich_text.dart';
+import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets.dart';
 import 'horizontal_scroll_widget.dart';
 import 'moment_option_widget.dart';
@@ -49,11 +50,14 @@ class _MomentWidgetState extends State<MomentWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _momentUserInfoWidget(),
-            MomentRichText(
+            MomentRichTextWidget(
               text: widget.momentContent,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _momentTypeWidget(widget.type),
-            MomentOptionWidget(momentOptionList: widget.momentOptionList,),
+            // _momentReviewWidget(),
+            MomentOptionWidget(
+              momentOptionList: widget.momentOptionList,
+            ),
           ],
         ),
       ),
@@ -73,12 +77,86 @@ class _MomentWidgetState extends State<MomentWidget> {
         contentWidget = HorizontalScrollWidget();
         break;
       case EMomentType.video:
-        contentWidget = MomentWidgets.videoMoment(context,'',null);
+        contentWidget = MomentWidgets.videoMoment(context, '', null);
         break;
       case EMomentType.content:
         break;
     }
     return contentWidget;
+  }
+
+  Widget _momentReviewWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.all(Radius.circular(8.px)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              vertical: 6.px,
+              horizontal: 8.px,
+            ),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: ThemeColor.color200,
+                  width: 0.5.px,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                CommonImage(
+                  iconName: 'like_moment_icon.png',
+                  size: 16.px,
+                  package: 'ox_discovery',
+                ).setPaddingOnly(right: 4.px),
+                Text(
+                  'Satoshi, ',
+                  style: TextStyle(
+                    color: ThemeColor.gradientMainStart,
+                    fontSize: 11.px,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )
+              ],
+            ),
+          ),
+          ...[1,2,3].map((int int) => _momentReviewItemWidget()),
+        ],
+      ),
+    );
+  }
+
+  Widget _momentReviewItemWidget(){
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 6.px,
+        horizontal: 8.px,
+      ),
+      child: Row(
+        children: [
+          Text(
+            'Satoshi: ',
+            style: TextStyle(
+              color: ThemeColor.gradientMainStart,
+              fontSize: 11.px,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'Thanks',
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: 11.px,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _momentUserInfoWidget() {

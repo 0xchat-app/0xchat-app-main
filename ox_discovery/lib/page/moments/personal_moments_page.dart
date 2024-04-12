@@ -10,7 +10,7 @@ import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/horizontal_scroll_widget.dart';
 import 'package:ox_discovery/page/widgets/moment_option_widget.dart';
 import 'package:ox_discovery/page/widgets/nine_palace_grid_picture_widget.dart';
-import 'package:ox_discovery/utils/moment_rich_text.dart';
+import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class PersonMomentsPage extends StatefulWidget {
@@ -172,7 +172,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTitle(),
-          MomentRichText(
+          MomentRichTextWidget(
             text:
             "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
           ),

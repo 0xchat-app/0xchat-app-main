@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:io';
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/gestures.dart';
@@ -36,7 +35,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   @override
   Widget build(BuildContext context) {
     String content =
-        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
+        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com\n#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com";
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -183,8 +182,12 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
     List<ImageProvider<Object>> avatarList = [];
     for (var n = 0; n < renderCount; n++) {
-      avatarList.add(const AssetImage('assets/images/moment_avatar.png',
-          package: 'ox_discovery'));
+      avatarList.add(
+        const AssetImage(
+          'assets/images/moment_avatar.png',
+          package: 'ox_discovery',
+        ),
+      );
     }
     return avatarList;
   }
