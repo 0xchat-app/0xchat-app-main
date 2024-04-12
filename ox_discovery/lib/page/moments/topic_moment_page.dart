@@ -34,19 +34,21 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
         backgroundColor: ThemeColor.color200,
         title: widget.title,
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MomentWidget(type:EMomentType.picture,momentContent: content),
-              MomentWidget(type:EMomentType.content,momentContent: content),
-              MomentWidget(type:EMomentType.video,momentContent: content),
-              MomentWidget(type:EMomentType.quote,momentContent: content),
-            ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.px,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MomentWidget(type:EMomentType.picture,momentContent: content),
+                MomentWidget(type:EMomentType.content,momentContent: content),
+                MomentWidget(type:EMomentType.video,momentContent: content),
+                MomentWidget(type:EMomentType.quote,momentContent: content),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets.dart';

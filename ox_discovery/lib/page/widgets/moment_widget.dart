@@ -19,7 +19,7 @@ class MomentWidget extends StatefulWidget {
   final String momentContent;
   final List<MomentOption>? momentOptionList;
   final GestureTapCallback? clickMomentCallback;
-  MomentWidget({
+  const MomentWidget({
     super.key,
     required this.type,
     required this.momentContent,
