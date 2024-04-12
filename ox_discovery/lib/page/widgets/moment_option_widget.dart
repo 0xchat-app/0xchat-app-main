@@ -14,19 +14,26 @@ import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
 class MomentOptionWidget extends StatefulWidget {
-
   final List<MomentOption>? momentOptionList;
-  MomentOptionWidget({super.key,this.momentOptionList});
+  const MomentOptionWidget({super.key, this.momentOptionList});
 
   @override
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
 }
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget> {
+
+  Map<EMomentOptionType, bool> optionStatus = {
+    EMomentOptionType.reply: false,
+    EMomentOptionType.repost: false,
+    EMomentOptionType.like: false,
+    EMomentOptionType.zaps: false,
+  };
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){},
+      onTap: () {},
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(
@@ -42,11 +49,16 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: (widget.momentOptionList ?? showMomentOptionData).map((MomentOption option) {
+          children: (widget.momentOptionList ?? showMomentOptionData)
+              .map((MomentOption option) {
             EMomentOptionType type = option.type;
             return _iconTextWidget(
               type: type,
-              onTap: _onTapCallback(type),
+              isSelect: optionStatus[type] ?? false,
+              onTap: () {
+                _updateOptionStatus(type);
+                _onTapCallback(type)();
+              },
               clickNum: option.clickNum,
             );
           }).toList(),
@@ -75,10 +87,13 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   Widget _iconTextWidget({
     required EMomentOptionType type,
+    required bool isSelect,
     GestureTapCallback? onTap,
     int? clickNum,
   }) {
-    final content = clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
+    final content =
+        clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
+    Color textColors = isSelect ? ThemeColor.gradientMainStart : ThemeColor.color80;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => onTap?.call(),
@@ -92,13 +107,13 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
               iconName: type.getIconName,
               size: 16.px,
               package: 'ox_discovery',
-              color: ThemeColor.color80,
+              color: textColors,
             ),
           ),
           Text(
             content,
             style: TextStyle(
-              color: ThemeColor.color80,
+              color: textColors,
               fontSize: 12.px,
               fontWeight: FontWeight.w400,
             ),
@@ -174,11 +189,9 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-          ).setPadding(
-            EdgeInsets.symmetric(
-              vertical: 10.px,
-            )
-          ),
+          ).setPadding(EdgeInsets.symmetric(
+            vertical: 10.px,
+          )),
           SizedBox(
             height: Adapt.px(21),
           ),
@@ -223,5 +236,10 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
       ),
       onTap: onTap,
     );
+  }
+
+  void _updateOptionStatus(EMomentOptionType type) {
+    optionStatus[type] = !optionStatus[type]!;
+    setState(() {});
   }
 }

@@ -8,7 +8,6 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-import '../moments/moments_page.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -16,6 +15,7 @@ class MomentRichTextWidget extends StatefulWidget {
   final double? textSize;
   final Color? defaultTextColor;
   final int? maxLines;
+  final Function? clickBlankCallback;
 
   const MomentRichTextWidget({
     super.key,
@@ -23,6 +23,7 @@ class MomentRichTextWidget extends StatefulWidget {
     this.textSize,
     this.defaultTextColor,
     this.maxLines,
+    this.clickBlankCallback,
   });
 
   @override
@@ -89,7 +90,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
           text: beforeMatch,
           recognizer: TapGestureRecognizer()
             ..onTap = () {
-              OXNavigator.pushPage(context, (context) => MomentsPage());
+            widget.clickBlankCallback?.call();
             },
         ));
       }
@@ -143,6 +144,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
           fullscreenDialog: true);
       return;
     }
-    OXNavigator.pushPage(context, (context) => const MomentsPage());
+    widget.clickBlankCallback?.call();
   }
 }

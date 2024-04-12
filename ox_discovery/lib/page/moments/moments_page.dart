@@ -254,8 +254,8 @@ class _MomentsPageState extends State<MomentsPage> {
 
   Widget _quoteMomentWidget() {
     return Container(
-      margin: EdgeInsets.only(
-        bottom: 8.px,
+      margin: EdgeInsets.symmetric(
+        vertical: 8.px,
       ),
       decoration: BoxDecoration(
         border: Border.all(

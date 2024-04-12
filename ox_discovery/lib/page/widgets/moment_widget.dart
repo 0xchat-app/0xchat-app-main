@@ -51,6 +51,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           children: [
             _momentUserInfoWidget(),
             MomentRichTextWidget(
+              clickBlankCallback: widget.clickMomentCallback,
               text: widget.momentContent,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _momentTypeWidget(widget.type),

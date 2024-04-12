@@ -19,7 +19,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 296.px,
+      height: 300.px,
       child: Column(
         children: <Widget>[
           Expanded(
