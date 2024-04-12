@@ -7,10 +7,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
-import 'package:ox_discovery/page/widgets/horizontal_scroll_widget.dart';
-import 'package:ox_discovery/page/widgets/moment_option_widget.dart';
-import 'package:ox_discovery/page/widgets/nine_palace_grid_picture_widget.dart';
-import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
+import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class PersonMomentsPage extends StatefulWidget {
@@ -172,13 +169,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTitle(),
-          MomentRichTextWidget(
-            text:
-            "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
-          ),
-          _momentTypeWidget(type),
-          MomentOptionWidget(),
-          // _momentOptionWidget()
+          MomentWidget(
+              type: type,
+              momentContent: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com"
+          )
         ],
       ),
     );
@@ -204,42 +198,6 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
         ],
       ),
     );
-  }
-
-  Widget _momentTypeWidget(EMomentType type) {
-    Widget contentWidget = const SizedBox(width: 0);
-    switch (type) {
-      case EMomentType.picture:
-        contentWidget = NinePalaceGridPictureWidget(
-          imageList: [],
-          width: 248.px,
-          addImageCallback: (list){},
-        ).setPadding(EdgeInsets.only(bottom: 12.px));
-        break;
-      case EMomentType.quote:
-        contentWidget = HorizontalScrollWidget();
-        break;
-      case EMomentType.video:
-        contentWidget = Container(
-          margin: EdgeInsets.only(
-            bottom: 12.px,
-          ),
-          decoration: BoxDecoration(
-            color: ThemeColor.color100,
-            borderRadius: BorderRadius.all(
-              Radius.circular(
-                Adapt.px(12),
-              ),
-            ),
-          ),
-          width: 210.px,
-          height: 154.px,
-        );
-        break;
-      case EMomentType.content:
-        break;
-    }
-    return contentWidget;
   }
 
   Widget _buildNewMomentTips() {
