@@ -72,10 +72,30 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          MomentRichTextWidget(
-            text: 'Reply to @Satosh',
-            textSize: 12.px,
-            defaultTextColor: ThemeColor.color120,
+          RichText(
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            text: TextSpan(
+              style: TextStyle(
+                  fontSize: 12.px,
+                  fontWeight: FontWeight.w400,
+              ),
+              children: [
+                TextSpan(
+                  text: 'Reply to ',
+                  style: TextStyle(
+                    color: ThemeColor.color120,
+                  ),
+                ),
+                TextSpan(
+                  text: '@Satosh',
+                  style: TextStyle(
+                    color: ThemeColor.gradientMainStart,
+                  ),
+                ),
+              ],
+            ),
           ),
           Row(
             children: [

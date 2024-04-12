@@ -174,7 +174,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
           _buildTitle(),
           MomentRichTextWidget(
             text:
-            "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+            "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
           ),
           _momentTypeWidget(type),
           MomentOptionWidget(),

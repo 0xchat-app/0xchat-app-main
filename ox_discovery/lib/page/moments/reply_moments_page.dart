@@ -9,6 +9,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 import '../../utils/album_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
@@ -260,6 +261,11 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() {
+    if(_textController.text.isEmpty && _showImage == null){
+      CommonToast.instance.show(context, 'The content cannot be empty !');
+      return;
+    }
+    CommonToast.instance.show(context, 'Release success !');
     OXNavigator.pop(context);
   }
 }

@@ -71,7 +71,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       case EMomentType.picture:
         contentWidget = NinePalaceGridPictureWidget(
           width: 248.px,
-          imageList: [],
+          imageList: ['moment_avatar.png','moment_avatar.png','moment_avatar.png','moment_avatar.png'],
         ).setPadding(EdgeInsets.only(bottom: 12.px));
         break;
       case EMomentType.quote:

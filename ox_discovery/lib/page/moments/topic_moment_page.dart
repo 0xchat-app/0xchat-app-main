@@ -27,7 +27,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
   @override
   Widget build(BuildContext context) {
-    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More";
+    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com";
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(

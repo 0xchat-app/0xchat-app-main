@@ -1,13 +1,14 @@
 import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_theme/ox_theme.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets.dart';
@@ -46,34 +47,39 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       appBar: CommonAppBar(
         backgroundColor: ThemeColor.color200,
         actions: [
-          GestureDetector(
-            onTap: _clearNotifications,
-            child: Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.only(right: 24.px),
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    colors: [
-                      ThemeColor.gradientMainEnd,
-                      ThemeColor.gradientMainStart,
-                    ],
-                  ).createShader(Offset.zero & bounds.size);
-                },
-                child: Text(
-                  'Clear',
-                  style: TextStyle(
-                    fontSize: 16.px,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          _isShowClearWidget(),
         ],
         title: 'Notifications',
       ),
       body: _bodyWidget(),
+    );
+  }
+
+  Widget _isShowClearWidget(){
+    if(notificationsList.isEmpty) return const SizedBox();
+    return GestureDetector(
+      onTap: _clearNotifications,
+      child: Container(
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(right: 24.px),
+        child: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return LinearGradient(
+              colors: [
+                ThemeColor.gradientMainEnd,
+                ThemeColor.gradientMainStart,
+              ],
+            ).createShader(Offset.zero & bounds.size);
+          },
+          child: Text(
+            'Clear',
+            style: TextStyle(
+              fontSize: 16.px,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -167,6 +173,9 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        SizedBox(
+                          width: 4.px,
+                        ),
                         Text(
                           'Satosh@0xchat.com· 45s ago',
                           style: TextStyle(
@@ -256,8 +265,23 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   void _clearNotifications(){
-    setState(() {
-      notificationsList = [];
-    });
+    OXCommonHintDialog.show(
+      context,
+      title: '',
+      content: 'Are you sure to clear all the notifications ?',
+      actionList: [
+        OXCommonHintAction.cancel(onTap: () {
+          OXNavigator.pop(context);
+        }),
+        OXCommonHintAction.sure(text: 'Sure', onTap: () {
+          setState(() {
+            notificationsList = [];
+          });
+         return OXNavigator.pop(context);
+        }),
+      ],
+      isRowAction: true,
+    );
+
   }
 }

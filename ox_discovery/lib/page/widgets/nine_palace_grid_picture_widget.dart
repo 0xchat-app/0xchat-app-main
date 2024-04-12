@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets.dart';
 
@@ -32,33 +33,17 @@ class _NinePalaceGridPictureWidgetState
 
   @override
   Widget build(BuildContext context) {
-    List<String> imageList = _getShowImageList();
+    List<String> _imageList = _getShowImageList();
     return SizedBox(
       width: widget.width ?? double.infinity,
       child: AspectRatio(
-        aspectRatio: _getAspectRatio(imageList.length),
+        aspectRatio: _getAspectRatio(_imageList.length),
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: imageList.length,
+          itemCount: _imageList.length,
           itemBuilder: (context, index) {
-            bool isShowAddIcon = imageList[index] == 'add_moment.png';
-            String imgPath = isShowAddIcon
-                ? 'assets/images/add_moment.png'
-                : imageList[index];
-            return GestureDetector(
-              onTap: () => _photoOption(isShowAddIcon),
-              child: MomentWidgets.clipImage(
-                borderRadius: 8.px,
-                child: Image.asset(
-                  imgPath,
-                  width: 20.px,
-                  fit: BoxFit.fill,
-                  height: 20.px,
-                  package: isShowAddIcon ? 'ox_discovery' : null,
-                ),
-              ),
-            );
+            return widget.isEdit ?  _showEditImageWidget(context, index, _imageList) : _showImageWidget(context, index, _imageList);
           },
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
@@ -66,6 +51,43 @@ class _NinePalaceGridPictureWidgetState
             mainAxisSpacing: 10.px,
             childAspectRatio: 1,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showImageWidget(BuildContext context,int index,List<String> imageList){
+    String imgPath = imageList[index];
+    return GestureDetector(
+      onTap: () => _photoOption(false),
+      child: MomentWidgets.clipImage(
+        borderRadius: 8.px,
+        child: CommonImage(
+          iconName: imgPath,
+          width: 20.px,
+          fit: BoxFit.fill,
+          height: 20.px,
+          package: 'ox_discovery',
+        ),
+      ),
+    );
+  }
+
+  Widget _showEditImageWidget(BuildContext context,int index,List<String> imageList){
+    bool isShowAddIcon = imageList[index] == 'add_moment.png';
+    String imgPath = isShowAddIcon
+        ? 'assets/images/add_moment.png'
+        : imageList[index];
+    return GestureDetector(
+      onTap: () => _photoOption(isShowAddIcon),
+      child: MomentWidgets.clipImage(
+        borderRadius: 8.px,
+        child: Image.asset(
+          imgPath,
+          width: 20.px,
+          fit: BoxFit.fill,
+          height: 20.px,
+          package: isShowAddIcon ? 'ox_discovery' : null,
         ),
       ),
     );
@@ -92,6 +114,7 @@ class _NinePalaceGridPictureWidgetState
   }
 
   List<String> _getShowImageList() {
+    if(!widget.isEdit) return widget.imageList;
     List<String> showImageList = widget.imageList;
     if (widget.isEdit && widget.imageList.length < 9) {
       showImageList.add('add_moment.png');

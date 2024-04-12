@@ -46,32 +46,6 @@ class _MomentsPageState extends State<MomentsPage> {
         backgroundColor: ThemeColor.color200,
         appBar: CommonAppBar(
           backgroundColor: ThemeColor.color200,
-          actions: [
-            GestureDetector(
-              child: Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(right: Adapt.px(24)),
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      colors: [
-                        ThemeColor.gradientMainEnd,
-                        ThemeColor.gradientMainStart,
-                      ],
-                    ).createShader(Offset.zero & bounds.size);
-                  },
-                  child: Text(
-                    'Clear',
-                    style: TextStyle(
-                      fontSize: 16.px,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              onTap: () {},
-            ),
-          ],
           title: 'Moment',
         ),
         body: Stack(
@@ -89,7 +63,7 @@ class _MomentsPageState extends State<MomentsPage> {
                     MomentWidget(
                       type: EMomentType.picture,
                       momentContent:
-                          "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+                          "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
                     ),
                     _momentItemWidget(),
                     _momentItemWidget(),
@@ -161,7 +135,7 @@ class _MomentsPageState extends State<MomentsPage> {
                   _momentUserInfoWidget(),
                   MomentRichTextWidget(
                     text:
-                        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com \nRead More",
+                        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
                   ),
                   _quoteMomentWidget(),
                   MomentOptionWidget(),
@@ -242,11 +216,11 @@ class _MomentsPageState extends State<MomentsPage> {
               ],
             ),
           ),
-          CommonImage(
-            iconName: 'more_moment_icon.png',
-            size: 20.px,
-            package: 'ox_discovery',
-          ),
+          // CommonImage(
+          //   iconName: 'more_moment_icon.png',
+          //   size: 20.px,
+          //   package: 'ox_discovery',
+          // ),
         ],
       ),
     );
