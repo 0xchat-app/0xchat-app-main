@@ -5,11 +5,9 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../model/moment_model.dart';
-import '../../utils/moment_widgets.dart';
+import '../../model/moment_option_model.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 

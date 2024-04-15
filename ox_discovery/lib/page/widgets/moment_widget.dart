@@ -7,7 +7,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../enum/moment_enum.dart';
-import '../../model/moment_model.dart';
+import '../../model/moment_option_model.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets.dart';
 import 'horizontal_scroll_widget.dart';
