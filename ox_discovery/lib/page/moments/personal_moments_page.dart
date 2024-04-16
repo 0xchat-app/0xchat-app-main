@@ -1,23 +1,33 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
+import 'package:ox_discovery/utils/album_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 
 class PersonMomentsPage extends StatefulWidget {
-  const PersonMomentsPage({super.key});
+  final UserDB userDB;
+  const PersonMomentsPage({super.key, required this.userDB});
 
   @override
   State<PersonMomentsPage> createState() => _PersonMomentsPageState();
 }
 
 class _PersonMomentsPageState extends State<PersonMomentsPage> {
+
+  bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +39,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
           slivers: <Widget>[
             _buildAppBar(),
             SliverToBoxAdapter(
-              child: _buildNewMomentTips(),
+              child: isCurrentUser ? _buildNewMomentTips() : Container(),
             ),
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 24.px),
@@ -74,17 +84,20 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
       ),
       actions: GestureDetector(
         onTap: () {
-          showModalBottomSheet(
-              context: context,
-              backgroundColor: Colors.transparent,
-              builder: (context) => _buildBottomDialog());
+          final items = [
+            BottomItemModel(title: 'Notifications', onTap: _jumpToNotificationsMomentsPage),
+            BottomItemModel(title: 'Change Cover', onTap: _selectAssetDialog),
+          ];
+          PersonMomentsBottomDialog.showBottomSheet(context, items);
         },
-        child: CommonImage(
-          iconName: 'icon_more_operation.png',
-          width: 24.px,
-          height: 24.px,
-          package: 'ox_discovery',
-        ).setPaddingOnly(right: 24.px),
+        child: isCurrentUser
+            ? CommonImage(
+                iconName: 'icon_more_operation.png',
+                width: 24.px,
+                height: 24.px,
+                package: 'ox_discovery',
+              ).setPaddingOnly(right: 24.px)
+            : Container(),
       ),
     );
   }
@@ -105,6 +118,11 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
   }
 
   Widget _buildUserInfo(){
+
+    String _getUserName(UserDB userDB){
+      return userDB.name ?? userDB.nickName ?? '';
+    }
+
     return Positioned(
       top: 210.px,
       right: 0,
@@ -116,7 +134,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
         child: Stack(
           children: [
             _buildAvatar(
-              imageUrl: 'https://nostr-chat-bucket.oss-cn-hongkong.aliyuncs.com/ipa/avatar.png',
+              imageUrl: widget.userDB.picture ?? '',
               size: Size(80.px, 80.px),
               placeholderIconName: 'icon_user_default.png',
             ),
@@ -124,7 +142,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
               left: 92.px,
               bottom: 31.px,
               child: Text(
-                'Kumakiki',
+                _getUserName(widget.userDB),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20.px,
@@ -202,7 +220,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
 
   Widget _buildNewMomentTips() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _jumpToNotificationsMomentsPage,
       child: UnconstrainedBox(
         child: Container(
           height: 40.px,
@@ -248,8 +266,50 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
     );
   }
 
-  Widget _buildBottomDialog(){
-    List<String> options = ['Notifications','Change Cover'];
+  void _jumpToNotificationsMomentsPage() {
+    OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
+  }
+
+  void _selectAssetDialog(){
+    final items = [
+      BottomItemModel(title: Localized.text('ox_usercenter.gallery'),onTap: () async {
+        await AlbumUtils.openAlbum(context,selectCount: 1,callback: (value) async {
+          final username = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
+          final filePath = value.first;
+          File imageFile = File(filePath);
+          // await OXLoading.show();
+          // final String url = await UplodAliyun.uploadFileToAliyun(
+          //   fileType: UplodAliyunType.imageType,
+          //   file: imageFile,
+          //   filename: 'cover_' +
+          //       username +
+          //       DateTime.now().microsecondsSinceEpoch.toString() + '.png',
+          // );
+          // await OXLoading.dismiss();
+            },);
+      }),
+      BottomItemModel(title: Localized.text('ox_usercenter.camera'),onTap: () {
+        AlbumUtils.openCamera(context, (value) => null);
+      }),
+    ];
+    PersonMomentsBottomDialog.showBottomSheet(context, items);
+  }
+
+}
+
+class BottomItemModel {
+  final String title;
+  final VoidCallback? onTap;
+
+  BottomItemModel({required this.title, this.onTap});
+}
+
+class PersonMomentsBottomDialog extends StatelessWidget {
+  final List<BottomItemModel> items;
+  const PersonMomentsBottomDialog({super.key, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: ThemeColor.color180,
@@ -264,25 +324,46 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
             shrinkWrap: true,
-            itemBuilder: (context, index) => _buildButton(label: options[index]),
+            itemBuilder: (context, index) => _buildButton(context, title: items[index].title,onTap: items[index].onTap),
             separatorBuilder: (context, index) => Container(height: 0.5.px, color: ThemeColor.color160,),
-            itemCount: options.length,
+            itemCount: items.length,
           ),
           Container(width:double.infinity,height: 8.px,color: ThemeColor.color190,),
-          _buildButton(label: Localized.text('ox_wallet.cancel'),onTap: () => OXNavigator.pop(context)),
+          _buildButton(context, title: Localized.text('ox_wallet.cancel'),onTap: () => OXNavigator.pop(context)),
         ],
       ),
     );
   }
 
-  Widget _buildButton({required String label,Color? color, VoidCallback? onTap}) {
+  Widget _buildButton(BuildContext context, {required String title, VoidCallback? onTap}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap,
+      // onTap: onTap,
+      onTap: () {
+        OXNavigator.pop(context);
+        onTap?.call();
+      },
       child: Container(
         height: 56.px,
         alignment: Alignment.center,
-        child: Text(label, style: TextStyle(fontSize: 16.px, fontWeight: FontWeight.w400,color: color ?? ThemeColor.color0),),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16.px,
+            fontWeight: FontWeight.w400,
+            color: ThemeColor.color0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  static void showBottomSheet(BuildContext context, List<BottomItemModel> items) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PersonMomentsBottomDialog(
+        items: items,
       ),
     );
   }

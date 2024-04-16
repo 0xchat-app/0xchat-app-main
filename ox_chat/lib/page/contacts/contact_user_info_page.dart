@@ -1157,7 +1157,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         context,
         'ox_discovery',
         'PersonMomentsPage',
-        {},
+        {
+          'userDB': userDB,
+        },
       );
     }
   }

@@ -33,7 +33,7 @@ class OXDiscovery  extends OXFlutterModule {
         );
       case 'PersonMomentsPage':
         return OXNavigator.pushPage(
-            context, (context) => const PersonMomentsPage());
+            context, (context) => PersonMomentsPage(userDB: params?['userDB'],));
     }
     return null;
   }
