@@ -4,7 +4,7 @@ abstract class ConstantInterface {
   const ConstantInterface();
 
   ///db version
-  int get dbVersion => 6;
+  int get dbVersion => 7;
 
   /// 0xchat relay
   String get oxChatRelay => 'wss://relay.0xchat.com';
