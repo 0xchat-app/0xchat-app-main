@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
@@ -15,7 +15,7 @@ import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+
 
 class PersonMomentsPage extends StatefulWidget {
   final UserDB userDB;
@@ -188,7 +188,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
         children: [
           _buildTitle(),
           MomentWidget(
-              momentContent: "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com"
+              noteDB: draftNoteDB,
           )
         ],
       ),

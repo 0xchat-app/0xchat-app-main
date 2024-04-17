@@ -6,10 +6,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 
-import '../../enum/moment_enum.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
@@ -23,17 +23,22 @@ class PublicMomentsPage extends StatefulWidget {
 }
 
 class _PublicMomentsPageState extends State<PublicMomentsPage> {
+
+  late List<NoteDB> notesList;
+
   @override
   void initState() {
     super.initState();
-    // Moment.sharedInstance.init();
-    // _getDataList();
+    _getDataList();
 
   }
 
   void _getDataList () async{
-    List<NoteDB>? list = await Moment.sharedInstance.loadContactsNotes();
+    Map<String, NoteDB> list = OXMomentManager.sharedInstance.privateNotesMap;
     print('===list===$list');
+    notesList = list.values.toList();
+    print('===notesList===$notesList');
+    setState(() {});
   }
 
 
@@ -44,12 +49,6 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // String content =
-    //     "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com\n#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com";
-
-    String content =
-        "IIUC the geohash asdfasdf.png asdfasdf.jpg  description provided asdfasdf.mp4 here should work: https://github.com/sandwichfarm/nostr-geotags?tab=readme-ov-file#example-response  --&gt; the driver could mention the radius they want to be available at, so can the person searching, ratings could be based on WoT.  What do you think nostr:npub1arkn0xxxll4llgy9qxkrncn3vc4l69s0dz8ef3zadykcwe7ax3dqrrh43w ?nostr:note1zhps6wp7rqchwlmp8s9wq3taramg849lczhds3h4wxvdm5vccc6qxa9zr8";
-
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -62,33 +61,53 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _newMomentTipsWidget(),
-            MomentWidget(
-              momentContent: content,
-              clickMomentCallback: () {
-                OXNavigator.pushPage(context, (context) => MomentsPage());
-              },
-            ),
-            MomentWidget(
-              momentContent: content,
-              clickMomentCallback: () {
-                OXNavigator.pushPage(context, (context) => MomentsPage());
-              },
-            ),
-            MomentWidget(
-              momentContent: content,
-              clickMomentCallback: () {
-                OXNavigator.pushPage(context, (context) => MomentsPage());
-              },
-            ),
-            MomentWidget(
-              momentContent: content,
-              clickMomentCallback: () {
-                OXNavigator.pushPage(context, (context) => MomentsPage());
-              },
-            ),
+            _getMomentListWidget(),
+            // MomentWidget(
+            //   noteDB: draftNoteDB,
+            //   clickMomentCallback: () {
+            //     OXNavigator.pushPage(context, (context) => MomentsPage());
+            //   },
+            // ),
+            // MomentWidget(
+            //   noteDB: draftNoteDB,
+            //   clickMomentCallback: () {
+            //     OXNavigator.pushPage(context, (context) => MomentsPage());
+            //   },
+            // ),
+            // MomentWidget(
+            //   noteDB: draftNoteDB,
+            //   clickMomentCallback: () {
+            //     OXNavigator.pushPage(context, (context) => MomentsPage());
+            //   },
+            // ),
+            // MomentWidget(
+            //   noteDB: draftNoteDB,
+            //   clickMomentCallback: () {
+            //     OXNavigator.pushPage(context, (context) => MomentsPage());
+            //   },
+            // ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _getMomentListWidget(){
+    return ListView.builder(
+      primary: false,
+      controller: null,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: notesList.length,
+      itemBuilder: (context, index) {
+        NoteDB note = notesList[index];
+        return MomentWidget(
+          noteDB: note,
+          clickMomentCallback: () {
+            OXNavigator.pushPage(context, (context) => MomentsPage(noteDB: note,));
+          },
+        );
+      },
     );
   }
 

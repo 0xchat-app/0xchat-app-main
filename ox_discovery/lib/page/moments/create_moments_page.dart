@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'dart:io';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -20,7 +21,8 @@ class CreateMomentsPage extends StatefulWidget {
   final List<String>? imageList;
   final String? videoPath;
   final String? videoImagePath;
-  const CreateMomentsPage({Key? key, required this.type, this.imageList,this.videoPath,this.videoImagePath})
+  final NoteDB? noteDB;
+  const CreateMomentsPage({Key? key, required this.type, this.imageList,this.videoPath,this.videoImagePath,this.noteDB})
       : super(key: key);
 
   @override
@@ -167,8 +169,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _quoteWidget() {
-    if (widget.type != EMomentType.quote) return const SizedBox();
-    return HorizontalScrollWidget(content: '',);
+    NoteDB? noteDB = widget.noteDB;
+    if (widget.type != EMomentType.quote || noteDB == null) return const SizedBox();
+    return HorizontalScrollWidget(noteDB:noteDB);
   }
 
   Widget _captionWidget() {

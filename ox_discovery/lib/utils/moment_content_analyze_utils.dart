@@ -30,7 +30,7 @@ class MomentContentAnalyzeUtils{
   // type = 1 image 2 video
   List<String> getMediaList(int type){
     final RegExp imgExp = RegExp(r'\b\w+\.(png|jpg|jpeg|gif)\b', caseSensitive: false);
-    final RegExp audioExp = RegExp(r'\b\w+\.(mp3|wav|aac|m4a｜mp4｜avi｜mov｜wmv)\b', caseSensitive: false);
+    final RegExp audioExp = RegExp(r'\b\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b', caseSensitive: false);
     RegExp getRegExp = type == 1 ? imgExp : audioExp;
     final Iterable<RegExpMatch> matches = getRegExp.allMatches(content);
 

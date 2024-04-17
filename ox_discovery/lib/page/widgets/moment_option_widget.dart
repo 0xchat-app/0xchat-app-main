@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -12,14 +13,22 @@ import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
 class MomentOptionWidget extends StatefulWidget {
-  final List<MomentOption>? momentOptionList;
-  const MomentOptionWidget({super.key, this.momentOptionList});
+  final NoteDB noteDB;
+  const MomentOptionWidget({super.key,required this.noteDB});
 
   @override
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
 }
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget> {
+
+
+  final List<EMomentOptionType> momentOptionTypeList = [
+    EMomentOptionType.reply,
+    EMomentOptionType.repost,
+    EMomentOptionType.like,
+    EMomentOptionType.zaps,
+  ];
 
   Map<EMomentOptionType, bool> optionStatus = {
     EMomentOptionType.reply: false,
@@ -30,6 +39,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> typeList = EMomentOptionType.values.map((s) => s.name).toList();
     return GestureDetector(
       onTap: () {},
       child: Container(
@@ -47,9 +57,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: (widget.momentOptionList ?? showMomentOptionData)
-              .map((MomentOption option) {
-            EMomentOptionType type = option.type;
+          children: momentOptionTypeList.map((EMomentOptionType type) {
+
             return _iconTextWidget(
               type: type,
               isSelect: optionStatus[type] ?? false,
@@ -57,7 +66,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
                 _updateOptionStatus(type);
                 _onTapCallback(type)();
               },
-              clickNum: option.clickNum,
+              clickNum: _getClickNum(type),
             );
           }).toList(),
         ),
@@ -239,5 +248,19 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   void _updateOptionStatus(EMomentOptionType type) {
     optionStatus[type] = !optionStatus[type]!;
     setState(() {});
+  }
+
+  int _getClickNum(EMomentOptionType type){
+    NoteDB note = widget.noteDB;
+    switch(type){
+      case EMomentOptionType.repost:
+       return note.repostCount;
+      case EMomentOptionType.like:
+        return note.reactionCount;
+      case EMomentOptionType.zaps:
+        return note.zapCount;
+      case EMomentOptionType.reply:
+        return note.replyCount;
+    }
   }
 }

@@ -7,6 +7,7 @@ import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
+import 'package:ox_discovery/utils/moment_widgets_utils.dart';
 
 class MomentUrlWidget extends StatefulWidget {
   final String url;
@@ -34,11 +35,11 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
   Widget build(BuildContext context) {
     if (urlData == null) return const SizedBox();
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         OXNavigator.presentPage(
             context,
             allowPageScroll: true,
-                (context) => CommonWebView(widget.url),
+            (context) => CommonWebView(widget.url),
             fullscreenDialog: true);
       },
       child: Container(
@@ -69,10 +70,13 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
                 color: ThemeColor.white,
               ),
             ).setPaddingOnly(bottom: 20.px),
-            OXCachedNetworkImage(
-              imageUrl: urlData?.image?.url ?? '',
-              fit: BoxFit.contain,
-            )
+            MomentWidgetsUtils.clipImage(
+              borderRadius: 10.px,
+              child: OXCachedNetworkImage(
+                imageUrl: urlData?.image?.url ?? '',
+                fit: BoxFit.contain,
+              ),
+            ),
           ],
         ),
       ),

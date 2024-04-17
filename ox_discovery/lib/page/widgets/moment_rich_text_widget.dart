@@ -33,11 +33,11 @@ class MomentRichTextWidget extends StatefulWidget {
   _MomentRichTextWidgetState createState() => _MomentRichTextWidgetState();
 }
 
-class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
+class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with WidgetsBindingObserver {
   final GlobalKey _containerKey = GlobalKey();
 
   bool isShowMore = false;
- bool isOverTwoLines = false;
+  bool isOverTwoLines = false;
   Map<String,UserDB?> userDBList = {};
 
   @override
@@ -52,6 +52,13 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
         _getIsOutOfText(getShowText,renderBox.size.width);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _getUserInfo() async{

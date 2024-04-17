@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -5,8 +6,8 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import '../../enum/moment_enum.dart';
 import '../../model/moment_option_model.dart';
 import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
@@ -19,12 +20,12 @@ import 'nine_palace_grid_picture_widget.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class MomentWidget extends StatefulWidget {
-  final String momentContent;
   final List<MomentOption>? momentOptionList;
   final GestureTapCallback? clickMomentCallback;
+  final NoteDB noteDB;
   const MomentWidget({
     super.key,
-    required this.momentContent,
+    required this.noteDB,
     this.momentOptionList,
     this.clickMomentCallback,
   });
@@ -54,14 +55,14 @@ class _MomentWidgetState extends State<MomentWidget> {
             _momentUserInfoWidget(),
             MomentRichTextWidget(
               clickBlankCallback: widget.clickMomentCallback,
-              text: widget.momentContent,
+              text: widget.noteDB.content,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
             // _momentTypeWidget(widget.type),
             // _momentReviewWidget(),
             MomentOptionWidget(
-              momentOptionList: widget.momentOptionList,
+                noteDB:widget.noteDB
             ),
           ],
         ),
@@ -70,7 +71,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentMediaWidget(){
-    MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.momentContent);
+    MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.noteDB.content);
     if(info.getMediaList(1).isNotEmpty){
       return NinePalaceGridPictureWidget(
         width: 248.px,
@@ -87,9 +88,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget(){
-    String? getQuoteUrl = MomentContentAnalyzeUtils(widget.momentContent).getQuoteUrl;
+    String? getQuoteUrl = MomentContentAnalyzeUtils(widget.noteDB.content).getQuoteUrl;
     if(getQuoteUrl == null) return const SizedBox();
-    return HorizontalScrollWidget(content: '',);
+    return HorizontalScrollWidget(noteDB: widget.noteDB,);
   }
 
   Widget _momentReviewWidget() {
@@ -207,7 +208,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                         ),
                       ),
                       Text(
-                        'Satosh@0xchat.com· 45s ago',
+                        'Satosh@0xchat.com· ${widget.noteDB.createAtStr}',
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

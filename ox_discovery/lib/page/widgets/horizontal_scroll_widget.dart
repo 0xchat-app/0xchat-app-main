@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -5,8 +6,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class HorizontalScrollWidget extends StatefulWidget {
-  final String content;
-  HorizontalScrollWidget({super.key,required this.content});
+  final NoteDB noteDB;
+  const HorizontalScrollWidget({super.key,required this.noteDB});
 
   @override
   _HorizontalScrollWidgetState createState() => _HorizontalScrollWidgetState();

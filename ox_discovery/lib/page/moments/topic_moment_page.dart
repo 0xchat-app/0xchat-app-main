@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 
-import '../../enum/moment_enum.dart';
 import '../widgets/moment_widget.dart';
 
 class TopicMomentPage extends StatefulWidget {
@@ -43,10 +43,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MomentWidget(momentContent: content),
-                MomentWidget(momentContent: content),
-                MomentWidget(momentContent: content),
-                MomentWidget(momentContent: content),
+                MomentWidget( noteDB: draftNoteDB),
+                MomentWidget( noteDB: draftNoteDB),
+                MomentWidget( noteDB: draftNoteDB),
+                MomentWidget( noteDB: draftNoteDB),
               ],
             ),
           ),

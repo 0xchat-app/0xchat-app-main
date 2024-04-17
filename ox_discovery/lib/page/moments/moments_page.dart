@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -14,7 +16,8 @@ import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
 
 class MomentsPage extends StatefulWidget {
-  const MomentsPage({Key? key}) : super(key: key);
+  final NoteDB noteDB;
+  const MomentsPage({Key? key,required this.noteDB}) : super(key: key);
 
   @override
   State<MomentsPage> createState() => _MomentsPageState();
@@ -59,8 +62,7 @@ class _MomentsPageState extends State<MomentsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MomentWidget(
-                      momentContent:
-                          "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
+                      noteDB: draftNoteDB,
                     ),
                     _momentItemWidget(),
                     _momentItemWidget(),
@@ -135,7 +137,7 @@ class _MomentsPageState extends State<MomentsPage> {
                         "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
                   ),
                   _quoteMomentWidget(),
-                  MomentOptionWidget(),
+                  MomentOptionWidget(noteDB:widget.noteDB),
                 ],
               ),
             ),

@@ -159,9 +159,3 @@ class MomentWidgetsUtils {
     );
   }
 }
-// final previewData = await WebURLHelper.getPreviewData(
-// text,
-// proxy: widget.corsProxy,
-// requestTimeout: widget.requestTimeout,
-// userAgent: widget.userAgent,
-// );
