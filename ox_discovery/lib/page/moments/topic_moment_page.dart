@@ -43,10 +43,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MomentWidget(type:EMomentType.picture,momentContent: content),
-                MomentWidget(type:EMomentType.content,momentContent: content),
-                MomentWidget(type:EMomentType.video,momentContent: content),
-                MomentWidget(type:EMomentType.quote,momentContent: content),
+                MomentWidget(momentContent: content),
+                MomentWidget(momentContent: content),
+                MomentWidget(momentContent: content),
+                MomentWidget(momentContent: content),
               ],
             ),
           ),

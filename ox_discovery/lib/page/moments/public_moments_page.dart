@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -9,7 +10,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
@@ -25,7 +26,16 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   @override
   void initState() {
     super.initState();
+    // Moment.sharedInstance.init();
+    // _getDataList();
+
   }
+
+  void _getDataList () async{
+    List<NoteDB>? list = await Moment.sharedInstance.loadContactsNotes();
+    print('===list===$list');
+  }
+
 
   @override
   void dispose() {
@@ -34,8 +44,12 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // String content =
+    //     "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com\n#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com";
+
     String content =
-        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com\n#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi\nhttps://www.0xchat.com";
+        "IIUC the geohash asdfasdf.png asdfasdf.jpg  description provided asdfasdf.mp4 here should work: https://github.com/sandwichfarm/nostr-geotags?tab=readme-ov-file#example-response  --&gt; the driver could mention the radius they want to be available at, so can the person searching, ratings could be based on WoT.  What do you think nostr:npub1arkn0xxxll4llgy9qxkrncn3vc4l69s0dz8ef3zadykcwe7ax3dqrrh43w ?nostr:note1zhps6wp7rqchwlmp8s9wq3taramg849lczhds3h4wxvdm5vccc6qxa9zr8";
+
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -49,28 +63,24 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           children: [
             _newMomentTipsWidget(),
             MomentWidget(
-              type: EMomentType.picture,
               momentContent: content,
               clickMomentCallback: () {
                 OXNavigator.pushPage(context, (context) => MomentsPage());
               },
             ),
             MomentWidget(
-              type: EMomentType.content,
               momentContent: content,
               clickMomentCallback: () {
                 OXNavigator.pushPage(context, (context) => MomentsPage());
               },
             ),
             MomentWidget(
-              type: EMomentType.video,
               momentContent: content,
               clickMomentCallback: () {
                 OXNavigator.pushPage(context, (context) => MomentsPage());
               },
             ),
             MomentWidget(
-              type: EMomentType.quote,
               momentContent: content,
               clickMomentCallback: () {
                 OXNavigator.pushPage(context, (context) => MomentsPage());
@@ -144,7 +154,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
               OXNavigator.pushPage(
                   context, (context) => NotificationsMomentsPage());
             },
-            leftWidget: MomentWidgets.clipImage(
+            leftWidget: MomentWidgetsUtils.clipImage(
               imageName: 'moment_avatar.png',
               borderRadius: 26.px,
               imageSize: 26.px,

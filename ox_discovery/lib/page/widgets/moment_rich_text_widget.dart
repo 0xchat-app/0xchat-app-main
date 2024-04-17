@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; //
@@ -6,24 +7,26 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
+import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
   final String text;
+  final int? maxLines;
   final double? textSize;
   final Color? defaultTextColor;
-  final int? maxLines;
   final Function? clickBlankCallback;
+  final bool isShowMoreTextBtn;
 
   const MomentRichTextWidget({
     super.key,
     required this.text,
     this.textSize,
     this.defaultTextColor,
-    this.maxLines,
+    this.maxLines = 4,
     this.clickBlankCallback,
+    this.isShowMoreTextBtn = true,
   });
 
   @override
@@ -31,13 +34,38 @@ class MomentRichTextWidget extends StatefulWidget {
 }
 
 class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
+  final GlobalKey _containerKey = GlobalKey();
+
   bool isShowMore = false;
+ bool isOverTwoLines = false;
+  Map<String,UserDB?> userDBList = {};
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserInfo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_containerKey.currentContext != null) {
+        final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
+        String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
+        _getIsOutOfText(getShowText,renderBox.size.width);
+      }
+    });
+  }
+
+  void _getUserInfo() async{
+    userDBList = await MomentContentAnalyzeUtils(widget.text).getUserInfoMap;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    final textSpans = _buildTextSpans(widget.text, context);
+    String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
+    final textSpans = _buildTextSpans(getShowText, context);
 
     return Container(
+      key: _containerKey,
       alignment: Alignment.centerLeft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +73,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
           RichText(
             textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis,
-            maxLines: isShowMore ? 100 : 4,
+            maxLines: isShowMore ? 100 : widget.maxLines,
             text: TextSpan(
               style: TextStyle(
                   color: widget.defaultTextColor ?? ThemeColor.color0,
@@ -53,14 +81,14 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
               children: textSpans,
             ),
           ),
-          _isShowMoreWidget(),
+          _isShowMoreWidget(getShowText),
         ],
       ),
     );
   }
 
-  Widget _isShowMoreWidget() {
-    if (isShowMore) return const SizedBox();
+  Widget _isShowMoreWidget(String text) {
+    if (!widget.isShowMoreTextBtn || isShowMore || !isOverTwoLines) return const SizedBox();
     return GestureDetector(
       onTap: () {
         isShowMore = true;
@@ -80,7 +108,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     final List<TextSpan> spans = [];
     final RegExp regex =
-        RegExp(r"#(\w+)|@(\w+)|(https?:\/\/[^\s]+)|\n");
+        RegExp(r"#(\w+)|nostr:npub(\w+)|@(\w+)|(https?:\/\/[^\s]+)|\n");
 
     int lastMatchEnd = 0;
     regex.allMatches(text).forEach((match) {
@@ -113,26 +141,42 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
   }
 
   TextSpan _buildLinkSpan(String text, BuildContext context) {
+    List<String> list = _dealWithText(text);
     return TextSpan(
-      text: text + ' ',
+      text: list[0] + ' ',
       style: TextStyle(color: ThemeColor.purple2),
       recognizer: TapGestureRecognizer()
         ..onTap = () {
-          _onTextTap(text, context);
+          _onTextTap(list[1], context);
         },
     );
   }
+  
+  List<String> _dealWithText(String text){
+    if(text.startsWith('nostr:npub1')){
+      if(userDBList[text] != null){
+        UserDB userDB = userDBList[text]!;
+        return ['@${userDB.name}','@${userDB.pubKey}'];
+      }else{
+        UserDB myDB = OXUserInfoManager.sharedInstance.currentUserInfo!;
+        return ['@${myDB.name}','@${myDB.pubKey}'];
+      }
+    }
 
-  void _onTextTap(String text, BuildContext context) {
+    if(text.startsWith('http')){
+      return [text.substring(0,20) + '...',text];
+    }
+    return [text,text];
+  }
+
+  void _onTextTap(String text, BuildContext context) async{
     if (text.startsWith('#')) {
       OXNavigator.pushPage(context, (context) => TopicMomentPage(title: text));
       return;
     }
     if (text.startsWith('@')) {
-      final pubKey =
-          OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
       OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-        'pubkey': pubKey,
+        'pubkey':text.substring(1),
       });
       return;
     }
@@ -145,5 +189,17 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> {
       return;
     }
     widget.clickBlankCallback?.call();
+  }
+
+  void _getIsOutOfText(String text,double width){
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text,),
+      maxLines: widget.maxLines,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: width);
+    bool isOver = textPainter.didExceedMaxLines;
+     isOverTwoLines = isOver;
+     setState(() {});
   }
 }

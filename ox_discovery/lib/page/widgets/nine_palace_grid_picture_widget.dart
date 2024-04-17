@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 
 class NinePalaceGridPictureWidget extends StatefulWidget {
   final double? width;
@@ -60,7 +60,7 @@ class _NinePalaceGridPictureWidgetState
     String imgPath = imageList[index];
     return GestureDetector(
       onTap: () => _photoOption(false),
-      child: MomentWidgets.clipImage(
+      child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
         child: CommonImage(
           iconName: imgPath,
@@ -80,7 +80,7 @@ class _NinePalaceGridPictureWidgetState
         : imageList[index];
     return GestureDetector(
       onTap: () => _photoOption(isShowAddIcon),
-      child: MomentWidgets.clipImage(
+      child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
         child: Image.asset(
           imgPath,

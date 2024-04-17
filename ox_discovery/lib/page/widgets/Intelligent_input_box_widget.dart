@@ -4,7 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 
 class IntelligentInputBoxWidget extends StatefulWidget {
   final String hintText;
@@ -115,7 +115,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   Widget _showImageWidget(){
     String? image = widget.imageUrl;
     if(image == null) return const SizedBox();
-    return MomentWidgets.clipImage(
+    return MomentWidgetsUtils.clipImage(
       borderRadius: 8.px,
       child: Image.asset(
         image,
@@ -184,7 +184,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            MomentWidgets.clipImage(
+            MomentWidgetsUtils.clipImage(
               imageName: 'moment_avatar.png',
               borderRadius: 24.px,
               imageSize: 24.px,

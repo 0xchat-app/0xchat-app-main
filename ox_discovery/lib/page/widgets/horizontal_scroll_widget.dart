@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/widget_tool.dart';
 
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 
 class HorizontalScrollWidget extends StatefulWidget {
-  HorizontalScrollWidget({super.key});
+  final String content;
+  HorizontalScrollWidget({super.key,required this.content});
 
   @override
   _HorizontalScrollWidgetState createState() => _HorizontalScrollWidgetState();
@@ -19,7 +19,8 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300.px,
+      // color: ThemeColor.red,
+      height: 290.px,
       child: Column(
         children: <Widget>[
           Expanded(
@@ -31,9 +32,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
                 });
               },
               children: <Widget>[
-                MomentWidgets.quoteMoment(),
-                MomentWidgets.quoteMoment(),
-                MomentWidgets.quoteMoment(),
+                MomentWidgetsUtils.quoteMoment(),
+                MomentWidgetsUtils.quoteMoment(),
+                MomentWidgetsUtils.quoteMoment(),
               ],
             ),
           ),

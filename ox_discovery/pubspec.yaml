@@ -32,6 +32,9 @@ dependencies:
     path: ../../base_framework/ox_cache_manager
   ox_chat_ui:
     path: ../../business_modules/ox_chat_ui
+  chatcore:
+    path: ../../0xchat-core
+
 
 
 dev_dependencies:

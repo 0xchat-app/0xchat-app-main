@@ -11,7 +11,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 
 class NotificationsMomentsPage extends StatefulWidget {
   const NotificationsMomentsPage({Key? key}) : super(key: key);
@@ -151,7 +151,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         children: [
           Row(
             children: [
-              MomentWidgets.clipImage(
+              MomentWidgetsUtils.clipImage(
                 imageName: 'moment_avatar.png',
                 borderRadius: 40.px,
                 imageSize: 40.px,

@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -8,9 +7,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 
-import '../../enum/moment_enum.dart';
 import '../widgets/moment_rich_text_widget.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_option_widget.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
@@ -61,7 +59,6 @@ class _MomentsPageState extends State<MomentsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MomentWidget(
-                      type: EMomentType.picture,
                       momentContent:
                           "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
                     ),
@@ -106,7 +103,7 @@ class _MomentsPageState extends State<MomentsPage> {
         children: [
           Column(
             children: [
-              MomentWidgets.clipImage(
+              MomentWidgetsUtils.clipImage(
                 imageName: 'moment_avatar.png',
                 borderRadius: 40.px,
                 imageSize: 40.px,
@@ -265,7 +262,7 @@ class _MomentsPageState extends State<MomentsPage> {
                   ),
                   child: Row(
                     children: [
-                      MomentWidgets.clipImage(
+                      MomentWidgetsUtils.clipImage(
                         imageName: 'moment_avatar.png',
                         borderRadius: 20.px,
                         imageSize: 20.px,
@@ -294,13 +291,12 @@ class _MomentsPageState extends State<MomentsPage> {
                   ),
                 ),
                 Container(
-                  child: Text(
+                  child: MomentRichTextWidget(
+                    text:
                     "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: ThemeColor.color0,
-                      fontSize: 12.px,
-                    ),
+                    textSize: 12.px,
+                    maxLines: 2,
+                    isShowMoreTextBtn: false,
                   ),
                 ),
               ],

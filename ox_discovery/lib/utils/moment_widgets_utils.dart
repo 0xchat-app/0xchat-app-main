@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 
-class MomentWidgets {
+class MomentWidgetsUtils {
   static Widget clipImage({
     required double borderRadius,
     String? imageName,
@@ -34,6 +35,9 @@ class MomentWidgets {
 
   static Widget quoteMoment() {
     return Container(
+      margin: EdgeInsets.only(
+        bottom: 10.px,
+      ),
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.px,
@@ -64,7 +68,7 @@ class MomentWidgets {
                 Container(
                   child: Row(
                     children: [
-                      MomentWidgets.clipImage(
+                      MomentWidgetsUtils.clipImage(
                         imageName: 'moment_avatar.png',
                         borderRadius: 20.px,
                         imageSize: 20.px,
@@ -98,6 +102,7 @@ class MomentWidgets {
                         "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
                     textSize: 12.px,
                     maxLines: 2,
+                    isShowMoreTextBtn: false,
                   ),
                 ),
               ],
@@ -133,7 +138,7 @@ class MomentWidgets {
             width: 210.px,
             height: 154.px,
           ),
-          MomentWidgets.clipImage(
+          MomentWidgetsUtils.clipImage(
             borderRadius: 16,
             child: videoImagePath != null
                 ? Image.asset(
@@ -154,3 +159,9 @@ class MomentWidgets {
     );
   }
 }
+// final previewData = await WebURLHelper.getPreviewData(
+// text,
+// proxy: widget.corsProxy,
+// requestTimeout: widget.requestTimeout,
+// userAgent: widget.userAgent,
+// );

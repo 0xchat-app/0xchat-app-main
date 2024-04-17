@@ -13,7 +13,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 
 import '../../utils/album_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -110,7 +110,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
         children: [
           Column(
             children: [
-              MomentWidgets.clipImage(
+              MomentWidgetsUtils.clipImage(
                 imageName: 'moment_avatar.png',
                 borderRadius: 40.px,
                 imageSize: 40.px,

@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 import '../widgets/horizontal_scroll_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
@@ -163,12 +163,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Widget _videoWidget() {
     if (widget.type != EMomentType.video) return const SizedBox();
-    return MomentWidgets.videoMoment(context,widget.videoPath ?? '',widget.videoImagePath ?? '');
+    return MomentWidgetsUtils.videoMoment(context,widget.videoPath ?? '',widget.videoImagePath ?? '');
   }
 
   Widget _quoteWidget() {
     if (widget.type != EMomentType.quote) return const SizedBox();
-    return HorizontalScrollWidget();
+    return HorizontalScrollWidget(content: '',);
   }
 
   Widget _captionWidget() {

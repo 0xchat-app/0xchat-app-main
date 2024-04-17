@@ -8,20 +8,22 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../enum/moment_enum.dart';
 import '../../model/moment_option_model.dart';
+import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 import 'horizontal_scroll_widget.dart';
 import 'moment_option_widget.dart';
+import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 
+import 'package:nostr_core_dart/nostr.dart';
+
 class MomentWidget extends StatefulWidget {
-  final EMomentType type;
   final String momentContent;
   final List<MomentOption>? momentOptionList;
   final GestureTapCallback? clickMomentCallback;
   const MomentWidget({
     super.key,
-    required this.type,
     required this.momentContent,
     this.momentOptionList,
     this.clickMomentCallback,
@@ -54,7 +56,9 @@ class _MomentWidgetState extends State<MomentWidget> {
               clickBlankCallback: widget.clickMomentCallback,
               text: widget.momentContent,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
-            _momentTypeWidget(widget.type),
+            _showMomentMediaWidget(),
+            _momentQuoteWidget(),
+            // _momentTypeWidget(widget.type),
             // _momentReviewWidget(),
             MomentOptionWidget(
               momentOptionList: widget.momentOptionList,
@@ -65,25 +69,27 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
-  Widget _momentTypeWidget(EMomentType type) {
-    Widget contentWidget = const SizedBox(width: 0);
-    switch (type) {
-      case EMomentType.picture:
-        contentWidget = NinePalaceGridPictureWidget(
-          width: 248.px,
-          imageList: ['moment_avatar.png','moment_avatar.png','moment_avatar.png','moment_avatar.png'],
-        ).setPadding(EdgeInsets.only(bottom: 12.px));
-        break;
-      case EMomentType.quote:
-        contentWidget = HorizontalScrollWidget();
-        break;
-      case EMomentType.video:
-        contentWidget = MomentWidgets.videoMoment(context, '', null);
-        break;
-      case EMomentType.content:
-        break;
+  Widget _showMomentMediaWidget(){
+    MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.momentContent);
+    if(info.getMediaList(1).isNotEmpty){
+      return NinePalaceGridPictureWidget(
+        width: 248.px,
+        imageList: ['moment_avatar.png','moment_avatar.png','moment_avatar.png','moment_avatar.png'],
+      ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
-    return contentWidget;
+    if(info.getMediaList(2).isNotEmpty){
+      return MomentWidgetsUtils.videoMoment(context, '', null);
+    }
+    if(info.getMomentExternalLink.isNotEmpty){
+      return MomentUrlWidget(url: info.getMomentExternalLink[0]);
+    }
+    return const SizedBox();
+  }
+
+  Widget _momentQuoteWidget(){
+    String? getQuoteUrl = MomentContentAnalyzeUtils(widget.momentContent).getQuoteUrl;
+    if(getQuoteUrl == null) return const SizedBox();
+    return HorizontalScrollWidget(content: '',);
   }
 
   Widget _momentReviewWidget() {
@@ -179,7 +185,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                       'pubkey': pubKey,
                     });
                   },
-                  child: MomentWidgets.clipImage(
+                  child: MomentWidgetsUtils.clipImage(
                     imageName: 'moment_avatar.png',
                     borderRadius: 40.px,
                     imageSize: 40.px,

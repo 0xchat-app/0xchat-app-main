@@ -7,7 +7,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import 'moment_rich_text_widget.dart';
-import '../../utils/moment_widgets.dart';
+import '../../utils/moment_widgets_utils.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
   final Function(bool isFocused)? isFocusedCallback;
@@ -174,7 +174,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
 
   Widget _showImageWidget(){
     if(imageUrl == null) return const SizedBox();
-    return MomentWidgets.clipImage(
+    return MomentWidgetsUtils.clipImage(
       borderRadius: 8.px,
       child: Image.asset(
         imageUrl!,
