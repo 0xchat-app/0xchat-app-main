@@ -29,6 +29,14 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
 
   bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
 
+  List<NoteDB>? _notes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -109,7 +117,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
       height: 240.px,
       width: double.infinity,
       child: OXCachedNetworkImage(
-        imageUrl: 'https://nostr-chat-bucket.oss-cn-hongkong.aliyuncs.com/ipa/persion_monent.png',
+        imageUrl: widget.userDB.banner ?? '',
         placeholder: (context, url) => placeholder,
         errorWidget: (context, url, error) => placeholder,
         fit: BoxFit.cover,
@@ -271,27 +279,59 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
 
   void _selectAssetDialog(){
     final items = [
-      BottomItemModel(title: Localized.text('ox_usercenter.gallery'),onTap: () async {
-        await AlbumUtils.openAlbum(context,selectCount: 1,callback: (value) async {
-          final username = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
-          final filePath = value.first;
-          File imageFile = File(filePath);
-          // await OXLoading.show();
-          // final String url = await UplodAliyun.uploadFileToAliyun(
-          //   fileType: UplodAliyunType.imageType,
-          //   file: imageFile,
-          //   filename: 'cover_' +
-          //       username +
-          //       DateTime.now().microsecondsSinceEpoch.toString() + '.png',
-          // );
-          // await OXLoading.dismiss();
-            },);
-      }),
-      BottomItemModel(title: Localized.text('ox_usercenter.camera'),onTap: () {
-        AlbumUtils.openCamera(context, (value) => null);
-      }),
+      BottomItemModel(
+        title: Localized.text('ox_usercenter.gallery'),
+        onTap: () async {
+          await AlbumUtils.openAlbum(context, selectCount: 1, callback: _changeCover);
+        },
+      ),
+      BottomItemModel(
+        title: Localized.text('ox_usercenter.camera'),
+        onTap: () async {
+          await AlbumUtils.openCamera(context, _changeCover);
+        },
+      ),
     ];
     PersonMomentsBottomDialog.showBottomSheet(context, items);
+  }
+
+  Future<void> _changeCover(List<String> filePathList) async {
+    UserDB? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    final pubkey = currentUserInfo?.pubKey ?? '';
+    final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
+    final fileName = 'banner_${pubkey}_$currentTime.png';
+    final filePath = filePathList.first;
+    File imageFile = File(filePath);
+
+    final String url = await UplodAliyun.uploadFileToAliyun(
+      fileType: UplodAliyunType.imageType,
+      file: imageFile,
+      filename: fileName
+    );
+
+    if (url.isNotEmpty) {
+      currentUserInfo?.banner = url;
+      try {
+        await OXLoading.show();
+        await Account.sharedInstance.updateProfile(currentUserInfo!);
+        await OXLoading.dismiss();
+        setState(() {});
+      } catch (e) {
+        await OXLoading.dismiss();
+      }
+    }
+  }
+
+  Future<void> _loadNotes() async {
+    List<NoteDB>? noteLst;
+    if(isCurrentUser) {
+      noteLst = await Moment.sharedInstance.loadMyNotes();
+    } else {
+      noteLst = await Moment.sharedInstance.loadFriendNotes(widget.userDB.pubKey);
+    }
+    setState(() {
+      _notes = noteLst;
+    });
   }
 
 }
