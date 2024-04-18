@@ -5,12 +5,15 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/contact_choose_page.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/widgets/flexible_selector.dart';
 import 'package:chatcore/chat-core.dart';
 
 class VisibilitySelectionPage extends StatefulWidget {
-  const VisibilitySelectionPage({super.key});
+  final Function(VisibleType type, List<String>)? onSubmitted;
+
+  const VisibilitySelectionPage({super.key, this.onSubmitted});
 
   @override
   State<VisibilitySelectionPage> createState() => _VisibilitySelectionPageState();
@@ -21,7 +24,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
   final List<VisibleType> _visibleItems = List.of([...VisibleType.values]);
   VisibleType _currentVisibleType = VisibleType.everyone;
 
-  List<UserDB> _includeContacts = [];
+  // List<UserDB> _includeContacts = [];
   List<UserDB> _excludeContacts = [];
 
   @override
@@ -88,7 +91,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
               height: 24.px,
               useTheme: true,
             ),
-            onPressed: () {},
+            onPressed: _onSubmitted,
           )
         ],
       ),
@@ -136,8 +139,8 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
   }
 
   Widget _buildListItem(BuildContext context, int index) {
-    final bool isSpecial = index == VisibleType.excludeContact.index ||
-        index == VisibleType.includeContact.index;
+    final bool isSpecial = index == VisibleType.excludeContact.index;
+        // || index == VisibleType.includeContact.index;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 10.px, horizontal: 16.px),
@@ -152,13 +155,14 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
             _currentVisibleType = VisibleType.values[index];
           });
           if (isSpecial) {
-            // OXNavigator.presentPage(
-            //   context,
-            //   (context) => ContactChoosePage<UserDB>(
-            //     contactType: ContactType.contact,
-            //     onSubmitted: _selectedOnChanged,
-            //   ),
-            // );
+            OXNavigator.presentPage(
+              context,
+              (context) => ContactChoosePage<UserDB>(
+                title: 'Close Friends',
+                contactType: ContactType.contact,
+                onSubmitted: _selectedOnChanged,
+              ),
+            );
           }
         },
       ),
@@ -171,9 +175,9 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
       return;
     }
     setState(() {
-      if (_currentVisibleType == VisibleType.includeContact) {
-        _includeContacts = userList;
-      }
+      // if (_currentVisibleType == VisibleType.includeContact) {
+      //   _includeContacts = userList;
+      // }
       if (_currentVisibleType == VisibleType.excludeContact) {
         _excludeContacts = userList;
       }
@@ -182,12 +186,22 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
   }
 
   String _selectedUserName(VisibleType type) {
-    List<UserDB> userList = type == VisibleType.includeContact
-        ? _includeContacts
-        : _excludeContacts;
+    // List<UserDB> userList = type == VisibleType.includeContact
+    //     ? _includeContacts
+    //     : _excludeContacts;
+    List<UserDB> userList = _excludeContacts;
     return userList
         .where((user) => user.name != null)
         .map((user) => user.name)
         .join(', ');
+  }
+
+  void _onSubmitted() {
+    if (_currentVisibleType == VisibleType.excludeContact) {
+      List<String> pubkeys = _excludeContacts.map((e) => e.pubKey).toList();
+      widget.onSubmitted?.call(_currentVisibleType, pubkeys);
+    } else {
+      widget.onSubmitted?.call(_currentVisibleType, []);
+    }
   }
 }
