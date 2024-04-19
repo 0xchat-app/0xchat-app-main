@@ -2,12 +2,12 @@ import 'package:intl/intl.dart';
 
 class DiscoveryUtils {
   static String formatTimeAgo(int timestamp) {
-    DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     DateTime currentTime = DateTime.now();
     Duration diff = currentTime.difference(givenTime);
 
     if (diff.inDays >= 1) {
-      return 'a day ago';
+      return formatTimestamp(timestamp * 1000);
     } else if (diff.inHours >= 12) {
       return '12 hours ago';
     } else if (diff.inHours >= 1) {
@@ -17,7 +17,7 @@ class DiscoveryUtils {
     } else if (diff.inMinutes >= 15) {
       return '15 minutes ago';
     } else {
-      return formatTimestamp(timestamp);
+      return 'just now';
     }
   }
 

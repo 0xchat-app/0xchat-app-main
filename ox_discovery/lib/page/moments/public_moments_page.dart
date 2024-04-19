@@ -23,24 +23,21 @@ class PublicMomentsPage extends StatefulWidget {
 }
 
 class _PublicMomentsPageState extends State<PublicMomentsPage> {
-
-  late List<NoteDB> notesList;
+  List<NoteDB> notesList = [];
 
   @override
   void initState() {
     super.initState();
     _getDataList();
-
   }
 
-  void _getDataList () async{
+  void _getDataList() async {
+    List<NoteDB>? noteLst = await Moment.sharedInstance.loadFriendNotes('7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace');
     Map<String, NoteDB> list = OXMomentManager.sharedInstance.privateNotesMap;
-    print('===list===$list');
-    notesList = list.values.toList();
-    print('===notesList===$notesList');
+
+    notesList = noteLst ?? [];
     setState(() {});
   }
-
 
   @override
   void dispose() {
@@ -62,37 +59,13 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
           children: [
             _newMomentTipsWidget(),
             _getMomentListWidget(),
-            // MomentWidget(
-            //   noteDB: draftNoteDB,
-            //   clickMomentCallback: () {
-            //     OXNavigator.pushPage(context, (context) => MomentsPage());
-            //   },
-            // ),
-            // MomentWidget(
-            //   noteDB: draftNoteDB,
-            //   clickMomentCallback: () {
-            //     OXNavigator.pushPage(context, (context) => MomentsPage());
-            //   },
-            // ),
-            // MomentWidget(
-            //   noteDB: draftNoteDB,
-            //   clickMomentCallback: () {
-            //     OXNavigator.pushPage(context, (context) => MomentsPage());
-            //   },
-            // ),
-            // MomentWidget(
-            //   noteDB: draftNoteDB,
-            //   clickMomentCallback: () {
-            //     OXNavigator.pushPage(context, (context) => MomentsPage());
-            //   },
-            // ),
           ],
         ),
       ),
     );
   }
 
-  Widget _getMomentListWidget(){
+  Widget _getMomentListWidget() {
     return ListView.builder(
       primary: false,
       controller: null,
@@ -104,7 +77,11 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
         return MomentWidget(
           noteDB: note,
           clickMomentCallback: () {
-            OXNavigator.pushPage(context, (context) => MomentsPage(noteDB: note,));
+            OXNavigator.pushPage(
+                context,
+                (context) => MomentsPage(
+                      noteDB: note,
+                    ));
           },
         );
       },
@@ -112,10 +89,11 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   }
 
   Widget _newMomentTipsWidget() {
-    Widget _wrapContainerWidget(
-        {required Widget leftWidget,
-        required String rightContent,
-        required GestureTapCallback onTap}) {
+    Widget _wrapContainerWidget({
+      required Widget leftWidget,
+      required String rightContent,
+      required GestureTapCallback onTap,
+    }) {
       return GestureDetector(
         onTap: onTap,
         child: Container(
@@ -194,13 +172,16 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
         right: Adapt.px(0),
       ),
       constraints: BoxConstraints(
-          maxWidth: Adapt.px(8 * renderCount + 8), minWidth: Adapt.px(26)),
+        maxWidth: Adapt.px(8 * renderCount + 8),
+        minWidth: Adapt.px(26),
+      ),
       child: AvatarStack(
         settings: RestrictedPositions(
-            // maxCoverage: 0.1,
-            // minCoverage: 0.2,
-            align: StackAlign.left,
-            laying: StackLaying.first),
+          // maxCoverage: 0.1,
+          // minCoverage: 0.2,
+          align: StackAlign.left,
+          laying: StackLaying.first,
+        ),
         borderColor: ThemeColor.color180,
         height: Adapt.px(26),
         avatars: _showMemberAvatarWidget(3),

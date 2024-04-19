@@ -1,11 +1,14 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
+import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 
@@ -33,7 +36,29 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment() {
+  static Widget quoteMoment(UserDB userDB,NoteDB noteDB) {
+
+    Widget _getImageWidget(){
+      List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
+      if(_getImagePathList.isEmpty) return const SizedBox();
+      return ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(11.5.px),
+          topRight: Radius.circular(11.5.px),
+        ),
+        child: Container(
+          height: 172.px,
+          color: ThemeColor.color100,
+          child: OXCachedNetworkImage(
+            imageUrl: _getImagePathList[0],
+            fit: BoxFit.cover,
+            // placeholder: (context, url) => badgePlaceholderImage,
+            // errorWidget: (context, url, error) => badgePlaceholderImage,
+            height: 172.px,
+          ),
+        ),
+      );
+    }
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
@@ -51,16 +76,7 @@ class MomentWidgetsUtils {
       ),
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(11.5.px),
-              topRight: Radius.circular(11.5.px),
-            ),
-            child: Container(
-              height: 172.px,
-              color: ThemeColor.color100,
-            ),
-          ),
+          _getImageWidget(),
           Container(
             padding: EdgeInsets.all(12.px),
             child: Column(
@@ -69,12 +85,17 @@ class MomentWidgetsUtils {
                   child: Row(
                     children: [
                       MomentWidgetsUtils.clipImage(
-                        imageName: 'moment_avatar.png',
-                        borderRadius: 20.px,
-                        imageSize: 20.px,
+                        borderRadius: 40.px,
+                        imageSize: 40.px,
+                        child: OXCachedNetworkImage(
+                          imageUrl: userDB.picture ?? '',
+                          fit: BoxFit.cover,
+                          width: 20.px,
+                          height: 20.px,
+                        ),
                       ),
                       Text(
-                        'Satoshi',
+                        userDB.name ?? '--',
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w500,
@@ -86,7 +107,7 @@ class MomentWidgetsUtils {
                         ),
                       ),
                       Text(
-                        'Satosh@0xchat.com· 45s ago',
+                        '${userDB.dns ?? ''}· ${noteDB.createAtStr}',
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w400,
@@ -98,8 +119,7 @@ class MomentWidgetsUtils {
                 ),
                 Container(
                   child: MomentRichTextWidget(
-                    text:
-                        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
+                    text: noteDB.content,
                     textSize: 12.px,
                     maxLines: 2,
                     isShowMoreTextBtn: false,

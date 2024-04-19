@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
@@ -62,12 +62,13 @@ class _NinePalaceGridPictureWidgetState
       onTap: () => _photoOption(false),
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: CommonImage(
-          iconName: imgPath,
-          width: 20.px,
-          fit: BoxFit.fill,
-          height: 20.px,
-          package: 'ox_discovery',
+        child: MomentWidgetsUtils.clipImage(
+          borderRadius: 8.px,
+          child: OXCachedNetworkImage(
+            imageUrl:imgPath,
+            width:20.px,
+            height:20.px,
+          ),
         ),
       ),
     );
@@ -82,12 +83,10 @@ class _NinePalaceGridPictureWidgetState
       onTap: () => _photoOption(isShowAddIcon),
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: Image.asset(
-          imgPath,
-          width: 20.px,
-          fit: BoxFit.fill,
-          height: 20.px,
-          package: isShowAddIcon ? 'ox_discovery' : null,
+        child: OXCachedNetworkImage(
+          imageUrl:imgPath,
+          width:20.px,
+          height:20.px,
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
@@ -35,9 +36,26 @@ class MomentWidget extends StatefulWidget {
 }
 
 class _MomentWidgetState extends State<MomentWidget> {
+
+  UserDB? momentUser;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getMomentUser();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return _momentItemWidget();
+  }
+
+  void _getMomentUser()async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+    momentUser = user;
+    setState(() {});
   }
 
   Widget _momentItemWidget() {
@@ -75,7 +93,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if(info.getMediaList(1).isNotEmpty){
       return NinePalaceGridPictureWidget(
         width: 248.px,
-        imageList: ['moment_avatar.png','moment_avatar.png','moment_avatar.png','moment_avatar.png'],
+        imageList: info.getMediaList(1),
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
     if(info.getMediaList(2).isNotEmpty){
@@ -88,9 +106,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget(){
-    String? getQuoteUrl = MomentContentAnalyzeUtils(widget.noteDB.content).getQuoteUrl;
-    if(getQuoteUrl == null) return const SizedBox();
-    return HorizontalScrollWidget(noteDB: widget.noteDB,);
+    List<String>? getQuoteUrlList = MomentContentAnalyzeUtils(widget.noteDB.content).getQuoteUrlList;
+    // getQuoteUrl
+    if(getQuoteUrlList.isEmpty) return const SizedBox();
+
+    return HorizontalScrollWidget(quoteList: getQuoteUrlList,);
   }
 
   Widget _momentReviewWidget() {
@@ -168,6 +188,13 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentUserInfoWidget() {
+    Widget badgePlaceholderImage = CommonImage(
+      iconName: 'icon_badge_default.png',
+      fit: BoxFit.cover,
+      width: Adapt.px(24),
+      height: Adapt.px(24),
+      useTheme: true,
+    );
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,13 +210,20 @@ class _MomentWidgetState extends State<MomentWidget> {
                         '';
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': pubKey,
+                      'pubkey': widget.noteDB.author,
                     });
                   },
                   child: MomentWidgetsUtils.clipImage(
-                    imageName: 'moment_avatar.png',
                     borderRadius: 40.px,
                     imageSize: 40.px,
+                    child: OXCachedNetworkImage(
+                      imageUrl: momentUser?.picture ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => badgePlaceholderImage,
+                      errorWidget: (context, url, error) => badgePlaceholderImage,
+                      width: 40.px,
+                      height: 40.px,
+                    ),
                   ),
                 ),
                 Container(
@@ -200,7 +234,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Satoshi',
+                        momentUser?.name ?? '--',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: 14.px,
@@ -208,7 +242,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                         ),
                       ),
                       Text(
-                        'Satosh@0xchat.com· ${widget.noteDB.createAtStr}',
+                        (momentUser?.dns ?? '--') + widget.noteDB.createAtStr,
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

@@ -11,8 +11,9 @@ class MomentContentAnalyzeUtils{
 
     final List<String> pubKey = matches.map((m) => m.group(0)!).toList();
     for(String key in pubKey){
-      String? pubkey = UserDB.decodePubkey(key.substring(6));
-      if(pubkey == null) break;
+      Map<String, dynamic>? userMap = Account.decodeProfile(key);
+      if(userMap == null) break;
+      final pubkey = userMap['pubkey'] as String? ?? '';
       UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
       if(user == null) break;
       userDBList[key] = user;
@@ -20,22 +21,21 @@ class MomentContentAnalyzeUtils{
     return userDBList;
   }
 
-  String? get getQuoteUrl {
+  List<String> get getQuoteUrlList {
     final RegExp noteExp = RegExp(r"nostr:note1\w+");
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
-    return noteList.isEmpty ? null : noteList[0];
+    return noteList;
   }
 
   // type = 1 image 2 video
   List<String> getMediaList(int type){
-    final RegExp imgExp = RegExp(r'\b\w+\.(png|jpg|jpeg|gif)\b', caseSensitive: false);
-    final RegExp audioExp = RegExp(r'\b\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b', caseSensitive: false);
+    final RegExp imgExp = RegExp(r'(\S+\/)?\w+\.(png|jpg|jpeg|gif)', caseSensitive: false);
+    final RegExp audioExp = RegExp(r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)', caseSensitive: false);
     RegExp getRegExp = type == 1 ? imgExp : audioExp;
     final Iterable<RegExpMatch> matches = getRegExp.allMatches(content);
 
     final List<String> filesList = matches.map((m) => m.group(0)!).toList();
-
     return filesList;
   }
 
@@ -48,11 +48,11 @@ class MomentContentAnalyzeUtils{
 
    String get getMomentShowContent {
      final RegExp mediaExp = RegExp(
-         r'\b\w+\.(jpg|jpeg|png|gif|mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b',
+         r'\b\w+\.(jpg|jpeg|png|gif|mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b|nostr:note1(\w+)',
          caseSensitive: false
      );
      final String cleanedText = content.replaceAll(mediaExp, '');
      return cleanedText;
   }
-
 }
+

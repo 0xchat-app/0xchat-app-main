@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -171,7 +172,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _quoteWidget() {
     NoteDB? noteDB = widget.noteDB;
     if (widget.type != EMomentType.quote || noteDB == null) return const SizedBox();
-    return HorizontalScrollWidget(noteDB:noteDB);
+    return HorizontalScrollWidget(quoteList:[]);
   }
 
   Widget _captionWidget() {
@@ -283,5 +284,18 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       ...addImageList
     ];
     return containsImageList;
+  }
+
+  Future<void> _uploadMedia(List<String> filePathList) async {
+    final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
+    final fileName = '$currentTime.png';
+    final filePath = filePathList.first;
+    File imageFile = File(filePath);
+
+    final String url = await UplodAliyun.uploadFileToAliyun(
+        fileType: UplodAliyunType.imageType,
+        file: imageFile,
+        filename: fileName
+    );
   }
 }
