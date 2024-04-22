@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
@@ -11,13 +12,12 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
-
 
 class PersonMomentsPage extends StatefulWidget {
   final UserDB userDB;
@@ -27,11 +27,15 @@ class PersonMomentsPage extends StatefulWidget {
   State<PersonMomentsPage> createState() => _PersonMomentsPageState();
 }
 
-class _PersonMomentsPageState extends State<PersonMomentsPage> {
+class _PersonMomentsPageState extends State<PersonMomentsPage>
+    with OXMomentObserver, CommonStateViewMixin {
 
   bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
+  final RefreshController _refreshController = RefreshController();
+  final List<NoteDB> _notes = [];
 
-  List<NoteDB>? _notes = [];
+  final int _limit = 50;
+  int? _lastTimestamp;
 
   @override
   void initState() {
@@ -40,28 +44,51 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
   }
 
   @override
+  stateViewCallBack(CommonStateView commonStateView) {
+    switch (commonStateView) {
+      case CommonStateView.CommonStateView_None:
+        break;
+      case CommonStateView.CommonStateView_NetworkError:
+        break;
+      case CommonStateView.CommonStateView_NoData:
+        break;
+      case CommonStateView.CommonStateView_NotLogin:
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
         backgroundColor: ThemeColor.color190,
-        body: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
-          slivers: <Widget>[
-            _buildAppBar(),
-            SliverToBoxAdapter(
-              child: isCurrentUser ? _buildNewMomentTips() : Container(),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 24.px),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                  return _buildMomentItem(
-                      EMomentType.values[index % EMomentType.values.length]);
-                }, childCount: 50),
+        body: OXSmartRefresher(
+          controller: _refreshController,
+          enablePullDown: false,
+          enablePullUp: true,
+          onLoading: () => _loadNotes(),
+          child: CustomScrollView(
+            physics: const ClampingScrollPhysics(),
+            slivers: <Widget>[
+              _buildAppBar(),
+              SliverToBoxAdapter(
+                child: isCurrentUser ? _buildNewMomentTips() : Container(),
               ),
-            ),
-          ],
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 24.px),
+                sliver: _notes.isNotEmpty ? SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                      return _buildMomentItem(index,);
+                    },
+                    childCount: _notes.length,
+                  ),
+                ) : SliverToBoxAdapter(
+                    child: commonStateViewWidget(context, Container(),),
+                ),
+              ),
+            ],
+          ),
         )
     );
   }
@@ -188,7 +215,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
     );
   }
 
-  Widget _buildMomentItem(EMomentType type) {
+  Widget _buildMomentItem(int index) {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 12.px,
@@ -196,16 +223,16 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTitle(),
+          _buildTitle(_notes[index].createAt),
           MomentWidget(
-              noteDB: draftNoteDB,
+              noteDB: _notes[index],
           )
         ],
       ),
     );
   }
 
-  Widget _buildTitle(){
+  Widget _buildTitle(int timestamp){
     return SizedBox(
       height: 34.px,
       child: Row(
@@ -217,11 +244,11 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24.px),
           ),
           const Spacer(),
-          CommonImage(
-            iconName: 'more_moment_icon.png',
-            size: 20.px,
-            package: 'ox_discovery',
-          ),
+          // CommonImage(
+          //   iconName: 'more_moment_icon.png',
+          //   size: 20.px,
+          //   package: 'ox_discovery',
+          // ),
         ],
       ),
     );
@@ -327,13 +354,35 @@ class _PersonMomentsPageState extends State<PersonMomentsPage> {
   Future<void> _loadNotes() async {
     List<NoteDB>? noteLst;
     if(isCurrentUser) {
-      noteLst = await Moment.sharedInstance.loadMyNotes();
+      noteLst = await Moment.sharedInstance.loadMyNotes(until: _lastTimestamp,limit: _limit);
     } else {
-      noteLst = await Moment.sharedInstance.loadFriendNotes(widget.userDB.pubKey);
+      noteLst = await Moment.sharedInstance.loadFriendNotes(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit);
     }
     setState(() {
-      _notes = noteLst;
+      if(noteLst?.isEmpty ?? true){
+        updateStateView(CommonStateView.CommonStateView_NoData);
+        _refreshController.loadNoData();
+        return;
+      }
+      _notes.addAll(noteLst ?? []);
+      _lastTimestamp = noteLst?.last.createAt;
     });
+    if(noteLst != null && noteLst.length < _limit){
+      _refreshController.loadNoData();
+      return;
+    }
+    _refreshController.loadComplete();
+  }
+
+  @override
+  didNewPrivateNotesCallBack(NoteDB noteDB) {
+
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 
 }
