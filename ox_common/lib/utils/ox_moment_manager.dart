@@ -14,6 +14,14 @@ String content4 =
 String content5 =
     "IIUC the23 geohash asdfasdf.png asdfasdf.jpg  description provided asdfasdf.mp4 here should work: https://github.com/sandwichfarm/nostr-geotags?tab=readme-ov-file#example-response  --&gt; the driver could mention the radius they want to be available at, so can the person searching, ratings could be based on WoT.  What do you think nostr:npub1arkn0xxxll4llgy9qxkrncn3vc4l69s0dz8ef3zadykcwe7ax3dqrrh43w ?nostr:note1zhps6wp7rqchwlmp8s9wq3taramg849lczhds3h4wxvdm5vccc6qxa9zr8";
 
+abstract mixin class OXMomentObserver {
+  didNewPrivateNotesCallBack(NoteDB noteDB) {}
+
+  didNewContactsNotesCallBack(NoteDB noteDB) {}
+
+  didNewUserNotesCallBack(NoteDB noteDB) {}
+}
+
 class OXMomentManager {
   static final OXMomentManager sharedInstance = OXMomentManager._internal();
 
@@ -25,6 +33,12 @@ class OXMomentManager {
   factory OXMomentManager() {
     return sharedInstance;
   }
+
+  final List<OXMomentObserver> _observers = <OXMomentObserver>[];
+
+  void addObserver(OXMomentObserver observer) => _observers.add(observer);
+
+  bool removeObserver(OXMomentObserver observer) => _observers.remove(observer);
 
   Future<void> init() async {
     // await Moment.sharedInstance.init();
@@ -40,9 +54,9 @@ class OXMomentManager {
   }
 
   addMomentCallBack() {
-    Moment.sharedInstance.newPrivateNotesCallBack = (NoteDB noteDB) async {};
-    Moment.sharedInstance.newContactsNotesCallBack = (NoteDB noteDB) async {};
-    Moment.sharedInstance.newUserNotesCallBack = (NoteDB noteDB) async {};
+    Moment.sharedInstance.newPrivateNotesCallBack = this.newPrivateNotesCallBack;
+    Moment.sharedInstance.newContactsNotesCallBack = this.newContactsNotesCallBack;
+    Moment.sharedInstance.newUserNotesCallBack = this.newUserNotesCallBack;
   }
 
   _changeListToMap(List<NoteDB>? list){
@@ -73,6 +87,24 @@ class OXMomentManager {
       return note;
     }).toList();
     return list;
+  }
+
+  void newPrivateNotesCallBack(NoteDB noteDB) {
+    for (OXMomentObserver observer in _observers) {
+      observer.didNewContactsNotesCallBack(noteDB);
+    }
+  }
+
+  void newContactsNotesCallBack(NoteDB noteDB) {
+    for (OXMomentObserver observer in _observers) {
+      observer.didNewContactsNotesCallBack(noteDB);
+    }
+  }
+
+  void newUserNotesCallBack(NoteDB noteDB) {
+    for (OXMomentObserver observer in _observers) {
+      observer.didNewUserNotesCallBack(noteDB);
+    }
   }
 }
 
