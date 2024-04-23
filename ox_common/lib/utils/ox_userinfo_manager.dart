@@ -9,6 +9,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
@@ -209,6 +210,18 @@ class OXUserInfoManager {
 
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
+    };
+
+    Moment.sharedInstance.newPrivateNotesCallBack = (NoteDB note) {
+      OXMomentManager.sharedInstance.newPrivateNotesCallBack(note);
+    };
+
+    Moment.sharedInstance.newContactsNotesCallBack = (NoteDB note) {
+      OXMomentManager.sharedInstance.newContactsNotesCallBack(note);
+    };
+
+    Moment.sharedInstance.newUserNotesCallBack = (NoteDB note) {
+      OXMomentManager.sharedInstance.newUserNotesCallBack(note);
     };
   }
 
