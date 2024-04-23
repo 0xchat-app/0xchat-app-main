@@ -120,4 +120,15 @@ class UplodAliyun {
         return 'logs/';
     }
   }
+
+  // https://help.aliyun.com/zh/oss/user-guide/video-snapshots
+  static String getSnapshot(
+      String url,
+      {String t = '7000',
+        String f = 'jpg',
+        String w = '0',
+        String h = '0',
+        String m = 'fast',
+        String ar = 'auto',
+      }) => '$url?spm=qipa250&x-oss-process=video/snapshot,t_$t,f_$f,w_$w,h_$h,m_$m,ar_$ar';
 }
