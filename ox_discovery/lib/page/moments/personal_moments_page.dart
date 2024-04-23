@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -15,6 +16,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
+import 'package:ox_discovery/page/widgets/style_date.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
@@ -39,6 +41,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   @override
   void initState() {
+    OXMomentManager.sharedInstance.addObserver(this);
     super.initState();
     _loadNotes();
   }
@@ -233,16 +236,17 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Widget _buildTitle(int timestamp){
+    final datetime = OXDateUtils.getLocalizedMonthAbbreviation(timestamp,locale: Localized.getCurrentLanguage().value());
+    final day = datetime.split(' ').first;
+    final month = datetime.split(' ').last;
+
     return SizedBox(
       height: 34.px,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '28 Sep',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24.px),
-          ),
+          StyledDate(day: day, month: month),
           const Spacer(),
           // CommonImage(
           //   iconName: 'more_moment_icon.png',
@@ -354,9 +358,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Future<void> _loadNotes() async {
     List<NoteDB>? noteLst;
     if(isCurrentUser) {
-      noteLst = await Moment.sharedInstance.loadMyNotes(until: _lastTimestamp,limit: _limit);
+      noteLst = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit);
     } else {
-      noteLst = await Moment.sharedInstance.loadFriendNotes(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit);
+      noteLst = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit);
     }
     setState(() {
       if(noteLst?.isEmpty ?? true){
