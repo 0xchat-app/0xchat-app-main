@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:video_compress/video_compress.dart';
@@ -62,10 +63,11 @@ class AlbumUtils {
       Function(List<String>)? callback) async {
     for (final result in images) {
       // OXLoading.show();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
-          );
+      final uint8list = await VideoCompress.getByteThumbnail(
+        result.path,
+        quality: 50, // default(100)
+        position: -1, // default(-1)
+      );
       final image = await decodeImageFromList(uint8list!);
       Directory directory = await getTemporaryDirectory();
       String thumbnailDirPath = '${directory.path}/thumbnails';
@@ -77,7 +79,29 @@ class AlbumUtils {
       await thumbnailFile.writeAsBytes(uint8list);
 
       callback?.call([result.path.toString(), thumbnailPath]);
-
     }
+  }
+
+  static Future<List<String>> uploadMultipleFiles(
+    BuildContext context, {
+    required List<String> filePathList,
+    required UplodAliyunType fileType,
+  }) async {
+    List<String> uploadedUrls = [];
+
+    for (String filePath in filePathList) {
+      final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
+      String fileName = '$currentTime${Path.basename(filePath)}';
+      File imageFile = File(filePath);
+      String uploadedUrl = await UplodAliyun.uploadFileToAliyun(
+        fileType: fileType,
+        file: imageFile,
+        filename: fileName,
+      );
+      if (uploadedUrl.isNotEmpty) {
+        uploadedUrls.add(uploadedUrl);
+      }
+    }
+    return uploadedUrls;
   }
 }

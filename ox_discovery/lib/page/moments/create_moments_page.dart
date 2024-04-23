@@ -9,13 +9,20 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../utils/album_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 import '../widgets/horizontal_scroll_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
+
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 class CreateMomentsPage extends StatefulWidget {
   final EMomentType type;
@@ -23,7 +30,13 @@ class CreateMomentsPage extends StatefulWidget {
   final String? videoPath;
   final String? videoImagePath;
   final NoteDB? noteDB;
-  const CreateMomentsPage({Key? key, required this.type, this.imageList,this.videoPath,this.videoImagePath,this.noteDB})
+  const CreateMomentsPage(
+      {Key? key,
+      required this.type,
+      this.imageList,
+      this.videoPath,
+      this.videoImagePath,
+      this.noteDB})
       : super(key: key);
 
   @override
@@ -31,7 +44,8 @@ class CreateMomentsPage extends StatefulWidget {
 }
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
-  File? _placeholderImage;
+
+  Map<String,UserDB> draftCueUserMap = {};
 
   List<String> addImageList = [];
 
@@ -166,13 +180,15 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Widget _videoWidget() {
     if (widget.type != EMomentType.video) return const SizedBox();
-    return MomentWidgetsUtils.videoMoment(context,widget.videoPath ?? '',widget.videoImagePath ?? '');
+    return MomentWidgetsUtils.videoMoment(
+        context, widget.videoPath ?? '', widget.videoImagePath ?? '');
   }
 
   Widget _quoteWidget() {
     NoteDB? noteDB = widget.noteDB;
-    if (widget.type != EMomentType.quote || noteDB == null) return const SizedBox();
-    return HorizontalScrollWidget(quoteList:[]);
+    if (widget.type != EMomentType.quote || noteDB == null)
+      return const SizedBox();
+    return HorizontalScrollWidget(quoteList: []);
   }
 
   Widget _captionWidget() {
@@ -198,6 +214,13 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           IntelligentInputBoxWidget(
               textController: _textController,
               hintText: 'Add a caption...',
+              cueUserCallback: (UserDB user){
+                String? getName = user.name;
+                if(getName != null){
+                  draftCueUserMap['@${getName}'] = user;
+                  setState(() {});
+                }
+              },
               isFocusedCallback: (bool isFocus) {
                 setState(() {
                   _isInputFocused = isFocus;
@@ -274,8 +297,53 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         context, (context) => const VisibilitySelectionPage());
   }
 
-  void _postMoment() {
+  void _postMoment() async {
+    await OXLoading.show();
+    String getMediaStr = await _getUploadMediaContent();
+    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    OKEvent event = await Moment.sharedInstance.sendPublicNote(content);
+    await OXLoading.dismiss();
+    if(event.status){
+      CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+    }
+
     OXNavigator.pop(context);
+  }
+
+  String _changeCueUserToPubkey(){
+    String content = _textController.text;
+    draftCueUserMap.forEach((tag, replacement) {
+      content = content.replaceAll(tag, replacement.encodedPubkey);
+    });
+    return content;
+  }
+
+  Future<String> _getUploadMediaContent() async {
+    List<String> imageList = _getImageList();
+    String? videoPath = widget.videoPath;
+    if(imageList.isEmpty && videoPath == null) return '';
+
+    if (imageList.isNotEmpty){
+      List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
+        context,
+        fileType: UplodAliyunType.imageType,
+        filePathList: _getImageList(),
+      );
+      String getImageUrlToStr = imgUrlList.join(' '); // 使用空格作为分隔符
+      return getImageUrlToStr;
+    }
+
+    if (videoPath != null){
+      List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
+        context,
+        fileType: UplodAliyunType.videoType,
+        filePathList: [videoPath],
+      );
+      String getVideoUrlToStr = imgUrlList.join(' '); // 使用空格作为分隔符
+      return getVideoUrlToStr;
+    }
+
+    return '';
   }
 
   List<String> _getImageList() {
@@ -284,18 +352,5 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       ...addImageList
     ];
     return containsImageList;
-  }
-
-  Future<void> _uploadMedia(List<String> filePathList) async {
-    final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
-    final fileName = '$currentTime.png';
-    final filePath = filePathList.first;
-    File imageFile = File(filePath);
-
-    final String url = await UplodAliyun.uploadFileToAliyun(
-        fileType: UplodAliyunType.imageType,
-        file: imageFile,
-        filename: fileName
-    );
   }
 }

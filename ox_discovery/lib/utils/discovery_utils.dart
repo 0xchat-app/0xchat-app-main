@@ -23,7 +23,7 @@ class DiscoveryUtils {
 
   static String formatTimestamp(int timestamp) {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    String formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(date);
+    String formattedDate = DateFormat('MM/dd').format(date);
     return formattedDate;
   }
 }

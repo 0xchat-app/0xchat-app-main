@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -36,11 +37,11 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment(UserDB userDB,NoteDB noteDB) {
-
-    Widget _getImageWidget(){
-      List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
-      if(_getImagePathList.isEmpty) return const SizedBox();
+  static Widget quoteMoment(UserDB userDB, NoteDB noteDB) {
+    Widget _getImageWidget() {
+      List<String> _getImagePathList =
+          MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
+      if (_getImagePathList.isEmpty) return const SizedBox();
       return ClipRRect(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(11.5.px),
@@ -59,6 +60,7 @@ class MomentWidgetsUtils {
         ),
       );
     }
+
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
@@ -107,7 +109,7 @@ class MomentWidgetsUtils {
                         ),
                       ),
                       Text(
-                        '${userDB.dns ?? ''}· ${noteDB.createAtStr}',
+                        '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w400,
@@ -160,14 +162,17 @@ class MomentWidgetsUtils {
           ),
           MomentWidgetsUtils.clipImage(
             borderRadius: 16,
-            child: videoImagePath != null
-                ? Image.asset(
-                    videoImagePath,
-                    width: 210.px,
-                    fit: BoxFit.fill,
-                  )
-                : const SizedBox(),
-          ),
+            child: OXCachedNetworkImage(
+              imageUrl: UplodAliyun.getSnapshot(videoUrl),
+              fit: BoxFit.fill,
+              placeholder: (context, url) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              errorWidget: (context, url, error) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              width: 210.px,
+            ),
+          ).setPaddingOnly(bottom: 20.px),
+          // VideoCoverWidget(videoUrl:videoUrl),
           CommonImage(
             iconName: 'play_moment_icon.png',
             package: 'ox_discovery',
@@ -176,6 +181,16 @@ class MomentWidgetsUtils {
           )
         ],
       ),
+    );
+  }
+
+  static Widget badgePlaceholderImage({int size = 24}) {
+    return CommonImage(
+      iconName: 'icon_badge_default.png',
+      fit: BoxFit.cover,
+      width: size.px,
+      height: size.px,
+      useTheme: true,
     );
   }
 }

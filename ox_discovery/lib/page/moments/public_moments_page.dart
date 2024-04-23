@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 
@@ -14,6 +15,7 @@ import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 
 class PublicMomentsPage extends StatefulWidget {
   const PublicMomentsPage({Key? key}) : super(key: key);
@@ -22,7 +24,7 @@ class PublicMomentsPage extends StatefulWidget {
   State<PublicMomentsPage> createState() => _PublicMomentsPageState();
 }
 
-class _PublicMomentsPageState extends State<PublicMomentsPage> {
+class _PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObserver {
   List<NoteDB> notesList = [];
 
   @override
@@ -32,12 +34,17 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
   }
 
   void _getDataList() async {
-    List<NoteDB>? noteLst = await Moment.sharedInstance.loadFriendNotes('7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace');
+    String? pukbey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    // List<NoteDB>? noteLst = await Moment.sharedInstance.loadFriendNotes(pukbey ?? '7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace');
+    List<NoteDB>? noteLst = await Moment.sharedInstance.loadAllNotesFromDB();
     Map<String, NoteDB> list = OXMomentManager.sharedInstance.privateNotesMap;
-
-    notesList = noteLst ?? [];
+    if(noteLst != null){
+      notesList = NoteDBEx.getNoteToMomentList(noteLst);
+    }
     setState(() {});
   }
+
+
 
   @override
   void dispose() {
@@ -76,12 +83,9 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
         NoteDB note = notesList[index];
         return MomentWidget(
           noteDB: note,
-          clickMomentCallback: () {
-            OXNavigator.pushPage(
-                context,
-                (context) => MomentsPage(
-                      noteDB: note,
-                    ));
+          clickMomentCallback: () async{
+           await OXNavigator.pushPage(context, (context) => MomentsPage(noteDB: note));
+
           },
         );
       },
@@ -200,5 +204,20 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> {
       );
     }
     return avatarList;
+  }
+
+  @override
+  didNewPrivateNotesCallBack(NoteDB noteDB) {
+    _getDataList();
+  }
+
+  @override
+  didNewContactsNotesCallBack(NoteDB noteDB) {
+    _getDataList();
+  }
+
+  @override
+  didNewUserNotesCallBack(NoteDB noteDB) {
+    _getDataList();
   }
 }

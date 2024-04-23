@@ -6,7 +6,7 @@ class MomentContentAnalyzeUtils{
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
     Map<String,UserDB?> userDBList = {};
-    final RegExp nostrExp = RegExp(r"nostr:npub\w+");
+    final RegExp nostrExp = RegExp(r"nostr:npub\w+|npub\w+");
     final Iterable<RegExpMatch> matches = nostrExp.allMatches(content);
 
     final List<String> pubKey = matches.map((m) => m.group(0)!).toList();
@@ -47,8 +47,8 @@ class MomentContentAnalyzeUtils{
   }
 
    String get getMomentShowContent {
-     final RegExp mediaExp = RegExp(
-         r'\b\w+\.(jpg|jpeg|png|gif|mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b|nostr:note1(\w+)',
+    final RegExp mediaExp = RegExp(
+         r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv|png|jpg|jpeg|gif)\b|nostr:note1(\w+)',
          caseSensitive: false
      );
      final String cleanedText = content.replaceAll(mediaExp, '');

@@ -21,6 +21,7 @@ import 'nine_palace_grid_picture_widget.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class MomentWidget extends StatefulWidget {
+  final bool isShowUserInfo;
   final List<MomentOption>? momentOptionList;
   final GestureTapCallback? clickMomentCallback;
   final NoteDB noteDB;
@@ -29,6 +30,7 @@ class MomentWidget extends StatefulWidget {
     required this.noteDB,
     this.momentOptionList,
     this.clickMomentCallback,
+    this.isShowUserInfo = true,
   });
 
   @override
@@ -39,12 +41,14 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   UserDB? momentUser;
 
+  UserDB? momentRepostedUser;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getMomentUser();
-
+    _getMomentRepostedUser();
   }
 
   @override
@@ -55,6 +59,14 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _getMomentUser()async {
     UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
     momentUser = user;
+    setState(() {});
+  }
+
+  void _getMomentRepostedUser()async {
+    String? repostId = widget.noteDB.repostId;
+    if(repostId == null) return;
+    UserDB? user = await Account.sharedInstance.getUserInfo(repostId);
+    momentRepostedUser = user;
     setState(() {});
   }
 
@@ -70,6 +82,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _momentRepostedTips(),
             _momentUserInfoWidget(),
             MomentRichTextWidget(
               clickBlankCallback: widget.clickMomentCallback,
@@ -77,6 +90,7 @@ class _MomentWidgetState extends State<MomentWidget> {
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
+            _momentRepostedWidget(),
             // _momentTypeWidget(widget.type),
             // _momentReviewWidget(),
             MomentOptionWidget(
@@ -88,6 +102,33 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
+  Widget _momentRepostedTips(){
+    String? repostId = widget.noteDB.repostId;
+    if(repostId == null || repostId.isEmpty) return const SizedBox();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CommonImage(
+          iconName: 'repost_moment_icon.png',
+          size: 16.px,
+          package: 'ox_discovery',
+          color: ThemeColor.color100,
+        ).setPaddingOnly(
+          right: 8.px,
+        ),
+        Text(
+          'asdf Reposted',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 12.px,
+            color: ThemeColor.color100,
+
+          ),
+        )
+      ],
+    ).setPaddingOnly(bottom: 4.px);
+  }
+
   Widget _showMomentMediaWidget(){
     MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.noteDB.content);
     if(info.getMediaList(1).isNotEmpty){
@@ -97,7 +138,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
     if(info.getMediaList(2).isNotEmpty){
-      return MomentWidgetsUtils.videoMoment(context, '', null);
+      return MomentWidgetsUtils.videoMoment(context, info.getMediaList(2)[0], null);
     }
     if(info.getMomentExternalLink.isNotEmpty){
       return MomentUrlWidget(url: info.getMomentExternalLink[0]);
@@ -107,11 +148,18 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentQuoteWidget(){
     List<String>? getQuoteUrlList = MomentContentAnalyzeUtils(widget.noteDB.content).getQuoteUrlList;
-    // getQuoteUrl
     if(getQuoteUrlList.isEmpty) return const SizedBox();
 
     return HorizontalScrollWidget(quoteList: getQuoteUrlList,);
   }
+
+  Widget _momentRepostedWidget(){
+    String? repostId = widget.noteDB.repostId;
+    if(repostId == null || repostId.isEmpty) return const SizedBox();
+
+    return HorizontalScrollWidget(quoteList: [repostId],);
+  }
+
 
   Widget _momentReviewWidget() {
     return Container(
@@ -188,13 +236,13 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentUserInfoWidget() {
-    Widget badgePlaceholderImage = CommonImage(
-      iconName: 'icon_badge_default.png',
-      fit: BoxFit.cover,
-      width: Adapt.px(24),
-      height: Adapt.px(24),
-      useTheme: true,
-    );
+    if(!widget.isShowUserInfo ) return const SizedBox();
+    String showTimeContent = widget.noteDB.createAtStr;
+    String? dnsStr = momentUser?.dns;
+    if(dnsStr != null && dnsStr.isNotEmpty){
+      showTimeContent = '$dnsStr · $showTimeContent';
+    }
+
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,9 +253,6 @@ class _MomentWidgetState extends State<MomentWidget> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    final pubKey = OXUserInfoManager
-                            .sharedInstance.currentUserInfo?.pubKey ??
-                        '';
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
                       'pubkey': widget.noteDB.author,
@@ -219,8 +264,8 @@ class _MomentWidgetState extends State<MomentWidget> {
                     child: OXCachedNetworkImage(
                       imageUrl: momentUser?.picture ?? '',
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => badgePlaceholderImage,
-                      errorWidget: (context, url, error) => badgePlaceholderImage,
+                      placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+                      errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
                       width: 40.px,
                       height: 40.px,
                     ),
@@ -242,7 +287,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                         ),
                       ),
                       Text(
-                        (momentUser?.dns ?? '--') + widget.noteDB.createAtStr,
+                        showTimeContent,
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

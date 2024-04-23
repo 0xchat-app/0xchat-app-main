@@ -43,10 +43,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MomentWidget( noteDB: draftNoteDB),
-                MomentWidget( noteDB: draftNoteDB),
-                MomentWidget( noteDB: draftNoteDB),
-                MomentWidget( noteDB: draftNoteDB),
+                // MomentWidget( noteDB: draftNoteDB),
+                // MomentWidget( noteDB: draftNoteDB),
+                // MomentWidget( noteDB: draftNoteDB),
+                // MomentWidget( noteDB: draftNoteDB),
               ],
             ),
           ),

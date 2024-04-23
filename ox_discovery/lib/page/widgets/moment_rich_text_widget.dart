@@ -40,6 +40,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   bool isOverTwoLines = false;
   Map<String,UserDB?> userDBList = {};
 
+  int? showMaxLine;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -80,7 +82,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
           RichText(
             textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis,
-            maxLines: isShowMore ? 100 : widget.maxLines,
+            maxLines: isShowMore ? 100 : showMaxLine,
             text: TextSpan(
               style: TextStyle(
                   color: widget.defaultTextColor ?? ThemeColor.color0,
@@ -115,7 +117,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     final List<TextSpan> spans = [];
     final RegExp regex =
-        RegExp(r"#(\w+)|nostr:npub(\w+)|@(\w+)|(https?:\/\/[^\s]+)|\n");
+        RegExp(r"#(\w+)|nostr:npub(\w+)|npub1(\w+)|(https?:\/\/[^\s]+)|\n");
 
     int lastMatchEnd = 0;
     regex.allMatches(text).forEach((match) {
@@ -160,7 +162,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
   
   List<String> _dealWithText(String text){
-    if(text.startsWith('nostr:npub1')){
+    if(text.startsWith('nostr:npub1') | text.startsWith('npub1')){
       if(userDBList[text] != null){
         UserDB userDB = userDBList[text]!;
         return ['@${userDB.name}','@${userDB.pubKey}'];
@@ -200,13 +202,25 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
 
   void _getIsOutOfText(String text,double width){
     TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text,),
+      text: TextSpan(text: text.trim(),),
       maxLines: widget.maxLines,
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(maxWidth: width);
     bool isOver = textPainter.didExceedMaxLines;
+    int lineCount = textPainter.computeLineMetrics().length;
      isOverTwoLines = isOver;
+    _getMaxLines(isOver,lineCount);
      setState(() {});
+  }
+
+  void _getMaxLines(bool isOver,int lineCount){
+    if(lineCount < widget.maxLines!){
+      showMaxLine = lineCount;
+    }else{
+      int? max = isShowMore ? 100 : widget.maxLines;
+      showMaxLine = !isOver ? widget.maxLines : max;
+    }
+    setState(() {});
   }
 }

@@ -1,20 +1,26 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 
 import '../../utils/moment_widgets_utils.dart';
 
 class IntelligentInputBoxWidget extends StatefulWidget {
   final String hintText;
   final Function(bool isFocused)? isFocusedCallback;
+  final Function(UserDB user)? cueUserCallback;
   final TextEditingController textController;
   final String? imageUrl;
   const IntelligentInputBoxWidget({
     super.key,
     this.hintText = '---',
     this.isFocusedCallback,
+    this.cueUserCallback,
     this.imageUrl,
     required this.textController,
   });
@@ -29,6 +35,8 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
 
   bool isShowUserList = false;
   bool isShowTopicList = false;
+
+  List<UserDB> contactsList = [];
 
   @override
   void initState() {
@@ -47,13 +55,19 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     _replyFocusNode.addListener(() {
       widget.isFocusedCallback?.call(_replyFocusNode.hasFocus);
     });
+    _getContactsList();
+  }
+
+  void _getContactsList() {
+    List<UserDB> tempList =  Contacts.sharedInstance.allContacts.values.toList();
+    contactsList = tempList;
+    setState(() {});
   }
 
   void _insertText(String textToInsert) {
     final text = widget.textController.text;
     final textSelection = widget.textController.selection;
-    final newText =
-        text.replaceRange(textSelection.start, textSelection.end, textToInsert);
+    final newText = text.replaceRange(textSelection.start, textSelection.end, textToInsert + ' ');
     widget.textController.value = widget.textController.value.copyWith(
       text: newText,
       selection: TextSelection.collapsed(offset: newText.length),
@@ -156,17 +170,19 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
       controller: null,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: 5,
+      itemCount: contactsList.length,
       itemBuilder: (context, index) {
-        return _captionToUserWidget();
+        return _captionToUserWidget(index);
       },
     );
   }
 
-  Widget _captionToUserWidget() {
+  Widget _captionToUserWidget(int index) {
+    UserDB user = contactsList[index];
     return GestureDetector(
       onTap: () {
-        _insertText('User');
+        widget.cueUserCallback?.call(user);
+        _insertText(user.name ?? user.pubKey);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -185,9 +201,16 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             MomentWidgetsUtils.clipImage(
-              imageName: 'moment_avatar.png',
               borderRadius: 24.px,
               imageSize: 24.px,
+              child: OXCachedNetworkImage(
+                imageUrl: user.picture ?? '',
+                fit: BoxFit.cover,
+                placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+                errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+                width: 24.px,
+                height: 24.px,
+              ),
             ),
             Container(
               margin: EdgeInsets.only(
@@ -196,7 +219,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
               child: Row(
                 children: [
                   Text(
-                    '昵称',
+                    user.name ?? '--',
                     style: TextStyle(
                       color: ThemeColor.color0,
                       fontWeight: FontWeight.w400,
@@ -206,7 +229,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                     right: 8.px,
                   ),
                   Text(
-                    '0xchat@satosh.com',
+                    user.dns ?? '',
                     style: TextStyle(
                       color: ThemeColor.color100,
                       fontWeight: FontWeight.w400,

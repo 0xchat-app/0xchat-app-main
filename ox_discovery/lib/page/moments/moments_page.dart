@@ -8,16 +8,17 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 
+import '../../model/moment_extension_model.dart';
 import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
-import '../widgets/moment_option_widget.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   final NoteDB noteDB;
-  const MomentsPage({Key? key,required this.noteDB}) : super(key: key);
+  const MomentsPage({Key? key, required this.noteDB}) : super(key: key);
 
   @override
   State<MomentsPage> createState() => _MomentsPageState();
@@ -26,14 +27,28 @@ class MomentsPage extends StatefulWidget {
 class _MomentsPageState extends State<MomentsPage> {
   bool _isShowMask = false;
 
+  List<NoteDB> replyList = [];
+
   @override
   void initState() {
     super.initState();
+    _getReplyList();
+    // _getDataList();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _getReplyList() async {
+    List<String>? replyEventIdsList = widget.noteDB.replyEventIds;
+    if (replyEventIdsList == null) return;
+    for (String eventId in replyEventIdsList) {
+      NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
+      if (noteDB != null) replyList.add(noteDB);
+    }
+    setState(() {});
   }
 
   @override
@@ -51,23 +66,27 @@ class _MomentsPageState extends State<MomentsPage> {
         ),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(
-                  left: 24.px,
-                  right: 24.px,
-                  bottom: 100.px,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MomentWidget(
-                      noteDB: draftNoteDB,
-                    ),
-                    _momentItemWidget(),
-                    _momentItemWidget(),
-                    _showRepliesWidget(),
-                  ],
+            Container(
+              height: double.infinity,
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.only(
+                    left: 24.px,
+                    right: 24.px,
+                    bottom: 100.px,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MomentWidget(
+                        noteDB: widget.noteDB,
+                      ),
+                      ...replyList.map((NoteDB note) {
+                        return MomentReplyWidget(noteDB: note);
+                      }).toList(),
+                      _noDataWidget(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -95,55 +114,6 @@ class _MomentsPageState extends State<MomentsPage> {
       height: double.infinity,
       width: double.infinity,
       color: Colors.transparent,
-    );
-  }
-
-  Widget _momentItemWidget() {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
-            children: [
-              MomentWidgetsUtils.clipImage(
-                imageName: 'moment_avatar.png',
-                borderRadius: 40.px,
-                imageSize: 40.px,
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 4.px,
-                  ),
-                  width: 1.0,
-                  color: ThemeColor.color160,
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.all(8.px),
-              padding: EdgeInsets.only(
-                bottom: 16.px,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _momentUserInfoWidget(),
-                  MomentRichTextWidget(
-                    text:
-                        "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi \nhttps://www.0xchat.com",
-                  ),
-                  _quoteMomentWidget(),
-                  MomentOptionWidget(noteDB:widget.noteDB),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -175,6 +145,123 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
+  Widget _noDataWidget(){
+    if(replyList.isNotEmpty) return const SizedBox();
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 120.px,
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            CommonImage(
+              iconName: 'icon_no_data.png',
+              width: Adapt.px(90),
+              height: Adapt.px(90),
+            ),
+            Text(
+              'No Reply !',
+              style: TextStyle(
+                fontSize: 16.px,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color100,
+              ),
+            ).setPaddingOnly(
+              top: 24.px,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+class MomentReplyWidget extends StatefulWidget {
+  final NoteDB noteDB;
+
+  const MomentReplyWidget({
+    super.key,
+    required this.noteDB,
+  });
+
+  @override
+  State<MomentReplyWidget> createState() => _MomentReplyWidgetState();
+}
+
+class _MomentReplyWidgetState extends State<MomentReplyWidget> {
+  UserDB? momentUser;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getMomentUser();
+  }
+
+  void _getMomentUser() async {
+    UserDB? user =
+        await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+    momentUser = user;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _momentItemWidget();
+  }
+
+  Widget _momentItemWidget() {
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            children: [
+              MomentWidgetsUtils.clipImage(
+                borderRadius: 40.px,
+                imageSize: 40.px,
+                child: OXCachedNetworkImage(
+                  imageUrl: momentUser?.picture ?? '',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+                  errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+                  width: 40.px,
+                  height: 40.px,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 4.px,
+                  ),
+                  width: 1.0,
+                  color: ThemeColor.color160,
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.all(8.px),
+              padding: EdgeInsets.only(
+                bottom: 16.px,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _momentUserInfoWidget(),
+                  MomentWidget(noteDB: widget.noteDB, isShowUserInfo: false),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _momentUserInfoWidget() {
     return Container(
       child: Row(
@@ -192,7 +279,7 @@ class _MomentsPageState extends State<MomentsPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Satoshi',
+                        momentUser?.name ?? '--',
                         style: TextStyle(
                           color: ThemeColor.color0,
                           fontSize: 14.px,
@@ -202,7 +289,7 @@ class _MomentsPageState extends State<MomentsPage> {
                         right: 4.px,
                       ),
                       Text(
-                        'Satosh@0xchat.com· 45s ago',
+                        '${momentUser?.dns ?? '--'} · ${widget.noteDB.createAtStr}',
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,
@@ -220,90 +307,6 @@ class _MomentsPageState extends State<MomentsPage> {
           //   size: 20.px,
           //   package: 'ox_discovery',
           // ),
-        ],
-      ),
-    );
-  }
-
-  Widget _quoteMomentWidget() {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: 8.px,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1.px,
-          color: ThemeColor.color160,
-        ),
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            11.5.px,
-          ),
-        ),
-      ),
-      // height: 250.px,
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(11.5.px),
-              topRight: Radius.circular(11.5.px),
-            ),
-            child: Container(
-              height: 172.px,
-              color: ThemeColor.color100,
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(12.px),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    bottom: 4.px,
-                  ),
-                  child: Row(
-                    children: [
-                      MomentWidgetsUtils.clipImage(
-                        imageName: 'moment_avatar.png',
-                        borderRadius: 20.px,
-                        imageSize: 20.px,
-                      ),
-                      Text(
-                        'Satoshi',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w500,
-                          color: ThemeColor.color0,
-                        ),
-                      ).setPadding(
-                        EdgeInsets.symmetric(
-                          horizontal: 4.px,
-                        ),
-                      ),
-                      Text(
-                        'Satosh@0xchat.com· 45s ago',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.color120,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  child: MomentRichTextWidget(
-                    text:
-                    "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly...",
-                    textSize: 12.px,
-                    maxLines: 2,
-                    isShowMoreTextBtn: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

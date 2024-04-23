@@ -43,7 +43,9 @@ class _NinePalaceGridPictureWidgetState
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _imageList.length,
           itemBuilder: (context, index) {
-            return widget.isEdit ?  _showEditImageWidget(context, index, _imageList) : _showImageWidget(context, index, _imageList);
+            return widget.isEdit
+                ? _showEditImageWidget(context, index, _imageList)
+                : _showImageWidget(context, index, _imageList);
           },
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
@@ -56,7 +58,8 @@ class _NinePalaceGridPictureWidgetState
     );
   }
 
-  Widget _showImageWidget(BuildContext context,int index,List<String> imageList){
+  Widget _showImageWidget(
+      BuildContext context, int index, List<String> imageList) {
     String imgPath = imageList[index];
     return GestureDetector(
       onTap: () => _photoOption(false),
@@ -65,28 +68,31 @@ class _NinePalaceGridPictureWidgetState
         child: MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           child: OXCachedNetworkImage(
-            imageUrl:imgPath,
-            width:20.px,
-            height:20.px,
+            fit: BoxFit.cover,
+            imageUrl: imgPath,
+            width: 20.px,
+            height: 20.px,
           ),
         ),
       ),
     );
   }
 
-  Widget _showEditImageWidget(BuildContext context,int index,List<String> imageList){
+  Widget _showEditImageWidget(
+      BuildContext context, int index, List<String> imageList) {
     bool isShowAddIcon = imageList[index] == 'add_moment.png';
-    String imgPath = isShowAddIcon
-        ? 'assets/images/add_moment.png'
-        : imageList[index];
+    String imgPath =
+        isShowAddIcon ? 'assets/images/add_moment.png' : imageList[index];
     return GestureDetector(
       onTap: () => _photoOption(isShowAddIcon),
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: OXCachedNetworkImage(
-          imageUrl:imgPath,
-          width:20.px,
-          height:20.px,
+        child: Image.asset(
+          imgPath,
+          width: 20.px,
+          fit: BoxFit.cover,
+          height: 20.px,
+          package: isShowAddIcon ? 'ox_discovery' : null,
         ),
       ),
     );
@@ -113,7 +119,7 @@ class _NinePalaceGridPictureWidgetState
   }
 
   List<String> _getShowImageList() {
-    if(!widget.isEdit) return widget.imageList;
+    if (!widget.isEdit) return widget.imageList;
     List<String> showImageList = widget.imageList;
     if (widget.isEdit && widget.imageList.length < 9) {
       showImageList.add('add_moment.png');

@@ -6,6 +6,12 @@ import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 
 import '../../utils/moment_widgets_utils.dart';
 
+class MomentInfo{
+  final UserDB userDB;
+  final NoteDB noteDB;
+  MomentInfo({required this.userDB,required this.noteDB});
+}
+
 class HorizontalScrollWidget extends StatefulWidget {
   final List<String> quoteList;
   const HorizontalScrollWidget({super.key, required this.quoteList});
@@ -17,27 +23,40 @@ class HorizontalScrollWidget extends StatefulWidget {
 class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
-
-  List<Map<String, dynamic>> noteList = [];
+  double _height = 290;
+  List<MomentInfo> noteList = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getNoteList();
+
   }
 
   void _getNoteList() async {
     for (String quote in widget.quoteList) {
       final noteInfo = NoteDB.decodeNote(quote);
       NoteDB? note =
-          await Moment.sharedInstance.loadNote(noteInfo!['channelId']);
+          await Moment.sharedInstance.loadNoteWithNoteId(noteInfo!['channelId']);
 
       if (note != null) {
         UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
         if (user != null) {
-          noteList.add({'userDB': user, 'noteDB': note});
+          noteList.add(MomentInfo(userDB: user,noteDB: note));
         }
       }
+    }
+    _setPageViewHeight(noteList,0);
+
+    setState(() {});
+  }
+
+  void _setPageViewHeight(List<MomentInfo> list,int index){
+    List<String> getImage = MomentContentAnalyzeUtils((list[index].noteDB.content)).getMediaList(1);
+
+    _height = getImage.isEmpty ? 120 : 290;
+    if(list.length == 1){
+      _height -= 35;
     }
     setState(() {});
   }
@@ -45,28 +64,30 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 290.px,
+      height: _height.px,
       child: Column(
         children: <Widget>[
           Expanded(
             child: PageView(
               controller: _pageController,
               onPageChanged: (int page) {
+
+                _setPageViewHeight(noteList,page);
                 setState(() {
                   _currentPage = page;
                 });
               },
-              children: noteList.map((Map<String, dynamic> noteInfoMap) {
+              children: noteList.map((MomentInfo noteInfo) {
                 return MomentWidgetsUtils.quoteMoment(
-                    noteInfoMap['userDB'], noteInfoMap['noteDB']);
+                    noteInfo.userDB, noteInfo.noteDB);
               }).toList(),
             ),
           ),
-          Container(
+          noteList.length > 1 ? Container(
             padding: const EdgeInsets.all(12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: noteList.map((Map<String, dynamic> info) {
+              children: noteList.map((MomentInfo info) {
                 int findIndex = noteList.indexOf(info);
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -82,7 +103,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
                 );
               }).toList(),
             ),
-          ),
+          ) : SizedBox(),
         ],
       ),
     );
