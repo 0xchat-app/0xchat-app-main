@@ -22,7 +22,7 @@ class MomentContentAnalyzeUtils{
   }
 
   List<String> get getQuoteUrlList {
-    final RegExp noteExp = RegExp(r"nostr:note1\w+");
+    final RegExp noteExp = RegExp(r"nostr:note1\w+|nostr:nevent1\w+");
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
     return noteList;
@@ -48,7 +48,7 @@ class MomentContentAnalyzeUtils{
 
    String get getMomentShowContent {
     final RegExp mediaExp = RegExp(
-         r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv|png|jpg|jpeg|gif)\b|nostr:note1(\w+)',
+         r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv|png|jpg|jpeg|gif)\b|nostr:note1(\w+)|nostr:nevent1(\w+)',
          caseSensitive: false
      );
      final String cleanedText = content.replaceAll(mediaExp, '');

@@ -39,8 +39,7 @@ class MomentWidgetsUtils {
 
   static Widget quoteMoment(UserDB userDB, NoteDB noteDB) {
     Widget _getImageWidget() {
-      List<String> _getImagePathList =
-          MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
+      List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
       if (_getImagePathList.isEmpty) return const SizedBox();
       return ClipRRect(
         borderRadius: BorderRadius.only(

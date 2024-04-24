@@ -83,7 +83,7 @@ class AlbumUtils {
   }
 
   static Future<List<String>> uploadMultipleFiles(
-    BuildContext context, {
+    BuildContext? context, {
     required List<String> filePathList,
     required UplodAliyunType fileType,
   }) async {
@@ -94,6 +94,7 @@ class AlbumUtils {
       String fileName = '$currentTime${Path.basename(filePath)}';
       File imageFile = File(filePath);
       String uploadedUrl = await UplodAliyun.uploadFileToAliyun(
+        context: context,
         fileType: fileType,
         file: imageFile,
         filename: fileName,
