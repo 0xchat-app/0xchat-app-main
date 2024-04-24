@@ -20,7 +20,8 @@ class ContactChoosePage<T> extends StatefulWidget {
   final String? title;
   final String? searchBarHintText;
   final ValueChanged<List<T>>? onSubmitted;
-  const ContactChoosePage({super.key, this.contactType, this.title, this.searchBarHintText, this.onSubmitted});
+  final List<T>? selectedContactList;
+  const ContactChoosePage({super.key, this.contactType, this.title, this.searchBarHintText, this.onSubmitted, this.selectedContactList});
 
   @override
   State<ContactChoosePage<T>> createState() => _ContactChoosePageState<T>();
@@ -29,7 +30,7 @@ class ContactChoosePage<T> extends StatefulWidget {
 class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
   List<T> _contactList = [];
   final List<T> _selectedContactList = [];
-  final ValueNotifier<bool> _isClear = ValueNotifier(false);
+  bool _isClear = false;
   final TextEditingController _controller = TextEditingController();
   final Map<String, List<T>> _groupedContactList = {};
   Map<String, List<T>> _filteredContactList = {};
@@ -42,10 +43,11 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
     _initializeContactList();
     _controller.addListener(() {
       if (_controller.text.isNotEmpty) {
-        _isClear.value = true;
+        _isClear = true;
       } else {
-        _isClear.value = false;
+        _isClear = false;
       }
+      setState(() {});
     });
   }
 
@@ -55,6 +57,9 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
     }
     if(widget.contactType == ContactType.group){
       _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDB).owner.isNotEmpty).toList();
+    }
+    if(widget.selectedContactList != null && widget.selectedContactList!.isNotEmpty){
+      _selectedContactList.addAll(widget.selectedContactList as List<T>);
     }
     _groupedContact();
   }
@@ -238,26 +243,21 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
                 onChanged: _handlingSearch,
               ),
             ),
-            ValueListenableBuilder(
-              builder: (context, value, child) {
-                return _isClear.value
-                    ? GestureDetector(
-                  onTap: () {
-                    _controller.clear();
-                    setState(() {
-                      _filteredContactList = _groupedContactList;
-                    });
-                  },
-                  child: CommonImage(
-                    iconName: 'icon_textfield_close.png',
-                    width: Adapt.px(16),
-                    height: Adapt.px(16),
-                  ),
-                )
-                    : Container();
-              },
-              valueListenable: _isClear,
-            ),
+            _isClear
+                ? GestureDetector(
+                    onTap: () {
+                      _controller.clear();
+                      setState(() {
+                        _filteredContactList = _groupedContactList;
+                      });
+                    },
+                    child: CommonImage(
+                      iconName: 'icon_textfield_close.png',
+                      width: Adapt.px(16),
+                      height: Adapt.px(16),
+                    ),
+                  )
+                : Container(),
           ],
         ));
   }
@@ -286,6 +286,27 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
   }
 
   void _handlingSearch(String searchQuery){
+    setState(() {
+      Map<String, List<T>> searchResult = {};
+      _groupedContactList.forEach(
+        (key, value) {
+          if (widget.contactType == ContactType.contact) {
+            List<UserDB> tempList = (value as List<UserDB>)
+                .where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+            searchResult[key] = tempList.cast<T>();
+          }
+          if (widget.contactType == ContactType.group) {
+            List<GroupDB> tempList = (value as List<GroupDB>)
+                .where((item) => item.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+            searchResult[key] = tempList.cast<T>();
+          }
+        },
+      );
+      searchResult.removeWhere((key, value) => value.isEmpty);
+      _filteredContactList = searchResult;
+    });
   }
 
   @override
