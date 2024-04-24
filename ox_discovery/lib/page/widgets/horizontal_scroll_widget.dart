@@ -52,11 +52,19 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   void _setPageViewHeight(List<MomentInfo> list,int index){
+    final textPainter = TextPainter(
+      text: TextSpan(text: MomentContentAnalyzeUtils((list[index].noteDB.content)).getMomentShowContent.trim(), style: TextStyle(fontSize: 16.0)), // 设定文本样式
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 60);
+    bool isOneLine = textPainter.didExceedMaxLines;
     List<String> getImage = MomentContentAnalyzeUtils((list[index].noteDB.content)).getMediaList(1);
     _height = getImage.isEmpty ? 120 : 300;
     if(list.length == 1){
       _height -= 35;
     }
+    _height = isOneLine ? _height - 17 : _height;
     setState(() {});
   }
 
@@ -76,8 +84,15 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
                 });
               },
               children: noteList.map((MomentInfo noteInfo) {
+                final textPainter = TextPainter(
+                  text: TextSpan(text: MomentContentAnalyzeUtils((noteInfo.noteDB.content)).getMomentShowContent.trim(), style: TextStyle(fontSize: 16.0)), // 设定文本样式
+                  maxLines: 1,
+                  textDirection: TextDirection.ltr,
+                );
+                textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 60);
+                bool isOneLine = textPainter.didExceedMaxLines;
                 return MomentWidgetsUtils.quoteMoment(
-                    noteInfo.userDB, noteInfo.noteDB);
+                    noteInfo.userDB, noteInfo.noteDB,isOneLine);
               }).toList(),
             ),
           ),

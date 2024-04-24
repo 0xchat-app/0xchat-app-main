@@ -37,7 +37,7 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment(UserDB userDB, NoteDB noteDB) {
+  static Widget quoteMoment(UserDB userDB, NoteDB noteDB,isOneLine) {
     Widget _getImageWidget() {
       List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
       if (_getImagePathList.isEmpty) return const SizedBox();
@@ -122,7 +122,7 @@ class MomentWidgetsUtils {
                   child: MomentRichTextWidget(
                     text: noteDB.content,
                     textSize: 12.px,
-                    maxLines: 2,
+                    maxLines: isOneLine ? 1 : 2,
                     isShowMoreTextBtn: false,
                   ),
                 ),
