@@ -11,9 +11,11 @@ import 'package:ox_discovery/page/widgets/flexible_selector.dart';
 import 'package:chatcore/chat-core.dart';
 
 class VisibilitySelectionPage extends StatefulWidget {
-  final Function(VisibleType type, List<String>)? onSubmitted;
+  final VisibleType? visibleType;
+  final List<UserDB>? selectedContacts;
+  final Function(VisibleType type, List<UserDB>)? onSubmitted;
 
-  const VisibilitySelectionPage({super.key, this.onSubmitted});
+  const VisibilitySelectionPage({super.key, this.onSubmitted, this.visibleType, required this.selectedContacts});
 
   @override
   State<VisibilitySelectionPage> createState() => _VisibilitySelectionPageState();
@@ -22,10 +24,17 @@ class VisibilitySelectionPage extends StatefulWidget {
 class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
 
   final List<VisibleType> _visibleItems = List.of([...VisibleType.values]);
-  VisibleType _currentVisibleType = VisibleType.everyone;
+  late VisibleType _currentVisibleType;
 
   // List<UserDB> _includeContacts = [];
   List<UserDB> _excludeContacts = [];
+
+  @override
+  void initState() {
+    _currentVisibleType = widget.visibleType ?? VisibleType.everyone;
+    _excludeContacts = widget.selectedContacts ?? [];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +170,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
                 title: 'Close Friends',
                 contactType: ContactType.contact,
                 onSubmitted: _selectedOnChanged,
+                selectedContactList: _excludeContacts,
               ),
             );
           }
@@ -198,10 +208,10 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
 
   void _onSubmitted() {
     if (_currentVisibleType == VisibleType.excludeContact) {
-      List<String> pubkeys = _excludeContacts.map((e) => e.pubKey).toList();
-      widget.onSubmitted?.call(_currentVisibleType, pubkeys);
+      widget.onSubmitted?.call(_currentVisibleType, _excludeContacts);
     } else {
       widget.onSubmitted?.call(_currentVisibleType, []);
     }
+    OXNavigator.pop(context);
   }
 }

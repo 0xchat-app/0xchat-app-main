@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -52,6 +53,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   bool _isInputFocused = false;
 
   final TextEditingController _textController = TextEditingController();
+
+  VisibleType _visibleType = VisibleType.everyone;
+  List<UserDB> _selectedContacts = [];
 
   @override
   void initState() {
@@ -294,16 +298,40 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   void _visibleToUser() {
     OXNavigator.presentPage(
-        context, (context) => const VisibilitySelectionPage());
+      context,
+      (context) => VisibilitySelectionPage(
+        visibleType: _visibleType,
+        selectedContacts: _selectedContacts,
+        onSubmitted: (type,items){
+          _visibleType = type;
+          _selectedContacts = items;
+        },
+      ),
+    );
   }
 
   void _postMoment() async {
     await OXLoading.show();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
-    OKEvent event = await Moment.sharedInstance.sendPublicNote(content);
+    OKEvent? event;
+    switch (_visibleType) {
+      case VisibleType.everyone:
+        event = await Moment.sharedInstance.sendPublicNote(content);
+        break;
+      case VisibleType.allContact:
+        await Moment.sharedInstance.sendNoteContacts(content);
+        break;
+      case VisibleType.private:
+        await Moment.sharedInstance.sendNoteJustMe(content);
+        break;
+      case VisibleType.excludeContact:
+        final pubkeys = _selectedContacts.map((e) => e.pubKey).toList();
+        await Moment.sharedInstance.sendNoteCloseFriends(pubkeys, content);
+        break;
+    }
     await OXLoading.dismiss();
-    if(event.status){
+    if(event?.status ?? false){
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 

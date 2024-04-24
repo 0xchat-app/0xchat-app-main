@@ -229,6 +229,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           _buildTitle(_notes[index].createAt),
           MomentWidget(
               noteDB: _notes[index],
+              isShowUserInfo: false,
           )
         ],
       ),
@@ -242,16 +243,19 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
     return SizedBox(
       height: 34.px,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.centerLeft,
         children: [
           StyledDate(day: day, month: month),
-          const Spacer(),
-          // CommonImage(
-          //   iconName: 'more_moment_icon.png',
-          //   size: 20.px,
-          //   package: 'ox_discovery',
+          // Positioned(
+          //   right: 0,
+          //   top: 0,
+          //   child: CommonImage(
+          //     iconName: 'more_moment_icon.png',
+          //     size: 20.px,
+          //     package: 'ox_discovery',
+          //   ),
           // ),
         ],
       ),
