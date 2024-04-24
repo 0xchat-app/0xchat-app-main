@@ -10,7 +10,7 @@ extension NoteDBEx on NoteDB {
   static List<NoteDB> getNoteToMomentList(List<NoteDB> noteList) {
     List<NoteDB> list = [];
     for (NoteDB note in noteList) {
-      if (note.root.isEmpty) {
+      if (note.root == null || note.root!.isEmpty) {
         list.add(note);
       }
     }
