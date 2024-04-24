@@ -173,7 +173,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     }
 
     if(text.startsWith('http')){
-      return [text.substring(0,20) + '...',text];
+      int subLength = text.length > 20 ? 20 : text.length;
+      return [text.substring(0,subLength) + '...',text];
     }
     return [text,text];
   }
@@ -216,7 +217,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
 
   void _getMaxLines(bool isOver,int lineCount){
     if(lineCount < widget.maxLines!){
-      showMaxLine = lineCount;
+      showMaxLine = lineCount == 0 ? 1 : lineCount;
     }else{
       int? max = isShowMore ? 100 : widget.maxLines;
       showMaxLine = !isOver ? widget.maxLines : max;

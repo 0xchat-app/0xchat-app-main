@@ -73,6 +73,8 @@ class _NinePalaceGridPictureWidgetState
             imageUrl: imgPath,
             width: 20.px,
             height: 20.px,
+            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
           ),
         ),
       ),

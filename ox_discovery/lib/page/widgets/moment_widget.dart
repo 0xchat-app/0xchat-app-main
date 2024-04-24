@@ -130,6 +130,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentMediaWidget(){
+    print('===widget.noteDB.content==${widget.noteDB.content}');
     MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.noteDB.content);
     if(info.getMediaList(1).isNotEmpty){
       return NinePalaceGridPictureWidget(

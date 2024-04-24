@@ -166,22 +166,23 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           ],
         ),
       ),
-      body: OXSmartRefresher(
-        controller: _refreshController,
-        enablePullDown: true,
-        enablePullUp: false,
-        onRefresh: _onRefresh,
-        onLoading: null,
-        child: const SingleChildScrollView(
-          child: Column(
-            children: [
-              // _topSearch(),
-              PublicMomentsPage(),
-              // commonStateViewWidget(context, bodyWidget()),
-            ],
-          ),
-        ),
-      ),
+      body:  PublicMomentsPage(),
+      // OXSmartRefresher(
+      //   controller: _refreshController,
+      //   enablePullDown: true,
+      //   enablePullUp: false,
+      //   onRefresh: _onRefresh,
+      //   onLoading: null,
+      //   child: const SingleChildScrollView(
+      //     child: Column(
+      //       children: [
+      //         // _topSearch(),
+      //         PublicMomentsPage(),
+      //         // commonStateViewWidget(context, bodyWidget()),
+      //       ],
+      //     ),
+      //   ),
+      // ),
     );
   }
 

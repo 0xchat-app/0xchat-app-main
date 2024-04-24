@@ -149,7 +149,7 @@ class _MomentsPageState extends State<MomentsPage> {
     if(replyList.isNotEmpty) return const SizedBox();
     return Padding(
       padding: EdgeInsets.only(
-        top: 120.px,
+        top: 50.px,
       ),
       child: Center(
         child: Column(

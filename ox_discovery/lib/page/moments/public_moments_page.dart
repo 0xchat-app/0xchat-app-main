@@ -10,6 +10,7 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/widgets/common_pull_refresher.dart';
 
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
@@ -24,49 +25,64 @@ class PublicMomentsPage extends StatefulWidget {
   State<PublicMomentsPage> createState() => _PublicMomentsPageState();
 }
 
-class _PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObserver {
+class _PublicMomentsPageState extends State<PublicMomentsPage>
+    with OXMomentObserver {
   List<NoteDB> notesList = [];
+
+  final RefreshController _refreshController = RefreshController();
+
+  int? _lastTimestamp;
+
+  final int _limit = 50;
 
   @override
   void initState() {
     super.initState();
-    _getDataList();
+    _loadNotes();
   }
+
 
   void _getDataList() async {
     String? pukbey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     // List<NoteDB>? noteLst = await Moment.sharedInstance.loadFriendNotes(pukbey ?? '7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace');
     List<NoteDB>? noteLst = await Moment.sharedInstance.loadAllNotesFromDB();
     Map<String, NoteDB> list = OXMomentManager.sharedInstance.privateNotesMap;
-    if(noteLst != null){
+    if (noteLst != null) {
       notesList = NoteDBEx.getNoteToMomentList(noteLst);
     }
     setState(() {});
   }
 
-
-
   @override
   void dispose() {
+    _refreshController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 24.px,
-        ),
-        margin: EdgeInsets.only(
-          bottom: 100.px,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _newMomentTipsWidget(),
-            _getMomentListWidget(),
-          ],
+    return OXSmartRefresher(
+      controller: _refreshController,
+      enablePullDown: false,
+      enablePullUp: true,
+      onLoading: () => _loadNotes(),
+      child: Expanded(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.px,
+            ),
+            margin: EdgeInsets.only(
+              bottom: 100.px,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _newMomentTipsWidget(),
+                _getMomentListWidget(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -83,9 +99,9 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObse
         NoteDB note = notesList[index];
         return MomentWidget(
           noteDB: note,
-          clickMomentCallback: () async{
-           await OXNavigator.pushPage(context, (context) => MomentsPage(noteDB: note));
-
+          clickMomentCallback: () async {
+            await OXNavigator.pushPage(
+                context, (context) => MomentsPage(noteDB: note));
           },
         );
       },
@@ -219,5 +235,18 @@ class _PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObse
   @override
   didNewUserNotesCallBack(NoteDB noteDB) {
     _getDataList();
+  }
+
+  Future<void> _loadNotes() async {
+    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
+    if(list.isEmpty)  return _refreshController.loadNoData();
+    notesList.addAll(list);
+    _lastTimestamp = list.last.createAt;
+    setState(() {});
+    if(list.length < _limit){
+      _refreshController.loadNoData();
+      return;
+    }
+    _refreshController.loadComplete();
   }
 }

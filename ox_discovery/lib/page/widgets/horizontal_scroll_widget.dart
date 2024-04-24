@@ -36,8 +36,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   void _getNoteList() async {
     for (String quote in widget.quoteList) {
       final noteInfo = NoteDB.decodeNote(quote);
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo!['channelId']);
 
+      if(noteInfo == null) continue;
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
       if (note != null) {
         UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
         if (user != null) {
@@ -52,7 +53,6 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   void _setPageViewHeight(List<MomentInfo> list,int index){
     List<String> getImage = MomentContentAnalyzeUtils((list[index].noteDB.content)).getMediaList(1);
-
     _height = getImage.isEmpty ? 120 : 300;
     if(list.length == 1){
       _height -= 35;
