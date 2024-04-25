@@ -54,8 +54,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   final TextEditingController _textController = TextEditingController();
 
-  VisibleType _visibleType = VisibleType.everyone;
-  List<UserDB> _selectedContacts = [];
+  VisibleType? _visibleType;
+  List<UserDB>? _selectedContacts;
 
   @override
   void initState() {
@@ -326,8 +326,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         await Moment.sharedInstance.sendNoteJustMe(content);
         break;
       case VisibleType.excludeContact:
-        final pubkeys = _selectedContacts.map((e) => e.pubKey).toList();
-        await Moment.sharedInstance.sendNoteCloseFriends(pubkeys, content);
+        final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
+        await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
         break;
     }
     await OXLoading.dismiss();
