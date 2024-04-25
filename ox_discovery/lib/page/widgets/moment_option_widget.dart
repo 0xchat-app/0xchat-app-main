@@ -78,7 +78,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     switch (type) {
       case EMomentOptionType.reply:
         return () =>
-            OXNavigator.pushPage(context, (context) => ReplyMomentsPage());
+            OXNavigator.pushPage(context, (context) => ReplyMomentsPage(noteDB: widget.noteDB));
       case EMomentOptionType.repost:
         return () => showModalBottomSheet(
             context: context,

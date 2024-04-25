@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
@@ -7,22 +6,30 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
+import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../utils/album_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
+import 'package:chatcore/chat-core.dart';
 
-import 'package:flutter/cupertino.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
-  const ReplyMomentsPage({Key? key}) : super(key: key);
+
+  final NoteDB noteDB;
+  const ReplyMomentsPage(
+      {Key? key, required this.noteDB})
+      : super(key: key);
 
   @override
-  State<ReplyMomentsPage> createState() => _ReplyMomentsPageState();
+  State<ReplyMomentsPage> createState() =>
+      _ReplyMomentsPageState();
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
@@ -30,9 +37,14 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   String? _showImage;
 
+  UserDB? momentUserDB;
+
+  List<String> get getImagePicList => MomentContentAnalyzeUtils(widget.noteDB.content).getMediaList(1);
+
   @override
   void initState() {
     super.initState();
+    _getMomentUser();
   }
 
   @override
@@ -41,12 +53,19 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     _textController.dispose();
   }
 
+  void _getMomentUser() async {
+    UserDB? user =
+        await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+    momentUserDB = user;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
@@ -88,7 +107,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _momentItemWidget(),
+                // _momentItemWidget(),
+                _momentReplyWidget(),
+                _replyToWhoWidget(),
                 IntelligentInputBoxWidget(
                   imageUrl: _showImage,
                   textController: _textController,
@@ -103,7 +124,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  Widget _momentItemWidget() {
+
+  Widget _momentReplyWidget() {
+    if (momentUserDB == null) return const SizedBox();
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -111,9 +134,18 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
           Column(
             children: [
               MomentWidgetsUtils.clipImage(
-                imageName: 'moment_avatar.png',
                 borderRadius: 40.px,
                 imageSize: 40.px,
+                child: OXCachedNetworkImage(
+                  imageUrl: momentUserDB?.picture ?? '',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      MomentWidgetsUtils.badgePlaceholderImage(),
+                  errorWidget: (context, url, error) =>
+                      MomentWidgetsUtils.badgePlaceholderImage(),
+                  width: 40.px,
+                  height: 40.px,
+                ),
               ),
               Expanded(
                 child: Container(
@@ -126,74 +158,111 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               ),
             ],
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _momentUserInfoWidget(),
-              ],
-            ),
-          ),
+          _momentUserInfoWidget(),
         ],
       ),
     );
   }
 
   Widget _momentUserInfoWidget() {
+    String showTimeContent = widget.noteDB.createAtStr;
+    String? dnsStr = momentUserDB?.dns;
+    if (dnsStr != null && dnsStr.isNotEmpty) {
+      showTimeContent = '$dnsStr · $showTimeContent';
+    }
+    double width = MediaQuery.of(context).size.width - 106;
+    width = width - (getImagePicList.isEmpty ? 0 : 60);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         SizedBox(
-          width: 226.px,
+          width: width.px,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(
-                      left: 10.px,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Satoshi',
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: 14.px,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ).setPaddingOnly(
-                          right: 4.px,
-                        ),
-                        Text(
-                          'Satosh@0xchat.com· 45s ago',
-                          style: TextStyle(
-                            color: ThemeColor.color120,
-                            fontSize: 12.px,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
+              RichText(
+                textAlign: TextAlign.left,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                text: TextSpan(
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: 14.px,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                  children: [
+                    TextSpan(text: momentUserDB?.name ?? ''),
+                    TextSpan(
+                      text: ' ' + showTimeContent,
+                      style: TextStyle(
+                        color: ThemeColor.color120,
+                        fontSize: 12.px,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               MomentRichTextWidget(
-                text:
-                    "#0xchat it's worth noting that Satoshi Nakamoto's true identity ",
+                text: MomentContentAnalyzeUtils(widget.noteDB.content)
+                    .getMomentShowContent,
+                maxLines: 100,
                 textSize: 12.px,
               ),
             ],
           ),
         ),
-        CommonImage(
-          iconName: 'moment_avatar.png',
-          size: 60.px,
-          package: 'ox_discovery',
-        ),
+        _showPicWidget(),
       ],
+    ).setPaddingOnly(left: 8.px);
+  }
+
+  Widget _showPicWidget() {
+    if(getImagePicList.isEmpty) return const SizedBox();
+    return MomentWidgetsUtils.clipImage(
+      borderRadius: 8.px,
+      imageSize: 60.px,
+      child: OXCachedNetworkImage(
+        imageUrl: getImagePicList[0],
+        fit: BoxFit.cover,
+        placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+        errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+        width: 60.px,
+        height: 60.px,
+      ),
+    ).setPaddingOnly(left: 8.px);
+  }
+
+  Widget _replyToWhoWidget(){
+    return RichText(
+      textAlign: TextAlign.left,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      text: TextSpan(
+        style: TextStyle(
+          color: ThemeColor.color0,
+          fontSize: 14.px,
+          fontWeight: FontWeight.w400,
+        ),
+        children: [
+          const TextSpan(text: 'Reply to'),
+          TextSpan(
+            text: ' @${momentUserDB?.name}',
+            style: TextStyle(
+              color: ThemeColor.purple2,
+              fontSize: 12.px,
+              fontWeight: FontWeight.w400,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
+                  'pubkey': momentUserDB?.pubKey,
+                });
+              },
+          ),
+        ],
+      ),
     );
   }
 
@@ -261,7 +330,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() {
-    if(_textController.text.isEmpty && _showImage == null){
+    if (_textController.text.isEmpty && _showImage == null) {
       CommonToast.instance.show(context, 'The content cannot be empty !');
       return;
     }

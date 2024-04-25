@@ -29,17 +29,15 @@ class DiscoveryUtils {
     return formattedDate;
   }
 
-  static int getTextLine(String text, double width, int? maxLine) {
+  static Map<String, dynamic> getTextLine(String text, double width, int? maxLine) {
     TextPainter textPainter = TextPainter(
-      text: TextSpan(
-        text: text.trim(),
-      ),
-      maxLines: maxLine ?? 100,
+      text: TextSpan(text: text.trim()),
+      maxLines: maxLine,
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(maxWidth: width);
     int lineCount = textPainter.computeLineMetrics().length;
-
-    return lineCount;
+    bool isOver = textPainter.didExceedMaxLines;
+    return { 'isOver':isOver, 'lineCount':lineCount};
   }
 }

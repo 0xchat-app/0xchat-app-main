@@ -163,7 +163,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
   
   List<String> _dealWithText(String text){
-    if(text.startsWith('nostr:npub1') | text.startsWith('npub1')){
+    if(text.startsWith('nostr:npub1') || text.startsWith('npub1')){
+
       if(userDBList[text] != null){
         UserDB userDB = userDBList[text]!;
         return ['@${userDB.name}','@${userDB.pubKey}'];
@@ -202,14 +203,13 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     widget.clickBlankCallback?.call();
   }
 
-  void _getIsOutOfText(String text,double width){
-    int maxLines = widget.maxLines ?? 1;
-    int lineCount = DiscoveryUtils.getTextLine(text,width, widget.maxLines);
-    bool isOver = lineCount > maxLines;
-
-     isOverTwoLines = isOver;
-    _getMaxLines(isOver,lineCount);
-     setState(() {});
+  void _getIsOutOfText(String text,double width) {
+    final textInfo = DiscoveryUtils.getTextLine(text,width, widget.maxLines);
+    bool isOver = textInfo['isOver'];
+    int lineCount = textInfo['lineCount'];
+    _getMaxLines(isOver, lineCount);
+    isOverTwoLines = isOver;
+    setState(() {});
   }
 
   void _getMaxLines(bool isOver,int lineCount){

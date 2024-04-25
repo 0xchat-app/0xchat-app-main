@@ -125,7 +125,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   int _getTextLine(String text) {
     double width = MediaQuery.of(context).size.width - 60;
-    int line = DiscoveryUtils.getTextLine(text, width, null);
+    int line = DiscoveryUtils.getTextLine(text, width, null)['lineCount'];
     return line;
   }
 
