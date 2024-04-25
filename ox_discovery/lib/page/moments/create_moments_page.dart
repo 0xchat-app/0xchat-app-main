@@ -320,14 +320,16 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         event = await Moment.sharedInstance.sendPublicNote(content);
         break;
       case VisibleType.allContact:
-        await Moment.sharedInstance.sendNoteContacts(content);
+        event = await Moment.sharedInstance.sendNoteContacts(content);
         break;
       case VisibleType.private:
-        await Moment.sharedInstance.sendNoteJustMe(content);
+        event = await Moment.sharedInstance.sendNoteJustMe(content);
         break;
       case VisibleType.excludeContact:
         final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
-        await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
+        event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
+        break;
+      default:
         break;
     }
     await OXLoading.dismiss();
