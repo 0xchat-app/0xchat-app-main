@@ -9,6 +9,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import '../../utils/discovery_utils.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -202,14 +203,10 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
 
   void _getIsOutOfText(String text,double width){
-    TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text.trim(),),
-      maxLines: widget.maxLines,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: width);
-    bool isOver = textPainter.didExceedMaxLines;
-    int lineCount = textPainter.computeLineMetrics().length;
+    int maxLines = widget.maxLines ?? 1;
+    int lineCount = DiscoveryUtils.getTextLine(text,width, widget.maxLines);
+    bool isOver = lineCount > maxLines;
+
      isOverTwoLines = isOver;
     _getMaxLines(isOver,lineCount);
      setState(() {});

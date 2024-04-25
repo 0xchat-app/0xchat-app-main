@@ -192,4 +192,17 @@ class MomentWidgetsUtils {
       useTheme: true,
     );
   }
+
+  static int getTextLine(String text,double width,int? maxLine){
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text.trim(),),
+      maxLines: maxLine ?? 100,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: width);
+    bool isOver = textPainter.didExceedMaxLines;
+    int lineCount = textPainter.computeLineMetrics().length;
+
+    return lineCount;
+  }
 }

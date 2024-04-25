@@ -52,7 +52,7 @@ class MomentContentAnalyzeUtils{
          caseSensitive: false
      );
      final String cleanedText = content.replaceAll(mediaExp, '');
-     return cleanedText;
+     return cleanedText.trim();
   }
 }
 

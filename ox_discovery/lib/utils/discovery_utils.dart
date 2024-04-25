@@ -1,4 +1,6 @@
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart' as Intl;
 
 class DiscoveryUtils {
   static String formatTimeAgo(int timestamp) {
@@ -23,7 +25,21 @@ class DiscoveryUtils {
 
   static String formatTimestamp(int timestamp) {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    String formattedDate = DateFormat('MM/dd').format(date);
+    String formattedDate = Intl.DateFormat('MM/dd').format(date);
     return formattedDate;
+  }
+
+  static int getTextLine(String text, double width, int? maxLine) {
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: text.trim(),
+      ),
+      maxLines: maxLine ?? 100,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: width);
+    int lineCount = textPainter.computeLineMetrics().length;
+
+    return lineCount;
   }
 }

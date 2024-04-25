@@ -2,14 +2,14 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
-
 import '../../utils/moment_widgets_utils.dart';
 
-class MomentInfo{
+class MomentInfo {
   final UserDB userDB;
   final NoteDB noteDB;
-  MomentInfo({required this.userDB,required this.noteDB});
+  MomentInfo({required this.userDB, required this.noteDB});
 }
 
 class HorizontalScrollWidget extends StatefulWidget {
@@ -21,104 +21,123 @@ class HorizontalScrollWidget extends StatefulWidget {
 }
 
 class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
-  int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
+  int _currentPage = 0;
   double _height = 290;
   List<MomentInfo> noteList = [];
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getNoteList();
+  }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _height.px,
+      child: Column(
+        children: <Widget>[
+          _pageViewWidget(),
+          _navigationControllerWidget(),
+        ],
+      ),
+    );
+  }
+
+  Widget _pageViewWidget(){
+    return Expanded(
+      child: PageView(
+        controller: _pageController,
+        onPageChanged: (int page) {
+          _setPageViewHeight(noteList, page);
+          setState(() {
+            _currentPage = page;
+          });
+        },
+        children: _showNoteItemWidget(),
+      ),
+    );
+  }
+
+  List<Widget> _showNoteItemWidget() {
+    return noteList.map((MomentInfo noteInfo) {
+      String text = MomentContentAnalyzeUtils((noteInfo.noteDB.content)).getMomentShowContent;
+      bool isOneLine = _getTextLine(text) > 1;
+      return MomentWidgetsUtils.quoteMoment(
+        noteInfo.userDB,
+        noteInfo.noteDB,
+        isOneLine,
+      );
+    }).toList();
+  }
+
+  Widget _navigationControllerWidget() {
+    if (noteList.isEmpty) return const SizedBox();
+    return Container(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: noteList.map((MomentInfo info) {
+          int findIndex = noteList.indexOf(info);
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 10,
+            width: (findIndex == _currentPage) ? 30 : 10,
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: (findIndex == _currentPage)
+                  ? ThemeColor.color100
+                  : ThemeColor.color100.withOpacity(0.5),
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   void _getNoteList() async {
     for (String quote in widget.quoteList) {
       final noteInfo = NoteDB.decodeNote(quote);
+      if (noteInfo == null) continue;
 
-      if(noteInfo == null) continue;
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
       if (note != null) {
         UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
         if (user != null) {
-          noteList.add(MomentInfo(userDB: user,noteDB: note));
+          noteList.add(MomentInfo(userDB: user, noteDB: note));
         }
       }
     }
-    _setPageViewHeight(noteList,0);
+    _setPageViewHeight(noteList, 0);
 
     setState(() {});
   }
 
-  void _setPageViewHeight(List<MomentInfo> list,int index){
-    final textPainter = TextPainter(
-      text: TextSpan(text: MomentContentAnalyzeUtils((list[index].noteDB.content)).getMomentShowContent.trim(), style: TextStyle(fontSize: 16.0)), // 设定文本样式
-      maxLines: 1,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 60);
-    bool isOneLine = textPainter.didExceedMaxLines;
-    List<String> getImage = MomentContentAnalyzeUtils((list[index].noteDB.content)).getMediaList(1);
+
+  int _getTextLine(String text) {
+    double width = MediaQuery.of(context).size.width - 60;
+    int line = DiscoveryUtils.getTextLine(text, width, null);
+    return line;
+  }
+
+  void _setPageViewHeight(List<MomentInfo> list, int index) {
+    MomentContentAnalyzeUtils utils = MomentContentAnalyzeUtils((list[index].noteDB.content));
+    bool isOneLine = _getTextLine(utils.getMomentShowContent) > 1;
+    List<String> getImage = utils.getMediaList(1);
     _height = getImage.isEmpty ? 120 : 300;
-    if(list.length == 1){
-      _height -= 35;
+    if (list.length == 1) {
+      _height -= 35; // Navigation bar height
     }
-    _height = isOneLine ? _height - 17 : _height;
+    _height = isOneLine ? _height - 17 : _height; // Text height
     setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: _height.px,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (int page) {
-                _setPageViewHeight(noteList,page);
-                setState(() {
-                  _currentPage = page;
-                });
-              },
-              children: noteList.map((MomentInfo noteInfo) {
-                final textPainter = TextPainter(
-                  text: TextSpan(text: MomentContentAnalyzeUtils((noteInfo.noteDB.content)).getMomentShowContent.trim(), style: TextStyle(fontSize: 16.0)), // 设定文本样式
-                  maxLines: 1,
-                  textDirection: TextDirection.ltr,
-                );
-                textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 60);
-                bool isOneLine = textPainter.didExceedMaxLines;
-                return MomentWidgetsUtils.quoteMoment(
-                    noteInfo.userDB, noteInfo.noteDB,isOneLine);
-              }).toList(),
-            ),
-          ),
-          noteList.length > 1 ? Container(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: noteList.map((MomentInfo info) {
-                int findIndex = noteList.indexOf(info);
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: 10,
-                  width: (findIndex == _currentPage) ? 30 : 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: (findIndex == _currentPage)
-                        ? ThemeColor.color100
-                        : ThemeColor.color100.withOpacity(0.5),
-                  ),
-                );
-              }).toList(),
-            ),
-          ) : SizedBox(),
-        ],
-      ),
-    );
   }
 }
