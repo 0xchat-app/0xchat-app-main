@@ -215,7 +215,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
         ),
         _showPicWidget(),
       ],
-    ).setPaddingOnly(left: 8.px);
+    ).setPaddingOnly(left: 8.px,bottom: 20.px);
   }
 
   Widget _showPicWidget() {
