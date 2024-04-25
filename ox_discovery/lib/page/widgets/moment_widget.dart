@@ -2,7 +2,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -18,7 +17,6 @@ import 'moment_option_widget.dart';
 import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 
-import 'package:nostr_core_dart/nostr.dart';
 
 class MomentWidget extends StatefulWidget {
   final bool isShowUserInfo;
@@ -40,7 +38,6 @@ class MomentWidget extends StatefulWidget {
 class _MomentWidgetState extends State<MomentWidget> {
 
   UserDB? momentUser;
-
   UserDB? momentRepostedUser;
 
   @override
@@ -91,8 +88,6 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
             _momentRepostedWidget(),
-            // _momentTypeWidget(widget.type),
-            // _momentReviewWidget(),
             MomentOptionWidget(
                 noteDB:widget.noteDB
             ),
@@ -130,21 +125,28 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentMediaWidget(){
-    print('===widget.noteDB.content==${widget.noteDB.content}');
-    MomentContentAnalyzeUtils info = MomentContentAnalyzeUtils(widget.noteDB.content);
-    if(info.getMediaList(1).isNotEmpty){
+    MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(widget.noteDB.content);
+    if(mediaAnalyzer.getMediaList(1).isNotEmpty){
       return NinePalaceGridPictureWidget(
+        crossAxisCount: _calculateColumnsForPictures(mediaAnalyzer),
         width: 248.px,
-        imageList: info.getMediaList(1),
+        imageList: mediaAnalyzer.getMediaList(1),
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
-    if(info.getMediaList(2).isNotEmpty){
-      return MomentWidgetsUtils.videoMoment(context, info.getMediaList(2)[0], null);
+    if(mediaAnalyzer.getMediaList(2).isNotEmpty){
+      return MomentWidgetsUtils.videoMoment(context, mediaAnalyzer.getMediaList(2)[0], null);
     }
-    if(info.getMomentExternalLink.isNotEmpty){
-      return MomentUrlWidget(url: info.getMomentExternalLink[0]);
+    if(mediaAnalyzer.getMomentExternalLink.isNotEmpty){
+      return MomentUrlWidget(url: mediaAnalyzer.getMomentExternalLink[0]);
     }
     return const SizedBox();
+  }
+
+  int _calculateColumnsForPictures(MomentContentAnalyzeUtils mediaAnalyzer){
+    int picNum = mediaAnalyzer.getMediaList(1).length;
+    if(picNum == 1)  return 1;
+    if(picNum > 1 && picNum < 5) return 2;
+    return 3;
   }
 
   Widget _momentQuoteWidget(){
@@ -159,81 +161,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     if(repostId == null || repostId.isEmpty) return const SizedBox();
 
     return HorizontalScrollWidget(quoteList: [repostId],);
-  }
-
-
-  Widget _momentReviewWidget() {
-    return Container(
-      decoration: BoxDecoration(
-        color: ThemeColor.color190,
-        borderRadius: BorderRadius.all(Radius.circular(8.px)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              vertical: 6.px,
-              horizontal: 8.px,
-            ),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: ThemeColor.color200,
-                  width: 0.5.px,
-                ),
-              ),
-            ),
-            child: Row(
-              children: [
-                CommonImage(
-                  iconName: 'like_moment_icon.png',
-                  size: 16.px,
-                  package: 'ox_discovery',
-                ).setPaddingOnly(right: 4.px),
-                Text(
-                  'Satoshi, ',
-                  style: TextStyle(
-                    color: ThemeColor.gradientMainStart,
-                    fontSize: 11.px,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-              ],
-            ),
-          ),
-          ...[1,2,3].map((int int) => _momentReviewItemWidget()),
-        ],
-      ),
-    );
-  }
-
-  Widget _momentReviewItemWidget(){
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 6.px,
-        horizontal: 8.px,
-      ),
-      child: Row(
-        children: [
-          Text(
-            'Satoshi: ',
-            style: TextStyle(
-              color: ThemeColor.gradientMainStart,
-              fontSize: 11.px,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            'Thanks',
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: 11.px,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _momentUserInfoWidget() {

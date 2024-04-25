@@ -6,6 +6,7 @@ import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class NinePalaceGridPictureWidget extends StatefulWidget {
+  final int crossAxisCount;
   final double? width;
   final bool isEdit;
   final List<String> imageList;
@@ -17,6 +18,7 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
     this.addImageCallback,
     this.width,
     this.isEdit = false,
+    this.crossAxisCount = 3
   });
 
   @override
@@ -24,8 +26,14 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
       _NinePalaceGridPictureWidgetState();
 }
 
-class _NinePalaceGridPictureWidgetState
-    extends State<NinePalaceGridPictureWidget> {
+class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidget> {
+
+  double get _getPicSize{
+    if(widget.crossAxisCount == 1) return 50;
+    if(widget.crossAxisCount == 2) return 30;
+    return 20;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,7 +57,7 @@ class _NinePalaceGridPictureWidgetState
                 : _showImageWidget(context, index, _imageList);
           },
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
+            crossAxisCount: widget.crossAxisCount,
             crossAxisSpacing: 10.px,
             mainAxisSpacing: 10.px,
             childAspectRatio: 1,
@@ -71,8 +79,8 @@ class _NinePalaceGridPictureWidgetState
           child: OXCachedNetworkImage(
             fit: BoxFit.cover,
             imageUrl: imgPath,
-            width: 20.px,
-            height: 20.px,
+            width: _getPicSize.px,
+            height: _getPicSize.px,
             placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
             errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
           ),
@@ -92,9 +100,9 @@ class _NinePalaceGridPictureWidgetState
         borderRadius: 8.px,
         child: Image.asset(
           imgPath,
-          width: 20.px,
+          width: _getPicSize.px,
+          height: _getPicSize.px,
           fit: BoxFit.cover,
-          height: 20.px,
           package: isShowAddIcon ? 'ox_discovery' : null,
         ),
       ),
@@ -111,12 +119,18 @@ class _NinePalaceGridPictureWidgetState
   }
 
   double _getAspectRatio(int length) {
-    if (length >= 1 && length <= 3) {
-      return 3.0;
-    } else if (length >= 4 && length <= 6) {
-      return 1.5;
-    } else if (length >= 7 && length <= 9) {
-      return 1.0;
+    if(widget.crossAxisCount == 1) return 1.0;
+    if(widget.crossAxisCount == 2) {
+      return length > 2 ? 1 : 2;
+    }
+    if(widget.crossAxisCount == 3) {
+      if (length >= 1 && length <= 3) {
+        return 3.0;
+      } else if (length >= 4 && length <= 6) {
+        return 1.5;
+      } else if (length >= 7 && length <= 9) {
+        return 1.0;
+      }
     }
     return 1.0;
   }
@@ -129,4 +143,5 @@ class _NinePalaceGridPictureWidgetState
     }
     return showImageList;
   }
+
 }
