@@ -211,17 +211,12 @@ class OXUserInfoManager {
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
-
-    Moment.sharedInstance.newPrivateNotesCallBack = (NoteDB note) {
-      OXMomentManager.sharedInstance.newPrivateNotesCallBack(note);
+    Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
+      OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
     };
 
-    Moment.sharedInstance.newContactsNotesCallBack = (NoteDB note) {
-      OXMomentManager.sharedInstance.newContactsNotesCallBack(note);
-    };
-
-    Moment.sharedInstance.newUserNotesCallBack = (NoteDB note) {
-      OXMomentManager.sharedInstance.newUserNotesCallBack(note);
+    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDB> notifications) {
+      OXMomentManager.sharedInstance.newNotificationCallBack(notifications);
     };
   }
 
