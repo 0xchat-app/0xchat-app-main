@@ -54,7 +54,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   final TextEditingController _textController = TextEditingController();
 
-  VisibleType? _visibleType;
+  VisibleType _visibleType = VisibleType.allContact;
   List<UserDB>? _selectedContacts;
 
   @override
@@ -275,7 +275,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'My Contacts',
+                    _visibleType.name,
                     style: TextStyle(
                       fontSize: 16.px,
                       color: ThemeColor.color0,
@@ -303,8 +303,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         visibleType: _visibleType,
         selectedContacts: _selectedContacts,
         onSubmitted: (type,items){
-          _visibleType = type;
-          _selectedContacts = items;
+          setState(() {
+            _visibleType = type;
+            _selectedContacts = items;
+          });
         },
       ),
     );
