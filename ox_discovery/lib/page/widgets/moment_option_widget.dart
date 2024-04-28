@@ -6,11 +6,18 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_option_model.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
+
+import 'package:chatcore/chat-core.dart';
+import 'package:flutter/services.dart';
+import 'package:nostr_core_dart/nostr.dart';
+
+
 
 class MomentOptionWidget extends StatefulWidget {
   final NoteDB noteDB;
@@ -39,7 +46,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> typeList = EMomentOptionType.values.map((s) => s.name).toList();
     return GestureDetector(
       onTap: () {},
       child: Container(
@@ -142,12 +148,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
           _buildItem(
             EMomentQuoteType.repost,
             index: 0,
-            onTap: () {
+            onTap: ()async {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(
-                context,
-                (context) => CreateMomentsPage(type: EMomentType.quote),
-              );
+              OKEvent event =  await Moment.sharedInstance.sendRepost(widget.noteDB.noteId, null);
+              if(event.status){
+                CommonToast.instance.show(context, 'repost success !');
+              }
             },
           ),
           Divider(
@@ -159,10 +165,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(
-                context,
-                (context) => CreateMomentsPage(type: EMomentType.quote),
-              );
+              OXNavigator.presentPage(context, (context) => CreateMomentsPage(type: EMomentType.quote,noteDB: widget.noteDB));
             },
           ),
           Divider(

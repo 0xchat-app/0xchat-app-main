@@ -42,8 +42,8 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList() async {
-    List<String>? replyEventIdsList = widget.noteDB.replyEventIds;
-    if (replyEventIdsList == null) return;
+    List<String> replyEventIdsList = await Moment.sharedInstance.loadPublicNoteActionsFromRelay(widget.noteDB.noteId);
+    if (replyEventIdsList.isEmpty) return;
     for (String eventId in replyEventIdsList) {
       NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
       if (noteDB != null) replyList.add(noteDB);
@@ -56,7 +56,7 @@ class _MomentsPageState extends State<MomentsPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
         backgroundColor: ThemeColor.color200,

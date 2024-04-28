@@ -13,8 +13,9 @@ class MomentInfo {
 }
 
 class HorizontalScrollWidget extends StatefulWidget {
-  final List<String> quoteList;
-  const HorizontalScrollWidget({super.key, required this.quoteList});
+  final List<String>? quoteList;
+  final NoteDB? noteDB;
+  const HorizontalScrollWidget({super.key, this.quoteList,this.noteDB});
 
   @override
   _HorizontalScrollWidgetState createState() => _HorizontalScrollWidgetState();
@@ -80,7 +81,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   Widget _navigationControllerWidget() {
-    if (noteList.isEmpty) return const SizedBox();
+    if (noteList.isEmpty ||  noteList.length == 1) return const SizedBox();
     return Container(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -105,18 +106,30 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   void _getNoteList() async {
-    for (String quote in widget.quoteList) {
-      final noteInfo = NoteDB.decodeNote(quote);
-      if (noteInfo == null) continue;
+    List<String>? quoteList = widget.quoteList;
+    NoteDB? noteDB = widget.noteDB;
+    if(quoteList != null){
+      for (String quote in quoteList) {
+        final noteInfo = NoteDB.decodeNote(quote);
+        if (noteInfo == null) continue;
 
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
-      if (note != null) {
-        UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
-        if (user != null) {
-          noteList.add(MomentInfo(userDB: user, noteDB: note));
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
+        if (note != null) {
+          UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
+          if (user != null) {
+            noteList.add(MomentInfo(userDB: user, noteDB: note));
+          }
         }
       }
     }
+
+    if(noteDB != null){
+      UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
+      if (user != null) {
+        noteList.add(MomentInfo(userDB: user, noteDB: noteDB));
+      }
+    }
+
     _setPageViewHeight(noteList, 0);
 
     setState(() {});
@@ -138,6 +151,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       _height -= 35; // Navigation bar height
     }
     _height = isOneLine ? _height - 17 : _height; // Text height
+    _height  = _height + 5;
     setState(() {});
   }
 }

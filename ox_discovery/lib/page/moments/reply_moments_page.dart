@@ -2,11 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
@@ -18,6 +20,9 @@ import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 import 'package:chatcore/chat-core.dart';
+
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 
 
 class ReplyMomentsPage extends StatefulWidget {
@@ -33,6 +38,8 @@ class ReplyMomentsPage extends StatefulWidget {
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
+  Map<String,UserDB> draftCueUserMap = {};
+
   final TextEditingController _textController = TextEditingController();
 
   String? _showImage;
@@ -114,6 +121,13 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   imageUrl: _showImage,
                   textController: _textController,
                   hintText: 'Post your reply',
+                  cueUserCallback: (UserDB user){
+                    String? getName = user.name;
+                    if(getName != null){
+                      draftCueUserMap['@$getName'] = user;
+                      setState(() {});
+                    }
+                  },
                 ).setPaddingOnly(top: 12.px),
                 _mediaWidget(),
               ],
@@ -329,12 +343,47 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  void _postMoment() {
+  void _postMoment() async {
     if (_textController.text.isEmpty && _showImage == null) {
       CommonToast.instance.show(context, 'The content cannot be empty !');
       return;
     }
-    CommonToast.instance.show(context, 'Release success !');
-    OXNavigator.pop(context);
+    await OXLoading.show();
+    String getMediaStr = await _getUploadMediaContent();
+    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.noteDB.noteId, content);
+    await OXLoading.dismiss();
+
+    if(event.status){
+      OXNavigator.pop(context);
+    }
+  }
+
+
+
+  Future<String> _getUploadMediaContent() async {
+    String? imagePath = _showImage;
+    if(imagePath == null) return '';
+    List<String> imageList = [imagePath];
+
+    if (imageList.isNotEmpty){
+      List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
+        context,
+        fileType: UplodAliyunType.imageType,
+        filePathList: imageList,
+      );
+      String getImageUrlToStr = imgUrlList.join(' ');
+      return getImageUrlToStr;
+    }
+
+    return '';
+  }
+
+  String _changeCueUserToPubkey(){
+    String content = _textController.text;
+    draftCueUserMap.forEach((tag, replacement) {
+      content = content.replaceAll(tag, replacement.encodedPubkey);
+    });
+    return content;
   }
 }

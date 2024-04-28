@@ -17,6 +17,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../utils/album_utils.dart';
+import '../../utils/moment_content_analyze_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 import '../widgets/horizontal_scroll_widget.dart';
@@ -190,9 +191,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Widget _quoteWidget() {
     NoteDB? noteDB = widget.noteDB;
-    if (widget.type != EMomentType.quote || noteDB == null)
-      return const SizedBox();
-    return HorizontalScrollWidget(quoteList: []);
+    if (widget.type != EMomentType.quote || noteDB == null) return const SizedBox();
+    return HorizontalScrollWidget(noteDB: noteDB);
   }
 
   Widget _captionWidget() {
@@ -236,6 +236,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _visibleContactsWidget() {
+    if(widget.type == EMomentType.quote) return const SizedBox();
     return Container(
       margin: EdgeInsets.only(
         top: 12.px,
@@ -317,23 +318,30 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     OKEvent? event;
-    switch (_visibleType) {
-      case VisibleType.everyone:
-        event = await Moment.sharedInstance.sendPublicNote(content);
-        break;
-      case VisibleType.allContact:
-        event = await Moment.sharedInstance.sendNoteContacts(content);
-        break;
-      case VisibleType.private:
-        event = await Moment.sharedInstance.sendNoteJustMe(content);
-        break;
-      case VisibleType.excludeContact:
-        final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
-        event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
-        break;
-      default:
-        break;
+
+    NoteDB? noteDB = widget.noteDB;
+    if(widget.type == EMomentType.quote && noteDB != null){
+      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content);
+    }else{
+      switch (_visibleType) {
+        case VisibleType.everyone:
+          event = await Moment.sharedInstance.sendPublicNote(content);
+          break;
+        case VisibleType.allContact:
+          event = await Moment.sharedInstance.sendNoteContacts(content);
+          break;
+        case VisibleType.private:
+          event = await Moment.sharedInstance.sendNoteJustMe(content);
+          break;
+        case VisibleType.excludeContact:
+          final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
+          event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
+          break;
+        default:
+          break;
+      }
     }
+
     await OXLoading.dismiss();
     if(event?.status ?? false){
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
@@ -361,7 +369,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         fileType: UplodAliyunType.imageType,
         filePathList: _getImageList(),
       );
-      String getImageUrlToStr = imgUrlList.join(' '); // 使用空格作为分隔符
+      String getImageUrlToStr = imgUrlList.join(' ');
       return getImageUrlToStr;
     }
 
@@ -371,7 +379,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         fileType: UplodAliyunType.videoType,
         filePathList: [videoPath],
       );
-      String getVideoUrlToStr = imgUrlList.join(' '); // 使用空格作为分隔符
+      String getVideoUrlToStr = imgUrlList.join(' ');
       return getVideoUrlToStr;
     }
 

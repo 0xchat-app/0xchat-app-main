@@ -66,22 +66,20 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       enablePullDown: false,
       enablePullUp: true,
       onLoading: () => _loadNotes(),
-      child: Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 24.px,
-            ),
-            margin: EdgeInsets.only(
-              bottom: 100.px,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _newMomentTipsWidget(),
-                _getMomentListWidget(),
-              ],
-            ),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 24.px,
+          ),
+          margin: EdgeInsets.only(
+            bottom: 100.px,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _newMomentTipsWidget(),
+              _getMomentListWidget(),
+            ],
           ),
         ),
       ),
@@ -223,22 +221,18 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   @override
-  didNewPrivateNotesCallBack(NoteDB noteDB) {
+  didNewNotesCallBackCallBack(List<NoteDB> notes) {
     _getDataList();
   }
 
   @override
-  didNewContactsNotesCallBack(NoteDB noteDB) {
-    _getDataList();
-  }
-
-  @override
-  didNewUserNotesCallBack(NoteDB noteDB) {
+  didNewNotificationCallBack(List<NotificationDB> notifications) {
     _getDataList();
   }
 
   Future<void> _loadNotes() async {
     List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
+    list = list.where((NoteDB note) => note.root == null || note.root!.isEmpty).toList();
     if(list.isEmpty)  return _refreshController.loadNoData();
     notesList.addAll(list);
     _lastTimestamp = list.last.createAt;

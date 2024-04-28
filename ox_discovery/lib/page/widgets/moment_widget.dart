@@ -38,33 +38,19 @@ class MomentWidget extends StatefulWidget {
 class _MomentWidgetState extends State<MomentWidget> {
 
   UserDB? momentUser;
-  UserDB? momentRepostedUser;
+
+  late NoteDB noteDB;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getMomentUser();
-    _getMomentRepostedUser();
+    _init();
   }
 
   @override
   Widget build(BuildContext context) {
     return _momentItemWidget();
-  }
-
-  void _getMomentUser()async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
-    momentUser = user;
-    setState(() {});
-  }
-
-  void _getMomentRepostedUser()async {
-    String? repostId = widget.noteDB.repostId;
-    if(repostId == null) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(repostId);
-    momentRepostedUser = user;
-    setState(() {});
   }
 
   Widget _momentItemWidget() {
@@ -79,17 +65,16 @@ class _MomentWidgetState extends State<MomentWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _momentRepostedTips(),
+            MomentRepostedTips(noteDB: widget.noteDB,),
             _momentUserInfoWidget(),
             MomentRichTextWidget(
               clickBlankCallback: widget.clickMomentCallback,
-              text: widget.noteDB.content,
+              text: noteDB.content,
             ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
-            _momentRepostedWidget(),
             MomentOptionWidget(
-                noteDB:widget.noteDB
+                noteDB:noteDB
             ),
           ],
         ),
@@ -97,35 +82,8 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
-  Widget _momentRepostedTips(){
-    String? repostId = widget.noteDB.repostId;
-    if(repostId == null || repostId.isEmpty) return const SizedBox();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CommonImage(
-          iconName: 'repost_moment_icon.png',
-          size: 16.px,
-          package: 'ox_discovery',
-          color: ThemeColor.color100,
-        ).setPaddingOnly(
-          right: 8.px,
-        ),
-        Text(
-          'asdf Reposted',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 12.px,
-            color: ThemeColor.color100,
-
-          ),
-        )
-      ],
-    ).setPaddingOnly(bottom: 4.px);
-  }
-
   Widget _showMomentMediaWidget(){
-    MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(widget.noteDB.content);
+    MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(noteDB.content);
     if(mediaAnalyzer.getMediaList(1).isNotEmpty){
       return NinePalaceGridPictureWidget(
         crossAxisCount: _calculateColumnsForPictures(mediaAnalyzer),
@@ -150,22 +108,17 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget(){
-    List<String>? getQuoteUrlList = MomentContentAnalyzeUtils(widget.noteDB.content).getQuoteUrlList;
+    List<String>? getQuoteUrlList = MomentContentAnalyzeUtils(noteDB.content).getQuoteUrlList;
     if(getQuoteUrlList.isEmpty) return const SizedBox();
-
-    return HorizontalScrollWidget(quoteList: getQuoteUrlList,);
+    String? quoteRepostId = noteDB.quoteRepostId;
+    NoteDB? note = (quoteRepostId == null || quoteRepostId.isEmpty) ? null : noteDB;
+    return HorizontalScrollWidget(quoteList: getQuoteUrlList, noteDB: note,);
   }
 
-  Widget _momentRepostedWidget(){
-    String? repostId = widget.noteDB.repostId;
-    if(repostId == null || repostId.isEmpty) return const SizedBox();
-
-    return HorizontalScrollWidget(quoteList: [repostId],);
-  }
 
   Widget _momentUserInfoWidget() {
-    if(!widget.isShowUserInfo ) return const SizedBox();
-    String showTimeContent = widget.noteDB.createAtStr;
+    if(!widget.isShowUserInfo) return const SizedBox();
+    String showTimeContent = noteDB.createAtStr;
     String? dnsStr = momentUser?.dns;
     if(dnsStr != null && dnsStr.isNotEmpty){
       showTimeContent = '$dnsStr · $showTimeContent';
@@ -183,7 +136,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                   onTap: () {
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': widget.noteDB.author,
+                      'pubkey': noteDB.author,
                     });
                   },
                   child: MomentWidgetsUtils.clipImage(
@@ -237,4 +190,82 @@ class _MomentWidgetState extends State<MomentWidget> {
       ),
     );
   }
+
+  void _init()async {
+    noteDB = widget.noteDB;
+    String? repostId = widget.noteDB.repostId;
+    if(repostId != null && repostId.isNotEmpty){
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+      noteDB = note ?? noteDB;
+    }
+    _getMomentUser(noteDB);
+    setState(() {});
+  }
+
+  void _getMomentUser(NoteDB noteDB) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
+    momentUser = user;
+    setState(() {});
+  }
+
 }
+
+
+class MomentRepostedTips extends StatefulWidget {
+  final NoteDB noteDB;
+  const MomentRepostedTips({
+    super.key,
+    required this.noteDB,
+  });
+
+  @override
+  _MomentRepostedTipsState createState() => _MomentRepostedTipsState();
+}
+
+class _MomentRepostedTipsState extends State<MomentRepostedTips> {
+
+  UserDB? momentUserDB;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getMomentUser();
+  }
+
+
+  void _getMomentUser() async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+    momentUserDB = user;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String? repostId = widget.noteDB.repostId;
+    if(repostId == null || repostId.isEmpty) return const SizedBox();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CommonImage(
+          iconName: 'repost_moment_icon.png',
+          size: 16.px,
+          package: 'ox_discovery',
+          color: ThemeColor.color100,
+        ).setPaddingOnly(
+          right: 8.px,
+        ),
+        Text(
+          '${momentUserDB?.name ?? ''} Reposted',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 12.px,
+            color: ThemeColor.color100,
+
+          ),
+        )
+      ],
+    ).setPaddingOnly(bottom: 4.px);
+  }
+}
+
