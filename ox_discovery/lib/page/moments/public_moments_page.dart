@@ -11,6 +11,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/page/widgets/moment_notification_tips.dart';
 
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
@@ -153,28 +154,21 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _wrapContainerWidget(
+          MomentNotificationTips(
             onTap: () {
               OXNavigator.pushPage(
                   context, (context) => NotificationsMomentsPage());
             },
-            leftWidget: _memberAvatarWidget(),
-            rightContent: '10 new pots',
           ),
           SizedBox(
             width: 20.px,
           ),
-          _wrapContainerWidget(
+          MomentNotificationTips(
             onTap: () {
               OXNavigator.pushPage(
                   context, (context) => NotificationsMomentsPage());
             },
-            leftWidget: MomentWidgetsUtils.clipImage(
-              imageName: 'moment_avatar.png',
-              borderRadius: 26.px,
-              imageSize: 26.px,
-            ),
-            rightContent: '2 replies',
+            type: NotificationType.reply,
           ),
         ],
       ),
