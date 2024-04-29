@@ -18,6 +18,12 @@ class OXMomentManager {
     return sharedInstance;
   }
 
+  List<NoteDB> _notes = [];
+  List<NotificationDB> _notifications = [];
+
+  List<NoteDB> get notes => _notes;
+  List<NotificationDB> get notifications => _notifications;
+
   final List<OXMomentObserver> _observers = <OXMomentObserver>[];
 
   void addObserver(OXMomentObserver observer) => _observers.add(observer);
@@ -44,13 +50,25 @@ class OXMomentManager {
     }
   }
 
+  void clearNewNotes() {
+    Moment.sharedInstance.clearNewNotes();
+    _notes = [];
+  }
+
+  void clearNewNotifications() {
+    Moment.sharedInstance.clearNewNotifications();
+    _notifications = [];
+  }
+
   void newNotesCallBackCallBack(List<NoteDB> notes) {
+    _notes = notes;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotesCallBackCallBack(notes);
     }
   }
 
   void newNotificationCallBack(List<NotificationDB> notifications) {
+    _notifications = notifications;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotificationCallBack(notifications);
     }
