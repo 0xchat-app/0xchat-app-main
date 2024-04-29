@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' as Intl;
@@ -39,5 +40,19 @@ class DiscoveryUtils {
     int lineCount = textPainter.computeLineMetrics().length;
     bool isOver = textPainter.didExceedMaxLines;
     return { 'isOver':isOver, 'lineCount':lineCount};
+  }
+
+  static Future<String> getAvatar(String pubkey) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+    return user?.picture ?? '';
+  }
+
+  static Future<List<String>> getAvatarBatch(List<String> pubkeys) async {
+    List<String> avatars = [];
+    for (var element in pubkeys) {
+      String avatar = await getAvatar(element);
+      avatars.add(avatar);
+    }
+    return avatars;
   }
 }

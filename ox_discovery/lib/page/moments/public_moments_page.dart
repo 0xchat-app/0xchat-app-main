@@ -1,6 +1,4 @@
 import 'dart:ui';
-import 'package:avatar_stack/avatar_stack.dart';
-import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +9,8 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
-import 'package:ox_discovery/page/widgets/moment_notification_tips.dart';
+import 'package:ox_discovery/page/widgets/moment_tips.dart';
 
-import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
@@ -108,56 +105,14 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   Widget _newMomentTipsWidget() {
-    Widget _wrapContainerWidget({
-      required Widget leftWidget,
-      required String rightContent,
-      required GestureTapCallback onTap,
-    }) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 40.px,
-          padding: EdgeInsets.symmetric(
-            horizontal: 12.px,
-          ),
-          decoration: BoxDecoration(
-            color: ThemeColor.color180,
-            borderRadius: BorderRadius.all(
-              Radius.circular(
-                Adapt.px(22),
-              ),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              leftWidget,
-              SizedBox(
-                width: 8.px,
-              ),
-              Text(
-                rightContent,
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: 14.px,
-                  fontWeight: FontWeight.w400,
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.px),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          MomentNotificationTips(
-            onTap: () {
-              OXNavigator.pushPage(
-                  context, (context) => NotificationsMomentsPage());
+          MomentNewPostTips(
+            onTap: () async {
+              _getDataList();
             },
           ),
           SizedBox(
@@ -168,50 +123,10 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
               OXNavigator.pushPage(
                   context, (context) => NotificationsMomentsPage());
             },
-            type: NotificationType.reply,
           ),
         ],
       ),
     );
-  }
-
-  Widget _memberAvatarWidget() {
-    int groupMemberNum = 4;
-    if (groupMemberNum == 0) return Container();
-    int renderCount = groupMemberNum > 8 ? 8 : groupMemberNum;
-    return Container(
-      margin: EdgeInsets.only(
-        right: Adapt.px(0),
-      ),
-      constraints: BoxConstraints(
-        maxWidth: Adapt.px(8 * renderCount + 8),
-        minWidth: Adapt.px(26),
-      ),
-      child: AvatarStack(
-        settings: RestrictedPositions(
-          // maxCoverage: 0.1,
-          // minCoverage: 0.2,
-          align: StackAlign.left,
-          laying: StackLaying.first,
-        ),
-        borderColor: ThemeColor.color180,
-        height: Adapt.px(26),
-        avatars: _showMemberAvatarWidget(3),
-      ),
-    );
-  }
-
-  List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
-    List<ImageProvider<Object>> avatarList = [];
-    for (var n = 0; n < renderCount; n++) {
-      avatarList.add(
-        const AssetImage(
-          'assets/images/moment_avatar.png',
-          package: 'ox_discovery',
-        ),
-      );
-    }
-    return avatarList;
   }
 
   @override
