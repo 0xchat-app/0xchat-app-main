@@ -61,9 +61,6 @@ class MomentWidgetsUtils {
     }
 
     return Container(
-      margin: EdgeInsets.only(
-        bottom: 10.px,
-      ),
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.px,
@@ -78,55 +75,59 @@ class MomentWidgetsUtils {
       child: Column(
         children: [
           _getImageWidget(),
-          Container(
-            padding: EdgeInsets.all(12.px),
-            child: Column(
-              children: [
-                Container(
-                  child: Row(
-                    children: [
-                      MomentWidgetsUtils.clipImage(
-                        borderRadius: 40.px,
-                        imageSize: 40.px,
-                        child: OXCachedNetworkImage(
-                          imageUrl: userDB.picture ?? '',
-                          fit: BoxFit.cover,
-                          width: 20.px,
-                          height: 20.px,
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.px),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    child: Row(
+                      children: [
+                        MomentWidgetsUtils.clipImage(
+                          borderRadius: 40.px,
+                          imageSize: 40.px,
+                          child: OXCachedNetworkImage(
+                            imageUrl: userDB.picture ?? '',
+                            fit: BoxFit.cover,
+                            width: 20.px,
+                            height: 20.px,
+                          ),
                         ),
-                      ),
-                      Text(
-                        userDB.name ?? '--',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w500,
-                          color: ThemeColor.color0,
+                        Text(
+                          userDB.name ?? '--',
+                          style: TextStyle(
+                            fontSize: 12.px,
+                            fontWeight: FontWeight.w500,
+                            color: ThemeColor.color0,
+                          ),
+                        ).setPadding(
+                          EdgeInsets.symmetric(
+                            horizontal: 4.px,
+                          ),
                         ),
-                      ).setPadding(
-                        EdgeInsets.symmetric(
-                          horizontal: 4.px,
-                        ),
-                      ),
-                      Text(
-                        '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.color120,
-                        ),
-                      )
-                    ],
+                        Text(
+                          '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
+                          style: TextStyle(
+                            fontSize: 12.px,
+                            fontWeight: FontWeight.w400,
+                            color: ThemeColor.color120,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  child: MomentRichTextWidget(
-                    text: noteDB.content,
-                    textSize: 12.px,
-                    maxLines: isOneLine ? 1 : 2,
-                    isShowMoreTextBtn: false,
+                  Container(
+                    child: MomentRichTextWidget(
+                      text: noteDB.content,
+                      textSize: 12.px,
+                      maxLines: isOneLine ? 1 : 2,
+                      isShowMoreTextBtn: false,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

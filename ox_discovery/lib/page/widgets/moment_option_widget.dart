@@ -29,6 +29,7 @@ class MomentOptionWidget extends StatefulWidget {
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
+  late NoteDB noteDB;
 
   final List<EMomentOptionType> momentOptionTypeList = [
     EMomentOptionType.reply,
@@ -67,9 +68,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
             return _iconTextWidget(
               type: type,
-              isSelect: optionStatus[type] ?? false,
+              isSelect: _getClickNum(type) > 0,
               onTap: () {
-                _updateOptionStatus(type);
                 _onTapCallback(type)();
               },
               clickNum: _getClickNum(type),
@@ -92,7 +92,9 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
             builder: (context) => _buildBottomDialog());
 
       case EMomentOptionType.like:
-        return () {};
+        return () async {
+          await Moment.sharedInstance.sendReaction(widget.noteDB.noteId);
+        };
       case EMomentOptionType.zaps:
         return () {};
     }
@@ -248,22 +250,17 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     );
   }
 
-  void _updateOptionStatus(EMomentOptionType type) {
-    optionStatus[type] = !optionStatus[type]!;
-    setState(() {});
-  }
-
   int _getClickNum(EMomentOptionType type){
     NoteDB note = widget.noteDB;
     switch(type){
       case EMomentOptionType.repost:
-       return note.repostCount;
+       return note.repostEventIds?.length ?? 0;
       case EMomentOptionType.like:
-        return note.reactionCount;
+        return note.reactionEventIds?.length ?? 0;
       case EMomentOptionType.zaps:
-        return note.zapCount;
+        return note.zapEventIds?.length ?? 0;
       case EMomentOptionType.reply:
-        return note.replyCount;
+        return note.replyEventIds?.length ?? 0;
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' as Intl;
+import 'package:ox_common/utils/adapt.dart';
 
 class DiscoveryUtils {
   static String formatTimeAgo(int timestamp) {
@@ -30,9 +31,10 @@ class DiscoveryUtils {
     return formattedDate;
   }
 
-  static Map<String, dynamic> getTextLine(String text, double width, int? maxLine) {
+  static Map<String, dynamic> getTextLine(String text, double width,double fontSize ,int? maxLine) {
+
     TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text.trim()),
+      text: TextSpan(text: text,style: TextStyle(fontSize: fontSize.px)),
       maxLines: maxLine,
       textDirection: TextDirection.ltr,
     );
@@ -56,3 +58,4 @@ class DiscoveryUtils {
     return avatars;
   }
 }
+

@@ -109,10 +109,11 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentQuoteWidget(){
     List<String>? getQuoteUrlList = MomentContentAnalyzeUtils(noteDB.content).getQuoteUrlList;
-    if(getQuoteUrlList.isEmpty) return const SizedBox();
     String? quoteRepostId = noteDB.quoteRepostId;
-    NoteDB? note = (quoteRepostId == null || quoteRepostId.isEmpty) ? null : noteDB;
-    return HorizontalScrollWidget(quoteList: getQuoteUrlList, noteDB: note,);
+    bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
+    if(getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
+    NoteDB? note = hasQuoteRepostId ? noteDB : null;
+    return HorizontalScrollWidget(quoteList: getQuoteUrlList, noteDB: note);
   }
 
 

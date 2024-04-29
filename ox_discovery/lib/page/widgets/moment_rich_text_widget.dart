@@ -204,7 +204,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
 
   void _getIsOutOfText(String text,double width) {
-    final textInfo = DiscoveryUtils.getTextLine(text,width, widget.maxLines);
+    final textInfo = DiscoveryUtils.getTextLine(text,width,16, widget.maxLines);
     bool isOver = textInfo['isOver'];
     int lineCount = textInfo['lineCount'];
     _getMaxLines(isOver, lineCount);

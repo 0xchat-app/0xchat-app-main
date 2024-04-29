@@ -42,7 +42,10 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      margin: EdgeInsets.only(
+        bottom: 10.px,
+      ),
       height: _height.px,
       child: Column(
         children: <Widget>[
@@ -70,8 +73,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   List<Widget> _showNoteItemWidget() {
     return noteList.map((MomentInfo noteInfo) {
+
       String text = MomentContentAnalyzeUtils((noteInfo.noteDB.content)).getMomentShowContent;
-      bool isOneLine = _getTextLine(text) > 1;
+      bool isOneLine = _getTextLine(text) ==  1;
       return MomentWidgetsUtils.quoteMoment(
         noteInfo.userDB,
         noteInfo.noteDB,
@@ -110,13 +114,14 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     NoteDB? noteDB = widget.noteDB;
     if(quoteList != null){
       for (String quote in quoteList) {
+
         final noteInfo = NoteDB.decodeNote(quote);
         if (noteInfo == null) continue;
-
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
         if (note != null) {
           UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
           if (user != null) {
+
             noteList.add(MomentInfo(userDB: user, noteDB: note));
           }
         }
@@ -137,21 +142,20 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
 
   int _getTextLine(String text) {
-    double width = MediaQuery.of(context).size.width - 60;
-    int line = DiscoveryUtils.getTextLine(text, width, null)['lineCount'];
+    double width = MediaQuery.of(context).size.width - 72;
+    int line = DiscoveryUtils.getTextLine(text, width,12, null)['lineCount'];
     return line;
   }
 
   void _setPageViewHeight(List<MomentInfo> list, int index) {
     MomentContentAnalyzeUtils utils = MomentContentAnalyzeUtils((list[index].noteDB.content));
-    bool isOneLine = _getTextLine(utils.getMomentShowContent) > 1;
+    bool isOneLine = _getTextLine(utils.getMomentShowContent) == 1;
     List<String> getImage = utils.getMediaList(1);
-    _height = getImage.isEmpty ? 120 : 300;
+    _height = getImage.isEmpty ? 78 + 35 : 251 + 35;
     if (list.length == 1) {
-      _height -= 35; // Navigation bar height
+      _height  = _height -  35; // Navigation bar height
     }
     _height = isOneLine ? _height - 17 : _height; // Text height
-    _height  = _height + 5;
     setState(() {});
   }
 }
