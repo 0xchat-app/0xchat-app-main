@@ -136,6 +136,31 @@ class MomentWidgetsUtils {
   }
 
   static Widget videoMoment(context, String videoUrl, String? videoImagePath) {
+
+    Widget _showImageWidget(){
+      if(videoImagePath != null){
+        return MomentWidgetsUtils.clipImage(
+          borderRadius: 8.px,
+          child: Image.asset(
+            videoImagePath,
+            width: 210.px,
+            height: 210.px,
+            fit: BoxFit.cover,
+            package: null,
+          ),
+        );
+      }
+
+      return OXCachedNetworkImage(
+        imageUrl: videoImagePath ?? UplodAliyun.getSnapshot(videoUrl),
+        fit: BoxFit.fill,
+        placeholder: (context, url) =>
+            MomentWidgetsUtils.badgePlaceholderImage(),
+        errorWidget: (context, url, error) =>
+            MomentWidgetsUtils.badgePlaceholderImage(),
+        width: 210.px,
+      );
+    }
     return GestureDetector(
       onTap: () {
         OXModuleService.pushPage(context, 'ox_chat', 'ChatVideoPlayPage', {
@@ -162,15 +187,7 @@ class MomentWidgetsUtils {
           ),
           MomentWidgetsUtils.clipImage(
             borderRadius: 16,
-            child: OXCachedNetworkImage(
-              imageUrl: UplodAliyun.getSnapshot(videoUrl),
-              fit: BoxFit.fill,
-              placeholder: (context, url) =>
-                  MomentWidgetsUtils.badgePlaceholderImage(),
-              errorWidget: (context, url, error) =>
-                  MomentWidgetsUtils.badgePlaceholderImage(),
-              width: 210.px,
-            ),
+            child: _showImageWidget(),
           ).setPaddingOnly(bottom: 20.px),
           // VideoCoverWidget(videoUrl:videoUrl),
           CommonImage(

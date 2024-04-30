@@ -9,11 +9,9 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
 import '../../enum/moment_enum.dart';
-import '../../model/moment_option_model.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
-import 'package:chatcore/chat-core.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
@@ -38,12 +36,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     EMomentOptionType.zaps,
   ];
 
-  Map<EMomentOptionType, bool> optionStatus = {
-    EMomentOptionType.reply: false,
-    EMomentOptionType.repost: false,
-    EMomentOptionType.like: false,
-    EMomentOptionType.zaps: false,
-  };
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +81,10 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   GestureTapCallback _onTapCallback(EMomentOptionType type) {
     switch (type) {
       case EMomentOptionType.reply:
-        return () =>
-            OXNavigator.pushPage(context, (context) => ReplyMomentsPage(noteDB: widget.noteDB));
+        return () async{
+          await OXNavigator.pushPage(context, (context) => ReplyMomentsPage(noteDB: noteDB));
+          _updateNoteDB();
+        };
       case EMomentOptionType.repost:
         return () => showModalBottomSheet(
             context: context,
@@ -93,7 +93,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
       case EMomentOptionType.like:
         return () async {
-          await Moment.sharedInstance.sendReaction(widget.noteDB.noteId);
+          if(noteDB.reactionCountByMe > 0) return;
+          OKEvent event = await Moment.sharedInstance.sendReaction(noteDB.noteId);
+          if(event.status){
+            _updateNoteDB();
+            CommonToast.instance.show(context, 'reaction success !');
+          }
         };
       case EMomentOptionType.zaps:
         return () {};
@@ -150,10 +155,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
           _buildItem(
             EMomentQuoteType.repost,
             index: 0,
-            onTap: ()async {
+            onTap: () async {
               OXNavigator.pop(context);
-              OKEvent event =  await Moment.sharedInstance.sendRepost(widget.noteDB.noteId, null);
+              OKEvent event =  await Moment.sharedInstance.sendRepost(noteDB.noteId, null);
               if(event.status){
+                _updateNoteDB();
                 CommonToast.instance.show(context, 'repost success !');
               }
             },
@@ -167,7 +173,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(context, (context) => CreateMomentsPage(type: EMomentType.quote,noteDB: widget.noteDB));
+              OXNavigator.presentPage(context, (context) => CreateMomentsPage(type: EMomentType.quote,noteDB: noteDB));
             },
           ),
           Divider(
@@ -251,16 +257,29 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }
 
   int _getClickNum(EMomentOptionType type){
-    NoteDB note = widget.noteDB;
     switch(type){
       case EMomentOptionType.repost:
-       return note.repostEventIds?.length ?? 0;
+       return noteDB.repostEventIds?.length ?? 0;
       case EMomentOptionType.like:
-        return note.reactionEventIds?.length ?? 0;
+        return noteDB.reactionEventIds?.length ?? 0;
       case EMomentOptionType.zaps:
-        return note.zapEventIds?.length ?? 0;
+        return noteDB.zapEventIds?.length ?? 0;
       case EMomentOptionType.reply:
-        return note.replyEventIds?.length ?? 0;
+        return noteDB.replyEventIds?.length ?? 0;
     }
+  }
+
+  void _init(){
+    noteDB = widget.noteDB;
+    setState(() {});
+  }
+
+
+  void _updateNoteDB() async {
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.noteDB.noteId);
+    if(note == null) return;
+    setState(() {
+      noteDB = note;
+    });
   }
 }

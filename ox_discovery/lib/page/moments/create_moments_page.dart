@@ -73,7 +73,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Container(
         decoration: BoxDecoration(
