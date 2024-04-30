@@ -1,14 +1,10 @@
-import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 import 'dart:ui';
 
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/utils/image_picker_utils.dart';
-import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -28,7 +24,6 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:video_compress/video_compress.dart';
 
 import '../enum/moment_enum.dart';
 import '../utils/album_utils.dart';
@@ -36,8 +31,11 @@ import 'moments/create_moments_page.dart';
 import 'moments/public_moments_page.dart';
 
 import 'package:flutter/cupertino.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as Path;
+
+enum EDiscoveryPageType{
+  moment,
+  channel
+}
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({Key? key}) : super(key: key);
@@ -59,23 +57,27 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   List<ChannelModel?> _channelModelList = [];
   final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
 
+
+  EDiscoveryPageType pageType = EDiscoveryPageType.moment;
+
+
   @override
   void initState() {
     super.initState();
-    // OXUserInfoManager.sharedInstance.addObserver(this);
-    // OXRelayManager.sharedInstance.addObserver(this);
-    // ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
-    // Localized.addLocaleChangedCallback(onLocaleChange);
-    // WidgetsBinding.instance.addObserver(this);
-    // String localAvatarPath = 'assets/images/icon_group_default.png';
-    // _placeholderImage = Image.asset(
-    //   localAvatarPath,
-    //   fit: BoxFit.cover,
-    //   width: Adapt.px(76),
-    //   height: Adapt.px(76),
-    //   package: 'ox_common',
-    // );
-    // _getHotChannels(type: _currentIndex.value + 1,context: context);
+      OXUserInfoManager.sharedInstance.addObserver(this);
+      OXRelayManager.sharedInstance.addObserver(this);
+      ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+      Localized.addLocaleChangedCallback(onLocaleChange);
+      WidgetsBinding.instance.addObserver(this);
+      String localAvatarPath = 'assets/images/icon_group_default.png';
+      _placeholderImage = Image.asset(
+        localAvatarPath,
+        fit: BoxFit.cover,
+        width: Adapt.px(76),
+        height: Adapt.px(76),
+        package: 'ox_common',
+      );
+      _getHotChannels(type: _currentIndex.value + 1,context: context);
   }
 
   @override
@@ -116,49 +118,52 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         backgroundColor: ThemeColor.color200,
         elevation: 0,
         titleSpacing: 0.0,
-        actions: [
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: CommonImage(
-              iconName: "moment_add_icon.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              color: ThemeColor.color100,
-              package: 'ox_discovery',
-            ),
-            onLongPress: (){
-              OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
-            },
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => _buildBottomDialog());
-            },
-          ),
-          SizedBox(
-            width: Adapt.px(24),
-          ),
-        ],
+        actions: _actionWidget(),
         title: Row(
           children: [
             SizedBox(
               width: Adapt.px(24),
             ),
-            Container(
-              constraints: BoxConstraints(maxWidth: mm),
-              child: GradientText(Localized.text('ox_discovery.discovery'),
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Adapt.px(20),
-                      color: ThemeColor.titleColor),
-                  colors: [
-                    ThemeColor.gradientMainStart,
-                    ThemeColor.gradientMainEnd
-                  ]),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  pageType = EDiscoveryPageType.moment;
+                });
+              },
+              child: Container(
+                constraints: BoxConstraints(maxWidth: mm),
+                child: GradientText('Moment',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Adapt.px(20),
+                        color: ThemeColor.titleColor),
+                    colors: [
+                     pageType == EDiscoveryPageType.moment ? ThemeColor.gradientMainStart : ThemeColor.color120,
+                     pageType == EDiscoveryPageType.moment ? ThemeColor.gradientMainEnd : ThemeColor.color120,
+                    ]),
+              ),
             ),
             SizedBox(
               width: Adapt.px(24),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  pageType = EDiscoveryPageType.channel;
+                });
+              },
+              child: Container(
+                constraints: BoxConstraints(maxWidth: mm),
+                child: GradientText('Channel',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Adapt.px(20),
+                        color: ThemeColor.titleColor),
+                    colors: [
+                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainStart : ThemeColor.color120,
+                      pageType == EDiscoveryPageType.channel ? ThemeColor.gradientMainEnd : ThemeColor.color120,
+                    ]),
+              ),
             ),
             SizedBox(
               width: Adapt.px(24),
@@ -166,23 +171,105 @@ class _DiscoveryPageState extends State<DiscoveryPage>
           ],
         ),
       ),
-      body:  PublicMomentsPage(),
-      // OXSmartRefresher(
-      //   controller: _refreshController,
-      //   enablePullDown: true,
-      //   enablePullUp: false,
-      //   onRefresh: _onRefresh,
-      //   onLoading: null,
-      //   child: const SingleChildScrollView(
-      //     child: Column(
-      //       children: [
-      //         // _topSearch(),
-      //         PublicMomentsPage(),
-      //         // commonStateViewWidget(context, bodyWidget()),
-      //       ],
-      //     ),
-      //   ),
-      // ),
+      body: _body(),
+    );
+  }
+
+  List<Widget> _actionWidget(){
+    if(pageType == EDiscoveryPageType.moment) {
+      return [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
+            iconName: "moment_add_icon.png",
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+            color: ThemeColor.color100,
+            package: 'ox_discovery',
+          ),
+          onLongPress: (){
+            OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
+          },
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => _buildBottomDialog());
+          },
+        ),
+        SizedBox(
+          width: Adapt.px(24),
+        ),
+      ];
+    }
+
+    return [
+      GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: CommonImage(
+          iconName: "nav_more_new.png",
+          width: Adapt.px(24),
+          height: Adapt.px(24),
+          color: ThemeColor.color100,
+        ),
+        onTap: () {
+          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildBottomDialog());
+        },
+      ),
+      SizedBox(
+        width: Adapt.px(20),
+      ),
+      SizedBox(
+        height: Adapt.px(24),
+        child: GestureDetector(
+          onTap: () {
+            OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CommonImage(
+                iconName: 'icon_relay_connected_amount.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                fit: BoxFit.fill,
+              ),
+              SizedBox(
+                width: Adapt.px(4),
+              ),
+              Text(
+                '${OXRelayManager.sharedInstance.connectedCount}/${OXRelayManager.sharedInstance.relayAddressList.length}',
+                style: TextStyle(
+                  fontSize: Adapt.px(14),
+                  color: ThemeColor.color100,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      SizedBox(
+        width: Adapt.px(24),
+      ),
+    ];
+  }
+
+  Widget _body(){
+    if(pageType == EDiscoveryPageType.moment)  return const PublicMomentsPage();
+    return OXSmartRefresher(
+      controller: _refreshController,
+      enablePullDown: true,
+      enablePullUp: false,
+      onRefresh: _onRefresh,
+      onLoading: null,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _topSearch(),
+            commonStateViewWidget(context, bodyWidget()),
+          ],
+        ),
+      ),
     );
   }
 
