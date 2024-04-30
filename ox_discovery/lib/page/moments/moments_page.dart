@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -42,7 +43,8 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList() async {
-    List<String> replyEventIdsList = await Moment.sharedInstance.loadPublicNoteActionsFromRelay(widget.noteDB.noteId);
+    List<String> replyEventIdsList = await Moment.sharedInstance
+        .loadPublicNoteActionsFromRelay(widget.noteDB.noteId);
     if (replyEventIdsList.isEmpty) return;
     for (String eventId in replyEventIdsList) {
       NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
@@ -145,8 +147,8 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-  Widget _noDataWidget(){
-    if(replyList.isNotEmpty) return const SizedBox();
+  Widget _noDataWidget() {
+    if (replyList.isNotEmpty) return const SizedBox();
     return Padding(
       padding: EdgeInsets.only(
         top: 50.px,
@@ -174,7 +176,6 @@ class _MomentsPageState extends State<MomentsPage> {
       ),
     );
   }
-
 }
 
 class MomentReplyWidget extends StatefulWidget {
@@ -211,53 +212,68 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   Widget _momentItemWidget() {
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
-            children: [
-              MomentWidgetsUtils.clipImage(
-                borderRadius: 40.px,
-                imageSize: 40.px,
-                child: OXCachedNetworkImage(
-                  imageUrl: momentUser?.picture ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
-                  errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
-                  width: 40.px,
-                  height: 40.px,
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 4.px,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        OXNavigator.pushPage(
+            context, (context) => MomentsPage(noteDB: widget.noteDB));
+      },
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Column(
+              children: [
+                MomentWidgetsUtils.clipImage(
+                  borderRadius: 40.px,
+                  imageSize: 40.px,
+                  child: OXCachedNetworkImage(
+                    imageUrl: momentUser?.picture ?? '',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        MomentWidgetsUtils.badgePlaceholderImage(),
+                    errorWidget: (context, url, error) =>
+                        MomentWidgetsUtils.badgePlaceholderImage(),
+                    width: 40.px,
+                    height: 40.px,
                   ),
-                  width: 1.0,
-                  color: ThemeColor.color160,
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.all(8.px),
-              padding: EdgeInsets.only(
-                bottom: 16.px,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _momentUserInfoWidget(),
-                  MomentWidget(noteDB: widget.noteDB, isShowUserInfo: false),
-                ],
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 4.px,
+                    ),
+                    width: 1.0,
+                    color: ThemeColor.color160,
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.all(8.px),
+                padding: EdgeInsets.only(
+                  bottom: 16.px,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _momentUserInfoWidget(),
+                    MomentWidget(
+                      noteDB: widget.noteDB,
+                      isShowUserInfo: false,
+                      clickMomentCallback: () {
+                        OXNavigator.pushPage(context,
+                            (context) => MomentsPage(noteDB: widget.noteDB));
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

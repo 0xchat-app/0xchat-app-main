@@ -36,7 +36,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _updateNotesList(true);
   }
 
 
@@ -61,9 +61,10 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   Widget build(BuildContext context) {
     return OXSmartRefresher(
       controller: _refreshController,
-      enablePullDown: false,
+      enablePullDown: true,
       enablePullUp: true,
-      onLoading: () => _loadNotes(),
+      onRefresh: () => _updateNotesList(true),
+      onLoading: () => _updateNotesList(true),
       child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(
@@ -129,6 +130,31 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
+  Future<void> _updateNotesList(bool isInit)async {
+    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until:isInit ?  null : _lastTimestamp ,limit: _limit) ?? [];
+    list = list.where((NoteDB note) {
+      return (note.root == null || (note.root?.isEmpty ?? true)) && (note.reactedId?.isEmpty ?? true);
+    }).toList();
+
+    if(list.isEmpty) {
+      return  isInit ?  _refreshController.refreshCompleted() : _refreshController.loadNoData();
+    }
+
+    notesList.addAll(list);
+    _lastTimestamp = list.last.createAt;
+
+    setState(() {});
+    if(isInit) {
+      _refreshController.refreshCompleted();
+    }else{
+      if(list.length < _limit){
+        _refreshController.loadNoData();
+        return;
+      }
+      _refreshController.loadComplete();
+    }
+  }
+
   @override
   didNewNotesCallBackCallBack(List<NoteDB> notes) {
     _getDataList();
@@ -139,17 +165,4 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
     _getDataList();
   }
 
-  Future<void> _loadNotes() async {
-    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
-    list = list.where((NoteDB note) => note.root == null || note.root!.isEmpty).toList();
-    if(list.isEmpty)  return _refreshController.loadNoData();
-    notesList.addAll(list);
-    _lastTimestamp = list.last.createAt;
-    setState(() {});
-    if(list.length < _limit){
-      _refreshController.loadNoData();
-      return;
-    }
-    _refreshController.loadComplete();
-  }
 }
