@@ -112,7 +112,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           MomentNewPostTips(
-            onTap: () async {
+            onTap: (List<NoteDB> notes) async {
               _getDataList();
             },
           ),

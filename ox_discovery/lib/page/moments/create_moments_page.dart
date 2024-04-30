@@ -55,7 +55,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   final TextEditingController _textController = TextEditingController();
 
-  VisibleType _visibleType = VisibleType.allContact;
+  VisibleType _visibleType = VisibleType.everyone;
   List<UserDB>? _selectedContacts;
 
   @override

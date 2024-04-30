@@ -9,7 +9,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 
 class MomentNewPostTips extends StatefulWidget {
-  final VoidCallback? onTap;
+  final ValueSetter<List<NoteDB>>? onTap;
 
   const MomentNewPostTips({super.key, this.onTap});
 
@@ -38,9 +38,9 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
             onTap: () {
               OXMomentManager.sharedInstance.clearNewNotifications();
               setState(() {
+                widget.onTap?.call(_notes);
                 _notes = [];
               });
-              widget.onTap?.call();
             },
           )
         : Container();
