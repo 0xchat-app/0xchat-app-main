@@ -87,7 +87,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
             text: TextSpan(
               style: TextStyle(
                   color: widget.defaultTextColor ?? ThemeColor.color0,
-                  fontSize: widget.textSize ?? 16.px),
+                  fontSize: widget.textSize ?? 16.px,
+              ),
               children: textSpans,
             ),
           ),

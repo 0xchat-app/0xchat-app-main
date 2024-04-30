@@ -37,7 +37,7 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment(UserDB userDB, NoteDB noteDB,isOneLine) {
+  static Widget quoteMoment(UserDB userDB, NoteDB noteDB, bool isOneLine) {
     Widget _getImageWidget() {
       List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
       if (_getImagePathList.isEmpty) return const SizedBox();
@@ -82,49 +82,45 @@ class MomentWidgetsUtils {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    child: Row(
-                      children: [
-                        MomentWidgetsUtils.clipImage(
-                          borderRadius: 40.px,
-                          imageSize: 40.px,
-                          child: OXCachedNetworkImage(
-                            imageUrl: userDB.picture ?? '',
-                            fit: BoxFit.cover,
-                            width: 20.px,
-                            height: 20.px,
-                          ),
+                  Row(
+                    children: [
+                      MomentWidgetsUtils.clipImage(
+                        borderRadius: 40.px,
+                        imageSize: 40.px,
+                        child: OXCachedNetworkImage(
+                          imageUrl: userDB.picture ?? '',
+                          fit: BoxFit.cover,
+                          width: 20.px,
+                          height: 20.px,
                         ),
-                        Text(
-                          userDB.name ?? '--',
-                          style: TextStyle(
-                            fontSize: 12.px,
-                            fontWeight: FontWeight.w500,
-                            color: ThemeColor.color0,
-                          ),
-                        ).setPadding(
-                          EdgeInsets.symmetric(
-                            horizontal: 4.px,
-                          ),
+                      ),
+                      Text(
+                        userDB.name ?? '--',
+                        style: TextStyle(
+                          fontSize: 12.px,
+                          fontWeight: FontWeight.w500,
+                          color: ThemeColor.color0,
                         ),
-                        Text(
-                          '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
-                          style: TextStyle(
-                            fontSize: 12.px,
-                            fontWeight: FontWeight.w400,
-                            color: ThemeColor.color120,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: MomentRichTextWidget(
-                      text: noteDB.content,
-                      textSize: 12.px,
-                      maxLines: isOneLine ? 1 : 2,
-                      isShowMoreTextBtn: false,
-                    ),
+                      ).setPadding(
+                        EdgeInsets.symmetric(
+                          horizontal: 4.px,
+                        ),
+                      ),
+                      Text(
+                        '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
+                        style: TextStyle(
+                          fontSize: 12.px,
+                          fontWeight: FontWeight.w400,
+                          color: ThemeColor.color120,
+                        ),
+                      )
+                    ],
+                  ).setPaddingOnly(bottom: 4.px),
+                  MomentRichTextWidget(
+                    text: noteDB.content,
+                    textSize: 12.px,
+                    maxLines: isOneLine ? 1 : 2,
+                    isShowMoreTextBtn: false,
                   ),
                 ],
               ),

@@ -129,9 +129,10 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     }
 
     if(noteDB != null){
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteDB.quoteRepostId ?? '');
       UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
-      if (user != null) {
-        noteList.add(MomentInfo(userDB: user, noteDB: noteDB));
+      if (user != null && note != null) {
+        noteList.add(MomentInfo(userDB: user, noteDB: note));
       }
     }
 
