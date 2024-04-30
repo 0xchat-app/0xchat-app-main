@@ -64,7 +64,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       enablePullDown: true,
       enablePullUp: true,
       onRefresh: () => _updateNotesList(true),
-      onLoading: () => _updateNotesList(true),
+      onLoading: () => _updateNotesList(false),
       child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(
@@ -112,8 +112,9 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           MomentNewPostTips(
-            onTap: (List<NoteDB> notes) async {
-              _getDataList();
+            onTap: (List<NoteDB> list)  {
+              notesList = [...list,...notesList];
+              setState(() {});
             },
           ),
           SizedBox(
