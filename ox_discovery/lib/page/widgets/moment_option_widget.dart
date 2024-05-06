@@ -7,6 +7,8 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/page/moments/moment_zap_page.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
 import '../moments/create_moments_page.dart';
@@ -101,7 +103,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
           }
         };
       case EMomentOptionType.zaps:
-        return () {};
+        return _handleZap();
     }
   }
 
@@ -281,5 +283,15 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     setState(() {
       noteDB = note;
     });
+  }
+
+  _handleZap() async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
+    if(user == null) return;
+    if (user.lnurl == null || user.lnurl!.isEmpty) {
+      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
+      return;
+    }
+    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,));
   }
 }
