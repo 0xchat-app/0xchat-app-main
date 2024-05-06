@@ -52,8 +52,8 @@ class MomentWidgetsUtils {
           child: OXCachedNetworkImage(
             imageUrl: _getImagePathList[0],
             fit: BoxFit.cover,
-            // placeholder: (context, url) => badgePlaceholderImage,
-            // errorWidget: (context, url, error) => badgePlaceholderImage,
+            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(size:172),
+            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172),
             height: 172.px,
           ),
         ),
@@ -92,6 +92,8 @@ class MomentWidgetsUtils {
                           fit: BoxFit.cover,
                           width: 20.px,
                           height: 20.px,
+                          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(size:20),
+                          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(size:20),
                         ),
                       ),
                       Text(
@@ -151,9 +153,9 @@ class MomentWidgetsUtils {
         imageUrl: videoImagePath ?? UplodAliyun.getSnapshot(videoUrl),
         fit: BoxFit.fill,
         placeholder: (context, url) =>
-            MomentWidgetsUtils.badgePlaceholderImage(),
+            MomentWidgetsUtils.badgePlaceholderContainer(size: 210),
         errorWidget: (context, url, error) =>
-            MomentWidgetsUtils.badgePlaceholderImage(),
+            MomentWidgetsUtils.badgePlaceholderContainer(size: 210),
         width: 210.px,
       );
     }
@@ -204,6 +206,14 @@ class MomentWidgetsUtils {
       width: size.px,
       height: size.px,
       useTheme: true,
+    );
+  }
+
+  static Widget badgePlaceholderContainer({int size = 24}) {
+    return Container(
+      width: size.px,
+      height: size.px,
+      color: ThemeColor.color180,
     );
   }
 

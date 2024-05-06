@@ -54,5 +54,14 @@ class MomentContentAnalyzeUtils{
      final String cleanedText = content.replaceAll(mediaExp, '');
      return cleanedText.trim();
   }
+
+  List<String> get getMomentHashTagList {
+    final RegExp hashRegex = RegExp(r"#(\w+)");
+    final Iterable<RegExpMatch> matches = hashRegex.allMatches(content);
+    final List<String> hashList = matches.map((m) => m.group(0)!).toList();
+    return hashList;
+  }
+
+
 }
 

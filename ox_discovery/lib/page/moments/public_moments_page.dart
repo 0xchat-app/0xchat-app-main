@@ -29,7 +29,9 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
 
   final RefreshController _refreshController = RefreshController();
 
-  int? _lastTimestamp;
+  int? _allNotesFromDBLastTimestamp;
+
+  int? _allNotesFromDBFromRelayLastTimestamp;
 
   final int _limit = 50;
 
@@ -37,18 +39,6 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   void initState() {
     super.initState();
     _updateNotesList(true);
-  }
-
-
-  void _getDataList() async {
-    String? pukbey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    // List<NoteDB>? noteLst = await Moment.sharedInstance.loadFriendNotes(pukbey ?? '7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace');
-    List<NoteDB>? noteLst = await Moment.sharedInstance.loadAllNotesFromDB();
-    Map<String, NoteDB> list = OXMomentManager.sharedInstance.privateNotesMap;
-    if (noteLst != null) {
-      notesList = NoteDBEx.getNoteToMomentList(noteLst);
-    }
-    setState(() {});
   }
 
   @override
@@ -113,6 +103,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
         children: [
           MomentNewPostTips(
             onTap: (List<NoteDB> list)  {
+
               notesList = [...list,...notesList];
               setState(() {});
             },
@@ -132,8 +123,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   Future<void> _updateNotesList(bool isInit)async {
-    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until:isInit ?  null : _lastTimestamp ,limit: _limit) ?? [];
-    list = list.where((NoteDB note) {
+    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until:isInit ?  null : _allNotesFromDBLastTimestamp ,limit: _limit) ?? [];
+    List<NoteDB> showList = list.where((NoteDB note) {
       return (note.root == null || (note.root?.isEmpty ?? true)) && (note.reactedId?.isEmpty ?? true);
     }).toList();
 
@@ -141,8 +132,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       return  isInit ?  _refreshController.refreshCompleted() : _refreshController.loadNoData();
     }
 
-    notesList.addAll(list);
-    _lastTimestamp = list.last.createAt;
+    notesList.addAll(showList);
+    _allNotesFromDBLastTimestamp = list.last.createAt;
 
     setState(() {});
     if(isInit) {
@@ -156,14 +147,13 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
+
   @override
   didNewNotesCallBackCallBack(List<NoteDB> notes) {
-    _getDataList();
   }
 
   @override
   didNewNotificationCallBack(List<NotificationDB> notifications) {
-    _getDataList();
   }
 
 }

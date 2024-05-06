@@ -49,12 +49,16 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     super.initState();
     _getUserInfo();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_containerKey.currentContext != null) {
-        final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
-        String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
-        _getIsOutOfText(getShowText,renderBox.size.width);
-      }
+      _updateTextInfo();
     });
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      _updateTextInfo();
+    }
   }
 
   @override
@@ -221,5 +225,13 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       showMaxLine = !isOver ? widget.maxLines : max;
     }
     setState(() {});
+  }
+
+  void _updateTextInfo(){
+    if (_containerKey.currentContext != null) {
+      final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
+      String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
+      _getIsOutOfText(getShowText,renderBox.size.width);
+    }
   }
 }

@@ -10,6 +10,7 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
   final double? width;
   final bool isEdit;
   final List<String> imageList;
+  final int axisSpacing;
   final Function(List<String> imageList)? addImageCallback;
 
   const NinePalaceGridPictureWidget({
@@ -17,6 +18,7 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
     required this.imageList,
     this.addImageCallback,
     this.width,
+    this.axisSpacing = 10,
     this.isEdit = false,
     this.crossAxisCount = 3
   });
@@ -58,8 +60,8 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
           },
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: widget.crossAxisCount,
-            crossAxisSpacing: 10.px,
-            mainAxisSpacing: 10.px,
+            crossAxisSpacing: widget.axisSpacing.px,
+            mainAxisSpacing: widget.axisSpacing.px,
             childAspectRatio: 1,
           ),
         ),
@@ -74,16 +76,13 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
       onTap: () => _photoOption(false),
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: MomentWidgetsUtils.clipImage(
-          borderRadius: 8.px,
-          child: OXCachedNetworkImage(
-            fit: BoxFit.cover,
-            imageUrl: imgPath,
-            width: _getPicSize.px,
-            height: _getPicSize.px,
-            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
-            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
-          ),
+        child: OXCachedNetworkImage(
+          fit: BoxFit.cover,
+          imageUrl: imgPath,
+          width: _getPicSize.px,
+          height: _getPicSize.px,
+          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(),
+          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(),
         ),
       ),
     );

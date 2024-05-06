@@ -84,7 +84,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           ),
         ),
         child: SingleChildScrollView(
-          reverse: _isInputFocused,
           child: Column(
             children: [
               _buildAppBar(),
@@ -92,20 +91,14 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 padding: EdgeInsets.only(
                   left: 24.px,
                   right: 24.px,
-                  bottom: 100.px,
+                  bottom: widget.type == EMomentType.content ? 100.px : 500.px,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _videoWidget(),
-
                     _pictureWidget(),
                     _quoteWidget(),
-                    // Container(
-                    //   child: _placeholderImage == null
-                    //       ? SizedBox()
-                    //       : Image.file(_placeholderImage!),
-                    // ),
                     _captionWidget(),
                     _visibleContactsWidget(),
                   ],
@@ -320,22 +313,25 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     OKEvent? event;
 
     NoteDB? noteDB = widget.noteDB;
+
+    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
     if(widget.type == EMomentType.quote && noteDB != null){
       event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content);
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
-          event = await Moment.sharedInstance.sendPublicNote(content);
+          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags);
           break;
         case VisibleType.allContact:
-          event = await Moment.sharedInstance.sendNoteContacts(content);
+          event = await Moment.sharedInstance.sendNoteContacts(content,hashTags: getHashTags);
           break;
         case VisibleType.private:
-          event = await Moment.sharedInstance.sendNoteJustMe(content);
+          event = await Moment.sharedInstance.sendNoteJustMe(content,hashTags: getHashTags);
           break;
         case VisibleType.excludeContact:
           final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
-          event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content);
+          event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content,hashTags: getHashTags);
           break;
         default:
           break;

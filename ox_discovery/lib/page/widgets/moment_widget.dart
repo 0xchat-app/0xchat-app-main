@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -53,6 +54,14 @@ class _MomentWidgetState extends State<MomentWidget> {
     return _momentItemWidget();
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.noteDB != oldWidget.noteDB) {
+      _init();
+    }
+  }
+
   Widget _momentItemWidget() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -85,9 +94,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentMediaWidget(){
     MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(noteDB.content);
     if(mediaAnalyzer.getMediaList(1).isNotEmpty){
+      double width = MediaQuery.of(context).size.width * 0.64;
       return NinePalaceGridPictureWidget(
         crossAxisCount: _calculateColumnsForPictures(mediaAnalyzer),
-        width: 248.px,
+        width: width.px,
+        axisSpacing: 4,
         imageList: mediaAnalyzer.getMediaList(1),
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
@@ -192,16 +203,21 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
-  void _init()async {
+  void _init() async {
     noteDB = widget.noteDB;
+    setState(() {});
     String? repostId = widget.noteDB.repostId;
-    if(repostId != null && repostId.isNotEmpty){
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-      noteDB = note ?? noteDB;
-    }
+    if(repostId != null && repostId.isNotEmpty) _getRepostId(repostId);
+  }
+
+  void _getRepostId(String repostId) async{
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+    noteDB = note ?? noteDB;
     _getMomentUser(noteDB);
     setState(() {});
   }
+
+
 
   void _getMomentUser(NoteDB noteDB) async {
     UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
@@ -256,13 +272,27 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
         ).setPaddingOnly(
           right: 8.px,
         ),
+        GestureDetector(
+          onTap: (){
+            OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
+              'pubkey': momentUserDB?.pubKey,
+            });
+          },
+          child: Text(
+            '${momentUserDB?.name ?? ''} ',
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 12.px,
+              color: ThemeColor.color100,
+            ),
+          ),
+        ),
         Text(
-          '${momentUserDB?.name ?? ''} Reposted',
+          'Reposted',
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 12.px,
             color: ThemeColor.color100,
-
           ),
         )
       ],

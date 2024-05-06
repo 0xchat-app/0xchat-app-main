@@ -34,7 +34,6 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   final FocusNode _replyFocusNode = FocusNode();
 
   bool isShowUserList = false;
-  bool isShowTopicList = false;
 
   List<UserDB> contactsList = [];
 
@@ -44,11 +43,9 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     widget.textController.addListener(() {
       final text = widget.textController.text;
       bool isShowUser = text.isNotEmpty && text[text.length - 1] == '@';
-      bool isShowTopic = text.isNotEmpty && text[text.length - 1] == '#';
 
       setState(() {
         isShowUserList = isShowUser;
-        isShowTopicList = isShowTopic;
       });
     });
 
@@ -74,55 +71,48 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     );
     setState(() {
       isShowUserList = false;
-      isShowTopicList = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.only(
-                left: 16.px,
-                right: 16.px,
-                bottom: 50.px,
-              ),
-              // height: 134.px,
-              decoration: BoxDecoration(
-                color: ThemeColor.color180,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    Adapt.px(12),
-                  ),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _showImageWidget(),
-                  TextField(
-                    controller: widget.textController,
-                    focusNode: _replyFocusNode,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      hintText: widget.hintText,
-                    ),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                  )
-                ],
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(
+            left: 16.px,
+            right: 16.px,
+            bottom: 50.px,
+          ),
+          // height: 134.px,
+          decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                Adapt.px(12),
               ),
             ),
-            _selectListWidget(),
-          ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _showImageWidget(),
+              TextField(
+                controller: widget.textController,
+                focusNode: _replyFocusNode,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  hintText: widget.hintText,
+                ),
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+              )
+            ],
+          ),
         ),
-      ),
+        _selectListWidget(),
+      ],
     );
   }
 
@@ -141,7 +131,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   }
 
   Widget _selectListWidget() {
-    if (!isShowUserList && !isShowTopicList) return const SizedBox();
+    if (!isShowUserList) return const SizedBox();
 
     return Container(
       margin: EdgeInsets.only(
@@ -156,9 +146,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
       ),
       height: 300.px,
       child: SingleChildScrollView(
-        child: isShowUserList
-            ? _captionToUserListWidget()
-            : _captionToTopicListWidget(),
+        child:  _captionToUserListWidget()
       ),
     );
   }
@@ -237,64 +225,6 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                     ),
                   )
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _captionToTopicListWidget() {
-    if (!isShowTopicList) return const SizedBox();
-    return ListView.builder(
-      primary: false,
-      controller: null,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return _captionToTopicWidget();
-      },
-    );
-  }
-
-  Widget _captionToTopicWidget() {
-    return GestureDetector(
-      onTap: () {
-        _insertText('Topic');
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: ThemeColor.color160,
-              width: 1.px,
-            ),
-          ),
-        ),
-        padding: EdgeInsets.symmetric(
-          vertical: 10.px,
-          horizontal: 16.px,
-        ),
-        child: Row(
-          children: [
-            Text(
-              '#Topic',
-              style: TextStyle(
-                fontSize: 14.px,
-                color: ThemeColor.color0,
-                fontWeight: FontWeight.w600,
-              ),
-            ).setPaddingOnly(
-              right: 8.px,
-            ),
-            Text(
-              'Treding',
-              style: TextStyle(
-                fontSize: 14.px,
-                color: ThemeColor.color100,
-                fontWeight: FontWeight.w400,
               ),
             ),
           ],

@@ -29,7 +29,7 @@ class AlbumUtils {
       final file = File(entity.path ?? '');
       fileList.add(file);
     });
-
+    if(fileList.isEmpty) return;
     messageSendHandler(context, fileList, callback);
   }
 
@@ -55,7 +55,6 @@ class AlbumUtils {
       fileName = fileName.substring(13);
       imageList.add(result.path.toString());
     }
-
     callback?.call(imageList);
   }
 
@@ -91,7 +90,7 @@ class AlbumUtils {
 
     for (String filePath in filePathList) {
       final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
-      String fileName = '$currentTime${Path.basename(filePath)}';
+      String fileName = '$currentTime${Path.basenameWithoutExtension(filePath)}.jpg';
       File imageFile = File(filePath);
       String uploadedUrl = await UplodAliyun.uploadFileToAliyun(
         context: context,
