@@ -39,7 +39,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
               OXMomentManager.sharedInstance.clearNewNotifications();
               setState(() {
                 widget.onTap?.call(_notes);
-                _notes = [];
+                _notes.clear();
               });
             },
           )
@@ -92,12 +92,12 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
   Widget build(BuildContext context) {
     return _notifications.isNotEmpty
         ? MomentTips(
-            title: '${_notifications.length} replies',
+            title: '${_notifications.length} reactions',
             avatars: _avatarList,
             onTap: () {
               OXMomentManager.sharedInstance.clearNewNotifications();
               setState(() {
-                _notifications = [];
+                _notifications.clear();
               });
               widget.onTap?.call();
             },
