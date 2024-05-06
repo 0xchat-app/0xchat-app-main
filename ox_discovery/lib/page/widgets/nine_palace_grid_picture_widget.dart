@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
@@ -29,12 +31,6 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
 }
 
 class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidget> {
-
-  double get _getPicSize{
-    if(widget.crossAxisCount == 1) return 50;
-    if(widget.crossAxisCount == 2) return 30;
-    return 20;
-  }
 
   @override
   void initState() {
@@ -73,14 +69,21 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
       BuildContext context, int index, List<String> imageList) {
     String imgPath = imageList[index];
     return GestureDetector(
-      onTap: () => _photoOption(false),
+      onTap: () {
+        // OXNavigator.presentPage(context, (context) => ImageGallery(
+        //   // imageHeaders: widget.imageHeaders,
+        //   images: imageList,
+        //   pageController: _galleryPageController!,
+        //   onClosePressed: _onCloseGalleryPressed,
+        //   options: widget.imageGalleryOptions,
+        // ));
+        _photoOption(false);
+      },
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
         child: OXCachedNetworkImage(
           fit: BoxFit.cover,
           imageUrl: imgPath,
-          width: _getPicSize.px,
-          height: _getPicSize.px,
           placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(),
           errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(),
         ),
@@ -99,8 +102,6 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         borderRadius: 8.px,
         child: Image.asset(
           imgPath,
-          width: _getPicSize.px,
-          height: _getPicSize.px,
           fit: BoxFit.cover,
           package: isShowAddIcon ? 'ox_discovery' : null,
         ),

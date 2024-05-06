@@ -207,7 +207,11 @@ class _MomentWidgetState extends State<MomentWidget> {
     noteDB = widget.noteDB;
     setState(() {});
     String? repostId = widget.noteDB.repostId;
-    if(repostId != null && repostId.isNotEmpty) _getRepostId(repostId);
+    if(repostId != null && repostId.isNotEmpty) {
+      _getRepostId(repostId);
+    }else{
+      _getMomentUser(noteDB);
+    }
   }
 
   void _getRepostId(String repostId) async{
@@ -216,7 +220,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     _getMomentUser(noteDB);
     setState(() {});
   }
-
 
 
   void _getMomentUser(NoteDB noteDB) async {
