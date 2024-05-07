@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -13,6 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
+import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -246,19 +246,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                     ),
                   ],
                 ),
-                if (type != ENotificationsMomentType.reply)
-                  Container(
-                    width: 60.px,
-                    height: 60.px,
-                    decoration: BoxDecoration(
-                      color: ThemeColor.color100,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(
-                          8.px,
-                        ),
-                      ),
-                    ),
-                  ),
+                _buildThumbnailWidget(notificationDB),
               ],
             );
           }
@@ -286,7 +274,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         content = "Reposted your moments";
         break;
       case ENotificationsMomentType.zaps:
-        content = "Zaps +1000";
+        content = "Zaps +${notificationDB.zapAmount}";
         break;
     }
     bool isPurpleColor = type != ENotificationsMomentType.quote &&
@@ -299,11 +287,40 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           color: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
           fontSize: 12.px,
           fontWeight: FontWeight.w400,
+          height: 16.8.px / 12.px,
         ),
         overflow: TextOverflow.ellipsis,
-        maxLines: 10,
+        maxLines: 2,
       ),
     );
+  }
+
+  Widget _buildThumbnailWidget(NotificationDB notificationDB) {
+    return FutureBuilder(
+      future: _getNote(notificationDB),
+      builder: (context,snapshot) {
+        final note = snapshot.data;
+        MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(note?.content ?? '');
+        List<String> pictures = mediaAnalyzer.getMediaList(1);
+        if(note == null || pictures.isEmpty) return Container();
+        return MomentWidgetsUtils.clipImage(
+          borderRadius: 8.px,
+          imageSize: 60.px,
+          child: OXCachedNetworkImage(
+            imageUrl: pictures.first,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
+            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+            width: 60.px,
+            height: 60.px,
+          ),
+        );
+      }
+    );
+  }
+
+  Future<NoteDB?> _getNote(NotificationDB notificationDB) async {
+    return await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
   }
 
   void _clearNotifications(){

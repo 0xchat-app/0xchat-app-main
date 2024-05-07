@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -204,21 +205,33 @@ class _MomentZapPageState extends State<MomentZapPage> {
       return ;
     }
 
-    final eventId = widget.noteDB.noteId;
+    final relays = OXRelayManager.sharedInstance.relayAddressList;
+    final noteId = widget.noteDB.noteId;
     final recipient = widget.userDB.pubKey;
-    final lnurl = widget.userDB.lnurl ?? '';
+    String lnurl = widget.userDB.lnurl ?? '';
+
+    if (lnurl.contains('@')) {
+      try {
+        lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
+      } catch (error) {
+        return;
+      }
+    }
 
     OXLoading.show();
-    final invokeResult = await OXUserCenterInterface.getInvoice(
-      sats: zapAmount,
-      recipient: recipient,
-      otherLnurl: lnurl,
-      content: zapDescription,
-      eventId: eventId
+    final invokeResult = await Moment.sharedInstance.getZapNoteInvoice(
+      relays,
+      zapAmount,
+      lnurl,
+      recipient,
+      noteId,
+      zapDescription,
+      false,
     );
     final invoice = invokeResult['invoice'] ?? '';
     OXLoading.dismiss();
 
+    OXNavigator.pop(context);
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});
   }
 }

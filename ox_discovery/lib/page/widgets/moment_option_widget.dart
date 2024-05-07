@@ -8,7 +8,6 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/moments/moment_zap_page.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -112,7 +111,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
           }
         };
       case EMomentOptionType.zaps:
-        return _handleZap();
+        return _handleZap;
     }
   }
 
@@ -275,7 +274,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
       case EMomentOptionType.like:
         return noteDB.reactionEventIds?.length ?? 0;
       case EMomentOptionType.zaps:
-        return noteDB.zapEventIds?.length ?? 0;
+        return noteDB.zapAmount;
       case EMomentOptionType.reply:
         return noteDB.replyEventIds?.length ?? 0;
     }
