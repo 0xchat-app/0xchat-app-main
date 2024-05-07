@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
 import '../../model/moment_extension_model.dart';
+import '../../utils/discovery_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
@@ -305,7 +306,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                         right: 4.px,
                       ),
                       Text(
-                        '${momentUser?.dns ?? '--'} · ${widget.noteDB.createAtStr}',
+                        DiscoveryUtils.getUserMomentInfo(momentUser, widget.noteDB.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

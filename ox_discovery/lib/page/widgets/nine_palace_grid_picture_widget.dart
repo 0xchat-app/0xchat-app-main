@@ -15,15 +15,14 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
   final int axisSpacing;
   final Function(List<String> imageList)? addImageCallback;
 
-  const NinePalaceGridPictureWidget({
-    super.key,
-    required this.imageList,
-    this.addImageCallback,
-    this.width,
-    this.axisSpacing = 10,
-    this.isEdit = false,
-    this.crossAxisCount = 3
-  });
+  const NinePalaceGridPictureWidget(
+      {super.key,
+      required this.imageList,
+      this.addImageCallback,
+      this.width,
+      this.axisSpacing = 10,
+      this.isEdit = false,
+      this.crossAxisCount = 3});
 
   @override
   _NinePalaceGridPictureWidgetState createState() =>
@@ -31,6 +30,7 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
 }
 
 class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidget> {
+  PageController? _galleryPageController;
 
   @override
   void initState() {
@@ -70,13 +70,20 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
     String imgPath = imageList[index];
     return GestureDetector(
       onTap: () {
-        // OXNavigator.presentPage(context, (context) => ImageGallery(
-        //   // imageHeaders: widget.imageHeaders,
-        //   images: imageList,
-        //   pageController: _galleryPageController!,
-        //   onClosePressed: _onCloseGalleryPressed,
-        //   options: widget.imageGalleryOptions,
-        // ));
+        List<PreviewImage> previewImageList = _getPreviewImageList(imageList);
+        final initialPage = previewImageList.indexWhere(
+          (element) => element.id == index.toString() && element.uri == imgPath,
+        );
+        _galleryPageController = PageController(initialPage: initialPage);
+        OXNavigator.presentPage(
+          context,
+          (context) => ImageGallery(
+            images: previewImageList,
+            pageController: _galleryPageController!,
+            onClosePressed: _onCloseGalleryPressed,
+          ),
+          fullscreenDialog: true,
+        );
         _photoOption(false);
       },
       child: MomentWidgetsUtils.clipImage(
@@ -84,11 +91,20 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         child: OXCachedNetworkImage(
           fit: BoxFit.cover,
           imageUrl: imgPath,
-          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(),
-          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(),
+          placeholder: (context, url) =>
+              MomentWidgetsUtils.badgePlaceholderContainer(),
+          errorWidget: (context, url, error) =>
+              MomentWidgetsUtils.badgePlaceholderContainer(),
         ),
       ),
     );
+  }
+
+  List<PreviewImage> _getPreviewImageList(List<String> imageList) {
+    return imageList.map((String path) {
+      int findIndex = imageList.indexOf(path);
+      return PreviewImage(id: findIndex.toString(), uri: path);
+    }).toList();
   }
 
   Widget _showEditImageWidget(
@@ -119,11 +135,11 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
   }
 
   double _getAspectRatio(int length) {
-    if(widget.crossAxisCount == 1) return 1.0;
-    if(widget.crossAxisCount == 2) {
+    if (widget.crossAxisCount == 1) return 1.0;
+    if (widget.crossAxisCount == 2) {
       return length > 2 ? 1 : 2;
     }
-    if(widget.crossAxisCount == 3) {
+    if (widget.crossAxisCount == 3) {
       if (length >= 1 && length <= 3) {
         return 3.0;
       } else if (length >= 4 && length <= 6) {
@@ -144,4 +160,9 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
     return showImageList;
   }
 
+  void _onCloseGalleryPressed() {
+    OXNavigator.pop(context);
+    _galleryPageController?.dispose();
+    _galleryPageController = null;
+  }
 }

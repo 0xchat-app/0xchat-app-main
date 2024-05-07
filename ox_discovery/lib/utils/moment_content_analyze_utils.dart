@@ -15,7 +15,13 @@ class MomentContentAnalyzeUtils{
       if(userMap == null) break;
       final pubkey = userMap['pubkey'] as String? ?? '';
       UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
-      if(user == null) break;
+      if(user == null){
+        String name = key;
+        if (name.contains('nostr:')) {
+          name = name.replaceAll('nostr:', "");
+        }
+        user ??= UserDB(pubKey:pubkey,name: name.substring(0,15));
+      }
       userDBList[key] = user;
     }
     return userDBList;
@@ -61,6 +67,13 @@ class MomentContentAnalyzeUtils{
     final List<String> hashList = matches.map((m) => m.group(0)!).toList();
     return hashList;
   }
+
+
+
+
+
+
+
 
 
 }

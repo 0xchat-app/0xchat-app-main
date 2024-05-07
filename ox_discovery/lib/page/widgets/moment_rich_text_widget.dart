@@ -77,7 +77,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   Widget build(BuildContext context) {
     String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
     final textSpans = _buildTextSpans(getShowText, context);
-
     return Container(
       key: _containerKey,
       alignment: Alignment.centerLeft,
@@ -173,10 +172,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       if(userDBList[text] != null){
         UserDB userDB = userDBList[text]!;
         return ['@${userDB.name}','@${userDB.pubKey}'];
-      }else{
-        UserDB myDB = OXUserInfoManager.sharedInstance.currentUserInfo!;
-        return ['@${myDB.name}','@${myDB.pubKey}'];
       }
+      return ['',''];
     }
 
     if(text.startsWith('http')){

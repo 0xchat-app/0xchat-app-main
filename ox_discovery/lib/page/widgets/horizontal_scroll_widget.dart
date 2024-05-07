@@ -7,8 +7,8 @@ import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class MomentInfo {
-  final UserDB userDB;
-  final NoteDB noteDB;
+  final UserDB? userDB;
+  final NoteDB? noteDB;
   MomentInfo({required this.userDB, required this.noteDB});
 }
 
@@ -72,15 +72,45 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   List<Widget> _showNoteItemWidget() {
-    return noteList.map((MomentInfo noteInfo) {
+    double width = MediaQuery.of(context).size.width - 48;
 
-      String text = MomentContentAnalyzeUtils((noteInfo.noteDB.content)).getMomentShowContent;
-      bool isOneLine = _getTextLine(text) ==  1;
-      return MomentWidgetsUtils.quoteMoment(
-        noteInfo.userDB,
-        noteInfo.noteDB,
-        isOneLine,
+    return noteList.map((MomentInfo noteInfo) {
+      NoteDB? noteDB = noteInfo.noteDB;
+      UserDB? userDB = noteInfo.userDB;
+      if(noteDB != null && userDB != null ){
+        String text = MomentContentAnalyzeUtils((noteDB.content)).getMomentShowContent;
+        bool isOneLine = _getTextLine(text) ==  1;
+        return MomentWidgetsUtils.quoteMoment(
+          userDB,
+          noteDB,
+          isOneLine,
+          width
+        );
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 1.px,
+            color: ThemeColor.color160,
+          ),
+          borderRadius: BorderRadius.all(
+            Radius.circular(
+              11.5.px,
+            ),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            'Reference not found !',
+            style: TextStyle(
+              color: ThemeColor.color100,
+              fontSize: 16.px,
+            ),
+          ),
+        ),
       );
+
     }).toList();
   }
 
@@ -110,37 +140,51 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   void _getNoteList() async {
-    List<String>? quoteList = widget.quoteList;
-    NoteDB? noteDB = widget.noteDB;
-    if(quoteList != null){
-      for (String quote in quoteList) {
+    await _processQuoteList();
+    await _processSingleNote();
+    _setPageViewHeight(noteList, 0);
+    setState(() {});
+  }
 
-        final noteInfo = NoteDB.decodeNote(quote);
-        if (noteInfo == null) continue;
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
-        if (note != null) {
+  Future<void> _processQuoteList() async {
+    if (widget.quoteList != null) {
+      var futures = <Future>[];
+      for (String quote in widget.quoteList!) {
+        futures.add(_processQuote(quote));
+      }
+      await Future.wait(futures);
+    }
+  }
+
+  Future<void> _processQuote(String quote) async {
+    final noteInfo = NoteDB.decodeNote(quote);
+    if (noteInfo == null) return;
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteInfo['channelId']);
+    if (note != null) {
+      UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
+      if (user != null) {
+        noteList.add(MomentInfo(userDB: user, noteDB: note));
+      }
+    } else {
+      noteList.add(MomentInfo(userDB: null, noteDB: null));
+    }
+  }
+
+  Future<void> _processSingleNote() async {
+    if (widget.noteDB != null) {
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.noteDB!.quoteRepostId ?? '');
+      if (note != null) {
+        int findIndex = noteList.indexWhere((MomentInfo element) =>
+        element.noteDB != null && note.noteId == element.noteDB!.noteId);
+        if (findIndex == -1) {
           UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
           if (user != null) {
-
             noteList.add(MomentInfo(userDB: user, noteDB: note));
           }
         }
       }
     }
-
-    if(noteDB != null){
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteDB.quoteRepostId ?? '');
-      UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
-      if (user != null && note != null) {
-        noteList.add(MomentInfo(userDB: user, noteDB: note));
-      }
-    }
-
-    _setPageViewHeight(noteList, 0);
-
-    setState(() {});
   }
-
 
   int _getTextLine(String text) {
     double width = MediaQuery.of(context).size.width - 72;
@@ -149,7 +193,13 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   void _setPageViewHeight(List<MomentInfo> list, int index) {
-    MomentContentAnalyzeUtils utils = MomentContentAnalyzeUtils((list[index].noteDB.content));
+    NoteDB? noteDB = list[index].noteDB;
+    if(noteDB == null) {
+      _height = 251;
+      setState(() {});
+      return;
+    }
+    MomentContentAnalyzeUtils utils = MomentContentAnalyzeUtils((noteDB.content));
     bool isOneLine = _getTextLine(utils.getMomentShowContent) == 1;
     List<String> getImage = utils.getMediaList(1);
     _height = getImage.isEmpty ? 78 + 35 : 251 + 35;

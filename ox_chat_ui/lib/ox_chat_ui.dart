@@ -30,3 +30,4 @@ export 'src/widgets/message/user_name.dart';
 export 'src/widgets/typing_indicator.dart';
 export 'src/widgets/unread_header.dart';
 export 'src/widgets/input/input_face_page.dart';
+export 'src/models/preview_image.dart';

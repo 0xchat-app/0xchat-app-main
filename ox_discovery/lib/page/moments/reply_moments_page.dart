@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -179,11 +180,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   Widget _momentUserInfoWidget() {
-    String showTimeContent = widget.noteDB.createAtStr;
-    String? dnsStr = momentUserDB?.dns;
-    if (dnsStr != null && dnsStr.isNotEmpty) {
-      showTimeContent = '$dnsStr · $showTimeContent';
-    }
     double width = MediaQuery.of(context).size.width - 106;
     width = width - (getImagePicList.isEmpty ? 0 : 60);
     return Row(
@@ -208,7 +204,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   children: [
                     TextSpan(text: momentUserDB?.name ?? ''),
                     TextSpan(
-                      text: ' ' + showTimeContent,
+                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.noteDB.createAtStr)[0],
                       style: TextStyle(
                         color: ThemeColor.color120,
                         fontSize: 12.px,
@@ -219,8 +215,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 ),
               ),
               MomentRichTextWidget(
-                text: MomentContentAnalyzeUtils(widget.noteDB.content)
-                    .getMomentShowContent,
+                text: MomentContentAnalyzeUtils(widget.noteDB.content).getMomentShowContent,
                 maxLines: 100,
                 textSize: 12.px,
               ),

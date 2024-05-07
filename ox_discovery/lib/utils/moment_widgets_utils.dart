@@ -12,6 +12,8 @@ import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import 'discovery_utils.dart';
+
 
 class MomentWidgetsUtils {
   static Widget clipImage({
@@ -37,7 +39,7 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment(UserDB userDB, NoteDB noteDB, bool isOneLine) {
+  static Widget quoteMoment(UserDB userDB, NoteDB noteDB, bool isOneLine,double width) {
     Widget _getImageWidget() {
       List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
       if (_getImagePathList.isEmpty) return const SizedBox();
@@ -52,8 +54,8 @@ class MomentWidgetsUtils {
           child: OXCachedNetworkImage(
             imageUrl: _getImagePathList[0],
             fit: BoxFit.cover,
-            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(size:172),
-            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172),
+            placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,width: width),
+            errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,width: width),
             height: 172.px,
           ),
         ),
@@ -109,7 +111,7 @@ class MomentWidgetsUtils {
                         ),
                       ),
                       Text(
-                        '${userDB.dns ?? ''} · ${noteDB.createAtStr}',
+                        DiscoveryUtils.getUserMomentInfo(userDB, noteDB.createAtStr)[0],
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w400,
@@ -209,10 +211,10 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget badgePlaceholderContainer({int size = 24}) {
+  static Widget badgePlaceholderContainer({int size = 24,double? width, double? height}) {
     return Container(
-      width: size.px,
-      height: size.px,
+      width: width ?? size.px,
+      height: height ?? size.px,
       color: ThemeColor.color180,
     );
   }

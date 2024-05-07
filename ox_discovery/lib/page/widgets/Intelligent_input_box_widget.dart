@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
+import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class IntelligentInputBoxWidget extends StatefulWidget {
@@ -217,7 +218,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                     right: 8.px,
                   ),
                   Text(
-                    user.dns ?? '',
+                    DiscoveryUtils.getUserMomentInfo(user, '0')[1],
                     style: TextStyle(
                       color: ThemeColor.color100,
                       fontWeight: FontWeight.w400,

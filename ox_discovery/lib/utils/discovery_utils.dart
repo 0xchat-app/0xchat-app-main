@@ -31,17 +31,17 @@ class DiscoveryUtils {
     return formattedDate;
   }
 
-  static Map<String, dynamic> getTextLine(String text, double width,double fontSize ,int? maxLine) {
-
+  static Map<String, dynamic> getTextLine(
+      String text, double width, double fontSize, int? maxLine) {
     TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text,style: TextStyle(fontSize: fontSize.px)),
+      text: TextSpan(text: text, style: TextStyle(fontSize: fontSize.px)),
       maxLines: maxLine,
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(maxWidth: width);
     int lineCount = textPainter.computeLineMetrics().length;
     bool isOver = textPainter.didExceedMaxLines;
-    return { 'isOver':isOver, 'lineCount':lineCount};
+    return {'isOver': isOver, 'lineCount': lineCount};
   }
 
   static Future<String> getAvatar(String pubkey) async {
@@ -57,5 +57,17 @@ class DiscoveryUtils {
     }
     return avatars;
   }
-}
 
+  // [fullName,dns]
+  static List<String> getUserMomentInfo(UserDB? user, String time) {
+    if (user == null) return [time,''];
+    String dns = '';
+    String? dnsStr = user.dns;
+
+    dns = dnsStr != null && dnsStr.isNotEmpty && dnsStr != 'null'
+        ? dnsStr
+        : user.encodedPubkey.substring(0, 15);
+
+    return ['$dns · $time',dns];
+  }
+}

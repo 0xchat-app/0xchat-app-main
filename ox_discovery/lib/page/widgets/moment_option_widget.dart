@@ -46,6 +46,14 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }
 
   @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.noteDB != oldWidget.noteDB) {
+      _init();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {},
