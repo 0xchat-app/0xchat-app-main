@@ -19,6 +19,7 @@ class OXUserCenterInterface {
     required String recipient,
     required String otherLnurl,
     String? content,
+    String? eventId,
     bool privateZap = false,
   }) async {
     return await OXModuleService.invoke<Future<Map<String, String>>>(
@@ -30,6 +31,7 @@ class OXUserCenterInterface {
         #recipient: recipient,
         #otherLnurl: otherLnurl,
         #content: content,
+        #eventId: eventId,
         #privateZap: privateZap,
       },) ?? {};
   }
