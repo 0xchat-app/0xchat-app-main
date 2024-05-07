@@ -292,6 +292,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
       await CommonToast.instance.show(context, 'The friend has not set LNURL!');
       return;
     }
-    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,));
+    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,noteDB: noteDB,));
   }
 }

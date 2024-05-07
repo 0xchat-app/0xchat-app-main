@@ -1,6 +1,8 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -12,8 +14,9 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 class MomentZapPage extends StatefulWidget {
   final UserDB userDB;
+  final NoteDB noteDB;
 
-  const MomentZapPage({super.key, required this.userDB});
+  const MomentZapPage({super.key, required this.userDB, required this.noteDB});
 
   @override
   State<MomentZapPage> createState() => _MomentZapPageState();
@@ -28,7 +31,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
 
   String get zapAmountStr => _amountController.text.orDefault(defaultSatsValue);
   int get zapAmount => int.tryParse(zapAmountStr) ?? 0;
-  String get ecashDescription => _descriptionController.text.orDefault(defaultDescription);
+  String get zapDescription => _descriptionController.text.orDefault(defaultDescription);
 
   final defaultSatsValue = '0';
   final defaultDescription = 'Zaps';
@@ -91,7 +94,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         CommonButton.themeButton(
-                          text: 'zap',
+                          text: 'Zap',
                           onTap: _zap,
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
                       ],
@@ -201,11 +204,19 @@ class _MomentZapPageState extends State<MomentZapPage> {
       return ;
     }
 
+    final eventId = widget.noteDB.noteId;
+    final recipient = widget.userDB.pubKey;
+    final lnurl = widget.userDB.lnurl ?? '';
+
     OXLoading.show();
-    String invoice = await OXModuleService.invoke('ox_wallet', 'getLightningInvoice', [], {
-      const Symbol('sats'): zapAmount,
-      const Symbol('lnaddr'): widget.userDB.lnurl,
-    });
+    final invokeResult = await OXUserCenterInterface.getInvoice(
+      sats: zapAmount,
+      recipient: recipient,
+      otherLnurl: lnurl,
+      content: zapDescription,
+      eventId: eventId
+    );
+    final invoice = invokeResult['invoice'] ?? '';
     OXLoading.dismiss();
 
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});

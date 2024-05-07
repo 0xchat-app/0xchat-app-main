@@ -65,7 +65,6 @@ class OXWallet extends OXFlutterModule {
     'checkWalletActivate': checkWalletActivate,
     'openWalletHomePage': openWalletHomePage,
     'walletSendLightningPage': walletSendLightningPage,
-    'getLightningInvoice': getLightningInvoice,
   };
 
   @override
@@ -152,11 +151,4 @@ class OXWallet extends OXFlutterModule {
         amount: amount ?? '',
         ),
       );
-
-  Future<String> getLightningInvoice({
-    required int sats,
-    required String lnaddr,
-  }) async {
-    return await LightningUtils.getInvoice(sats, lnaddr);
-  }
 }
