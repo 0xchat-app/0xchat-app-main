@@ -44,10 +44,10 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList() async {
-    List<String> replyEventIdsList = await Moment.sharedInstance
-        .loadPublicNoteActionsFromRelay(widget.notedUIModel.noteDB.noteId);
-    if (replyEventIdsList.isEmpty) return;
-    for (String eventId in replyEventIdsList) {
+    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance
+        .loadNoteActions(widget.notedUIModel.noteDB.noteId);
+    if (replyEventIdsList['reply']!.isEmpty) return;
+    for (String eventId in replyEventIdsList['reply']!) {
       NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
       if (noteDB != null) replyList.add(noteDB);
     }

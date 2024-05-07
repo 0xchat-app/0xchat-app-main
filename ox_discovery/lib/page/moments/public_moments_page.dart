@@ -87,8 +87,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
         return MomentWidget(
           notedUIModel: notedUIModel,
           clickMomentCallback: () async {
-            // await OXNavigator.pushPage(
-            //     context, (context) => MomentsPage(noteDB: note));
+            await OXNavigator.pushPage(
+                context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
         );
       },
