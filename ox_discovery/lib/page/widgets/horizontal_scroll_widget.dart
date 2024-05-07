@@ -4,18 +4,19 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class MomentInfo {
   final UserDB? userDB;
-  final NoteDB? noteDB;
-  MomentInfo({required this.userDB, required this.noteDB});
+  final NotedUIModel? notedUIModel;
+  MomentInfo({required this.userDB, required this.notedUIModel});
 }
 
 class HorizontalScrollWidget extends StatefulWidget {
   final List<String>? quoteList;
-  final NoteDB? noteDB;
-  const HorizontalScrollWidget({super.key, this.quoteList,this.noteDB});
+  final NotedUIModel? notedUIModel;
+  const HorizontalScrollWidget({super.key, this.quoteList,this.notedUIModel});
 
   @override
   _HorizontalScrollWidgetState createState() => _HorizontalScrollWidgetState();
@@ -75,14 +76,14 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     double width = MediaQuery.of(context).size.width - 48;
 
     return noteList.map((MomentInfo noteInfo) {
-      NoteDB? noteDB = noteInfo.noteDB;
+      NotedUIModel? notedUIModel = noteInfo.notedUIModel;
       UserDB? userDB = noteInfo.userDB;
-      if(noteDB != null && userDB != null ){
-        String text = MomentContentAnalyzeUtils((noteDB.content)).getMomentShowContent;
+      if(notedUIModel != null && userDB != null ){
+        String text = notedUIModel.getMomentShowContent;
         bool isOneLine = _getTextLine(text) ==  1;
         return MomentWidgetsUtils.quoteMoment(
           userDB,
-          noteDB,
+          notedUIModel,
           isOneLine,
           width
         );
@@ -163,23 +164,24 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     if (note != null) {
       UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
       if (user != null) {
-        noteList.add(MomentInfo(userDB: user, noteDB: note));
+        noteList.add(MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note)));
       }
     } else {
-      noteList.add(MomentInfo(userDB: null, noteDB: null));
+      noteList.add(MomentInfo(userDB: null, notedUIModel: null));
     }
   }
 
   Future<void> _processSingleNote() async {
-    if (widget.noteDB != null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.noteDB!.quoteRepostId ?? '');
+    NotedUIModel? notedUIModel = widget.notedUIModel;
+    if (notedUIModel != null) {
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel.noteDB.quoteRepostId ?? '');
       if (note != null) {
         int findIndex = noteList.indexWhere((MomentInfo element) =>
-        element.noteDB != null && note.noteId == element.noteDB!.noteId);
+        element.notedUIModel != null && note.noteId == element.notedUIModel!.noteDB.noteId);
         if (findIndex == -1) {
           UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
           if (user != null) {
-            noteList.add(MomentInfo(userDB: user, noteDB: note));
+            noteList.add(MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note)));
           }
         }
       }
@@ -193,15 +195,15 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   void _setPageViewHeight(List<MomentInfo> list, int index) {
-    NoteDB? noteDB = list[index].noteDB;
-    if(noteDB == null) {
+    NotedUIModel? notedUIModel = list[index].notedUIModel;
+    if(notedUIModel == null) {
       _height = 251;
       setState(() {});
       return;
     }
-    MomentContentAnalyzeUtils utils = MomentContentAnalyzeUtils((noteDB.content));
-    bool isOneLine = _getTextLine(utils.getMomentShowContent) == 1;
-    List<String> getImage = utils.getMediaList(1);
+
+    bool isOneLine = _getTextLine(notedUIModel.getMomentShowContent) == 1;
+    List<String> getImage = notedUIModel.getImageList;
     _height = getImage.isEmpty ? 78 + 35 : 251 + 35;
     if (list.length == 1) {
       _height  = _height -  35; // Navigation bar height

@@ -11,11 +11,11 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -28,9 +28,9 @@ import 'package:nostr_core_dart/nostr.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
 
-  final NoteDB noteDB;
+  final NotedUIModel notedUIModel;
   const ReplyMomentsPage(
-      {Key? key, required this.noteDB})
+      {Key? key, required this.notedUIModel})
       : super(key: key);
 
   @override
@@ -47,7 +47,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   UserDB? momentUserDB;
 
-  List<String> get getImagePicList => MomentContentAnalyzeUtils(widget.noteDB.content).getMediaList(1);
+  List<String> get getImagePicList => widget.notedUIModel.getImageList;
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   void _getMomentUser() async {
     UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+        await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
     momentUserDB = user;
     setState(() {});
   }
@@ -204,7 +204,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   children: [
                     TextSpan(text: momentUserDB?.name ?? ''),
                     TextSpan(
-                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.noteDB.createAtStr)[0],
+                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.notedUIModel.createAtStr)[0],
                       style: TextStyle(
                         color: ThemeColor.color120,
                         fontSize: 12.px,
@@ -215,7 +215,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 ),
               ),
               MomentRichTextWidget(
-                text: MomentContentAnalyzeUtils(widget.noteDB.content).getMomentShowContent,
+                text: widget.notedUIModel.noteDB.content,
                 maxLines: 100,
                 textSize: 12.px,
               ),
@@ -346,7 +346,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     await OXLoading.show();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.noteDB.noteId, content);
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content);
     await OXLoading.dismiss();
 
     if(event.status){

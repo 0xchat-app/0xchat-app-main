@@ -16,6 +16,7 @@ import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
 import '../../utils/moment_content_analyze_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -31,14 +32,14 @@ class CreateMomentsPage extends StatefulWidget {
   final List<String>? imageList;
   final String? videoPath;
   final String? videoImagePath;
-  final NoteDB? noteDB;
+  final NotedUIModel? notedUIModel;
   const CreateMomentsPage(
       {Key? key,
       required this.type,
       this.imageList,
       this.videoPath,
       this.videoImagePath,
-      this.noteDB})
+      this.notedUIModel})
       : super(key: key);
 
   @override
@@ -183,9 +184,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _quoteWidget() {
-    NoteDB? noteDB = widget.noteDB;
-    if (widget.type != EMomentType.quote || noteDB == null) return const SizedBox();
-    return HorizontalScrollWidget(noteDB: noteDB);
+    NotedUIModel? notedUIModel = widget.notedUIModel;
+    if (widget.type != EMomentType.quote || notedUIModel == null) return const SizedBox();
+    return HorizontalScrollWidget(notedUIModel: widget.notedUIModel);
   }
 
   Widget _captionWidget() {
@@ -312,7 +313,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     OKEvent? event;
 
-    NoteDB? noteDB = widget.noteDB;
+    NoteDB? noteDB = widget.notedUIModel?.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;

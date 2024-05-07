@@ -7,9 +7,9 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
@@ -23,10 +23,10 @@ class MomentWidget extends StatefulWidget {
   final bool isShowUserInfo;
   final List<MomentOption>? momentOptionList;
   final GestureTapCallback? clickMomentCallback;
-  final NoteDB noteDB;
+  final NotedUIModel notedUIModel;
   const MomentWidget({
     super.key,
-    required this.noteDB,
+    required this.notedUIModel,
     this.momentOptionList,
     this.clickMomentCallback,
     this.isShowUserInfo = true,
@@ -39,7 +39,7 @@ class MomentWidget extends StatefulWidget {
 class _MomentWidgetState extends State<MomentWidget> {
   UserDB? momentUser;
 
-  late NoteDB noteDB;
+  late NotedUIModel notedUIModel;
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.noteDB != oldWidget.noteDB) {
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
       _init();
     }
   }
@@ -73,14 +73,14 @@ class _MomentWidgetState extends State<MomentWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MomentRepostedTips(
-              noteDB: widget.noteDB,
-            ),
+            // MomentRepostedTips(
+            //   noteDB: widget.noteDB,
+            // ),
             _momentUserInfoWidget(),
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
-            MomentOptionWidget(noteDB: noteDB),
+            MomentOptionWidget(notedUIModel: notedUIModel),
           ],
         ),
       ),
@@ -88,51 +88,47 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentContent() {
-    MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(noteDB.content);
-    if (mediaAnalyzer.getMomentShowContent.isEmpty) return const SizedBox();
+    if (notedUIModel.getMomentShowContent.isEmpty) return const SizedBox();
     return MomentRichTextWidget(
       clickBlankCallback: widget.clickMomentCallback,
-      text: noteDB.content,
+      text: notedUIModel.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
 
   Widget _showMomentMediaWidget() {
-    MomentContentAnalyzeUtils mediaAnalyzer =
-        MomentContentAnalyzeUtils(noteDB.content);
-    if (mediaAnalyzer.getMediaList(1).isNotEmpty) {
+    if (notedUIModel.getImageList.isNotEmpty) {
       double width = MediaQuery.of(context).size.width * 0.64;
       return NinePalaceGridPictureWidget(
-        crossAxisCount: _calculateColumnsForPictures(mediaAnalyzer),
+        crossAxisCount: _calculateColumnsForPictures(notedUIModel.getImageList.length),
         width: width.px,
         axisSpacing: 4,
-        imageList: mediaAnalyzer.getMediaList(1),
+        imageList: notedUIModel.getImageList,
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
-    if (mediaAnalyzer.getMediaList(2).isNotEmpty) {
+    if (notedUIModel.getVideoList.isNotEmpty) {
       return MomentWidgetsUtils.videoMoment(
-          context, mediaAnalyzer.getMediaList(2)[0], null);
+          context, notedUIModel.getVideoList[0], null);
     }
-    if (mediaAnalyzer.getMomentExternalLink.isNotEmpty) {
-      return MomentUrlWidget(url: mediaAnalyzer.getMomentExternalLink[0]);
+    if (notedUIModel.getMomentExternalLink.isNotEmpty) {
+      return MomentUrlWidget(url: notedUIModel.getMomentExternalLink[0]);
     }
     return const SizedBox();
   }
 
-  int _calculateColumnsForPictures(MomentContentAnalyzeUtils mediaAnalyzer) {
-    int picNum = mediaAnalyzer.getMediaList(1).length;
-    if (picNum == 1) return 1;
-    if (picNum > 1 && picNum < 5) return 2;
+  int _calculateColumnsForPictures(int picSize) {
+
+    if (picSize == 1) return 1;
+    if (picSize > 1 && picSize < 5) return 2;
     return 3;
   }
 
   Widget _momentQuoteWidget() {
-    List<String>? getQuoteUrlList =
-        MomentContentAnalyzeUtils(noteDB.content).getQuoteUrlList;
-    String? quoteRepostId = noteDB.quoteRepostId;
+
+    String? quoteRepostId = notedUIModel.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
-    if (getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
-    NoteDB? note = hasQuoteRepostId ? noteDB : null;
-    return HorizontalScrollWidget(quoteList: getQuoteUrlList, noteDB: note);
+    if (notedUIModel.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
+    NotedUIModel? note = hasQuoteRepostId ? NotedUIModel(noteDB: notedUIModel.noteDB) : null;
+    return HorizontalScrollWidget(quoteList: notedUIModel.getQuoteUrlList, notedUIModel: note);
   }
 
   Widget _momentUserInfoWidget() {
@@ -150,7 +146,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                   onTap: () {
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': noteDB.author,
+                      'pubkey': notedUIModel.noteDB.author,
                     });
                   },
                   child: MomentWidgetsUtils.clipImage(
@@ -185,7 +181,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                       ),
                       Text(
                         DiscoveryUtils.getUserMomentInfo(
-                            momentUser, noteDB.createAtStr)[0],
+                            momentUser, notedUIModel.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,
@@ -209,25 +205,25 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   void _init() async {
-    noteDB = widget.noteDB;
+    notedUIModel = widget.notedUIModel;
     setState(() {});
-    String? repostId = widget.noteDB.repostId;
+    String? repostId = widget.notedUIModel.noteDB.repostId;
     if (repostId != null && repostId.isNotEmpty) {
       _getRepostId(repostId);
     } else {
-      _getMomentUser(noteDB);
+      _getMomentUser(notedUIModel);
     }
   }
 
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-    noteDB = note ?? noteDB;
-    _getMomentUser(noteDB);
+    notedUIModel = note != null ? NotedUIModel(noteDB: note) : notedUIModel;
+    _getMomentUser(notedUIModel);
     setState(() {});
   }
 
-  void _getMomentUser(NoteDB noteDB) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
+  void _getMomentUser(NotedUIModel notedUIModel) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
     momentUser = user;
     setState(() {});
   }

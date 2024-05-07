@@ -11,11 +11,11 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class NotificationsMomentsPage extends StatefulWidget {
@@ -148,7 +148,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       onTap: () async {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
         if(note != null){
-          OXNavigator.pushPage(context, (context) => MomentsPage(noteDB: note));
+          OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: NotedUIModel(noteDB: note)));
         }
       },
       child: Container(

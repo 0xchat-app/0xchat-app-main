@@ -7,11 +7,10 @@ import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
-import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import '../model/moment_ui_model.dart';
 import 'discovery_utils.dart';
 
 
@@ -39,9 +38,9 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget quoteMoment(UserDB userDB, NoteDB noteDB, bool isOneLine,double width) {
+  static Widget quoteMoment(UserDB userDB, NotedUIModel notedUIModel, bool isOneLine,double width) {
     Widget _getImageWidget() {
-      List<String> _getImagePathList = MomentContentAnalyzeUtils(noteDB.content).getMediaList(1);
+      List<String> _getImagePathList = notedUIModel.getImageList;
       if (_getImagePathList.isEmpty) return const SizedBox();
       return ClipRRect(
         borderRadius: BorderRadius.only(
@@ -111,7 +110,7 @@ class MomentWidgetsUtils {
                         ),
                       ),
                       Text(
-                        DiscoveryUtils.getUserMomentInfo(userDB, noteDB.createAtStr)[0],
+                        DiscoveryUtils.getUserMomentInfo(userDB, notedUIModel.createAtStr)[0],
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w400,
@@ -121,7 +120,7 @@ class MomentWidgetsUtils {
                     ],
                   ).setPaddingOnly(bottom: 4.px),
                   MomentRichTextWidget(
-                    text: noteDB.content,
+                    text: notedUIModel.noteDB.content,
                     textSize: 12.px,
                     maxLines: isOneLine ? 1 : 2,
                     isShowMoreTextBtn: false,

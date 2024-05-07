@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
-import '../../model/moment_extension_model.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -19,8 +19,8 @@ import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
 
 class MomentsPage extends StatefulWidget {
-  final NoteDB noteDB;
-  const MomentsPage({Key? key, required this.noteDB}) : super(key: key);
+  final NotedUIModel notedUIModel;
+  const MomentsPage({Key? key, required this.notedUIModel}) : super(key: key);
 
   @override
   State<MomentsPage> createState() => _MomentsPageState();
@@ -45,7 +45,7 @@ class _MomentsPageState extends State<MomentsPage> {
 
   void _getReplyList() async {
     List<String> replyEventIdsList = await Moment.sharedInstance
-        .loadPublicNoteActionsFromRelay(widget.noteDB.noteId);
+        .loadPublicNoteActionsFromRelay(widget.notedUIModel.noteDB.noteId);
     if (replyEventIdsList.isEmpty) return;
     for (String eventId in replyEventIdsList) {
       NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
@@ -82,10 +82,10 @@ class _MomentsPageState extends State<MomentsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MomentWidget(
-                        noteDB: widget.noteDB,
+                        notedUIModel: widget.notedUIModel,
                       ),
                       ...replyList.map((NoteDB note) {
-                        return MomentReplyWidget(noteDB: note);
+                        return MomentReplyWidget(notedUIModel: NotedUIModel(noteDB: note));
                       }).toList(),
                       _noDataWidget(),
                     ],
@@ -180,11 +180,11 @@ class _MomentsPageState extends State<MomentsPage> {
 }
 
 class MomentReplyWidget extends StatefulWidget {
-  final NoteDB noteDB;
+  final NotedUIModel notedUIModel;
 
   const MomentReplyWidget({
     super.key,
-    required this.noteDB,
+    required this.notedUIModel,
   });
 
   @override
@@ -202,7 +202,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
 
   void _getMomentUser() async {
     UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.noteDB.author);
+        await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
     momentUser = user;
     setState(() {});
   }
@@ -217,7 +217,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
       behavior: HitTestBehavior.translucent,
       onTap: () {
         OXNavigator.pushPage(
-            context, (context) => MomentsPage(noteDB: widget.noteDB));
+            context, (context) => MomentsPage(notedUIModel: widget.notedUIModel));
       },
       child: IntrinsicHeight(
         child: Row(
@@ -262,11 +262,11 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                   children: [
                     _momentUserInfoWidget(),
                     MomentWidget(
-                      noteDB: widget.noteDB,
+                      notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
                       clickMomentCallback: () {
                         OXNavigator.pushPage(context,
-                            (context) => MomentsPage(noteDB: widget.noteDB));
+                            (context) => MomentsPage(notedUIModel: widget.notedUIModel));
                       },
                     ),
                   ],
@@ -306,7 +306,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                         right: 4.px,
                       ),
                       Text(
-                        DiscoveryUtils.getUserMomentInfo(momentUser, widget.noteDB.createAtStr)[0],
+                        DiscoveryUtils.getUserMomentInfo(momentUser, widget.notedUIModel.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

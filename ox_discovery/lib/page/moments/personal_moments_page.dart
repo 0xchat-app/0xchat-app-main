@@ -14,6 +14,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_bottom_sheet_dialog.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
@@ -228,7 +229,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         children: [
           _buildTitle(_notes[index].createAt),
           MomentWidget(
-              noteDB: _notes[index],
+            notedUIModel: NotedUIModel(noteDB: _notes[index]),
               isShowUserInfo: false,
           )
         ],

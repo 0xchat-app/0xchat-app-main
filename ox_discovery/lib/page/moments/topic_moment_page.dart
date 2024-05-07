@@ -7,6 +7,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 
+import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
 
 class TopicMomentPage extends StatefulWidget {
@@ -83,7 +84,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
       itemBuilder: (context, index) {
         NoteDB note = notesList[index];
         return MomentWidget(
-          noteDB: note,
+          notedUIModel: NotedUIModel(noteDB:note),
           clickMomentCallback: () async {
             // await OXNavigator.pushPage(
             //     context, (context) => MomentsPage(noteDB: note));

@@ -11,10 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 
+import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
-import 'package:ox_discovery/model/moment_extension_model.dart';
 
 class PublicMomentsPage extends StatefulWidget {
   const PublicMomentsPage({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class PublicMomentsPage extends StatefulWidget {
 
 class _PublicMomentsPageState extends State<PublicMomentsPage>
     with OXMomentObserver {
-  List<NoteDB> notesList = [];
+  List<NotedUIModel> notesList = [];
 
   final RefreshController _refreshController = RefreshController();
 
@@ -83,12 +83,12 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       shrinkWrap: true,
       itemCount: notesList.length,
       itemBuilder: (context, index) {
-        NoteDB note = notesList[index];
+        NotedUIModel notedUIModel = notesList[index];
         return MomentWidget(
-          noteDB: note,
+          notedUIModel: notedUIModel,
           clickMomentCallback: () async {
-            await OXNavigator.pushPage(
-                context, (context) => MomentsPage(noteDB: note));
+            // await OXNavigator.pushPage(
+            //     context, (context) => MomentsPage(noteDB: note));
           },
         );
       },
@@ -104,7 +104,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
           MomentNewPostTips(
             onTap: (List<NoteDB> list)  {
 
-              notesList = [...list,...notesList];
+              notesList = [...list.map((NoteDB note) => NotedUIModel(noteDB: note)).toList(),...notesList];
               setState(() {});
             },
           ),
@@ -132,7 +132,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       return  isInit ?  _refreshController.refreshCompleted() : _refreshController.loadNoData();
     }
 
-    notesList.addAll(showList);
+    notesList.addAll(showList.map((NoteDB note) => NotedUIModel(noteDB: note)).toList());
     _allNotesFromDBLastTimestamp = list.last.createAt;
 
     setState(() {});

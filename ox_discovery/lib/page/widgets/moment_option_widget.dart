@@ -11,6 +11,7 @@ import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../model/moment_ui_model.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
@@ -20,8 +21,8 @@ import 'package:nostr_core_dart/nostr.dart';
 
 
 class MomentOptionWidget extends StatefulWidget {
-  final NoteDB noteDB;
-  const MomentOptionWidget({super.key,required this.noteDB});
+  final NotedUIModel notedUIModel;
+  const MomentOptionWidget({super.key,required this.notedUIModel});
 
   @override
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
@@ -29,7 +30,7 @@ class MomentOptionWidget extends StatefulWidget {
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
-  late NoteDB noteDB;
+  late NotedUIModel notedUIModel;
 
   final List<EMomentOptionType> momentOptionTypeList = [
     EMomentOptionType.reply,
@@ -48,7 +49,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.noteDB != oldWidget.noteDB) {
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
       _init();
     }
   }
@@ -92,7 +93,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     switch (type) {
       case EMomentOptionType.reply:
         return () async{
-          await OXNavigator.pushPage(context, (context) => ReplyMomentsPage(noteDB: noteDB));
+          await OXNavigator.pushPage(context, (context) => ReplyMomentsPage(notedUIModel: notedUIModel));
           _updateNoteDB();
         };
       case EMomentOptionType.repost:
@@ -103,8 +104,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
       case EMomentOptionType.like:
         return () async {
-          if(noteDB.reactionCountByMe > 0) return;
-          OKEvent event = await Moment.sharedInstance.sendReaction(noteDB.noteId);
+          if(notedUIModel.noteDB.reactionCountByMe > 0) return;
+          OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.noteDB.noteId);
           if(event.status){
             _updateNoteDB();
             CommonToast.instance.show(context, 'reaction success !');
@@ -167,7 +168,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
             index: 0,
             onTap: () async {
               OXNavigator.pop(context);
-              OKEvent event =  await Moment.sharedInstance.sendRepost(noteDB.noteId, null);
+              OKEvent event =  await Moment.sharedInstance.sendRepost(notedUIModel.noteDB.noteId, null);
               if(event.status){
                 _updateNoteDB();
                 CommonToast.instance.show(context, 'repost success !');
@@ -183,7 +184,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              OXNavigator.presentPage(context, (context) => CreateMomentsPage(type: EMomentType.quote,noteDB: noteDB));
+              OXNavigator.presentPage(context, (context) => CreateMomentsPage(type: EMomentType.quote,notedUIModel: notedUIModel));
             },
           ),
           Divider(
@@ -267,6 +268,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }
 
   int _getClickNum(EMomentOptionType type){
+    NoteDB noteDB = notedUIModel.noteDB;
     switch(type){
       case EMomentOptionType.repost:
        return noteDB.repostEventIds?.length ?? 0;
@@ -280,26 +282,26 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }
 
   void _init(){
-    noteDB = widget.noteDB;
+    notedUIModel = widget.notedUIModel;
     setState(() {});
   }
 
 
   void _updateNoteDB() async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.noteDB.noteId);
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.noteDB.noteId);
     if(note == null) return;
     setState(() {
-      noteDB = note;
+      notedUIModel = NotedUIModel(noteDB: note) ;
     });
   }
 
   _handleZap() async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(noteDB.author);
+    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
     if(user == null) return;
     if (user.lnurl == null || user.lnurl!.isEmpty) {
       await CommonToast.instance.show(context, 'The friend has not set LNURL!');
       return;
     }
-    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,noteDB: noteDB,));
+    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,noteDB: notedUIModel.noteDB,));
   }
 }
