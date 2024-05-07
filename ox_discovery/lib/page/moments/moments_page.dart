@@ -29,7 +29,7 @@ class MomentsPage extends StatefulWidget {
 class _MomentsPageState extends State<MomentsPage> {
   bool _isShowMask = false;
 
-  List<NoteDB> replyList = [];
+  List<NotedUIModel> replyList = [];
 
   @override
   void initState() {
@@ -44,12 +44,11 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList() async {
-    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance
-        .loadNoteActions(widget.notedUIModel.noteDB.noteId);
-    if (replyEventIdsList['reply']!.isEmpty) return;
-    for (String eventId in replyEventIdsList['reply']!) {
-      NoteDB? noteDB = await Moment.sharedInstance.loadNoteWithNoteId(eventId);
-      if (noteDB != null) replyList.add(noteDB);
+    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance.loadNoteActions(widget.notedUIModel.noteDB.noteId);
+    List<dynamic>? noteList = replyEventIdsList['reply'];
+    if (noteList == null || noteList.isEmpty) return;
+    for (NoteDB noteDB in noteList) {
+      replyList.add(NotedUIModel(noteDB:noteDB));
     }
     setState(() {});
   }
@@ -84,8 +83,8 @@ class _MomentsPageState extends State<MomentsPage> {
                       MomentWidget(
                         notedUIModel: widget.notedUIModel,
                       ),
-                      ...replyList.map((NoteDB note) {
-                        return MomentReplyWidget(notedUIModel: NotedUIModel(noteDB: note));
+                      ...replyList.map((NotedUIModel notedUIModel) {
+                        return MomentReplyWidget(notedUIModel: notedUIModel);
                       }).toList(),
                       _noDataWidget(),
                     ],
@@ -264,9 +263,9 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                     MomentWidget(
                       notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
-                      clickMomentCallback: () {
+                      clickMomentCallback: (NotedUIModel notedUIModel) {
                         OXNavigator.pushPage(context,
-                            (context) => MomentsPage(notedUIModel: widget.notedUIModel));
+                            (context) => MomentsPage(notedUIModel: notedUIModel));
                       },
                     ),
                   ],

@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_pull_refresher.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
+import 'moments_page.dart';
 
 class TopicMomentPage extends StatefulWidget {
   final String title;
@@ -85,9 +86,9 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
         NoteDB note = notesList[index];
         return MomentWidget(
           notedUIModel: NotedUIModel(noteDB:note),
-          clickMomentCallback: () async {
-            // await OXNavigator.pushPage(
-            //     context, (context) => MomentsPage(noteDB: note));
+          clickMomentCallback: (NotedUIModel notedUIModel) async {
+            await OXNavigator.pushPage(
+                context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
         );
       },

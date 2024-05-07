@@ -22,7 +22,7 @@ import 'nine_palace_grid_picture_widget.dart';
 class MomentWidget extends StatefulWidget {
   final bool isShowUserInfo;
   final List<MomentOption>? momentOptionList;
-  final GestureTapCallback? clickMomentCallback;
+  final Function(NotedUIModel notedUIModel)? clickMomentCallback;
   final NotedUIModel notedUIModel;
   const MomentWidget({
     super.key,
@@ -64,7 +64,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentItemWidget() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(),
+      onTap: () => widget.clickMomentCallback?.call(notedUIModel),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -73,9 +73,9 @@ class _MomentWidgetState extends State<MomentWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // MomentRepostedTips(
-            //   noteDB: widget.noteDB,
-            // ),
+            MomentRepostedTips(
+              noteDB: widget.notedUIModel.noteDB,
+            ),
             _momentUserInfoWidget(),
             _showMomentContent(),
             _showMomentMediaWidget(),
@@ -90,7 +90,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     if (notedUIModel.getMomentShowContent.isEmpty) return const SizedBox();
     return MomentRichTextWidget(
-      clickBlankCallback: widget.clickMomentCallback,
+      clickBlankCallback:() => widget.clickMomentCallback?.call(notedUIModel),
       text: notedUIModel.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
