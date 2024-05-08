@@ -92,7 +92,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     switch (type) {
       case EMomentOptionType.reply:
         return () async{
-          await OXNavigator.pushPage(context, (context) => ReplyMomentsPage(notedUIModel: notedUIModel));
+          await OXNavigator.presentPage(context, (context) => ReplyMomentsPage(notedUIModel: notedUIModel),fullscreenDialog:true);
           _updateNoteDB();
         };
       case EMomentOptionType.repost:

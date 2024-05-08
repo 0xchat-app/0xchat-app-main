@@ -241,8 +241,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
     if(note == null) return;
-    _getMomentUser(NotedUIModel(noteDB: note));
-    setState(() {});
+    final newNotedUIModel = NotedUIModel(noteDB: note);
+    notedUIModel = newNotedUIModel;
+    _getMomentUser(newNotedUIModel);
   }
 
   void _getMomentUser(NotedUIModel notedUIModel) async {
