@@ -292,9 +292,9 @@ class OXUserInfoManager {
     return updateNotificatin;
   }
 
-  Future<bool> checkDNS() async {
-    String pubKey = currentUserInfo?.pubKey ?? '';
-    String dnsStr = currentUserInfo?.dns ?? '';
+  Future<bool> checkDNS({required UserDB userDB}) async {
+    String pubKey = userDB.pubKey;
+    String dnsStr = userDB.dns ?? '';
     if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
