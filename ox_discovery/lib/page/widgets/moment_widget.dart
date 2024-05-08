@@ -128,7 +128,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showReplyContactWidget() {
-    return notedUIModel.noteDB.getNoteKind() ==
+    return notedUIModel?.noteDB.getNoteKind() ==
         ENotificationsMomentType.reply.kind ? ReplyContactWidget(
         userDB: momentUser) : const SizedBox();
   }
