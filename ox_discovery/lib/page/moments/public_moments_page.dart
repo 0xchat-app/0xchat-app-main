@@ -4,6 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 
 import '../../enum/moment_enum.dart';
@@ -161,7 +162,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   List<NoteDB> _filterNotes(List<NoteDB> list) {
-    return list.where((NoteDB note) => note.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+    return list.where((NoteDB note) => !note.isReaction).toList();
   }
 
   void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {

@@ -118,7 +118,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               children: [
                 // _momentItemWidget(),
                 _momentReplyWidget(),
-                ReplyContactWidget(userDB: momentUserDB),
+                ReplyContactWidget(notedUIModel: widget.notedUIModel),
                 IntelligentInputBoxWidget(
                   imageUrl: _showImage,
                   textController: _textController,

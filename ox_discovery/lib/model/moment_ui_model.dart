@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 
+import '../enum/moment_enum.dart';
 import '../utils/discovery_utils.dart';
 import '../utils/moment_content_analyze_utils.dart';
 
@@ -13,7 +14,6 @@ class NotedUIModel {
   late String getMomentShowContent;
   late List<String> getMomentHashTagList;
   late String createAtStr;
-
 
   NotedUIModel({required this.noteDB}){
     loadInitialData(noteDB);
