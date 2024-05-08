@@ -346,7 +346,8 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     await OXLoading.show();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content);
+    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content,hashTags:hashTags);
     await OXLoading.dismiss();
 
     if(event.status){

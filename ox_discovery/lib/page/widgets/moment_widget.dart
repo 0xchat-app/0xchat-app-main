@@ -39,7 +39,7 @@ class MomentWidget extends StatefulWidget {
 class _MomentWidgetState extends State<MomentWidget> {
   UserDB? momentUser;
 
-  late NotedUIModel notedUIModel;
+  NotedUIModel? notedUIModel;
 
   @override
   void initState() {
@@ -62,9 +62,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentItemWidget() {
+    NotedUIModel? model = notedUIModel;
+    if(model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(notedUIModel),
+      onTap: () => widget.clickMomentCallback?.call(model),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -80,7 +82,7 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
-            MomentOptionWidget(notedUIModel: notedUIModel),
+            MomentOptionWidget(notedUIModel: model),
           ],
         ),
       ),
@@ -88,29 +90,38 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showMomentContent() {
-    if (notedUIModel.getMomentShowContent.isEmpty) return const SizedBox();
+    NotedUIModel? model = notedUIModel;
+    if (model == null || model.getMomentShowContent.isEmpty) return const SizedBox();
     return MomentRichTextWidget(
-      clickBlankCallback:() => widget.clickMomentCallback?.call(notedUIModel),
-      text: notedUIModel.noteDB.content,
+      clickBlankCallback:() => widget.clickMomentCallback?.call(model),
+      text: model.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
 
   Widget _showMomentMediaWidget() {
-    if (notedUIModel.getImageList.isNotEmpty) {
+    NotedUIModel? model = notedUIModel;
+    if (model == null) return const SizedBox();
+
+    List<String> getImageList = model.getImageList;
+    if (getImageList.isNotEmpty) {
       double width = MediaQuery.of(context).size.width * 0.64;
       return NinePalaceGridPictureWidget(
-        crossAxisCount: _calculateColumnsForPictures(notedUIModel.getImageList.length),
+        crossAxisCount: _calculateColumnsForPictures(getImageList.length),
         width: width.px,
         axisSpacing: 4,
-        imageList: notedUIModel.getImageList,
+        imageList: getImageList,
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
-    if (notedUIModel.getVideoList.isNotEmpty) {
+
+    List<String> getVideoList = model.getVideoList;
+    if (getVideoList.isNotEmpty) {
       return MomentWidgetsUtils.videoMoment(
-          context, notedUIModel.getVideoList[0], null);
+          context, getVideoList[0], null);
     }
-    if (notedUIModel.getMomentExternalLink.isNotEmpty) {
-      return MomentUrlWidget(url: notedUIModel.getMomentExternalLink[0]);
+
+    List<String> getMomentExternalLink = model.getMomentExternalLink;
+    if (getMomentExternalLink.isNotEmpty) {
+      return MomentUrlWidget(url: getMomentExternalLink[0]);
     }
     return const SizedBox();
   }
@@ -123,16 +134,19 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget() {
+    NotedUIModel? model = notedUIModel;
+    if (model == null) return const SizedBox();
 
-    String? quoteRepostId = notedUIModel.noteDB.quoteRepostId;
+    String? quoteRepostId = model.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
-    if (notedUIModel.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
-    NotedUIModel? note = hasQuoteRepostId ? NotedUIModel(noteDB: notedUIModel.noteDB) : null;
-    return HorizontalScrollWidget(quoteList: notedUIModel.getQuoteUrlList, notedUIModel: note);
+    if (model.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
+    NotedUIModel? note = hasQuoteRepostId ? NotedUIModel(noteDB: model.noteDB) : null;
+    return HorizontalScrollWidget(quoteList: model.getQuoteUrlList, notedUIModel: note);
   }
 
   Widget _momentUserInfoWidget() {
-    if (!widget.isShowUserInfo) return const SizedBox();
+    NotedUIModel? model = notedUIModel;
+    if (model == null || !widget.isShowUserInfo) return const SizedBox();
     return Container(
       padding: EdgeInsets.only(bottom: 12.px),
       child: Row(
@@ -146,7 +160,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                   onTap: () {
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': notedUIModel.noteDB.author,
+                      'pubkey': model.noteDB.author,
                     });
                   },
                   child: MomentWidgetsUtils.clipImage(
@@ -181,7 +195,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                       ),
                       Text(
                         DiscoveryUtils.getUserMomentInfo(
-                            momentUser, notedUIModel.createAtStr)[0],
+                            momentUser, model.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,
@@ -204,21 +218,23 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
+
   void _init() async {
-    notedUIModel = widget.notedUIModel;
-    setState(() {});
-    String? repostId = widget.notedUIModel.noteDB.repostId;
+    NotedUIModel model = widget.notedUIModel;
+    String? repostId = model.noteDB.repostId;
     if (repostId != null && repostId.isNotEmpty) {
       _getRepostId(repostId);
     } else {
-      _getMomentUser(notedUIModel);
+      notedUIModel = model;
+      setState(() {});
+      _getMomentUser(model);
     }
   }
 
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-    notedUIModel = note != null ? NotedUIModel(noteDB: note) : notedUIModel;
-    _getMomentUser(notedUIModel);
+    if(note == null) return;
+    _getMomentUser(NotedUIModel(noteDB: note));
     setState(() {});
   }
 

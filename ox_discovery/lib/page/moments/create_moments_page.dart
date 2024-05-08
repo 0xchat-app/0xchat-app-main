@@ -318,7 +318,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
     if(widget.type == EMomentType.quote && noteDB != null){
-      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content);
+      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags);
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
