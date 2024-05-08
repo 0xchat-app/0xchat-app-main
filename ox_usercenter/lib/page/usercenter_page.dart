@@ -633,7 +633,9 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _verifiedDNS() async {
-    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if(userDB == null) return;
+    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (mounted) {
       setState(() {
       _isVerifiedDNS = isVerifiedDNS;

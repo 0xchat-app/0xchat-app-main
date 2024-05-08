@@ -16,7 +16,9 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
+import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
+import 'package:ox_discovery/page/widgets/contact_info_widget.dart';
 import 'package:ox_discovery/page/widgets/moment_bottom_sheet_dialog.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
@@ -77,6 +79,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
             slivers: <Widget>[
               _buildAppBar(),
               SliverToBoxAdapter(
+                child: _buildContactInfo(),
+              ),
+              SliverToBoxAdapter(
                 child: isCurrentUser ? _buildNewMomentTips() : Container(),
               ),
               SliverPadding(
@@ -100,7 +105,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   Widget _buildAppBar(){
     return ExtendedSliverAppbar(
-      toolBarColor: Colors.transparent,
+      toolBarColor: ThemeColor.color190,
       leading: IconButton(
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
@@ -120,7 +125,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         child: Stack(
           children: <Widget>[
             _buildCoverImage(),
-            _buildUserInfo(),
+            _buildContactOperation(),
           ],
         ),
       ),
@@ -159,17 +164,13 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildUserInfo(){
-
-    String _getUserName(UserDB userDB){
-      return userDB.name ?? userDB.nickName ?? '';
-    }
+  Widget _buildContactOperation(){
 
     return Positioned(
       top: 210.px,
       right: 0,
       left: 0,
-      height: 100.px,
+      height: 80.px,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24.px),
         color: Colors.transparent,
@@ -181,9 +182,31 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
               placeholderIconName: 'icon_user_default.png',
             ),
             Positioned(
-              left: 92.px,
-              bottom: 31.px,
-              child: Text(
+              right: 0,
+              bottom: 0,
+              child: _buildButton(title: 'Remove'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactInfo() {
+
+    String _getUserName(UserDB userDB){
+      return userDB.name ?? userDB.nickName ?? '';
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.px),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
                 _getUserName(widget.userDB),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -192,8 +215,45 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
                   height: 28.px / 20.px,
                 ),
               ),
-            )
-          ],
+              SizedBox(width: 2.px,),
+              DNSAuthenticationWidget(userDB: widget.userDB,)
+            ],
+          ),
+          Text(
+            widget.userDB.dns ?? '',
+            style: TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12.px,
+              color: ThemeColor.color120,
+              height: 17.px / 12.px,
+            ),
+          ),
+          EncodedPubkeyWidget(encodedPubKey: widget.userDB.encodedPubkey,),
+          BioWidget(bio: widget.userDB.about ?? '',),
+        ],
+      ),
+    ).setPaddingOnly(bottom: 20.px);
+  }
+
+  Widget _buildButton({required String title}) {
+    return Container(
+      width: 96.px,
+      height: 24.px,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.px),
+        border: Border.all(
+          width: 0.5.px,
+          color: ThemeColor.color100
+        )
+      ),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12.px,
+          color: ThemeColor.color0
         ),
       ),
     );
@@ -221,6 +281,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Widget _buildMomentItem(int index) {
+    final isShowUserInfo = _notes[index].getNoteKind() == ENotificationsMomentType.repost.kind;
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 12.px,
@@ -231,7 +292,11 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           _buildTitle(_notes[index].createAt),
           MomentWidget(
             notedUIModel: NotedUIModel(noteDB: _notes[index]),
-              isShowUserInfo: false,
+            isShowUserInfo: isShowUserInfo,
+            clickMomentCallback: (NotedUIModel notedUIModel) async {
+              await OXNavigator.pushPage(
+                  context, (context) => MomentsPage(notedUIModel: notedUIModel));
+            },
           )
         ],
       ),
