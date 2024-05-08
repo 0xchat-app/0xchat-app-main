@@ -290,7 +290,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.noteDB.noteId);
     if(note == null) return;
     setState(() {
-      notedUIModel = NotedUIModel(noteDB: note) ;
+      notedUIModel = NotedUIModel(noteDB: note);
     });
   }
 

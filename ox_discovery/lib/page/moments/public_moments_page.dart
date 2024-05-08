@@ -1,16 +1,12 @@
-import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/theme_color.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
@@ -114,7 +110,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
           MomentNotificationTips(
             onTap: () {
               OXNavigator.pushPage(
-                  context, (context) => NotificationsMomentsPage());
+                  context, (context) => const NotificationsMomentsPage());
             },
           ),
         ],
@@ -122,29 +118,63 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> _updateNotesList(bool isInit)async {
-    List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until:isInit ?  null : _allNotesFromDBLastTimestamp ,limit: _limit) ?? [];
-    List<NoteDB> showList = list.where((NoteDB note) {
-      return (note.root == null || (note.root?.isEmpty ?? true)) && (note.reactedId?.isEmpty ?? true);
-    }).toList();
+  Future<void> _updateNotesList(bool isInit) async {
+    try {
+      List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
 
-    if(list.isEmpty) {
-      return  isInit ?  _refreshController.refreshCompleted() : _refreshController.loadNoData();
+      if (list.isEmpty) {
+        isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
+        await _getNotesFromRelay();
+        return;
+      }
+
+      List<NoteDB> showList = _filterNotes(list);
+      _updateUI(showList, isInit, list.length);
+
+      if (list.length < _limit) {
+        await _getNotesFromRelay();
+      }
+    } catch (e) {
+      print('Error loading notes: $e');
+      _refreshController.loadFailed();
     }
+  }
 
-    notesList.addAll(showList.map((NoteDB note) => NotedUIModel(noteDB: note)).toList());
-    _allNotesFromDBLastTimestamp = list.last.createAt;
-
-    setState(() {});
-    if(isInit) {
-      _refreshController.refreshCompleted();
-    }else{
-      if(list.length < _limit){
+  Future<void> _getNotesFromRelay() async {
+    try {
+      List<NoteDB> list = await Moment.sharedInstance.loadNewNotesFromRelay(until: _allNotesFromDBFromRelayLastTimestamp, limit: _limit) ?? [];
+      if (list.isEmpty) {
         _refreshController.loadNoData();
         return;
       }
+
+      List<NoteDB> showList = _filterNotes(list);
+      notesList.addAll(showList.map((note) => NotedUIModel(noteDB: note)).toList());
+      _allNotesFromDBFromRelayLastTimestamp = list.last.createAt;
+
+      setState(() {});
       _refreshController.loadComplete();
+    } catch (e) {
+      print('Error loading notes from relay: $e');
+      _refreshController.loadFailed();
     }
+  }
+
+  List<NoteDB> _filterNotes(List<NoteDB> list) {
+    return list.where((NoteDB note) => note.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+  }
+
+  void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {
+    notesList.addAll(showList.map((note) => NotedUIModel(noteDB: note)).toList());
+    _allNotesFromDBLastTimestamp = showList.last.createAt;
+
+    if(isInit){
+      _refreshController.refreshCompleted();
+    }else{
+      fetchedCount < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
+    }
+
+    setState(() {});
   }
 
 
