@@ -30,6 +30,8 @@ class OXMomentManager {
 
   bool removeObserver(OXMomentObserver observer) => _observers.remove(observer);
 
+  final _reactionKind = 7; // reaction kind
+
   Future<void> init() async {
     initLocalData();
   }
@@ -52,15 +54,16 @@ class OXMomentManager {
 
   void clearNewNotes() {
     Moment.sharedInstance.clearNewNotes();
-    _notes = [];
+    _notes.clear();
   }
 
   void clearNewNotifications() {
     Moment.sharedInstance.clearNewNotifications();
-    _notifications = [];
+    _notifications.clear();
   }
 
   void newNotesCallBackCallBack(List<NoteDB> notes) {
+    notes.removeWhere((element) => element.getNoteKind() == _reactionKind);
     _notes = notes;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotesCallBackCallBack(notes);
