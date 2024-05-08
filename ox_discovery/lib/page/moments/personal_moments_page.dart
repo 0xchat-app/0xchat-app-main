@@ -14,6 +14,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_bottom_sheet_dialog.dart';
@@ -331,22 +332,23 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadNotes() async {
-    List<NoteDB>? noteLst;
+    List<NoteDB> noteLst;
     if(isCurrentUser) {
-      noteLst = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit);
+      noteLst = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
     } else {
-      noteLst = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit);
+      noteLst = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit) ?? [];
     }
+    List<NoteDB> filteredNoteList = noteLst.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
     setState(() {
-      if(noteLst?.isEmpty ?? true){
+      if(noteLst.isEmpty){
         updateStateView(CommonStateView.CommonStateView_NoData);
         _refreshController.loadNoData();
         return;
       }
-      _notes.addAll(noteLst ?? []);
-      _lastTimestamp = noteLst?.last.createAt;
+      _notes.addAll(filteredNoteList);
+      _lastTimestamp = noteLst.last.createAt;
     });
-    if(noteLst != null && noteLst.length < _limit){
+    if(noteLst.length < _limit){
       _refreshController.loadNoData();
       return;
     }

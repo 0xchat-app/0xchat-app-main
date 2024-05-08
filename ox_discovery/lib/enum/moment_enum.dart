@@ -81,6 +81,22 @@ extension ENotificationsMomentTypeEx on ENotificationsMomentType{
         return 'quote_moment_icon.png';
     }
   }
+
+  int get kind {
+    switch (this) {
+      case ENotificationsMomentType.reply:
+        return 1;
+      case ENotificationsMomentType.repost:
+        return 6;
+      case ENotificationsMomentType.like:
+        return 7;
+      case ENotificationsMomentType.zaps:
+        return 9735;
+      case ENotificationsMomentType.quote:
+        return 2;
+    }
+  }
+
 }
 
 
