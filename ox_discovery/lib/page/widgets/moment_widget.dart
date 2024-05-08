@@ -1,17 +1,17 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
-import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import 'horizontal_scroll_widget.dart';
@@ -79,6 +79,7 @@ class _MomentWidgetState extends State<MomentWidget> {
               noteDB: widget.notedUIModel.noteDB,
             ),
             _momentUserInfoWidget(),
+            _showReplyContactWidget(),
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
@@ -124,6 +125,12 @@ class _MomentWidgetState extends State<MomentWidget> {
       return MomentUrlWidget(url: getMomentExternalLink[0]);
     }
     return const SizedBox();
+  }
+
+  Widget _showReplyContactWidget() {
+    return notedUIModel.noteDB.getNoteKind() ==
+        ENotificationsMomentType.reply.kind ? ReplyContactWidget(
+        userDB: momentUser) : const SizedBox();
   }
 
   int _calculateColumnsForPictures(int picSize) {

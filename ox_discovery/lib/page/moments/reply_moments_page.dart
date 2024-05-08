@@ -11,6 +11,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -117,7 +118,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               children: [
                 // _momentItemWidget(),
                 _momentReplyWidget(),
-                _replyToWhoWidget(),
+                ReplyContactWidget(userDB: momentUserDB),
                 IntelligentInputBoxWidget(
                   imageUrl: _showImage,
                   textController: _textController,
@@ -241,38 +242,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
         height: 60.px,
       ),
     ).setPaddingOnly(left: 8.px);
-  }
-
-  Widget _replyToWhoWidget(){
-    return RichText(
-      textAlign: TextAlign.left,
-      overflow: TextOverflow.ellipsis,
-      maxLines: 1,
-      text: TextSpan(
-        style: TextStyle(
-          color: ThemeColor.color0,
-          fontSize: 14.px,
-          fontWeight: FontWeight.w400,
-        ),
-        children: [
-          const TextSpan(text: 'Reply to'),
-          TextSpan(
-            text: ' @${momentUserDB?.name}',
-            style: TextStyle(
-              color: ThemeColor.purple2,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-                  'pubkey': momentUserDB?.pubKey,
-                });
-              },
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _mediaWidget() {
