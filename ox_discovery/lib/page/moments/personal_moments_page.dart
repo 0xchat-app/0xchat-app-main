@@ -18,10 +18,12 @@ import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/notifications_moments_page.dart';
 import 'package:ox_discovery/page/widgets/contact_info_widget.dart';
 import 'package:ox_discovery/page/widgets/moment_bottom_sheet_dialog.dart';
+import 'package:ox_discovery/page/widgets/moment_follow_widget.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_discovery/page/widgets/style_date.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
+import 'package:ox_discovery/utils/moment_widgets_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
@@ -174,15 +176,11 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         color: Colors.transparent,
         child: Stack(
           children: [
-            _buildAvatar(
-              imageUrl: widget.userDB.picture ?? '',
-              size: Size(80.px, 80.px),
-              placeholderIconName: 'icon_user_default.png',
-            ),
-            Positioned(
+            _buildAvatar(),
+            isCurrentUser ? Container() : Positioned(
               right: 0,
               bottom: 0,
-              child: _buildButton(title: 'Remove'),
+              child: MomentFollowWidget(userDB: widget.userDB,),
             )
           ],
         ),
@@ -190,47 +188,20 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildButton({required String title}) {
-    return Container(
-      width: 96.px,
-      height: 24.px,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.px),
-        border: Border.all(
-          width: 0.5.px,
-          color: ThemeColor.color100
-        )
-      ),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 12.px,
-          color: ThemeColor.color0
-        ),
-      ),
-    );
-  }
+  Widget _buildAvatar() {
+    final size = Size(80.px, 80.px);
+    final placeholder = MomentWidgetsUtils.badgePlaceholderImage(size: 80);
 
-  Widget _buildAvatar({
-    required String imageUrl,
-    required Size size,
-    required String placeholderIconName,
-  }) {
-    final placeholder = _placeholderImage(iconName: placeholderIconName);
-
-    return ClipOval(
-      child: SizedBox(
-        height: size.height,
+    return MomentWidgetsUtils.clipImage(
+      borderRadius: size.width,
+      imageSize: size.width,
+      child: OXCachedNetworkImage(
+        imageUrl: widget.userDB.picture ?? '',
+        fit: BoxFit.cover,
+        placeholder: (context, url) => placeholder,
+        errorWidget: (context, url, error) => placeholder,
         width: size.width,
-        child: OXCachedNetworkImage(
-          imageUrl: imageUrl,
-          placeholder: (context, url) => placeholder,
-          errorWidget: (context, url, error) => placeholder,
-          fit: BoxFit.cover,
-        ),
+        height: size.height,
       ),
     );
   }
