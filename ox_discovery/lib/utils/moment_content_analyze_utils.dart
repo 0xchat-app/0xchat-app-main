@@ -4,9 +4,18 @@ class MomentContentAnalyzeUtils{
   final String content;
   MomentContentAnalyzeUtils(this.content);
 
+  Map<String, RegExp> regexMap = {
+    'hashRegex': RegExp(r"#(\S+)"),
+    'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
+    'nostrExp': RegExp(r"nostr:npub\S+|npub\S+"),
+    'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
+    'imgExp': RegExp(r'(\S+\/)?.+\.(png|jpg|jpeg|gif)\S+', caseSensitive: false),
+    'audioExp': RegExp(r'(\S+\/)?.+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)\S+', caseSensitive: false),
+  };
+
   Future<Map<String,UserDB?>> get getUserInfoMap async{
     Map<String,UserDB?> userDBList = {};
-    final RegExp nostrExp = RegExp(r"nostr:npub\w+|npub\w+");
+    final RegExp nostrExp = regexMap['nostrExp'] as RegExp;
     final Iterable<RegExpMatch> matches = nostrExp.allMatches(content);
 
     final List<String> pubKey = matches.map((m) => m.group(0)!).toList();
@@ -28,7 +37,7 @@ class MomentContentAnalyzeUtils{
   }
 
   List<String> get getQuoteUrlList {
-    final RegExp noteExp = RegExp(r"nostr:note1\w+|nostr:nevent1\w+");
+    final RegExp noteExp = regexMap['noteExp'] as RegExp;
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
     return noteList;
@@ -36,8 +45,8 @@ class MomentContentAnalyzeUtils{
 
   // type = 1 image 2 video
   List<String> getMediaList(int type){
-    final RegExp imgExp = RegExp(r'(\S+\/)?\w+\.(png|jpg|jpeg|gif)', caseSensitive: false);
-    final RegExp audioExp = RegExp(r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)', caseSensitive: false);
+    final RegExp imgExp = regexMap['imgExp'] as RegExp;
+    final RegExp audioExp = regexMap['audioExp'] as RegExp;
     RegExp getRegExp = type == 1 ? imgExp : audioExp;
     final Iterable<RegExpMatch> matches = getRegExp.allMatches(content);
 
@@ -46,23 +55,24 @@ class MomentContentAnalyzeUtils{
   }
 
   List<String> get getMomentExternalLink {
-    final RegExp urlExp = RegExp(r"(https?:\/\/[^\s]+)");
+    final RegExp urlExp = regexMap['urlExp'] as RegExp;
     final Iterable<RegExpMatch> matches = urlExp.allMatches(content);
     final List<String> urlList = matches.map((m) => m.group(0)!).toList();
     return urlList;
   }
 
    String get getMomentShowContent {
-    final RegExp mediaExp = RegExp(
-         r'(\S+\/)?\w+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv|png|jpg|jpeg|gif)\b|nostr:note1(\w+)|nostr:nevent1(\w+)',
-         caseSensitive: false
-     );
-     final String cleanedText = content.replaceAll(mediaExp, '');
+     final RegExp imgExp = regexMap['imgExp'] as RegExp;
+     final RegExp audioExp = regexMap['audioExp'] as RegExp;
+     final RegExp noteExp = regexMap['noteExp'] as RegExp;
+
+      final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}', caseSensitive: false);
+     final String cleanedText = content.replaceAll(contentExp, '');
      return cleanedText.trim();
   }
 
   List<String> get getMomentHashTagList {
-    final RegExp hashRegex = RegExp(r"#(\w+)");
+    final RegExp hashRegex = regexMap['hashRegex'] as RegExp;
     final Iterable<RegExpMatch> matches = hashRegex.allMatches(content);
     final List<String> hashList = matches.map((m) => m.group(0)!).toList();
     return hashList;
