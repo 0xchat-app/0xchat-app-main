@@ -22,7 +22,9 @@ import '../widgets/simple_moment_reply_widget.dart';
 class MomentsPage extends StatefulWidget {
   final bool isShowReply;
   final NotedUIModel notedUIModel;
-  const MomentsPage({Key? key, required this.notedUIModel, this.isShowReply = true}) : super(key: key);
+  const MomentsPage(
+      {Key? key, required this.notedUIModel, this.isShowReply = true})
+      : super(key: key);
 
   @override
   State<MomentsPage> createState() => _MomentsPageState();
@@ -46,32 +48,31 @@ class _MomentsPageState extends State<MomentsPage> {
     super.dispose();
   }
 
-  void _getReplyNotedUIModel()async {
-    if(widget.isShowReply){
+  void _getReplyNotedUIModel() async {
+    notedUIModel = widget.notedUIModel;
+
+    if (widget.notedUIModel.noteDB.isReply && widget.isShowReply) {
       String? root = widget.notedUIModel.noteDB.root;
-      if(widget.notedUIModel.noteDB.isReply && root != null){
+      if (root != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(root);
-        if(note == null) return;
-        replyList = [...[widget.notedUIModel],...replyList];
+        if (note == null) return;
+        replyList = [widget.notedUIModel, ...replyList];
         notedUIModel = NotedUIModel(noteDB: note);
-      }else{
-        notedUIModel = widget.notedUIModel;
       }
-      _getReplyList(notedUIModel!);
-    }else{
-      notedUIModel = widget.notedUIModel;
-      _getReplyList(widget.notedUIModel);
     }
 
+    _getReplyList(notedUIModel!);
     setState(() {});
   }
 
   void _getReplyList(NotedUIModel model) async {
-    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance.loadNoteActions(model.noteDB.noteId);
+    Map<String, List<dynamic>> replyEventIdsList =
+        await Moment.sharedInstance.loadNoteActions(model.noteDB.noteId);
     List<dynamic>? noteList = replyEventIdsList['reply'];
+
     if (noteList == null || noteList.isEmpty) return;
     for (NoteDB noteDB in noteList) {
-      replyList.add(NotedUIModel(noteDB:noteDB));
+      replyList.add(NotedUIModel(noteDB: noteDB));
     }
     setState(() {});
   }
@@ -79,7 +80,7 @@ class _MomentsPageState extends State<MomentsPage> {
   @override
   Widget build(BuildContext context) {
     NotedUIModel? model = notedUIModel;
-    if(model == null) return const SizedBox();
+    if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -106,23 +107,20 @@ class _MomentsPageState extends State<MomentsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MomentWidget(
-                        isShowReply:  widget.isShowReply,
+                        isShowInteractionData: true,
+                        isShowReply: widget.isShowReply,
                         clickMomentCallback: (NotedUIModel notedUIModel) async {
-                          if(notedUIModel.noteDB.isReply && widget.isShowReply){
+                          if (notedUIModel.noteDB.isReply &&
+                              widget.isShowReply) {
                             await OXNavigator.pushPage(
-                                context, (context) => MomentsPage(notedUIModel: notedUIModel));
+                                context,
+                                (context) =>
+                                    MomentsPage(notedUIModel: notedUIModel));
                           }
                         },
-                        notedUIModel: model ,
+                        notedUIModel: model,
                       ),
-                      ...replyList.map((NotedUIModel notedUIModel) {
-                        int index = replyList.indexOf(notedUIModel);
-                        if(notedUIModel.noteDB.noteId == widget.notedUIModel.noteDB.noteId && index != 0) return const SizedBox();
-                        return MomentReplyWidget(
-                            index: index,
-                            notedUIModel: notedUIModel,
-                        );
-                      }).toList(),
+                      ..._showReplyList(),
                       _noDataWidget(),
                     ],
                   ),
@@ -134,12 +132,15 @@ class _MomentsPageState extends State<MomentsPage> {
               left: 0,
               right: 0,
               bottom: 20,
-              child: SimpleMomentReplyWidget(isFocusedCallback: (focusStatus) {
-                if (focusStatus == _isShowMask) return;
-                setState(() {
-                  _isShowMask = focusStatus;
-                });
-              }),
+              child: SimpleMomentReplyWidget(
+                notedUIModel: model,
+                isFocusedCallback: (focusStatus) {
+                  if (focusStatus == _isShowMask) return;
+                  setState(() {
+                    _isShowMask = focusStatus;
+                  });
+                },
+              ),
             ),
           ],
         ),
@@ -147,6 +148,17 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
+  List<Widget> _showReplyList() {
+    return replyList.map((NotedUIModel notedUIModel) {
+      int index = replyList.indexOf(notedUIModel);
+      if (notedUIModel.noteDB.noteId == widget.notedUIModel.noteDB.noteId &&
+          index != 0) return const SizedBox();
+      return MomentReplyWidget(
+        index: index,
+        notedUIModel: notedUIModel,
+      );
+    }).toList();
+  }
 
   Widget _isShowMaskWidget() {
     if (!_isShowMask) return const SizedBox();
@@ -240,8 +252,8 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   void _getMomentUser() async {
-    UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
+    UserDB? user = await Account.sharedInstance
+        .getUserInfo(widget.notedUIModel.noteDB.author);
     momentUser = user;
     setState(() {});
   }
@@ -256,7 +268,9 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
       behavior: HitTestBehavior.translucent,
       onTap: () {
         OXNavigator.pushPage(
-            context, (context) => MomentsPage(notedUIModel: widget.notedUIModel, isShowReply:false));
+            context,
+            (context) => MomentsPage(
+                notedUIModel: widget.notedUIModel, isShowReply: false));
       },
       child: IntrinsicHeight(
         child: Row(
@@ -305,8 +319,11 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                       notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
                       clickMomentCallback: (NotedUIModel notedUIModel) {
-                        OXNavigator.pushPage(context,
-                            (context) => MomentsPage(notedUIModel: notedUIModel,isShowReply:false));
+                        OXNavigator.pushPage(
+                            context,
+                            (context) => MomentsPage(
+                                notedUIModel: notedUIModel,
+                                isShowReply: false));
                       },
                     ),
                   ],
@@ -346,7 +363,8 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                         right: 4.px,
                       ),
                       Text(
-                        DiscoveryUtils.getUserMomentInfo(momentUser, widget.notedUIModel.createAtStr)[0],
+                        DiscoveryUtils.getUserMomentInfo(
+                            momentUser, widget.notedUIModel.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,

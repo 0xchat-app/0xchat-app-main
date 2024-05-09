@@ -1,17 +1,29 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
+import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 
+
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
+
 class SimpleMomentReplyWidget extends StatefulWidget {
+  final NotedUIModel notedUIModel;
   final Function(bool isFocused)? isFocusedCallback;
-  const SimpleMomentReplyWidget({super.key,this.isFocusedCallback});
+  const SimpleMomentReplyWidget({super.key,this.isFocusedCallback,required this.notedUIModel});
 
   @override
   _SimpleMomentReplyWidgetState createState() => _SimpleMomentReplyWidgetState();
@@ -23,6 +35,9 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   bool _isFocused = false;
   String? imageUrl;
   bool isShowEmoji = false;
+
+  UserDB? momentUser;
+
 
   @override
   void initState() {
@@ -37,6 +52,13 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         _isFocused = _replyFocusNode.hasFocus;
       });
     });
+    _getMomentUser();
+  }
+
+  void _getMomentUser() async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
+    momentUser = user;
+    setState(() {});
   }
 
   @override
@@ -89,7 +111,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
                   ),
                 ),
                 TextSpan(
-                  text: '@Satosh',
+                  text: '@${momentUser?.name ?? ''}',
                   style: TextStyle(
                     color: ThemeColor.gradientMainStart,
                   ),
@@ -101,7 +123,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
             children: [
               _mediaWidget(),
               GestureDetector(
-                onTap: () {},
+                onTap: _postMoment,
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 12.px,
@@ -210,21 +232,21 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
               package: 'ox_discovery',
             ),
           ),
-          SizedBox(
-            width: 12.px,
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isShowEmoji = !isShowEmoji;
-              });
-            },
-            child: CommonImage(
-              iconName: 'chat_emoti_icon.png',
-              size: 24.px,
-              package: 'ox_discovery',
-            ),
-          ),
+          // SizedBox(
+          //   width: 12.px,
+          // ),
+          // GestureDetector(
+          //   onTap: () {
+          //     setState(() {
+          //       isShowEmoji = !isShowEmoji;
+          //     });
+          //   },
+          //   child: CommonImage(
+          //     iconName: 'chat_emoti_icon.png',
+          //     size: 24.px,
+          //     package: 'ox_discovery',
+          //   ),
+          // ),
         ],
       ),
     );
@@ -248,5 +270,40 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         ),
       ),
     );
+  }
+
+  void _postMoment() async {
+    if (_replyController.text.isEmpty && imageUrl == null) {
+      CommonToast.instance.show(context, 'The content cannot be empty !');
+      return;
+    }
+    await OXLoading.show();
+    String getMediaStr = await _getUploadMediaContent();
+    String content = '${_replyController.text} $getMediaStr';
+    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content);
+    await OXLoading.dismiss();
+
+    if(event.status){
+      CommonToast.instance.show(context, 'Reply successfully !');
+    }
+  }
+
+  Future<String> _getUploadMediaContent() async {
+    String? imagePath = imageUrl;
+    if(imagePath == null) return '';
+    List<String> imageList = [imagePath];
+
+    if (imageList.isNotEmpty){
+      List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
+        context,
+        fileType: UplodAliyunType.imageType,
+        filePathList: imageList,
+      );
+      String getImageUrlToStr = imgUrlList.join(' ');
+      return getImageUrlToStr;
+    }
+
+    return '';
   }
 }

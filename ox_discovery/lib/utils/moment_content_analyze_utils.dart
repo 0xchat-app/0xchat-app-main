@@ -9,8 +9,8 @@ class MomentContentAnalyzeUtils{
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
     'nostrExp': RegExp(r"nostr:npub\S+|npub\S+"),
     'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
-    'imgExp': RegExp(r'(\S+\/)?.+\.(png|jpg|jpeg|gif)\S+', caseSensitive: false),
-    'audioExp': RegExp(r'(\S+\/)?.+\.(mp3|wav|aac|m4a|mp4|avi|mov|wmv)\S+', caseSensitive: false),
+    'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
+    'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{

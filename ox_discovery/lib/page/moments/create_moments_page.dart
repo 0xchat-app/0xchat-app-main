@@ -186,7 +186,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _quoteWidget() {
     NotedUIModel? notedUIModel = widget.notedUIModel;
     if (widget.type != EMomentType.quote || notedUIModel == null) return const SizedBox();
-    return HorizontalScrollWidget(notedUIModel: widget.notedUIModel);
+    return HorizontalScrollWidget(onlyShowNotedUIModel: widget.notedUIModel);
   }
 
   Widget _captionWidget() {

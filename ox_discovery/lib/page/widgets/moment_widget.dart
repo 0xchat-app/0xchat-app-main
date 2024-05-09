@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -12,6 +13,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
+import '../moments/moment_option_user_page.dart';
 import 'moment_reposted_tips_widget.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -22,6 +24,7 @@ import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
 class MomentWidget extends StatefulWidget {
+  final bool isShowInteractionData;
   final bool isShowReply;
   final bool isShowUserInfo;
   final List<MomentOption>? momentOptionList;
@@ -34,6 +37,7 @@ class MomentWidget extends StatefulWidget {
     this.clickMomentCallback,
     this.isShowReply = true,
     this.isShowUserInfo = true,
+    this.isShowInteractionData = false,
   });
 
   @override
@@ -67,7 +71,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentItemWidget() {
     NotedUIModel? model = notedUIModel;
-    if(model == null) return const SizedBox();
+    if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(model),
@@ -87,6 +91,7 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
+            _momentInteractionDataWidget(),
             MomentOptionWidget(notedUIModel: model),
           ],
         ),
@@ -98,7 +103,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     NotedUIModel? model = notedUIModel;
     if (model == null || model.getMomentShowContent.isEmpty) return const SizedBox();
     return MomentRichTextWidget(
-      clickBlankCallback:() => widget.clickMomentCallback?.call(model),
+      clickBlankCallback: () => widget.clickMomentCallback?.call(model),
       text: model.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
@@ -120,8 +125,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     List<String> getVideoList = model.getVideoList;
     if (getVideoList.isNotEmpty) {
-      return MomentWidgetsUtils.videoMoment(
-          context, getVideoList[0], null);
+      return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
     }
 
     List<String> getMomentExternalLink = model.getMomentExternalLink;
@@ -132,15 +136,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showReplyContactWidget() {
-    if(!widget.isShowReply) return const SizedBox();
+    if (!widget.isShowReply) return const SizedBox();
     return ReplyContactWidget(notedUIModel: notedUIModel);
-  }
-
-  int _calculateColumnsForPictures(int picSize) {
-
-    if (picSize == 1) return 1;
-    if (picSize > 1 && picSize < 5) return 2;
-    return 3;
   }
 
   Widget _momentQuoteWidget() {
@@ -150,8 +147,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     String? quoteRepostId = model.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
     if (model.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
-    NotedUIModel? note = hasQuoteRepostId ? NotedUIModel(noteDB: model.noteDB) : null;
-    return HorizontalScrollWidget(quoteList: model.getQuoteUrlList, notedUIModel: note);
+    NotedUIModel? note =
+        hasQuoteRepostId ? NotedUIModel(noteDB: model.noteDB) : null;
+    return HorizontalScrollWidget(
+        quoteList: model.getQuoteUrlList, notedUIModel: note);
   }
 
   Widget _momentUserInfoWidget() {
@@ -228,32 +227,88 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
+  Widget _momentInteractionDataWidget() {
+    NotedUIModel? model = notedUIModel;
+    if (model == null || !widget.isShowInteractionData) return const SizedBox();
+
+    List<String> repostEventIds = model.noteDB.repostEventIds ?? [];
+    List<String> quoteRepostEventIds = model.noteDB.quoteRepostEventIds ?? [];
+    List<String> reactionEventIds = model.noteDB.reactionEventIds ?? [];
+    List<String> zapEventIds = model.noteDB.zapEventIds ?? [];
+
+    Widget _itemWidget(ENotificationsMomentType type, int num) {
+      return GestureDetector(
+        onTap: () {
+          OXNavigator.pushPage(context, (context) => MomentOptionUserPage(notedUIModel:model, type: type));
+        },
+        child: RichText(
+          textAlign: TextAlign.left,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          text: TextSpan(
+            style: TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12.px,
+              color: ThemeColor.color0,
+            ),
+            children: [
+              TextSpan(text: '$num '),
+              TextSpan(
+                text: type.text,
+                style: TextStyle(
+                  color: ThemeColor.color100,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ).setPaddingOnly(right: 8.px);
+    }
+
+    return Container(
+      padding: EdgeInsets.only(bottom: 12.px),
+      child: Row(
+        children: [
+          _itemWidget(ENotificationsMomentType.repost, repostEventIds.length),
+          _itemWidget(
+              ENotificationsMomentType.quote, quoteRepostEventIds.length),
+          _itemWidget(ENotificationsMomentType.like, reactionEventIds.length),
+          _itemWidget(ENotificationsMomentType.zaps, zapEventIds.length),
+        ],
+      ),
+    );
+  }
 
   void _init() async {
     NotedUIModel model = widget.notedUIModel;
     String? repostId = model.noteDB.repostId;
-    if (model.noteDB.isRepost && repostId!= null) {
+    if (model.noteDB.isRepost && repostId != null) {
       _getRepostId(repostId);
     } else {
       notedUIModel = model;
-
       setState(() {});
       _getMomentUser(model);
     }
   }
 
+  int _calculateColumnsForPictures(int picSize) {
+    if (picSize == 1) return 1;
+    if (picSize > 1 && picSize < 5) return 2;
+    return 3;
+  }
+
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-    if(note == null) return;
+    if (note == null) return;
     final newNotedUIModel = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUser(newNotedUIModel);
   }
 
   void _getMomentUser(NotedUIModel notedUIModel) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
+    UserDB? user =
+        await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
     momentUser = user;
     setState(() {});
   }
 }
-
