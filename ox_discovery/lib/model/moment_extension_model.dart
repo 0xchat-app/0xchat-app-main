@@ -9,3 +9,7 @@ extension ENoteDBEx on NoteDB {
 
   bool get isReply => getNoteKind() == ENotificationsMomentType.reply.kind;
 }
+
+extension ENotificationDBEX on NotificationDB {
+  bool get isLike => kind == ENotificationsMomentType.like.kind;
+}
