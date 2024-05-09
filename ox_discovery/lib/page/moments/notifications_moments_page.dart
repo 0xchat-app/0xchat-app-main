@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
@@ -345,9 +346,38 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   _loadNotificationData() async {
-    // // 1：reply 2:quoteRepost 6:repost 7:reaction 9735:zap
-    int data = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    List<NotificationDB>? notificationList = await Moment.sharedInstance.loadNotificationsFromDB(data);
+    int date = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    List<NotificationDB>? notificationList = await Moment.sharedInstance.loadNotificationsFromDB(date);
+    List<NotificationDB> notificationOfLike = [];
+    List<NotificationDB> notificationExceptLike = [];
+    if(notificationList != null) {
+      notificationOfLike = notificationList.where((element) => element.isLike).toList();
+      notificationExceptLike = notificationList.where((element) => !element.isLike).toList();
+    }
+    Set<String> groupedItems = {};
+    for (var element in notificationOfLike) {
+      groupedItems.add(element.associatedNoteId);
+    }
+
+    Map<String, List<NotificationDB>> grouped = {};
+    for (var groupedItem in groupedItems) {
+      List<NotificationDB> temp = [];
+      for (var element in notificationOfLike) {
+        if (element.associatedNoteId == groupedItem) {
+          temp.add(element);
+        }
+        //time DESC
+        temp.sort((a, b) => a.createAt.compareTo(b.createAt));
+        grouped[groupedItem] = temp;
+      }
+    }
+    List<GroupedNotification> groupedNotificationList = notificationExceptLike.map((element) => GroupedNotification.fromNotification(element)).toList();
+    grouped.forEach((key, value) {
+      GroupedNotification groupedNotification = GroupedNotification.fromNotification(value.first);
+      groupedNotification.likeCount = value.length;
+      groupedNotificationList.add(groupedNotification);
+    });
+
     setState(() {
       _notifications = notificationList ?? [];
     });
@@ -369,5 +399,38 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       default:
         return ENotificationsMomentType.reply;
     }
+  }
+}
+
+class GroupedNotification {
+  String notificationId; //event id
+  int kind; // 1：reply 2:quoteRepost 6:repost 7:reaction 9735:zap
+  String author;
+  int createAt;
+  String content;
+  int zapAmount;
+  String associatedNoteId;
+  int likeCount;
+
+  GroupedNotification(
+      {this.notificationId = '',
+      this.kind = 0,
+      this.author = '',
+      this.createAt = 0,
+      this.content = '',
+      this.zapAmount = 0,
+      this.associatedNoteId = '',
+      this.likeCount = 0
+      });
+
+  factory GroupedNotification.fromNotification(NotificationDB notificationDB){
+    return GroupedNotification(
+      notificationId: notificationDB.notificationId,
+      kind: notificationDB.kind,
+      author: notificationDB.author,
+      createAt: notificationDB.createAt,
+      zapAmount: notificationDB.zapAmount,
+      associatedNoteId: notificationDB.associatedNoteId,
+    );
   }
 }
