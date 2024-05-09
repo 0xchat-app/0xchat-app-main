@@ -1189,7 +1189,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _verifiedDNS() async {
-    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
+    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (this.mounted) {
       setState(() {
         _isVerifiedDNS = isVerifiedDNS;

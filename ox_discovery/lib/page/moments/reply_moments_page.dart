@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
@@ -118,7 +120,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               children: [
                 // _momentItemWidget(),
                 _momentReplyWidget(),
-                ReplyContactWidget(userDB: momentUserDB),
+                ReplyContactWidget(notedUIModel: widget.notedUIModel),
                 IntelligentInputBoxWidget(
                   imageUrl: _showImage,
                   textController: _textController,

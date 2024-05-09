@@ -12,14 +12,17 @@ import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
+import 'moment_reposted_tips_widget.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import 'horizontal_scroll_widget.dart';
 import 'moment_option_widget.dart';
 import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 
 class MomentWidget extends StatefulWidget {
+  final bool isShowReply;
   final bool isShowUserInfo;
   final List<MomentOption>? momentOptionList;
   final Function(NotedUIModel notedUIModel)? clickMomentCallback;
@@ -29,6 +32,7 @@ class MomentWidget extends StatefulWidget {
     required this.notedUIModel,
     this.momentOptionList,
     this.clickMomentCallback,
+    this.isShowReply = true,
     this.isShowUserInfo = true,
   });
 
@@ -128,9 +132,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _showReplyContactWidget() {
-    return notedUIModel?.noteDB.getNoteKind() ==
-        ENotificationsMomentType.reply.kind ? ReplyContactWidget(
-        userDB: momentUser) : const SizedBox();
+    if(!widget.isShowReply) return const SizedBox();
+    return ReplyContactWidget(notedUIModel: notedUIModel);
   }
 
   int _calculateColumnsForPictures(int picSize) {
@@ -229,10 +232,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _init() async {
     NotedUIModel model = widget.notedUIModel;
     String? repostId = model.noteDB.repostId;
-    if (repostId != null && repostId.isNotEmpty) {
+    if (model.noteDB.isRepost && repostId!= null) {
       _getRepostId(repostId);
     } else {
       notedUIModel = model;
+
       setState(() {});
       _getMomentUser(model);
     }
@@ -253,74 +257,3 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 }
 
-class MomentRepostedTips extends StatefulWidget {
-  final NoteDB noteDB;
-  const MomentRepostedTips({
-    super.key,
-    required this.noteDB,
-  });
-
-  @override
-  _MomentRepostedTipsState createState() => _MomentRepostedTipsState();
-}
-
-class _MomentRepostedTipsState extends State<MomentRepostedTips> {
-  UserDB? momentUserDB;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _getMomentUser();
-  }
-
-  void _getMomentUser() async {
-    UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.noteDB.author);
-    momentUserDB = user;
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String? repostId = widget.noteDB.repostId;
-    if (repostId == null || repostId.isEmpty) return const SizedBox();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CommonImage(
-          iconName: 'repost_moment_icon.png',
-          size: 16.px,
-          package: 'ox_discovery',
-          color: ThemeColor.color100,
-        ).setPaddingOnly(
-          right: 8.px,
-        ),
-        GestureDetector(
-          onTap: () {
-            OXModuleService.pushPage(
-                context, 'ox_chat', 'ContactUserInfoPage', {
-              'pubkey': momentUserDB?.pubKey,
-            });
-          },
-          child: Text(
-            '${momentUserDB?.name ?? ''} ',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 12.px,
-              color: ThemeColor.color100,
-            ),
-          ),
-        ),
-        Text(
-          'Reposted',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 12.px,
-            color: ThemeColor.color100,
-          ),
-        )
-      ],
-    ).setPaddingOnly(bottom: 4.px);
-  }
-}

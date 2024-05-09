@@ -8,6 +8,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -136,7 +137,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
     List<NoteDB> list = await Moment.sharedInstance.loadHashTagsFromRelay([widget.title.substring(1)], limit: _limit, until:_lastTimestamp) ?? [];
     if(isInit) OXLoading.dismiss();
 
-    list = list.where((NoteDB note) => note.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+    list = list.where((NoteDB note) => !note.isReaction).toList();
 
     (notesList ??= []).addAll(list.map((note) => NotedUIModel(noteDB: note)).toList());
     _lastTimestamp = list.isEmpty ? null : list.last.createAt;
