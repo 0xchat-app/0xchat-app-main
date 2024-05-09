@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_discovery/page/widgets/contact_info_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class StyledDate extends StatelessWidget {
-  final String day;
-  final String month;
+  final int timestamp;
   final TextStyle? dayStyle;
   final TextStyle? monthStyle;
+  final TextStyle? timeStyle;
 
   const StyledDate({
     Key? key,
-    required this.day,
-    required this.month,
+    required this.timestamp,
     this.dayStyle,
     this.monthStyle,
+    this.timeStyle,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    final monthAbbreviation = OXDateUtils.getLocalizedMonthAbbreviation(timestamp,locale: Localized.getCurrentLanguage().value());
+    final time = OXDateUtils.formatTimestamp(timestamp * 1000,pattern: 'HH:mm:ss');
+    final day = monthAbbreviation.split(' ').first;
+    final month = monthAbbreviation.split(' ').last;
+
     return RichText(
       text: TextSpan(
         children: <TextSpan>[
@@ -33,11 +42,11 @@ class StyledDate extends StatelessWidget {
           ),
           TextSpan(
             text: month,
-            style: TextStyle(
-                color: ThemeColor.color0,
-                fontWeight: FontWeight.w400,
-                fontSize: 12.px,
-                height: 17.px / 12.px),
+            style: const TextStyle().defaultTextStyle(color: ThemeColor.color0),
+          ),
+          TextSpan(
+            text: '  $time',
+            style: const TextStyle().defaultTextStyle(color: ThemeColor.color100),
           ),
         ],
       ),

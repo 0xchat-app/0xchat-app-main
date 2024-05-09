@@ -7,7 +7,53 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:path/path.dart';
+
+class ContactInfoWidget extends StatelessWidget {
+
+  final UserDB userDB;
+
+  const ContactInfoWidget({super.key, required this.userDB});
+
+  @override
+  Widget build(BuildContext context) {
+    String _getUserName(UserDB userDB){
+      return userDB.name ?? userDB.nickName ?? '';
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.px),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 28.px,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  _getUserName(userDB),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20.px,
+                    color: ThemeColor.color0,
+                  ),
+                ),
+                SizedBox(width: 2.px,),
+                DNSAuthenticationWidget(userDB: userDB,)
+              ],
+            ),
+          ),
+          DNSWidget(dns: userDB.dns ?? ''),
+          SizedBox(height: 1.px,),
+          EncodedPubkeyWidget(encodedPubKey: userDB.encodedPubkey,),
+          SizedBox(height: 1.px,),
+          BioWidget(bio: userDB.about ?? '',),
+        ],
+      ),
+    );
+  }
+}
+
 
 class DNSAuthenticationWidget extends StatefulWidget {
   final UserDB userDB;
@@ -50,22 +96,13 @@ class _DNSAuthenticationWidgetState extends State<DNSAuthenticationWidget> {
   }
 }
 
-class EncodedPubkeyWidget extends StatefulWidget {
+class EncodedPubkeyWidget extends StatelessWidget {
   final String encodedPubKey;
 
   const EncodedPubkeyWidget({super.key, required this.encodedPubKey});
 
   @override
-  State<EncodedPubkeyWidget> createState() => _EncodedPubkeyWidgetState();
-}
-
-class _EncodedPubkeyWidgetState extends State<EncodedPubkeyWidget> {
-
-  bool _publicKeyCopied = false;
-
-  @override
   Widget build(BuildContext context) {
-    String encodedPubKey = widget.encodedPubKey;
 
     String newPubKey = '';
     if (encodedPubKey.isNotEmpty) {
@@ -77,7 +114,7 @@ class _EncodedPubkeyWidgetState extends State<EncodedPubkeyWidget> {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap:() => _clickKey(encodedPubKey),
+      onTap:() => _clickKey(encodedPubKey,context),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -89,9 +126,9 @@ class _EncodedPubkeyWidgetState extends State<EncodedPubkeyWidget> {
           SizedBox(width: 8.px),
           encodedPubKey.isNotEmpty
               ? CommonImage(
-            iconName: _publicKeyCopied ? 'icon_copyied_success.png' : 'icon_copy.png',
-            width: 16.px,
-            height: 16.px,
+            iconName: 'icon_copy.png',
+            width: 14.px,
+            height: 14.px,
             useTheme: true,
           ) : Container(),
         ],
@@ -99,17 +136,29 @@ class _EncodedPubkeyWidgetState extends State<EncodedPubkeyWidget> {
     );
   }
 
-  Future<void> _clickKey(String keyContent) async {
+  Future<void> _clickKey(String keyContent,BuildContext context) async {
     await Clipboard.setData(
       ClipboardData(
         text: keyContent,
       ),
     );
-    await CommonToast.instance.show(context as BuildContext?, 'copied_to_clipboard'.commonLocalized());
-    _publicKeyCopied = true;
-    setState(() {});
+    await CommonToast.instance.show(context, 'copied_to_clipboard'.commonLocalized());
   }
 }
+
+class DNSWidget extends StatelessWidget {
+  final String dns;
+  const DNSWidget({super.key, required this.dns});
+
+  @override
+  Widget build(BuildContext context) {
+    return dns.isNotEmpty ? Text(
+      dns,
+      style: const TextStyle().defaultTextStyle(),
+    ) : Container();
+  }
+}
+
 
 class BioWidget extends StatelessWidget {
   final String bio;
@@ -143,6 +192,3 @@ extension DefaultTextStyle on TextStyle {
     );
   }
 }
-
-
-

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/date_utils.dart';
-import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:extended_sliver/extended_sliver.dart';
@@ -79,10 +77,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
             slivers: <Widget>[
               _buildAppBar(),
               SliverToBoxAdapter(
-                child: _buildContactInfo(),
+                child: ContactInfoWidget(userDB: widget.userDB,).setPaddingOnly(bottom: 20.px),
               ),
               SliverToBoxAdapter(
-                child: isCurrentUser ? _buildNewMomentTips() : Container(),
+                child: isCurrentUser ? _buildNotificationTips() : Container(),
               ),
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
@@ -192,49 +190,6 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildContactInfo() {
-
-    String _getUserName(UserDB userDB){
-      return userDB.name ?? userDB.nickName ?? '';
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.px),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                _getUserName(widget.userDB),
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20.px,
-                  color: ThemeColor.color0,
-                  height: 28.px / 20.px,
-                ),
-              ),
-              SizedBox(width: 2.px,),
-              DNSAuthenticationWidget(userDB: widget.userDB,)
-            ],
-          ),
-          Text(
-            widget.userDB.dns ?? '',
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: 12.px,
-              color: ThemeColor.color120,
-              height: 17.px / 12.px,
-            ),
-          ),
-          EncodedPubkeyWidget(encodedPubKey: widget.userDB.encodedPubkey,),
-          BioWidget(bio: widget.userDB.about ?? '',),
-        ],
-      ),
-    ).setPaddingOnly(bottom: 20.px);
-  }
-
   Widget _buildButton({required String title}) {
     return Container(
       width: 96.px,
@@ -304,17 +259,13 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Widget _buildTitle(int timestamp){
-    final datetime = OXDateUtils.getLocalizedMonthAbbreviation(timestamp,locale: Localized.getCurrentLanguage().value());
-    final day = datetime.split(' ').first;
-    final month = datetime.split(' ').last;
-
     return SizedBox(
       height: 34.px,
       width: double.infinity,
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
-          StyledDate(day: day, month: month),
+          StyledDate(timestamp: timestamp,),
           // Positioned(
           //   right: 0,
           //   top: 0,
@@ -329,7 +280,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildNewMomentTips() {
+  Widget _buildNotificationTips() {
     return UnconstrainedBox(
       child: MomentNotificationTips(
         onTap: _jumpToNotificationsMomentsPage
