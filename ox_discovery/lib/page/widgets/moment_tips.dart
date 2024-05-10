@@ -49,6 +49,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
   _updateNotes(List<NoteDB> notes) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notes.map((e) => e.author).toSet().toList());
+    if(avatars.length > 3) avatars = avatars.sublist(0,3);
     setState(() {
       _notes = notes;
       _avatarList = avatars;
@@ -108,6 +109,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
   _updateNotifications(List<NotificationDB> notifications) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
+    if(avatars.length > 3) avatars = avatars.sublist(0,3);
     setState(() {
       _notifications = notifications;
       _avatarList = avatars;

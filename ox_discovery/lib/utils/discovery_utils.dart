@@ -20,6 +20,8 @@ class DiscoveryUtils {
       return '30 minutes ago';
     } else if (diff.inMinutes >= 15) {
       return '15 minutes ago';
+    } else if (diff.inMinutes >= 1) {
+      return '${diff.inMinutes} minutes ago';
     } else {
       return 'just now';
     }

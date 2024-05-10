@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_discovery/model/aggregated_notification.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
@@ -28,19 +31,15 @@ class NotificationsMomentsPage extends StatefulWidget {
 }
 
 class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
-  List<ENotificationsMomentType> notificationsList = [
-    ENotificationsMomentType.quote,
-    ENotificationsMomentType.repost,
-    ENotificationsMomentType.like,
-    ENotificationsMomentType.reply,
-    ENotificationsMomentType.zaps
-  ];
-
-  List<NotificationDB> _notifications = [];
+  final int _limit = 50;
+  int? _lastTimestamp;
+  final RefreshController _refreshController = RefreshController();
+  final List<AggregatedNotification> _aggregatedNotifications = [];
 
   @override
   void initState() {
     super.initState();
+    _lastTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     _loadNotificationData();
   }
 
@@ -65,7 +64,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Widget _isShowClearWidget(){
-    if(notificationsList.isEmpty) return const SizedBox();
+    if(_aggregatedNotifications.isEmpty) return const SizedBox();
     return GestureDetector(
       onTap: _clearNotifications,
       child: Container(
@@ -93,21 +92,27 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Widget _bodyWidget(){
-    if(notificationsList.isEmpty) return _noDataWidget();
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.only(
-          bottom: 60.px,
-        ),
-        child: ListView.builder(
-          primary: false,
-          controller: null,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: _notifications.length,
-          itemBuilder: (context, index) {
-            return _notificationsItemWidget(notificationDB: _notifications[index]);
-          },
+    if(_aggregatedNotifications.isEmpty) return _noDataWidget();
+    return OXSmartRefresher(
+      controller: _refreshController,
+      enablePullDown: false,
+      enablePullUp: true,
+      onLoading: () => _loadNotificationData(),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(
+            bottom: 60.px,
+          ),
+          child: ListView.builder(
+            primary: false,
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: _aggregatedNotifications.length,
+            itemBuilder: (context, index) {
+              return _notificationsItemWidget(notification: _aggregatedNotifications[index]);
+            },
+          ),
         ),
       ),
     );
@@ -142,12 +147,12 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Widget _notificationsItemWidget({required NotificationDB notificationDB}) {
-    ENotificationsMomentType type = _fromIndex(notificationDB.kind);
+  Widget _notificationsItemWidget({required AggregatedNotification notification}) {
+    ENotificationsMomentType type = _fromIndex(notification.kind);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
         if(note != null){
           OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: NotedUIModel(noteDB: note)));
         }
@@ -164,21 +169,18 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           color: ThemeColor.color180,
         ))),
         child: FutureBuilder<UserDB?>(
-          future: _getUser(notificationDB.author),
+          future: _getUser(notification.author),
           builder: (context,snapshot) {
-            String localAvatarPath = 'assets/images/icon_user_default.png';
-            Image _placeholderImage = Image.asset(
-              localAvatarPath,
-              fit: BoxFit.cover,
-              width: 40.px,
-              height: 40.px,
-              package: 'ox_common',
-            );
+            final placeholder = MomentWidgetsUtils.badgePlaceholderImage(size: 40);
 
-            final username = snapshot.data?.name ?? '';
-            final dns = snapshot.data?.dns ?? '';
+            if(snapshot.data == null) return Container();
+            final user = snapshot.data!;
+            final likeCount = notification.likeCount;
+            final username = user.name ?? user.shortEncodedPubkey ?? '';
+            final suffix = (likeCount - 1) > 0 ? 'and ${notification.likeCount - 1} people' : '';
+            final itemLabel = type == ENotificationsMomentType.like ? '$username $suffix' : username;
             final imageUrl = snapshot.data?.picture ?? '';
-            String showTimeContent = DiscoveryUtils.formatTimeAgo(notificationDB.createAt);
+            String showTimeContent = DiscoveryUtils.formatTimeAgo(notification.createAt);
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +193,8 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                         imageUrl: imageUrl,
                         width: 40.px,
                         height: 40.px,
-                        errorWidget: (context, url, error) => _placeholderImage,
+                        placeholder: (context, url) => placeholder,
+                        errorWidget: (context, url, error) => placeholder,
                       ),
                     ),
                     Container(
@@ -202,9 +205,10 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                username,
+                                itemLabel,
                                 style: TextStyle(
                                   color: ThemeColor.color0,
                                   fontSize: 14.px,
@@ -212,11 +216,12 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                                 ),
                               ),
                               SizedBox(
-                                width: 14.px,
+                                width: 8.px,
                               ),
                               Text(
-                                // '$dns· 45s ago',
                                 showTimeContent,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: ThemeColor.color120,
                                   fontSize: 12.px,
@@ -239,7 +244,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                                   color: ThemeColor.gradientMainStart,
                                 ),
                               ),
-                              _getNotificationsContentWidget(notificationDB),
+                              _getNotificationsContentWidget(notification),
                             ],
                           ),
                         ],
@@ -247,7 +252,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                     ),
                   ],
                 ),
-                _buildThumbnailWidget(notificationDB),
+                _buildThumbnailWidget(notification),
               ],
             );
           }
@@ -260,7 +265,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     return await Account.sharedInstance.getUserInfo(pubkey);
   }
 
-  Widget _getNotificationsContentWidget(NotificationDB notificationDB) {
+  Widget _getNotificationsContentWidget(AggregatedNotification notificationDB) {
     ENotificationsMomentType type = _fromIndex(notificationDB.kind);
     String content = '';
     switch (type) {
@@ -296,14 +301,15 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Widget _buildThumbnailWidget(NotificationDB notificationDB) {
+  Widget _buildThumbnailWidget(AggregatedNotification notificationDB) {
     return FutureBuilder(
       future: _getNote(notificationDB),
       builder: (context,snapshot) {
         final note = snapshot.data;
-        MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(note?.content ?? '');
+        if(note == null) return Container();
+        MomentContentAnalyzeUtils mediaAnalyzer = MomentContentAnalyzeUtils(note.content ?? '');
         List<String> pictures = mediaAnalyzer.getMediaList(1);
-        if(note == null || pictures.isEmpty) return Container();
+        if(pictures.isEmpty) return Container();
         return MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           imageSize: 60.px,
@@ -320,7 +326,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Future<NoteDB?> _getNote(NotificationDB notificationDB) async {
+  Future<NoteDB?> _getNote(AggregatedNotification notificationDB) async {
     return await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
   }
 
@@ -335,7 +341,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         }),
         OXCommonHintAction.sure(text: 'Sure', onTap: () {
           setState(() {
-            notificationsList = [];
+            _aggregatedNotifications.clear();
           });
          return OXNavigator.pop(context);
         }),
@@ -346,41 +352,22 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   _loadNotificationData() async {
-    int date = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    List<NotificationDB>? notificationList = await Moment.sharedInstance.loadNotificationsFromDB(date);
-    List<NotificationDB> notificationOfLike = [];
-    List<NotificationDB> notificationExceptLike = [];
-    if(notificationList != null) {
-      notificationOfLike = notificationList.where((element) => element.isLike).toList();
-      notificationExceptLike = notificationList.where((element) => !element.isLike).toList();
-    }
-    Set<String> groupedItems = {};
-    for (var element in notificationOfLike) {
-      groupedItems.add(element.associatedNoteId);
-    }
+    List<NotificationDB> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
 
-    Map<String, List<NotificationDB>> grouped = {};
-    for (var groupedItem in groupedItems) {
-      List<NotificationDB> temp = [];
-      for (var element in notificationOfLike) {
-        if (element.associatedNoteId == groupedItem) {
-          temp.add(element);
-        }
-        //time DESC
-        temp.sort((a, b) => a.createAt.compareTo(b.createAt));
-        grouped[groupedItem] = temp;
-      }
-    }
-    List<GroupedNotification> groupedNotificationList = notificationExceptLike.map((element) => GroupedNotification.fromNotification(element)).toList();
-    grouped.forEach((key, value) {
-      GroupedNotification groupedNotification = GroupedNotification.fromNotification(value.first);
-      groupedNotification.likeCount = value.length;
-      groupedNotificationList.add(groupedNotification);
-    });
-
+    List<AggregatedNotification> aggregatedNotifications = _getAggregatedNotifications(notificationList);
     setState(() {
-      _notifications = notificationList ?? [];
+      if(notificationList.isEmpty){
+        _refreshController.loadNoData();
+        return;
+      }
+      _aggregatedNotifications.addAll(aggregatedNotifications);
+      _lastTimestamp = notificationList.last.createAt;
     });
+    if(notificationList.length < _limit){
+      _refreshController.loadNoData();
+      return;
+    }
+    _refreshController.loadComplete();
   }
 
   ENotificationsMomentType _fromIndex(int kind) {
@@ -400,37 +387,37 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         return ENotificationsMomentType.reply;
     }
   }
-}
 
-class GroupedNotification {
-  String notificationId; //event id
-  int kind; // 1：reply 2:quoteRepost 6:repost 7:reaction 9735:zap
-  String author;
-  int createAt;
-  String content;
-  int zapAmount;
-  String associatedNoteId;
-  int likeCount;
+  List<AggregatedNotification> _getAggregatedNotifications(List<NotificationDB> notifications) {
+    List<NotificationDB> likeTypeNotification = [];
+    List<NotificationDB> otherTypeNotification = [];
+    Set<String> groupedItems = {};
 
-  GroupedNotification(
-      {this.notificationId = '',
-      this.kind = 0,
-      this.author = '',
-      this.createAt = 0,
-      this.content = '',
-      this.zapAmount = 0,
-      this.associatedNoteId = '',
-      this.likeCount = 0
-      });
+    for (var notification in notifications) {
+      if (notification.isLike) {
+        likeTypeNotification.add(notification);
+        groupedItems.add(notification.associatedNoteId);
+      } else {
+        otherTypeNotification.add(notification);
+      }
+    }
 
-  factory GroupedNotification.fromNotification(NotificationDB notificationDB){
-    return GroupedNotification(
-      notificationId: notificationDB.notificationId,
-      kind: notificationDB.kind,
-      author: notificationDB.author,
-      createAt: notificationDB.createAt,
-      zapAmount: notificationDB.zapAmount,
-      associatedNoteId: notificationDB.associatedNoteId,
-    );
+    Map<String, List<NotificationDB>> grouped = {};
+    for (var groupedItem in groupedItems) {
+      grouped[groupedItem] = likeTypeNotification.where((notification) => notification.associatedNoteId == groupedItem).toList();
+    }
+
+    List<AggregatedNotification> aggregatedNotifications = [];
+    grouped.forEach((key, value) {
+      value.sort((a, b) => b.createAt.compareTo(a.createAt)); // sort each group
+      AggregatedNotification groupedNotification = AggregatedNotification.fromNotificationDB(value.first);
+      groupedNotification.likeCount = value.length;
+      aggregatedNotifications.add(groupedNotification);
+    });
+
+    aggregatedNotifications.addAll(otherTypeNotification.map((element) => AggregatedNotification.fromNotificationDB(element)));
+    aggregatedNotifications.sort((a, b) => b.createAt.compareTo(a.createAt));
+
+    return aggregatedNotifications;
   }
 }
