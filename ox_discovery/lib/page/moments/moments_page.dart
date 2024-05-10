@@ -49,15 +49,19 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyNotedUIModel() async {
+    NotedUIModel notedUIModelDraft = widget.notedUIModel;
     notedUIModel = widget.notedUIModel;
-
-    if (widget.notedUIModel.noteDB.isReply && widget.isShowReply) {
-      String? root = widget.notedUIModel.noteDB.root;
-      if (root != null) {
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(root);
+    if (notedUIModelDraft.noteDB.isReply && widget.isShowReply) {
+      String? getReplyId = notedUIModelDraft.noteDB.getReplyId;
+      if (getReplyId != null) {
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
-        replyList = [widget.notedUIModel, ...replyList];
+        replyList = [notedUIModelDraft];
+
         notedUIModel = NotedUIModel(noteDB: note);
+        setState(() {
+
+        });
       }
     }
 
@@ -66,10 +70,8 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList(NotedUIModel model) async {
-    Map<String, List<dynamic>> replyEventIdsList =
-        await Moment.sharedInstance.loadNoteActions(model.noteDB.noteId);
+    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance.loadNoteActions(model.noteDB.noteId);
     List<dynamic>? noteList = replyEventIdsList['reply'];
-
     if (noteList == null || noteList.isEmpty) return;
     for (NoteDB noteDB in noteList) {
       replyList.add(NotedUIModel(noteDB: noteDB));
@@ -153,6 +155,7 @@ class _MomentsPageState extends State<MomentsPage> {
       int index = replyList.indexOf(notedUIModel);
       if (notedUIModel.noteDB.noteId == widget.notedUIModel.noteDB.noteId &&
           index != 0) return const SizedBox();
+      if (!notedUIModel.noteDB.isFirstLevelReply) return const SizedBox();
       return MomentReplyWidget(
         index: index,
         notedUIModel: notedUIModel,
@@ -252,8 +255,8 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   void _getMomentUser() async {
-    UserDB? user = await Account.sharedInstance
-        .getUserInfo(widget.notedUIModel.noteDB.author);
+    String pubKey = widget.notedUIModel.noteDB.author;
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubKey);
     momentUser = user;
     setState(() {});
   }
@@ -337,51 +340,28 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   Widget _momentUserInfoWidget() {
-    return Container(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            child: Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(
-                    left: 10.px,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        momentUser?.name ?? '--',
-                        style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: 14.px,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ).setPaddingOnly(
-                        right: 4.px,
-                      ),
-                      Text(
-                        DiscoveryUtils.getUserMomentInfo(
-                            momentUser, widget.notedUIModel.createAtStr)[0],
-                        style: TextStyle(
-                          color: ThemeColor.color120,
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: <TextSpan>[
+          TextSpan(
+            text: momentUser?.name ?? '--',
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: 14.px,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          // CommonImage(
-          //   iconName: 'more_moment_icon.png',
-          //   size: 20.px,
-          //   package: 'ox_discovery',
-          // ),
+          TextSpan(
+            text: ' ' + DiscoveryUtils.getUserMomentInfo(
+                momentUser, widget.notedUIModel.createAtStr)[0],
+            style: TextStyle(
+              color: ThemeColor.color120,
+              fontSize: 12.px,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
         ],
       ),
     );

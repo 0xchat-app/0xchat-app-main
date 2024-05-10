@@ -76,7 +76,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
             return _iconTextWidget(
               type: type,
-              isSelect: _getClickNum(type) > 0,
+              isSelect: _isClickByMe(type),
               onTap: () {
                 _onTapCallback(type)();
               },
@@ -277,6 +277,20 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
         return noteDB.zapAmount;
       case EMomentOptionType.reply:
         return noteDB.replyEventIds?.length ?? 0;
+    }
+  }
+
+  bool _isClickByMe(EMomentOptionType type){
+    NoteDB noteDB = notedUIModel.noteDB;
+    switch(type){
+      case EMomentOptionType.repost:
+        return noteDB.repostCountByMe > 0;
+      case EMomentOptionType.like:
+        return noteDB.reactionCountByMe > 0;
+      case EMomentOptionType.zaps:
+        return noteDB.zapAmountByMe > 0;
+      case EMomentOptionType.reply:
+        return noteDB.replyCountByMe > 0;
     }
   }
 

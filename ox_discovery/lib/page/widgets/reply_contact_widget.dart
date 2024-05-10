@@ -37,14 +37,15 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
 
   void _getMomentUser() async {
     NotedUIModel? model = widget.notedUIModel;
-
-    if(model == null || !model.noteDB.isReply || model.noteDB.root == null) {
+    if(model == null || !model.noteDB.isReply) {
       momentUserDB = null;
       setState(() {});
       return;
     }
 
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(model.noteDB.root!);
+    String? getReplyId = model.noteDB.getReplyId;
+    if(getReplyId == null) return;
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
     if(note == null) return;
     UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
     momentUserDB = user;
