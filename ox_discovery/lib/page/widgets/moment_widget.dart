@@ -14,6 +14,8 @@ import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../moments/moment_option_user_page.dart';
+import '../moments/moments_page.dart';
+import 'moment_reply_abbreviate_widget.dart';
 import 'moment_reposted_tips_widget.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -27,16 +29,18 @@ class MomentWidget extends StatefulWidget {
   final bool isShowInteractionData;
   final bool isShowReply;
   final bool isShowUserInfo;
-  final List<MomentOption>? momentOptionList;
+  final bool isShowReplyWidget;
+  final bool isShowMomentOptionWidget;
   final Function(NotedUIModel notedUIModel)? clickMomentCallback;
   final NotedUIModel notedUIModel;
   const MomentWidget({
     super.key,
     required this.notedUIModel,
-    this.momentOptionList,
     this.clickMomentCallback,
     this.isShowReply = true,
     this.isShowUserInfo = true,
+    this.isShowReplyWidget = false,
+    this.isShowMomentOptionWidget = true,
     this.isShowInteractionData = false,
   });
 
@@ -91,8 +95,9 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
+            MomentReplyAbbreviateWidget(notedUIModel:widget.notedUIModel,isShowReplyWidget:widget.isShowReplyWidget),
             _momentInteractionDataWidget(),
-            MomentOptionWidget(notedUIModel: model),
+            MomentOptionWidget(notedUIModel: model,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
           ],
         ),
       ),
@@ -278,6 +283,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       ),
     );
   }
+
 
   void _init() async {
     NotedUIModel model = widget.notedUIModel;

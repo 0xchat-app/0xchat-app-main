@@ -58,6 +58,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     super.didUpdateWidget(oldWidget);
     if (widget.text != oldWidget.text) {
       _updateTextInfo();
+      _getUserInfo();
     }
   }
 
@@ -121,11 +122,10 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
 
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     final List<TextSpan> spans = [];
-    final RegExp regex =
-        RegExp(r"#(\w+)|nostr:npub(\w+)|npub1(\w+)|(https?:\/\/[^\s]+)|\n");
-
+    Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
+    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}', caseSensitive: false);
     int lastMatchEnd = 0;
-    regex.allMatches(text).forEach((match) {
+    contentExp.allMatches(text).forEach((match) {
       final beforeMatch = text.substring(lastMatchEnd, match.start);
       if (beforeMatch.isNotEmpty) {
         spans.add(TextSpan(
@@ -167,8 +167,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
   
   List<String> _dealWithText(String text){
-    if(text.startsWith('nostr:npub1') || text.startsWith('npub1')){
-
+    if(text.startsWith('nostr:npub1') || text.startsWith('npub1') || text.startsWith('nostr:nprofile1')){
       if(userDBList[text] != null){
         UserDB userDB = userDBList[text]!;
         return ['@${userDB.name}','@${userDB.pubKey}'];

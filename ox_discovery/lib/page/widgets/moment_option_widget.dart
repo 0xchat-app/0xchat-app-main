@@ -21,7 +21,8 @@ import 'package:nostr_core_dart/nostr.dart';
 
 class MomentOptionWidget extends StatefulWidget {
   final NotedUIModel notedUIModel;
-  const MomentOptionWidget({super.key,required this.notedUIModel});
+  final bool isShowMomentOptionWidget;
+  const MomentOptionWidget({super.key,required this.notedUIModel,this.isShowMomentOptionWidget = true});
 
   @override
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
@@ -55,35 +56,33 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(
-            Radius.circular(
-              Adapt.px(8),
-            ),
+    if(!widget.isShowMomentOptionWidget) return const SizedBox();
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(
+            Adapt.px(8),
           ),
-          color: ThemeColor.color180,
         ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 12.px,
-          vertical: 12.px,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: momentOptionTypeList.map((EMomentOptionType type) {
+        color: ThemeColor.color180,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.px,
+        vertical: 12.px,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: momentOptionTypeList.map((EMomentOptionType type) {
 
-            return _iconTextWidget(
-              type: type,
-              isSelect: _isClickByMe(type),
-              onTap: () {
-                _onTapCallback(type)();
-              },
-              clickNum: _getClickNum(type),
-            );
-          }).toList(),
-        ),
+          return _iconTextWidget(
+            type: type,
+            isSelect: _isClickByMe(type),
+            onTap: () {
+              _onTapCallback(type)();
+            },
+            clickNum: _getClickNum(type),
+          );
+        }).toList(),
       ),
     );
   }

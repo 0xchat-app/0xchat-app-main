@@ -4,13 +4,14 @@ class MomentContentAnalyzeUtils{
   final String content;
   MomentContentAnalyzeUtils(this.content);
 
-  Map<String, RegExp> regexMap = {
+  static Map<String, RegExp> regexMap = {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
-    'nostrExp': RegExp(r"nostr:npub\S+|npub\S+"),
+    'nostrExp': RegExp(r"nostr:npub\S+|npub\S+|nostr:nprofile1\S+"),
     'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
     'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
+    'lineFeed': RegExp(r"\n"),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{

@@ -82,6 +82,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       itemBuilder: (context, index) {
         NotedUIModel notedUIModel = notesList[index];
         return MomentWidget(
+          isShowReplyWidget: true,
           notedUIModel: notedUIModel,
           clickMomentCallback: (NotedUIModel notedUIModel) async {
             await OXNavigator.pushPage(

@@ -181,8 +181,11 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   Future<void> _processSingleNote() async {
     NotedUIModel? notedUIModel = widget.notedUIModel;
+
     if (notedUIModel != null) {
+
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel.noteDB.quoteRepostId ?? '');
+
       if (note != null) {
         int findIndex = noteList.indexWhere((MomentInfo element) =>
         element.notedUIModel != null && note.noteId == element.notedUIModel!.noteDB.noteId);
