@@ -243,7 +243,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         ),
         Container(
           width: double.infinity,
-          height: Adapt.px(208 + 1.5),
+          // height: Adapt.px(208 + 1.5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
@@ -251,6 +251,21 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              _topItemBuild(
+                iconName: 'icon_moment.png',
+                title: 'Moments',
+                isShowDivider: true,
+                onTap: () {
+                  OXModuleService.pushPage(
+                    context,
+                    'ox_discovery',
+                    'PersonMomentsPage',
+                    {
+                      'userDB': OXUserInfoManager.sharedInstance.currentUserInfo,
+                    },
+                  );
+                },
+              ),
               FutureBuilder<BadgeDB?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
