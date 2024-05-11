@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -10,13 +10,16 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/aggregated_notification.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -99,20 +102,15 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       enablePullUp: true,
       onLoading: () => _loadNotificationData(),
       child: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.only(
-            bottom: 60.px,
-          ),
-          child: ListView.builder(
-            primary: false,
-            padding: EdgeInsets.zero,
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: _aggregatedNotifications.length,
-            itemBuilder: (context, index) {
-              return _notificationsItemWidget(notification: _aggregatedNotifications[index]);
-            },
-          ),
+        child: ListView.builder(
+          primary: false,
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: _aggregatedNotifications.length,
+          itemBuilder: (context, index) {
+            return _notificationsItemWidget(notification: _aggregatedNotifications[index]);
+          },
         ),
       ),
     );
@@ -187,14 +185,22 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
               children: [
                 Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(40.px),
-                      child: OXCachedNetworkImage(
-                        imageUrl: imageUrl,
-                        width: 40.px,
-                        height: 40.px,
-                        placeholder: (context, url) => placeholder,
-                        errorWidget: (context, url, error) => placeholder,
+                    GestureDetector(
+                      onTap: () {
+                        OXModuleService.pushPage(
+                            context, 'ox_chat', 'ContactUserInfoPage', {
+                          'pubkey': user.pubKey,
+                        });
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40.px),
+                        child: OXCachedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 40.px,
+                          height: 40.px,
+                          placeholder: (context, url) => placeholder,
+                          errorWidget: (context, url, error) => placeholder,
+                        ),
                       ),
                     ),
                     Container(
@@ -339,10 +345,14 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
         }),
-        OXCommonHintAction.sure(text: 'Sure', onTap: () {
+        OXCommonHintAction.sure(text: 'Sure', onTap: () async {
+          OXLoading.show();
+          await Moment.sharedInstance.deleteAllNotifications();
+          OXLoading.dismiss();
           setState(() {
             _aggregatedNotifications.clear();
           });
+          CommonToast.instance.show(context, 'clear notifications successful');
          return OXNavigator.pop(context);
         }),
       ],
@@ -355,19 +365,10 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     List<NotificationDB> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
 
     List<AggregatedNotification> aggregatedNotifications = _getAggregatedNotifications(notificationList);
-    setState(() {
-      if(notificationList.isEmpty){
-        _refreshController.loadNoData();
-        return;
-      }
-      _aggregatedNotifications.addAll(aggregatedNotifications);
-      _lastTimestamp = notificationList.last.createAt;
-    });
-    if(notificationList.length < _limit){
-      _refreshController.loadNoData();
-      return;
-    }
-    _refreshController.loadComplete();
+    _aggregatedNotifications.addAll(aggregatedNotifications);
+    _lastTimestamp = notificationList.last.createAt;
+    notificationList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
+    setState(() {});
   }
 
   ENotificationsMomentType _fromIndex(int kind) {

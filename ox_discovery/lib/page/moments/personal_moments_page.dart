@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -319,27 +320,30 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadNotes() async {
-    List<NoteDB> noteLst;
-    if(isCurrentUser) {
-      noteLst = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
-    } else {
-      noteLst = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit) ?? [];
-    }
-    List<NoteDB> filteredNoteList = noteLst.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
-    setState(() {
-      if(noteLst.isEmpty){
-        updateStateView(CommonStateView.CommonStateView_NoData);
-        _refreshController.loadNoData();
-        return;
+    List<NoteDB> noteList;
+    try {
+      if(isCurrentUser) {
+        noteList = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
+      } else {
+        noteList = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit) ?? [];
       }
-      _notes.addAll(filteredNoteList);
-      _lastTimestamp = noteLst.last.createAt;
-    });
-    if(noteLst.length < _limit){
-      _refreshController.loadNoData();
+    } catch (e) {
+      noteList = [];
+      LogUtil.e('Load Notes Failed: $e');
+    }
+
+    List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+    if (filteredNoteList.isEmpty) {
+      updateStateView(CommonStateView.CommonStateView_NoData);
+      _refreshController.loadComplete();
+      setState(() {});
       return;
     }
-    _refreshController.loadComplete();
+
+    _notes.addAll(filteredNoteList);
+    _lastTimestamp = noteList.last.createAt;
+    noteList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
+    setState(() {});
   }
 
   @override
