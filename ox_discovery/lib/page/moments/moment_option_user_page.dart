@@ -299,6 +299,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                                 fontSize: 12.px,
                                 fontWeight: FontWeight.w400,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -360,6 +362,9 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
       behavior: HitTestBehavior.translucent,
       onTap: _addFriends,
       child: Container(
+        margin: EdgeInsets.only(
+          left: 4.px,
+        ),
         width: 90.px,
         height: 30.px,
         decoration: BoxDecoration(

@@ -272,20 +272,20 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
           SizedBox(
             width: 12.px,
           ),
-          GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                builder: (context) => _buildEmojiDialog(),
-              );
-            },
-            child: CommonImage(
-              iconName: 'chat_emoti_icon.png',
-              size: 24.px,
-              package: 'ox_discovery',
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     showModalBottomSheet(
+          //       context: context,
+          //       backgroundColor: Colors.transparent,
+          //       builder: (context) => _buildEmojiDialog(),
+          //     );
+          //   },
+          //   child: CommonImage(
+          //     iconName: 'chat_emoti_icon.png',
+          //     size: 24.px,
+          //     package: 'ox_discovery',
+          //   ),
+          // ),
         ],
       ),
     );
