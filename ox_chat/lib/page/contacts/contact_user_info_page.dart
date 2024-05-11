@@ -383,7 +383,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
           ),
           _itemView(
             iconName: 'icon_moment.png',
-            iconPackage: 'ox_chat',
+            iconPackage: 'ox_usercenter',
             type: OtherInfoItemType.Moments,
           ),
         ],
