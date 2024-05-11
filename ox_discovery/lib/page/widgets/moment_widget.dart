@@ -53,6 +53,8 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   NotedUIModel? notedUIModel;
 
+  bool isLoadFailure = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -76,6 +78,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentItemWidget() {
     NotedUIModel? model = notedUIModel;
     if (model == null) return const SizedBox();
+    if(isLoadFailure) return _emptyNoteMoment();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(model),
@@ -103,6 +106,36 @@ class _MomentWidgetState extends State<MomentWidget> {
       ),
     );
   }
+
+  Widget _emptyNoteMoment(){
+    return Container(
+      margin: EdgeInsets.only(
+        top: 10.px
+      ),
+      height: 300.px,
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1.px,
+          color: ThemeColor.color160,
+        ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(
+            11.5.px,
+          ),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Reference not found !',
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: 16.px,
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Widget _showMomentContent() {
     NotedUIModel? model = notedUIModel;
@@ -308,6 +341,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
     if (note == null) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
+      isLoadFailure = true;
       notedUIModel = null;
       momentUser = null;
       setState(() {});
