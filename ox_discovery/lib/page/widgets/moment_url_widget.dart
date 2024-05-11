@@ -26,10 +26,19 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
     _getUrlInfo();
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.url != oldWidget.url) {
+      _getUrlInfo();
+    }
+  }
+
   void _getUrlInfo() async {
     urlData = await WebURLHelper.getPreviewData(widget.url);
     setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +73,7 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
               ),
             ).setPaddingOnly(bottom: 20.px),
             Text(
-              urlData!.description ?? '',
+              getDescription(urlData!.description ?? ''),
               style: TextStyle(
                 fontSize: 15.px,
                 color: ThemeColor.white,
@@ -81,5 +90,12 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
         ),
       ),
     );
+  }
+
+  String getDescription(String description){
+    if(description.length > 200){
+      return description.substring(0,200) + '...';
+    }
+    return description;
   }
 }

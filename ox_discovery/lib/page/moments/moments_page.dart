@@ -40,7 +40,7 @@ class _MomentsPageState extends State<MomentsPage> {
   @override
   void initState() {
     super.initState();
-    _getReplyNotedUIModel();
+    _getReplyList();
   }
 
   @override
@@ -48,7 +48,7 @@ class _MomentsPageState extends State<MomentsPage> {
     super.dispose();
   }
 
-  void _getReplyNotedUIModel() async {
+  void _getReplyList()async {
     NotedUIModel notedUIModelDraft = widget.notedUIModel;
     notedUIModel = widget.notedUIModel;
     if (notedUIModelDraft.noteDB.isReply && widget.isShowReply) {
@@ -56,32 +56,45 @@ class _MomentsPageState extends State<MomentsPage> {
       if (getReplyId != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
-        replyList = [notedUIModelDraft];
-
+        replyList = [widget.notedUIModel];
         notedUIModel = NotedUIModel(noteDB: note);
-        setState(() {
-
-        });
       }
     }
-
-    _getReplyList(notedUIModel!);
     setState(() {});
+    _getReplyFromDB(notedUIModel!);
+    Map<String, List<dynamic>> map = await Moment.sharedInstance.loadNoteActions(notedUIModel!.noteDB.noteId);
+    _getReplyFromRelay(notedUIModel!);
   }
 
-  void _getReplyList(NotedUIModel model) async {
-    Map<String, List<dynamic>> replyEventIdsList = await Moment.sharedInstance.loadNoteActions(model.noteDB.noteId);
-    List<dynamic>? noteList = replyEventIdsList['reply'];
-    if (noteList == null || noteList.isEmpty) return;
-    for (NoteDB noteDB in noteList) {
-      replyList.add(NotedUIModel(noteDB: noteDB));
+  void _getReplyFromRelay(NotedUIModel notedUIModelDraft)async {
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.noteDB.noteId);
+    if(note == null) return;
+    NotedUIModel newNotedUIModel = NotedUIModel(noteDB: note);
+    notedUIModel = newNotedUIModel;
+    setState(() {});
+    _getReplyFromDB(newNotedUIModel);
+
+  }
+
+  void _getReplyFromDB(NotedUIModel notedUIModelDraft)async {
+    List<String>? replyEventIds = notedUIModelDraft.noteDB.replyEventIds;
+    if(replyEventIds == null) return;
+
+    List<NotedUIModel> result = [];
+    for (String noteId in replyEventIds) {
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
+      if (note != null) result.add(NotedUIModel(noteDB: note));
     }
+    List<NotedUIModel> noteList = widget.notedUIModel.noteDB.isReply ? [widget.notedUIModel] : [];
+    replyList = [...noteList,...result];
     setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {
     NotedUIModel? model = notedUIModel;
+
     if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -151,14 +164,14 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   List<Widget> _showReplyList() {
-    return replyList.map((NotedUIModel notedUIModel) {
-      int index = replyList.indexOf(notedUIModel);
-      if (notedUIModel.noteDB.noteId == widget.notedUIModel.noteDB.noteId &&
-          index != 0) return const SizedBox();
-      if (!notedUIModel.noteDB.isFirstLevelReply) return const SizedBox();
+    if(notedUIModel == null) return [const SizedBox()];
+    return replyList.map((NotedUIModel notedUIModelDraft) {
+      int index = replyList.indexOf(notedUIModelDraft);
+      if (notedUIModelDraft.noteDB.noteId == widget.notedUIModel.noteDB.noteId && index != 0) return const SizedBox();
+      if (!notedUIModelDraft.noteDB.isFirstLevelReply) return const SizedBox();
       return MomentReplyWidget(
         index: index,
-        notedUIModel: notedUIModel,
+        notedUIModel: notedUIModelDraft,
       );
     }).toList();
   }

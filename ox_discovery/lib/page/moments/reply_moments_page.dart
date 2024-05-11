@@ -219,7 +219,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               ),
               MomentRichTextWidget(
                 text: widget.notedUIModel.noteDB.content,
-                maxLines: 100,
+                maxLines: 10,
                 textSize: 12.px,
               ),
             ],
@@ -310,6 +310,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() async {
+
     if (_textController.text.isEmpty && _showImage == null) {
       CommonToast.instance.show(context, 'The content cannot be empty !');
       return;

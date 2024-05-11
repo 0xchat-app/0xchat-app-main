@@ -37,6 +37,16 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
     super.initState();
   }
 
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.imageList != oldWidget.imageList) {
+      setState(() {});
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     List<String> _imageList = _getShowImageList();

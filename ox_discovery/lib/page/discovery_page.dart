@@ -105,12 +105,19 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double mm = boundingTextSize(
-            Localized.text('ox_discovery.discovery'),
+    double momentMm = boundingTextSize(
+            Localized.text('ox_discovery.moment'),
             TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Adapt.px(20),
                 color: ThemeColor.titleColor))
+        .width;
+    double discoveryMm = boundingTextSize(
+        Localized.text('ox_discovery.discovery'),
+        TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Adapt.px(20),
+            color: ThemeColor.titleColor))
         .width;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
@@ -131,8 +138,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                 });
               },
               child: Container(
-                constraints: BoxConstraints(maxWidth: mm),
-                child: GradientText('Moment',
+                constraints: BoxConstraints(maxWidth: momentMm),
+                child: GradientText(Localized.text('ox_discovery.moment'),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: Adapt.px(20),
@@ -153,8 +160,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                 });
               },
               child: Container(
-                constraints: BoxConstraints(maxWidth: mm),
-                child: GradientText('Channel',
+                constraints: BoxConstraints(maxWidth: discoveryMm),
+                child: GradientText(Localized.text('ox_discovery.discovery'),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: Adapt.px(20),

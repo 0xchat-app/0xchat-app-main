@@ -27,6 +27,14 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
     _getMomentUser();
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.noteDB != oldWidget.noteDB) {
+      _getMomentUser();
+    }
+  }
+
   void _getMomentUser() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
     momentUserDB = user;

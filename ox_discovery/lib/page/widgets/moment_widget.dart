@@ -107,6 +107,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     NotedUIModel? model = notedUIModel;
     if (model == null || model.getMomentShowContent.isEmpty) return const SizedBox();
+
     return MomentRichTextWidget(
       clickBlankCallback: () => widget.clickMomentCallback?.call(model),
       text: model.noteDB.content,
@@ -305,7 +306,13 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-    if (note == null) return;
+    if (note == null) {
+      // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
+      notedUIModel = null;
+      momentUser = null;
+      setState(() {});
+      return;
+    };
     final newNotedUIModel = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUser(newNotedUIModel);

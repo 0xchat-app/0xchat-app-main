@@ -38,6 +38,12 @@ class MomentOptionUserPage extends StatefulWidget {
 class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   List<NotedUIModel> showUserDBList = [];
 
+  Map<String,NotedUIModel> get showUserDBListMap {
+    Map<String,NotedUIModel> map = {};
+    showUserDBList.map((NotedUIModel notedUIModel) => map[notedUIModel.noteDB.author] = notedUIModel).toList();
+    return map;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +116,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _noDataWidget(),
-                    ...showUserDBList.map(
+                    ...showUserDBListMap.values.toList().map(
                       (dynamic item) {
                         // ZapRecordsDB
                         return MomentUserItemWidget(
@@ -130,7 +136,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   Widget _noDataWidget() {
-    if (showUserDBList.isNotEmpty) return const SizedBox();
+    if (showUserDBListMap.values.toList().isNotEmpty) return const SizedBox();
     return Padding(
       padding: EdgeInsets.only(
         top: 100.px,
@@ -272,7 +278,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -283,6 +289,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                                 fontSize: 16.px,
                                 fontWeight: FontWeight.w600,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ).setPaddingOnly(bottom: 4.px),
                             Text(
                               DiscoveryUtils.getUserMomentInfo(user, '0')[1],

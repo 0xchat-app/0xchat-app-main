@@ -28,13 +28,24 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
   double _height = 290;
-  List<MomentInfo> noteList = [];
+  // List<MomentInfo> noteList = [];
+
+  Map<String,MomentInfo> noteListMap = {};
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getNoteList();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.notedUIModel != oldWidget.notedUIModel || widget.quoteList != oldWidget.quoteList || widget.onlyShowNotedUIModel != oldWidget.onlyShowNotedUIModel) {
+      _getNoteList();
+    }
   }
 
   @override
@@ -64,7 +75,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       child: PageView(
         controller: _pageController,
         onPageChanged: (int page) {
-          _setPageViewHeight(noteList, page);
+          _setPageViewHeight(noteListMap.values.toList(), page);
           setState(() {
             _currentPage = page;
           });
@@ -77,13 +88,14 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   List<Widget> _showNoteItemWidget() {
     double width = MediaQuery.of(context).size.width - 48;
 
-    return noteList.map((MomentInfo noteInfo) {
+    return noteListMap.values.toList().map((MomentInfo noteInfo) {
       NotedUIModel? notedUIModel = noteInfo.notedUIModel;
       UserDB? userDB = noteInfo.userDB;
       if(notedUIModel != null && userDB != null ){
         String text = notedUIModel.getMomentShowContent;
         bool isOneLine = _getTextLine(text) ==  1;
         return MomentWidgetsUtils.quoteMoment(
+          context,
           userDB,
           notedUIModel,
           isOneLine,
@@ -118,13 +130,15 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   Widget _navigationControllerWidget() {
-    if (noteList.isEmpty ||  noteList.length == 1) return const SizedBox();
+    List<MomentInfo> list =  noteListMap.values.toList();
+
+    if (list.isEmpty ||  list.length == 1) return const SizedBox();
     return Container(
       padding: const EdgeInsets.all(12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: noteList.map((MomentInfo info) {
-          int findIndex = noteList.indexOf(info);
+        children: list.map((MomentInfo info) {
+          int findIndex = list.indexOf(info);
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: 10,
@@ -149,9 +163,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
     }else{
       UserDB? user = await Account.sharedInstance.getUserInfo(widget.onlyShowNotedUIModel!.noteDB.author);
-      noteList = [MomentInfo(userDB: user, notedUIModel: widget.onlyShowNotedUIModel!)];
+      noteListMap[widget.onlyShowNotedUIModel!.noteDB.noteId] = MomentInfo(userDB: user, notedUIModel: widget.onlyShowNotedUIModel!);
     }
-    _setPageViewHeight(noteList, 0);
+    _setPageViewHeight(noteListMap.values.toList(), 0);
     setState(() {});
   }
 
@@ -163,6 +177,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       }
       await Future.wait(futures);
     }
+    setState(() {});
   }
 
   Future<void> _processQuote(String quote) async {
@@ -172,11 +187,12 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     if (note != null) {
       UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
       if (user != null) {
-        noteList.add(MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note)));
+        noteListMap[note.noteId] = MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note));
       }
     } else {
-      noteList.add(MomentInfo(userDB: null, notedUIModel: null));
+      noteListMap[DateTime.now().millisecond.toString()] = MomentInfo(userDB: null, notedUIModel: null);
     }
+    setState(() {});
   }
 
   Future<void> _processSingleNote() async {
@@ -187,14 +203,10 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel.noteDB.quoteRepostId ?? '');
 
       if (note != null) {
-        int findIndex = noteList.indexWhere((MomentInfo element) =>
-        element.notedUIModel != null && note.noteId == element.notedUIModel!.noteDB.noteId);
-        if (findIndex == -1) {
           UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
           if (user != null) {
-            noteList.add(MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note)));
+            noteListMap[note.noteId] = MomentInfo(userDB: user, notedUIModel: NotedUIModel(noteDB: note));
           }
-        }
       }
     }
   }

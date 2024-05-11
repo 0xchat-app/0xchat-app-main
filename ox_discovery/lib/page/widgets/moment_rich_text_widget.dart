@@ -25,7 +25,7 @@ class MomentRichTextWidget extends StatefulWidget {
     required this.text,
     this.textSize,
     this.defaultTextColor,
-    this.maxLines = 4,
+    this.maxLines = 10,
     this.clickBlankCallback,
     this.isShowMoreTextBtn = true,
   });

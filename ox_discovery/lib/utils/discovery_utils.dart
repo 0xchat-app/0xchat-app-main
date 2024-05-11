@@ -68,7 +68,7 @@ class DiscoveryUtils {
 
     dns = dnsStr != null && dnsStr.isNotEmpty && dnsStr != 'null'
         ? dnsStr
-        : user.encodedPubkey.substring(0, 15);
+        : user.encodedPubkey.substring(0, 10);
 
     return ['$dns · $time',dns];
   }

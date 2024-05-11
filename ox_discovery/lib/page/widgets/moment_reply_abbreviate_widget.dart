@@ -32,9 +32,22 @@ class _MomentReplyAbbreviateWidgetState
     _getNotedUIModel();
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
+      _getNotedUIModel();
+    }
+  }
+
   void _getNotedUIModel() async {
     NotedUIModel notedUIModelDraft = widget.notedUIModel;
-    if (!notedUIModelDraft.noteDB.isReply || !widget.isShowReplyWidget) return;
+    if (!notedUIModelDraft.noteDB.isReply || !widget.isShowReplyWidget) {
+      // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
+      notedUIModel = null;
+      setState(() {});
+      return;
+    }
     String? replyId = notedUIModelDraft.noteDB.getReplyId;
     if (replyId == null) return;
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
