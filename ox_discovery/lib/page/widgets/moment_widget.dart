@@ -77,8 +77,8 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentItemWidget() {
     NotedUIModel? model = notedUIModel;
-    if (model == null) return const SizedBox();
     if(isLoadFailure) return _emptyNoteMoment();
+    if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(model),
@@ -126,7 +126,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       ),
       child: Center(
         child: Text(
-          'Reference not found !',
+          'Moment not found !',
           style: TextStyle(
             color: ThemeColor.color100,
             fontSize: 16.px,
@@ -346,7 +346,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       momentUser = null;
       setState(() {});
       return;
-    };
+    }
     final newNotedUIModel = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUser(newNotedUIModel);
