@@ -150,9 +150,14 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
+        NoteDB? note;
+        if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
+          note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
+        } else {
+          note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
+        }
         if(note != null){
-          OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: NotedUIModel(noteDB: note)));
+          OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: NotedUIModel(noteDB: note!)));
         }
       },
       child: Container(

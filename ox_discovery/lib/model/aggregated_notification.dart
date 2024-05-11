@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 
 class AggregatedNotification {
+  String notificationId;
   int kind;
   String author;
   int createAt;
@@ -10,6 +11,7 @@ class AggregatedNotification {
   int likeCount;
 
   AggregatedNotification({
+    this.notificationId = '',
     this.kind = 0,
     this.author = '',
     this.createAt = 0,
@@ -21,6 +23,7 @@ class AggregatedNotification {
 
   factory AggregatedNotification.fromNotificationDB(NotificationDB notificationDB) {
     return AggregatedNotification(
+      notificationId: notificationDB.notificationId,
       kind: notificationDB.kind,
       author: notificationDB.author,
       createAt: notificationDB.createAt,
