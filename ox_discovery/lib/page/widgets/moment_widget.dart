@@ -81,7 +81,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(model),
+      onTap: () => widget.clickMomentCallback?.call(widget.notedUIModel),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -100,7 +100,7 @@ class _MomentWidgetState extends State<MomentWidget> {
             _momentQuoteWidget(),
             MomentReplyAbbreviateWidget(notedUIModel:widget.notedUIModel,isShowReplyWidget:widget.isShowReplyWidget),
             _momentInteractionDataWidget(),
-            MomentOptionWidget(notedUIModel: model,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
+            MomentOptionWidget(notedUIModel: widget.notedUIModel,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
           ],
         ),
       ),
@@ -142,7 +142,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
 
     return MomentRichTextWidget(
-      clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+      clickBlankCallback: () => widget.clickMomentCallback?.call(widget.notedUIModel),
       text: model.value.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
@@ -267,8 +267,8 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentInteractionDataWidget() {
-    ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null || !widget.isShowInteractionData) return const SizedBox();
+    ValueNotifier<NotedUIModel> model = widget.notedUIModel;
+    if (!widget.isShowInteractionData) return const SizedBox();
 
     List<String> repostEventIds = model.value.noteDB.repostEventIds ?? [];
     List<String> quoteRepostEventIds = model.value.noteDB.quoteRepostEventIds ?? [];

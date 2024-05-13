@@ -40,7 +40,7 @@ class _MomentsPageState extends State<MomentsPage> {
   @override
   void initState() {
     super.initState();
-    _getReplyList();
+    _dataPre();
   }
 
   @override
@@ -48,32 +48,54 @@ class _MomentsPageState extends State<MomentsPage> {
     super.dispose();
   }
 
-  void _getReplyList()async {
-    ValueNotifier<NotedUIModel> notedUIModelDraft = widget.notedUIModel;
-    notedUIModel = widget.notedUIModel;
-    print('=1111===intointo====${notedUIModelDraft.value.noteDB.isReply}');
-    if (notedUIModelDraft.value.noteDB.isReply && widget.isShowReply) {
-      print('====intointo====');
-      String? getReplyId = notedUIModelDraft.value.noteDB.getReplyId;
+  void _dataPre()async {
+    ValueNotifier<NotedUIModel>? model = widget.notedUIModel;
+
+    String? repostId = model.value.noteDB.repostId;
+    if(repostId != null && model.value.noteDB.isReply){
+      model = await _getRepostId(model.value.noteDB.noteId);
+    }
+
+    if(model == null) return;
+    _getReplyList(model);
+  }
+
+  Future<ValueNotifier<NotedUIModel>?> _getRepostId(String repostId) async {
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+    if (note == null) return null;
+    return ValueNotifier(NotedUIModel(noteDB: note));
+  }
+
+  void _getReplyList(ValueNotifier<NotedUIModel> noteModel)async {
+    ValueNotifier<NotedUIModel> noteModelDraft = noteModel;
+
+    if (noteModel.value.noteDB.isReply && widget.isShowReply) {
+      String? getReplyId = noteModel.value.noteDB.getReplyId;
       if (getReplyId != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
-        replyList = [widget.notedUIModel];
+        replyList = [noteModel];
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
+        noteModelDraft = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
+    notedUIModel = noteModel;
     setState(() {});
-    _getReplyFromDB(notedUIModel!);
-    _getReplyFromRelay(notedUIModel!);
+    _getReplyFromDB(noteModelDraft);
+    _getReplyFromRelay(noteModelDraft);
   }
 
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
     await Moment.sharedInstance.loadNoteActions(notedUIModelDraft.value.noteDB.noteId);
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
+    NoteDB? updateNote = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
     if(note == null) return;
     ValueNotifier<NotedUIModel> newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     notedUIModel = newNotedUIModel;
-    widget.notedUIModel.value = newNotedUIModel.value;
+    if(updateNote != null){
+      widget.notedUIModel.value = NotedUIModel(noteDB: updateNote);
+
+    }
     setState(() {});
     _getReplyFromDB(newNotedUIModel);
 
@@ -90,6 +112,7 @@ class _MomentsPageState extends State<MomentsPage> {
     }
     List<ValueNotifier<NotedUIModel>> noteList = widget.notedUIModel.value.noteDB.isReply &&  widget.isShowReply ? [widget.notedUIModel] : [];
     replyList = [...noteList,...result];
+
     setState(() {});
   }
 
@@ -133,7 +156,7 @@ class _MomentsPageState extends State<MomentsPage> {
                             await OXNavigator.pushPage(
                                 context,
                                 (context) =>
-                                    MomentsPage(notedUIModel: notedUIModel));
+                                    MomentsPage(notedUIModel: widget.notedUIModel));
                           }
                         },
                         notedUIModel: model,
@@ -341,7 +364,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                         OXNavigator.pushPage(
                             context,
                             (context) => MomentsPage(
-                                notedUIModel: notedUIModel,
+                                notedUIModel: widget.notedUIModel,
                                 isShowReply: false));
                       },
                     ),
