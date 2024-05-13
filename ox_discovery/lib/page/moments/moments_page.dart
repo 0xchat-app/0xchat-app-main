@@ -49,28 +49,29 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _dataPre()async {
-    ValueNotifier<NotedUIModel>? model = widget.notedUIModel;
-    _getReplyList(model);
+    _getReplyList();
   }
 
 
-  void _getReplyList(ValueNotifier<NotedUIModel> noteModel)async {
-    ValueNotifier<NotedUIModel> noteModelDraft = noteModel;
+  void _getReplyList()async {
+    ValueNotifier<NotedUIModel> noteModelDraft = widget.notedUIModel;
+     notedUIModel = widget.notedUIModel;
 
-    if (noteModel.value.noteDB.isReply && widget.isShowReply) {
-      String? getReplyId = noteModel.value.noteDB.getReplyId;
+    if (noteModelDraft.value.noteDB.isReply && widget.isShowReply) {
+      String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
-        replyList = [noteModel];
+        replyList = [noteModelDraft];
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
-        noteModelDraft = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
-    notedUIModel = noteModel;
+
     setState(() {});
-    _getReplyFromDB(noteModelDraft);
-    _getReplyFromRelay(noteModelDraft);
+    ValueNotifier<NotedUIModel>? note = notedUIModel;
+    if(note == null) return;
+    _getReplyFromDB(note);
+    _getReplyFromRelay(note);
   }
 
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
@@ -144,7 +145,7 @@ class _MomentsPageState extends State<MomentsPage> {
                             await OXNavigator.pushPage(
                                 context,
                                 (context) =>
-                                    MomentsPage(notedUIModel: widget.notedUIModel));
+                                    MomentsPage(notedUIModel: notedUIModel));
                           }
                         },
                         notedUIModel: model,
