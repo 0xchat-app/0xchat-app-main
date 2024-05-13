@@ -74,7 +74,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: momentOptionTypeList.map((EMomentOptionType type) {
 
-          return   ValueListenableBuilder<NotedUIModel>(
+          return ValueListenableBuilder<NotedUIModel>(
             valueListenable: widget.notedUIModel,
             builder: (context, model, child) {
               return  _iconTextWidget(
@@ -260,7 +260,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     NoteDB noteDB = notedUIModel.value.noteDB;
     switch(type){
       case EMomentOptionType.repost:
-       return noteDB.repostEventIds?.length ?? 0;
+       return (noteDB.repostEventIds?.length ?? 0) + (noteDB.quoteRepostEventIds?.length ?? 0);
       case EMomentOptionType.like:
         return noteDB.reactionEventIds?.length ?? 0;
       case EMomentOptionType.zaps:

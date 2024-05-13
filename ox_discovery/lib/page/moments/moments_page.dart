@@ -50,21 +50,9 @@ class _MomentsPageState extends State<MomentsPage> {
 
   void _dataPre()async {
     ValueNotifier<NotedUIModel>? model = widget.notedUIModel;
-
-    String? repostId = model.value.noteDB.repostId;
-    if(repostId != null && model.value.noteDB.isReply){
-      model = await _getRepostId(model.value.noteDB.noteId);
-    }
-
-    if(model == null) return;
     _getReplyList(model);
   }
 
-  Future<ValueNotifier<NotedUIModel>?> _getRepostId(String repostId) async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
-    if (note == null) return null;
-    return ValueNotifier(NotedUIModel(noteDB: note));
-  }
 
   void _getReplyList(ValueNotifier<NotedUIModel> noteModel)async {
     ValueNotifier<NotedUIModel> noteModelDraft = noteModel;

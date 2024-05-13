@@ -81,7 +81,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(widget.notedUIModel),
+      onTap: () => widget.clickMomentCallback?.call(model),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -98,9 +98,9 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
-            MomentReplyAbbreviateWidget(notedUIModel:widget.notedUIModel,isShowReplyWidget:widget.isShowReplyWidget),
+            MomentReplyAbbreviateWidget(notedUIModel:model,isShowReplyWidget:widget.isShowReplyWidget),
             _momentInteractionDataWidget(),
-            MomentOptionWidget(notedUIModel: widget.notedUIModel,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
+            MomentOptionWidget(notedUIModel: model,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
           ],
         ),
       ),
