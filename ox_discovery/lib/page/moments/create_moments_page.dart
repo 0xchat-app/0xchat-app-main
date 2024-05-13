@@ -32,7 +32,7 @@ class CreateMomentsPage extends StatefulWidget {
   final List<String>? imageList;
   final String? videoPath;
   final String? videoImagePath;
-  final NotedUIModel? notedUIModel;
+  final ValueNotifier<NotedUIModel>? notedUIModel;
   const CreateMomentsPage(
       {Key? key,
       required this.type,
@@ -184,7 +184,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _quoteWidget() {
-    NotedUIModel? notedUIModel = widget.notedUIModel;
+    ValueNotifier<NotedUIModel>? notedUIModel = widget.notedUIModel;
     if (widget.type != EMomentType.quote || notedUIModel == null) return const SizedBox();
     return HorizontalScrollWidget(onlyShowNotedUIModel: widget.notedUIModel);
   }
@@ -313,7 +313,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     OKEvent? event;
 
-    NoteDB? noteDB = widget.notedUIModel?.noteDB;
+    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;

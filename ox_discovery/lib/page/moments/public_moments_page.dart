@@ -23,7 +23,7 @@ class PublicMomentsPage extends StatefulWidget {
 
 class _PublicMomentsPageState extends State<PublicMomentsPage>
     with OXMomentObserver {
-  List<NotedUIModel> notesList = [];
+  List<ValueNotifier<NotedUIModel>> notesList = [];
 
   final RefreshController _refreshController = RefreshController();
 
@@ -81,11 +81,11 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       shrinkWrap: true,
       itemCount: notesList.length,
       itemBuilder: (context, index) {
-        NotedUIModel notedUIModel = notesList[index];
+        ValueNotifier<NotedUIModel> notedUIModel = notesList[index];
         return MomentWidget(
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
-          clickMomentCallback: (NotedUIModel notedUIModel) async {
+          clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
@@ -102,8 +102,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
         children: [
           MomentNewPostTips(
             onTap: (List<NoteDB> list)  {
-
-              notesList = [...list.map((NoteDB note) => NotedUIModel(noteDB: note)).toList(),...notesList];
+              _updateNotesList(true);
               setState(() {});
             },
           ),
@@ -152,7 +151,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
       }
 
       List<NoteDB> showList = _filterNotes(list);
-      notesList.addAll(showList.map((note) => NotedUIModel(noteDB: note)).toList());
+      notesList.addAll(showList.map((note) => ValueNotifier(NotedUIModel(noteDB: note))).toList());
       _allNotesFromDBFromRelayLastTimestamp = list.last.createAt;
 
       setState(() {});
@@ -168,7 +167,13 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {
-    notesList.addAll(showList.map((note) => NotedUIModel(noteDB: note)).toList());
+    List<ValueNotifier<NotedUIModel>> list = showList.map((note) => ValueNotifier(NotedUIModel(noteDB: note))).toList();
+    if(isInit){
+      notesList = list;
+    }else{
+      notesList.addAll(list);
+    }
+
     _allNotesFromDBLastTimestamp = showList.last.createAt;
 
     if(isInit){

@@ -66,7 +66,7 @@ class MomentWidgetsUtils {
     return GestureDetector(
       onTap: () {
         OXNavigator.pushPage(
-            context, (context) => MomentsPage(notedUIModel: notedUIModel));
+            context, (context) => MomentsPage(notedUIModel: ValueNotifier(notedUIModel)));
       },
       child: Container(
         decoration: BoxDecoration(

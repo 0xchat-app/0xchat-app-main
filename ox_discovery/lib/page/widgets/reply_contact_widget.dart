@@ -9,7 +9,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_ui_model.dart';
 
 class ReplyContactWidget extends StatefulWidget {
-  final NotedUIModel? notedUIModel;
+  final ValueNotifier<NotedUIModel>? notedUIModel;
   const ReplyContactWidget({super.key, required this.notedUIModel});
 
   @override
@@ -36,7 +36,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   }
 
   void _getMomentUser() async {
-    NotedUIModel? model = widget.notedUIModel;
+    NotedUIModel? model = widget.notedUIModel?.value;
     if(model == null || !model.noteDB.isReply) {
       momentUserDB = null;
       setState(() {});

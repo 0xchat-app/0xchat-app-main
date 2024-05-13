@@ -15,8 +15,8 @@ class MomentInfo {
 
 class HorizontalScrollWidget extends StatefulWidget {
   final List<String>? quoteList;
-  final NotedUIModel? notedUIModel;
-  final NotedUIModel? onlyShowNotedUIModel;
+  final ValueNotifier<NotedUIModel>? notedUIModel;
+  final ValueNotifier<NotedUIModel>? onlyShowNotedUIModel;
 
   const HorizontalScrollWidget({super.key, this.quoteList,this.notedUIModel,this.onlyShowNotedUIModel});
 
@@ -162,8 +162,8 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       await _processSingleNote();
 
     }else{
-      UserDB? user = await Account.sharedInstance.getUserInfo(widget.onlyShowNotedUIModel!.noteDB.author);
-      noteListMap[widget.onlyShowNotedUIModel!.noteDB.noteId] = MomentInfo(userDB: user, notedUIModel: widget.onlyShowNotedUIModel!);
+      UserDB? user = await Account.sharedInstance.getUserInfo(widget.onlyShowNotedUIModel!.value.noteDB.author);
+      noteListMap[widget.onlyShowNotedUIModel!.value.noteDB.noteId] = MomentInfo(userDB: user, notedUIModel: widget.onlyShowNotedUIModel!.value);
     }
     _setPageViewHeight(noteListMap.values.toList(), 0);
     setState(() {});
@@ -196,7 +196,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   Future<void> _processSingleNote() async {
-    NotedUIModel? notedUIModel = widget.notedUIModel;
+    NotedUIModel? notedUIModel = widget.notedUIModel?.value;
 
     if (notedUIModel != null) {
 

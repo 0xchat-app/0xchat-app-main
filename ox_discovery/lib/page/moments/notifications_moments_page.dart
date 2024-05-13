@@ -157,7 +157,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
         }
         if(note != null){
-          OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: NotedUIModel(noteDB: note!)));
+          OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: ValueNotifier(NotedUIModel(noteDB: note!))));
         }
       },
       child: Container(

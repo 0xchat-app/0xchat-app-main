@@ -21,7 +21,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   final Function(bool isFocused)? isFocusedCallback;
   const SimpleMomentReplyWidget({super.key,this.isFocusedCallback,required this.notedUIModel});
 
@@ -56,7 +56,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   void _getMomentUser() async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
+    UserDB? user = await Account.sharedInstance.getUserInfo(widget.notedUIModel.value.noteDB.author);
     momentUser = user;
     setState(() {});
   }
@@ -281,7 +281,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_replyController.text} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content);
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content);
     await OXLoading.dismiss();
 
     if(event.status){

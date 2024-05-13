@@ -21,7 +21,7 @@ import '../widgets/simple_moment_reply_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   final bool isShowReply;
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   const MomentsPage(
       {Key? key, required this.notedUIModel, this.isShowReply = true})
       : super(key: key);
@@ -33,9 +33,9 @@ class MomentsPage extends StatefulWidget {
 class _MomentsPageState extends State<MomentsPage> {
   bool _isShowMask = false;
 
-  List<NotedUIModel> replyList = [];
+  List<ValueNotifier<NotedUIModel>> replyList = [];
 
-  NotedUIModel? notedUIModel;
+  ValueNotifier<NotedUIModel>? notedUIModel;
 
   @override
   void initState() {
@@ -49,43 +49,46 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyList()async {
-    NotedUIModel notedUIModelDraft = widget.notedUIModel;
+    ValueNotifier<NotedUIModel> notedUIModelDraft = widget.notedUIModel;
     notedUIModel = widget.notedUIModel;
-    if (notedUIModelDraft.noteDB.isReply && widget.isShowReply) {
-      String? getReplyId = notedUIModelDraft.noteDB.getReplyId;
+    print('=1111===intointo====${notedUIModelDraft.value.noteDB.isReply}');
+    if (notedUIModelDraft.value.noteDB.isReply && widget.isShowReply) {
+      print('====intointo====');
+      String? getReplyId = notedUIModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
         replyList = [widget.notedUIModel];
-        notedUIModel = NotedUIModel(noteDB: note);
+        notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
     setState(() {});
     _getReplyFromDB(notedUIModel!);
-    Map<String, List<dynamic>> map = await Moment.sharedInstance.loadNoteActions(notedUIModel!.noteDB.noteId);
     _getReplyFromRelay(notedUIModel!);
   }
 
-  void _getReplyFromRelay(NotedUIModel notedUIModelDraft)async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.noteDB.noteId);
+  void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
+    await Moment.sharedInstance.loadNoteActions(notedUIModelDraft.value.noteDB.noteId);
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
     if(note == null) return;
-    NotedUIModel newNotedUIModel = NotedUIModel(noteDB: note);
+    ValueNotifier<NotedUIModel> newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     notedUIModel = newNotedUIModel;
+    widget.notedUIModel.value = newNotedUIModel.value;
     setState(() {});
     _getReplyFromDB(newNotedUIModel);
 
   }
 
-  void _getReplyFromDB(NotedUIModel notedUIModelDraft)async {
-    List<String>? replyEventIds = notedUIModelDraft.noteDB.replyEventIds;
+  void _getReplyFromDB(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
+    List<String>? replyEventIds = notedUIModelDraft.value.noteDB.replyEventIds;
     if(replyEventIds == null) return;
 
-    List<NotedUIModel> result = [];
+    List<ValueNotifier<NotedUIModel>> result = [];
     for (String noteId in replyEventIds) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
-      if (note != null) result.add(NotedUIModel(noteDB: note));
+      if (note != null) result.add(ValueNotifier(NotedUIModel(noteDB: note)));
     }
-    List<NotedUIModel> noteList = widget.notedUIModel.noteDB.isReply ? [widget.notedUIModel] : [];
+    List<ValueNotifier<NotedUIModel>> noteList = widget.notedUIModel.value.noteDB.isReply &&  widget.isShowReply ? [widget.notedUIModel] : [];
     replyList = [...noteList,...result];
     setState(() {});
   }
@@ -93,7 +96,7 @@ class _MomentsPageState extends State<MomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
 
     if (model == null) return const SizedBox();
     return GestureDetector(
@@ -124,8 +127,8 @@ class _MomentsPageState extends State<MomentsPage> {
                       MomentWidget(
                         isShowInteractionData: true,
                         isShowReply: widget.isShowReply,
-                        clickMomentCallback: (NotedUIModel notedUIModel) async {
-                          if (notedUIModel.noteDB.isReply &&
+                        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+                          if (notedUIModel.value.noteDB.isReply &&
                               widget.isShowReply) {
                             await OXNavigator.pushPage(
                                 context,
@@ -165,10 +168,10 @@ class _MomentsPageState extends State<MomentsPage> {
 
   List<Widget> _showReplyList() {
     if(notedUIModel == null) return [const SizedBox()];
-    return replyList.map((NotedUIModel notedUIModelDraft) {
+    return replyList.map((ValueNotifier<NotedUIModel> notedUIModelDraft) {
       int index = replyList.indexOf(notedUIModelDraft);
-      if (notedUIModelDraft.noteDB.noteId == widget.notedUIModel.noteDB.noteId && index != 0) return const SizedBox();
-      if (!notedUIModelDraft.noteDB.isFirstLevelReply) return const SizedBox();
+      if (notedUIModelDraft.value.noteDB.noteId == widget.notedUIModel.value.noteDB.noteId && index != 0) return const SizedBox();
+      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply) return const SizedBox();
       return MomentReplyWidget(
         index: index,
         notedUIModel: notedUIModelDraft,
@@ -245,7 +248,7 @@ class _MomentsPageState extends State<MomentsPage> {
 }
 
 class MomentReplyWidget extends StatefulWidget {
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   final int index;
 
   const MomentReplyWidget({
@@ -268,7 +271,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   void _getMomentUser() async {
-    String pubKey = widget.notedUIModel.noteDB.author;
+    String pubKey = widget.notedUIModel.value.noteDB.author;
     UserDB? user = await Account.sharedInstance.getUserInfo(pubKey);
     momentUser = user;
     setState(() {});
@@ -334,7 +337,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                       isShowReply: false,
                       notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
-                      clickMomentCallback: (NotedUIModel notedUIModel) {
+                      clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) {
                         OXNavigator.pushPage(
                             context,
                             (context) => MomentsPage(
@@ -368,7 +371,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
           ),
           TextSpan(
             text: ' ' + DiscoveryUtils.getUserMomentInfo(
-                momentUser, widget.notedUIModel.createAtStr)[0],
+                momentUser, widget.notedUIModel.value.createAtStr)[0],
             style: TextStyle(
               color: ThemeColor.color120,
               fontSize: 12.px,

@@ -31,7 +31,7 @@ import 'package:nostr_core_dart/nostr.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
 
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   const ReplyMomentsPage(
       {Key? key, required this.notedUIModel})
       : super(key: key);
@@ -50,7 +50,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   UserDB? momentUserDB;
 
-  List<String> get getImagePicList => widget.notedUIModel.getImageList;
+  List<String> get getImagePicList => widget.notedUIModel.value.getImageList;
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   void _getMomentUser() async {
     UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.notedUIModel.noteDB.author);
+        await Account.sharedInstance.getUserInfo(widget.notedUIModel.value.noteDB.author);
     momentUserDB = user;
     setState(() {});
   }
@@ -207,7 +207,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   children: [
                     TextSpan(text: momentUserDB?.name ?? ''),
                     TextSpan(
-                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.notedUIModel.createAtStr)[0],
+                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.notedUIModel.value.createAtStr)[0],
                       style: TextStyle(
                         color: ThemeColor.color120,
                         fontSize: 12.px,
@@ -218,7 +218,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 ),
               ),
               MomentRichTextWidget(
-                text: widget.notedUIModel.noteDB.content,
+                text: widget.notedUIModel.value.noteDB.content,
                 maxLines: 10,
                 textSize: 12.px,
               ),
@@ -310,7 +310,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() async {
-
     if (_textController.text.isEmpty && _showImage == null) {
       CommonToast.instance.show(context, 'The content cannot be empty !');
       return;
@@ -319,7 +318,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.noteDB.noteId, content,hashTags:hashTags);
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
     await OXLoading.dismiss();
 
     if(event.status){

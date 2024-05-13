@@ -31,8 +31,8 @@ class MomentWidget extends StatefulWidget {
   final bool isShowUserInfo;
   final bool isShowReplyWidget;
   final bool isShowMomentOptionWidget;
-  final Function(NotedUIModel notedUIModel)? clickMomentCallback;
-  final NotedUIModel notedUIModel;
+  final Function(ValueNotifier<NotedUIModel> notedUIModel)? clickMomentCallback;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   const MomentWidget({
     super.key,
     required this.notedUIModel,
@@ -51,7 +51,7 @@ class MomentWidget extends StatefulWidget {
 class _MomentWidgetState extends State<MomentWidget> {
   UserDB? momentUser;
 
-  NotedUIModel? notedUIModel;
+  ValueNotifier<NotedUIModel>? notedUIModel;
 
   bool isLoadFailure = false;
 
@@ -76,7 +76,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentItemWidget() {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(isLoadFailure) return _emptyNoteMoment();
     if (model == null) return const SizedBox();
     return GestureDetector(
@@ -91,7 +91,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MomentRepostedTips(
-              noteDB: widget.notedUIModel.noteDB,
+              noteDB: widget.notedUIModel.value.noteDB,
             ),
             _momentUserInfoWidget(),
             _showReplyContactWidget(),
@@ -138,20 +138,20 @@ class _MomentWidgetState extends State<MomentWidget> {
 
 
   Widget _showMomentContent() {
-    NotedUIModel? model = notedUIModel;
-    if (model == null || model.getMomentShowContent.isEmpty) return const SizedBox();
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
+    if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
 
     return MomentRichTextWidget(
       clickBlankCallback: () => widget.clickMomentCallback?.call(model),
-      text: model.noteDB.content,
+      text: model.value.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
 
   Widget _showMomentMediaWidget() {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) return const SizedBox();
 
-    List<String> getImageList = model.getImageList;
+    List<String> getImageList = model.value.getImageList;
     if (getImageList.isNotEmpty) {
       double width = MediaQuery.of(context).size.width * 0.64;
       return NinePalaceGridPictureWidget(
@@ -162,12 +162,12 @@ class _MomentWidgetState extends State<MomentWidget> {
       ).setPadding(EdgeInsets.only(bottom: 12.px));
     }
 
-    List<String> getVideoList = model.getVideoList;
+    List<String> getVideoList = model.value.getVideoList;
     if (getVideoList.isNotEmpty) {
       return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
     }
 
-    List<String> getMomentExternalLink = model.getMomentExternalLink;
+    List<String> getMomentExternalLink = model.value.getMomentExternalLink;
     if (getMomentExternalLink.isNotEmpty) {
       return MomentUrlWidget(url: getMomentExternalLink[0]);
     }
@@ -180,20 +180,20 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentQuoteWidget() {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) return const SizedBox();
 
-    String? quoteRepostId = model.noteDB.quoteRepostId;
+    String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
-    if (model.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
-    NotedUIModel? note =
-        hasQuoteRepostId ? NotedUIModel(noteDB: model.noteDB) : null;
+    if (model.value.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
+    ValueNotifier<NotedUIModel>? note =
+        hasQuoteRepostId ? ValueNotifier(NotedUIModel(noteDB: model.value.noteDB)) : null;
     return HorizontalScrollWidget(
-        quoteList: model.getQuoteUrlList, notedUIModel: note);
+        quoteList: model.value.getQuoteUrlList, notedUIModel: note);
   }
 
   Widget _momentUserInfoWidget() {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null || !widget.isShowUserInfo) return const SizedBox();
     return Container(
       padding: EdgeInsets.only(bottom: 12.px),
@@ -208,7 +208,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                   onTap: () {
                     OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': model.noteDB.author,
+                      'pubkey': model.value.noteDB.author,
                     });
                   },
                   child: MomentWidgetsUtils.clipImage(
@@ -243,7 +243,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                       ),
                       Text(
                         DiscoveryUtils.getUserMomentInfo(
-                            momentUser, model.createAtStr)[0],
+                            momentUser, model.value.createAtStr)[0],
                         style: TextStyle(
                           color: ThemeColor.color120,
                           fontSize: 12.px,
@@ -267,13 +267,13 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   Widget _momentInteractionDataWidget() {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null || !widget.isShowInteractionData) return const SizedBox();
 
-    List<String> repostEventIds = model.noteDB.repostEventIds ?? [];
-    List<String> quoteRepostEventIds = model.noteDB.quoteRepostEventIds ?? [];
-    List<String> reactionEventIds = model.noteDB.reactionEventIds ?? [];
-    List<String> zapEventIds = model.noteDB.zapEventIds ?? [];
+    List<String> repostEventIds = model.value.noteDB.repostEventIds ?? [];
+    List<String> quoteRepostEventIds = model.value.noteDB.quoteRepostEventIds ?? [];
+    List<String> reactionEventIds = model.value.noteDB.reactionEventIds ?? [];
+    List<String> zapEventIds = model.value.noteDB.zapEventIds ?? [];
 
     Widget _itemWidget(ENotificationsMomentType type, int num) {
       return GestureDetector(
@@ -320,9 +320,9 @@ class _MomentWidgetState extends State<MomentWidget> {
 
 
   void _init() async {
-    NotedUIModel model = widget.notedUIModel;
-    String? repostId = model.noteDB.repostId;
-    if (model.noteDB.isRepost && repostId != null) {
+    ValueNotifier<NotedUIModel> model = widget.notedUIModel;
+    String? repostId = model.value.noteDB.repostId;
+    if (model.value.noteDB.isRepost && repostId != null) {
       _getRepostId(repostId);
     } else {
       notedUIModel = model;
@@ -347,14 +347,14 @@ class _MomentWidgetState extends State<MomentWidget> {
       setState(() {});
       return;
     }
-    final newNotedUIModel = NotedUIModel(noteDB: note);
+    final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     notedUIModel = newNotedUIModel;
     _getMomentUser(newNotedUIModel);
   }
 
-  void _getMomentUser(NotedUIModel notedUIModel) async {
+  void _getMomentUser(ValueNotifier<NotedUIModel> notedUIModel) async {
     UserDB? user =
-        await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
+        await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     momentUser = user;
     setState(() {});
   }

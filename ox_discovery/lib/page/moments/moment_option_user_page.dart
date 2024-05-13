@@ -25,7 +25,7 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class MomentOptionUserPage extends StatefulWidget {
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel> notedUIModel;
   final ENotificationsMomentType type;
 
   const MomentOptionUserPage(
@@ -51,9 +51,9 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   void _init() async {
-    String noteId = widget.notedUIModel.noteDB.noteId;
+    String noteId = widget.notedUIModel.value.noteDB.noteId;
     Map<String, List<dynamic>> replyEventIdsList =
-        await Moment.sharedInstance.loadNoteActions(noteId);
+        await Moment.sharedInstance.loadNoteActions(noteId,reload:false);
 
     showUserDBList = _getUserList(replyEventIdsList);
     setState(() {});
@@ -349,7 +349,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     OXNavigator.pushPage(
       context,
       (context) => MomentsPage(
-        notedUIModel: NotedUIModel(noteDB: note),
+        notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
       ),
     );
   }
