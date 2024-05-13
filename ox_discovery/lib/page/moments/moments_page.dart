@@ -9,7 +9,9 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
 import '../../model/moment_ui_model.dart';
@@ -56,7 +58,6 @@ class _MomentsPageState extends State<MomentsPage> {
   void _getReplyList()async {
     ValueNotifier<NotedUIModel> noteModelDraft = widget.notedUIModel;
      notedUIModel = widget.notedUIModel;
-
     if (noteModelDraft.value.noteDB.isReply && widget.isShowReply) {
       String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
@@ -75,10 +76,15 @@ class _MomentsPageState extends State<MomentsPage> {
   }
 
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
-    await Moment.sharedInstance.loadNoteActions(notedUIModelDraft.value.noteDB.noteId);
+    OXLoading.show();
+    final result = await Moment.sharedInstance.loadNoteActions(notedUIModelDraft.value.noteDB.noteId);
+    OXLoading.dismiss();
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
     NoteDB? updateNote = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
+    CommonToast.instance.show(context, "==loadNoteWithNoteId==reply=${note?.replyEventIds?.length}=like=${note?.reactionEventIds?.length}=repost=${note?.repostEventIds?.length}");
+
     if(note == null) return;
+
     ValueNotifier<NotedUIModel> newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     notedUIModel = newNotedUIModel;
     if(updateNote != null){

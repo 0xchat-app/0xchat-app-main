@@ -142,7 +142,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
 
     return MomentRichTextWidget(
-      clickBlankCallback: () => widget.clickMomentCallback?.call(widget.notedUIModel),
+      clickBlankCallback: () => widget.clickMomentCallback?.call(model),
       text: model.value.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
