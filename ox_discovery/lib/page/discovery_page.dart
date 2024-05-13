@@ -113,7 +113,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
                 color: ThemeColor.titleColor))
         .width;
     double discoveryMm = boundingTextSize(
-        Localized.text('ox_discovery.discovery'),
+        Localized.text('ox_discovery.channel'),
         TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Adapt.px(20),
@@ -161,7 +161,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
               },
               child: Container(
                 constraints: BoxConstraints(maxWidth: discoveryMm),
-                child: GradientText(Localized.text('ox_discovery.discovery'),
+                child: GradientText(Localized.text('ox_discovery.channel'),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: Adapt.px(20),
