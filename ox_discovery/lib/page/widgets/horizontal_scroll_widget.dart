@@ -44,6 +44,11 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.notedUIModel != oldWidget.notedUIModel || widget.quoteList != oldWidget.quoteList || widget.onlyShowNotedUIModel != oldWidget.onlyShowNotedUIModel) {
+    if(mounted){
+      setState(() {
+        noteListMap = {};
+      });
+    }
       _getNoteList();
     }
   }
@@ -56,6 +61,7 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print('===1=====1111');
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,

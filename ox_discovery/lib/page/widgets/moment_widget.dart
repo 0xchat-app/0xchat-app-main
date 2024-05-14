@@ -68,7 +68,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel != oldWidget.notedUIModel) {
+    if (widget.notedUIModel.value.noteDB.noteId != oldWidget.notedUIModel.value.noteDB.noteId) {
       _init();
     }
   }
