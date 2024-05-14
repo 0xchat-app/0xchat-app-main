@@ -44,10 +44,10 @@ class StyledDate extends StatelessWidget {
             text: month,
             style: const TextStyle().defaultTextStyle(color: ThemeColor.color0),
           ),
-          TextSpan(
-            text: '  $time',
-            style: const TextStyle().defaultTextStyle(color: ThemeColor.color100),
-          ),
+          // TextSpan(
+          //   text: '  $time',
+          //   style: const TextStyle().defaultTextStyle(color: ThemeColor.color100),
+          // ),
         ],
       ),
     );

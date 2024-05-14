@@ -37,11 +37,12 @@ class PersonMomentsPage extends StatefulWidget {
 }
 
 class _PersonMomentsPageState extends State<PersonMomentsPage>
-    with CommonStateViewMixin {
+    with CommonStateViewMixin, AutomaticKeepAliveClientMixin {
 
   bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
   final RefreshController _refreshController = RefreshController();
   final List<NoteDB> _notes = [];
+  final Map<DateTime, List<NoteDB>> _groupedNotes = {};
 
   final int _limit = 50;
   int? _lastTimestamp;
@@ -87,16 +88,27 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
               ),
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 24.px),
-                sliver: _notes.isNotEmpty ? SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                      return _buildMomentItem(index,);
-                    },
-                    childCount: _notes.length,
-                  ),
-                ) : SliverToBoxAdapter(
-                    child: commonStateViewWidget(context, Container(),),
-                ),
+                sliver: _groupedNotes.isNotEmpty
+                    ? SliverToBoxAdapter(
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            List<DateTime> keys = _groupedNotes.keys.toList();
+                            DateTime dateTime = keys[index];
+                            List<NoteDB> notes = _groupedNotes[dateTime] ?? [];
+                            return _buildGroupedMomentItem(notes);
+                          },
+                          itemCount: _groupedNotes.keys.length,
+                        ),
+                      )
+                    : SliverToBoxAdapter(
+                        child: commonStateViewWidget(
+                          context,
+                          Container(),
+                        ),
+                      ),
               ),
             ],
           ),
@@ -207,8 +219,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildMomentItem(int index) {
-    final isShowUserInfo = _notes[index].getNoteKind() == ENotificationsMomentType.repost.kind;
+  Widget _buildMomentItem(NoteDB note) {
+    final isShowUserInfo = note.getNoteKind() == ENotificationsMomentType.repost.kind;
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 12.px,
@@ -216,9 +228,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTitle(_notes[index].createAt),
+          // _buildTitle(_notes[index].createAt),
           MomentWidget(
-            notedUIModel: ValueNotifier(NotedUIModel(noteDB: _notes[index])),
+            notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
             isShowUserInfo: isShowUserInfo,
             clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
               await OXNavigator.pushPage(
@@ -227,6 +239,31 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildGroupedMomentItem(List<NoteDB> notes) {
+    return Column(
+      children: [
+        _buildTitle(notes.first.createAt),
+        ListView.builder(
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: notes.length,
+          itemBuilder: (context, index) {
+            try{
+              return _buildMomentItem(notes[index]);
+            }catch(e){
+              print('----------lalalal: 可以捕获到错误吗');
+              return Container(
+                height: 40.px,
+                color: Colors.red,
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -341,9 +378,28 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
 
     _notes.addAll(filteredNoteList);
+    _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
     noteList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
     setState(() {});
+  }
+
+  Map<DateTime, List<NoteDB>> _groupedNotesFromDateTime(List<NoteDB> notes) {
+    Map<DateTime, List<NoteDB>> groupedNotes = {};
+
+    for (var note in notes) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(note.createAt * 1000);
+
+      final dateKey = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+      if (!groupedNotes.containsKey(dateKey)) {
+        groupedNotes[dateKey] = [];
+      }
+
+      groupedNotes[dateKey]!.add(note);
+    }
+    
+    return groupedNotes;
   }
 
   @override
@@ -351,5 +407,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     _refreshController.dispose();
     super.dispose();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }
