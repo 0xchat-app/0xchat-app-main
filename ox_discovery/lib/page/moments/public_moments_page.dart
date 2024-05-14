@@ -122,7 +122,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<void> _updateNotesList(bool isInit) async {
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
 
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();

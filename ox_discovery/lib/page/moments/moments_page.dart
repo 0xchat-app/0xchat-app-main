@@ -81,7 +81,7 @@ class _MomentsPageState extends State<MomentsPage> {
     OXLoading.dismiss();
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
     NoteDB? updateNote = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
-    CommonToast.instance.show(context, "==loadNoteWithNoteId==reply=${note?.replyEventIds?.length}=like=${note?.reactionEventIds?.length}=repost=${note?.repostEventIds?.length}");
+    // CommonToast.instance.show(context, "==loadNoteWithNoteId==reply=${note?.replyEventIds?.length}=like=${note?.reactionEventIds?.length}=repost=${note?.repostEventIds?.length}");
 
     if(note == null) return;
 

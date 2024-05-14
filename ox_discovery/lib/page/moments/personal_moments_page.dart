@@ -325,7 +325,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       if(isCurrentUser) {
         noteList = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
       } else {
-        noteList = await Moment.sharedInstance.loadUserNotesFromDB(widget.userDB.pubKey,until: _lastTimestamp,limit: _limit) ?? [];
+        noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],until: _lastTimestamp,limit: _limit) ?? [];
       }
     } catch (e) {
       noteList = [];
