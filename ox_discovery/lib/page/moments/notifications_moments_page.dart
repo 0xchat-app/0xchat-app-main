@@ -17,6 +17,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/aggregated_notification.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
+import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -298,17 +299,13 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         type != ENotificationsMomentType.reply;
     return SizedBox(
       width: 200.px,
-      child: Text(
-        content,
-        style: TextStyle(
-          color: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
-          fontSize: 12.px,
-          fontWeight: FontWeight.w400,
-          height: 16.8.px / 12.px,
-        ),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 2,
-      ),
+        child: MomentRichTextWidget(
+          text: content,
+          defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
+          textSize: 12.px,
+          maxLines: 2,
+          isShowMoreTextBtn: false,
+        )
     );
   }
 
