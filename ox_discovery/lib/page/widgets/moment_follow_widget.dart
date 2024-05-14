@@ -49,7 +49,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
                   package: 'ox_discovery',
                 ),
                 SizedBox(width: 4.px,)],
-              _buildButton(title: _isFollow! ? 'Remove' : 'Add Follow'),
+              _buildButton(title: _isFollow! ? 'Unfollow' : 'Follow'),
             ],
           )
         : Container();

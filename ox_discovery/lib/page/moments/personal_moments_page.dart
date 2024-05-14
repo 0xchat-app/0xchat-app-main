@@ -220,24 +220,16 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Widget _buildMomentItem(NoteDB note) {
-    final isShowUserInfo = note.getNoteKind() == ENotificationsMomentType.repost.kind;
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 12.px,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // _buildTitle(_notes[index].createAt),
-          MomentWidget(
-            notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
-            isShowUserInfo: isShowUserInfo,
-            clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
-              await OXNavigator.pushPage(
-                  context, (context) => MomentsPage(notedUIModel: notedUIModel));
-            },
-          )
-        ],
+      child: MomentWidget(
+        notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
+        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+          await OXNavigator.pushPage(
+              context, (context) => MomentsPage(notedUIModel: notedUIModel));
+        },
       ),
     );
   }
@@ -251,17 +243,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: notes.length,
-          itemBuilder: (context, index) {
-            try{
-              return _buildMomentItem(notes[index]);
-            }catch(e){
-              print('----------lalalal: 可以捕获到错误吗');
-              return Container(
-                height: 40.px,
-                color: Colors.red,
-              );
-            }
-          },
+          itemBuilder: (context, index) => _buildMomentItem(notes[index])
         ),
       ],
     );
