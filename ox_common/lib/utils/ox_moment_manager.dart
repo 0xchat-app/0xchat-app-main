@@ -11,9 +11,6 @@ class OXMomentManager {
 
   OXMomentManager._internal();
 
-  Map<String, NoteDB> contactsNotesMap = Map();
-  Map<String, NoteDB> privateNotesMap = Map();
-
   factory OXMomentManager() {
     return sharedInstance;
   }
@@ -38,19 +35,11 @@ class OXMomentManager {
 
   initLocalData() async {
     addMomentCallBack();
-    // _changeListToMap(contactsList,contactsNotesMap);
-    // _changeListToMap(_mockData());
   }
 
   addMomentCallBack() {
   }
 
-  _changeListToMap(List<NoteDB>? list){
-    if(list == null) return;
-    for(NoteDB db in list){
-      privateNotesMap[db.noteId] = db;
-    }
-  }
 
   void clearNewNotes() {
     Moment.sharedInstance.clearNewNotes();

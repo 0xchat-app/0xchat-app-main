@@ -26,6 +26,7 @@ class OXSmartRefresher extends StatelessWidget {
     this.onRefresh,
     this.onLoading,
     this.onTwoLevel,
+    this.scrollController,
   }) : super(key: key);
 
   final RefreshController controller;
@@ -38,10 +39,12 @@ class OXSmartRefresher extends StatelessWidget {
   final VoidCallback? onRefresh;
   final VoidCallback? onLoading;
   final OnTwoLevel? onTwoLevel;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
     return SmartRefresher(
+        scrollController:scrollController,
         controller: this.controller,
         header: this.header ?? refresherHeader,
         footer: this.footer ?? refresherFooter,
