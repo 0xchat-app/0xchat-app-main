@@ -179,6 +179,7 @@ class _MomentsPageState extends State<MomentsPage> {
               context,
                   (context) =>
                   MomentsPage(notedUIModel: notedUIModel));
+          setState(() {});
         }
       },
       notedUIModel: model,
@@ -208,7 +209,7 @@ class _MomentsPageState extends State<MomentsPage> {
     return replyList.map((ValueNotifier<NotedUIModel> notedUIModelDraft) {
       int index = replyList.indexOf(notedUIModelDraft);
       if (notedUIModelDraft.value.noteDB.noteId == widget.notedUIModel.value.noteDB.noteId && index != 0) return const SizedBox();
-      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel?.value.noteDB.noteId)) {
+      if (notedUIModel != null && !notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel?.value.noteDB.noteId)) {
         return const SizedBox();
       }
       return MomentReplyWidget(
@@ -327,11 +328,12 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   Widget _momentItemWidget() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: () async{
         OXNavigator.pushPage(
             context,
             (context) => MomentsPage(
                 notedUIModel: widget.notedUIModel, isShowReply: false));
+        setState(() {});
       },
       child: IntrinsicHeight(
         child: Row(
@@ -379,12 +381,13 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                       isShowReply: false,
                       notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
-                      clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) {
-                        OXNavigator.pushPage(
+                      clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel)async {
+                       await OXNavigator.pushPage(
                             context,
                             (context) => MomentsPage(
                                 notedUIModel: widget.notedUIModel,
                                 isShowReply: false));
+                        setState(() {});
                       },
                     ),
                   ],

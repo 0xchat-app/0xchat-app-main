@@ -203,11 +203,12 @@ class _MomentWidgetState extends State<MomentWidget> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    OXModuleService.pushPage(
+                  onTap: () async {
+                   await OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
                       'pubkey': model.value.noteDB.author,
                     });
+                   setState(() {});
                   },
                   child: MomentWidgetsUtils.clipImage(
                     borderRadius: 40.px,
@@ -275,8 +276,10 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     Widget _itemWidget(ENotificationsMomentType type, int num) {
       return GestureDetector(
-        onTap: () {
-          OXNavigator.pushPage(context, (context) => MomentOptionUserPage(notedUIModel:model, type: type));
+        onTap: () async{
+
+          await  OXNavigator.pushPage(context, (context) => MomentOptionUserPage(notedUIModel:model, type: type));
+          setState(() {});
         },
         child: RichText(
           textAlign: TextAlign.left,
