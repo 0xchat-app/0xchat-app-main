@@ -189,7 +189,7 @@ class _MomentsPageState extends State<MomentsPage> {
     return replyList.map((ValueNotifier<NotedUIModel> notedUIModelDraft) {
       int index = replyList.indexOf(notedUIModelDraft);
       if (notedUIModelDraft.value.noteDB.noteId == widget.notedUIModel.value.noteDB.noteId && index != 0) return const SizedBox();
-      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply) return const SizedBox();
+      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel!.value.noteDB.noteId)) return const SizedBox();
       return MomentReplyWidget(
         index: index,
         notedUIModel: notedUIModelDraft,

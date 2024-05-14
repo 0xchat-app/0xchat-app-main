@@ -256,17 +256,18 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     );
   }
 
+
   int _getClickNum(EMomentOptionType type){
     NoteDB noteDB = notedUIModel.value.noteDB;
     switch(type){
       case EMomentOptionType.repost:
-       return (noteDB.repostEventIds?.length ?? 0) + (noteDB.quoteRepostEventIds?.length ?? 0);
+       return (noteDB.repostCount) + (noteDB.quoteRepostCount);
       case EMomentOptionType.like:
-        return noteDB.reactionEventIds?.length ?? 0;
+        return noteDB.reactionCount;
       case EMomentOptionType.zaps:
         return noteDB.zapAmount;
       case EMomentOptionType.reply:
-        return noteDB.replyEventIds?.length ?? 0;
+        return noteDB.replyCount;
     }
   }
 

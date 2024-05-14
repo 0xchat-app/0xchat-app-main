@@ -163,7 +163,7 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   List<NoteDB> _filterNotes(List<NoteDB> list) {
-    return list.where((NoteDB note) => !note.isReaction && note.getReplyLevel() < 2).toList();
+    return list.where((NoteDB note) => !note.isReaction && note.getReplyLevel(null) < 2).toList();
   }
 
   void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {

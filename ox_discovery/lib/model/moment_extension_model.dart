@@ -9,11 +9,17 @@ extension ENoteDBEx on NoteDB {
 
   bool get isReply => getNoteKind() == ENotificationsMomentType.reply.kind;
 
-  bool get isRoot => getReplyLevel() == 0;
+  isRoot (String? noteId) {
+   return getReplyLevel(noteId) == 0;
+  }
 
-  bool get isFirstLevelReply => getReplyLevel() == 1;
+  isFirstLevelReply (String? noteId) {
+    return getReplyLevel(noteId) == 1;
+  }
 
-  bool get isSecondLevelReply => getReplyLevel() == 2;
+  isSecondLevelReply (String? noteId) {
+    return getReplyLevel(noteId) == 2;
+  }
 
   String? get getReplyId {
     String? replyId = reply;
