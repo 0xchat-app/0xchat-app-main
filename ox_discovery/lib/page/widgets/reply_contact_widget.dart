@@ -49,7 +49,9 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     if(note == null) return;
     UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
     momentUserDB = user;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override

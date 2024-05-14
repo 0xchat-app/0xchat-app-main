@@ -56,7 +56,9 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
         await Moment.sharedInstance.loadNoteActions(noteId,reload:false);
 
     showUserDBList = _getUserList(replyEventIdsList);
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   List<NotedUIModel> _getUserList(Map<String, List<dynamic>> mapInfo) {
@@ -223,7 +225,9 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if (userDB != null) {
       user = userDB;
-      setState(() {});
+      if(mounted){
+        setState(() {});
+      }
     }
   }
 

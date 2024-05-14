@@ -71,7 +71,9 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
 
   void _getUserInfo() async{
     userDBList = await MomentContentAnalyzeUtils(widget.text).getUserInfoMap;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override
@@ -210,7 +212,10 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     int lineCount = textInfo['lineCount'];
     _getMaxLines(isOver, lineCount);
     isOverTwoLines = isOver;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+
+    }
   }
 
   void _getMaxLines(bool isOver,int lineCount){
@@ -220,7 +225,9 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       int? max = isShowMore ? 100 : widget.maxLines;
       showMaxLine = !isOver ? widget.maxLines : max;
     }
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   void _updateTextInfo(){

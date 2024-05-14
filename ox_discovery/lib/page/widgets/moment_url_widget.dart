@@ -36,7 +36,9 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
 
   void _getUrlInfo() async {
     urlData = await WebURLHelper.getPreviewData(widget.url);
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
 

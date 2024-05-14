@@ -68,7 +68,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     UserDB? user =
         await Account.sharedInstance.getUserInfo(widget.notedUIModel.value.noteDB.author);
     momentUserDB = user;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override
@@ -129,7 +131,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                     String? getName = user.name;
                     if(getName != null){
                       draftCueUserMap['@$getName'] = user;
-                      setState(() {});
+                      if(mounted){
+                        setState(() {});
+                      }
                     }
                   },
                 ).setPaddingOnly(top: 12.px),
@@ -259,7 +263,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 selectCount: 1,
                 callback: (List<String> imageList) {
                   _showImage = imageList[0];
-                  setState(() {});
+                  if(mounted){
+                    setState(() {});
+                  }
                 },
               );
             },

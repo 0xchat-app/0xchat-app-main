@@ -141,7 +141,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
 
     (notesList ??= []).addAll(list.map((note) => ValueNotifier(NotedUIModel(noteDB: note))).toList());
     _lastTimestamp = list.isEmpty ? null : list.last.createAt;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
+
 
     if(list.isEmpty) {
       return isInit ?  _refreshController.refreshCompleted() : _refreshController.loadNoData();

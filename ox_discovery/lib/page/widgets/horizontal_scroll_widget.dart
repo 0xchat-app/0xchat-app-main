@@ -166,7 +166,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       noteListMap[widget.onlyShowNotedUIModel!.value.noteDB.noteId] = MomentInfo(userDB: user, notedUIModel: widget.onlyShowNotedUIModel!.value);
     }
     _setPageViewHeight(noteListMap.values.toList(), 0);
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   Future<void> _processQuoteList() async {
@@ -177,7 +179,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       }
       await Future.wait(futures);
     }
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   Future<void> _processQuote(String quote) async {
@@ -192,7 +196,9 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
     } else {
       noteListMap[DateTime.now().millisecond.toString()] = MomentInfo(userDB: null, notedUIModel: null);
     }
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   Future<void> _processSingleNote() async {
@@ -212,16 +218,21 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
   }
 
   int _getTextLine(String text) {
-    double width = MediaQuery.of(context).size.width - 72;
-    int line = DiscoveryUtils.getTextLine(text, width,12, null)['lineCount'];
-    return line;
+    if(mounted){
+      double width = MediaQuery.of(context).size.width - 72;
+      int line = DiscoveryUtils.getTextLine(text, width,12, null)['lineCount'];
+      return line;
+    }
+    return 1;
   }
 
   void _setPageViewHeight(List<MomentInfo> list, int index) {
     NotedUIModel? notedUIModel = list[index].notedUIModel;
     if(notedUIModel == null) {
       _height = 251;
-      setState(() {});
+      if(mounted){
+        setState(() {});
+      }
       return;
     }
 
@@ -232,6 +243,8 @@ class _HorizontalScrollWidgetState extends State<HorizontalScrollWidget> {
       _height  = _height -  35; // Navigation bar height
     }
     _height = isOneLine ? _height - 17 : _height; // Text height
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 }

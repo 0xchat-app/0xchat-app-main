@@ -64,11 +64,14 @@ class _MomentsPageState extends State<MomentsPage> {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) return;
         replyList = [noteModelDraft];
+
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
+    if(mounted){
+      setState(() {});
+    }
 
-    setState(() {});
     ValueNotifier<NotedUIModel>? note = notedUIModel;
     if(note == null) return;
     _getReplyFromDB(note);
@@ -91,7 +94,10 @@ class _MomentsPageState extends State<MomentsPage> {
       widget.notedUIModel.value = NotedUIModel(noteDB: updateNote);
 
     }
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
+
     _getReplyFromDB(newNotedUIModel);
 
   }
@@ -107,8 +113,10 @@ class _MomentsPageState extends State<MomentsPage> {
     }
     List<ValueNotifier<NotedUIModel>> noteList = widget.notedUIModel.value.noteDB.isReply &&  widget.isShowReply ? [widget.notedUIModel] : [];
     replyList = [...noteList,...result];
+    if(mounted){
+      setState(() {});
+    }
 
-    setState(() {});
   }
 
 
@@ -292,7 +300,10 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     String pubKey = widget.notedUIModel.value.noteDB.author;
     UserDB? user = await Account.sharedInstance.getUserInfo(pubKey);
     momentUser = user;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
+
   }
 
   @override
