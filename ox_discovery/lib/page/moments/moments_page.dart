@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -11,12 +10,10 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
-import '../widgets/moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
@@ -58,13 +55,19 @@ class _MomentsPageState extends State<MomentsPage> {
   void _getReplyList()async {
     ValueNotifier<NotedUIModel> noteModelDraft = widget.notedUIModel;
      notedUIModel = widget.notedUIModel;
+
     if (noteModelDraft.value.noteDB.isReply && widget.isShowReply) {
+      replyList = [noteModelDraft];
       String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-        if (note == null) return;
-        replyList = [noteModelDraft];
-
+        if (note == null){
+          notedUIModel = null;
+          if(mounted) {
+            setState(() {});
+          }
+          return;
+        }
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
@@ -122,9 +125,6 @@ class _MomentsPageState extends State<MomentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<NotedUIModel>? model = notedUIModel;
-
-    if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -150,20 +150,7 @@ class _MomentsPageState extends State<MomentsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MomentWidget(
-                        isShowInteractionData: true,
-                        isShowReply: widget.isShowReply,
-                        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
-                          if (notedUIModel.value.noteDB.isReply &&
-                              widget.isShowReply) {
-                            await OXNavigator.pushPage(
-                                context,
-                                (context) =>
-                                    MomentsPage(notedUIModel: notedUIModel));
-                          }
-                        },
-                        notedUIModel: model,
-                      ),
+                      _showContentWidget(),
                       ..._showReplyList(),
                       _noDataWidget(),
                     ],
@@ -172,32 +159,58 @@ class _MomentsPageState extends State<MomentsPage> {
               ),
             ),
             _isShowMaskWidget(),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 20,
-              child: SimpleMomentReplyWidget(
-                notedUIModel: model,
-                isFocusedCallback: (focusStatus) {
-                  if (focusStatus == _isShowMask) return;
-                  setState(() {
-                    _isShowMask = focusStatus;
-                  });
-                },
-              ),
-            ),
+            _showSimpleReplyWidget(),
           ],
         ),
       ),
     );
   }
 
+  Widget _showContentWidget(){
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
+    if(model == null) return MomentWidgetsUtils.emptyNoteMoment('Moment not found !',300);
+    return MomentWidget(
+      isShowInteractionData: true,
+      isShowReply: widget.isShowReply,
+      clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+        if (notedUIModel.value.noteDB.isReply &&
+            widget.isShowReply) {
+          await OXNavigator.pushPage(
+              context,
+                  (context) =>
+                  MomentsPage(notedUIModel: notedUIModel));
+        }
+      },
+      notedUIModel: model,
+    );
+  }
+
+  Widget _showSimpleReplyWidget(){
+    ValueNotifier<NotedUIModel>? model = notedUIModel;
+    if(model == null) return const SizedBox();
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 20,
+      child: SimpleMomentReplyWidget(
+        notedUIModel: model,
+        isFocusedCallback: (focusStatus) {
+          if (focusStatus == _isShowMask) return;
+          setState(() {
+            _isShowMask = focusStatus;
+          });
+        },
+      ),
+    );
+  }
+
   List<Widget> _showReplyList() {
-    if(notedUIModel == null) return [const SizedBox()];
     return replyList.map((ValueNotifier<NotedUIModel> notedUIModelDraft) {
       int index = replyList.indexOf(notedUIModelDraft);
       if (notedUIModelDraft.value.noteDB.noteId == widget.notedUIModel.value.noteDB.noteId && index != 0) return const SizedBox();
-      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel!.value.noteDB.noteId)) return const SizedBox();
+      if (!notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel?.value.noteDB.noteId)) {
+        return const SizedBox();
+      }
       return MomentReplyWidget(
         index: index,
         notedUIModel: notedUIModelDraft,

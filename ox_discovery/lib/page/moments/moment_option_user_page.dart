@@ -232,6 +232,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   String get _getContent {
+    if(widget.type == ENotificationsMomentType.repost) return '';
     return notedUIModel?.getMomentShowContent ?? '';
   }
 

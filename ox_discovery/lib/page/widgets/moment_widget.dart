@@ -53,8 +53,6 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   ValueNotifier<NotedUIModel>? notedUIModel;
 
-  bool isLoadFailure = false;
-
   @override
   void initState() {
     // TODO: implement initState
@@ -77,8 +75,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentItemWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if(isLoadFailure) return _emptyNoteMoment();
-    if (model == null) return const SizedBox();
+    if (model == null) return MomentWidgetsUtils.emptyNoteMoment('Moment not found !',300);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(model),
@@ -185,6 +182,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
+
     if (model.value.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
     ValueNotifier<NotedUIModel>? note =
         hasQuoteRepostId ? ValueNotifier(NotedUIModel(noteDB: model.value.noteDB)) : null;
@@ -341,7 +339,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
     if (note == null) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
-      isLoadFailure = true;
       notedUIModel = null;
       momentUser = null;
       setState(() {});
