@@ -110,14 +110,14 @@ class RelayModel {
         relayName: 'wss://nostr.wine',
       ));
     bool containsCoinfundit = relayAddressList.contains(''
-        'wss://nostr.coinfundit.com');
+        'wss://nostr.coinfundit.app');
     if (!containsCoinfundit)
       commendRelayList.add(RelayModel(
         canDelete: true,
         connectStatus: 3,
         isSelected: false,
         isAddedCommend: containsCoinfundit ? true : false,
-        relayName: 'wss://nostr.coinfundit.com',
+        relayName: 'wss://nostr.coinfundit.app',
       ));
     bool containsNostrland = relayAddressList.contains(''
         'wss://eden.nostr.land');
