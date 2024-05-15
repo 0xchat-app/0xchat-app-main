@@ -11,7 +11,6 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
-
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -35,7 +34,6 @@ class _MomentsPageState extends State<MomentsPage> {
   List<ValueNotifier<NotedUIModel>> replyList = [];
 
   ValueNotifier<NotedUIModel>? notedUIModel;
-
   @override
   void initState() {
     super.initState();
@@ -167,6 +165,8 @@ class _MomentsPageState extends State<MomentsPage> {
       ),
     );
   }
+
+
 
   Widget _showContentWidget(){
     ValueNotifier<NotedUIModel>? model = notedUIModel;
@@ -430,3 +430,5 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     );
   }
 }
+
+

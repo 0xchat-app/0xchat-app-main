@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,9 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
+import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
@@ -161,7 +165,8 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     List<String> getVideoList = model.value.getVideoList;
     if (getVideoList.isNotEmpty) {
-      return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
+      return VideoMomentWidget(videoUrl: getVideoList[0],);
+      // return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
     }
 
     List<String> getMomentExternalLink = model.value.getMomentExternalLink;
@@ -170,6 +175,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     }
     return const SizedBox();
   }
+
 
   Widget _showReplyContactWidget() {
     if (!widget.isShowReply) return const SizedBox();
