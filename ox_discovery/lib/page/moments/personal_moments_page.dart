@@ -46,11 +46,12 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   final int _limit = 50;
   int? _lastTimestamp;
+  bool _isLoadNotesFromRelay = false;
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _loadNotesFromDB();
   }
 
   @override
@@ -75,7 +76,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
           controller: _refreshController,
           enablePullDown: false,
           enablePullUp: true,
-          onLoading: () => _loadNotes(),
+          onLoading: () => _isLoadNotesFromRelay ? _loadNotesFromRelay() : _loadNotesFromDB(),
           child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
             slivers: <Widget>[
@@ -338,32 +339,57 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
   }
 
-  Future<void> _loadNotes() async {
-    List<NoteDB> noteList;
-    try {
-      if(isCurrentUser) {
-        noteList = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
-      } else {
-        noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],until: _lastTimestamp,limit: _limit) ?? [];
-      }
-    } catch (e) {
-      noteList = [];
-      LogUtil.e('Load Notes Failed: $e');
-    }
-
+  void _refreshData(List<NoteDB> noteList){
     List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
     if (filteredNoteList.isEmpty) {
-      updateStateView(CommonStateView.CommonStateView_NoData);
-      _refreshController.loadComplete();
-      setState(() {});
       return;
     }
-
+    _notes.clear();
     _notes.addAll(filteredNoteList);
+    _groupedNotes.clear();
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
-    noteList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
-    setState(() {});
+    if(noteList.length < _limit) {
+      _isLoadNotesFromRelay = true;
+    }
+    _refreshController.loadComplete();
+    if(mounted) setState(() {});
+  }
+
+  Future<void> _loadNotesFromDB() async {
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    _refreshData(noteList);
+    await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
+    noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    _refreshData(noteList);
+  }
+
+  Future<void> _loadNotesFromRelay() async {
+    try {
+      OXLoading.show();
+      List<NoteDB> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
+      OXLoading.dismiss();
+      if (noteList.isEmpty) {
+        updateStateView(CommonStateView.CommonStateView_NoData);
+        _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
+        setState(() {});
+        return;
+      }
+
+      List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+      _notes.addAll(filteredNoteList);
+      _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
+      _lastTimestamp = noteList.last.createAt;
+
+      noteList.length < _limit ? _refreshController.loadNoData() : _refreshController.loadComplete();
+      setState(() {});
+    } catch (e) {
+      _refreshController.loadFailed();
+    }
+  }
+
+  List<NoteDB> _filterNotes(List<NoteDB> noteList) {
+    return noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
   }
 
   Map<DateTime, List<NoteDB>> _groupedNotesFromDateTime(List<NoteDB> notes) {
