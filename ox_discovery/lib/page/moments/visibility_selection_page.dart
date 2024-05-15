@@ -167,7 +167,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
             OXNavigator.presentPage(
               context,
               (context) => ContactChoosePage<UserDB>(
-                title: 'Close Friends',
+                title: 'Selected Friends',
                 contactType: ContactType.contact,
                 onSubmitted: _selectedOnChanged,
                 selectedContactList: _excludeContacts,

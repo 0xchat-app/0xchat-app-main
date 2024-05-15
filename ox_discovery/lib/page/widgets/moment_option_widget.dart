@@ -112,7 +112,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
           OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.value.noteDB.noteId);
           if(event.status){
             _updateNoteDB();
-            CommonToast.instance.show(context, 'reaction success !');
+            CommonToast.instance.show(context, 'Successfully liked!!');
           }
         };
       case EMomentOptionType.zaps:
