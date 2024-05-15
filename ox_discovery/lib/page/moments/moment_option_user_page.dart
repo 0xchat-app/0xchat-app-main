@@ -51,33 +51,34 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   void _init() async {
-    String noteId = widget.notedUIModel.value.noteDB.noteId;
-    await Moment.sharedInstance.loadNoteActions(noteId,reload:false, actionsCallBack: (replyEventIdsList){
-      showUserDBList = _getUserList(replyEventIdsList);
+    NoteDB noteDB = widget.notedUIModel.value.noteDB;
+    List<dynamic> list = [];
+      switch (widget.type) {
+        case ENotificationsMomentType.zaps:
+          list = await Load.loadInvoicesToZapRecords(
+              noteDB.zapEventIds ?? [], noteDB.private);
+          break;
+        case ENotificationsMomentType.repost:
+          list = await Moment.sharedInstance.loadNoteIdsToNoteDBs(
+              noteDB.repostEventIds ?? [], noteDB.private, false);
+          break;
+        case ENotificationsMomentType.quote:
+          list = await Moment.sharedInstance.loadNoteIdsToNoteDBs(
+              noteDB.quoteRepostEventIds ?? [], noteDB.private, false);
+          break;
+        case ENotificationsMomentType.like:
+          list = await Moment.sharedInstance.loadNoteIdsToNoteDBs(
+              noteDB.reactionEventIds ?? [], noteDB.private, false);
+          break;
+      }
+      showUserDBList = _getUserList(list);
       if(mounted){
         setState(() {});
       }
-    });
   }
 
-  List<NotedUIModel> _getUserList(Map<String, List<dynamic>> mapInfo) {
-    List<dynamic>? list = [];
-    switch (widget.type) {
-      case ENotificationsMomentType.zaps:
-        list = mapInfo['zap'];
-        break;
-      case ENotificationsMomentType.repost:
-        list = mapInfo['repost'];
-        break;
-      case ENotificationsMomentType.quote:
-        list = mapInfo['quoteRepost'];
-        break;
-      case ENotificationsMomentType.like:
-        list = mapInfo['reaction'];
-        break;
-    }
-
-    return (list ??= []).map((dynamic noteDB) {
+  List<NotedUIModel> _getUserList(List<dynamic> list) {
+    return list.map((dynamic noteDB) {
       if (widget.type == ENotificationsMomentType.zaps) {
         ZapRecordsDB zapRecordsDB = noteDB as ZapRecordsDB;
         String content =
