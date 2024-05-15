@@ -52,13 +52,12 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
 
   void _init() async {
     String noteId = widget.notedUIModel.value.noteDB.noteId;
-    Map<String, List<dynamic>> replyEventIdsList =
-        await Moment.sharedInstance.loadNoteActions(noteId,reload:false);
-
-    showUserDBList = _getUserList(replyEventIdsList);
-    if(mounted){
-      setState(() {});
-    }
+    await Moment.sharedInstance.loadNoteActions(noteId,reload:false, actionsCallBack: (replyEventIdsList){
+      showUserDBList = _getUserList(replyEventIdsList);
+      if(mounted){
+        setState(() {});
+      }
+    });
   }
 
   List<NotedUIModel> _getUserList(Map<String, List<dynamic>> mapInfo) {
