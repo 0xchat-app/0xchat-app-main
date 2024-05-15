@@ -18,10 +18,10 @@ class PublicMomentsPage extends StatefulWidget {
   const PublicMomentsPage({Key? key}) : super(key: key);
 
   @override
-  State<PublicMomentsPage> createState() => _PublicMomentsPageState();
+  State<PublicMomentsPage> createState() => PublicMomentsPageState();
 }
 
-class _PublicMomentsPageState extends State<PublicMomentsPage>
+class PublicMomentsPageState extends State<PublicMomentsPage>
     with OXMomentObserver {
   List<ValueNotifier<NotedUIModel>> notesList = [];
 
@@ -32,6 +32,8 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   int? _allNotesFromDBFromRelayLastTimestamp;
 
   final int _limit = 50;
+
+  final ScrollController momentScrollController = ScrollController();
 
   @override
   void initState() {
@@ -48,12 +50,15 @@ class _PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   Widget build(BuildContext context) {
     return OXSmartRefresher(
+      scrollController: momentScrollController,
+
       controller: _refreshController,
       enablePullDown: true,
       enablePullUp: true,
       onRefresh: () => _updateNotesList(true),
       onLoading: () => _updateNotesList(false),
       child: SingleChildScrollView(
+
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: 24.px,

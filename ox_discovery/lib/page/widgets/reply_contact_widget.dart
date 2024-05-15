@@ -19,6 +19,8 @@ class ReplyContactWidget extends StatefulWidget {
 class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   UserDB? momentUserDB;
 
+  bool isShowReplyContactWidget = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -42,7 +44,10 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       setState(() {});
       return;
     }
-
+    isShowReplyContactWidget = true;
+    if(mounted){
+      setState(() {});
+    }
     String? getReplyId = model.noteDB.getReplyId;
     if(getReplyId == null) return;
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
@@ -56,7 +61,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if(momentUserDB == null) return const SizedBox();
+    if(!isShowReplyContactWidget) return const SizedBox();
     return RichText(
       textAlign: TextAlign.left,
       overflow: TextOverflow.ellipsis,
@@ -70,17 +75,19 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
         children: [
           const TextSpan(text: 'Reply to'),
           TextSpan(
-            text: ' @${momentUserDB?.name}',
+            text: ' @${momentUserDB?.name ?? '--'}',
             style: TextStyle(
               color: ThemeColor.purple2,
               fontSize: 12.px,
               fontWeight: FontWeight.w400,
             ),
             recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
+              ..onTap = () async{
+              if(momentUserDB == null) return;
+              await  OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
                   'pubkey': momentUserDB?.pubKey,
                 });
+              setState(() {});
               },
           ),
         ],

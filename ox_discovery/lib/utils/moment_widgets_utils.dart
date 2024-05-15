@@ -208,6 +208,35 @@ class MomentWidgetsUtils {
     );
   }
 
+  static Widget emptyNoteMoment(String content,double height){
+    return Container(
+      margin: EdgeInsets.symmetric(
+          vertical: 10.px
+      ),
+      height: height.px,
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1.px,
+          color: ThemeColor.color160,
+        ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(
+            11.5.px,
+          ),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Moment not found !',
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: 16.px,
+          ),
+        ),
+      ),
+    );
+  }
+
   static Widget badgePlaceholderImage({int size = 24}) {
     return CommonImage(
       iconName: 'icon_badge_default.png',

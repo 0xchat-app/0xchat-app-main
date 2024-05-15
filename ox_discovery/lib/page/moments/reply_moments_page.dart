@@ -83,6 +83,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
         appBar: CommonAppBar(
+          isClose:true,
           backgroundColor: ThemeColor.color200,
           actions: [
             GestureDetector(

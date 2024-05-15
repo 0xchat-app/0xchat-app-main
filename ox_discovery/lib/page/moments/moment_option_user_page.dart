@@ -232,6 +232,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   String get _getContent {
+    if(widget.type == ENotificationsMomentType.repost) return '';
     return notedUIModel?.getMomentShowContent ?? '';
   }
 
@@ -249,12 +250,13 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: () {
+            onTap: () async {
               if (user == null) return;
-              OXModuleService.pushPage(
+              await OXModuleService.pushPage(
                   context, 'ox_chat', 'ContactUserInfoPage', {
                 'pubkey': user?.pubKey ?? '',
               });
+              setState(() {});
             },
             child: MomentWidgetsUtils.clipImage(
               borderRadius: 60.px,
