@@ -339,22 +339,14 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
   }
 
-  Future<void> _loadNotesFromDB() async {
-    List<NoteDB> noteList;
-    try {
-      noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],until: _lastTimestamp,limit: _limit) ?? [];
-    } catch (e) {
-      noteList = [];
-      LogUtil.e('Load Notes Failed: $e');
-    }
-
+  void _refreshData(List<NoteDB> noteList){
     List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
     if (filteredNoteList.isEmpty) {
-      await _loadNotesFromRelay();
       return;
     }
-
+    _notes.clear();
     _notes.addAll(filteredNoteList);
+    _groupedNotes.clear();
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
     if(noteList.length < _limit) {
@@ -362,6 +354,14 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
     _refreshController.loadComplete();
     if(mounted) setState(() {});
+  }
+
+  Future<void> _loadNotesFromDB() async {
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    _refreshData(noteList);
+    await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
+    noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    _refreshData(noteList);
   }
 
   Future<void> _loadNotesFromRelay() async {
