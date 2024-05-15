@@ -342,11 +342,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Future<void> _loadNotesFromDB() async {
     List<NoteDB> noteList;
     try {
-      if(isCurrentUser) {
-        noteList = await Moment.sharedInstance.loadMyNotesFromDB(until: _lastTimestamp,limit: _limit) ?? [];
-      } else {
-        noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],until: _lastTimestamp,limit: _limit) ?? [];
-      }
+      noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],until: _lastTimestamp,limit: _limit) ?? [];
     } catch (e) {
       noteList = [];
       LogUtil.e('Load Notes Failed: $e');
@@ -365,7 +361,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       _isLoadNotesFromRelay = true;
     }
     _refreshController.loadComplete();
-    setState(() {});
+    if(mounted) setState(() {});
   }
 
   Future<void> _loadNotesFromRelay() async {
