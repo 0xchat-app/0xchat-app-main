@@ -38,8 +38,10 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   }
 
   void _getMomentUser() async {
+
     NotedUIModel? model = widget.notedUIModel?.value;
     if(model == null || !model.noteDB.isReply) {
+      isShowReplyContactWidget = false;
       momentUserDB = null;
       setState(() {});
       return;
