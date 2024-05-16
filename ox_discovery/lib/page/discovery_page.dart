@@ -37,6 +37,7 @@ enum EDiscoveryPageType{
   channel
 }
 
+
 class DiscoveryPage extends StatefulWidget {
   final PageController? pageController;
   const DiscoveryPage({Key? key,this.pageController}): super(key: key);
@@ -63,6 +64,8 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
 
   GlobalKey<PublicMomentsPageState> publicMomentPageKey = GlobalKey<PublicMomentsPageState>();
+
+  EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
 
   @override
   void initState() {
@@ -186,6 +189,22 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: CommonImage(
+            iconName: "moment_option.png",
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+            color: ThemeColor.color100,
+            package: 'ox_discovery',
+          ),
+          onTap: () {
+            showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildMomentBottomDialog());
+          },
+        ),
+        SizedBox(
+          width: Adapt.px(20),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: CommonImage(
             iconName: "moment_add_icon.png",
             width: Adapt.px(24),
             height: Adapt.px(24),
@@ -260,7 +279,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   }
 
   Widget _body(){
-    if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey);
+    if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
     return const ChannelPage();
   }
 
@@ -750,8 +769,77 @@ class _DiscoveryPageState extends State<DiscoveryPage>
     );
   }
 
+  Widget _buildMomentBottomDialog() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color: ThemeColor.color180,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.all,
+            EPublicMomentsPageType.all.text,
+            index: 0,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.all;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.public,
+            EPublicMomentsPageType.public.text,
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.public;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
+            EPublicMomentsPageType.private.text,
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.private;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          Container(
+            height: Adapt.px(8),
+            color: ThemeColor.color190,
+          ),
+          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+            OXNavigator.pop(context);
+          }),
+          SizedBox(
+            height: Adapt.px(21),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildItem(String title,
-      {required int index, GestureTapCallback? onTap}) {
+      {required int index, GestureTapCallback? onTap,bool isSelect = false}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       child: Container(
@@ -761,7 +849,7 @@ class _DiscoveryPageState extends State<DiscoveryPage>
         child: Text(
           title,
           style: TextStyle(
-            color: ThemeColor.color0,
+            color: isSelect ? ThemeColor.purple1 : ThemeColor.color0,
             fontSize: Adapt.px(16),
             fontWeight: FontWeight.w400,
           ),

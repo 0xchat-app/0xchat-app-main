@@ -6,5 +6,9 @@
   "popular_item": "Popular",
   "latest_item": "Latest",
   "channel_search_hint_text": "Search channel",
-  "channel": "Channel"
+  "channel": "Channel",
+  "private": "private",
+  "all": "All",
+  "public": "Public"
 }
+

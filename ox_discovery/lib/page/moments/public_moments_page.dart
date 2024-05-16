@@ -4,9 +4,11 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -14,8 +16,40 @@ import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 
+enum EPublicMomentsPageType{
+  all,
+  public,
+  private
+}
+
+extension EPublicMomentsPageTypeEx on EPublicMomentsPageType{
+  bool? get getValue {
+    switch(this){
+      case EPublicMomentsPageType.all:
+        return null;
+      case EPublicMomentsPageType.public:
+        return false;
+      case EPublicMomentsPageType.private:
+      return true;
+    }
+  }
+
+  String get text {
+    switch(this){
+      case EPublicMomentsPageType.all:
+        return Localized.text('ox_discovery.all');
+      case EPublicMomentsPageType.public:
+        return Localized.text('ox_discovery.public');
+      case EPublicMomentsPageType.private:
+        return Localized.text('ox_discovery.private');
+    }
+  }
+}
+
+
 class PublicMomentsPage extends StatefulWidget {
-  const PublicMomentsPage({Key? key}) : super(key: key);
+  final EPublicMomentsPageType publicMomentsPageType;
+  const PublicMomentsPage({Key? key,this.publicMomentsPageType = EPublicMomentsPageType.all}) : super(key: key);
 
   @override
   State<PublicMomentsPage> createState() => PublicMomentsPageState();
@@ -39,6 +73,19 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   void initState() {
     super.initState();
     _updateNotesList(true);
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
+      if(mounted){
+        notesList = [];
+        _allNotesFromDBLastTimestamp = null;
+        _allNotesFromDBFromRelayLastTimestamp = null;
+      }
+      _updateNotesList(true);
+    }
   }
 
   @override
@@ -127,7 +174,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<void> _updateNotesList(bool isInit) async {
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
 
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
@@ -138,8 +185,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       List<NoteDB> showList = _filterNotes(list);
       _updateUI(showList, isInit, list.length);
 
-      if (list.length < _limit) {
-        await _getNotesFromRelay();
+      if (list.length < _limit ) {
+        if(widget.publicMomentsPageType != true){
+          await _getNotesFromRelay();
+        }else{
+          _refreshController.loadNoData();
+        }
       }
     } catch (e) {
       print('Error loading notes: $e');

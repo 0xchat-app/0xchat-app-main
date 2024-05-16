@@ -20,11 +20,26 @@ class MomentUrlWidget extends StatefulWidget {
 class MomentUrlWidgetState extends State<MomentUrlWidget> {
   PreviewData? urlData;
 
+  final GlobalKey<MomentUrlWidgetState> _containerKey = GlobalKey<MomentUrlWidgetState>();
+
+  double? containerHeight;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getUrlInfo();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      RenderObject? renderBox = _containerKey.currentContext?.findRenderObject();
+      if(renderBox != null){
+        if(mounted){
+          setState(() {
+            containerHeight = (renderBox as RenderBox).size.height;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -82,18 +97,25 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
                 color: ThemeColor.white,
               ),
             ).setPaddingOnly(bottom: 20.px),
-            Container(
-              width: double.infinity,
-              child: MomentWidgetsUtils.clipImage(
-                borderRadius: 10.px,
-                child: OXCachedNetworkImage(
-                  width: double.infinity,
-                  imageUrl: urlData?.image?.url ?? '',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+            _showPicWidget(urlData!),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _showPicWidget(PreviewData urlData){
+    if(urlData.image == null || urlData.image?.url == null) return const SizedBox();
+    return Container(
+      key:_containerKey,
+      height: containerHeight,
+      width: double.infinity,
+      child: MomentWidgetsUtils.clipImage(
+        borderRadius: 10.px,
+        child: OXCachedNetworkImage(
+          width: double.infinity,
+          imageUrl: urlData.image?.url ?? '',
+          fit: BoxFit.cover,
         ),
       ),
     );

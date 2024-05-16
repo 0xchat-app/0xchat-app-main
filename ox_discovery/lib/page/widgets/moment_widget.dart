@@ -12,10 +12,12 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
+import '../discovery_page.dart';
 import '../moments/moment_option_user_page.dart';
 import '../moments/moments_page.dart';
 import 'moment_reply_abbreviate_widget.dart';
@@ -27,6 +29,9 @@ import 'moment_option_widget.dart';
 import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
+
+import 'package:simple_gradient_text/simple_gradient_text.dart';
+
 
 class MomentWidget extends StatefulWidget {
   final bool isShowInteractionData;
@@ -237,13 +242,19 @@ class _MomentWidgetState extends State<MomentWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        momentUser?.name ?? '--',
-                        style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: 14.px,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            momentUser?.name ?? '--',
+                            style: TextStyle(
+                              color: ThemeColor.color0,
+                              fontSize: 14.px,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          _checkIsPrivate(),
+                        ],
                       ),
                       Text(
                         DiscoveryUtils.getUserMomentInfo(
@@ -324,6 +335,49 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
+  Widget _checkIsPrivate(){
+    NotedUIModel? model = notedUIModel?.value;
+    if(model == null || !model.noteDB.private) return const SizedBox();
+    double momentMm = boundingTextSize(
+        Localized.text('ox_discovery.rivate'),
+        TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Adapt.px(20),
+            color: ThemeColor.titleColor))
+        .width;
+
+    return Container(
+      margin: EdgeInsets.only(left: 4.px),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4.px),
+        gradient: LinearGradient(
+          colors: [
+            ThemeColor.gradientMainEnd.withOpacity(0.2),
+            ThemeColor.gradientMainStart.withOpacity(0.2),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: 2.px,
+        horizontal: 4.px,
+      ),
+      child: Container(
+        constraints: BoxConstraints(maxWidth: momentMm),
+        child: GradientText(Localized.text('ox_discovery.private'),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(12),
+                color: ThemeColor.titleColor),
+            colors: [
+              ThemeColor.gradientMainStart,
+              ThemeColor.gradientMainEnd
+            ]),
+      ),
+    );
+  }
+
 
   void _init() async {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
@@ -361,6 +415,21 @@ class _MomentWidgetState extends State<MomentWidget> {
     UserDB? user =
         await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     momentUser = user;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
+  }
+
+  static Size boundingTextSize(String text, TextStyle style,
+      {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
+    if (text.isEmpty) {
+      return Size.zero;
+    }
+    final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(text: text, style: style),
+        maxLines: maxLines)
+      ..layout(maxWidth: maxWidth);
+    return textPainter.size;
   }
 }
