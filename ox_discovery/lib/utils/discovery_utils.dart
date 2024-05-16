@@ -69,7 +69,9 @@ class DiscoveryUtils {
     dns = dnsStr != null && dnsStr.isNotEmpty && dnsStr != 'null'
         ? dnsStr
         : user.encodedPubkey.substring(0, 10);
-
+    if(dns.length > 20){
+      dns = dns.substring(0, 7) + '...' + dns.substring(dns.length - 7);
+    }
     return ['$dns · $time',dns];
   }
 }

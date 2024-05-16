@@ -14,11 +14,12 @@ class MomentUrlWidget extends StatefulWidget {
   const MomentUrlWidget({super.key, required this.url});
 
   @override
-  _MomentUrlWidgetState createState() => _MomentUrlWidgetState();
+  MomentUrlWidgetState createState() => MomentUrlWidgetState();
 }
 
-class _MomentUrlWidgetState extends State<MomentUrlWidget> {
+class MomentUrlWidgetState extends State<MomentUrlWidget> {
   PreviewData? urlData;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -41,9 +42,9 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return const SizedBox();
     if (urlData == null) return const SizedBox();
     return GestureDetector(
       onTap: () {
@@ -81,11 +82,15 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
                 color: ThemeColor.white,
               ),
             ).setPaddingOnly(bottom: 20.px),
-            MomentWidgetsUtils.clipImage(
-              borderRadius: 10.px,
-              child: OXCachedNetworkImage(
-                imageUrl: urlData?.image?.url ?? '',
-                fit: BoxFit.contain,
+            Container(
+              width: double.infinity,
+              child: MomentWidgetsUtils.clipImage(
+                borderRadius: 10.px,
+                child: OXCachedNetworkImage(
+                  width: double.infinity,
+                  imageUrl: urlData?.image?.url ?? '',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ],
@@ -93,6 +98,7 @@ class _MomentUrlWidgetState extends State<MomentUrlWidget> {
       ),
     );
   }
+
 
   String getDescription(String description){
     if(description.length > 200){

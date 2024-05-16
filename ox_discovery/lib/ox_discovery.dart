@@ -40,7 +40,7 @@ class OXDiscovery  extends OXFlutterModule {
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context) {
-    return const DiscoveryPage();
+  Widget discoveryPageWidget(BuildContext context,{PageController? pageController}) {
+    return DiscoveryPage(pageController:pageController);
   }
 }

@@ -7,7 +7,7 @@ class MomentContentAnalyzeUtils{
   static Map<String, RegExp> regexMap = {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
-    'nostrExp': RegExp(r"nostr:npub\S+|npub\S+|nostr:nprofile1\S+"),
+    'nostrExp': RegExp(r'^(?:\s+)?(nostr:(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,})[\s!@#\$%\^&\*\(\)_+\-=\[\]\{\};:\"\\|,.<>\/\?]*$'),
     'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
     'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),

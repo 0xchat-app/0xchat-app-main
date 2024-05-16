@@ -73,7 +73,7 @@ class AlbumUtils {
       await Directory(thumbnailDirPath).create(recursive: true);
 
       // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
+      String thumbnailPath = '$thumbnailDirPath/${Path.basenameWithoutExtension(result.path)}.jpg';
       File thumbnailFile = File(thumbnailPath);
       await thumbnailFile.writeAsBytes(uint8list);
 

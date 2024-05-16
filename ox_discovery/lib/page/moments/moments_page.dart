@@ -16,6 +16,7 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
+import '../widgets/youtube_player_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   final bool isShowReply;
