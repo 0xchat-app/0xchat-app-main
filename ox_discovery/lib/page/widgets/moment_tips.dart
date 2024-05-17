@@ -36,7 +36,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
             title: '${_notes.length} new post',
             avatars: _avatarList,
             onTap: () {
-              OXMomentManager.sharedInstance.clearNewNotifications();
+              OXMomentManager.sharedInstance.clearNewNotes();
               setState(() {
                 widget.onTap?.call(_notes);
                 _notes.clear();
