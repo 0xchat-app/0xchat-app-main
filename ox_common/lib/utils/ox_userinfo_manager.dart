@@ -326,11 +326,14 @@ class OXUserInfoManager {
       Zaps.sharedInstance.init();
       _initMessage();
     });
-    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
-      //List<String> relays
-      OXRelayManager.sharedInstance.addRelaysSuccess(value);
-      Account.sharedInstance.syncFollowingListFromRelay(currentUserInfo!.pubKey);
+    Future.delayed(Duration(seconds: 5), () {
+      Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
+        //List<String> relays
+        OXRelayManager.sharedInstance.addRelaysSuccess(value);
+        Account.sharedInstance.syncFollowingListFromRelay(currentUserInfo!.pubKey);
+      });
     });
+
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
   }
