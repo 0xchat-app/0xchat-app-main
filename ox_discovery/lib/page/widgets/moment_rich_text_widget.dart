@@ -169,7 +169,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   }
   
   List<String> _dealWithText(String text){
-    if(text.startsWith('nostr:npub1') || text.startsWith('npub1') || text.startsWith('nostr:nprofile1')){
+    if(text.startsWith('nostr:npub') || text.startsWith('npub') || text.startsWith('nostr:nprofile')){
       if(userDBList[text] != null){
         UserDB userDB = userDBList[text]!;
         return ['@${userDB.name}','@${userDB.pubKey}'];

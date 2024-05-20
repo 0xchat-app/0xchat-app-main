@@ -25,14 +25,9 @@ class MomentContentAnalyzeUtils{
       if(userMap == null) break;
       final pubkey = userMap['pubkey'] as String? ?? '';
       UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
-      if(user == null){
-        String name = key;
-        if (name.contains('nostr:')) {
-          name = name.replaceAll('nostr:', "");
-        }
-        user ??= UserDB(pubKey:pubkey,name: name.substring(0,15));
+      if(user != null){
+        userDBList[key] = user;
       }
-      userDBList[key] = user;
     }
     return userDBList;
   }
