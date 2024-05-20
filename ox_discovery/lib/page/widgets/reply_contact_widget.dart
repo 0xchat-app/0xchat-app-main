@@ -77,7 +77,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
         children: [
           const TextSpan(text: 'Reply to'),
           TextSpan(
-            text: ' @${momentUserDB?.name ?? '--'}',
+            text: ' @${momentUserDB?.name ?? ''}',
             style: TextStyle(
               color: ThemeColor.purple2,
               fontSize: 12.px,
