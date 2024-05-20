@@ -102,7 +102,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       controller: _refreshController,
       enablePullDown: true,
       enablePullUp: true,
-      onRefresh: () => _updateNotesList(true),
+      onRefresh: () => _updateNotesList(true, refresh: true),
       onLoading: () => _updateNotesList(false),
       child: SingleChildScrollView(
 
@@ -172,10 +172,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> _updateNotesList(bool isInit) async {
+  Future<void> _updateNotesList(bool isInit, {bool refresh = false}) async {
     try {
+      if(refresh) await Moment.sharedInstance.loadPublicNewNotesFromRelay();
       List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
-
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
         await _getNotesFromRelay();
