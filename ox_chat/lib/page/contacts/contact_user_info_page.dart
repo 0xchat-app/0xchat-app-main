@@ -190,7 +190,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _initData() async {
-    userDB = Account.sharedInstance.userCache[widget.pubkey] ?? UserDB(pubKey: widget.pubkey);
+    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDB(pubKey: widget.pubkey);
     _isMute = userDB.mute ?? false;
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);

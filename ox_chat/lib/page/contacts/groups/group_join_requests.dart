@@ -116,7 +116,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   Widget _buildAvatar(UserRequestInfo userInfo) {
-    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender];
+    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender]?.value;
     return OXUserAvatar(
       user: otherDB,
       imageUrl: userInfo.userPic,
