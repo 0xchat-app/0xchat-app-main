@@ -19,9 +19,9 @@ import 'package:chatcore/src/account/model/relayDB.dart' as prefix2;
 import 'package:chatcore/src/account/model/userDB.dart' as prefix1;
 import 'package:chatcore/src/account/model/zapRecordsDB.dart' as prefix11;
 import 'package:chatcore/src/account/model/zapsDB.dart' as prefix5;
+import 'package:chatcore/src/chat/groups-old/model/groupDB.dart' as prefix8;
 import 'package:chatcore/src/chat/model/channelDB.dart' as prefix7;
 import 'package:chatcore/src/chat/model/friendRequestDB.dart' as prefix9;
-import 'package:chatcore/src/chat/model/groupDB.dart' as prefix8;
 import 'package:chatcore/src/chat/model/messageDB.dart' as prefix6;
 import 'package:chatcore/src/chat/model/secretSessionDB.dart' as prefix10;
 import 'package:chatcore/src/common/cache/eventCacheDB.dart' as prefix14;
@@ -11009,7 +11009,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null),
         r.LibraryMirrorImpl(
             r'',
-            Uri.parse('package:chatcore/src/chat/model/groupDB.dart'),
+            Uri.parse(
+                'package:chatcore/src/chat/groups-old/model/groupDB.dart'),
             const prefix0.Reflector(),
             const <int>[],
             {},
