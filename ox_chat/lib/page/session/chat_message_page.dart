@@ -82,7 +82,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
-    otherUser = Account.sharedInstance.userCache[widget.communityItem.chatId];
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.chatId]?.value;
     isShowContactMenu = userDB.pubKey != otherUser?.pubKey;
     if (otherUser == null) {
       () async {

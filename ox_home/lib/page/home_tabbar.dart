@@ -204,15 +204,29 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
               width: double.infinity,
               height: double.infinity,
             ),
-            child: OXModuleService.invoke(
-              tabModel.moduleName,
-              tabModel.modulePage,
-              [context],
-            ),
+            child: _showPage(tabModel),
           ),
         );
       },
     ).toList();
+  }
+
+  Widget _showPage(TabViewInfo tabModel){
+    if(tabModel.moduleName == 'ox_discovery'){
+      return OXModuleService.invoke(
+        tabModel.moduleName,
+        tabModel.modulePage,
+        [context],
+        {
+          #pageController: _pageController
+        }
+      );
+    }
+    return OXModuleService.invoke(
+      tabModel.moduleName,
+      tabModel.modulePage,
+      [context],
+    );
   }
 
   @override

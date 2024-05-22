@@ -9,6 +9,7 @@ class ZapsHelper {
     required String recipient,
     required String otherLnurl,
     String? content,
+    String? eventId,
     bool privateZap = false,
   }) async {
 
@@ -50,6 +51,7 @@ class ZapsHelper {
       recipient,
       content: content,
       privateZap: privateZap,
+      eventId: eventId
     );
     final invoice = resultMap['invoice'];
     final zapsDB = resultMap['zapsDB'];

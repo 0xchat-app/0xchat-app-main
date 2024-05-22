@@ -124,7 +124,6 @@ class _ChatVideoPlayPageState extends State<ChatVideoPlayPage> {
         ];
       },
       hideControlsTimer: const Duration(seconds: 1),
-
     );
   }
 }

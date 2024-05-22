@@ -1078,7 +1078,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         }
       }
 
-      UserDB? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey];
+      UserDB? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey]?.value;
       String userShowName = user?.getUserShowName() ?? '';
       String content = strangerSessionList.length > 1 ? '$userShowName... and other ${strangerSessionList.length} chats' : '$userShowName';
 

@@ -154,8 +154,9 @@ class OXUserCenter extends OXFlutterModule {
     required String recipient,
     required String otherLnurl,
     String? content,
+    String? eventId,
     bool privateZap = false,
   }) async {
-    return await ZapsHelper.getInvoice(sats: sats, recipient: recipient, otherLnurl: otherLnurl, content: content, privateZap: privateZap);
+    return await ZapsHelper.getInvoice(sats: sats, recipient: recipient, otherLnurl: otherLnurl, content: content, eventId: eventId, privateZap: privateZap);
   }
 }
