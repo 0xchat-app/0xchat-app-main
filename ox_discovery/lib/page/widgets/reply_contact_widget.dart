@@ -18,7 +18,7 @@ class ReplyContactWidget extends StatefulWidget {
 
 class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   UserDB? momentUserDB;
-
+  String? noteAuthor;
   bool isShowReplyContactWidget = false;
 
   @override
@@ -27,7 +27,6 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     super.initState();
     _getMomentUser();
   }
-
 
   @override
   void didUpdateWidget(oldWidget) {
@@ -38,62 +37,67 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   }
 
   void _getMomentUser() async {
-
     NotedUIModel? model = widget.notedUIModel?.value;
-    if(model == null || !model.noteDB.isReply) {
+    if (model == null || !model.noteDB.isReply) {
       isShowReplyContactWidget = false;
       momentUserDB = null;
       setState(() {});
       return;
     }
     isShowReplyContactWidget = true;
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
     String? getReplyId = model.noteDB.getReplyId;
-    if(getReplyId == null) return;
+    if (getReplyId == null) return;
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-    if(note == null) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
+    if (note == null) return;
+    noteAuthor = note.author;
+    UserDB? user = await Account.sharedInstance.getUserInfo(noteAuthor!);
     momentUserDB = user;
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(!isShowReplyContactWidget) return const SizedBox();
-    return RichText(
-      textAlign: TextAlign.left,
-      overflow: TextOverflow.ellipsis,
-      maxLines: 1,
-      text: TextSpan(
-        style: TextStyle(
-          color: ThemeColor.color0,
-          fontSize: 14.px,
-          fontWeight: FontWeight.w400,
-        ),
-        children: [
-          const TextSpan(text: 'Reply to'),
-          TextSpan(
-            text: ' @${momentUserDB?.name ?? ''}',
-            style: TextStyle(
-              color: ThemeColor.purple2,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
+    if (!isShowReplyContactWidget) return const SizedBox();
+    return ValueListenableBuilder<UserDB>(
+        valueListenable: Account.sharedInstance.userCache[noteAuthor] ?? ValueNotifier(UserDB(pubKey: noteAuthor ?? '')),
+        builder: (context, value, child) {
+          return RichText(
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            text: TextSpan(
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: 14.px,
+                fontWeight: FontWeight.w400,
+              ),
+              children: [
+                const TextSpan(text: 'Reply to'),
+                TextSpan(
+                  text: ' @${value.name ?? ''}',
+                  style: TextStyle(
+                    color: ThemeColor.purple2,
+                    fontSize: 12.px,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      if (momentUserDB == null) return;
+                      await OXModuleService.pushPage(
+                          context, 'ox_chat', 'ContactUserInfoPage', {
+                        'pubkey': momentUserDB?.pubKey,
+                      });
+                      setState(() {});
+                    },
+                ),
+              ],
             ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () async{
-              if(momentUserDB == null) return;
-              await  OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-                  'pubkey': momentUserDB?.pubKey,
-                });
-              setState(() {});
-              },
-          ),
-        ],
-      ),
-    );;
+          );
+        });
   }
 }
