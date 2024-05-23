@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' as Intl;
 import 'package:ox_common/utils/adapt.dart';
 
+import 'moment_content_analyze_utils.dart';
+import 'moment_widgets_utils.dart';
+
 class DiscoveryUtils {
   static String formatTimeAgo(int timestamp) {
     DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
@@ -73,5 +76,32 @@ class DiscoveryUtils {
       dns = dns.substring(0, 7) + '...' + dns.substring(dns.length - 7);
     }
     return ['$dns · $time',dns];
+  }
+
+  static List<String> momentContentSplit(String text) {
+    MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
+    List<String> quoteUrlList = analyze.getQuoteUrlList;
+    if(quoteUrlList.isEmpty) return [text];
+
+    List<String> showList = text.split(' ');
+    String draft = '';
+    List<String> result = [];
+
+    for (String content in showList) {
+      if (quoteUrlList.contains(content)) {
+        if (draft.isNotEmpty) {
+          result.add(draft.trim());
+          draft = '';
+        }
+        result.add(content);
+      } else {
+        draft += (draft.isEmpty ? "" : " ") + content;
+      }
+    }
+
+    if (draft.isNotEmpty) {
+      result.add(draft.trim());
+    }
+    return result;
   }
 }

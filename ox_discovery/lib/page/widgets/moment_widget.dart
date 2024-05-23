@@ -17,6 +17,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
+import '../../utils/moment_content_analyze_utils.dart';
 import '../discovery_page.dart';
 import '../moments/moment_option_user_page.dart';
 import '../moments/moments_page.dart';
@@ -147,19 +148,26 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
-    // momentContentSplit
+    List<String> quoteUrlList = model.value.getQuoteUrlList;
+    List<String> contentList = DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
+
     return Column(
-      children: [
-        MomentRichTextWidget(
-          isShowAllContent: widget.isShowAllContent,
-          clickBlankCallback: () => widget.clickMomentCallback?.call(model),
-          showMoreCallback: () async {
-            OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
-            setState(() {});
-          },
-          text: model.value.noteDB.content,
-        ).setPadding(EdgeInsets.only(bottom: 12.px))
-      ],
+      children: contentList.map((String content){
+        if(quoteUrlList.contains(content)){
+          final noteInfo = NoteDB.decodeNote(content);
+          return MomentQuoteWidget(notedId: noteInfo?['channelId']);
+        }else{
+          return MomentRichTextWidget(
+            isShowAllContent: widget.isShowAllContent,
+            clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+            showMoreCallback: () async {
+              OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
+              setState(() {});
+            },
+            text: content,
+          ).setPadding(EdgeInsets.only(bottom: 12.px));
+        }
+      }).toList(),
     );
   }
 

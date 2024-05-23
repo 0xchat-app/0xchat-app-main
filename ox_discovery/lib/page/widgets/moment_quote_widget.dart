@@ -184,6 +184,8 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   Widget _emptyNotedWidget(){
     return Container(
+      margin: EdgeInsets.only(bottom: 12.px),
+      height: 200.px,
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.px,
