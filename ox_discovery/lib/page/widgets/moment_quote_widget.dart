@@ -17,12 +17,10 @@ import '../moments/moments_page.dart';
 import 'moment_rich_text_widget.dart';
 
 class MomentQuoteWidget extends StatefulWidget {
-  final NotedUIModel notedUIModel;
-  final bool isOneLine;
-  final double width;
+  final String notedId;
 
   const MomentQuoteWidget(
-      {super.key, required this.notedUIModel,required this.isOneLine,required this.width});
+      {super.key, required this.notedId});
 
   @override
   MomentQuoteWidgetState createState() =>
@@ -33,15 +31,19 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   UserDB? momentUser;
 
+  NotedUIModel? notedUIModel;
+
   @override
   void initState() {
     super.initState();
+    _initData();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel != oldWidget.notedUIModel) {
+    if (widget.notedId != oldWidget.notedId) {
+      _initData();
     }
   }
 
@@ -51,8 +53,34 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     return quoteMoment();
   }
 
+  void _initData()async{
+    String notedId = widget.notedId;
+    if(NotedUIModelCache.map[notedId] == null){
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
+      if(note == null) return;
+      NotedUIModel newNotedModel = NotedUIModel(noteDB: note);
+      NotedUIModelCache.map[notedId] = newNotedModel;
+    }
+
+    notedUIModel = NotedUIModelCache.map[notedId];
+    _getMomentUser(NotedUIModelCache.map[notedId]!);
+    if(mounted){
+      setState(() {});
+    }
+  }
+
+  void _getMomentUser(NotedUIModel notedUIModel) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
+    momentUser = user;
+    if(mounted){
+      setState(() {});
+    }
+  }
+
   Widget _getImageWidget() {
-    List<String> _getImagePathList = widget.notedUIModel.getImageList;
+    NotedUIModel? model = notedUIModel;
+    if(model == null) return const SizedBox();
+    List<String> _getImagePathList = model.getImageList;
     if (_getImagePathList.isEmpty) return const SizedBox();
     return ClipRRect(
       borderRadius: BorderRadius.only(
@@ -65,8 +93,8 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
         child: OXCachedNetworkImage(
           imageUrl: _getImagePathList[0],
           fit: BoxFit.cover,
-          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,width: widget.width),
-          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,width: widget.width),
+          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,),
+          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,),
           height: 172.px,
         ),
       ),
@@ -74,12 +102,15 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   }
 
   Widget quoteMoment() {
+    NotedUIModel? model = notedUIModel;
+    if(model == null) return _emptyNotedWidget();
     return GestureDetector(
       onTap: () {
         OXNavigator.pushPage(
-            context, (context) => MomentsPage(notedUIModel: ValueNotifier(widget.notedUIModel)));
+            context, (context) => MomentsPage(notedUIModel: ValueNotifier(model)));
       },
       child: Container(
+        margin: EdgeInsets.only(bottom: 12.px),
         decoration: BoxDecoration(
           border: Border.all(
             width: 1.px,
@@ -127,7 +158,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                         ),
                       ),
                       Text(
-                        DiscoveryUtils.getUserMomentInfo(momentUser, widget.notedUIModel.createAtStr)[0],
+                        DiscoveryUtils.getUserMomentInfo(momentUser, model.createAtStr)[0],
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w400,
@@ -137,7 +168,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                     ],
                   ).setPaddingOnly(bottom: 4.px),
                   MomentRichTextWidget(
-                    text: widget.notedUIModel.noteDB.content,
+                    text: model.noteDB.content,
                     textSize: 12.px,
                     maxLines: 1,
                     isShowAllContent: false,
@@ -146,6 +177,31 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _emptyNotedWidget(){
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1.px,
+          color: ThemeColor.color160,
+        ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(
+            11.5.px,
+          ),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Reference not found !',
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: 16.px,
+          ),
         ),
       ),
     );

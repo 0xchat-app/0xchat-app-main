@@ -4,14 +4,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; //
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import '../../model/moment_ui_model.dart';
-import '../../utils/discovery_utils.dart';
-import '../moments/moments_page.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -65,7 +61,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
     super.dispose();
   }
 
-  void _getUserInfo() async{
+  void _getUserInfo() async {
     userDBList = await MomentContentAnalyzeUtils(widget.text).getUserInfoMap;
     if(mounted){
       setState(() {});

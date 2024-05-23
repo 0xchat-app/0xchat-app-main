@@ -111,7 +111,6 @@ class _MomentsPageState extends State<MomentsPage> {
     if(mounted){
       setState(() {});
     }
-
   }
 
 
@@ -164,6 +163,7 @@ class _MomentsPageState extends State<MomentsPage> {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(model == null) return MomentWidgetsUtils.emptyNoteMoment('Moment not found !',300);
     return MomentWidget(
+      isShowAllContent: true,
       isShowInteractionData: true,
       isShowReply: widget.isShowReply,
       clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {

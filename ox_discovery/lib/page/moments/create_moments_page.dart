@@ -21,7 +21,7 @@ import '../../utils/album_utils.dart';
 import '../../utils/moment_content_analyze_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
-import '../widgets/horizontal_scroll_widget.dart';
+import '../widgets/moment_quote_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
 
 import 'package:chatcore/chat-core.dart';
@@ -186,7 +186,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _quoteWidget() {
     ValueNotifier<NotedUIModel>? notedUIModel = widget.notedUIModel;
     if (widget.type != EMomentType.quote || notedUIModel == null) return const SizedBox();
-    return HorizontalScrollWidget(onlyShowNotedUIModel: widget.notedUIModel);
+    return MomentQuoteWidget(notedId: widget.notedUIModel!.value.noteDB.noteId);
   }
 
   Widget _captionWidget() {

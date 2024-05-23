@@ -20,11 +20,11 @@ import '../../utils/discovery_utils.dart';
 import '../discovery_page.dart';
 import '../moments/moment_option_user_page.dart';
 import '../moments/moments_page.dart';
+import 'moment_quote_widget.dart';
 import 'moment_reply_abbreviate_widget.dart';
 import 'moment_reposted_tips_widget.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
-import 'horizontal_scroll_widget.dart';
 import 'moment_option_widget.dart';
 import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
@@ -147,16 +147,20 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
-
-    return MomentRichTextWidget(
-      isShowAllContent: widget.isShowAllContent,
-      clickBlankCallback: () => widget.clickMomentCallback?.call(model),
-      showMoreCallback: () async {
-        OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
-        setState(() {});
-      },
-      text: model.value.noteDB.content,
-    ).setPadding(EdgeInsets.only(bottom: 12.px));
+    // momentContentSplit
+    return Column(
+      children: [
+        MomentRichTextWidget(
+          isShowAllContent: widget.isShowAllContent,
+          clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+          showMoreCallback: () async {
+            OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
+            setState(() {});
+          },
+          text: model.value.noteDB.content,
+        ).setPadding(EdgeInsets.only(bottom: 12.px))
+      ],
+    );
   }
 
   Widget _showMomentMediaWidget() {
@@ -199,11 +203,9 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
-
     if (!hasQuoteRepostId) return const SizedBox();
-    ValueNotifier<NotedUIModel>? note =
-        hasQuoteRepostId ? ValueNotifier(NotedUIModel(noteDB: model.value.noteDB)) : null;
-    return HorizontalScrollWidget(notedUIModel: note);
+
+    return MomentQuoteWidget(notedId: quoteRepostId);
   }
 
   Widget _momentUserInfoWidget() {

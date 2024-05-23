@@ -103,24 +103,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           onRefresh: () => _updateNotesList(true, refresh: true),
           onLoading: () => _updateNotesList(false),
           child: _getMomentListWidget(),
-          // SingleChildScrollView(
-          //
-          //   child: Container(
-          //     padding: EdgeInsets.symmetric(
-          //       horizontal: 24.px,
-          //     ),
-          //     margin: EdgeInsets.only(
-          //       bottom: 100.px,
-          //     ),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         _newMomentTipsWidget(),
-          //         _getMomentListWidget(),
-          //       ],
-          //     ),
-          //   ),
-          // ),
         ),
         Positioned(
           top: 0,
