@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'dart:io';
 import 'package:chatcore/chat-core.dart';
@@ -13,6 +14,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
+import 'package:ox_discovery/page/widgets/send_progress_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
@@ -55,6 +57,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   bool _isInputFocused = false;
 
   final TextEditingController _textController = TextEditingController();
+  final ProcessController _processController = ProcessController();
+  final Completer<void> _completer = Completer<void>();
+
+  int get totalCount => _visibleType == VisibleType.allContact
+      ? Contacts.sharedInstance.allContacts.length
+      : _selectedContacts?.length ?? 0;
 
   VisibleType _visibleType = VisibleType.everyone;
   List<UserDB>? _selectedContacts;
@@ -66,6 +74,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   @override
   void dispose() {
+    _processController.process.dispose();
     super.dispose();
   }
 
@@ -102,6 +111,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                     _quoteWidget(),
                     _captionWidget(),
                     _visibleContactsWidget(),
+                    SendProgressWidget(controller: _processController,totalCount: totalCount)
                   ],
                 ),
               ),
@@ -325,14 +335,24 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags);
           break;
         case VisibleType.allContact:
-          event = await Moment.sharedInstance.sendNoteContacts(content,hashTags: getHashTags);
+          Moment.sharedInstance
+              .sendNoteContacts(content,
+                  hashTags: getHashTags,
+                  sendMessageProgressCallBack: (value) => _updateProgressStatus(value))
+              .then((value) => event = value);
+          await _completer.future;
           break;
         case VisibleType.private:
           event = await Moment.sharedInstance.sendNoteJustMe(content,hashTags: getHashTags);
           break;
         case VisibleType.excludeContact:
           final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
-          event = await Moment.sharedInstance.sendNoteCloseFriends(pubkeys ?? [], content,hashTags: getHashTags);
+          Moment.sharedInstance
+              .sendNoteCloseFriends(pubkeys ?? [], content,
+                  hashTags: getHashTags,
+                  sendMessageProgressCallBack: (value) => _updateProgressStatus(value))
+              .then((value) => event = value);
+          await _completer.future;
           break;
         default:
           break;
@@ -389,5 +409,13 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       ...addImageList
     ];
     return containsImageList;
+  }
+
+  void _updateProgressStatus(int value) {
+    OXLoading.dismiss();
+    _processController.process.value = value;
+    if (value > totalCount) {
+      _completer.complete();
+    }
   }
 }
