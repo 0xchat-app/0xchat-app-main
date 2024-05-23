@@ -304,7 +304,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
           textSize: 12.px,
           maxLines: 2,
-          isShowMoreTextBtn: false,
+          isShowAllContent: false,
         )
     );
   }

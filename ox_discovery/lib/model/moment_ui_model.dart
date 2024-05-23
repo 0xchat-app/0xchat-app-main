@@ -14,7 +14,7 @@ class NotedUIModel {
   late String getMomentShowContent;
   late List<String> getMomentHashTagList;
   late String createAtStr;
-
+  late String getMomentPlainText;
   NotedUIModel({required this.noteDB}){
     loadInitialData(noteDB);
   }
@@ -28,6 +28,7 @@ class NotedUIModel {
     getMomentExternalLink = analyzer.getMomentExternalLink;
     getMomentShowContent = analyzer.getMomentShowContent;
     getMomentHashTagList = analyzer.getMomentHashTagList;
+    getMomentPlainText = analyzer.getMomentPlainText;
     createAtStr = DiscoveryUtils.formatTimeAgo(noteDB.createAt);
   }
 }

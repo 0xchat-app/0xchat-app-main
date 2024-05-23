@@ -1,6 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 
-class MomentContentAnalyzeUtils{
+class MomentContentAnalyzeUtils {
   final String content;
   MomentContentAnalyzeUtils(this.content);
 
@@ -12,6 +12,7 @@ class MomentContentAnalyzeUtils{
     'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'lineFeed': RegExp(r"\n"),
+    'showMore': RegExp(r"show more$"),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
@@ -65,6 +66,17 @@ class MomentContentAnalyzeUtils{
       final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}', caseSensitive: false);
      final String cleanedText = content.replaceAll(contentExp, '');
      return cleanedText.trim();
+  }
+
+  String get getMomentPlainText {
+    final RegExp imgExp = regexMap['imgExp'] as RegExp;
+    final RegExp audioExp = regexMap['audioExp'] as RegExp;
+    final RegExp noteExp = regexMap['noteExp'] as RegExp;
+    final RegExp nostrExp = regexMap['nostrExp'] as RegExp;
+
+    final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${nostrExp.pattern}', caseSensitive: false);
+    final String cleanedText = content.replaceAll(contentExp, '');
+    return cleanedText.trim();
   }
 
   List<String> get getMomentHashTagList {

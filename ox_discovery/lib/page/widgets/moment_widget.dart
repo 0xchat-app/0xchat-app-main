@@ -39,12 +39,14 @@ class MomentWidget extends StatefulWidget {
   final bool isShowUserInfo;
   final bool isShowReplyWidget;
   final bool isShowMomentOptionWidget;
+  final bool isShowAllContent;
   final Function(ValueNotifier<NotedUIModel> notedUIModel)? clickMomentCallback;
   final ValueNotifier<NotedUIModel> notedUIModel;
   const MomentWidget({
     super.key,
     required this.notedUIModel,
     this.clickMomentCallback,
+    this.isShowAllContent = false,
     this.isShowReply = true,
     this.isShowUserInfo = true,
     this.isShowReplyWidget = false,
@@ -147,7 +149,12 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
 
     return MomentRichTextWidget(
+      isShowAllContent: widget.isShowAllContent,
       clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+      showMoreCallback: () async {
+        OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
+        setState(() {});
+      },
       text: model.value.noteDB.content,
     ).setPadding(EdgeInsets.only(bottom: 12.px));
   }
@@ -193,11 +200,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
 
-    if (model.value.getQuoteUrlList.isEmpty && !hasQuoteRepostId) return const SizedBox();
+    if (!hasQuoteRepostId) return const SizedBox();
     ValueNotifier<NotedUIModel>? note =
         hasQuoteRepostId ? ValueNotifier(NotedUIModel(noteDB: model.value.noteDB)) : null;
-    return HorizontalScrollWidget(
-        quoteList: model.value.getQuoteUrlList, notedUIModel: note);
+    return HorizontalScrollWidget(notedUIModel: note);
   }
 
   Widget _momentUserInfoWidget() {
@@ -383,7 +389,14 @@ class _MomentWidgetState extends State<MomentWidget> {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     String? repostId = model.value.noteDB.repostId;
     if (model.value.noteDB.isRepost && repostId != null) {
-      _getRepostId(repostId);
+      if(NotedUIModelCache.map[repostId] != null){
+        notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
+        setState(() {});
+        _getMomentUser(notedUIModel!);
+      }else{
+        _getRepostId(repostId);
+      }
+
     } else {
       notedUIModel = model;
       setState(() {});
@@ -400,6 +413,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
     if (note == null) {
+      NotedUIModelCache.map[repostId] = null;
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       momentUser = null;
@@ -407,6 +421,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       return;
     }
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
+    NotedUIModelCache.map[repostId] = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUser(newNotedUIModel);
   }

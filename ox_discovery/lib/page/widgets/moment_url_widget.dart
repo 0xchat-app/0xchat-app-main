@@ -59,6 +59,7 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return const SizedBox();
     if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return const SizedBox();
     if (urlData == null) return const SizedBox();
     return GestureDetector(

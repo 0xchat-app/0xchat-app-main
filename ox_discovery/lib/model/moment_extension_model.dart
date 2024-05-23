@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 
 import '../enum/moment_enum.dart';
+import 'moment_ui_model.dart';
 
 extension ENoteDBEx on NoteDB {
   bool get isRepost => getNoteKind() == ENotificationsMomentType.repost.kind;
@@ -8,6 +9,9 @@ extension ENoteDBEx on NoteDB {
   bool get isReaction => getNoteKind() == ENotificationsMomentType.like.kind;
 
   bool get isReply => getNoteKind() == ENotificationsMomentType.reply.kind;
+
+  bool get isQuoteRepost => getNoteKind() == ENotificationsMomentType.quote.kind;
+
 
   isRoot (String? noteId) {
    return getReplyLevel(noteId) == 0;
@@ -30,4 +34,9 @@ extension ENoteDBEx on NoteDB {
 
 extension ENotificationDBEX on NotificationDB {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
+}
+
+
+class NotedUIModelCache{
+  static Map<String,NotedUIModel?> map = {};
 }
