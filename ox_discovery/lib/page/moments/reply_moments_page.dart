@@ -156,19 +156,17 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
         children: [
           Column(
             children: [
-              MomentWidgetsUtils.clipImage(
-                borderRadius: 40.px,
-                imageSize: 40.px,
-                child: OXCachedNetworkImage(
-                  imageUrl: momentUserDB?.picture ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      MomentWidgetsUtils.badgePlaceholderImage(),
-                  errorWidget: (context, url, error) =>
-                      MomentWidgetsUtils.badgePlaceholderImage(),
-                  width: 40.px,
-                  height: 40.px,
-                ),
+              MomentWidgetsUtils.getMomentUserAvatar(
+                size: 40,
+                pubKey: momentUserDB?.pubKey,
+                callback: () async {
+                  if(momentUserDB == null) return;
+                  await OXModuleService.pushPage(
+                      context, 'ox_chat', 'ContactUserInfoPage', {
+                    'pubkey': momentUserDB?.pubKey,
+                  });
+                  setState(() {});
+                },
               ),
               Expanded(
                 child: Container(

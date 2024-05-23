@@ -249,8 +249,10 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () async {
+          MomentWidgetsUtils.getMomentUserAvatar(
+            size: 60,
+            pubKey: user?.pubKey,
+            callback: () async {
               if (user == null) return;
               await OXModuleService.pushPage(
                   context, 'ox_chat', 'ContactUserInfoPage', {
@@ -258,20 +260,6 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
               });
               setState(() {});
             },
-            child: MomentWidgetsUtils.clipImage(
-              borderRadius: 60.px,
-              imageSize: 60.px,
-              child: OXCachedNetworkImage(
-                imageUrl: user?.picture ?? '',
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    MomentWidgetsUtils.badgePlaceholderImage(),
-                errorWidget: (context, url, error) =>
-                    MomentWidgetsUtils.badgePlaceholderImage(),
-                width: 60.px,
-                height: 60.px,
-              ),
-            ).setPaddingOnly(right: 16.px),
           ),
           Expanded(
             child: Column(

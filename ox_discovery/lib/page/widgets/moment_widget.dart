@@ -228,28 +228,16 @@ class _MomentWidgetState extends State<MomentWidget> {
           Container(
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () async {
-                   await OXModuleService.pushPage(
+                MomentWidgetsUtils.getMomentUserAvatar(
+                  size: 40,
+                  pubKey: momentUser?.pubKey,
+                  callback: () async {
+                    await OXModuleService.pushPage(
                         context, 'ox_chat', 'ContactUserInfoPage', {
                       'pubkey': model.value.noteDB.author,
                     });
-                   setState(() {});
+                    setState(() {});
                   },
-                  child: MomentWidgetsUtils.clipImage(
-                    borderRadius: 40.px,
-                    imageSize: 40.px,
-                    child: OXCachedNetworkImage(
-                      imageUrl: momentUser?.picture ?? '',
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          MomentWidgetsUtils.badgePlaceholderImage(),
-                      errorWidget: (context, url, error) =>
-                          MomentWidgetsUtils.badgePlaceholderImage(),
-                      width: 40.px,
-                      height: 40.px,
-                    ),
-                  ),
                 ),
                 Container(
                   margin: EdgeInsets.only(

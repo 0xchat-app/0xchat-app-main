@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
@@ -93,8 +94,8 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
         child: OXCachedNetworkImage(
           imageUrl: _getImagePathList[0],
           fit: BoxFit.cover,
-          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,),
-          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,),
+          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,width: double.infinity),
+          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,width: double.infinity),
           height: 172.px,
         ),
       ),
@@ -133,17 +134,17 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                 children: [
                   Row(
                     children: [
-                      MomentWidgetsUtils.clipImage(
-                        borderRadius: 40.px,
-                        imageSize: 40.px,
-                        child: OXCachedNetworkImage(
-                          imageUrl: momentUser?.picture ?? '',
-                          fit: BoxFit.cover,
-                          width: 20.px,
-                          height: 20.px,
-                          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(size:20),
-                          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(size:20),
-                        ),
+                      MomentWidgetsUtils.getMomentUserAvatar(
+                        size: 40,
+                        pubKey: momentUser?.pubKey,
+                        callback: () async {
+                          if(momentUser == null) return;
+                          await OXModuleService.pushPage(
+                              context, 'ox_chat', 'ContactUserInfoPage', {
+                            'pubkey': momentUser?.pubKey,
+                          });
+                          setState(() {});
+                        },
                       ),
                       Text(
                         momentUser?.name ?? '--',

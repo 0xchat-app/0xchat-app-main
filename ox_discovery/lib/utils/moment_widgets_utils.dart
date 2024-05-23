@@ -15,7 +15,6 @@ import '../model/moment_ui_model.dart';
 import '../page/moments/moments_page.dart';
 import 'discovery_utils.dart';
 
-
 class MomentWidgetsUtils {
   static Widget clipImage({
     required double borderRadius,
@@ -143,9 +142,8 @@ class MomentWidgetsUtils {
   // }
 
   static Widget videoMoment(context, String videoUrl, String? videoImagePath) {
-
-    Widget _showImageWidget(){
-      if(videoImagePath != null){
+    Widget _showImageWidget() {
+      if (videoImagePath != null) {
         return MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           child: Image.asset(
@@ -168,6 +166,7 @@ class MomentWidgetsUtils {
         width: 210.px,
       );
     }
+
     return GestureDetector(
       onTap: () {
         OXModuleService.pushPage(context, 'ox_chat', 'ChatVideoPlayPage', {
@@ -208,11 +207,9 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget emptyNoteMoment(String content,double height){
+  static Widget emptyNoteMoment(String content, double height) {
     return Container(
-      margin: EdgeInsets.symmetric(
-          vertical: 10.px
-      ),
+      margin: EdgeInsets.symmetric(vertical: 10.px),
       height: height.px,
       decoration: BoxDecoration(
         border: Border.all(
@@ -247,7 +244,8 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget badgePlaceholderContainer({int size = 24,double? width, double? height}) {
+  static Widget badgePlaceholderContainer(
+      {int size = 24, double? width, double? height}) {
     return Container(
       width: width ?? size.px,
       height: height ?? size.px,
@@ -255,9 +253,11 @@ class MomentWidgetsUtils {
     );
   }
 
-  static int getTextLine(String text,double width,int? maxLine){
+  static int getTextLine(String text, double width, int? maxLine) {
     TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text.trim(),),
+      text: TextSpan(
+        text: text.trim(),
+      ),
       maxLines: maxLine ?? 100,
       textDirection: TextDirection.ltr,
     );
@@ -266,5 +266,34 @@ class MomentWidgetsUtils {
     int lineCount = textPainter.computeLineMetrics().length;
 
     return lineCount;
+  }
+
+  static Widget getMomentUserAvatar({
+    required String? pubKey,
+    required void Function()? callback,
+    required double size,
+  }) {
+    return ValueListenableBuilder<UserDB>(
+      valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+      builder: (context, value, child) {
+        return GestureDetector(
+          onTap: callback,
+          child: MomentWidgetsUtils.clipImage(
+            borderRadius: size.px,
+            imageSize: size.px,
+            child: OXCachedNetworkImage(
+              imageUrl: value.picture ?? '',
+              fit: BoxFit.cover,
+              placeholder: (context, url) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              errorWidget: (context, url, error) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              width: size.px,
+              height: size.px,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

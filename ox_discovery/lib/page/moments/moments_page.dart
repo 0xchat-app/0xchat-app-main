@@ -372,7 +372,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                   children: [
                     _momentUserInfoWidget(),
                     MomentWidget(
-                      isShowAllContent: true,
+                      isShowAllContent: false,
                       isShowReply: false,
                       notedUIModel: widget.notedUIModel,
                       isShowUserInfo: false,
