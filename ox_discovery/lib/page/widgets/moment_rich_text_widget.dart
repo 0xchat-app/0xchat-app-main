@@ -78,18 +78,28 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          RichText(
-            textAlign: TextAlign.left,
-            overflow: TextOverflow.ellipsis,
-            maxLines: widget.maxLines ?? 100,
-            text: TextSpan(
-              style: TextStyle(
+          SelectableText.rich(
+              maxLines: widget.maxLines,
+              TextSpan(
+                style: TextStyle(
                   color: widget.defaultTextColor ?? ThemeColor.color0,
                   fontSize: widget.textSize ?? 16.px,
+                ),
+                children: textSpans,
               ),
-              children: textSpans,
-            ),
           ),
+          // RichText(
+          //   textAlign: TextAlign.left,
+          //   overflow: TextOverflow.ellipsis,
+          //   maxLines: widget.maxLines ?? 100,
+          //   text: TextSpan(
+          //     style: TextStyle(
+          //         color: widget.defaultTextColor ?? ThemeColor.color0,
+          //         fontSize: widget.textSize ?? 16.px,
+          //     ),
+          //     children: textSpans,
+          //   ),
+          // ),
         ],
       ),
     );
@@ -122,7 +132,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
         spans.add(const TextSpan(text: '\n'));
       } else if(matchText == 'show more'){
         spans.add(TextSpan(
-          text: '...show more',
+          text: '... show more',
           style: TextStyle(color: ThemeColor.purple2),
           recognizer: TapGestureRecognizer()
             ..onTap = () {

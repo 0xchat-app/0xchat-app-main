@@ -158,14 +158,17 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                           horizontal: 4.px,
                         ),
                       ),
-                      Text(
-                        DiscoveryUtils.getUserMomentInfo(momentUser, model.createAtStr)[0],
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColor.color120,
+                      Expanded(
+                        child: Text(
+                          DiscoveryUtils.getUserMomentInfo(momentUser, model.createAtStr)[0],
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.px,
+                            fontWeight: FontWeight.w400,
+                            color: ThemeColor.color120,
+                          ),
                         ),
-                      )
+                      ),
                     ],
                   ).setPaddingOnly(bottom: 4.px),
                   MomentRichTextWidget(
