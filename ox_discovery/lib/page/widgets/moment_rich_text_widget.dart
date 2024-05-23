@@ -9,7 +9,9 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
+import '../moments/moments_page.dart';
 import '../moments/topic_moment_page.dart';
 
 class MomentRichTextWidget extends StatefulWidget {
@@ -18,16 +20,18 @@ class MomentRichTextWidget extends StatefulWidget {
   final double? textSize;
   final Color? defaultTextColor;
   final Function? clickBlankCallback;
-  final bool isShowMoreTextBtn;
+  final Function? showMoreCallback;
+  final bool isShowAllContent;
 
   const MomentRichTextWidget({
     super.key,
     required this.text,
     this.textSize,
     this.defaultTextColor,
-    this.maxLines = 10,
+    this.maxLines,
     this.clickBlankCallback,
-    this.isShowMoreTextBtn = true,
+    this.showMoreCallback,
+    this.isShowAllContent = false,
   });
 
   @override
@@ -37,27 +41,19 @@ class MomentRichTextWidget extends StatefulWidget {
 class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with WidgetsBindingObserver {
   final GlobalKey _containerKey = GlobalKey();
 
-  bool isShowMore = false;
-  bool isOverTwoLines = false;
   Map<String,UserDB?> userDBList = {};
-
-  int? showMaxLine;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getUserInfo();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateTextInfo();
-    });
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.text != oldWidget.text) {
-      _updateTextInfo();
       _getUserInfo();
     }
   }
@@ -89,7 +85,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
           RichText(
             textAlign: TextAlign.left,
             overflow: TextOverflow.ellipsis,
-            maxLines: isShowMore ? 100 : showMaxLine,
+            maxLines: widget.maxLines ?? 100,
             text: TextSpan(
               style: TextStyle(
                   color: widget.defaultTextColor ?? ThemeColor.color0,
@@ -98,34 +94,20 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
               children: textSpans,
             ),
           ),
-          _isShowMoreWidget(getShowText),
         ],
       ),
     );
   }
 
-  Widget _isShowMoreWidget(String text) {
-    if (!widget.isShowMoreTextBtn || isShowMore || !isOverTwoLines) return const SizedBox();
-    return GestureDetector(
-      onTap: () {
-        isShowMore = true;
-        setState(() {});
-      },
-      child: Text(
-        'Read More',
-        style: TextStyle(
-          color: ThemeColor.purple2,
-          fontSize: 14.px,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    );
-  }
-
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
+    MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
+    String showContent = analyze.getMomentPlainText;
+    if(!widget.isShowAllContent && showContent.length > 300){
+      text = '${text.substring(0,300)} show more';
+    }
     final List<TextSpan> spans = [];
     Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
-    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}', caseSensitive: false);
+    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}|${(regexMap['showMore'] as RegExp).pattern}', caseSensitive: false);
     int lastMatchEnd = 0;
     contentExp.allMatches(text).forEach((match) {
       final beforeMatch = text.substring(lastMatchEnd, match.start);
@@ -142,7 +124,16 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       final matchText = match.group(0);
       if (matchText == '\n') {
         spans.add(const TextSpan(text: '\n'));
-      } else {
+      } else if(matchText == 'show more'){
+        spans.add(TextSpan(
+          text: '...show more',
+          style: TextStyle(color: ThemeColor.purple2),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              widget.showMoreCallback?.call();
+            },
+        ));
+      }else {
         spans.add(_buildLinkSpan(matchText!, context));
       }
 
@@ -204,37 +195,5 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       return;
     }
     widget.clickBlankCallback?.call();
-  }
-
-  void _getIsOutOfText(String text,double width) {
-    final textInfo = DiscoveryUtils.getTextLine(text,width,16, widget.maxLines);
-    bool isOver = textInfo['isOver'];
-    int lineCount = textInfo['lineCount'];
-    _getMaxLines(isOver, lineCount);
-    isOverTwoLines = isOver;
-    if(mounted){
-      setState(() {});
-
-    }
-  }
-
-  void _getMaxLines(bool isOver,int lineCount){
-    if(lineCount < widget.maxLines!){
-      showMaxLine = lineCount == 0 ? 1 : lineCount;
-    }else{
-      int? max = isShowMore ? 100 : widget.maxLines;
-      showMaxLine = !isOver ? widget.maxLines : max;
-    }
-    if(mounted){
-      setState(() {});
-    }
-  }
-
-  void _updateTextInfo(){
-    if (_containerKey.currentContext != null) {
-      final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
-      String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
-      _getIsOutOfText(getShowText,renderBox.size.width);
-    }
   }
 }

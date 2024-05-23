@@ -317,20 +317,46 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() async {
-    if (_textController.text.isEmpty && _showImage == null) {
-      CommonToast.instance.show(context, 'The content cannot be empty !');
-      return;
-    }
-    await OXLoading.show();
-    String getMediaStr = await _getUploadMediaContent();
-    String content = '${_changeCueUserToPubkey()} $getMediaStr';
-    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
-    await OXLoading.dismiss();
+    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi Https://www.0xchat.com note1xk6j752ldva4p5wc9f7h2q92muchhk96efqf0usg9t83md2sul3sv67n2k #0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi Https://www.0xchat.com ";
+    final result = extractText(content);
+    print('result====result${result.length}');
+    // if (_textController.text.isEmpty && _showImage == null) {
+    //   CommonToast.instance.show(context, 'The content cannot be empty !');
+    //   return;
+    // }
+    // await OXLoading.show();
+    // String getMediaStr = await _getUploadMediaContent();
+    // String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    // List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    // OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
+    // await OXLoading.dismiss();
+    //
+    // if(event.status){
+    //   OXNavigator.pop(context);
+    // }
+  }
 
-    if(event.status){
-      OXNavigator.pop(context);
+  List<String> extractText(String text) {
+    List<String> showList = text.split(' ');
+    String draft = '';
+    List<String> result = [];
+    for (String piece in showList) {
+      if (piece.contains('note1')) {
+        // 添加之前累积的文本（如果有的话）
+        if (draft.isNotEmpty) {
+          result.add(draft.trim());
+          draft = '';
+        }
+        result.add('引用');
+      } else {
+        draft += (draft.isEmpty ? "" : " ") + piece;
+      }
     }
+
+    if (draft.isNotEmpty) {
+      result.add(draft.trim());
+    }
+    return result;
   }
 
 

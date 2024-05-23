@@ -33,7 +33,6 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
   Future<void> _initializeThumbnail() async {
     final Directory tempDir = await getTemporaryDirectory();
     String thumbnailPath = '${tempDir.path}/${Path.basenameWithoutExtension(widget.videoUrl)}.jpg';
-    print('===thumbnailPath==$thumbnailPath');
     final thumbnailFile = File(thumbnailPath);
     if (await thumbnailFile.exists()) {
       if (mounted) {
@@ -54,12 +53,14 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       maxWidth: 218,
       quality: 75,
     );
+    if(mounted){
+      setState(() {
+        if (thumbPath != null) {
+          _thumbnailFile = File(thumbPath);
+        }
+      });
+    }
 
-    setState(() {
-      if (thumbPath != null) {
-        _thumbnailFile = File(thumbPath);
-      }
-    });
   }
 
   @override
@@ -80,6 +81,7 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
   }
 
   Widget videoMoment() {
+    return Container();
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,

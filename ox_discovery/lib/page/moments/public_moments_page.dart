@@ -16,26 +16,22 @@ import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 
-enum EPublicMomentsPageType{
-  all,
-  public,
-  private
-}
+enum EPublicMomentsPageType { all, public, private }
 
-extension EPublicMomentsPageTypeEx on EPublicMomentsPageType{
+extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
   bool? get getValue {
-    switch(this){
+    switch (this) {
       case EPublicMomentsPageType.all:
         return null;
       case EPublicMomentsPageType.public:
         return false;
       case EPublicMomentsPageType.private:
-      return true;
+        return true;
     }
   }
 
   String get text {
-    switch(this){
+    switch (this) {
       case EPublicMomentsPageType.all:
         return Localized.text('ox_discovery.all');
       case EPublicMomentsPageType.public:
@@ -46,10 +42,11 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType{
   }
 }
 
-
 class PublicMomentsPage extends StatefulWidget {
   final EPublicMomentsPageType publicMomentsPageType;
-  const PublicMomentsPage({Key? key,this.publicMomentsPageType = EPublicMomentsPageType.all}) : super(key: key);
+  const PublicMomentsPage(
+      {Key? key, this.publicMomentsPageType = EPublicMomentsPageType.all})
+      : super(key: key);
 
   @override
   State<PublicMomentsPage> createState() => PublicMomentsPageState();
@@ -79,7 +76,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
-      if(mounted){
+      if (mounted) {
         notesList = [];
         _allNotesFromDBLastTimestamp = null;
         _allNotesFromDBFromRelayLastTimestamp = null;
@@ -96,32 +93,44 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   @override
   Widget build(BuildContext context) {
-    return OXSmartRefresher(
-      scrollController: momentScrollController,
-
-      controller: _refreshController,
-      enablePullDown: true,
-      enablePullUp: true,
-      onRefresh: () => _updateNotesList(true, refresh: true),
-      onLoading: () => _updateNotesList(false),
-      child: SingleChildScrollView(
-
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.px,
-          ),
-          margin: EdgeInsets.only(
-            bottom: 100.px,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _newMomentTipsWidget(),
-              _getMomentListWidget(),
-            ],
+    return Stack(
+      children: [
+        OXSmartRefresher(
+          scrollController: momentScrollController,
+          controller: _refreshController,
+          enablePullDown: true,
+          enablePullUp: true,
+          onRefresh: () => _updateNotesList(true, refresh: true),
+          onLoading: () => _updateNotesList(false),
+          child: _getMomentListWidget(),
+          // SingleChildScrollView(
+          //
+          //   child: Container(
+          //     padding: EdgeInsets.symmetric(
+          //       horizontal: 24.px,
+          //     ),
+          //     margin: EdgeInsets.only(
+          //       bottom: 100.px,
+          //     ),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         _newMomentTipsWidget(),
+          //         _getMomentListWidget(),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: _newMomentTipsWidget(),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -129,8 +138,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     return ListView.builder(
       primary: false,
       controller: null,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
+      shrinkWrap: false,
       itemCount: notesList.length,
       itemBuilder: (context, index) {
         ValueNotifier<NotedUIModel> notedUIModel = notesList[index];
@@ -141,7 +149,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
-        );
+        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px));
       },
     );
   }
@@ -153,8 +161,13 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           MomentNewPostTips(
-            onTap: (List<NoteDB> list)  {
+            onTap: (List<NoteDB> list) {
               _updateNotesList(true);
+              momentScrollController.animateTo(
+                0.0,
+                duration:  const Duration(milliseconds: 1),
+                curve: Curves.easeInOut,
+              );
               setState(() {});
             },
           ),

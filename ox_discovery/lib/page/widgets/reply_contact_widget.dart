@@ -49,11 +49,18 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       setState(() {});
     }
     String? getReplyId = model.noteDB.getReplyId;
+
     if (getReplyId == null) return;
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-    if (note == null) return;
-    noteAuthor = note.author;
+
+    if (NotedUIModelCache.map[getReplyId] == null) {
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
+      if (note == null) return;
+      NotedUIModelCache.map[getReplyId] = NotedUIModel(noteDB: note);
+    }
+
+    noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
     UserDB? user = await Account.sharedInstance.getUserInfo(noteAuthor!);
+
     momentUserDB = user;
     if (mounted) {
       setState(() {});
@@ -64,7 +71,8 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   Widget build(BuildContext context) {
     if (!isShowReplyContactWidget) return const SizedBox();
     return ValueListenableBuilder<UserDB>(
-        valueListenable: Account.sharedInstance.userCache[noteAuthor] ?? ValueNotifier(UserDB(pubKey: noteAuthor ?? '')),
+        valueListenable: Account.sharedInstance.userCache[noteAuthor] ??
+            ValueNotifier(UserDB(pubKey: noteAuthor ?? '')),
         builder: (context, value, child) {
           return RichText(
             textAlign: TextAlign.left,

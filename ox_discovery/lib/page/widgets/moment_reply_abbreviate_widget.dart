@@ -50,10 +50,18 @@ class _MomentReplyAbbreviateWidgetState
     }
     String? replyId = notedUIModelDraft.value.noteDB.getReplyId;
     if (replyId == null) return;
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
-    if (note == null) return;
-    notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
-    setState(() {});
+
+    if(NotedUIModelCache.map[replyId] == null){
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
+      if(note == null) return;
+      NotedUIModelCache.map[replyId] = NotedUIModel(noteDB: note);
+    }
+
+    notedUIModel = ValueNotifier(NotedUIModelCache.map[replyId]!);
+    if(mounted){
+      setState(() {});
+    }
+
   }
 
   @override
