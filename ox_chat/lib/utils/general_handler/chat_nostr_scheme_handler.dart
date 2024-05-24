@@ -191,7 +191,7 @@ class ChatNostrSchemeHandle {
       'authorIcon': '${userDB?.picture}',
       'authorName': '${userDB?.name}',
       'authorDNS': '${userDB?.dns}',
-      'createTime': '${note.createAt}',
+      'createTime': '${note.createdAt}',
       'note': '${note.content}',
       'image': '${_extractFirstImageUrl(note.content)}',
       'link': link,
