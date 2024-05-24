@@ -44,7 +44,7 @@ class _ZapsPageState extends State<ZapsPage> {
   String _selectedWalletName = '';
   ZapsRecord? _zapsRecord;
   String pubKey = '';
-  double _defaultZapAmount = 0;
+  int _defaultZapAmount = 0;
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -65,7 +65,7 @@ class _ZapsPageState extends State<ZapsPage> {
     _zapsRecord = await getZapsRecord();
     _focusNode.addListener(() {
     if(!_focusNode.hasFocus){
-      double defaultZapAmount = double.parse(_zapAmountTextEditingController.text);
+      int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
       OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultZapAmount);
       OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
     }
@@ -171,7 +171,7 @@ class _ZapsPageState extends State<ZapsPage> {
           border: InputBorder.none,
         ),
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        keyboardType: const TextInputType.numberWithOptions(decimal: false),
         style: TextStyle(color: ThemeColor.color40),
       ),
     );
