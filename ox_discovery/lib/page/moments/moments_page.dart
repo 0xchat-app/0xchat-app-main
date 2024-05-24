@@ -46,23 +46,23 @@ class _MomentsPageState extends State<MomentsPage> {
     super.dispose();
   }
 
-  void _dataPre()async {
+  void _dataPre() async {
     _getReplyList();
   }
 
-
-  void _getReplyList()async {
+  void _getReplyList() async {
     ValueNotifier<NotedUIModel> noteModelDraft = widget.notedUIModel;
-     notedUIModel = widget.notedUIModel;
+    notedUIModel = widget.notedUIModel;
 
     if (noteModelDraft.value.noteDB.isReply && widget.isShowReply) {
       replyList = [noteModelDraft];
       String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-        if (note == null){
+        NoteDB? note =
+            await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
+        if (note == null) {
           notedUIModel = null;
-          if(mounted) {
+          if (mounted) {
             setState(() {});
           }
           return;
@@ -70,49 +70,55 @@ class _MomentsPageState extends State<MomentsPage> {
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       }
     }
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
 
     ValueNotifier<NotedUIModel>? note = notedUIModel;
-    if(note == null) return;
+    if (note == null) return;
     _getReplyFromDB(note);
     _getReplyFromRelay(note);
   }
 
-  void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
-      await Moment.sharedInstance.loadNoteActions(notedUIModelDraft.value.noteDB.noteId, actionsCallBack: (result) async {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
-      NoteDB? updateNote = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
-      if(note == null) return;
-      ValueNotifier<NotedUIModel> newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
+  void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft) async {
+    await Moment.sharedInstance.loadNoteActions(
+        notedUIModelDraft.value.noteDB.noteId, actionsCallBack: (result) async {
+      NoteDB? note = await Moment.sharedInstance
+          .loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
+      NoteDB? updateNote = await Moment.sharedInstance
+          .loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
+      if (note == null) return;
+      ValueNotifier<NotedUIModel> newNotedUIModel =
+          ValueNotifier(NotedUIModel(noteDB: note));
       notedUIModel = newNotedUIModel;
-      if(updateNote != null){
+      if (updateNote != null) {
         widget.notedUIModel.value = NotedUIModel(noteDB: updateNote);
       }
-      if(mounted){
+      if (mounted) {
         setState(() {});
       }
       _getReplyFromDB(newNotedUIModel);
     });
   }
 
-  void _getReplyFromDB(ValueNotifier<NotedUIModel> notedUIModelDraft)async {
+  void _getReplyFromDB(ValueNotifier<NotedUIModel> notedUIModelDraft) async {
     List<String>? replyEventIds = notedUIModelDraft.value.noteDB.replyEventIds;
-    if(replyEventIds == null) return;
+    if (replyEventIds == null) return;
 
     List<ValueNotifier<NotedUIModel>> result = [];
     for (String noteId in replyEventIds) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if (note != null) result.add(ValueNotifier(NotedUIModel(noteDB: note)));
     }
-    List<ValueNotifier<NotedUIModel>> noteList = widget.notedUIModel.value.noteDB.isReply &&  widget.isShowReply ? [widget.notedUIModel] : [];
-    replyList = [...noteList,...result];
-    if(mounted){
+    List<ValueNotifier<NotedUIModel>> noteList =
+        widget.notedUIModel.value.noteDB.isReply && widget.isShowReply
+            ? [widget.notedUIModel]
+            : [];
+    replyList = [...noteList, ...result];
+    if (mounted) {
       setState(() {});
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -157,22 +163,18 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-
-
-  Widget _showContentWidget(){
+  Widget _showContentWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if(model == null) return MomentWidgetsUtils.emptyNoteMoment('Moment not found !',300);
+    if (model == null)
+      return MomentWidgetsUtils.emptyNoteMoment('Moment not found !', 300);
     return MomentWidget(
       isShowAllContent: true,
       isShowInteractionData: true,
       isShowReply: widget.isShowReply,
       clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
-        if (notedUIModel.value.noteDB.isReply &&
-            widget.isShowReply) {
+        if (notedUIModel.value.noteDB.isReply && widget.isShowReply) {
           await OXNavigator.pushPage(
-              context,
-                  (context) =>
-                  MomentsPage(notedUIModel: notedUIModel));
+              context, (context) => MomentsPage(notedUIModel: notedUIModel));
           setState(() {});
         }
       },
@@ -180,9 +182,9 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
-  Widget _showSimpleReplyWidget(){
+  Widget _showSimpleReplyWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if(model == null) return const SizedBox();
+    if (model == null) return const SizedBox();
     return Positioned(
       left: 0,
       right: 0,
@@ -202,8 +204,12 @@ class _MomentsPageState extends State<MomentsPage> {
   List<Widget> _showReplyList() {
     return replyList.map((ValueNotifier<NotedUIModel> notedUIModelDraft) {
       int index = replyList.indexOf(notedUIModelDraft);
-      if (notedUIModelDraft.value.noteDB.noteId == widget.notedUIModel.value.noteDB.noteId && index != 0) return const SizedBox();
-      if (notedUIModel != null && !notedUIModelDraft.value.noteDB.isFirstLevelReply(notedUIModel?.value.noteDB.noteId)) {
+      if (notedUIModelDraft.value.noteDB.noteId ==
+              widget.notedUIModel.value.noteDB.noteId &&
+          index != 0) return const SizedBox();
+      if (notedUIModel != null &&
+          !notedUIModelDraft.value.noteDB
+              .isFirstLevelReply(notedUIModel?.value.noteDB.noteId)) {
         return const SizedBox();
       }
       return MomentReplyWidget(
@@ -296,22 +302,10 @@ class MomentReplyWidget extends StatefulWidget {
 }
 
 class _MomentReplyWidgetState extends State<MomentReplyWidget> {
-  UserDB? momentUser;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getMomentUser();
-  }
-
-  void _getMomentUser() async {
-    String pubKey = widget.notedUIModel.value.noteDB.author;
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubKey);
-    momentUser = user;
-    if(mounted){
-      setState(() {});
-    }
-
   }
 
   @override
@@ -320,9 +314,10 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
   }
 
   Widget _momentItemWidget() {
+    String pubKey = widget.notedUIModel.value.noteDB.author;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async{
+      onTap: () async {
         OXNavigator.pushPage(
             context,
             (context) => MomentsPage(
@@ -331,71 +326,71 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
       },
       child: IntrinsicHeight(
         child: ValueListenableBuilder<UserDB>(
-        valueListenable: Account.sharedInstance.userCache[momentUser?.pubKey] ?? ValueNotifier(UserDB(pubKey: momentUser?.pubKey ?? '')),
-    builder: (context, value, child) {
-          return  Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Column(
+            valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+            builder: (context, value, child) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  MomentWidgetsUtils.clipImage(
-                    borderRadius: 40.px,
-                    imageSize: 40.px,
-                    child: OXCachedNetworkImage(
-                      imageUrl: value.picture ?? '',
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          MomentWidgetsUtils.badgePlaceholderImage(),
-                      errorWidget: (context, url, error) =>
-                          MomentWidgetsUtils.badgePlaceholderImage(),
-                      width: 40.px,
-                      height: 40.px,
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.symmetric(
-                        vertical: 4.px,
-                      ),
-                      width: 1.0,
-                      color: ThemeColor.color160,
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.all(8.px),
-                  padding: EdgeInsets.only(
-                    bottom: 16.px,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                  Column(
                     children: [
-                      _momentUserInfoWidget(value),
-                      MomentWidget(
-                        isShowAllContent: false,
-                        isShowReply: false,
-                        notedUIModel: widget.notedUIModel,
-                        isShowUserInfo: false,
-                        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel)async {
-                          await OXNavigator.pushPage(
-                              context,
-                                  (context) => MomentsPage(
-                                  notedUIModel: widget.notedUIModel,
-                                  isShowReply: false));
-                          setState(() {});
-                        },
+                      MomentWidgetsUtils.clipImage(
+                        borderRadius: 40.px,
+                        imageSize: 40.px,
+                        child: OXCachedNetworkImage(
+                          imageUrl: value.picture ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          errorWidget: (context, url, error) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          width: 40.px,
+                          height: 40.px,
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                            vertical: 4.px,
+                          ),
+                          width: 1.0,
+                          color: ThemeColor.color160,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          );
-    }),
-
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.all(8.px),
+                      padding: EdgeInsets.only(
+                        bottom: 16.px,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _momentUserInfoWidget(value),
+                          MomentWidget(
+                            isShowAllContent: false,
+                            isShowReply: false,
+                            notedUIModel: widget.notedUIModel,
+                            isShowUserInfo: false,
+                            clickMomentCallback: (ValueNotifier<NotedUIModel>
+                                notedUIModel) async {
+                              await OXNavigator.pushPage(
+                                  context,
+                                  (context) => MomentsPage(
+                                      notedUIModel: widget.notedUIModel,
+                                      isShowReply: false));
+                              setState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
       ),
     );
   }
@@ -415,8 +410,9 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
             ),
           ),
           TextSpan(
-            text: ' ' + DiscoveryUtils.getUserMomentInfo(
-                userDB, widget.notedUIModel.value.createAtStr)[0],
+            text: ' ' +
+                DiscoveryUtils.getUserMomentInfo(
+                    userDB, widget.notedUIModel.value.createAtStr)[0],
             style: TextStyle(
               color: ThemeColor.color120,
               fontSize: 12.px,
@@ -428,5 +424,3 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     );
   }
 }
-
-

@@ -18,29 +18,18 @@ class MomentRepostedTips extends StatefulWidget {
 }
 
 class _MomentRepostedTipsState extends State<MomentRepostedTips> {
-  UserDB? momentUserDB;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getMomentUser();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.noteDB != oldWidget.noteDB) {
-      _getMomentUser();
-    }
-  }
-
-  void _getMomentUser() async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.noteDB.author);
-    momentUserDB = user;
-    if(mounted){
       setState(() {});
-
     }
   }
 
@@ -48,43 +37,48 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
   Widget build(BuildContext context) {
     String? repostId = widget.noteDB.repostId;
     if (repostId == null || repostId.isEmpty) return const SizedBox();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CommonImage(
-          iconName: 'repost_moment_icon.png',
-          size: 16.px,
-          package: 'ox_discovery',
-          color: ThemeColor.color100,
-        ).setPaddingOnly(
-          right: 8.px,
-        ),
-        GestureDetector(
-          onTap: () {
-            OXModuleService.pushPage(
-                context, 'ox_chat', 'ContactUserInfoPage', {
-              'pubkey': momentUserDB?.pubKey,
-            });
-          },
-          child: Text(
-            '${momentUserDB?.name ?? ''} ',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 12.px,
-              color: ThemeColor.color100,
-            ),
-          ),
-        ),
-        Text(
-          'Reposted',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 12.px,
-            color: ThemeColor.color100,
-          ),
-        )
-      ],
-    ).setPaddingOnly(bottom: 4.px);
+    String pubKey = widget.noteDB.author;
+    return ValueListenableBuilder<UserDB>(
+        valueListenable: Account.sharedInstance.userCache[pubKey] ??
+            ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        builder: (context, value, child) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CommonImage(
+                iconName: 'repost_moment_icon.png',
+                size: 16.px,
+                package: 'ox_discovery',
+                color: ThemeColor.color100,
+              ).setPaddingOnly(
+                right: 8.px,
+              ),
+              GestureDetector(
+                onTap: () {
+                  OXModuleService.pushPage(
+                      context, 'ox_chat', 'ContactUserInfoPage', {
+                    'pubkey': pubKey,
+                  });
+                },
+                child: Text(
+                  '${value.name ?? ''} ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12.px,
+                    color: ThemeColor.color100,
+                  ),
+                ),
+              ),
+              Text(
+                'Reposted',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12.px,
+                  color: ThemeColor.color100,
+                ),
+              )
+            ],
+          ).setPaddingOnly(bottom: 4.px);
+        });
   }
 }
-

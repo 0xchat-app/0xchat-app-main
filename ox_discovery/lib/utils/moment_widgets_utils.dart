@@ -267,33 +267,4 @@ class MomentWidgetsUtils {
 
     return lineCount;
   }
-
-  static Widget getMomentUserAvatar({
-    required String? pubKey,
-    required void Function()? callback,
-    required double size,
-  }) {
-    return ValueListenableBuilder<UserDB>(
-      valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
-      builder: (context, value, child) {
-        return GestureDetector(
-          onTap: callback,
-          child: MomentWidgetsUtils.clipImage(
-            borderRadius: size.px,
-            imageSize: size.px,
-            child: OXCachedNetworkImage(
-              imageUrl: value.picture ?? '',
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  MomentWidgetsUtils.badgePlaceholderImage(),
-              errorWidget: (context, url, error) =>
-                  MomentWidgetsUtils.badgePlaceholderImage(),
-              width: size.px,
-              height: size.px,
-            ),
-          ),
-        );
-      },
-    );
-  }
 }

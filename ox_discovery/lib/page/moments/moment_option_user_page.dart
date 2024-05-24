@@ -242,88 +242,105 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   Widget _userItemWidget() {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 12.px,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MomentWidgetsUtils.getMomentUserAvatar(
-            size: 60,
-            pubKey: user?.pubKey,
-            callback: () async {
-              if (user == null) return;
-              await OXModuleService.pushPage(
-                  context, 'ox_chat', 'ContactUserInfoPage', {
-                'pubkey': user?.pubKey ?? '',
-              });
-              setState(() {});
-            },
-          ),
-          Expanded(
-            child: Column(
+    String pubKey = widget.notedUIModel.noteDB.author;
+    return ValueListenableBuilder<UserDB>(
+        valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        builder: (context, value, child) {
+          return     Container(
+            padding: EdgeInsets.symmetric(
+              vertical: 12.px,
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    bottom: 4.px,
+                GestureDetector(
+                  onTap: () async {
+                    await OXModuleService.pushPage(
+                        context, 'ox_chat', 'ContactUserInfoPage', {
+                      'pubkey': pubKey,
+                    });
+                    setState(() {});
+                  },
+                  child: MomentWidgetsUtils.clipImage(
+                    borderRadius: 60.px,
+                    imageSize: 60.px,
+                    child: OXCachedNetworkImage(
+                      imageUrl: value.picture ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          MomentWidgetsUtils.badgePlaceholderImage(),
+                      errorWidget: (context, url, error) =>
+                          MomentWidgetsUtils.badgePlaceholderImage(),
+                      width: 60.px,
+                      height: 60.px,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      Container(
+                        padding: EdgeInsets.only(
+                          bottom: 4.px,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              user?.name ?? '--',
-                              style: TextStyle(
-                                color: ThemeColor.color10,
-                                fontSize: 16.px,
-                                fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    value.name ?? '--',
+                                    style: TextStyle(
+                                      color: ThemeColor.color10,
+                                      fontSize: 16.px,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ).setPaddingOnly(bottom: 4.px),
+                                  Text(
+                                    DiscoveryUtils.getUserMomentInfo(value, '0')[1],
+                                    style: TextStyle(
+                                      color: ThemeColor.color120,
+                                      fontSize: 12.px,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ).setPaddingOnly(bottom: 4.px),
-                            Text(
-                              DiscoveryUtils.getUserMomentInfo(user, '0')[1],
-                              style: TextStyle(
-                                color: ThemeColor.color120,
-                                fontSize: 12.px,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
+                            _addFriendWidget(value),
                           ],
                         ),
                       ),
-                      _addFriendWidget(),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _clickMoment,
-                  child: Container(
-                    child: Text(
-                      _getContent,
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: 12.px,
-                        fontWeight: FontWeight.w400,
+                      GestureDetector(
+                        onTap: _clickMoment,
+                        child: Container(
+                          child: Text(
+                            _getContent,
+                            style: TextStyle(
+                              color: ThemeColor.color0,
+                              fontSize: 12.px,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
+
   }
 
   void _clickMoment() async {
@@ -348,9 +365,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     );
   }
 
-  Widget _addFriendWidget() {
-    UserDB? userDB = user;
-    if (userDB == null || isFriend(userDB.pubKey)) return const SizedBox();
+  Widget _addFriendWidget(UserDB userDB) {
+    if (isFriend(userDB.pubKey)) return const SizedBox();
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,

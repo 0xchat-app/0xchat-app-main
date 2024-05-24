@@ -20,18 +20,13 @@ import 'moment_rich_text_widget.dart';
 class MomentQuoteWidget extends StatefulWidget {
   final String notedId;
 
-  const MomentQuoteWidget(
-      {super.key, required this.notedId});
+  const MomentQuoteWidget({super.key, required this.notedId});
 
   @override
-  MomentQuoteWidgetState createState() =>
-      MomentQuoteWidgetState();
+  MomentQuoteWidgetState createState() => MomentQuoteWidgetState();
 }
 
 class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
-
-  UserDB? momentUser;
-
   NotedUIModel? notedUIModel;
 
   @override
@@ -48,39 +43,29 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return quoteMoment();
   }
 
-  void _initData()async{
+  void _initData() async {
     String notedId = widget.notedId;
-    if(NotedUIModelCache.map[notedId] == null){
+    if (NotedUIModelCache.map[notedId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
-      if(note == null) return;
+      if (note == null) return;
       NotedUIModel newNotedModel = NotedUIModel(noteDB: note);
       NotedUIModelCache.map[notedId] = newNotedModel;
     }
 
     notedUIModel = NotedUIModelCache.map[notedId];
-    _getMomentUser(NotedUIModelCache.map[notedId]!);
-    if(mounted){
-      setState(() {});
-    }
-  }
-
-  void _getMomentUser(NotedUIModel notedUIModel) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.noteDB.author);
-    momentUser = user;
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
   }
 
   Widget _getImageWidget() {
     NotedUIModel? model = notedUIModel;
-    if(model == null) return const SizedBox();
+    if (model == null) return const SizedBox();
     List<String> _getImagePathList = model.getImageList;
     if (_getImagePathList.isEmpty) return const SizedBox();
     return ClipRRect(
@@ -94,8 +79,12 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
         child: OXCachedNetworkImage(
           imageUrl: _getImagePathList[0],
           fit: BoxFit.cover,
-          placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderContainer(height:172,width: double.infinity),
-          errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderContainer(size:172,width: double.infinity),
+          placeholder: (context, url) =>
+              MomentWidgetsUtils.badgePlaceholderContainer(
+                  height: 172, width: double.infinity),
+          errorWidget: (context, url, error) =>
+              MomentWidgetsUtils.badgePlaceholderContainer(
+                  size: 172, width: double.infinity),
           height: 172.px,
         ),
       ),
@@ -104,11 +93,12 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   Widget quoteMoment() {
     NotedUIModel? model = notedUIModel;
-    if(model == null) return _emptyNotedWidget();
+    if (model == null) return _emptyNotedWidget();
+    String pubKey = model.noteDB.author;
     return GestureDetector(
       onTap: () {
-        OXNavigator.pushPage(
-            context, (context) => MomentsPage(notedUIModel: ValueNotifier(model)));
+        OXNavigator.pushPage(context,
+            (context) => MomentsPage(notedUIModel: ValueNotifier(model)));
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 12.px),
@@ -126,67 +116,86 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
         child: Column(
           children: [
             _getImageWidget(),
-            Container(
-              padding: EdgeInsets.all(12.px),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      MomentWidgetsUtils.getMomentUserAvatar(
-                        size: 40,
-                        pubKey: momentUser?.pubKey,
-                        callback: () async {
-                          if(momentUser == null) return;
-                          await OXModuleService.pushPage(
-                              context, 'ox_chat', 'ContactUserInfoPage', {
-                            'pubkey': momentUser?.pubKey,
-                          });
-                          setState(() {});
-                        },
-                      ),
-                      Text(
-                        momentUser?.name ?? '--',
-                        style: TextStyle(
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w500,
-                          color: ThemeColor.color0,
+            ValueListenableBuilder<UserDB>(
+                valueListenable: Account.sharedInstance.userCache[pubKey] ??
+                    ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+                builder: (context, value, child) {
+                  return Container(
+                    padding: EdgeInsets.all(12.px),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                await OXModuleService.pushPage(
+                                    context, 'ox_chat', 'ContactUserInfoPage', {
+                                  'pubkey': pubKey,
+                                });
+                                setState(() {});
+                              },
+                              child: MomentWidgetsUtils.clipImage(
+                                borderRadius: 40.px,
+                                imageSize: 40.px,
+                                child: OXCachedNetworkImage(
+                                  imageUrl: value.picture ?? '',
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) =>
+                                      MomentWidgetsUtils
+                                          .badgePlaceholderImage(),
+                                  errorWidget: (context, url, error) =>
+                                      MomentWidgetsUtils
+                                          .badgePlaceholderImage(),
+                                  width: 40.px,
+                                  height: 40.px,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              value?.name ?? '--',
+                              style: TextStyle(
+                                fontSize: 12.px,
+                                fontWeight: FontWeight.w500,
+                                color: ThemeColor.color0,
+                              ),
+                            ).setPadding(
+                              EdgeInsets.symmetric(
+                                horizontal: 4.px,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                DiscoveryUtils.getUserMomentInfo(
+                                    value, model.createAtStr)[0],
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12.px,
+                                  fontWeight: FontWeight.w400,
+                                  color: ThemeColor.color120,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ).setPaddingOnly(bottom: 4.px),
+                        MomentRichTextWidget(
+                          text: model.noteDB.content,
+                          textSize: 12.px,
+                          maxLines: 1,
+                          isShowAllContent: false,
                         ),
-                      ).setPadding(
-                        EdgeInsets.symmetric(
-                          horizontal: 4.px,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          DiscoveryUtils.getUserMomentInfo(momentUser, model.createAtStr)[0],
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.px,
-                            fontWeight: FontWeight.w400,
-                            color: ThemeColor.color120,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ).setPaddingOnly(bottom: 4.px),
-                  MomentRichTextWidget(
-                    text: model.noteDB.content,
-                    textSize: 12.px,
-                    maxLines: 1,
-                    isShowAllContent: false,
-                  ),
-                ],
-              ),
-            ),
+                      ],
+                    ),
+                  );
+                }),
           ],
         ),
       ),
     );
   }
 
-  Widget _emptyNotedWidget(){
+  Widget _emptyNotedWidget() {
     return Container(
       margin: EdgeInsets.only(bottom: 12.px),
       height: 200.px,

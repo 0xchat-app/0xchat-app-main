@@ -28,34 +28,28 @@ import 'package:chatcore/chat-core.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
-
 class ReplyMomentsPage extends StatefulWidget {
-
   final ValueNotifier<NotedUIModel> notedUIModel;
-  const ReplyMomentsPage(
-      {Key? key, required this.notedUIModel})
+  const ReplyMomentsPage({Key? key, required this.notedUIModel})
       : super(key: key);
 
   @override
-  State<ReplyMomentsPage> createState() =>
-      _ReplyMomentsPageState();
+  State<ReplyMomentsPage> createState() => _ReplyMomentsPageState();
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
-  Map<String,UserDB> draftCueUserMap = {};
+  Map<String, UserDB> draftCueUserMap = {};
 
   final TextEditingController _textController = TextEditingController();
 
   String? _showImage;
 
-  UserDB? momentUserDB;
 
   List<String> get getImagePicList => widget.notedUIModel.value.getImageList;
 
   @override
   void initState() {
     super.initState();
-    _getMomentUser();
   }
 
   @override
@@ -64,14 +58,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     _textController.dispose();
   }
 
-  void _getMomentUser() async {
-    UserDB? user =
-        await Account.sharedInstance.getUserInfo(widget.notedUIModel.value.noteDB.author);
-    momentUserDB = user;
-    if(mounted){
-      setState(() {});
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +69,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
         appBar: CommonAppBar(
-          isClose:true,
+          isClose: true,
           backgroundColor: ThemeColor.color200,
           actions: [
             GestureDetector(
@@ -128,11 +114,11 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   imageUrl: _showImage,
                   textController: _textController,
                   hintText: 'Post your reply',
-                  cueUserCallback: (UserDB user){
+                  cueUserCallback: (UserDB user) {
                     String? getName = user.name;
-                    if(getName != null){
+                    if (getName != null) {
                       draftCueUserMap['@$getName'] = user;
-                      if(mounted){
+                      if (mounted) {
                         setState(() {});
                       }
                     }
@@ -147,45 +133,61 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-
   Widget _momentReplyWidget() {
-    if (momentUserDB == null) return const SizedBox();
+    String pubKey = widget.notedUIModel.value.noteDB.author;
     return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
+      child: ValueListenableBuilder<UserDB>(
+        valueListenable: Account.sharedInstance.userCache[pubKey] ??
+            ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        builder: (context, value, child) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MomentWidgetsUtils.getMomentUserAvatar(
-                size: 40,
-                pubKey: momentUserDB?.pubKey,
-                callback: () async {
-                  if(momentUserDB == null) return;
-                  await OXModuleService.pushPage(
-                      context, 'ox_chat', 'ContactUserInfoPage', {
-                    'pubkey': momentUserDB?.pubKey,
-                  });
-                  setState(() {});
-                },
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 4.px,
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      await OXModuleService.pushPage(
+                          context, 'ox_chat', 'ContactUserInfoPage', {
+                        'pubkey': pubKey,
+                      });
+                      setState(() {});
+                    },
+                    child: MomentWidgetsUtils.clipImage(
+                      borderRadius: 40.px,
+                      imageSize: 40.px,
+                      child: OXCachedNetworkImage(
+                        imageUrl: value.picture ?? '',
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            MomentWidgetsUtils.badgePlaceholderImage(),
+                        errorWidget: (context, url, error) =>
+                            MomentWidgetsUtils.badgePlaceholderImage(),
+                        width: 40.px,
+                        height: 40.px,
+                      ),
+                    ),
                   ),
-                  width: 1.0,
-                  color: ThemeColor.color160,
-                ),
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: 4.px,
+                      ),
+                      width: 1.0,
+                      color: ThemeColor.color160,
+                    ),
+                  ),
+                ],
               ),
+              _momentUserInfoWidget(value),
             ],
-          ),
-          _momentUserInfoWidget(),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _momentUserInfoWidget() {
+  Widget _momentUserInfoWidget(UserDB userDB) {
     double width = MediaQuery.of(context).size.width - 106;
     width = width - (getImagePicList.isEmpty ? 0 : 60);
     return Row(
@@ -208,9 +210,11 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                     fontWeight: FontWeight.w500,
                   ),
                   children: [
-                    TextSpan(text: momentUserDB?.name ?? ''),
+                    TextSpan(text: userDB.name ?? ''),
                     TextSpan(
-                      text: ' ' + DiscoveryUtils.getUserMomentInfo(momentUserDB, widget.notedUIModel.value.createAtStr)[0],
+                      text: ' ' +
+                          DiscoveryUtils.getUserMomentInfo(
+                              userDB, widget.notedUIModel.value.createAtStr)[0],
                       style: TextStyle(
                         color: ThemeColor.color120,
                         fontSize: 12.px,
@@ -222,7 +226,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               ),
               MomentRichTextWidget(
                 text: widget.notedUIModel.value.noteDB.content,
-                maxLines: 10,
+                maxLines: null,
                 textSize: 12.px,
               ),
             ],
@@ -230,19 +234,21 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
         ),
         _showPicWidget(),
       ],
-    ).setPaddingOnly(left: 8.px,bottom: 20.px);
+    ).setPaddingOnly(left: 8.px, bottom: 20.px);
   }
 
   Widget _showPicWidget() {
-    if(getImagePicList.isEmpty) return const SizedBox();
+    if (getImagePicList.isEmpty) return const SizedBox();
     return MomentWidgetsUtils.clipImage(
       borderRadius: 8.px,
       imageSize: 60.px,
       child: OXCachedNetworkImage(
         imageUrl: getImagePicList[0],
         fit: BoxFit.cover,
-        placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
-        errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+        placeholder: (context, url) =>
+            MomentWidgetsUtils.badgePlaceholderImage(),
+        errorWidget: (context, url, error) =>
+            MomentWidgetsUtils.badgePlaceholderImage(),
         width: 60.px,
         height: 60.px,
       ),
@@ -262,7 +268,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 selectCount: 1,
                 callback: (List<String> imageList) {
                   _showImage = imageList[0];
-                  if(mounted){
+                  if (mounted) {
                     setState(() {});
                   }
                 },
@@ -315,56 +321,28 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() async {
-    String content = "#0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi Https://www.0xchat.com note1xk6j752ldva4p5wc9f7h2q92muchhk96efqf0usg9t83md2sul3sv67n2k #0xchat it's worth noting that Satoshi Nakamoto's true identity remains unknown, and there is no publicly @Satoshi Https://www.0xchat.com ";
-    final result = extractText(content);
-    print('result====result${result.length}');
-    // if (_textController.text.isEmpty && _showImage == null) {
-    //   CommonToast.instance.show(context, 'The content cannot be empty !');
-    //   return;
-    // }
-    // await OXLoading.show();
-    // String getMediaStr = await _getUploadMediaContent();
-    // String content = '${_changeCueUserToPubkey()} $getMediaStr';
-    // List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    // OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
-    // await OXLoading.dismiss();
-    //
-    // if(event.status){
-    //   OXNavigator.pop(context);
-    // }
-  }
-
-  List<String> extractText(String text) {
-    List<String> showList = text.split(' ');
-    String draft = '';
-    List<String> result = [];
-    for (String piece in showList) {
-      if (piece.contains('note1')) {
-        // 添加之前累积的文本（如果有的话）
-        if (draft.isNotEmpty) {
-          result.add(draft.trim());
-          draft = '';
-        }
-        result.add('引用');
-      } else {
-        draft += (draft.isEmpty ? "" : " ") + piece;
-      }
+    if (_textController.text.isEmpty && _showImage == null) {
+      CommonToast.instance.show(context, 'The content cannot be empty !');
+      return;
     }
+    await OXLoading.show();
+    String getMediaStr = await _getUploadMediaContent();
+    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
+    await OXLoading.dismiss();
 
-    if (draft.isNotEmpty) {
-      result.add(draft.trim());
+    if(event.status){
+      OXNavigator.pop(context);
     }
-    return result;
   }
-
-
 
   Future<String> _getUploadMediaContent() async {
     String? imagePath = _showImage;
-    if(imagePath == null) return '';
+    if (imagePath == null) return '';
     List<String> imageList = [imagePath];
 
-    if (imageList.isNotEmpty){
+    if (imageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
         fileType: UplodAliyunType.imageType,
@@ -377,7 +355,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     return '';
   }
 
-  String _changeCueUserToPubkey(){
+  String _changeCueUserToPubkey() {
     String content = _textController.text;
     draftCueUserMap.forEach((tag, replacement) {
       content = content.replaceAll(tag, replacement.encodedPubkey);

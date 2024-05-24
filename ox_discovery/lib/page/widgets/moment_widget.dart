@@ -60,8 +60,6 @@ class MomentWidget extends StatefulWidget {
 }
 
 class _MomentWidgetState extends State<MomentWidget> {
-  UserDB? momentUser;
-
   ValueNotifier<NotedUIModel>? notedUIModel;
 
   @override
@@ -219,62 +217,80 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentUserInfoWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null || !widget.isShowUserInfo) return const SizedBox();
+    String pubKey = model.value.noteDB.author;
     return Container(
       padding: EdgeInsets.only(bottom: 12.px),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            child: Row(
-              children: [
-                MomentWidgetsUtils.getMomentUserAvatar(
-                  size: 40,
-                  pubKey: momentUser?.pubKey,
-                  callback: () async {
-                    await OXModuleService.pushPage(
-                        context, 'ox_chat', 'ContactUserInfoPage', {
-                      'pubkey': model.value.noteDB.author,
-                    });
-                    setState(() {});
-                  },
-                ),
-                Container(
-                  margin: EdgeInsets.only(
-                    left: 10.px,
+      ValueListenableBuilder<UserDB>(
+      valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey)),
+    builder: (context, value, child) {
+        return Container(
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await OXModuleService.pushPage(
+                      context, 'ox_chat', 'ContactUserInfoPage', {
+                    'pubkey': pubKey,
+                  });
+                  setState(() {});
+                },
+                child: MomentWidgetsUtils.clipImage(
+                  borderRadius: 40.px,
+                  imageSize: 40.px,
+                  child: OXCachedNetworkImage(
+                    imageUrl: value.picture ?? '',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        MomentWidgetsUtils.badgePlaceholderImage(),
+                    errorWidget: (context, url, error) =>
+                        MomentWidgetsUtils.badgePlaceholderImage(),
+                    width: 40.px,
+                    height: 40.px,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            momentUser?.name ?? '--',
-                            style: TextStyle(
-                              color: ThemeColor.color0,
-                              fontSize: 14.px,
-                              fontWeight: FontWeight.w500,
-                            ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(
+                  left: 10.px,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          value?.name ?? '--',
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: 14.px,
+                            fontWeight: FontWeight.w500,
                           ),
-                          _checkIsPrivate(),
-                        ],
-                      ),
-                      Text(
-                        DiscoveryUtils.getUserMomentInfo(
-                            momentUser, model.value.createAtStr)[0],
-                        style: TextStyle(
-                          color: ThemeColor.color120,
-                          fontSize: 12.px,
-                          fontWeight: FontWeight.w400,
                         ),
+                        _checkIsPrivate(),
+                      ],
+                    ),
+                    Text(
+                      DiscoveryUtils.getUserMomentInfo(
+                          value, model.value.createAtStr)[0],
+                      style: TextStyle(
+                        color: ThemeColor.color120,
+                        fontSize: 12.px,
+                        fontWeight: FontWeight.w400,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        );
+    },),
+
           // CommonImage(
           //   iconName: 'more_moment_icon.png',
           //   size: 20.px,
@@ -390,7 +406,6 @@ class _MomentWidgetState extends State<MomentWidget> {
       if(NotedUIModelCache.map[repostId] != null){
         notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
         setState(() {});
-        _getMomentUser(notedUIModel!);
       }else{
         _getRepostId(repostId);
       }
@@ -398,7 +413,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     } else {
       notedUIModel = model;
       setState(() {});
-      _getMomentUser(model);
     }
   }
 
@@ -414,23 +428,12 @@ class _MomentWidgetState extends State<MomentWidget> {
       NotedUIModelCache.map[repostId] = null;
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
-      momentUser = null;
       setState(() {});
       return;
     }
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     NotedUIModelCache.map[repostId] = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
-    _getMomentUser(newNotedUIModel);
-  }
-
-  void _getMomentUser(ValueNotifier<NotedUIModel> notedUIModel) async {
-    UserDB? user =
-        await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
-    momentUser = user;
-    if(mounted){
-      setState(() {});
-    }
   }
 
   static Size boundingTextSize(String text, TextStyle style,

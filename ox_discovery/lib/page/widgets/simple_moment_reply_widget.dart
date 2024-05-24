@@ -16,17 +16,18 @@ import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
 
-
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
   final ValueNotifier<NotedUIModel> notedUIModel;
   final Function(bool isFocused)? isFocusedCallback;
-  const SimpleMomentReplyWidget({super.key,this.isFocusedCallback,required this.notedUIModel});
+  const SimpleMomentReplyWidget(
+      {super.key, this.isFocusedCallback, required this.notedUIModel});
 
   @override
-  _SimpleMomentReplyWidgetState createState() => _SimpleMomentReplyWidgetState();
+  _SimpleMomentReplyWidgetState createState() =>
+      _SimpleMomentReplyWidgetState();
 }
 
 class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
@@ -36,29 +37,19 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   String? imageUrl;
   bool isShowEmoji = false;
 
-  UserDB? momentUser;
-
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _replyFocusNode.addListener(() {
       widget.isFocusedCallback?.call(_replyFocusNode.hasFocus);
-      if(!_replyFocusNode.hasFocus){
+      if (!_replyFocusNode.hasFocus) {
         isShowEmoji = false;
       }
       setState(() {
         _isFocused = _replyFocusNode.hasFocus;
       });
     });
-    _getMomentUser();
-  }
-
-  void _getMomentUser() async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(widget.notedUIModel.value.noteDB.author);
-    momentUser = user;
-    setState(() {});
   }
 
   @override
@@ -85,7 +76,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   Widget _postYourReplyHeadWidget() {
-    if(!_isFocused) return const SizedBox();
+    if (!_isFocused) return const SizedBox();
+    String pubKey = widget.notedUIModel.value.noteDB.author;
     return Container(
       padding: EdgeInsets.only(
         bottom: 8.px,
@@ -94,30 +86,36 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          RichText(
-            textAlign: TextAlign.left,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            text: TextSpan(
-              style: TextStyle(
-                  fontSize: 12.px,
-                  fontWeight: FontWeight.w400,
-              ),
-              children: [
-                TextSpan(
-                  text: 'Reply to ',
+          ValueListenableBuilder<UserDB>(
+            valueListenable: Account.sharedInstance.userCache[pubKey] ??
+                ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+            builder: (context, value, child) {
+              return RichText(
+                textAlign: TextAlign.left,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                text: TextSpan(
                   style: TextStyle(
-                    color: ThemeColor.color120,
+                    fontSize: 12.px,
+                    fontWeight: FontWeight.w400,
                   ),
+                  children: [
+                    TextSpan(
+                      text: 'Reply to ',
+                      style: TextStyle(
+                        color: ThemeColor.color120,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '@${value.name ?? ''}',
+                      style: TextStyle(
+                        color: ThemeColor.gradientMainStart,
+                      ),
+                    ),
+                  ],
                 ),
-                TextSpan(
-                  text: '@${momentUser?.name ?? ''}',
-                  style: TextStyle(
-                    color: ThemeColor.gradientMainStart,
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
           Row(
             children: [
@@ -194,8 +192,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     );
   }
 
-  Widget _showImageWidget(){
-    if(imageUrl == null) return const SizedBox();
+  Widget _showImageWidget() {
+    if (imageUrl == null) return const SizedBox();
     return MomentWidgetsUtils.clipImage(
       borderRadius: 8.px,
       child: Image.asset(
@@ -216,15 +214,11 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         children: [
           GestureDetector(
             onTap: () {
-              AlbumUtils.openAlbum(
-                context,
-                type:1,
-                selectCount: 1,
-                callback: (List<String> imageList){
-                  imageUrl = imageList[0];
-                  setState(() {});
-                }
-              );
+              AlbumUtils.openAlbum(context, type: 1, selectCount: 1,
+                  callback: (List<String> imageList) {
+                imageUrl = imageList[0];
+                setState(() {});
+              });
             },
             child: CommonImage(
               iconName: 'chat_image_icon.png',
@@ -253,7 +247,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   Widget _buildEmojiDialog() {
-    if(!isShowEmoji) return const SizedBox();
+    if (!isShowEmoji) return const SizedBox();
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(6.px),
@@ -280,21 +274,23 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     await OXLoading.show();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_replyController.text} $getMediaStr';
-    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content);
+    List<String> hashTags =
+        MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    OKEvent event = await Moment.sharedInstance
+        .sendReply(widget.notedUIModel.value.noteDB.noteId, content);
     await OXLoading.dismiss();
 
-    if(event.status){
+    if (event.status) {
       CommonToast.instance.show(context, 'Reply successfully !');
     }
   }
 
   Future<String> _getUploadMediaContent() async {
     String? imagePath = imageUrl;
-    if(imagePath == null) return '';
+    if (imagePath == null) return '';
     List<String> imageList = [imagePath];
 
-    if (imageList.isNotEmpty){
+    if (imageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
         fileType: UplodAliyunType.imageType,
