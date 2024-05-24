@@ -90,7 +90,7 @@ public class SwiftOXCCommonPlugin: NSObject, FlutterPlugin, UINavigationControll
             guard let filePath = (call.arguments as? [String: String])?["filePath"] else {
                 return
             }
-            OXCFileHelper.exportFile(atPath: filePath, sender: controller)
+            OXCFileHelper.exportFile(atPath: filePath, sender: controller) { _ in }
         case "importFile":
             guard let controller = UIApplication.shared.delegate?.window??.rootViewController else {
                 result("")
