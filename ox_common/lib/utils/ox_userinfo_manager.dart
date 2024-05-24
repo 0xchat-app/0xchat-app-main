@@ -60,6 +60,7 @@ class OXUserInfoManager {
 
   bool canVibrate = true;
   bool canSound = true;
+  double defaultZapAmount = 0.0;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
@@ -336,6 +337,7 @@ class OXUserInfoManager {
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
+    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 0.0);
   }
 
   void _initMessage() {
