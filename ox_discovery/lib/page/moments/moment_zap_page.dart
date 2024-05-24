@@ -1,9 +1,9 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -34,8 +34,14 @@ class _MomentZapPageState extends State<MomentZapPage> {
   int get zapAmount => int.tryParse(zapAmountStr) ?? 0;
   String get zapDescription => _descriptionController.text.orDefault(defaultDescription);
 
-  final defaultSatsValue = '0';
+  final defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
   final defaultDescription = 'Zaps';
+
+  @override
+  void initState() {
+    _amountController.text = defaultSatsValue;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
