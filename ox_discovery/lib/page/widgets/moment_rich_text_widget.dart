@@ -79,6 +79,9 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SelectableText.rich(
+              onTap:(){
+                widget.clickBlankCallback?.call();
+              },
               maxLines: widget.maxLines,
               TextSpan(
                 style: TextStyle(
@@ -88,18 +91,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
                 children: textSpans,
               ),
           ),
-          // RichText(
-          //   textAlign: TextAlign.left,
-          //   overflow: TextOverflow.ellipsis,
-          //   maxLines: widget.maxLines ?? 100,
-          //   text: TextSpan(
-          //     style: TextStyle(
-          //         color: widget.defaultTextColor ?? ThemeColor.color0,
-          //         fontSize: widget.textSize ?? 16.px,
-          //     ),
-          //     children: textSpans,
-          //   ),
-          // ),
         ],
       ),
     );
