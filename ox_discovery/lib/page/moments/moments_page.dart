@@ -330,79 +330,84 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
         setState(() {});
       },
       child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-              children: [
-                MomentWidgetsUtils.clipImage(
-                  borderRadius: 40.px,
-                  imageSize: 40.px,
-                  child: OXCachedNetworkImage(
-                    imageUrl: momentUser?.picture ?? '',
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        MomentWidgetsUtils.badgePlaceholderImage(),
-                    errorWidget: (context, url, error) =>
-                        MomentWidgetsUtils.badgePlaceholderImage(),
-                    width: 40.px,
-                    height: 40.px,
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(
-                      vertical: 4.px,
+        child: ValueListenableBuilder<UserDB>(
+        valueListenable: Account.sharedInstance.userCache[momentUser?.pubKey] ?? ValueNotifier(UserDB(pubKey: momentUser?.pubKey ?? '')),
+    builder: (context, value, child) {
+          return  Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Column(
+                children: [
+                  MomentWidgetsUtils.clipImage(
+                    borderRadius: 40.px,
+                    imageSize: 40.px,
+                    child: OXCachedNetworkImage(
+                      imageUrl: value.picture ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          MomentWidgetsUtils.badgePlaceholderImage(),
+                      errorWidget: (context, url, error) =>
+                          MomentWidgetsUtils.badgePlaceholderImage(),
+                      width: 40.px,
+                      height: 40.px,
                     ),
-                    width: 1.0,
-                    color: ThemeColor.color160,
                   ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.all(8.px),
-                padding: EdgeInsets.only(
-                  bottom: 16.px,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _momentUserInfoWidget(),
-                    MomentWidget(
-                      isShowAllContent: false,
-                      isShowReply: false,
-                      notedUIModel: widget.notedUIModel,
-                      isShowUserInfo: false,
-                      clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel)async {
-                       await OXNavigator.pushPage(
-                            context,
-                            (context) => MomentsPage(
-                                notedUIModel: widget.notedUIModel,
-                                isShowReply: false));
-                        setState(() {});
-                      },
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: 4.px,
+                      ),
+                      width: 1.0,
+                      color: ThemeColor.color160,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(8.px),
+                  padding: EdgeInsets.only(
+                    bottom: 16.px,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _momentUserInfoWidget(value),
+                      MomentWidget(
+                        isShowAllContent: false,
+                        isShowReply: false,
+                        notedUIModel: widget.notedUIModel,
+                        isShowUserInfo: false,
+                        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel)async {
+                          await OXNavigator.pushPage(
+                              context,
+                                  (context) => MomentsPage(
+                                  notedUIModel: widget.notedUIModel,
+                                  isShowReply: false));
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+    }),
+
       ),
     );
   }
 
-  Widget _momentUserInfoWidget() {
+  Widget _momentUserInfoWidget(UserDB userDB) {
     return RichText(
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       text: TextSpan(
         children: <TextSpan>[
           TextSpan(
-            text: momentUser?.name ?? '--',
+            text: userDB.name ?? '--',
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: 14.px,
@@ -411,7 +416,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
           ),
           TextSpan(
             text: ' ' + DiscoveryUtils.getUserMomentInfo(
-                momentUser, widget.notedUIModel.value.createAtStr)[0],
+                userDB, widget.notedUIModel.value.createAtStr)[0],
             style: TextStyle(
               color: ThemeColor.color120,
               fontSize: 12.px,
