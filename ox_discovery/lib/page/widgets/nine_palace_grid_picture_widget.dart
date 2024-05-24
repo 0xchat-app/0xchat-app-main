@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -122,15 +124,26 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
     bool isShowAddIcon = imageList[index] == 'add_moment.png';
     String imgPath =
         isShowAddIcon ? 'assets/images/add_moment.png' : imageList[index];
+
+    Widget imageWidget = Image.file(
+      File(imgPath),
+      fit: BoxFit.cover,
+      // package: isShowAddIcon ? 'ox_discovery' : null,
+    );
+
+    if(isShowAddIcon){
+      imageWidget = Image.asset(
+        imgPath,
+        fit: BoxFit.cover,
+        package: 'ox_discovery',
+      );
+    }
+
     return GestureDetector(
       onTap: () => _photoOption(isShowAddIcon),
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: Image.asset(
-          imgPath,
-          fit: BoxFit.cover,
-          package: isShowAddIcon ? 'ox_discovery' : null,
-        ),
+        child: imageWidget,
       ),
     );
   }
