@@ -41,14 +41,13 @@ class EcashService {
     return amount;
   }
 
-  static Future<bool?> payingLightningInvoice({required IMint mint, required String pr}) async {
-    bool? result;
+  static Future<CashuResponse?> payingLightningInvoice({required IMint mint, required String pr}) async {
     try{
-      result = await Cashu.payingLightningInvoice(mint: mint, pr: pr);
+      return await Cashu.payingLightningInvoice(mint: mint, pr: pr);
     }catch(e,s){
       LogUtil.e('decode Lightning Invoice Failed: $e\r\n$s');
     }
-    return result;
+    return null;
   }
 
   static Future<List<Proof>> getAllUseProofs({required IMint mint}) async {
