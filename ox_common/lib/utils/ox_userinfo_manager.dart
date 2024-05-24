@@ -60,7 +60,7 @@ class OXUserInfoManager {
 
   bool canVibrate = true;
   bool canSound = true;
-  double defaultZapAmount = 0.0;
+  int defaultZapAmount = 0;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
