@@ -225,7 +225,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
       ValueListenableBuilder<UserDB>(
-      valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey)),
+      valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
     builder: (context, value, child) {
         return Container(
           child: Row(
@@ -264,7 +264,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          value?.name ?? '--',
+                          value.name ?? '',
                           style: TextStyle(
                             color: ThemeColor.color0,
                             fontSize: 14.px,
