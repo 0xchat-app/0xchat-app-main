@@ -345,7 +345,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
       },
       child: IntrinsicHeight(
         child: ValueListenableBuilder<UserDB>(
-            valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+            valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

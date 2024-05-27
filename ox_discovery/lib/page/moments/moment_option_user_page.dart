@@ -244,7 +244,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   Widget _userItemWidget() {
     String pubKey = widget.notedUIModel.noteDB.author;
     return ValueListenableBuilder<UserDB>(
-        valueListenable: Account.sharedInstance.userCache[pubKey] ?? ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return     Container(
             padding: EdgeInsets.symmetric(

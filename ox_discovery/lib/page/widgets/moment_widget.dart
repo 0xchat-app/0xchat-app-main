@@ -116,7 +116,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _emptyNoteMoment(){
     return Container(
       margin: EdgeInsets.only(
-        top: 10.px
+          top: 10.px
       ),
       height: 300.px,
       decoration: BoxDecoration(
@@ -224,72 +224,72 @@ class _MomentWidgetState extends State<MomentWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-      ValueListenableBuilder<UserDB>(
-      valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
-    builder: (context, value, child) {
-        return Container(
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  await OXModuleService.pushPage(
-                      context, 'ox_chat', 'ContactUserInfoPage', {
-                    'pubkey': pubKey,
-                  });
-                  setState(() {});
-                },
-                child: MomentWidgetsUtils.clipImage(
-                  borderRadius: 40.px,
-                  imageSize: 40.px,
-                  child: OXCachedNetworkImage(
-                    imageUrl: value.picture ?? '',
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        MomentWidgetsUtils.badgePlaceholderImage(),
-                    errorWidget: (context, url, error) =>
-                        MomentWidgetsUtils.badgePlaceholderImage(),
-                    width: 40.px,
-                    height: 40.px,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(
-                  left: 10.px,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          ValueListenableBuilder<UserDB>(
+            valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
+            builder: (context, value, child) {
+              return Container(
+                child: Row(
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          value.name ?? '',
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: 14.px,
-                            fontWeight: FontWeight.w500,
-                          ),
+                    GestureDetector(
+                      onTap: () async {
+                        await OXModuleService.pushPage(
+                            context, 'ox_chat', 'ContactUserInfoPage', {
+                          'pubkey': pubKey,
+                        });
+                        setState(() {});
+                      },
+                      child: MomentWidgetsUtils.clipImage(
+                        borderRadius: 40.px,
+                        imageSize: 40.px,
+                        child: OXCachedNetworkImage(
+                          imageUrl: value.picture ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          errorWidget: (context, url, error) =>
+                              MomentWidgetsUtils.badgePlaceholderImage(),
+                          width: 40.px,
+                          height: 40.px,
                         ),
-                        _checkIsPrivate(),
-                      ],
+                      ),
                     ),
-                    Text(
-                      DiscoveryUtils.getUserMomentInfo(
-                          value, model.value.createAtStr)[0],
-                      style: TextStyle(
-                        color: ThemeColor.color120,
-                        fontSize: 12.px,
-                        fontWeight: FontWeight.w400,
+                    Container(
+                      margin: EdgeInsets.only(
+                        left: 10.px,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                value.name ?? '',
+                                style: TextStyle(
+                                  color: ThemeColor.color0,
+                                  fontSize: 14.px,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              _checkIsPrivate(),
+                            ],
+                          ),
+                          Text(
+                            DiscoveryUtils.getUserMomentInfo(
+                                value, model.value.createAtStr)[0],
+                            style: TextStyle(
+                              color: ThemeColor.color120,
+                              fontSize: 12.px,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        );
-    },),
+              );
+            },),
 
           // CommonImage(
           //   iconName: 'more_moment_icon.png',

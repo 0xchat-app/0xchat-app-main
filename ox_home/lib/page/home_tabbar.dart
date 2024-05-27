@@ -54,6 +54,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   late List<StateMachineController?> riveControllers = List<StateMachineController?>.filled(4, null);
   late List<Artboard?> riveArtboards = List<Artboard?>.filled(4, null);
 
+  int discoveryClickNum = 0;
+
   List<TranslucentNavigationBarItem> tabBarList = [];
 
   List<TabViewInfo> tabViewInfo = [
@@ -171,6 +173,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       extendBody: true,
       bottomNavigationBar: TranslucentNavigationBar(
         onTap: (value) => _tabClick(value),
+        handleDoubleTap: (value) => _handleDoubleTap(value),
         selectedIndex: selectedIndex,
         tabBarList: tabBarList,
         height: Adapt.px(72),
@@ -218,7 +221,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
         tabModel.modulePage,
         [context],
         {
-          #pageController: _pageController
+          #discoveryClickNum: discoveryClickNum,
         }
       );
     }
@@ -296,7 +299,21 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     hasVibrator = (await Vibrate.canVibrate);
   }
 
+  void _handleDoubleTap(value){
+    if(value == 2 && selectedIndex == 2){
+      setState(() {
+        discoveryClickNum = discoveryClickNum + 2;
+      });
+    }
+  }
+
   void _tabClick(int value) {
+    if(value == 2 && selectedIndex == 2){
+      setState(() {
+        discoveryClickNum = discoveryClickNum + 1;
+      });
+    }
+    // clickTag
     if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
       //Vibration feedback
       FeedbackType type = FeedbackType.impact;

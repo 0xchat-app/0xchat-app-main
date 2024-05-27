@@ -45,8 +45,7 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
     if (repostId == null || repostId.isEmpty) return const SizedBox();
     String pubKey = widget.noteDB.author;
     return ValueListenableBuilder<UserDB>(
-        valueListenable: Account.sharedInstance.userCache[pubKey] ??
-            ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,

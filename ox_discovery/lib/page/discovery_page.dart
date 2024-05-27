@@ -39,8 +39,8 @@ enum EDiscoveryPageType{
 
 
 class DiscoveryPage extends StatefulWidget {
-  final PageController? pageController;
-  const DiscoveryPage({Key? key,this.pageController}): super(key: key);
+  final int discoveryClickNum;
+  const DiscoveryPage({Key? key,required this.discoveryClickNum}): super(key: key);
 
   @override
   State<DiscoveryPage> createState() => _DiscoveryPageState();
@@ -70,15 +70,28 @@ class _DiscoveryPageState extends State<DiscoveryPage>
   @override
   void initState() {
     super.initState();
-    widget.pageController?.addListener(() {
-      if(widget.pageController?.page == 2.0){
-        publicMomentPageKey.currentState?.momentScrollController.animateTo(
-          0.0,
-          duration:  const Duration(milliseconds: 1),
-          curve: Curves.easeInOut,
-        );
+  }
+
+  void _momentPublic(){
+    publicMomentPageKey.currentState?.momentScrollController.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.discoveryClickNum != oldWidget.discoveryClickNum) {
+
+      if((widget.discoveryClickNum) - (oldWidget.discoveryClickNum) > 1){
+        publicMomentPageKey.currentState?.updateNotesList(true,refresh: true,isWrapRefresh:true);
+      }else{
+        _momentPublic();
+
       }
-    });
+    }
   }
 
   @override

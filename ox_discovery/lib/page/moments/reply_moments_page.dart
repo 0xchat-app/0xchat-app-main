@@ -143,8 +143,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     String pubKey = widget.notedUIModel.value.noteDB.author;
     return IntrinsicHeight(
       child: ValueListenableBuilder<UserDB>(
-        valueListenable: Account.sharedInstance.userCache[pubKey] ??
-            ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+        valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,

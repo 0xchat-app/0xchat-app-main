@@ -69,7 +69,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void initState() {
     super.initState();
-    _updateNotesList(true);
+    updateNotesList(true);
   }
 
   @override
@@ -81,7 +81,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         _allNotesFromDBLastTimestamp = null;
         _allNotesFromDBFromRelayLastTimestamp = null;
       }
-      _updateNotesList(true);
+      updateNotesList(true);
     }
   }
 
@@ -100,8 +100,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           controller: _refreshController,
           enablePullDown: true,
           enablePullUp: true,
-          onRefresh: () => _updateNotesList(true, refresh: true),
-          onLoading: () => _updateNotesList(false),
+          onRefresh: () => updateNotesList(true, refresh: true),
+          onLoading: () => updateNotesList(false),
           child: _getMomentListWidget(),
         ),
         Positioned(
@@ -144,7 +144,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         children: [
           MomentNewPostTips(
             onTap: (List<NoteDB> list) {
-              _updateNotesList(true);
+              updateNotesList(true);
               momentScrollController.animateTo(
                 0.0,
                 duration:  const Duration(milliseconds: 1),
@@ -167,9 +167,15 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> _updateNotesList(bool isInit, {bool refresh = false}) async {
+  Future<void> updateNotesList(bool isInit, {bool refresh = false,bool isWrapRefresh = false}) async {
+    if(isWrapRefresh){
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _refreshController.requestRefresh();
+          }
+        });
+    }
     try {
-      if(refresh) await Moment.sharedInstance.loadPublicNewNotesFromRelay();
       List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();

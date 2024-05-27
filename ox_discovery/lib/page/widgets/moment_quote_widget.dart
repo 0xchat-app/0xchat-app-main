@@ -125,8 +125,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
           children: [
             _getImageWidget(),
             ValueListenableBuilder<UserDB>(
-                valueListenable: Account.sharedInstance.userCache[pubKey] ??
-                    ValueNotifier(UserDB(pubKey: pubKey ?? '')),
+                valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
                 builder: (context, value, child) {
                   return Container(
                     padding: EdgeInsets.all(12.px),

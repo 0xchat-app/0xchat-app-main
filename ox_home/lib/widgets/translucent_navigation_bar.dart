@@ -33,6 +33,8 @@ class TranslucentNavigationBar extends StatefulWidget {
   /// Returns the index of the tab that was tapped.
   final Function(int)? onTap;
 
+  final Function(int)? handleDoubleTap;
+
   /// The tab to display.
   final int selectedIndex;
 
@@ -53,6 +55,7 @@ class TranslucentNavigationBar extends StatefulWidget {
   this.mainIconColor = Colors.white,
   required this.onTap,
   this.onMainIconTap,
+  this.handleDoubleTap,
   this.height = 72.0,
   this.borderRadius = 24.0,
   this.blur = 2, // You use 5 for black and 1 for white
@@ -191,6 +194,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
               GestureDetector(
                 onTap: () {
                   widget.onTap!.call(widget.tabBarList.indexOf(item));
+                },
+                onDoubleTap:  () {
+                  widget.handleDoubleTap?.call(widget.tabBarList.indexOf(item));
                 },
                 child: Stack(
                   alignment: Alignment.bottomCenter,

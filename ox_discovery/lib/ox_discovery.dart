@@ -28,11 +28,11 @@ class OXDiscovery  extends OXFlutterModule {
   @override
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
-      case 'UserCenterPage':
-        return OXNavigator.pushPage(
-          context,
-              (context) => const DiscoveryPage(),
-        );
+      // case 'UserCenterPage':
+      //   return OXNavigator.pushPage(
+      //     context,
+      //         (context) => const DiscoveryPage(),
+      //   );
       case 'PersonMomentsPage':
         return OXNavigator.pushPage(
             context, (context) => PersonMomentsPage(userDB: params?['userDB'],));
@@ -40,7 +40,7 @@ class OXDiscovery  extends OXFlutterModule {
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context,{PageController? pageController}) {
-    return DiscoveryPage(pageController:pageController);
+  Widget discoveryPageWidget(BuildContext context,{required int discoveryClickNum}) {
+    return DiscoveryPage(discoveryClickNum: discoveryClickNum);
   }
 }
