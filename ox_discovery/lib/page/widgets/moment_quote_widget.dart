@@ -58,10 +58,18 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
 
     notedUIModel = NotedUIModelCache.map[notedId];
+    _getMomentUserInfo(NotedUIModelCache.map[notedId]!);
     if (mounted) {
       setState(() {});
     }
   }
+
+  void _getMomentUserInfo(NotedUIModel model)async {
+    String pubKey = model.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
+  }
+
+
 
   Widget _getImageWidget() {
     NotedUIModel? model = notedUIModel;

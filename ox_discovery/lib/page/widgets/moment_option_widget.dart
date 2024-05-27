@@ -54,6 +54,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     }
   }
 
+  void _getMomentUserInfo()async {
+    String pubKey = widget.notedUIModel.value.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
+  }
+
   @override
   Widget build(BuildContext context) {
     if(!widget.isShowMomentOptionWidget) return const SizedBox();
@@ -287,6 +292,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   void _init(){
     notedUIModel = widget.notedUIModel;
+    _getMomentUserInfo();
     setState(() {});
   }
 

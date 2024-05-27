@@ -50,12 +50,18 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   @override
   void initState() {
     super.initState();
+    _getMomentUserInfo();
   }
 
   @override
   void dispose() {
     super.dispose();
     _textController.dispose();
+  }
+
+  void _getMomentUserInfo()async {
+    String pubKey = widget.notedUIModel.value.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
   }
 
 

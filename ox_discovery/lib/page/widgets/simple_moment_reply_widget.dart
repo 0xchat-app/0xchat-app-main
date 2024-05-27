@@ -50,6 +50,13 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         _isFocused = _replyFocusNode.hasFocus;
       });
     });
+
+    _getMomentUserInfo();
+  }
+
+  void _getMomentUserInfo()async {
+    String pubKey = widget.notedUIModel.value.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
   }
 
   @override

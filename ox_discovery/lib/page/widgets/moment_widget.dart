@@ -405,6 +405,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model.value.noteDB.isRepost && repostId != null) {
       if(NotedUIModelCache.map[repostId] != null){
         notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
+        _getMomentUserInfo(notedUIModel!.value);
         setState(() {});
       }else{
         _getRepostId(repostId);
@@ -412,8 +413,14 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     } else {
       notedUIModel = model;
+      _getMomentUserInfo(model.value);
       setState(() {});
     }
+  }
+
+  void _getMomentUserInfo(NotedUIModel model)async {
+    String pubKey = model.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
   }
 
   int _calculateColumnsForPictures(int picSize) {
@@ -434,6 +441,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
     NotedUIModelCache.map[repostId] = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
+    _getMomentUserInfo(newNotedUIModel.value);
   }
 
   static Size boundingTextSize(String text, TextStyle style,

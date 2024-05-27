@@ -302,16 +302,35 @@ class MomentReplyWidget extends StatefulWidget {
 }
 
 class _MomentReplyWidgetState extends State<MomentReplyWidget> {
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getMomentUserInfo();
   }
 
   @override
   Widget build(BuildContext context) {
     return _momentItemWidget();
   }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.notedUIModel != oldWidget.notedUIModel) {
+      _getMomentUserInfo();
+      setState(() {});
+    }
+  }
+
+  void _getMomentUserInfo()async {
+    String pubKey = widget.notedUIModel.value.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
+  }
+
+
 
   Widget _momentItemWidget() {
     String pubKey = widget.notedUIModel.value.noteDB.author;

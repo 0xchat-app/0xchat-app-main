@@ -57,10 +57,15 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     }
 
     noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
-
+    _getMomentUserInfo(NotedUIModelCache.map[getReplyId]!);
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _getMomentUserInfo(NotedUIModel notedUIModel)async {
+    String pubKey = notedUIModel.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
   }
 
   @override

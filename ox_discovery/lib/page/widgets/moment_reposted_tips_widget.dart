@@ -18,19 +18,25 @@ class MomentRepostedTips extends StatefulWidget {
 }
 
 class _MomentRepostedTipsState extends State<MomentRepostedTips> {
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getMomentUserInfo();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.noteDB != oldWidget.noteDB) {
+      _getMomentUserInfo();
       setState(() {});
     }
+  }
+
+  void _getMomentUserInfo()async {
+    String pubKey = widget.noteDB.author;
+    Account.sharedInstance.getUserInfo(pubKey);
   }
 
   @override
@@ -50,9 +56,7 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
                 size: 16.px,
                 package: 'ox_discovery',
                 color: ThemeColor.color100,
-              ).setPaddingOnly(
-                right: 8.px,
-              ),
+              ).setPaddingOnly(right: 8.px),
               GestureDetector(
                 onTap: () {
                   OXModuleService.pushPage(
