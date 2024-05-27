@@ -42,7 +42,7 @@ class ChatSendMessageHelper {
     var plaintEvent = message.sourceKey;
     if (plaintEvent != null && plaintEvent is String) {
       try {
-        event = Event.fromJson(jsonDecode(plaintEvent));
+        event = await Event.fromJson(jsonDecode(plaintEvent));
       } catch (_) {
         return 'send message error';
       }
