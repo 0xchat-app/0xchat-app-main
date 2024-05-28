@@ -90,7 +90,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
                 return  _iconTextWidget(
                   type: type,
                   isSelect: _isClickByMe(type,model),
-                  onTap: () => _onTapCallback(type),
+                  onTap: () => _onTapCallback(type)(),
                   clickNum: _getClickNum(type,model),
                 );
               },
