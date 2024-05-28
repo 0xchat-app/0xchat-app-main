@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -28,9 +29,12 @@ class MomentOptionWidget extends StatefulWidget {
   _MomentOptionWidgetState createState() => _MomentOptionWidgetState();
 }
 
-class _MomentOptionWidgetState extends State<MomentOptionWidget> {
+class _MomentOptionWidgetState extends State<MomentOptionWidget>
+    with SingleTickerProviderStateMixin, NavigatorObserverMixin {
 
   late ValueNotifier<NotedUIModel> notedUIModel;
+  late final AnimationController _shakeController;
+  bool _isShowAnimation = false;
 
   final List<EMomentOptionType> momentOptionTypeList = [
     EMomentOptionType.reply,
@@ -43,6 +47,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(duration:const Duration(milliseconds: 600),vsync: this);
+    _shakeController.addListener(_resetAnimation);
     _init();
   }
 
@@ -54,11 +60,24 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     }
   }
 
+  @override
+  void dispose() {
+    _shakeController.dispose();
+    _shakeController.removeListener(_resetAnimation);
+    super.dispose();
+  }
+
   void _getMomentUserInfo()async {
     String pubKey = widget.notedUIModel.value.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
+    }
+  }
+
+  void _resetAnimation() {
+    if(_shakeController.isCompleted) {
+      _shakeController.reset();
     }
   }
 
