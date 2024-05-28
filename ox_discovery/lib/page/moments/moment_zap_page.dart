@@ -15,9 +15,9 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 class MomentZapPage extends StatefulWidget {
   final UserDB userDB;
-  final NoteDB noteDB;
+  final String eventId;
 
-  const MomentZapPage({super.key, required this.userDB, required this.noteDB});
+  const MomentZapPage({super.key, required this.userDB, required this.eventId});
 
   @override
   State<MomentZapPage> createState() => _MomentZapPageState();
@@ -212,7 +212,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
     }
 
     final relays = OXRelayManager.sharedInstance.relayAddressList;
-    final noteId = widget.noteDB.noteId;
+    final noteId = widget.eventId;
     final recipient = widget.userDB.pubKey;
     String lnurl = widget.userDB.lnurl ?? '';
 
