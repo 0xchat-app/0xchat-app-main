@@ -4,6 +4,7 @@ import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/manager/signaling.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/permission_utils.dart';
 
 import 'ox_calling_platform_interface.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -26,6 +27,8 @@ class OxCalling extends OXFlutterModule {
   navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) async {
     switch (pageName) {
       case 'CallPage':
+        bool cmPermission = await PermissionUtils.getCallPermission(context);
+        if (!cmPermission) return;
         String mediaType = params?['media'] ?? 'video';
         if (CallManager.instance.callState == null ) {
           CallManager.instance.connectServer();
