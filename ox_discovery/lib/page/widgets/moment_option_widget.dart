@@ -9,6 +9,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/moments/moment_zap_page.dart';
+import 'package:ox_discovery/page/widgets/zap_done_animation.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -105,19 +106,33 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
           children: momentOptionTypeList.map((EMomentOptionType type) {
             return ValueListenableBuilder<NotedUIModel>(
               valueListenable: widget.notedUIModel,
-              builder: (context, model, child) {
-                return  _iconTextWidget(
-                  type: type,
-                  isSelect: _isClickByMe(type,model),
-                  onTap: () => _onTapCallback(type)(),
-                  clickNum: _getClickNum(type,model),
-                );
-              },
+              builder: (context, model, child) => _showItemWidget(type,model),
             );
           }).toList(),
         ),
       ),
     );
+  }
+
+  Widget _showItemWidget(EMomentOptionType type,NotedUIModel model){
+    bool isZap = type == EMomentOptionType.zaps;
+    Widget iconTextWidget = Expanded(
+      child: _iconTextWidget(
+        type: type,
+        isSelect: _isClickByMe(type,model),
+        onTap: () => _onTapCallback(type)(),
+        clickNum: _getClickNum(type,model),
+      ),
+    );
+    if(isZap){
+      return Expanded(
+        child: ZapDoneAnimation(
+          controller: _shakeController,
+          child: iconTextWidget,
+        ),
+      );
+    }
+    return iconTextWidget;
   }
 
   GestureTapCallback _onTapCallback(EMomentOptionType type) {
@@ -155,34 +170,32 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }) {
     final content = clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
     Color textColors = isSelect ? ThemeColor.gradientMainStart : ThemeColor.color80;
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => onTap?.call(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.only(
-                right: 4.px,
-              ),
-              child: CommonImage(
-                iconName: type.getIconName,
-                size: 16.px,
-                package: 'ox_discovery',
-                color: textColors,
-              ),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => onTap?.call(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.only(
+              right: 4.px,
             ),
-            Text(
-              content,
-              style: TextStyle(
-                color: textColors,
-                fontSize: 12.px,
-                fontWeight: FontWeight.w400,
-              ),
-            )
-          ],
-        ),
+            child: CommonImage(
+              iconName: type.getIconName,
+              size: 16.px,
+              package: 'ox_discovery',
+              color: textColors,
+            ),
+          ),
+          Text(
+            content,
+            style: TextStyle(
+              color: textColors,
+              fontSize: 12.px,
+              fontWeight: FontWeight.w400,
+            ),
+          )
+        ],
       ),
     );
   }
