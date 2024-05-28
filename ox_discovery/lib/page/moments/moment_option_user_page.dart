@@ -246,7 +246,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     return ValueListenableBuilder<UserDB>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
-          return     Container(
+          return Container(
             padding: EdgeInsets.symmetric(
               vertical: 12.px,
             ),
@@ -339,8 +339,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
               ],
             ),
           );
-        });
-
+        },
+    );
   }
 
   void _clickMoment() async {

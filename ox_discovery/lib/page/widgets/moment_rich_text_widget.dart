@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart'; //
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -106,8 +104,17 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     }
     final List<TextSpan> spans = [];
     Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
-    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}|${(regexMap['showMore'] as RegExp).pattern}|${(regexMap['youtubeExp'] as RegExp).pattern}',
-        caseSensitive: false);
+    final RegExp contentExp = RegExp(
+        [
+          (regexMap['hashRegex'] as RegExp).pattern,
+          (regexMap['urlExp'] as RegExp).pattern,
+          (regexMap['nostrExp'] as RegExp).pattern,
+          (regexMap['lineFeed'] as RegExp).pattern,
+          (regexMap['showMore'] as RegExp).pattern,
+          (regexMap['youtubeExp'] as RegExp).pattern,
+        ].join('|'),
+        caseSensitive: false
+    );
     int lastMatchEnd = 0;
     contentExp.allMatches(text).forEach((match) {
       final beforeMatch = text.substring(lastMatchEnd, match.start);

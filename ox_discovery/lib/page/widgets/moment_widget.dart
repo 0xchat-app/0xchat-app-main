@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +5,6 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
@@ -15,25 +12,21 @@ import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_discovery/page/widgets/youtube_player_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import '../../model/moment_option_model.dart';
-import '../../model/moment_ui_model.dart';
-import '../../utils/discovery_utils.dart';
-import '../../utils/moment_content_analyze_utils.dart';
-import '../discovery_page.dart';
-import '../moments/moment_option_user_page.dart';
-import '../moments/moments_page.dart';
+import 'moment_option_widget.dart';
+import 'moment_url_widget.dart';
 import 'moment_quote_widget.dart';
 import 'moment_reply_abbreviate_widget.dart';
 import 'moment_reposted_tips_widget.dart';
 import 'moment_rich_text_widget.dart';
-import '../../utils/moment_widgets_utils.dart';
-import 'moment_option_widget.dart';
-import 'moment_url_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
-
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
+import '../../utils/moment_widgets_utils.dart';
+import '../../model/moment_ui_model.dart';
+import '../../utils/discovery_utils.dart';
+import '../moments/moment_option_user_page.dart';
+import '../moments/moments_page.dart';
 
 class MomentWidget extends StatefulWidget {
   final bool isShowInteractionData;
@@ -67,7 +60,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _init();
+    _dataInit();
   }
 
   @override
@@ -78,8 +71,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel.value.noteDB.noteId != oldWidget.notedUIModel.value.noteDB.noteId) {
-      _init();
+    if (widget.notedUIModel.value.noteDB.noteId !=
+        oldWidget.notedUIModel.value.noteDB.noteId) {
+      _dataInit();
     }
   }
 
@@ -105,67 +99,44 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentContent(),
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
-            MomentReplyAbbreviateWidget(notedUIModel:model,isShowReplyWidget:widget.isShowReplyWidget),
+            MomentReplyAbbreviateWidget(
+                notedUIModel: model,
+                isShowReplyWidget: widget.isShowReplyWidget),
             _momentInteractionDataWidget(),
-            MomentOptionWidget(notedUIModel: model,isShowMomentOptionWidget:widget.isShowMomentOptionWidget),
+            MomentOptionWidget(
+                notedUIModel: model,
+                isShowMomentOptionWidget: widget.isShowMomentOptionWidget),
           ],
         ),
       ),
     );
   }
 
-  Widget _emptyNoteMoment(){
-    return Container(
-      margin: EdgeInsets.only(
-          top: 10.px
-      ),
-      height: 300.px,
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1.px,
-          color: ThemeColor.color160,
-        ),
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            11.5.px,
-          ),
-        ),
-      ),
-      child: Center(
-        child: Text(
-          'Moment not found !',
-          style: TextStyle(
-            color: ThemeColor.color100,
-            fontSize: 16.px,
-          ),
-        ),
-      ),
-    );
-  }
-
-
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null || model.value.getMomentShowContent.isEmpty) return const SizedBox();
+    if (model == null || model.value.getMomentShowContent.isEmpty)
+      return const SizedBox();
     List<String> quoteUrlList = model.value.getQuoteUrlList;
-    List<String> contentList = DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
+    List<String> contentList =
+        DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
 
     return Column(
-      children: contentList.map((String content){
-        if(quoteUrlList.contains(content)){
+      children: contentList.map((String content) {
+        if (quoteUrlList.contains(content)) {
           final noteInfo = NoteDB.decodeNote(content);
           String? notedId = noteInfo?['channelId'];
-          if(notedId != null && notedId != model.value.noteDB.quoteRepostId){
-            return MomentQuoteWidget(notedId: noteInfo?['channelId']);
-          }else{
-            return const SizedBox();
-          }
-        }else{
+          bool isShowQuote =
+              notedId != null && notedId != model.value.noteDB.quoteRepostId;
+          return isShowQuote
+              ? MomentQuoteWidget(notedId: noteInfo?['channelId'])
+              : const SizedBox();
+        } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
             clickBlankCallback: () => widget.clickMomentCallback?.call(model),
             showMoreCallback: () async {
-              OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model));
+              OXNavigator.pushPage(
+                  context, (context) => MomentsPage(notedUIModel: model));
               setState(() {});
             },
             text: content,
@@ -193,12 +164,11 @@ class _MomentWidgetState extends State<MomentWidget> {
     List<String> getVideoList = model.value.getVideoList;
     if (getVideoList.isNotEmpty) {
       String videoUrl = getVideoList[0];
-      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
-        return YoutubePlayerWidget(videoUrl:videoUrl);
-      }else{
-          return VideoMomentWidget(videoUrl: videoUrl);
-      }
-      // return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
+      bool isHasYoutube =
+          videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be');
+      return isHasYoutube
+          ? YoutubePlayerWidget(videoUrl: videoUrl)
+          : VideoMomentWidget(videoUrl: videoUrl);
     }
 
     List<String> getMomentExternalLink = model.value.getMomentExternalLink;
@@ -207,7 +177,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     }
     return const SizedBox();
   }
-
 
   Widget _showReplyContactWidget() {
     if (!widget.isShowReply) return const SizedBox();
@@ -238,69 +207,68 @@ class _MomentWidgetState extends State<MomentWidget> {
           ValueListenableBuilder<UserDB>(
             valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
-              return Container(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        await OXModuleService.pushPage(
-                            context, 'ox_chat', 'ContactUserInfoPage', {
-                          'pubkey': pubKey,
-                        });
-                        setState(() {});
-                      },
-                      child: MomentWidgetsUtils.clipImage(
-                        borderRadius: 40.px,
-                        imageSize: 40.px,
-                        child: OXCachedNetworkImage(
-                          imageUrl: value.picture ?? '',
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              MomentWidgetsUtils.badgePlaceholderImage(),
-                          errorWidget: (context, url, error) =>
-                              MomentWidgetsUtils.badgePlaceholderImage(),
-                          width: 40.px,
-                          height: 40.px,
-                        ),
+              return Row(
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      await OXModuleService.pushPage(
+                          context, 'ox_chat', 'ContactUserInfoPage', {
+                        'pubkey': pubKey,
+                      });
+                      setState(() {});
+                    },
+                    child: MomentWidgetsUtils.clipImage(
+                      borderRadius: 40.px,
+                      imageSize: 40.px,
+                      child: OXCachedNetworkImage(
+                        imageUrl: value.picture ?? '',
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            MomentWidgetsUtils.badgePlaceholderImage(),
+                        errorWidget: (context, url, error) =>
+                            MomentWidgetsUtils.badgePlaceholderImage(),
+                        width: 40.px,
+                        height: 40.px,
                       ),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(
-                        left: 10.px,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                value.name ?? '',
-                                style: TextStyle(
-                                  color: ThemeColor.color0,
-                                  fontSize: 14.px,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(
+                      left: 10.px,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              value.name ?? '',
+                              style: TextStyle(
+                                color: ThemeColor.color0,
+                                fontSize: 14.px,
+                                fontWeight: FontWeight.w500,
                               ),
-                              _checkIsPrivate(),
-                            ],
-                          ),
-                          Text(
-                            DiscoveryUtils.getUserMomentInfo(
-                                value, model.value.createAtStr)[0],
-                            style: TextStyle(
-                              color: ThemeColor.color120,
-                              fontSize: 12.px,
-                              fontWeight: FontWeight.w400,
                             ),
+                            _checkIsPrivate(),
+                          ],
+                        ),
+                        Text(
+                          DiscoveryUtils.getUserMomentInfo(
+                              value, model.value.createAtStr)[0],
+                          style: TextStyle(
+                            color: ThemeColor.color120,
+                            fontSize: 12.px,
+                            fontWeight: FontWeight.w400,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
-            },),
+            },
+          ),
 
           // CommonImage(
           //   iconName: 'more_moment_icon.png',
@@ -316,16 +284,20 @@ class _MomentWidgetState extends State<MomentWidget> {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     if (!widget.isShowInteractionData) return const SizedBox();
 
-    List<String> repostEventIds = model.value.noteDB.repostEventIds ?? [];
-    List<String> quoteRepostEventIds = model.value.noteDB.quoteRepostEventIds ?? [];
-    List<String> reactionEventIds = model.value.noteDB.reactionEventIds ?? [];
-    List<String> zapEventIds = model.value.noteDB.zapEventIds ?? [];
+    NoteDB noteDB = model.value.noteDB;
+
+    List<String> repostEventIds = noteDB.repostEventIds ?? [];
+    List<String> quoteRepostEventIds = noteDB.quoteRepostEventIds ?? [];
+    List<String> reactionEventIds = noteDB.reactionEventIds ?? [];
+    List<String> zapEventIds = noteDB.zapEventIds ?? [];
 
     Widget _itemWidget(ENotificationsMomentType type, int num) {
       return GestureDetector(
-        onTap: () async{
-
-          await  OXNavigator.pushPage(context, (context) => MomentOptionUserPage(notedUIModel:model, type: type));
+        onTap: () async {
+          await OXNavigator.pushPage(
+              context,
+              (context) =>
+                  MomentOptionUserPage(notedUIModel: model, type: type));
           setState(() {});
         },
         child: RichText(
@@ -366,15 +338,15 @@ class _MomentWidgetState extends State<MomentWidget> {
     );
   }
 
-  Widget _checkIsPrivate(){
+  Widget _checkIsPrivate() {
     NotedUIModel? model = notedUIModel?.value;
-    if(model == null || !model.noteDB.private) return const SizedBox();
+    if (model == null || !model.noteDB.private) return const SizedBox();
     double momentMm = boundingTextSize(
-        Localized.text('ox_discovery.rivate'),
-        TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: Adapt.px(20),
-            color: ThemeColor.titleColor))
+            Localized.text('ox_discovery.rivate'),
+            TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Adapt.px(20),
+                color: ThemeColor.titleColor))
         .width;
 
     return Container(
@@ -396,32 +368,32 @@ class _MomentWidgetState extends State<MomentWidget> {
       ),
       child: Container(
         constraints: BoxConstraints(maxWidth: momentMm),
-        child: GradientText(Localized.text('ox_discovery.private'),
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Adapt.px(12),
-                color: ThemeColor.titleColor),
-            colors: [
-              ThemeColor.gradientMainStart,
-              ThemeColor.gradientMainEnd
-            ]),
+        child: GradientText(
+          Localized.text('ox_discovery.private'),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: Adapt.px(12),
+              color: ThemeColor.titleColor),
+          colors: [
+            ThemeColor.gradientMainStart,
+            ThemeColor.gradientMainEnd,
+          ],
+        ),
       ),
     );
   }
 
-
-  void _init() async {
+  void _dataInit() async {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     String? repostId = model.value.noteDB.repostId;
     if (model.value.noteDB.isRepost && repostId != null) {
-      if(NotedUIModelCache.map[repostId] != null){
+      if (NotedUIModelCache.map[repostId] != null) {
         notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
         _getMomentUserInfo(notedUIModel!.value);
         setState(() {});
-      }else{
+      } else {
         _getRepostId(repostId);
       }
-
     } else {
       notedUIModel = model;
       _getMomentUserInfo(model.value);
@@ -429,10 +401,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     }
   }
 
-  void _getMomentUserInfo(NotedUIModel model)async {
+  void _getMomentUserInfo(NotedUIModel model) async {
     String pubKey = model.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
   }

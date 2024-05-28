@@ -65,38 +65,38 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   @override
   Widget build(BuildContext context) {
     if(!widget.isShowMomentOptionWidget) return const SizedBox();
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            Adapt.px(8),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: (){},
+      child: Container(
+        height: 41.px,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(
+              Adapt.px(8),
+            ),
           ),
+          color: ThemeColor.color180,
         ),
-        color: ThemeColor.color180,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.px,
-        vertical: 12.px,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: momentOptionTypeList.map((EMomentOptionType type) {
-
-          return ValueListenableBuilder<NotedUIModel>(
-            valueListenable: widget.notedUIModel,
-            builder: (context, model, child) {
-              return  _iconTextWidget(
-                type: type,
-                isSelect: _isClickByMe(type),
-                onTap: () {
-                  _onTapCallback(type)();
-                },
-                clickNum: _getClickNum(type),
-              );
-            },
-          );
-
-        }).toList(),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12.px,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: momentOptionTypeList.map((EMomentOptionType type) {
+            return ValueListenableBuilder<NotedUIModel>(
+              valueListenable: widget.notedUIModel,
+              builder: (context, model, child) {
+                return  _iconTextWidget(
+                  type: type,
+                  isSelect: _isClickByMe(type,model),
+                  onTap: () => _onTapCallback(type),
+                  clickNum: _getClickNum(type,model),
+                );
+              },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -134,34 +134,36 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     GestureTapCallback? onTap,
     int? clickNum,
   }) {
-    final content =
-        clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
+    final content = clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
     Color textColors = isSelect ? ThemeColor.gradientMainStart : ThemeColor.color80;
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => onTap?.call(),
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-              right: 4.px,
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => onTap?.call(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.only(
+                right: 4.px,
+              ),
+              child: CommonImage(
+                iconName: type.getIconName,
+                size: 16.px,
+                package: 'ox_discovery',
+                color: textColors,
+              ),
             ),
-            child: CommonImage(
-              iconName: type.getIconName,
-              size: 16.px,
-              package: 'ox_discovery',
-              color: textColors,
-            ),
-          ),
-          Text(
-            content,
-            style: TextStyle(
-              color: textColors,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
-            ),
-          )
-        ],
+            Text(
+              content,
+              style: TextStyle(
+                color: textColors,
+                fontSize: 12.px,
+                fontWeight: FontWeight.w400,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -265,8 +267,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
   }
 
 
-  int _getClickNum(EMomentOptionType type){
-    NoteDB noteDB = notedUIModel.value.noteDB;
+  int _getClickNum(EMomentOptionType type,NotedUIModel model){
+    NoteDB noteDB = model.noteDB;
     switch(type){
       case EMomentOptionType.repost:
        return (noteDB.repostCount) + (noteDB.quoteRepostCount);
@@ -279,8 +281,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
     }
   }
 
-  bool _isClickByMe(EMomentOptionType type){
-    NoteDB noteDB = notedUIModel.value.noteDB;
+  bool _isClickByMe(EMomentOptionType type,NotedUIModel model){
+    NoteDB noteDB = model.noteDB;
     switch(type){
       case EMomentOptionType.repost:
         return noteDB.repostCountByMe > 0;
