@@ -58,8 +58,7 @@ class _MomentsPageState extends State<MomentsPage> {
       replyList = [noteModelDraft];
       String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
-        NoteDB? note =
-            await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) {
           notedUIModel = null;
           if (mounted) {
@@ -321,13 +320,15 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getMomentUserInfo();
-      setState(() {});
     }
   }
 
   void _getMomentUserInfo()async {
     String pubKey = widget.notedUIModel.value.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
 

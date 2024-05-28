@@ -28,6 +28,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
+import '../widgets/youtube_player_widget.dart';
+
 class ReplyMomentsPage extends StatefulWidget {
   final ValueNotifier<NotedUIModel> notedUIModel;
   const ReplyMomentsPage({Key? key, required this.notedUIModel})
@@ -61,7 +63,10 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   void _getMomentUserInfo()async {
     String pubKey = widget.notedUIModel.value.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
 

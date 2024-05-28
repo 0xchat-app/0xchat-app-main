@@ -66,7 +66,10 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   void _getMomentUserInfo(NotedUIModel model)async {
     String pubKey = model.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
 
@@ -161,7 +164,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                               ),
                             ),
                             Text(
-                              value?.name ?? '--',
+                              value.name ?? '--',
                               style: TextStyle(
                                 fontSize: 12.px,
                                 fontWeight: FontWeight.w500,
@@ -189,13 +192,14 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                         MomentRichTextWidget(
                           text: model.noteDB.content,
                           textSize: 12.px,
-                          maxLines: 1,
+                          // maxLines: 1,
                           isShowAllContent: false,
                         ),
                       ],
                     ),
                   );
-                }),
+                },
+            ),
           ],
         ),
       ),

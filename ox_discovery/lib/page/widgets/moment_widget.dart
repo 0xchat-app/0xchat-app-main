@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
+import 'package:ox_discovery/page/widgets/youtube_player_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_option_model.dart';
@@ -84,7 +85,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _momentItemWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null) return MomentWidgetsUtils.emptyNoteMoment('Moment not found !',300);
+    if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.clickMomentCallback?.call(model),
@@ -153,7 +154,12 @@ class _MomentWidgetState extends State<MomentWidget> {
       children: contentList.map((String content){
         if(quoteUrlList.contains(content)){
           final noteInfo = NoteDB.decodeNote(content);
-          return MomentQuoteWidget(notedId: noteInfo?['channelId']);
+          String? notedId = noteInfo?['channelId'];
+          if(notedId != null && notedId != model.value.noteDB.quoteRepostId){
+            return MomentQuoteWidget(notedId: noteInfo?['channelId']);
+          }else{
+            return const SizedBox();
+          }
         }else{
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
@@ -186,7 +192,12 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     List<String> getVideoList = model.value.getVideoList;
     if (getVideoList.isNotEmpty) {
-      return VideoMomentWidget(videoUrl: getVideoList[0],);
+      String videoUrl = getVideoList[0];
+      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+        return YoutubePlayerWidget(videoUrl:videoUrl);
+      }else{
+          return VideoMomentWidget(videoUrl: videoUrl);
+      }
       // return MomentWidgetsUtils.videoMoment(context, getVideoList[0], null);
     }
 
@@ -420,7 +431,10 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _getMomentUserInfo(NotedUIModel model)async {
     String pubKey = model.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
   int _calculateColumnsForPictures(int picSize) {

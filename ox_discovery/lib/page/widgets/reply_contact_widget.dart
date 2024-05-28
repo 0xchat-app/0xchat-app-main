@@ -42,19 +42,28 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       setState(() {});
       return;
     }
-    isShowReplyContactWidget = true;
-    if (mounted) {
-      setState(() {});
-    }
+
+
     String? getReplyId = model.noteDB.getReplyId;
 
-    if (getReplyId == null) return;
+    if (getReplyId == null) {
+      isShowReplyContactWidget = false;
+      setState(() {});
+      return;
+    }
 
     if (NotedUIModelCache.map[getReplyId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-      if (note == null) return;
+      if (note == null) {
+        isShowReplyContactWidget = false;
+        if(mounted){
+          setState(() {});
+        }
+        return;
+      }
       NotedUIModelCache.map[getReplyId] = NotedUIModel(noteDB: note);
     }
+    isShowReplyContactWidget = true;
 
     noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
     _getMomentUserInfo(NotedUIModelCache.map[getReplyId]!);
@@ -65,14 +74,18 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
 
   void _getMomentUserInfo(NotedUIModel notedUIModel)async {
     String pubKey = notedUIModel.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (!isShowReplyContactWidget) return const SizedBox();
+    if(noteAuthor == null) return  _emptyNoteAuthorWidget();
     return ValueListenableBuilder<UserDB>(
-      valueListenable: Account.sharedInstance.getUserNotifier(noteAuthor ?? ''),
+      valueListenable: Account.sharedInstance.getUserNotifier(noteAuthor!),
       builder: (context, value, child) {
         return RichText(
           textAlign: TextAlign.left,
@@ -106,6 +119,30 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
           ),
         );
       },
+    );
+  }
+
+  Widget _emptyNoteAuthorWidget(){
+    return RichText(
+      textAlign: TextAlign.left,
+      text: TextSpan(
+        style: TextStyle(
+          color: ThemeColor.color0,
+          fontSize: 14.px,
+          fontWeight: FontWeight.w400,
+        ),
+        children: [
+          const TextSpan(text: 'Reply to'),
+          TextSpan(
+            text: ' @ ',
+            style: TextStyle(
+              color: ThemeColor.purple2,
+              fontSize: 12.px,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

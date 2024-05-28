@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -34,10 +36,11 @@ class MomentRichTextWidget extends StatefulWidget {
   _MomentRichTextWidgetState createState() => _MomentRichTextWidgetState();
 }
 
-class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with WidgetsBindingObserver {
+class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
+    with WidgetsBindingObserver {
   final GlobalKey _containerKey = GlobalKey();
 
-  Map<String,UserDB?> userDBList = {};
+  Map<String, UserDB?> userDBList = {};
 
   @override
   void initState() {
@@ -63,14 +66,15 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
 
   void _getUserInfo() async {
     userDBList = await MomentContentAnalyzeUtils(widget.text).getUserInfoMap;
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    String getShowText = MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
+    String getShowText =
+        MomentContentAnalyzeUtils(widget.text).getMomentShowContent;
     final textSpans = _buildTextSpans(getShowText, context);
     return Container(
       key: _containerKey,
@@ -79,17 +83,15 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SelectableText.rich(
-              onTap:(){
-                widget.clickBlankCallback?.call();
-              },
-              maxLines: widget.maxLines,
-              TextSpan(
-                style: TextStyle(
-                  color: widget.defaultTextColor ?? ThemeColor.color0,
-                  fontSize: widget.textSize ?? 16.px,
-                ),
-                children: textSpans,
+            onTap: _clearSelectTextToCallback,
+            maxLines: widget.maxLines,
+            TextSpan(
+              style: TextStyle(
+                color: widget.defaultTextColor ?? ThemeColor.color0,
+                fontSize: widget.textSize ?? 16.px,
               ),
+              children: textSpans,
+            ),
           ),
         ],
       ),
@@ -99,12 +101,13 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
     String showContent = analyze.getMomentPlainText;
-    if(!widget.isShowAllContent && showContent.length > 300){
-      text = '${text.substring(0,300)} show more';
+    if (!widget.isShowAllContent && showContent.length > 300) {
+      text = '${text.substring(0, 300)} show more';
     }
     final List<TextSpan> spans = [];
     Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
-    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}|${(regexMap['showMore'] as RegExp).pattern}', caseSensitive: false);
+    final RegExp contentExp = RegExp('${(regexMap['hashRegex'] as RegExp).pattern}|${(regexMap['urlExp'] as RegExp).pattern}|${(regexMap['nostrExp'] as RegExp).pattern}|${(regexMap['lineFeed'] as RegExp).pattern}|${(regexMap['showMore'] as RegExp).pattern}|${(regexMap['youtubeExp'] as RegExp).pattern}',
+        caseSensitive: false);
     int lastMatchEnd = 0;
     contentExp.allMatches(text).forEach((match) {
       final beforeMatch = text.substring(lastMatchEnd, match.start);
@@ -112,16 +115,14 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
         spans.add(TextSpan(
           text: beforeMatch,
           recognizer: TapGestureRecognizer()
-            ..onTap = () {
-            widget.clickBlankCallback?.call();
-            },
+            ..onTap = _clearSelectTextToCallback,
         ));
       }
 
       final matchText = match.group(0);
       if (matchText == '\n') {
         spans.add(const TextSpan(text: '\n'));
-      } else if(matchText == 'show more'){
+      } else if (matchText == 'show more') {
         spans.add(TextSpan(
           text: '... show more',
           style: TextStyle(color: ThemeColor.purple2),
@@ -130,7 +131,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
               widget.showMoreCallback?.call();
             },
         ));
-      }else {
+      } else {
         spans.add(_buildLinkSpan(matchText!, context));
       }
 
@@ -155,31 +156,33 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
         },
     );
   }
-  
-  List<String> _dealWithText(String text){
-    if(text.startsWith('nostr:npub') || text.startsWith('npub') || text.startsWith('nostr:nprofile')){
-      if(userDBList[text] != null){
+
+  List<String> _dealWithText(String text) {
+    if (text.startsWith('nostr:npub') ||
+        text.startsWith('npub') ||
+        text.startsWith('nostr:nprofile')) {
+      if (userDBList[text] != null) {
         UserDB userDB = userDBList[text]!;
-        return ['@${userDB.name}','@${userDB.pubKey}'];
+        return ['@${userDB.name}', '@${userDB.pubKey}'];
       }
-      return ['',''];
+      return ['', ''];
     }
 
-    if(text.startsWith('http')){
+    if (text.startsWith('http')) {
       int subLength = text.length > 20 ? 20 : text.length;
-      return [text.substring(0,subLength) + '...',text];
+      return [text.substring(0, subLength) + '...', text];
     }
-    return [text,text];
+    return [text, text];
   }
 
-  void _onTextTap(String text, BuildContext context) async{
+  void _onTextTap(String text, BuildContext context) async {
     if (text.startsWith('#')) {
       OXNavigator.pushPage(context, (context) => TopicMomentPage(title: text));
       return;
     }
     if (text.startsWith('@')) {
       OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
-        'pubkey':text.substring(1),
+        'pubkey': text.substring(1),
       });
       return;
     }
@@ -192,5 +195,13 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget> with Widget
       return;
     }
     widget.clickBlankCallback?.call();
+  }
+
+  void _clearSelectTextToCallback(){
+    if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).unfocus();
+    } else {
+      widget.clickBlankCallback?.call();
+    }
   }
 }

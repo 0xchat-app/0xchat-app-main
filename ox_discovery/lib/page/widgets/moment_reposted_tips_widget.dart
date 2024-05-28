@@ -36,7 +36,10 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
 
   void _getMomentUserInfo()async {
     String pubKey = widget.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override

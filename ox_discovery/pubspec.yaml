@@ -19,6 +19,8 @@ dependencies:
   video_compress: ^3.1.2
   path_provider: ^2.0.11
   video_thumbnail: ^0.5.3
+  youtube_player_flutter: ^8.1.1
+  visibility_detector: ^0.3.3
 
   ox_module_service:
     path: ../../base_framework/ox_module_service

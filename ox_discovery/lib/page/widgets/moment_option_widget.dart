@@ -56,7 +56,10 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget> {
 
   void _getMomentUserInfo()async {
     String pubKey = widget.notedUIModel.value.noteDB.author;
-    Account.sharedInstance.getUserInfo(pubKey);
+    await Account.sharedInstance.getUserInfo(pubKey);
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override

@@ -11,6 +11,7 @@ class MomentContentAnalyzeUtils {
     'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
     'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
+    'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
     'lineFeed': RegExp(r"\n"),
     'showMore': RegExp(r"show more$"),
   };
@@ -44,7 +45,8 @@ class MomentContentAnalyzeUtils {
   List<String> getMediaList(int type){
     final RegExp imgExp = regexMap['imgExp'] as RegExp;
     final RegExp audioExp = regexMap['audioExp'] as RegExp;
-    RegExp getRegExp = type == 1 ? imgExp : audioExp;
+    final RegExp youtubeExp = regexMap['youtubeExp'] as RegExp;
+    RegExp getRegExp = type == 1 ? imgExp : RegExp('${audioExp.pattern}|${youtubeExp.pattern}', caseSensitive: false);
     final Iterable<RegExpMatch> matches = getRegExp.allMatches(content);
 
     final List<String> filesList = matches.map((m) => m.group(0)!).toList();
@@ -61,9 +63,10 @@ class MomentContentAnalyzeUtils {
    String get getMomentShowContent {
      final RegExp imgExp = regexMap['imgExp'] as RegExp;
      final RegExp audioExp = regexMap['audioExp'] as RegExp;
+     final RegExp youtubeExp = regexMap['youtubeExp'] as RegExp;
      final RegExp noteExp = regexMap['noteExp'] as RegExp;
 
-      final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}', caseSensitive: false);
+      final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${youtubeExp.pattern}', caseSensitive: false);
      final String cleanedText = content.replaceAll(contentExp, '');
      return cleanedText.trim();
   }
@@ -73,8 +76,9 @@ class MomentContentAnalyzeUtils {
     final RegExp audioExp = regexMap['audioExp'] as RegExp;
     final RegExp noteExp = regexMap['noteExp'] as RegExp;
     final RegExp nostrExp = regexMap['nostrExp'] as RegExp;
+    final RegExp youtubeExp = regexMap['youtubeExp'] as RegExp;
 
-    final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${nostrExp.pattern}', caseSensitive: false);
+    final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${nostrExp.pattern}|${youtubeExp.pattern}', caseSensitive: false);
     final String cleanedText = content.replaceAll(contentExp, '');
     return cleanedText.trim();
   }
