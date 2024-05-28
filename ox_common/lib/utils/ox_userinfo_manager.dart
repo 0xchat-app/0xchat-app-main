@@ -219,6 +219,10 @@ class OXUserInfoManager {
     Moment.sharedInstance.newNotificationCallBack = (List<NotificationDB> notifications) {
       OXMomentManager.sharedInstance.newNotificationCallBack(notifications);
     };
+
+    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
+      OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
+    };
   }
 
   void updateUserInfo(UserDB userDB) {}
@@ -337,7 +341,7 @@ class OXUserInfoManager {
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
-    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 0.0);
+    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 0);
   }
 
   void _initMessage() {

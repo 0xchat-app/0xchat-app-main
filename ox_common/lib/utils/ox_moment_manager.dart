@@ -4,6 +4,8 @@ abstract mixin class OXMomentObserver {
   didNewNotesCallBackCallBack(List<NoteDB> notes) {}
 
   didNewNotificationCallBack(List<NotificationDB> notifications) {}
+
+  didMyZapNotificationCallBack(List<NotificationDB> notifications) {}
 }
 
 class OXMomentManager {
@@ -49,6 +51,7 @@ class OXMomentManager {
   void clearNewNotifications() {
     Moment.sharedInstance.clearNewNotifications();
     _notifications.clear();
+    newNotificationCallBack(_notifications);
   }
 
   void newNotesCallBackCallBack(List<NoteDB> notes) {
@@ -63,6 +66,12 @@ class OXMomentManager {
     _notifications = notifications;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotificationCallBack(notifications);
+    }
+  }
+
+  void myZapNotificationCallBack(List<NotificationDB> notifications) {
+    for (OXMomentObserver observer in _observers) {
+      observer.didMyZapNotificationCallBack(notifications);
     }
   }
 }
