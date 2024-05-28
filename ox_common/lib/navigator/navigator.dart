@@ -21,6 +21,8 @@ class OXNavigator extends Navigator {
 
   static List<NavigatorObserver> observer = [];
 
+  static RouteObserver routeObserver = RouteObserver();
+
   static bool canPop(BuildContext context) {
     return Navigator.canPop(context);
   }
