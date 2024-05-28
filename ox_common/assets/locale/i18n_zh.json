@@ -114,5 +114,6 @@
   "str_share": "分享",
   "str_uses_app": "使用应用 ${appname}",
   "str_disables_push_notification": "关闭推送通知",
-  "str_select_push_app_title": "请选择推送应用"
+  "str_select_push_app_title": "请选择推送应用",
+  "str_permission_call_hint": "请手动前往“设置”，打开麦克风/照相机权限"
 }
