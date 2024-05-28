@@ -116,13 +116,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
   Widget _showItemWidget(EMomentOptionType type,NotedUIModel model){
     bool isZap = type == EMomentOptionType.zaps;
-    Widget iconTextWidget = Expanded(
-      child: _iconTextWidget(
-        type: type,
-        isSelect: _isClickByMe(type,model),
-        onTap: () => _onTapCallback(type)(),
-        clickNum: _getClickNum(type,model),
-      ),
+    Widget iconTextWidget = _iconTextWidget(
+      type: type,
+      isSelect: _isClickByMe(type,model),
+      onTap: () => _onTapCallback(type)(),
+      clickNum: _getClickNum(type,model),
     );
     if(isZap){
       return Expanded(
@@ -132,7 +130,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
         ),
       );
     }
-    return iconTextWidget;
+    return Expanded(child: iconTextWidget);
   }
 
   GestureTapCallback _onTapCallback(EMomentOptionType type) {
