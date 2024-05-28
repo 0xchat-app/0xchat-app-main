@@ -167,7 +167,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       bool isHasYoutube =
           videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be');
       return isHasYoutube
-          ? YoutubePlayerWidget(videoUrl: videoUrl)
+          ? MomentWidgetsUtils.youtubeSurfaceMoment(context,videoUrl)
           : VideoMomentWidget(videoUrl: videoUrl);
     }
 

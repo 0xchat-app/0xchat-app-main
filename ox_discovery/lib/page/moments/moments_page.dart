@@ -164,8 +164,9 @@ class _MomentsPageState extends State<MomentsPage> {
 
   Widget _showContentWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null)
+    if (model == null) {
       return MomentWidgetsUtils.emptyNoteMoment('Moment not found !', 300);
+    }
     return MomentWidget(
       isShowAllContent: true,
       isShowInteractionData: true,

@@ -320,21 +320,19 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                       ),
                       GestureDetector(
                         onTap: _clickMoment,
-                        child: Container(
-                          child: Text(
-                            _getContent,
-                            style: TextStyle(
-                              color: ThemeColor.color0,
-                              fontSize: 12.px,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          _getContent,
+                          style: TextStyle(
+                            color: ThemeColor.color0,
+                            fontSize: 12.px,
+                            fontWeight: FontWeight.w400,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
-                  ),
+                  ).setPaddingOnly(left: 16.px),
                 ),
               ],
             ),

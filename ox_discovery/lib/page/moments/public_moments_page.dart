@@ -168,6 +168,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   Future<void> updateNotesList(bool isInit, {bool refresh = false,bool isWrapRefresh = false}) async {
+    bool isPrivateMoment = widget.publicMomentsPageType == EPublicMomentsPageType.private;
     if(isWrapRefresh){
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -179,7 +180,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
-        await _getNotesFromRelay();
+        if(!isPrivateMoment) await _getNotesFromRelay();
         return;
       }
 
@@ -187,11 +188,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       _updateUI(showList, isInit, list.length);
 
       if (list.length < _limit ) {
-        if(widget.publicMomentsPageType != true){
-          await _getNotesFromRelay();
-        }else{
-          _refreshController.loadNoData();
-        }
+        !isPrivateMoment ? await _getNotesFromRelay() : _refreshController.loadNoData();
       }
     } catch (e) {
       print('Error loading notes: $e');

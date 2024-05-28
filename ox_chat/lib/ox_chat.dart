@@ -118,9 +118,9 @@ class OXChat extends OXFlutterModule {
           msg: params?['url'] ?? '',
         ));
       case 'ChatVideoPlayPage':
-        return OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(
+        return OXNavigator.presentPage(context, (context) => ChatVideoPlayPage(
           videoUrl: params?['videoUrl'] ?? '',
-        ));
+        ),fullscreenDialog:true);
 
     }
     return null;

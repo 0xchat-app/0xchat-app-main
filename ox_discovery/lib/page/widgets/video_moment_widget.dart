@@ -81,7 +81,6 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
   }
 
   Widget videoMoment() {
-    return Container();
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
