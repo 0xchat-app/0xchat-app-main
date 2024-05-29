@@ -196,8 +196,12 @@ class _KeysPageState extends State<KeysPage>{
                     await TookKit.copyKey(context, userDB.encodedPubkey);
                     _publicKeyCopyied = true;
                   } else if (keyType == KeyType.PrivateKey) {
-                    await TookKit.copyKey(context, userDB.encodedPrivkey);
-                    _privateKeyCopyied = true;
+                    final result = await OXNavigator.pushPage(context, (context) => const VerifyPasscodePage(needBack: true,));
+                    LogUtil.e('Michael: --copyprikey--- result =$result');
+                    if (result != null && result is bool && result && mounted) {
+                      await TookKit.copyKey(context, userDB.encodedPrivkey);
+                      _privateKeyCopyied = true;
+                    }
                   }
                   setState(() {
                   });
