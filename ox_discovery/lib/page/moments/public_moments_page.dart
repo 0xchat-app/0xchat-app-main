@@ -198,7 +198,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<void> _getNotesFromRelay() async {
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadNewNotesFromRelay(until: _allNotesFromDBFromRelayLastTimestamp, limit: _limit) ?? [];
+      List<NoteDB> list = await Moment.sharedInstance.loadPublicNewNotesFromRelay(until: _allNotesFromDBFromRelayLastTimestamp) ?? [];
       if (list.isEmpty) {
         _refreshController.loadNoData();
         return;

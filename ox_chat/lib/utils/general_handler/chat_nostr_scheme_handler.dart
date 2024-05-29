@@ -191,7 +191,7 @@ class ChatNostrSchemeHandle {
     String resultString = nostrScheme.replaceFirst('nostr:', "");
     final url = '${CommonConstant.njumpURL}${resultString}';
     String link = CustomURIHelper.createModuleActionURI(
-        module: 'ox_chat', action: 'commonWebview', params: {'url': url});
+        module: 'OXDiscoveryInterface', action: 'getMomentPageUri', params: {'url': url});
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
