@@ -83,6 +83,13 @@ class ChatNostrSchemeHandle {
       ChannelDB? channelDB = Channels.sharedInstance.channels[eventId];
       if (channelDB != null)
         return channelToMessageContent(channelDB, nostrScheme);
+      // check local moment
+      NoteDB? noteDB = Moment.sharedInstance.notesCache[eventId];
+      if(noteDB != null){
+        Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null, noteDB.content, null, '', '');
+        return await noteToMessageContent(note, nostrScheme);
+      }
+
       // check online
       Event? event = await Account.loadEvent(eventId);
       if (event != null) {
