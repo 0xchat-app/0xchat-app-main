@@ -108,7 +108,7 @@ class PermissionUtils{
     } else {
       OXCommonHintDialog.show(context,
           title: Localized.text('ox_common.tips'),
-          content: Localized.text('ox_chat.str_permission_call_hint'),
+          content: Localized.text('ox_common.str_permission_call_hint'),
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context);
