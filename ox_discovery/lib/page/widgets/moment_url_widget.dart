@@ -9,6 +9,8 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_webview.dart';
 import 'package:ox_discovery/utils/moment_widgets_utils.dart';
 
+import '../../model/moment_extension_model.dart';
+
 class MomentUrlWidget extends StatefulWidget {
   final String url;
   const MomentUrlWidget({super.key, required this.url});
@@ -51,7 +53,17 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
   }
 
   void _getUrlInfo() async {
+    if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return;
+    PreviewData? previewData = ExternalLinkCache.map[widget.url];
+    if(previewData != null){
+      urlData = previewData;
+      setState(() {});
+      return;
+    }
+
     urlData = await WebURLHelper.getPreviewData(widget.url);
+    if(urlData?.title == null && urlData?.image == null && urlData?.description == null) return;
+    ExternalLinkCache.map[widget.url] = urlData;
     if(mounted){
       setState(() {});
     }
@@ -60,7 +72,7 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return const SizedBox();
-    if(urlData?.title == null && urlData?.image == null && urlData?.description == null) return const SizedBox();
+    if(urlData == null) return const SizedBox();
     return GestureDetector(
       onTap: () {
         OXNavigator.presentPage(
@@ -71,6 +83,7 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
         );
       },
       child: Container(
+        width: double.infinity,
         margin: EdgeInsets.only(
           bottom: 10.px,
         ),

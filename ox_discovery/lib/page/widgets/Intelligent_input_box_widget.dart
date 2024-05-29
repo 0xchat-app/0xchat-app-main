@@ -16,13 +16,13 @@ class IntelligentInputBoxWidget extends StatefulWidget {
   final Function(bool isFocused)? isFocusedCallback;
   final Function(UserDB user)? cueUserCallback;
   final TextEditingController textController;
-  final String? imageUrl;
+  final List<String>? imageUrlList;
   const IntelligentInputBoxWidget({
     super.key,
     this.hintText = '---',
     this.isFocusedCallback,
     this.cueUserCallback,
-    this.imageUrl,
+    this.imageUrlList,
     required this.textController,
   });
 
@@ -118,17 +118,28 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   }
 
   Widget _showImageWidget(){
-    String? image = widget.imageUrl;
-    if(image == null) return const SizedBox();
-    return MomentWidgetsUtils.clipImage(
-      borderRadius: 8.px,
-      child: Image.asset(
-        image,
-        width: 100.px,
-        fit: BoxFit.fill,
-        height: 100.px,
+
+    List<String>? imageList = widget.imageUrlList;
+    if(imageList == null || imageList.isEmpty) return const SizedBox();
+    return Container(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: imageList.map((String image){
+            return MomentWidgetsUtils.clipImage(
+              borderRadius: 8.px,
+              child: Image.asset(
+                image,
+                width: 100.px,
+                fit: BoxFit.fill,
+                height: 100.px,
+              ),
+            ).setPaddingOnly(right: 12.px);
+          }).toList(),
+        ),
       ),
     ).setPaddingOnly(top: 12.px);
+
   }
 
   Widget _selectListWidget() {

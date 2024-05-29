@@ -1,4 +1,5 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/web_url_helper.dart';
 
 import '../enum/moment_enum.dart';
 import 'moment_ui_model.dart';
@@ -39,4 +40,8 @@ extension ENotificationDBEX on NotificationDB {
 
 class NotedUIModelCache{
   static Map<String,NotedUIModel?> map = {};
+}
+
+class ExternalLinkCache{
+  static Map<String,PreviewData?> map = {};
 }

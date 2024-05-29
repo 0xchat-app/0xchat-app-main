@@ -44,7 +44,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   final TextEditingController _textController = TextEditingController();
 
-  String? _showImage;
+  final List<String> _showImageList = [];
 
 
   List<String> get getImagePicList => widget.notedUIModel.value.getImageList;
@@ -122,7 +122,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 _momentReplyWidget(),
                 ReplyContactWidget(notedUIModel: widget.notedUIModel),
                 IntelligentInputBoxWidget(
-                  imageUrl: _showImage,
+                  imageUrlList: _showImageList,
                   textController: _textController,
                   hintText: 'Post your reply',
                   cueUserCallback: (UserDB user) {
@@ -275,9 +275,13 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               AlbumUtils.openAlbum(
                 context,
                 type: 1,
-                selectCount: 1,
+                selectCount: 9,
                 callback: (List<String> imageList) {
-                  _showImage = imageList[0];
+                  if(_showImageList.length + imageList.length > 9){
+                    CommonToast.instance.show(context, 'Only nine images can be selected');
+                    return;
+                  }
+                  _showImageList.addAll(imageList);
                   if (mounted) {
                     setState(() {});
                   }
@@ -331,7 +335,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _postMoment() async {
-    if (_textController.text.isEmpty && _showImage == null) {
+    if (_textController.text.isEmpty && _showImageList.isEmpty) {
       CommonToast.instance.show(context, 'The content cannot be empty !');
       return;
     }
@@ -348,15 +352,11 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   Future<String> _getUploadMediaContent() async {
-    String? imagePath = _showImage;
-    if (imagePath == null) return '';
-    List<String> imageList = [imagePath];
-
-    if (imageList.isNotEmpty) {
+    if (_showImageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
         fileType: UplodAliyunType.imageType,
-        filePathList: imageList,
+        filePathList: _showImageList,
       );
       String getImageUrlToStr = imgUrlList.join(' ');
       return getImageUrlToStr;
