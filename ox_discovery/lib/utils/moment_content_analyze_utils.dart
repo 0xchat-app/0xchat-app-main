@@ -58,7 +58,15 @@ class MomentContentAnalyzeUtils {
 
     final Iterable<RegExpMatch> matches = urlExp.allMatches(content);
     final List<String> urlList = matches.map((m) => m.group(0)!).toList();
-    return urlList;
+    if(urlList.isEmpty) return urlList;
+    List<String> externalLink = [];
+    for(String link in urlList){
+      if (link.contains('youtube.com') || link.contains('youtu.be')) {
+        continue;
+      }
+      externalLink.add(link);
+    }
+    return externalLink;
   }
 
    String get getMomentShowContent {
