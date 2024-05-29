@@ -188,10 +188,10 @@ class ChatNostrSchemeHandle {
     }
     ;
 
-    String resultString = nostrScheme.replaceFirst('nostr:', "");
-    final url = '${CommonConstant.njumpURL}${resultString}';
+    // String resultString = nostrScheme.replaceFirst('nostr:', "");
+    // final url = '${CommonConstant.njumpURL}${resultString}';
     String link = CustomURIHelper.createModuleActionURI(
-        module: 'OXDiscoveryInterface', action: 'getMomentPageUri', params: {'url': url});
+        module: 'OXDiscoveryInterface', action: 'getMomentPageUri', params: {'url': note.nodeId});
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
