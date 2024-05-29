@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -31,7 +32,7 @@ class MomentOptionWidget extends StatefulWidget {
 }
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget>
-    with SingleTickerProviderStateMixin, NavigatorObserverMixin {
+    with SingleTickerProviderStateMixin, NavigatorObserverMixin, OXMomentObserver {
 
   late ValueNotifier<NotedUIModel> notedUIModel;
   late final AnimationController _shakeController;
@@ -48,7 +49,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   @override
   void initState() {
     super.initState();
-    _shakeController = AnimationController(duration:const Duration(milliseconds: 600),vsync: this);
+    OXMomentManager.sharedInstance.addObserver(this);
+    _shakeController = AnimationController(duration:const Duration(milliseconds: 800),vsync: this);
     _shakeController.addListener(_resetAnimation);
     _init();
   }
@@ -58,6 +60,22 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     super.didUpdateWidget(oldWidget);
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _init();
+    }
+  }
+
+  @override
+  Future<void> didPopNext() async {
+    if (_isShowAnimation) {
+      await _shakeController.forward();
+      _isShowAnimation = false;
+    }
+  }
+
+  @override
+  didMyZapNotificationCallBack(List<NotificationDB> notifications) {
+    final noteDB = widget.notedUIModel.value.noteDB;
+    if (notifications.first.associatedNoteId == noteDB.noteId) {
+      _isShowAnimation = true;
     }
   }
 
