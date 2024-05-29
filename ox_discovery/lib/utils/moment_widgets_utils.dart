@@ -170,8 +170,7 @@ class MomentWidgetsUtils {
                     MomentWidgetsUtils.badgePlaceholderContainer(size: 210),
                 width: double.infinity,
               ),
-            ).setPaddingOnly(bottom: 20.px),
-
+            ),
             // _videoSurfaceDrawingWidget(),
             CommonImage(
               iconName: 'play_moment_icon.png',
