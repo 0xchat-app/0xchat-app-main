@@ -60,14 +60,15 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return const SizedBox();
-    if (urlData == null) return const SizedBox();
+    if(urlData?.title == null && urlData?.image == null && urlData?.description == null) return const SizedBox();
     return GestureDetector(
       onTap: () {
         OXNavigator.presentPage(
             context,
             allowPageScroll: true,
             (context) => CommonWebView(widget.url),
-            fullscreenDialog: true);
+            fullscreenDialog: true,
+        );
       },
       child: Container(
         margin: EdgeInsets.only(

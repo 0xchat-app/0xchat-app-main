@@ -194,6 +194,8 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                           textSize: 12.px,
                           // maxLines: 1,
                           isShowAllContent: false,
+                          clickBlankCallback: () => _jumpMomentPage(model),
+                          showMoreCallback: () => _jumpMomentPage(model),
                         ),
                       ],
                     ),
@@ -232,52 +234,10 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
       ),
     );
   }
-}
 
-// void _getNoteList() async {
-//   if (widget.onlyShowNotedUIModel == null) {
-//     List<String> noteId = [];
-//     for (String quote in widget.quoteList!) {
-//       final noteInfo = NoteDB.decodeNote(quote);
-//       if (noteInfo == null) return;
-//       noteId.add(quote);
-//     }
-//
-//     NotedUIModel? notedUIModel = widget.notedUIModel?.value;
-//     if (notedUIModel != null && notedUIModel.noteDB.isQuoteRepost) {
-//       noteId.add(notedUIModel.noteDB.quoteRepostId!);
-//     }
-//
-//     for (String id in noteId) {
-//       _processQuote(id);
-//     }
-//   } else {
-//     noteListMap[widget.onlyShowNotedUIModel!.value.noteDB.noteId] = widget.onlyShowNotedUIModel!.value;
-//   }
-//
-//   if (mounted) {
-//     _setPageViewHeight(noteListMap.values.toList(), 0);
-//     setState(() {});
-//   }
-// }
-//
-// _processQuote(String noteId) async {
-//   if (NotedUIModelCache.map[noteId] == null) {
-//     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
-//     if (note == null) {
-//       noteListMap[DateTime.now().millisecond.toString()] = null;
-//       if (mounted) {
-//         setState(() {});
-//       }
-//       return;
-//     }
-//     NotedUIModelCache.map[noteId] = NotedUIModel(noteDB: note);
-//   }
-//
-//   NotedUIModel newNoted = NotedUIModelCache.map[noteId]!;
-//
-//   noteListMap[noteId] = newNoted;
-//   if (mounted) {
-//     setState(() {});
-//   }
-// }
+  void _jumpMomentPage(NotedUIModel model)async {
+      OXNavigator.pushPage(
+          context, (context) => MomentsPage(notedUIModel: ValueNotifier(model)));
+      setState(() {});
+  }
+}
