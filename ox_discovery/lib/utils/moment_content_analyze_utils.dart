@@ -55,6 +55,7 @@ class MomentContentAnalyzeUtils {
 
   List<String> get getMomentExternalLink {
     final RegExp urlExp = regexMap['urlExp'] as RegExp;
+
     final Iterable<RegExpMatch> matches = urlExp.allMatches(content);
     final List<String> urlList = matches.map((m) => m.group(0)!).toList();
     return urlList;
