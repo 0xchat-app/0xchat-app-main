@@ -29,7 +29,7 @@ class OXDiscovery  extends OXFlutterModule {
   @override
   Map<String, Function> get interfaces => {
     'discoveryPageWidget': discoveryPageWidget,
-    'jumpMomentPage': jumpMomentPage,
+    'momentPage': jumpMomentPage,
   };
 
   @override
