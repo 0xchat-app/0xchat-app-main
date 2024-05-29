@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -10,6 +11,7 @@ import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -712,7 +714,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               await OXUserInfoManager.sharedInstance.logout();
               await OXLoading.dismiss();
             }
-            OXNavigator.pop(context);
           },
         ),
       ],
@@ -734,7 +735,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 OXNavigator.pop(context);
                 await OXLoading.show();
                 await OXUserInfoManager.sharedInstance.logout();
-                OXNavigator.pop(context);
+                OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
                 await OXLoading.dismiss();
               }),
         ],
