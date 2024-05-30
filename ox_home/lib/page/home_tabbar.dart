@@ -3,7 +3,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -20,6 +19,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -41,22 +41,12 @@ class HomeTabBarPage extends StatefulWidget {
 }
 
 class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
-  int selectedIndex = 0;
   bool isLogin = false;
-  bool hasVibrator = false;
-  Timer? _refreshMessagesTimer;
   final PageController _pageController = PageController();
 
-  // State machine
-  final riveFileNames = ['Home','Contact', 'Discover', 'Me'];
-  final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_discover', 'state_machine_me'];
-  final riveInputs = ['Press', 'Press', 'Press', 'Press'];
-  late List<StateMachineController?> riveControllers = List<StateMachineController?>.filled(4, null);
-  late List<Artboard?> riveArtboards = List<Artboard?>.filled(4, null);
+  GlobalKey<DiscoveryPageBaseState> discoveryGlobalKey = GlobalKey();
 
-  int discoveryClickNum = 0;
-
-  List<TranslucentNavigationBarItem> tabBarList = [];
+  GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
 
   List<TabViewInfo> tabViewInfo = [
     TabViewInfo(
@@ -78,17 +68,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   ];
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-    _refreshMessagesTimer?.cancel();
-    _refreshMessagesTimer = null;
-    OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXChatBinding.sharedInstance.removeObserver(this);
-  }
-
-  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -98,84 +77,26 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXChatBinding.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
-
-    if (selectedIndex == 0) {
-      prepareMessageTimer();
-    } else {
-      _refreshMessagesTimer?.cancel();
-      _refreshMessagesTimer = null;
-    }
-    isHasVibrator();
-
-    dataInit();
     signerCheck();
   }
 
-  Future<void> _loadRiveFile(int index) async {
-    String animPath = "packages/ox_home/assets/${ThemeManager.images(riveFileNames[index])}.riv";
-
-    final data = await rootBundle.load(animPath);
-    final file = RiveFile.import(data);
-    final artboard = file.mainArtboard;
-
-    StateMachineController? controller = StateMachineController.fromArtboard(artboard, stateMachineNames[index]);
-
-    if (controller != null) {
-      artboard.addController(controller);
-      riveControllers[index] = controller;
-      riveArtboards[index] = artboard;
-    }
-  }
-
-  void dataInit() async {
-    for (int i = 0; i < riveFileNames.length; i++) {
-      await _loadRiveFile(i);
-    }
-
-    if (riveControllers[selectedIndex] != null) {
-      final input = riveControllers[selectedIndex]!.findInput<bool>(riveInputs[selectedIndex]);
-      if (input != null) input.value = true;
-    }
-
-    setState(() {
-      tabBarList = [
-        TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[0]}'),
-            artboard: riveArtboards[0],
-            animationController: riveControllers[0],
-            unreadMsgCount: 0),
-        TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[1]}'),
-            artboard: riveArtboards[1],
-            animationController: riveControllers[1],
-            unreadMsgCount: 0),
-        TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[2]}'),
-            artboard: riveArtboards[2],
-            animationController: riveControllers[2],
-            unreadMsgCount: 0),
-        TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[3]}'),
-            artboard: riveArtboards[3],
-            animationController: riveControllers[3],
-            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
-      ];
-      if (OXUserInfoManager.sharedInstance.isLogin) {
-        fetchUnreadCount();
-      }
-    });
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    OXChatBinding.sharedInstance.removeObserver(this);
   }
 
   @override
   Widget build(BuildContext context) {
-    updateLocaleStatus();
     return Scaffold(
       extendBody: true,
       bottomNavigationBar: TranslucentNavigationBar(
-        onTap: (value) => _tabClick(value),
-        handleDoubleTap: (value) => _handleDoubleTap(value),
-        selectedIndex: selectedIndex,
-        tabBarList: tabBarList,
+        key: tabBarGlobalKey,
+        onTap: (changeIndex,currentSelect) => _tabClick(changeIndex,currentSelect),
+        handleDoubleTap: (changeIndex,currentSelect) => _handleDoubleTap(changeIndex,currentSelect),
         height: Adapt.px(72),
       ),
       body: PageView(
@@ -191,16 +112,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       (TabViewInfo tabModel) {
         return NotificationListener<MsgNotification>(
           onNotification: (notification) {
-            if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.isNotEmpty){
-              tabBarList[0].unreadMsgCount = 0;
-              setState(() {});
-            }
-            if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.isNotEmpty){
-              tabBarList[3].unreadMsgCount = 0;
-              setState(() {});
-            }
-            print('Received notification: ${notification.msgNum}');
-            return true; // Returning true means we've handled the notification.
+            if(tabBarGlobalKey.currentState == null) return false;
+            return tabBarGlobalKey.currentState!.updateNotificationListener(notification);
           },
           child: Container(
             constraints: const BoxConstraints.expand(
@@ -221,7 +134,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
         tabModel.modulePage,
         [context],
         {
-          #discoveryClickNum: discoveryClickNum,
+          #discoveryGlobalKey: discoveryGlobalKey,
         }
       );
     }
@@ -233,22 +146,10 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didPromptToneCallBack(MessageDB message, int type) {
-    if (tabBarList.isEmpty) return;
-    if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
-      tabBarList[1].unreadMsgCount += 1;
-    } else {
-      tabBarList[0].unreadMsgCount += 1;
-    }
-    setState(() {});
-  }
-
-  @override
   void didLoginSuccess(UserDB? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
-      fetchUnreadCount();
     });
   }
 
@@ -257,9 +158,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement didLogout
     setState(() {
       isLogin = false;
-      tabBarList[0].unreadMsgCount = 0;
-      tabBarList[1].unreadMsgCount = 0;
-      tabBarList[3].unreadMsgCount = 0;
     });
   }
 
@@ -268,106 +166,22 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     // TODO: implement didSwitchUser
   }
 
-  @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
-    super.didZapRecordsCallBack(zapRecordsDB);
-    if (tabBarList.isEmpty || !mounted) return;
-    setState(() {
-      tabBarList[3].unreadMsgCount = 1;
-    });
-  }
-
-  _showLoginPage(BuildContext context) {
-    OXModuleService.pushPage(
-      context,
-      "ox_login",
-      "LoginPage",
-      {},
-    );
-  }
-
-  fetchUnreadCount() {
-    if (tabBarList.isEmpty) return;
-    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
-      tabBarList[1].unreadMsgCount = 1;
-    } else {
-      tabBarList[1].unreadMsgCount = 0;
+  void _handleDoubleTap(value,int currentSelect){
+    if(value == 2 && currentSelect == 2){
+      discoveryGlobalKey.currentState?.updateClickNum(2);
     }
   }
 
-  isHasVibrator() async {
-    hasVibrator = (await Vibrate.canVibrate);
-  }
+  void _tabClick(int value,int currentSelect) {
+    if(value == 2 && currentSelect == 2){
+      discoveryGlobalKey.currentState?.updateClickNum(1);
+    }
 
-  void _handleDoubleTap(value){
-    if(value == 2 && selectedIndex == 2){
-      setState(() {
-        discoveryClickNum = discoveryClickNum + 2;
-      });
-    }
-  }
-
-  void _tabClick(int value) {
-    if(value == 2 && selectedIndex == 2){
-      setState(() {
-        discoveryClickNum = discoveryClickNum + 1;
-      });
-    }
-    // clickTag
-    if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
-      //Vibration feedback
-      FeedbackType type = FeedbackType.impact;
-      Vibrate.feedback(type);
-    }
-    if (!OXUserInfoManager.sharedInstance.isLogin && (value == 3)) {
-      //jump login(value == 3 || value == 0)
-      _showLoginPage(context);
-      return;
-    }
-    setState(() {
-      selectedIndex = value;
-      if (OXUserInfoManager.sharedInstance.isLogin) {
-        fetchUnreadCount();
-      }
-      _refreshMessagesTimer?.cancel();
-      _refreshMessagesTimer = null;
-    });
     _pageController.animateToPage(
-      selectedIndex,
+      value,
       duration: const Duration(milliseconds: 1),
       curve: Curves.linear,
     );
-
-    for (int i = 0; i < 4; i++) {
-      final controller = riveControllers[i];
-      final input = controller?.findInput<bool>(riveInputs[i]);
-      if (input != null && input.value) {
-        input.value = false;
-      }
-    }
-    final input = riveControllers[selectedIndex]?.findInput<bool>(riveInputs[selectedIndex]);
-    if (input != null) {
-      input.value = true;
-    }
-  }
-
-  void prepareMessageTimer() async {
-    _refreshMessagesTimer?.cancel();
-    _refreshMessagesTimer = null;
-    _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 3 * 1000), (timer) {
-      fetchUnreadCount();
-      if (mounted) setState(() {});
-    });
-  }
-
-  onLocaleChange() {
-    if (mounted) setState(() {});
-  }
-
-  updateLocaleStatus() {
-    for (int index = 0; index < tabBarList.length; index++) {
-      tabBarList[index].title = Localized.text('ox_home.${riveFileNames[index]}');
-    }
   }
 
   void signerCheck() async {
@@ -376,15 +190,20 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
       bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
       if (mounted && !isInstalled) {
         OXCommonHintDialog.show(
-            context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
-            actionList: [
-              OXCommonHintAction.sure(
-                  text: Localized.text('ox_common.confirm'),
-                  onTap: () {
-                    OXNavigator.pop(context);
-                  }),
-            ]);
+          context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
+          actionList: [
+            OXCommonHintAction.sure(
+                text: Localized.text('ox_common.confirm'),
+                onTap: () {
+                  OXNavigator.pop(context);
+                }),
+          ],
+        );
       }
     }
+  }
+
+  onLocaleChange() {
+    if (mounted) setState(() {});
   }
 }

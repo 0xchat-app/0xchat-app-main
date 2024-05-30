@@ -42,8 +42,8 @@ class OXDiscovery  extends OXFlutterModule {
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context,{required int discoveryClickNum}) {
-    return DiscoveryPage(discoveryClickNum: discoveryClickNum);
+  Widget discoveryPageWidget(BuildContext context,{required GlobalKey discoveryGlobalKey}) {
+    return DiscoveryPage(key: discoveryGlobalKey);
   }
 
   void jumpMomentPage(BuildContext? context,{required String noteId}) async {

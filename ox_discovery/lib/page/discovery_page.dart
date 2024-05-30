@@ -29,7 +29,7 @@ import '../utils/album_utils.dart';
 import 'moments/channel_page.dart';
 import 'moments/create_moments_page.dart';
 import 'moments/public_moments_page.dart';
-
+import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
 
 enum EDiscoveryPageType{
@@ -39,14 +39,14 @@ enum EDiscoveryPageType{
 
 
 class DiscoveryPage extends StatefulWidget {
-  final int discoveryClickNum;
-  const DiscoveryPage({Key? key,required this.discoveryClickNum}): super(key: key);
+
+  const DiscoveryPage({Key? key}): super(key: key);
 
   @override
-  State<DiscoveryPage> createState() => _DiscoveryPageState();
+  State<DiscoveryPage> createState() => DiscoveryPageState();
 }
 
-class _DiscoveryPageState extends State<DiscoveryPage>
+class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     with
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
@@ -78,20 +78,6 @@ class _DiscoveryPageState extends State<DiscoveryPage>
       duration: const Duration(milliseconds: 1),
       curve: Curves.easeInOut,
     );
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.discoveryClickNum != oldWidget.discoveryClickNum) {
-
-      if((widget.discoveryClickNum) - (oldWidget.discoveryClickNum) > 1){
-        publicMomentPageKey.currentState?.updateNotesList(true,refresh: true,isWrapRefresh:true);
-      }else{
-        _momentPublic();
-
-      }
-    }
   }
 
   @override
@@ -915,5 +901,11 @@ class _DiscoveryPageState extends State<DiscoveryPage>
 
   onLocaleChange() {
     if (mounted) setState(() {});
+  }
+
+  @override
+  void updateClickNum(int num) {
+    if(num == 1) return _momentPublic();
+    publicMomentPageKey.currentState?.updateNotesList(true,refresh: true,isWrapRefresh:true);
   }
 }
