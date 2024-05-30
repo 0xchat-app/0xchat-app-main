@@ -214,10 +214,10 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
     }
     OXLoading.show();
     EcashService.payingLightningInvoice(mint: mint!, pr: invoice)
-        .then((result) {
+        .then((response) {
         OXLoading.dismiss();
         _enableButton.value = true;
-        if (result != null && result.isSuccess) {
+        if (response != null && resuresponselt.isSuccess) {
           OXNavigator.pushReplacement(
             context,
             WalletSuccessfulPage(
@@ -227,8 +227,12 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
             ),
           );
           return;
+        } else {
+          CommonToast.instance.show(
+            context,
+            response?.errorMsg ?? Localized.text('ox_wallet.pay_invoice_failed'),
+          );
         }
-        CommonToast.instance.show(context, Localized.text('ox_wallet.pay_invoice_failed'));
       },
     );
   }
