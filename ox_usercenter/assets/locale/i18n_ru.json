@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Аутентификация не удалась",
   "str_authentication_failed_hint": "Этот 0xchat защищен. Введенный пароль недействителен.",
   "str_mismatch_title": "Неудача",
-  "str_mismatch_try_hint": "Несоответствие пароля. Пожалуйста, попробуйте снова."
+  "str_mismatch_try_hint": "Несоответствие пароля. Пожалуйста, попробуйте снова.",
+  "str_data_revovery": "Восстановление Данных"
 }

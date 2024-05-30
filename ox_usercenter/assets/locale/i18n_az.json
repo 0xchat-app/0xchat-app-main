@@ -177,5 +177,6 @@
   "str_passcode": "Şifrə",
   "str_create_passcode": "Şifrənizi yaradın",
   "str_confirm_passcode": "Şifrənizi təsdiqləyin",
-  "str_enter_passcode": "Şifrənizi daxil edin"
+  "str_enter_passcode": "Şifrənizi daxil edin",
+  "str_data_revovery": "Məlumatların Bərpası"
 }

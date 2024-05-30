@@ -1,8 +1,13 @@
 {
   "discovery": "发现",
+  "moment": "朋友圈",
   "msg_count": "条消息数",
   "recommended_item": "推荐的频道",
   "popular_item": "受欢迎的频道",
   "latest_item": "最新的频道",
-  "channel_search_hint_text": "搜索频道"
+  "channel_search_hint_text": "搜索频道",
+  "channel": "频道",
+  "private": "私人",
+  "all": "全部",
+  "public": "公开"
 }

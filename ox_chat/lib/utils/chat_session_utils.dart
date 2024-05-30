@@ -17,7 +17,7 @@ class ChatSessionUtils {
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
-        showName = Account.sharedInstance.userCache[model.getOtherPubkey]?.name ?? '';
+        showName = Account.sharedInstance.userCache[model.getOtherPubkey]?.value.name ?? '';
         break;
       case ChatType.chatGroup:
         showName = Groups.sharedInstance.groups[model.chatId]?.name ?? '';
@@ -38,7 +38,7 @@ class ChatSessionUtils {
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
-        showPicUrl = Account.sharedInstance.userCache[model.getOtherPubkey]?.picture ?? '';
+        showPicUrl = Account.sharedInstance.userCache[model.getOtherPubkey]?.value.picture ?? '';
         break;
       case ChatType.chatGroup:
         showPicUrl = Groups.sharedInstance.groups[model.chatId]?.picture ?? '';
@@ -78,7 +78,7 @@ class ChatSessionUtils {
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
-        UserDB? tempUserDB = Account.sharedInstance.userCache[model.chatId];
+        UserDB? tempUserDB = Account.sharedInstance.userCache[model.chatId]?.value;
         if (tempUserDB != null) {
           isMute = tempUserDB.mute ?? false;
         }

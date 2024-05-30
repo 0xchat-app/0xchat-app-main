@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "驗證失敗",
   "str_authentication_failed_hint": "此0xchat已被保護。輸入的密碼無效。",
   "str_mismatch_title": "失敗",
-  "str_mismatch_try_hint": "密碼不一致。請再試一次。"
+  "str_mismatch_try_hint": "密碼不一致。請再試一次。",
+  "str_data_revovery": "資料恢復"
 }

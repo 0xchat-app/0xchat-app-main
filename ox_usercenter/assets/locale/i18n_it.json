@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autenticazione Fallita",
   "str_authentication_failed_hint": "Questo 0xchat è protetto. Il codice inserito non è valido.",
   "str_mismatch_title": "Fallito",
-  "str_mismatch_try_hint": "Discrepanza nel codice. Si prega di riprovare."
+  "str_mismatch_try_hint": "Discrepanza nel codice. Si prega di riprovare.",
+  "str_data_revovery": "Recupero Dati"
 }

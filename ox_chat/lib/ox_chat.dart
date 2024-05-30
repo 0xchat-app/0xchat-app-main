@@ -14,6 +14,7 @@ import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
+import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -116,6 +117,11 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
           msg: params?['url'] ?? '',
         ));
+      case 'ChatVideoPlayPage':
+        return OXNavigator.presentPage(context, (context) => ChatVideoPlayPage(
+          videoUrl: params?['videoUrl'] ?? '',
+        ),fullscreenDialog:true);
+
     }
     return null;
   }

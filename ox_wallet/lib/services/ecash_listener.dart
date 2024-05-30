@@ -9,21 +9,21 @@ class EcashListener with CashuListener {
   EcashListener({this.onInvoicePaidChanged, this.onEcashBalanceChanged, this.onMintsChanged});
 
   @override
-  void onInvoicePaid(Receipt receipt) {
+  void handleInvoicePaid(Receipt receipt) {
     if (onInvoicePaidChanged != null) {
       onInvoicePaidChanged!(receipt);
     }
   }
 
   @override
-  void onBalanceChanged(IMint mint) {
+  void handleBalanceChanged(IMint mint) {
     if (onEcashBalanceChanged != null) {
       onEcashBalanceChanged!(mint);
     }
   }
 
   @override
-  void onMintListChanged(List<IMint> mints) {
+  void handleMintListChanged(List<IMint> mints) {
     if (onMintsChanged != null) {
       onMintsChanged!(mints);
     }

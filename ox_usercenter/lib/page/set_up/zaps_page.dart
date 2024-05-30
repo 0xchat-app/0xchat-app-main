@@ -4,6 +4,7 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -38,13 +39,13 @@ class ZapsPage extends StatefulWidget {
 
 class _ZapsPageState extends State<ZapsPage> {
   bool _walletSwitchSelected = true;
-  // final TextEditingController _zapAmountTextEditingController = TextEditingController();
-  final List<WalletModel> _walletList = WalletModel.wallets;
+  final TextEditingController _zapAmountTextEditingController = TextEditingController();
+  final List<WalletModel> _walletList = WalletModel.walletsWithEcash;
   String _selectedWalletName = '';
   ZapsRecord? _zapsRecord;
   String pubKey = '';
-  // double _defaultZapAmount = 0;
-  // final FocusNode _focusNode = FocusNode();
+  int _defaultZapAmount = 0;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -60,15 +61,18 @@ class _ZapsPageState extends State<ZapsPage> {
     _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager
             .getForeverData('$pubKey.isShowWalletSelector') ??
         true;
-    // _defaultZapAmount = await YLCacheManager.defaultYLCacheManager.getForeverData('$pubKey.defaultZapAmount');
+    _defaultZapAmount = OXUserInfoManager.sharedInstance.defaultZapAmount;
     _zapsRecord = await getZapsRecord();
-    // _focusNode.addListener(() {
-    // if(!_focusNode.hasFocus){
-    //   double defaultZapAmount = double.parse(_zapAmountTextEditingController.text);
-    //   YLCacheManager.defaultYLCacheManager.saveForeverData('$pubKey.defaultZapAmount',defaultZapAmount);
-    // }
-    // });
-    if (mounted) setState(() {});
+    _focusNode.addListener(() {
+    if(!_focusNode.hasFocus){
+      int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultZapAmount);
+      OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
+    }
+    });
+    if(mounted){
+      setState(() {});
+    }
   }
 
   @override
@@ -124,7 +128,7 @@ class _ZapsPageState extends State<ZapsPage> {
               ),
             ),
           ),
-          // _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
+          _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
           // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
           zapsRecordDetails.isNotEmpty
               ? _buildItem(
@@ -167,7 +171,7 @@ class _ZapsPageState extends State<ZapsPage> {
           border: InputBorder.none,
         ),
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        keyboardType: const TextInputType.numberWithOptions(decimal: false),
         style: TextStyle(color: ThemeColor.color40),
       ),
     );

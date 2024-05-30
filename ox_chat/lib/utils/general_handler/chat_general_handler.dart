@@ -104,8 +104,8 @@ class ChatGeneralHandler {
   }
 
   static UserDB? _defaultOtherUser(ChatSessionModel session) {
-    return Account.sharedInstance.userCache[session.chatId]
-        ?? Account.sharedInstance.userCache[session.getOtherPubkey];
+    return Account.sharedInstance.userCache[session.chatId]?.value
+        ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
 
   void setupOtherUserIfNeeded() {

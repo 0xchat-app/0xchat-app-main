@@ -76,6 +76,12 @@ class SettingModel {
         settingItemType: SettingItemType.theme
     ));
     settingModelList.add(SettingModel(
+        iconName: 'icon_database_import.png',
+        title: 'ox_usercenter.str_data_revovery',
+        rightContent: '',
+        settingItemType: SettingItemType.dataRevovery
+    ));
+    settingModelList.add(SettingModel(
         iconName: 'icon_settings_dev_log.png',
         title: 'ox_usercenter.str_dev_log',
         rightContent: '',
@@ -95,6 +101,7 @@ enum SettingItemType {
   ice,
   language,
   theme,
+  dataRevovery,
   devLog,
   none,
 }

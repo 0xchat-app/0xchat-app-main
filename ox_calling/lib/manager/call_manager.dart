@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:core';
-
 import 'package:chatcore/chat-core.dart' as ChatCore;
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -16,6 +15,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:ox_common/utils/permission_utils.dart';
 
 class CallManager {
   static final CallManager instance = CallManager._internal();
@@ -64,9 +64,14 @@ class CallManager {
       host = tHost;
     }
     _signaling ??= SignalingManager(host, port);
-    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) {
+    ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) async{
       LogUtil.e('core: onCallStateChange state=$state ; data =$data;');
-      _signaling?.onParseMessage(friend, state, data, offerId);
+      if (state == SignalingState.offer) {
+        bool cmPermission = await PermissionUtils.getCallPermission(OXNavigator.navigatorKey.currentContext!);
+        if (cmPermission) _signaling?.onParseMessage(friend, state, data, offerId);
+      } else {
+        _signaling?.onParseMessage(friend, state, data, offerId);
+      }
     };
     await initRenderers();
     _signaling?.onLocalStream = ((stream) {

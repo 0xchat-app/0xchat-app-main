@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autentykacja nieudana",
   "str_authentication_failed_hint": "Ten 0xchat jest zabezpieczony. Wprowadzone hasło jest nieprawidłowe.",
   "str_mismatch_title": "Niepowodzenie",
-  "str_mismatch_try_hint": "Niezgodność haseł. Proszę spróbować ponownie."
+  "str_mismatch_try_hint": "Niezgodność haseł. Proszę spróbować ponownie.",
+  "str_data_revovery": "Odzyskiwanie Danych"
 }

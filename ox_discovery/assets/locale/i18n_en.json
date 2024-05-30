@@ -1,8 +1,14 @@
 {
   "discovery": "Discovery",
+  "moment": "Moment",
   "msg_count": "Messages",
   "recommended_item": "Recommended",
   "popular_item": "Popular",
   "latest_item": "Latest",
-  "channel_search_hint_text": "Search channel"
+  "channel_search_hint_text": "Search channel",
+  "channel": "Channel",
+  "private": "private",
+  "all": "All",
+  "public": "Public"
 }
+

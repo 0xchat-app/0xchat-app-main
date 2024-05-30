@@ -273,7 +273,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildItemName(ChatSessionModel item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showName = otherDB?.getUserShowName() ?? '';
     return item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
         ? Row(
@@ -357,7 +357,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildAvatar(ChatSessionModel item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey];
+    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showPicUrl = otherDB?.picture ?? '';
     return OXUserAvatar(
       user: otherDB,

@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_common/business_interface/ox_discovery/interface.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:path/path.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
@@ -83,6 +86,14 @@ class ChatNostrSchemeHandle {
       ChannelDB? channelDB = Channels.sharedInstance.channels[eventId];
       if (channelDB != null)
         return channelToMessageContent(channelDB, nostrScheme);
+      // check local moment
+      NoteDB? noteDB = Moment.sharedInstance.notesCache[eventId];
+      noteDB ??= await Moment.sharedInstance.loadNoteFromDBWithNoteId(eventId);
+      if(noteDB != null){
+        Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null, noteDB.content, null, '', '');
+        return await noteToMessageContent(note, nostrScheme);
+      }
+
       // check online
       Event? event = await Account.loadEvent(eventId);
       if (event != null) {
@@ -181,17 +192,16 @@ class ChatNostrSchemeHandle {
     }
     ;
 
-    String resultString = nostrScheme.replaceFirst('nostr:', "");
-    final url = '${CommonConstant.njumpURL}${resultString}';
-    String link = CustomURIHelper.createModuleActionURI(
-        module: 'ox_chat', action: 'commonWebview', params: {'url': url});
+    // String resultString = nostrScheme.replaceFirst('nostr:', "");
+    // final url = '${CommonConstant.njumpURL}${resultString}';
+    String link = await OXDiscoveryInterface.getJumpMomentPageUri(note.nodeId);
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
       'authorIcon': '${userDB?.picture}',
       'authorName': '${userDB?.name}',
       'authorDNS': '${userDB?.dns}',
-      'createTime': '${note.createAt}',
+      'createTime': '${note.createdAt}',
       'note': '${note.content}',
       'image': '${_extractFirstImageUrl(note.content)}',
       'link': link,

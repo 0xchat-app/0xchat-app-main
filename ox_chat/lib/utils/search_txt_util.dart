@@ -153,9 +153,9 @@ class SearchTxtUtil{
               messageInduceMap[chatId] = ChatMessage(
                 chatId,
                 item.messageId ?? '',
-                Account.sharedInstance.userCache[chatId]?.name ?? '',
+                Account.sharedInstance.userCache[chatId]?.value.name ?? '',
                 item.decryptContent,
-                Account.sharedInstance.userCache[chatId]?.picture ?? '',
+                Account.sharedInstance.userCache[chatId]?.value.picture ?? '',
                 ChatType.chatSingle,
                 1,
               );
@@ -172,9 +172,9 @@ class SearchTxtUtil{
             chatMessageList.add(ChatMessage(
               chatId,
               element.messageId ?? '',
-              Account.sharedInstance.userCache[chatId]?.name ?? '',
+              Account.sharedInstance.userCache[chatId]?.value.name ?? '',
               element.decryptContent,
-              Account.sharedInstance.userCache[chatId]?.picture ?? '',
+              Account.sharedInstance.userCache[chatId]?.value.picture ?? '',
               ChatType.chatSingle,
               1,
             ));

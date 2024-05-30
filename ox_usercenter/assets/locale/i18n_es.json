@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Falló la autenticación",
   "str_authentication_failed_hint": "0xchat está cifrado. La contraseña ingresada es inválida.",
   "str_mismatch_title": "Fallo en la verificación",
-  "str_mismatch_try_hint": "Las contraseñas no coinciden, por favor intenta de nuevo."
+  "str_mismatch_try_hint": "Las contraseñas no coinciden, por favor intenta de nuevo.",
+  "str_data_revovery": "Recuperación de Datos"
 }

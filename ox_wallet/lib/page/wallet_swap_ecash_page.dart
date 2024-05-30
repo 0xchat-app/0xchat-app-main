@@ -129,10 +129,10 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       final receipt = await EcashService.createLightningInvoice(mint: _receiveNotifier.value!, amount: amount);
       if(receipt == null) throw SwapException(Localized.text('ox_wallet.swap_failed'));
 
-      final result = await EcashService.payingLightningInvoice(mint: _sendMintNotifier.value!, pr: receipt.request);
-      if(result == null || !result) {
+      final payingResponse = await EcashService.payingLightningInvoice(mint: _sendMintNotifier.value!, pr: receipt.request);
+      if (payingResponse == null || !payingResponse.isSuccess) {
         await Cashu.deleteLightningInvoice(receipt);
-        throw SwapException(Localized.text('ox_wallet.swap_failed'));
+        throw SwapException(payingResponse?.errorMsg ?? Localized.text('ox_wallet.swap_failed'));
       }
 
       final response = await Cashu.checkReceiptCompleted(receipt);
@@ -145,7 +145,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
           (context) => WalletSuccessfulPage(
             title: Localized.text('ox_wallet.swap'),
             canBack: true,
-            content: Localized.text('ox_wallet.swap_success_tips').replaceAll(r'${amount}', '$amount'),
+            content: Localized.text('ox_wallet.swap_success_tips').replaceAll(r'$amount', '$amount'),
           ),
         );
       }

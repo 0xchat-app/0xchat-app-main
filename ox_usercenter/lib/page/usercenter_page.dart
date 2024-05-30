@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -10,6 +11,7 @@ import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -243,7 +245,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         ),
         Container(
           width: double.infinity,
-          height: Adapt.px(208 + 1.5),
+          // height: Adapt.px(208 + 1.5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Adapt.px(16)),
             color: ThemeColor.color180,
@@ -251,6 +253,21 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              _topItemBuild(
+                iconName: 'icon_moment.png',
+                title: 'Moments',
+                isShowDivider: true,
+                onTap: () {
+                  OXModuleService.pushPage(
+                    context,
+                    'ox_discovery',
+                    'PersonMomentsPage',
+                    {
+                      'userDB': OXUserInfoManager.sharedInstance.currentUserInfo,
+                    },
+                  );
+                },
+              ),
               FutureBuilder<BadgeDB?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
@@ -633,7 +650,9 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _verifiedDNS() async {
-    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS();
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if(userDB == null) return;
+    var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (mounted) {
       setState(() {
       _isVerifiedDNS = isVerifiedDNS;
@@ -695,7 +714,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               await OXUserInfoManager.sharedInstance.logout();
               await OXLoading.dismiss();
             }
-            OXNavigator.pop(context);
           },
         ),
       ],
@@ -717,7 +735,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 OXNavigator.pop(context);
                 await OXLoading.show();
                 await OXUserInfoManager.sharedInstance.logout();
-                OXNavigator.pop(context);
                 await OXLoading.dismiss();
               }),
         ],

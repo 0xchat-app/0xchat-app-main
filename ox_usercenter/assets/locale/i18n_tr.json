@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Kimlik Doğrulama Başarısız",
   "str_authentication_failed_hint": "Bu 0xchat güvence altına alınmıştır. Girilen şifre geçersiz.",
   "str_mismatch_title": "Başarısız",
-  "str_mismatch_try_hint": "Şifre uyuşmuyor. Lütfen tekrar deneyin."
+  "str_mismatch_try_hint": "Şifre uyuşmuyor. Lütfen tekrar deneyin.",
+  "str_data_revovery": "Veri Kurtarma"
 }

@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Falha na autenticação",
   "str_authentication_failed_hint": "Este 0xchat está protegido. O código de acesso inserido é inválido.",
   "str_mismatch_title": "Falhou",
-  "str_mismatch_try_hint": "Incompatibilidade de código de acesso. Por favor, tente novamente."
+  "str_mismatch_try_hint": "Incompatibilidade de código de acesso. Por favor, tente novamente.",
+  "str_data_revovery": "Recuperação de Dados"
 }

@@ -148,7 +148,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
-    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
+    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
     if (otherUser == null) {
       () async {
         // Other
@@ -323,7 +323,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   Widget customBottomWidget() {
-    UserDB? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey];
+    UserDB? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
     String showUsername = otherDB?.getUserShowName() ?? '';
     String _hintText = '';
     String _leftBtnTxt = '';

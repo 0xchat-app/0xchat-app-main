@@ -15,7 +15,12 @@ dependencies:
   avatar_stack: any
 #  carousel_slider: ^4.1.1
   flutter_carousel_widget: ^1.2.3
-
+  path: ^1.8.0
+  video_compress: ^3.1.2
+  path_provider: ^2.0.11
+  video_thumbnail: ^0.5.3
+  youtube_player_flutter: ^8.1.1
+  visibility_detector: ^0.3.3
 
   ox_module_service:
     path: ../../base_framework/ox_module_service
@@ -29,6 +34,11 @@ dependencies:
     path: ../../base_framework/ox_localizable
   ox_cache_manager:
     path: ../../base_framework/ox_cache_manager
+  ox_chat_ui:
+    path: ../../business_modules/ox_chat_ui
+  chatcore:
+    path: ../../0xchat-core
+
 
 
 dev_dependencies:
@@ -45,7 +55,7 @@ flutter:
   uses-material-design: true
   assets:
 #    - assets/theme/
-#    - assets/images/
+    - assets/images/
 #    - assets/images/dark/
 #    - assets/images/light/
     - assets/locale/

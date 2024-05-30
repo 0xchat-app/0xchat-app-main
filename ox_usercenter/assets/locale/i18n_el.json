@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Αποτυχία Επικύρωσης",
   "str_authentication_failed_hint": "Αυτό το 0xchat είναι ασφαλισμένο. Ο κωδικός που εισήχθη είναι άκυρος.",
   "str_mismatch_title": "Αποτυχία",
-  "str_mismatch_try_hint": "Αναντιστοιχία κωδικού. Παρακαλούμε δοκιμάστε ξανά."
+  "str_mismatch_try_hint": "Αναντιστοιχία κωδικού. Παρακαλούμε δοκιμάστε ξανά.",
+  "str_data_revovery": "Ανάκτηση Δεδομένων"
 }

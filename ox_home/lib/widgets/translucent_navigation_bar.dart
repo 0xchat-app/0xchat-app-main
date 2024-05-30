@@ -1,14 +1,28 @@
 library dot_navigation_bar;
 
 export 'translucent_navigation_bar_item.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'translucent_navigation_bar_item.dart';
 import 'package:flutter/src/painting/gradient.dart' as gradient;
+import 'package:flutter_vibrate/flutter_vibrate.dart';
+
+import 'package:chatcore/chat-core.dart';
+import 'package:flutter/services.dart';
+import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
+import 'package:ox_home/widgets/translucent_navigation_bar.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 
 class TranslucentNavigationBar extends StatefulWidget {
@@ -27,14 +41,10 @@ class TranslucentNavigationBar extends StatefulWidget {
   /// Padding on the left and right sides of AppBar
   final double horizontalPadding;
 
-  /// List of TranslucentNavigationBarItems
-  final List<TranslucentNavigationBarItem> tabBarList;
-
   /// Returns the index of the tab that was tapped.
-  final Function(int)? onTap;
+  final Function(int,int)? onTap;
 
-  /// The tab to display.
-  final int selectedIndex;
+  final Function(int,int)? handleDoubleTap;
 
   /// Main icon background color in middle of appbar
   final Color mainIconBackgroundColor;
@@ -47,12 +57,11 @@ class TranslucentNavigationBar extends StatefulWidget {
 
   const TranslucentNavigationBar({
   super.key,
-  required this.tabBarList,
-  required this.selectedIndex,
   this.mainIconBackgroundColor = Colors.blue,
   this.mainIconColor = Colors.white,
   required this.onTap,
   this.onMainIconTap,
+  this.handleDoubleTap,
   this.height = 72.0,
   this.borderRadius = 24.0,
   this.blur = 2, // You use 5 for black and 1 for white
@@ -64,48 +73,63 @@ class TranslucentNavigationBar extends StatefulWidget {
   State<TranslucentNavigationBar> createState() => TranslucentNavigationBarState();
 }
 
-class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
+class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with OXUserInfoObserver, OXChatObserver, TickerProviderStateMixin, WidgetsBindingObserver {
+  bool isLogin = false;
+  Timer? _refreshMessagesTimer;
+  int selectedIndex = 0;
+  double middleIndex = (4 / 2).floorToDouble();
 
-  late double middleIndex;
-  late List<TranslucentNavigationBarItem> updatedItems;
+  List<TranslucentNavigationBarItem> tabBarList = [];
+
+  bool hasVibrator = false;
 
   bool get isDark => ThemeManager.getCurrentThemeStyle() == ThemeStyle.dark;
+
+  // State machine
+  final riveFileNames = ['Home','Contact', 'Discover', 'Me'];
+  final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_discover', 'state_machine_me'];
+  final riveInputs = ['Press', 'Press', 'Press', 'Press'];
+  late List<StateMachineController?> riveControllers = List<StateMachineController?>.filled(4, null);
+  late List<Artboard?> riveArtboards = List<Artboard?>.filled(4, null);
+
+  isHasVibrator() async {
+    hasVibrator = (await Vibrate.canVibrate);
+  }
 
   @override
   void initState() {
     super.initState();
-    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
-    middleIndex = (widget.tabBarList.length / 2).floorToDouble();
-    updatedItems = [];
-    updatedItems.addAll(widget.tabBarList);
+    isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    OXUserInfoManager.sharedInstance.addObserver(this);
+    OXChatBinding.sharedInstance.addObserver(this);
+    prepareMessageTimer();
+    dataInit();
+    isHasVibrator();
   }
 
   @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-
-    setState(() {
-      updatedItems = [];
-      updatedItems.addAll(widget.tabBarList);
-    });
+  void dispose() {
+    // TODO: implement dispose
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+    clearRefreshMessagesTimer();
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    OXChatBinding.sharedInstance.removeObserver(this);
   }
 
-  @override
-  void didUpdateWidget(covariant TranslucentNavigationBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.tabBarList != widget.tabBarList) {
-      updatedItems = [];
-      updatedItems.addAll(widget.tabBarList);
-      setState(() {});
-    }
+  _showLoginPage(BuildContext context) {
+    OXModuleService.pushPage(
+      context,
+      "ox_login",
+      "LoginPage",
+      {},
+    );
   }
 
 
   @override
   Widget build(BuildContext context) {
-
-
+    updateLocaleStatus();
     return Container(
       margin: EdgeInsets.symmetric(
         vertical: widget.verticalPadding,
@@ -130,7 +154,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
           ),
         ],
       ),
-      child: createTabContainer(updatedItems, middleIndex),
+      child: createTabContainer(tabBarList, middleIndex),
     );
   }
 
@@ -187,10 +211,45 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            for (final item in updatedItems)
+            for (final item in tabBarList)
               GestureDetector(
                 onTap: () {
-                  widget.onTap!.call(widget.tabBarList.indexOf(item));
+                  int index = tabBarList.indexOf(item);
+                  if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+                    //Vibration feedback
+                    FeedbackType type = FeedbackType.impact;
+                    Vibrate.feedback(type);
+                  }
+                  if (!OXUserInfoManager.sharedInstance.isLogin && (index == 3)) {
+                    //jump login(value == 3 || value == 0)
+                    _showLoginPage(context);
+                    return;
+                  }
+
+                  setState(() {
+                    selectedIndex = index;
+                    if (OXUserInfoManager.sharedInstance.isLogin) {
+                      fetchUnreadCount();
+                    }
+                  });
+                  clearRefreshMessagesTimer();
+
+                  widget.onTap!.call(index,selectedIndex);
+
+                  for (int i = 0; i < 4; i++) {
+                    final controller = riveControllers[i];
+                    final input = controller?.findInput<bool>(riveInputs[i]);
+                    if (input != null && input.value) {
+                      input.value = false;
+                    }
+                  }
+                  final input = riveControllers[index]?.findInput<bool>(riveInputs[index]);
+                  if (input != null) {
+                    input.value = true;
+                  }
+                },
+                onDoubleTap:  () {
+                  widget.handleDoubleTap?.call(tabBarList.indexOf(item),selectedIndex);
                 },
                 child: Stack(
                   alignment: Alignment.bottomCenter,
@@ -262,11 +321,148 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> {
     return Text(
       title,
       style: TextStyle(
-          fontSize: Adapt.px(10), fontWeight: FontWeight.w600,color: widget.tabBarList.indexOf(item) == widget.selectedIndex ? ThemeColor.gradientMainStart : ThemeColor.color100),
+          fontSize: Adapt.px(10), fontWeight: FontWeight.w600,color: tabBarList.indexOf(item) == selectedIndex ? ThemeColor.gradientMainStart : ThemeColor.color100),
     );
   }
 
-  onThemeStyleChange() {
-    if (mounted) setState(() {});
+  Future<void> _loadRiveFile(int index) async {
+    String animPath = "packages/ox_home/assets/${ThemeManager.images(riveFileNames[index])}.riv";
+
+    final data = await rootBundle.load(animPath);
+    final file = RiveFile.import(data);
+    final artboard = file.mainArtboard;
+
+    StateMachineController? controller = StateMachineController.fromArtboard(artboard, stateMachineNames[index]);
+
+    if (controller != null) {
+      artboard.addController(controller);
+      riveControllers[index] = controller;
+      riveArtboards[index] = artboard;
+    }
+  }
+
+  @override
+  void didPromptToneCallBack(MessageDB message, int type) {
+    if (tabBarList.isEmpty) return;
+    if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
+      tabBarList[1].unreadMsgCount += 1;
+    } else {
+      tabBarList[0].unreadMsgCount += 1;
+    }
+    setState(() {});
+  }
+
+  @override
+  void didLoginSuccess(UserDB? userInfo) {
+    // TODO: implement didLoginSuccess
+    setState(() {
+      isLogin = true;
+      fetchUnreadCount();
+    });
+  }
+
+  @override
+  void didLogout() {
+    // TODO: implement didLogout
+    setState(() {
+      isLogin = false;
+      tabBarList[0].unreadMsgCount = 0;
+      tabBarList[1].unreadMsgCount = 0;
+      tabBarList[3].unreadMsgCount = 0;
+    });
+  }
+
+  @override
+  void didSwitchUser(UserDB? userInfo) {
+    // TODO: implement didSwitchUser
+  }
+
+  @override
+  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+    super.didZapRecordsCallBack(zapRecordsDB);
+    if (tabBarList.isEmpty || !mounted) return;
+    setState(() {
+      tabBarList[3].unreadMsgCount = 1;
+    });
+  }
+
+  void dataInit() async {
+    for (int i = 0; i < riveFileNames.length; i++) {
+      await _loadRiveFile(i);
+    }
+
+    if (riveControllers[0] != null) {
+      final input = riveControllers[0]!.findInput<bool>(riveInputs[0]);
+      if (input != null) input.value = true;
+    }
+
+    setState(() {
+      tabBarList = [
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[0]}'),
+            artboard: riveArtboards[0],
+            animationController: riveControllers[0],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[1]}'),
+            artboard: riveArtboards[1],
+            animationController: riveControllers[1],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[2]}'),
+            artboard: riveArtboards[2],
+            animationController: riveControllers[2],
+            unreadMsgCount: 0),
+        TranslucentNavigationBarItem(
+            title: Localized.text('ox_home.${riveFileNames[3]}'),
+            artboard: riveArtboards[3],
+            animationController: riveControllers[3],
+            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
+      ];
+      if (OXUserInfoManager.sharedInstance.isLogin) {
+        fetchUnreadCount();
+      }
+    });
+  }
+
+  fetchUnreadCount() {
+    if (tabBarList.isEmpty) return;
+    if (OXChatBinding.sharedInstance.unReadStrangerSessionCount > 0) {
+      tabBarList[1].unreadMsgCount = 1;
+    } else {
+      tabBarList[1].unreadMsgCount = 0;
+    }
+  }
+
+  void prepareMessageTimer() async {
+    clearRefreshMessagesTimer();
+    _refreshMessagesTimer = Timer.periodic(const Duration(milliseconds: 3 * 1000), (timer) {
+      fetchUnreadCount();
+      if (mounted) setState(() {});
+    });
+  }
+
+  updateLocaleStatus() {
+    for (int index = 0; index < tabBarList.length; index++) {
+      tabBarList[index].title = Localized.text('ox_home.${riveFileNames[index]}');
+    }
+  }
+
+  void clearRefreshMessagesTimer(){
+    _refreshMessagesTimer?.cancel();
+    _refreshMessagesTimer = null;
+  }
+
+  bool updateNotificationListener(MsgNotification notification){
+    if(notification.msgNum != null && notification.msgNum! < 1 && tabBarList.isNotEmpty){
+      tabBarList[0].unreadMsgCount = 0;
+      setState(() {});
+    }
+    if(notification.noticeNum != null && notification.noticeNum! <1 && tabBarList.isNotEmpty){
+      tabBarList[3].unreadMsgCount = 0;
+      setState(() {});
+    }
+    print('Received notification: ${notification.msgNum}');
+    return true; //
   }
 }

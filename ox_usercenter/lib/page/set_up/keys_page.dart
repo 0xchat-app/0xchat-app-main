@@ -191,16 +191,8 @@ class _KeysPageState extends State<KeysPage>{
               ),
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
-                onTap: () async {
-                  if (keyType == KeyType.PublicKey) {
-                    await TookKit.copyKey(context, userDB.encodedPubkey);
-                    _publicKeyCopyied = true;
-                  } else if (keyType == KeyType.PrivateKey) {
-                    await TookKit.copyKey(context, userDB.encodedPrivkey);
-                    _privateKeyCopyied = true;
-                  }
-                  setState(() {
-                  });
+                onTap: () {
+                  _copyiedOnTap(keyType);
                 },
                 child: Container(
                   width: Adapt.px(48),
@@ -221,4 +213,26 @@ class _KeysPageState extends State<KeysPage>{
     ).setPadding(EdgeInsets.only(bottom: Adapt.px(30)));
   }
 
+  void _copyiedOnTap (KeyType keyType) async {
+    if (keyType == KeyType.PublicKey) {
+      await TookKit.copyKey(context, userDB.encodedPubkey);
+      _publicKeyCopyied = true;
+    } else if (keyType == KeyType.PrivateKey) {
+      if (_localPasscode.isNotEmpty) {
+        final result = await OXNavigator.pushPage(context, (context) => const VerifyPasscodePage(needBack: true,));
+        if (result != null && result is bool && result && mounted) {
+          _copyPriKeyToPad();
+        }
+      } else {
+        _copyPriKeyToPad();
+      }
+    }
+    setState(() {
+    });
+  }
+
+  void _copyPriKeyToPad() async {
+    await TookKit.copyKey(context, userDB.encodedPrivkey);
+    _privateKeyCopyied = true;
+  }
 }

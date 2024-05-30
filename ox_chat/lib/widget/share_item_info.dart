@@ -29,7 +29,7 @@ mixin ShareItemInfoMixin {
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
-        showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.name ?? '';
+        showName = Account.sharedInstance.userCache[item.getOtherPubkey]?.value.name ?? '';
         break;
       case ChatType.chatGroup:
         showName = Groups.sharedInstance.groups[item.chatId]?.name ?? '';
@@ -92,7 +92,7 @@ mixin ShareItemInfoMixin {
           break;
         case ChatType.chatSingle:
         case ChatType.chatSecret:
-          showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.picture ?? '';
+          showPicUrl = Account.sharedInstance.userCache[item.getOtherPubkey]?.value.picture ?? '';
           localAvatarPath = 'user_image.png';
           break;
         case ChatType.chatGroup:

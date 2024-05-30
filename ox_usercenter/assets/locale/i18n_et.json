@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autentimine ebaõnnestus",
   "str_authentication_failed_hint": "0xchat on krüpteeritud. Sisestatud parool on vale.",
   "str_mismatch_title": "Kontroll ebaõnnestus",
-  "str_mismatch_try_hint": "Paroolid ei ühti, palun proovige uuesti."
+  "str_mismatch_try_hint": "Paroolid ei ühti, palun proovige uuesti.",
+  "str_data_revovery": "Andmete Taastamine"
 }

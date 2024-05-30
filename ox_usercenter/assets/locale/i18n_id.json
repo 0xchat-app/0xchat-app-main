@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Autentikasi Gagal",
   "str_authentication_failed_hint": "0xchat ini diamankan. Sandi lewat yang dimasukkan tidak valid.",
   "str_mismatch_title": "Gagal",
-  "str_mismatch_try_hint": "Ketidakcocokan sandi lewat. Silakan coba lagi."
+  "str_mismatch_try_hint": "Ketidakcocokan sandi lewat. Silakan coba lagi.",
+  "str_data_revovery": "Pemulihan Data"
 }

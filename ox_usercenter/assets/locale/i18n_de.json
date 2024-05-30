@@ -170,5 +170,6 @@
   "str_authentication_failed_title": "Authentifizierung fehlgeschlagen",
   "str_authentication_failed_hint": "Dieser 0xchat ist gesichert. Der eingegebene Passcode ist ungültig.",
   "str_mismatch_title": "Fehlgeschlagen",
-  "str_mismatch_try_hint": "Passcode stimmt nicht überein. Bitte versuchen Sie es erneut."
+  "str_mismatch_try_hint": "Passcode stimmt nicht überein. Bitte versuchen Sie es erneut.",
+  "str_data_revovery": "Datenwiederherstellung"
 }
