@@ -214,6 +214,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             for (final item in tabBarList)
               GestureDetector(
                 onTap: () {
+                  int draftIndex = selectedIndex;
                   int index = tabBarList.indexOf(item);
                   if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
                     //Vibration feedback
@@ -234,7 +235,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                   });
                   clearRefreshMessagesTimer();
 
-                  widget.onTap!.call(index,selectedIndex);
+                  widget.onTap!.call(index,draftIndex);
 
                   for (int i = 0; i < 4; i++) {
                     final controller = riveControllers[i];
