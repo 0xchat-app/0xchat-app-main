@@ -84,4 +84,15 @@ class WalletModel {
             scheme: 'zebedee:lightning:',
             image: 'icon_lighting_wallet_zebedee.png'),
       ]);
+
+
+  static List<WalletModel> get walletsWithEcash => [
+        WalletModel(
+            id: '1111111111',
+            appId: '1111111111',
+            title: 'My Ecash Wallet',
+            scheme: '',
+            image: 'icon_settings_wallet.png'),
+        ...wallets,
+      ];
 }
