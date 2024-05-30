@@ -68,6 +68,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     if (_isShowAnimation) {
       await _shakeController.forward();
       _isShowAnimation = false;
+      _updateNoteDB();
     }
   }
 
@@ -83,6 +84,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   void dispose() {
     _shakeController.dispose();
     _shakeController.removeListener(_resetAnimation);
+    OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
   }
 
