@@ -736,7 +736,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
-              AlbumUtils.openAlbum(context, type: 2,
+              AlbumUtils.openAlbum(
+                  context,
+                  type: 2,
+                  selectCount: 1,
                   callback: (List<String> imageList) {
                 OXNavigator.presentPage(
                   context,
@@ -905,6 +908,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   @override
   void updateClickNum(int num) {
+    if(pageType == EDiscoveryPageType.channel) return;
     if(num == 1) return _momentPublic();
     publicMomentPageKey.currentState?.updateNotesList(true,isWrapRefresh:true);
   }

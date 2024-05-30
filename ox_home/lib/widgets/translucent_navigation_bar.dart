@@ -215,7 +215,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
               GestureDetector(
                 onTap: () {
                   int index = tabBarList.indexOf(item);
-                  if (hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
+                  if (selectedIndex != index && hasVibrator == true && OXUserInfoManager.sharedInstance.canVibrate) {
                     //Vibration feedback
                     FeedbackType type = FeedbackType.impact;
                     Vibrate.feedback(type);
