@@ -146,7 +146,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       actions: GestureDetector(
         onTap: () {
           final items = [
-            BottomItemModel(title: 'Notifications', onTap: _jumpToNotificationsMomentsPage),
+            BottomItemModel(title: 'Notifications', onTap: () => _jumpToNotificationsMomentsPage()),
             BottomItemModel(title: 'Change Cover', onTap: _selectAssetDialog),
           ];
           MomentBottomSheetDialog.showBottomSheet(context, items);
@@ -226,6 +226,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         vertical: 12.px,
       ),
       child: MomentWidget(
+        isShowReplyWidget: true,
         notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
         clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
           await OXNavigator.pushPage(
@@ -275,7 +276,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Widget _buildNotificationTips() {
     return UnconstrainedBox(
       child: MomentNotificationTips(
-        onTap: _jumpToNotificationsMomentsPage
+        onTap:({List<NotificationDB>? notificationDBList,bool? isHidden}) => _jumpToNotificationsMomentsPage(),
       ),
     );
   }

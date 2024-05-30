@@ -9,8 +9,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 
 class MomentNewPostTips extends StatefulWidget {
-  final ValueSetter<List<NoteDB>>? onTap;
-
+  final Function(List<NoteDB>,bool isHidden)? onTap;
   const MomentNewPostTips({super.key, this.onTap});
 
   @override
@@ -38,7 +37,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
             onTap: () {
               OXMomentManager.sharedInstance.clearNewNotes();
               setState(() {
-                widget.onTap?.call(_notes);
+                widget.onTap?.call(_notes,true);
                 _notes.clear();
               });
             },
@@ -50,6 +49,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notes.map((e) => e.author).toSet().toList());
     if(avatars.length > 3) avatars = avatars.sublist(0,3);
+    widget.onTap?.call(notes,false);
     setState(() {
       _notes = notes;
       _avatarList = avatars;
@@ -69,8 +69,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
 }
 
 class MomentNotificationTips extends StatefulWidget {
-  final VoidCallback? onTap;
-
+  final Function({List<NotificationDB>? notificationDBList,bool? isHidden})? onTap;
   const MomentNotificationTips({super.key, this.onTap});
 
   @override
@@ -100,7 +99,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
               setState(() {
                 _notifications.clear();
               });
-              widget.onTap?.call();
+              widget.onTap?.call(notificationDBList:_notifications,isHidden: true);
             },
           )
         : Container();
@@ -110,6 +109,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
     if(avatars.length > 3) avatars = avatars.sublist(0,3);
+    widget.onTap?.call(notificationDBList:notifications,isHidden:false);
     setState(() {
       _notifications = notifications;
       _avatarList = avatars;
@@ -141,6 +141,7 @@ class MomentTips extends StatelessWidget {
     return avatars.isNotEmpty ? GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: EdgeInsets.symmetric(vertical: 12.px),
         height: 40.px,
         padding: EdgeInsets.symmetric(
           horizontal: 12.px,

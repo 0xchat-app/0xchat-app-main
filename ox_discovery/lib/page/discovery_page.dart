@@ -75,7 +75,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   void _momentPublic(){
     publicMomentPageKey.currentState?.momentScrollController.animateTo(
       0.0,
-      duration: const Duration(milliseconds: 1),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
   }
@@ -906,6 +906,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void updateClickNum(int num) {
     if(num == 1) return _momentPublic();
-    publicMomentPageKey.currentState?.updateNotesList(true,refresh: true,isWrapRefresh:true);
+    publicMomentPageKey.currentState?.updateNotesList(true,isWrapRefresh:true);
   }
 }

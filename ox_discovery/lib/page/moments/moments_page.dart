@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -8,7 +9,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import '../../model/moment_ui_model.dart';
@@ -16,7 +16,6 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
-import '../widgets/youtube_player_widget.dart';
 
 class MomentsPage extends StatefulWidget {
   final bool isShowReply;
@@ -29,7 +28,7 @@ class MomentsPage extends StatefulWidget {
   State<MomentsPage> createState() => _MomentsPageState();
 }
 
-class _MomentsPageState extends State<MomentsPage> {
+class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   bool _isShowMask = false;
 
   List<ValueNotifier<NotedUIModel>> replyList = [];
@@ -48,6 +47,18 @@ class _MomentsPageState extends State<MomentsPage> {
 
   void _dataPre() async {
     _getReplyList();
+  }
+
+  @override
+  Future<void> didPopNext() async {
+    if(notedUIModel == null) return;
+    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel!.value.noteDB.noteId);
+    int? oldReplyNum = notedUIModel!.value.noteDB.replyEventIds?.length;
+    int? newReplyNum = note!.replyEventIds?.length;
+    if(oldReplyNum == null || newReplyNum == null) return;
+    if(newReplyNum > oldReplyNum){
+      _getReplyList();
+    }
   }
 
   void _getReplyList() async {
@@ -401,7 +412,8 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                                   context,
                                   (context) => MomentsPage(
                                       notedUIModel: widget.notedUIModel,
-                                      isShowReply: false));
+                                      isShowReply: false),
+                              );
                               setState(() {});
                             },
                           ),

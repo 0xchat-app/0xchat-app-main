@@ -423,7 +423,10 @@ class _MomentWidgetState extends State<MomentWidget> {
       NotedUIModelCache.map[repostId] = null;
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
-      setState(() {});
+      if(mounted){
+        setState(() {});
+
+      }
       return;
     }
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
