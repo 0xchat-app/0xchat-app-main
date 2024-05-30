@@ -735,7 +735,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                 OXNavigator.pop(context);
                 await OXLoading.show();
                 await OXUserInfoManager.sharedInstance.logout();
-                OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
                 await OXLoading.dismiss();
               }),
         ],

@@ -7,6 +7,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -50,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   bool _isShowZapBadge = false;
   final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
   double  fillH = 200;
+  bool _isOpenDevLog = false;
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
     fillH = Adapt.screenH() - 60.px - 52.px * _settingModelList.length;
+    _isOpenDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
     setState(() {});
   }
 
@@ -163,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
             }
           }
         } else if (_settingModel.settingItemType == SettingItemType.devLog) {
-          OXNavigator.pushPage(context, (context) => const LogsFilePage());
+          if (_isOpenDevLog) OXNavigator.pushPage(context, (context) => const LogsFilePage());
         }
       },
       child: itemView(
@@ -174,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         showArrow: _settingModel.settingItemType == SettingItemType.none ? false : true,
         badge: _settingModel.settingItemType == SettingItemType.zaps ? _buildZapBadgeWidget() : Container(),
         isShowZapBadge: _isShowZapBadge,
+        devLogWidget: _settingModel.settingItemType == SettingItemType.devLog ? _devLogWidget() : null,
       ),
     );
   }
@@ -205,6 +209,24 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         image: AssetImage("assets/images/unread_dot.png"),
       ),
     );
+  }
+
+  Widget _devLogWidget() {
+    return Switch(
+      value: _isOpenDevLog,
+      activeColor: Colors.white,
+      activeTrackColor: ThemeColor.gradientMainStart,
+      inactiveThumbColor: Colors.white,
+      inactiveTrackColor: ThemeColor.color160,
+      onChanged: (value) => _changeOpenDevLogFn(value),
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+    );
+  }
+
+  Future<void> _changeOpenDevLogFn(bool value) async {
+    _isOpenDevLog = value;
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, value);
+    setState(() {});
   }
 
   onThemeStyleChange() {
@@ -241,7 +263,7 @@ Widget buildOption({required String title, required String iconName, String righ
 }
 
 
-Widget itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge, bool isShowZapBadge = false}) {
+Widget itemView(String iconName, String title, String rightContent, bool showDivider,{bool showArrow = true,Widget? badge, bool isShowZapBadge = false, Widget? devLogWidget}) {
   return Column(
     children: [
       Container(
@@ -263,7 +285,7 @@ Widget itemView(String iconName, String title, String rightContent, bool showDiv
                 fontSize: Adapt.px(16),
               ),
             ),
-            trailing: Row(
+            trailing: devLogWidget ?? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 isShowZapBadge ? badge ?? Container() : Container(),
