@@ -217,7 +217,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         .then((response) {
         OXLoading.dismiss();
         _enableButton.value = true;
-        if (response != null && resuresponselt.isSuccess) {
+        if (response != null && response.isSuccess) {
           OXNavigator.pushReplacement(
             context,
             WalletSuccessfulPage(
