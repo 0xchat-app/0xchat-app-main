@@ -67,10 +67,14 @@ void main() async {
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.presentError(details);
       ErrorUtils.logErrorToFile(details.toString());
+      print(details.toString());
     };
+
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) {
     ErrorUtils.logErrorToFile(error.toString());
+    print(error);
+    print(stackTrace);
   });
 }
 
