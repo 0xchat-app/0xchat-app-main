@@ -22,6 +22,7 @@ class StorageKeyTool {
   static const String KEY_DISTRIBUTOR_NAME  = "KEY_DISTRIBUTOR_NAME"; // current Distributor
   static const String KEY_SAVE_LOG_TIME  = "KEY_SAVE_LOG_TIME";
   static const String KEY_DEFAULT_ZAP_AMOUNT = 'defaultZapAmount';
+  static const String KEY_OPEN_DEV_LOG = 'KEY_OPEN_DEV_LOG';
 
 
   static const String APP_DOMAIN_NAME = "APP_DOMAIN_NAME"; //当前domain

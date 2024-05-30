@@ -242,6 +242,8 @@ class OXUserInfoManager {
     LogUtil.d('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, false);
     resetData();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLogout();
