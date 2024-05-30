@@ -249,9 +249,9 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
                     input.value = true;
                   }
                 },
-                onDoubleTap:  () {
+                onDoubleTap: tabBarList.indexOf(item) == 2 && selectedIndex == 2 ? () {
                   widget.handleDoubleTap?.call(tabBarList.indexOf(item),selectedIndex);
-                },
+                } : null,
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
