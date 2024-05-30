@@ -146,7 +146,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       actions: GestureDetector(
         onTap: () {
           final items = [
-            BottomItemModel(title: 'Notifications', onTap: () => _jumpToNotificationsMomentsPage()),
+            BottomItemModel(title: 'Notifications', onTap: _jumpToNotificationsMomentsPage),
             BottomItemModel(title: 'Change Cover', onTap: _selectAssetDialog),
           ];
           MomentBottomSheetDialog.showBottomSheet(context, items);
@@ -276,7 +276,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Widget _buildNotificationTips() {
     return UnconstrainedBox(
       child: MomentNotificationTips(
-        onTap:({List<NotificationDB>? notificationDBList,bool? isHidden}) => _jumpToNotificationsMomentsPage(),
+        onTap: (list) => _jumpToNotificationsMomentsPage(),
       ),
     );
   }

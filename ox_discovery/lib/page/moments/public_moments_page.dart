@@ -50,22 +50,19 @@ class PublicMomentsPage extends StatefulWidget {
   State<PublicMomentsPage> createState() => PublicMomentsPageState();
 }
 
-class PublicMomentsPageState extends State<PublicMomentsPage>
-    with OXMomentObserver {
-  List<ValueNotifier<NotedUIModel>> notesList = [];
-
-  final RefreshController _refreshController = RefreshController();
+class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObserver {
+  final int _limit = 50;
+  final double tipsHeight = 52;
 
   int? _allNotesFromDBLastTimestamp;
-
-  final int _limit = 50;
+  List<ValueNotifier<NotedUIModel>> notesList = [];
 
   final ScrollController momentScrollController = ScrollController();
+  final RefreshController _refreshController = RefreshController();
 
   ValueNotifier<double> tipContainerHeight = ValueNotifier(0);
-
-  ValueNotifier<bool> hasNotificationTips = ValueNotifier(true);
-  ValueNotifier<bool> hasNewPostTips = ValueNotifier(true);
+  ValueNotifier<List<NoteDB>> newNotesCallBackCallBackList = ValueNotifier([]);
+  ValueNotifier<List<NotificationDB>> newNotificationCallBackList = ValueNotifier([]);
 
   @override
   void initState() {
@@ -89,6 +86,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void dispose() {
     _refreshController.dispose();
+    OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
   }
 
@@ -163,37 +161,28 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           MomentNewPostTips(
-            onTap: (List<NoteDB> list,bool isHidden) {
-              double getHeight;
-              if(isHidden){
+            tipsHeight: tipsHeight,
+            onTap: (List<NoteDB> list) {
                 updateNotesList(true);
                 momentScrollController.animateTo(
                   0.0,
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
                 );
-                getHeight = 0;
-              }else{
-                getHeight = list.isEmpty ? 0 : 52;
-              }
-              hasNewPostTips.value = getHeight > 0;
-              tipContainerHeight.value = hasNotificationTips.value ? 52 : getHeight;
+                newNotesCallBackCallBackList.value = [];
+                tipContainerHeight.value = newNotificationCallBackList.value.isNotEmpty ? tipsHeight : 0;
+
             },
           ),
           SizedBox(
             width: 20.px,
           ),
           MomentNotificationTips(
-            onTap: ({List<NotificationDB>? notificationDBList,bool? isHidden}) {
-              double getHeight;
-              if(isHidden!){
-                getHeight = 0;
-                OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
-              }else{
-                getHeight = notificationDBList!.isEmpty ? 0 : 52;
-              }
-              hasNotificationTips.value = getHeight > 0;
-              tipContainerHeight.value = hasNewPostTips.value ? 52 : getHeight;
+            tipsHeight: tipsHeight,
+            onTap: (List<NotificationDB>? notificationDBList) async{
+              await OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
+              newNotificationCallBackList.value = [];
+              tipContainerHeight.value = newNotesCallBackCallBackList.value.isNotEmpty ? tipsHeight : 0;
             },
           ),
         ],
@@ -267,4 +256,17 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
     setState(() {});
   }
+
+  @override
+  didNewNotesCallBackCallBack(List<NoteDB> notes) {
+    newNotesCallBackCallBackList.value = notes;
+    tipContainerHeight.value = tipsHeight;
+  }
+
+  @override
+  didNewNotificationCallBack(List<NotificationDB> notifications) {
+    newNotificationCallBackList.value = notifications;
+    tipContainerHeight.value = tipsHeight;
+  }
+
 }

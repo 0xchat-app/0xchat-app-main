@@ -9,15 +9,16 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 
 class MomentNewPostTips extends StatefulWidget {
-  final Function(List<NoteDB>,bool isHidden)? onTap;
-  const MomentNewPostTips({super.key, this.onTap});
+  final double? tipsHeight;
+  final ValueSetter<List<NoteDB>>? onTap;
+  const MomentNewPostTips({super.key, this.onTap, this.tipsHeight});
 
   @override
   State<MomentNewPostTips> createState() => _MomentNewPostTipsState();
 }
 
-class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObserver {
-
+class _MomentNewPostTipsState extends State<MomentNewPostTips>
+    with OXMomentObserver {
   List<NoteDB> _notes = [];
   List<String> _avatarList = [];
 
@@ -31,16 +32,20 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
   @override
   Widget build(BuildContext context) {
     return _notes.isNotEmpty
-        ? MomentTips(
-            title: '${_notes.length} new post',
-            avatars: _avatarList,
-            onTap: () {
-              OXMomentManager.sharedInstance.clearNewNotes();
-              setState(() {
-                widget.onTap?.call(_notes,true);
-                _notes.clear();
-              });
-            },
+        ? Container(
+            height: (widget.tipsHeight ?? 52).px,
+            padding: EdgeInsets.only(top: 12.px),
+            child: MomentTips(
+              title: '${_notes.length} new post',
+              avatars: _avatarList,
+              onTap: () {
+                OXMomentManager.sharedInstance.clearNewNotes();
+                setState(() {
+                  widget.onTap?.call(_notes);
+                  _notes.clear();
+                });
+              },
+            ),
           )
         : Container();
   }
@@ -48,8 +53,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
   _updateNotes(List<NoteDB> notes) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notes.map((e) => e.author).toSet().toList());
-    if(avatars.length > 3) avatars = avatars.sublist(0,3);
-    widget.onTap?.call(notes,false);
+    if (avatars.length > 3) avatars = avatars.sublist(0, 3);
     setState(() {
       _notes = notes;
       _avatarList = avatars;
@@ -69,15 +73,16 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips> with OXMomentObse
 }
 
 class MomentNotificationTips extends StatefulWidget {
-  final Function({List<NotificationDB>? notificationDBList,bool? isHidden})? onTap;
-  const MomentNotificationTips({super.key, this.onTap});
+  final double? tipsHeight;
+  final ValueSetter<List<NotificationDB>>? onTap;
+  const MomentNotificationTips({super.key, this.onTap, this.tipsHeight});
 
   @override
   State<MomentNotificationTips> createState() => _MomentNotificationTipsState();
 }
 
-class _MomentNotificationTipsState extends State<MomentNotificationTips> with OXMomentObserver {
-
+class _MomentNotificationTipsState extends State<MomentNotificationTips>
+    with OXMomentObserver {
   List<NotificationDB> _notifications = [];
   List<String> _avatarList = [];
 
@@ -91,16 +96,20 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
   @override
   Widget build(BuildContext context) {
     return _notifications.isNotEmpty
-        ? MomentTips(
-            title: '${_notifications.length} reactions',
-            avatars: _avatarList,
-            onTap: () {
-              OXMomentManager.sharedInstance.clearNewNotifications();
-              setState(() {
-                _notifications.clear();
-              });
-              widget.onTap?.call(notificationDBList:_notifications,isHidden: true);
-            },
+        ? Container(
+            height: (widget.tipsHeight ?? 52).px,
+            padding: EdgeInsets.only(top: 12.px),
+            child: MomentTips(
+              title: '${_notifications.length} reactions',
+              avatars: _avatarList,
+              onTap: () {
+                OXMomentManager.sharedInstance.clearNewNotifications();
+                setState(() {
+                  _notifications.clear();
+                });
+                widget.onTap?.call(_notifications);
+              },
+            ),
           )
         : Container();
   }
@@ -108,8 +117,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips> with OX
   _updateNotifications(List<NotificationDB> notifications) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
-    if(avatars.length > 3) avatars = avatars.sublist(0,3);
-    widget.onTap?.call(notificationDBList:notifications,isHidden:false);
+    if (avatars.length > 3) avatars = avatars.sublist(0, 3);
     setState(() {
       _notifications = notifications;
       _avatarList = avatars;
@@ -133,42 +141,43 @@ class MomentTips extends StatelessWidget {
   final List<String> avatars;
   final VoidCallback? onTap;
 
-  const MomentTips({super.key, required this.title, required this.avatars, this.onTap});
+  const MomentTips(
+      {super.key, required this.title, required this.avatars, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-
-    return avatars.isNotEmpty ? GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.only(top: 12.px),
-        height: 40.px,
-        padding: EdgeInsets.symmetric(
-          horizontal: 12.px,
-        ),
-        decoration: BoxDecoration(
-          color: ThemeColor.color180,
-          borderRadius: BorderRadius.circular(22.px),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _memberAvatarWidget(context),
-            SizedBox(
-              width: 8.px,
-            ),
-            Text(
-              title,
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: 14.px,
-                fontWeight: FontWeight.w400,
+    return avatars.isNotEmpty
+        ? GestureDetector(
+            onTap: onTap,
+            child: Container(
+              height: 40.px,
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.px,
               ),
-            )
-          ],
-        ),
-      ),
-    ) : Container();
+              decoration: BoxDecoration(
+                color: ThemeColor.color180,
+                borderRadius: BorderRadius.circular(22.px),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _memberAvatarWidget(context),
+                  SizedBox(
+                    width: 8.px,
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: ThemeColor.color0,
+                      fontSize: 14.px,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        : Container();
   }
 
   Widget _memberAvatarWidget(BuildContext context) {
