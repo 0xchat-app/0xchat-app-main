@@ -64,15 +64,20 @@ void main() async {
     await OXUserInfoManager.sharedInstance.initLocalData();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      ErrorUtils.logErrorToFile(details.toString());
-      print(details.toString());
-    };
-
+    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+    if (openDevLog) {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        ErrorUtils.logErrorToFile(details.toString());
+        print(details.toString());
+      };
+    }
     runApp(MainApp(window.defaultRouteName));
-  }, (error, stackTrace) {
-    ErrorUtils.logErrorToFile(error.toString());
+  }, (error, stackTrace) async {
+    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+    if (openDevLog) {
+      ErrorUtils.logErrorToFile(error.toString());
+    }
     print(error);
     print(stackTrace);
   });
