@@ -342,7 +342,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   void _refreshData(List<NoteDB> noteList){
     List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
-    if (filteredNoteList.isEmpty) {
+    if (noteList.isEmpty) {
+      updateStateView(CommonStateView.CommonStateView_NoData);
+      _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
+      setState(() {});
       return;
     }
     _notes.clear();
