@@ -163,7 +163,7 @@ class MainState extends State<MainApp>
   Widget build(BuildContext context) {
     return new MaterialApp(
         navigatorKey: OXNavigator.navigatorKey,
-        navigatorObservers: [MyObserver()],
+        navigatorObservers: [OXNavigator.routeObserver],
         theme: ThemeData(
           brightness: ThemeManager.brightness(),
           scaffoldBackgroundColor: ThemeColor.color190,
