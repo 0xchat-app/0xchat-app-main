@@ -167,15 +167,19 @@ class EcashHelper {
       ecashString: token,
       privateKeyList: [Account.sharedInstance.currentPrivkey],
       signFunction: (key, message) async {
-        return getSignatureWithSecret(message, key);
+        return await getSignatureWithSecret(message, key);
       },
     ) ?? '';
   }
 
-  static String getSignatureWithSecret(String secret, [String? privkey]) {
+  static Future<String> getSignatureWithSecret(String secret, [String? privkey]) async {
     privkey ??= Account.sharedInstance.currentPrivkey;
     final hexMessage = hex.encode(SHA256Digest()
         .process(Uint8List.fromList(utf8.encode(secret))));
+    if (SignerHelper.needSigner(privkey)) {
+      final pubkey = Account.sharedInstance.currentPubkey;
+      return await SignerHelper.signMessage(hexMessage, pubkey) ?? '';
+    }
     return Keychain(privkey).sign(hexMessage);
   }
 
