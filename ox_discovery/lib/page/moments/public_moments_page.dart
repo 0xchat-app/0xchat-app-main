@@ -174,10 +174,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                 );
                 getHeight = 0;
               }else{
-                getHeight = list.isEmpty ? 0 : 64;
+                getHeight = list.isEmpty ? 0 : 52;
               }
               hasNewPostTips.value = getHeight > 0;
-              tipContainerHeight.value = hasNotificationTips.value ? 64 : getHeight;
+              tipContainerHeight.value = hasNotificationTips.value ? 52 : getHeight;
             },
           ),
           SizedBox(
@@ -190,10 +190,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                 getHeight = 0;
                 OXNavigator.pushPage(context, (context) => const NotificationsMomentsPage());
               }else{
-                getHeight = notificationDBList!.isEmpty ? 0 : 64;
+                getHeight = notificationDBList!.isEmpty ? 0 : 52;
               }
               hasNotificationTips.value = getHeight > 0;
-              tipContainerHeight.value = hasNewPostTips.value ? 64 : getHeight;
+              tipContainerHeight.value = hasNewPostTips.value ? 52 : getHeight;
             },
           ),
         ],
