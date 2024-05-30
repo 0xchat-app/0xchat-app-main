@@ -9,6 +9,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
@@ -59,6 +60,7 @@ class OXUserInfoManager {
 
   bool canVibrate = true;
   bool canSound = true;
+  int defaultZapAmount = 0;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
@@ -210,6 +212,17 @@ class OXUserInfoManager {
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
+    Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
+      OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
+    };
+
+    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDB> notifications) {
+      OXMomentManager.sharedInstance.newNotificationCallBack(notifications);
+    };
+
+    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
+      OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
+    };
   }
 
   void updateUserInfo(UserDB userDB) {}
@@ -229,6 +242,8 @@ class OXUserInfoManager {
     LogUtil.d('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, false);
     resetData();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLogout();
@@ -284,9 +299,9 @@ class OXUserInfoManager {
     return updateNotificatin;
   }
 
-  Future<bool> checkDNS() async {
-    String pubKey = currentUserInfo?.pubKey ?? '';
-    String dnsStr = currentUserInfo?.dns ?? '';
+  Future<bool> checkDNS({required UserDB userDB}) async {
+    String pubKey = userDB.pubKey;
+    String dnsStr = userDB.dns ?? '';
     if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
@@ -313,16 +328,22 @@ class OXUserInfoManager {
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
+      Moment.sharedInstance.init();
       BadgesHelper.sharedInstance.init();
       Zaps.sharedInstance.init();
       _initMessage();
     });
-    Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
-      //List<String> relays
-      OXRelayManager.sharedInstance.addRelaysSuccess(value);
+    Future.delayed(Duration(seconds: 5), () {
+      Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
+        //List<String> relays
+        OXRelayManager.sharedInstance.addRelaysSuccess(value);
+        Account.sharedInstance.syncFollowingListFromRelay(currentUserInfo!.pubKey);
+      });
     });
+
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
     OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
+    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 21);
   }
 
   void _initMessage() {

@@ -22,7 +22,7 @@ enum UplodAliyunType {
 }
 
 class UplodAliyun {
-  static Future<String> uploadFileToAliyun({BuildContext? context, params, String? encryptedKey, required UplodAliyunType fileType, required File file, required String filename}) async {
+  static Future<String> uploadFileToAliyun({BuildContext? context, params, String? encryptedKey, required UplodAliyunType fileType, required File file, required String filename, bool showLoading = true}) async {
     File? encryptedFile;
     if(encryptedKey != null) {
       String directoryPath = '';
@@ -41,6 +41,7 @@ class UplodAliyun {
       AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
       file = encryptedFile;
     }
+    final _showLoading = showLoading && (context != null);
     return OXNetwork.instance
         .doRequest(
       context,
@@ -51,7 +52,7 @@ class UplodAliyun {
       type: RequestType.GET,
     )
         .then((OXResponse response) async {
-      OXLoading.show();
+      if(_showLoading) OXLoading.show();
       Map<String, dynamic> dataMap = Map<String, dynamic>.from(response.data);
       // LogUtil.e("upload : ${response}");
       // LogUtil.e('upload : ${dataMap}');
@@ -61,7 +62,7 @@ class UplodAliyun {
         authGetter: () => _authGetter(authMap: dataMap),
       );
       String uri = await uploadFile(file.path, fileType, filename);
-      OXLoading.dismiss();
+      if(_showLoading) OXLoading.dismiss();
       return uri;
       // return false;
     }).catchError((e) {
@@ -120,4 +121,15 @@ class UplodAliyun {
         return 'logs/';
     }
   }
+
+  // https://help.aliyun.com/zh/oss/user-guide/video-snapshots
+  static String getSnapshot(
+      String url,
+      {String t = '7000',
+        String f = 'jpg',
+        String w = '0',
+        String h = '0',
+        String m = 'fast',
+        String ar = 'auto',
+      }) => '$url?spm=qipa250&x-oss-process=video/snapshot,t_$t,f_$f,w_$w,h_$h,m_$m,ar_$ar';
 }

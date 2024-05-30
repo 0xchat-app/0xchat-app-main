@@ -8,50 +8,41 @@ import 'package:ox_common/navigator/navigator.dart';
 /// didPush -> B.initState;
 /// B pop to A
 /// didPop -> B.dispose
-mixin NavigatorObserverMixin<T extends StatefulWidget> on State<T> implements NavigatorObserver {
+mixin NavigatorObserverMixin<T extends StatefulWidget> on State<T> implements RouteAware {
 
   NavigatorState? get navigator => Navigator.of(context);
+  Route? get route => ModalRoute.of(context);
 
   @override
-  void initState() {
-    super.initState();
-    OXNavigator.observer.add(this);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = this.route;
+    if (route != null) {
+      OXNavigator.routeObserver.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
-    removeObserver();
+    if (mounted) {
+      removeObserver();
+    }
     super.dispose();
   }
 
   void removeObserver() {
-    OXNavigator.observer.remove(this);
+    OXNavigator.routeObserver.unsubscribe(this);
   }
 
   @protected
-  @mustCallSuper
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    // push the next page to remove this page listening
-    removeObserver();
-  }
+  void didPopNext() { }
 
   @protected
-  @mustCallSuper
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) { }
+  void didPush() { }
 
   @protected
-  @mustCallSuper
-  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) { }
+  void didPop() { }
 
   @protected
-  @mustCallSuper
-  void didReplace({ Route<dynamic>? newRoute, Route<dynamic>? oldRoute }) { }
-
-  @protected
-  @mustCallSuper
-  void didStartUserGesture(Route<dynamic> route, Route<dynamic>? previousRoute) { }
-
-  @protected
-  @mustCallSuper
-  void didStopUserGesture() { }
+  void didPushNext() { }
 }

@@ -7,14 +7,17 @@
 
 import UIKit
 
-class OXCFileHelper {
-    static func exportFile(atPath filePath: String, sender: UIViewController) {
+public class OXCFileHelper {
+    static public func exportFile(atPath filePath: String, sender: UIViewController, completion: @escaping (_ completed: Bool) -> Void) {
         let fileURL = URL(fileURLWithPath: filePath)
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return
         }
         
         let activityViewController = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+        activityViewController.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+            completion(completed)
+        }
         
         // for iPad
         if let popoverController = activityViewController.popoverPresentationController {
@@ -24,17 +27,14 @@ class OXCFileHelper {
         }
         
         sender.present(activityViewController, animated: true, completion: nil)
-        
     }
     
-    static func importFile(sender: UIViewController, callback: @escaping (String) -> Void) {
+    static public func importFile(sender: UIViewController, callback: @escaping (String) -> Void) {
         let documentPicker = UIDocumentPickerViewController(documentTypes: ["public.data"], in: .import)
         documentPicker.delegate = sender
         sender.documentPickerCallback = callback
         sender.present(documentPicker, animated: true)
     }
-    
-    
 }
 
 private var documentPickerCallbackKey: Void?

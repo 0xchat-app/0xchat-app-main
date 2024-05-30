@@ -92,6 +92,13 @@ class OXDateUtils {
       return '${separator ? ' ' : ''}$day';
     }
   }
+
+  ///Get the 'Daily, Month for short', and the month localized, eg '28 Sep'
+  static String getLocalizedMonthAbbreviation(int timestamp, {String locale = 'en'}) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    String formattedDate = DateFormat('d MMM', locale).format(date);
+    return formattedDate;
+  }
 }
 
 extension YLCommon on DateTime {

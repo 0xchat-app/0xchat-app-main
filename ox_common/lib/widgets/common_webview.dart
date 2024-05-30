@@ -117,17 +117,22 @@ class CommonWebViewState<T extends CommonWebView> extends State<T>
         },
         javascriptChannels: nostrChannels,
         onPageFinished: (url) {
-          setState(() {
-            showProgress = false;
-          });
+          if(mounted){
+            setState(() {
+              showProgress = false;
+            });
+          }
+
           currentController.runJavascript(windowNostrJavaScript);
         },
         onProgress: (process) {
           if (loadProgress != 1) {
-            setState(() {
-              loadProgress = process / 100;
-              showProgress = true;
-            });
+            if(mounted){
+              setState(() {
+                loadProgress = process / 100;
+                showProgress = true;
+              });
+            }
           }
         },
         navigationDelegate: (navigationDelegate) async {
