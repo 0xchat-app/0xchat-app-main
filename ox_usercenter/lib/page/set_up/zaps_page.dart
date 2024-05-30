@@ -40,7 +40,7 @@ class ZapsPage extends StatefulWidget {
 class _ZapsPageState extends State<ZapsPage> {
   bool _walletSwitchSelected = true;
   final TextEditingController _zapAmountTextEditingController = TextEditingController();
-  final List<WalletModel> _walletList = WalletModel.wallets;
+  final List<WalletModel> _walletList = WalletModel.walletsWithEcash;
   String _selectedWalletName = '';
   ZapsRecord? _zapsRecord;
   String pubKey = '';

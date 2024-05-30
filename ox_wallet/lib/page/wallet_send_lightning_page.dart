@@ -218,9 +218,9 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         OXLoading.dismiss();
         _enableButton.value = true;
         if (result != null && result.isSuccess) {
-          OXNavigator.pushPage(
+          OXNavigator.pushReplacement(
             context,
-            (context) => WalletSuccessfulPage(
+            WalletSuccessfulPage(
               title: Localized.text('ox_wallet.send_text'),
               canBack: true,
               content: Localized.text('ox_wallet.withdraw_success_tips').replaceAll(r'$amount', amount),
