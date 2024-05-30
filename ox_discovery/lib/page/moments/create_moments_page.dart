@@ -59,7 +59,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   final TextEditingController _textController = TextEditingController();
   final ProcessController _processController = ProcessController();
   final Completer<void> _completer = Completer<void>();
-  final Completer<String> _uploadCompleter = Completer<String>();
+  Completer<String>? _uploadCompleter;
 
   int get totalCount => _visibleType == VisibleType.allContact
       ? Contacts.sharedInstance.allContacts.length
@@ -71,6 +71,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   @override
   void initState() {
     if(widget.imageList != null || widget.videoPath != null) {
+      _uploadCompleter = Completer<String>();
       _getUploadMediaContent();
     }
     super.initState();
@@ -323,7 +324,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   void _postMoment() async {
     await OXLoading.show();
-    String getMediaStr = await _uploadCompleter.future;
+    String getMediaStr = '';
+    if (_uploadCompleter != null) {
+      getMediaStr = await _uploadCompleter!.future;
+    }
     // String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     OKEvent? event;
@@ -390,9 +394,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         context,
         fileType: UplodAliyunType.imageType,
         filePathList: _getImageList(),
+        showLoading: false,
       );
       String getImageUrlToStr = imgUrlList.join(' ');
-      _uploadCompleter.complete(getImageUrlToStr);
+      _uploadCompleter?.complete(getImageUrlToStr);
       return getImageUrlToStr;
     }
 
@@ -401,9 +406,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         context,
         fileType: UplodAliyunType.videoType,
         filePathList: [videoPath],
+        showLoading: false
       );
       String getVideoUrlToStr = imgUrlList.join(' ');
-      _uploadCompleter.complete(getVideoUrlToStr);
+      _uploadCompleter?.complete(getVideoUrlToStr);
       return getVideoUrlToStr;
     }
 

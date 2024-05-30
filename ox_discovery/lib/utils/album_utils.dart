@@ -85,6 +85,7 @@ class AlbumUtils {
     BuildContext? context, {
     required List<String> filePathList,
     required UplodAliyunType fileType,
+    bool showLoading = true
   }) async {
     List<String> uploadedUrls = [];
 
@@ -97,6 +98,7 @@ class AlbumUtils {
         fileType: fileType,
         file: imageFile,
         filename: fileName,
+        showLoading: showLoading
       );
       if (uploadedUrl.isNotEmpty) {
         uploadedUrls.add(uploadedUrl);
