@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
@@ -12,12 +13,19 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 class MomentZapPage extends StatefulWidget {
   final UserDB userDB;
   final String eventId;
+  final bool isDefaultEcashWallet;
 
-  const MomentZapPage({super.key, required this.userDB, required this.eventId});
+  const MomentZapPage({
+    super.key,
+    required this.userDB,
+    required this.eventId,
+    bool? isDefaultEcashWallet,
+  }) : isDefaultEcashWallet = isDefaultEcashWallet ?? false;
 
   @override
   State<MomentZapPage> createState() => _MomentZapPageState();
@@ -37,10 +45,13 @@ class _MomentZapPageState extends State<MomentZapPage> {
   final defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
   final defaultDescription = 'Zaps';
 
+  IMint? mint;
+
   @override
   void initState() {
-    _amountController.text = defaultSatsValue;
     super.initState();
+    _amountController.text = defaultSatsValue;
+    mint = OXWalletInterface.getDefaultMint();
   }
 
   @override
@@ -75,7 +86,8 @@ class _MomentZapPageState extends State<MomentZapPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
-
+                        if (widget.isDefaultEcashWallet)
+                          _buildMintSelector().setPadding(EdgeInsets.only(top: sectionSpacing)),
                         _buildSectionView(
                           title: 'Amount',
                           children: [
@@ -123,6 +135,17 @@ class _MomentZapPageState extends State<MomentZapPage> {
         centerTitle: true,
         isClose: true,
       );
+
+  Widget _buildMintSelector() {
+    return OXWalletInterface.buildMintIndicatorItem(
+        mint: mint,
+        selectedMintChange: (mint) {
+          setState(() {
+            this.mint = mint;
+          });
+        }
+    );
+  }
 
   Widget _buildSectionView({
     required String title,
@@ -211,6 +234,19 @@ class _MomentZapPageState extends State<MomentZapPage> {
       return ;
     }
 
+    final mint = this.mint;
+    if (widget.isDefaultEcashWallet) {
+      if (mint == null) {
+        CommonToast.instance.show(context, 'Must select mint to send ecash');
+        return;
+      }
+
+      if (zapAmount > mint.balance) {
+        CommonToast.instance.show(context, 'Insufficient balance');
+        return;
+      }
+    }
+
     final relays = OXRelayManager.sharedInstance.relayAddressList;
     final noteId = widget.eventId;
     final recipient = widget.userDB.pubKey;
@@ -235,9 +271,19 @@ class _MomentZapPageState extends State<MomentZapPage> {
       false,
     );
     final invoice = invokeResult['invoice'] ?? '';
-    OXLoading.dismiss();
 
-    OXNavigator.pop(context);
-    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});
+    if(widget.isDefaultEcashWallet) {
+      final response = await Cashu.payingLightningInvoice(mint: mint!, pr: invoice);
+      if (!response.isSuccess) {
+        CommonToast.instance.show(context, response.errorMsg);
+        return;
+      }
+      OXLoading.dismiss();
+      OXNavigator.pop(context);
+    } else {
+      OXLoading.dismiss();
+      OXNavigator.pop(context);
+      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});
+    }
   }
 }

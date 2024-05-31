@@ -443,7 +443,7 @@ class _ContractListItemState extends State<ContractListItem> {
                     margin: EdgeInsets.only(right: Adapt.px(7.0)),
                     child: checkWidget,
                   )
-                : Container(),
+                : SizedBox(),
             Stack(
               children: [
                 iconAvatar,
@@ -458,7 +458,7 @@ class _ContractListItemState extends State<ContractListItem> {
                         width: Adapt.px(20),
                         height: Adapt.px(20),
                         fit: BoxFit.cover,
-                      ) : Container();
+                      ) : SizedBox();
                     },
                     future: _getUserSelectedBadgeInfo(widget.item),
                   ),

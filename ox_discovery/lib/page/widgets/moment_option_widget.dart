@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -370,6 +371,17 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       await CommonToast.instance.show(context, 'The friend has not set LNURL!');
       return;
     }
-    await OXNavigator.presentPage(context, (context) => MomentZapPage(userDB: user,eventId: notedUIModel.value.noteDB.noteId,));
+    String? pubkey = Account.sharedInstance.me?.pubKey;
+    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
+    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
+    bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
+    await OXNavigator.presentPage(
+      context,
+      (context) => MomentZapPage(
+        userDB: user,
+        eventId: notedUIModel.value.noteDB.noteId,
+        isDefaultEcashWallet: isDefaultEcashWallet,
+      ),
+    );
   }
 }

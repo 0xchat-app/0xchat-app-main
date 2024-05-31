@@ -147,8 +147,8 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
                     controller: _channelNameController,
                     hintText: 'satoshi',
                     maxLines: 1)),
-            _listItem(Localized.text('ox_chat.badge_requirement'),
-                childView: _buildRequirementWidget()),
+            // _listItem(Localized.text('ox_chat.badge_requirement'),
+            //     childView: _buildRequirementWidget()),
             _listItem(Localized.text('ox_chat.description'),
                 childView: _buildTextEditing(
                     controller: _descriptionController,

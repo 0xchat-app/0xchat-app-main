@@ -52,6 +52,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   void initState() {
     super.initState();
     _loadNotesFromDB();
+    Future.delayed(Duration(seconds: 1), () {
+      _loadnewNotesFromRelay();
+    });
   }
 
   @override
@@ -345,12 +348,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     if (filteredNoteList.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
       _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
-      setState(() {});
+      if(mounted) setState(() {});
       return;
     }
-    _notes.clear();
     _notes.addAll(filteredNoteList);
-    _groupedNotes.clear();
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
     if(noteList.length < _limit) {
@@ -361,10 +362,13 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadNotesFromDB() async {
-    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
     _refreshData(noteList);
+  }
+
+  Future<void> _loadnewNotesFromRelay() async {
     await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
-    noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
     _refreshData(noteList);
   }
 
