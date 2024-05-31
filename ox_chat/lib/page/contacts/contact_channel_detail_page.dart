@@ -356,32 +356,32 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            height: Adapt.px(24),
-                          ),
-                          Container(
-                            child: Text(
-                              Localized.text('ox_chat.badge_requirement'),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: Adapt.px(14),
-                                  color: ThemeColor.color100),
-                            ),
-                          ),
-                          SizedBox(
-                            height: Adapt.px(8),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              _badgeRequirementsHint,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: Adapt.px(14),
-                                  color: ThemeColor.color100),
-                              maxLines: 2,
-                            ),
-                          ),
+                          // SizedBox(
+                          //   height: Adapt.px(24),
+                          // ),
+                          // Container(
+                          //   child: Text(
+                          //     Localized.text('ox_chat.badge_requirement'),
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.w600,
+                          //         fontSize: Adapt.px(14),
+                          //         color: ThemeColor.color100),
+                          //   ),
+                          // ),
+                          // SizedBox(
+                          //   height: Adapt.px(8),
+                          // ),
+                          // Container(
+                          //   alignment: Alignment.centerLeft,
+                          //   child: Text(
+                          //     _badgeRequirementsHint,
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.w400,
+                          //         fontSize: Adapt.px(14),
+                          //         color: ThemeColor.color100),
+                          //     maxLines: 2,
+                          //   ),
+                          // ),
                           SizedBox(
                             height: Adapt.px(8),
                           ),
