@@ -345,7 +345,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     if (filteredNoteList.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
       _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
-      setState(() {});
+      if(mounted) setState(() {});
       return;
     }
     _notes.clear();
