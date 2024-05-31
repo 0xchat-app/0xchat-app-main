@@ -107,7 +107,7 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget emptyNoteMoment(String content, double height) {
+  static Widget emptyNoteMoment(String? content, double height) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10.px),
       height: height.px,
@@ -124,7 +124,7 @@ class MomentWidgetsUtils {
       ),
       child: Center(
         child: Text(
-          'Moment not found !',
+          content ?? 'Loading note...',
           style: TextStyle(
             color: ThemeColor.color100,
             fontSize: 16.px,
