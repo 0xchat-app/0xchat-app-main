@@ -98,30 +98,39 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             topLeft: Radius.circular(Adapt.px(20)),
           ),
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildAppBar(),
-              Container(
-                padding: EdgeInsets.only(
-                  left: 24.px,
-                  right: 24.px,
-                  bottom: widget.type == EMomentType.content ? 100.px : 500.px,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _videoWidget(),
-                    _pictureWidget(),
-                    _quoteWidget(),
-                    _captionWidget(),
-                    _visibleContactsWidget(),
-                    SendProgressWidget(controller: _processController,totalCount: totalCount)
-                  ],
-                ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildAppBar(),
+                  Container(
+                    padding: EdgeInsets.only(
+                      left: 24.px,
+                      right: 24.px,
+                      bottom: widget.type == EMomentType.content ? 100.px : 500.px,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _videoWidget(),
+                        _pictureWidget(),
+                        _quoteWidget(),
+                        _captionWidget(),
+                        _visibleContactsWidget(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Align(
+              child: SendProgressWidget(
+                controller: _processController,
+                totalCount: totalCount,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -323,10 +332,11 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _postMoment() async {
-    await OXLoading.show();
     String getMediaStr = '';
     if (_uploadCompleter != null) {
+      OXLoading.show();
       getMediaStr = await _uploadCompleter!.future;
+      OXLoading.dismiss();
     }
     // String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
@@ -341,21 +351,27 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
+          OXLoading.show();
           event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags);
           break;
         case VisibleType.allContact:
+          _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteContacts(content,
                   hashTags: getHashTags,
-                  sendMessageProgressCallBack: (value) => _updateProgressStatus(value))
+                  sendMessageProgressCallBack: (value) {
+                    _updateProgressStatus(value);
+                  })
               .then((value) => event = value);
           await _completer.future;
           break;
         case VisibleType.private:
+          OXLoading.show();
           event = await Moment.sharedInstance.sendNoteJustMe(content,hashTags: getHashTags);
           break;
         case VisibleType.excludeContact:
           final pubkeys = _selectedContacts?.map((e) => e.pubKey).toList();
+          _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteCloseFriends(pubkeys ?? [], content,
                   hashTags: getHashTags,
@@ -425,7 +441,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _updateProgressStatus(int value) {
-    OXLoading.dismiss();
     _processController.process.value = value;
     if (value > totalCount) {
       _completer.complete();
