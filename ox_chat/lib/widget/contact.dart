@@ -158,7 +158,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                   child: _buildAlphaBar(),
                   width: 30,
                 ),
-          _isTouchTagBar ? _buildCenterModal() : Container(),
+          _isTouchTagBar ? _buildCenterModal() : SizedBox(),
         ],
       ),
     );

@@ -319,7 +319,20 @@ extension MessageDBToUIEx on MessageDB {
     switch (messageType) {
       case MessageType.text:
         final initialText = contentModel.content ?? '';
-        if(ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
+
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+          if (mentions.isEmpty) return ;
+          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+          if (hasCurrentUser) {
+            isMentionMessageCallback?.call();
+          }
+        });
+
+        if (mentionDecodeText != null) {
+          // Mention Msg
+          contentModel.content = mentionDecodeText;
+        } else if (ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
+          // Template Msg
           contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             if(nostrSchemeContent != null) {
@@ -334,6 +347,7 @@ extension MessageDBToUIEx on MessageDB {
           });
           return CustomMessageFactory();
         } else if(Zaps.isLightningInvoice(initialText)) {
+          // Zaps Msg
           Map<String, String> req = Zaps.decodeInvoice(initialText);
           final amount = req['amount'] ?? '';
           if (amount.isNotEmpty) {
@@ -349,22 +363,13 @@ extension MessageDBToUIEx on MessageDB {
             return CustomMessageFactory();
           }
         } else if (Cashu.isCashuToken(initialText)) {
+          // Ecash Msg
           parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
           contentModel.content = this.decryptContent;
           await DB.sharedInstance.update(this);
           return CustomMessageFactory();
         }
 
-        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
-          if (mentions.isEmpty) return ;
-          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
-          if (hasCurrentUser) {
-            isMentionMessageCallback?.call();
-          }
-        });
-        if (mentionDecodeText != null) {
-          contentModel.content = mentionDecodeText;
-        }
         return TextMessageFactory();
       case MessageType.image:
       case MessageType.encryptedImage:
