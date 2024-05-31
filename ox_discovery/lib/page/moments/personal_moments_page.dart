@@ -52,6 +52,9 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   void initState() {
     super.initState();
     _loadNotesFromDB();
+    Future.delayed(Duration(seconds: 1), () {
+      _loadnewNotesFromRelay();
+    });
   }
 
   @override
@@ -363,8 +366,11 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   Future<void> _loadNotesFromDB() async {
     List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
     _refreshData(noteList);
+  }
+
+  Future<void> _loadnewNotesFromRelay() async {
     await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
-    noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
     _refreshData(noteList);
   }
 
