@@ -5,19 +5,21 @@ import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_discovery/interface.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
-import 'package:path/path.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
-    return MessageDB.getNostrScheme(content);
+    final regexNostr =
+        r'^(?:\s+)?(nostr:)?(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s*$)';
+    final urlRegexp = RegExp(regexNostr);
+    final match = urlRegexp.firstMatch(content);
+    return match?[0];
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
     String? nostrScheme = getNostrScheme(content);
     if (nostrScheme == null)
       return null;
-    else if (nostrScheme.startsWith('nostr:npub') ||
-        nostrScheme.startsWith('nostr:nprofile') ||
+    else if (nostrScheme.startsWith('nostr:nprofile') ||
         nostrScheme.startsWith('nprofile') ||
         nostrScheme.startsWith('npub')) {
       final tempMap = Account.decodeProfile(content);
@@ -89,8 +91,9 @@ class ChatNostrSchemeHandle {
       // check local moment
       NoteDB? noteDB = Moment.sharedInstance.notesCache[eventId];
       noteDB ??= await Moment.sharedInstance.loadNoteFromDBWithNoteId(eventId);
-      if(noteDB != null){
-        Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null, noteDB.content, null, '', '');
+      if (noteDB != null) {
+        Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null,
+            noteDB.content, null, '', '');
         return await noteToMessageContent(note, nostrScheme);
       }
 

@@ -137,8 +137,8 @@ class _MomentWidgetState extends State<MomentWidget> {
             isShowAllContent: widget.isShowAllContent,
             clickBlankCallback: () => widget.clickMomentCallback?.call(model),
             showMoreCallback: () async {
-              OXNavigator.pushPage(
-                  context, (context) => MomentsPage(notedUIModel: model));
+             await OXNavigator.pushPage(
+                  context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
               setState(() {});
             },
             text: content,
