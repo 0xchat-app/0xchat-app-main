@@ -351,9 +351,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       if(mounted) setState(() {});
       return;
     }
-    _notes.clear();
     _notes.addAll(filteredNoteList);
-    _groupedNotes.clear();
     _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
     _lastTimestamp = noteList.last.createAt;
     if(noteList.length < _limit) {
@@ -364,7 +362,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadNotesFromDB() async {
-    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
     _refreshData(noteList);
   }
 
