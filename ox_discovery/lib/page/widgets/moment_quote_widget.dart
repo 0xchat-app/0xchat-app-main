@@ -191,7 +191,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                         ).setPaddingOnly(bottom: 4.px),
                         MomentRichTextWidget(
                           text: model.noteDB.content,
-                          textSize: 12.px,
+                          textSize: 14.px,
                           // maxLines: 1,
                           isShowAllContent: false,
                           clickBlankCallback: () => _jumpMomentPage(model),
