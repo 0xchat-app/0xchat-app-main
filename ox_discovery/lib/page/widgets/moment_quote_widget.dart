@@ -225,7 +225,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
       ),
       child: Center(
         child: Text(
-          'Reference not found !',
+          'Loading note...',
           style: TextStyle(
             color: ThemeColor.color100,
             fontSize: 16.px,

@@ -4,7 +4,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_theme/ox_theme.dart';
 
 class ProcessController {
-  ValueNotifier<int> process = ValueNotifier(0);
+  ValueNotifier<int?> process = ValueNotifier(null);
 }
 
 class SendProgressWidget extends StatefulWidget {
@@ -24,7 +24,7 @@ class _SendProgressWidgetState extends State<SendProgressWidget> {
     return ValueListenableBuilder(
         valueListenable: widget.controller.process,
         builder: (context, value, child) {
-          if (value == 0 || value > widget.totalCount) return Container();
+          if (value == null || value > widget.totalCount) return Container();
           return Center(
             child: Container(
               padding: EdgeInsets.all(20.px),
