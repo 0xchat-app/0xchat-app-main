@@ -132,7 +132,7 @@ class ChannelContactState extends State<ChannelContact> {
                   child: _buildAlphaBar(),
                   width: 30,
                 ),
-          _isTouchTagBar ? _buildCenterModal() : Container(),
+          _isTouchTagBar ? _buildCenterModal() : SizedBox(),
         ],
       ),
     );
