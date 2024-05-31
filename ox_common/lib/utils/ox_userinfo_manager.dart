@@ -337,7 +337,6 @@ class OXUserInfoManager {
       Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
         //List<String> relays
         OXRelayManager.sharedInstance.addRelaysSuccess(value);
-        Account.sharedInstance.syncFollowingListFromRelay(currentUserInfo!.pubKey);
       });
     });
 
