@@ -1,6 +1,5 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
@@ -180,7 +179,7 @@ class _ContractsPageState extends State<ContractsPage>
                   fontWeight: FontWeight.w600),
             ),
             SizedBox(width: Adapt.px(6)),
-            isShowCount ? _unReadCount() : Container(),
+            isShowCount ? _unReadCount() : SizedBox(),
           ],
         ),
         decoration: BoxDecoration(
