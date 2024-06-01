@@ -88,3 +88,5 @@
 
 #sqflite_sqlcipher
 -keep class net.sqlcipher.** { *; }
+#secp256k1
+-keep class fr.acinq.secp256k1.** { *; }
