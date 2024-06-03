@@ -107,7 +107,7 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget emptyNoteMoment(String? content, double height) {
+  static Widget emptyNoteMomentWidget(String? content, double height) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10.px),
       height: height.px,

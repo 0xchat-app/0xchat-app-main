@@ -39,15 +39,18 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     NotedUIModel? model = widget.notedUIModel?.value;
     if (model == null || !model.noteDB.isReply) {
       isShowReplyContactWidget = false;
+      noteAuthor = null;
       setState(() {});
       return;
     }
 
 
+    isShowReplyContactWidget = true;
+
+
     String? getReplyId = model.noteDB.getReplyId;
 
     if (getReplyId == null) {
-      isShowReplyContactWidget = false;
       setState(() {});
       return;
     }
@@ -55,7 +58,6 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     if (NotedUIModelCache.map[getReplyId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
       if (note == null) {
-        isShowReplyContactWidget = false;
         if(mounted){
           setState(() {});
         }
@@ -63,7 +65,6 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       }
       NotedUIModelCache.map[getReplyId] = NotedUIModel(noteDB: note);
     }
-    isShowReplyContactWidget = true;
 
     noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
     _getMomentUserInfo(NotedUIModelCache.map[getReplyId]!);

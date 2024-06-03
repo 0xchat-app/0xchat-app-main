@@ -104,7 +104,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   Widget quoteMoment() {
     NotedUIModel? model = notedUIModel;
-    if (model == null) return _emptyNotedWidget();
+    if (model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,200);
     String pubKey = model.noteDB.author;
     return GestureDetector(
       onTap: () {
@@ -203,33 +203,6 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
                 },
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _emptyNotedWidget() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.px),
-      height: 200.px,
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1.px,
-          color: ThemeColor.color160,
-        ),
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            11.5.px,
-          ),
-        ),
-      ),
-      child: Center(
-        child: Text(
-          'Loading note...',
-          style: TextStyle(
-            color: ThemeColor.color100,
-            fontSize: 16.px,
-          ),
         ),
       ),
     );

@@ -176,7 +176,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   Widget _showContentWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) {
-      return MomentWidgetsUtils.emptyNoteMoment(null, 300);
+      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 300);
     }
     return MomentWidget(
       isShowAllContent: true,
