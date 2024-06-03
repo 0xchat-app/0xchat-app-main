@@ -40,6 +40,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
 
   Map<String, UserDB?> userDBList = {};
 
+  bool isOnSelectText = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -81,6 +83,11 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SelectableText.rich(
+            onSelectionChanged:(TextSelection selection, SelectionChangedCause? cause){
+              if(cause == SelectionChangedCause.longPress){
+                isOnSelectText = true;
+              }
+            },
             onTap: _clearSelectTextToCallback,
             maxLines: widget.maxLines,
             TextSpan(
@@ -205,8 +212,9 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   }
 
   void _clearSelectTextToCallback(){
-    if (FocusScope.of(context).hasFocus) {
+    if (FocusScope.of(context).hasFocus && isOnSelectText) {
       FocusScope.of(context).unfocus();
+      isOnSelectText = false;
     } else {
       widget.clickBlankCallback?.call();
     }
