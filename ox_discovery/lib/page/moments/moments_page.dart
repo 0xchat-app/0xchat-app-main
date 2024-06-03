@@ -53,10 +53,9 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   Future<void> didPopNext() async {
     if(notedUIModel == null) return;
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel!.value.noteDB.noteId);
-    int? oldReplyNum = notedUIModel!.value.noteDB.replyEventIds?.length;
-    int? newReplyNum = note!.replyEventIds?.length;
-    if(oldReplyNum == null || newReplyNum == null) return;
-    if(newReplyNum > oldReplyNum){
+    if(note == null) return;
+    int newReplyNum = note.replyEventIds?.length ?? 0;
+    if(newReplyNum > replyList.length){
       _getReplyList();
     }
   }
