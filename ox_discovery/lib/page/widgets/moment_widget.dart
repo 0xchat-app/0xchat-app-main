@@ -114,11 +114,13 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null || model.value.getMomentShowContent.isEmpty) {
+    if(model == null) return const SizedBox();
+    List<String> quoteUrlList = model.value.getQuoteUrlList;
+
+    if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
-    List<String> quoteUrlList = model.value.getQuoteUrlList;
     List<String> contentList =
         DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
 
