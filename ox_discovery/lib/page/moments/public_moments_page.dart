@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
@@ -50,7 +54,8 @@ class PublicMomentsPage extends StatefulWidget {
   State<PublicMomentsPage> createState() => PublicMomentsPageState();
 }
 
-class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObserver {
+class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObserver, OXUserInfoObserver {
+  bool isLogin = false;
   final int _limit = 50;
   final double tipsHeight = 52;
 
@@ -67,6 +72,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
   @override
   void initState() {
     super.initState();
+    isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
     updateNotesList(true);
   }
@@ -76,10 +83,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     super.didUpdateWidget(oldWidget);
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
       _refreshController.resetNoData();
-      if (mounted) {
-        notesList = [];
-        _allNotesFromDBLastTimestamp = null;
-      }
+      _clearData();
       updateNotesList(true);
     }
   }
@@ -87,12 +91,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
   @override
   void dispose() {
     _refreshController.dispose();
+    OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if(!isLogin) return _noLoginWidget();
     return Stack(
       children: [
         OXSmartRefresher(
@@ -191,6 +197,49 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     );
   }
 
+  Widget _noLoginWidget(){
+  return Container(
+      padding: EdgeInsets.only(top: Adapt.px(80.0)),
+      alignment: Alignment.center,
+      child: Column(
+        children: <Widget>[
+          CommonImage(
+            iconName: 'icon_no_login.png',
+            width: Adapt.px(90),
+            height: Adapt.px(90),
+            package: 'ox_common',
+          ),
+          GestureDetector(
+            onTap: ()  {
+              OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: Adapt.px(24)),
+              child: RichText(
+                text: TextSpan(
+                    text: Localized.text('ox_common.please_login_hint'),
+                    style: TextStyle(
+                        color: ThemeColor.color100,
+                        fontSize: Adapt.px(16),
+                        fontWeight: FontWeight.w400
+                    ),
+                    children: [
+                      TextSpan(
+                        text: Localized.text('ox_common.please_login'),
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(14),
+                        ),
+                      ),
+                    ]),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
     bool isPrivateMoment = widget.publicMomentsPageType == EPublicMomentsPageType.private;
     if(isWrapRefresh){
@@ -258,6 +307,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     setState(() {});
   }
 
+  void _clearData(){
+    notesList = [];
+    _allNotesFromDBLastTimestamp = null;
+    if(mounted){
+      setState(() {});
+    }
+  }
+
   @override
   didNewNotesCallBackCallBack(List<NoteDB> notes) {
     newNotesCallBackCallBackList.value = notes;
@@ -268,6 +325,30 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
   didNewNotificationCallBack(List<NotificationDB> notifications) {
     newNotificationCallBackList.value = notifications;
     tipContainerHeight.value = tipsHeight;
+  }
+
+  @override
+  void didLoginSuccess(UserDB? userInfo) {
+    setState(() {
+      isLogin = true;
+    });
+    updateNotesList(true);
+  }
+
+  @override
+  void didLogout() {
+    setState(() {
+      isLogin = false;
+    });
+    _clearData();
+  }
+
+  @override
+  void didSwitchUser(UserDB? userInfo) {
+    setState(() {
+      isLogin = true;
+    });
+    updateNotesList(true);
   }
 
 }
