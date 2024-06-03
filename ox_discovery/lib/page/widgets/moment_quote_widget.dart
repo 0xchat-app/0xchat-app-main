@@ -39,6 +39,9 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.notedId != oldWidget.notedId) {
+      setState(() {
+        notedUIModel = null;
+      });
       _initData();
     }
   }
