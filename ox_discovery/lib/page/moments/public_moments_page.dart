@@ -75,6 +75,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
+      _refreshController.resetNoData();
       if (mounted) {
         notesList = [];
         _allNotesFromDBLastTimestamp = null;
