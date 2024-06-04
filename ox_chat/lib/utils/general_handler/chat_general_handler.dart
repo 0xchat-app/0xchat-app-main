@@ -383,6 +383,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       case MessageLongPressEventType.quote:
         replyHandler.quoteMenuItemPressHandler(context, message);
         break;
+      case MessageLongPressEventType.zaps:
+        _zapMenuItemPressHandler(context, message);
+        break;
       default:
         break;
     }
@@ -437,6 +440,23 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     if (reportSuccess == true && messageDeleteHandler != null) {
       messageDeleteHandler(message);
     }
+  }
+
+  _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(message.author.id);
+    if(user == null) return;
+    if (user.lnurl == null || user.lnurl!.isEmpty) {
+      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
+      return;
+    }
+    // await OXNavigator.presentPage(
+    //   context,
+    //       (context) => MomentZapPage(
+    //     userDB: user,
+    //     eventId: message.remoteId,
+    //     isDefaultEcashWallet: true,
+    //   ),
+    // );
   }
 
   /// Handles the press event for the "Reaction emoji" in a menu item.

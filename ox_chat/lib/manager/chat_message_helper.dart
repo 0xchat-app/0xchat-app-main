@@ -330,8 +330,7 @@ extension MessageDBToUIEx on MessageDB {
           content, () => Set());
 
       if (reactionAuthorSet.add(content)) {
-        UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
-        reaction.authors.add(user?.name ?? '');
+        reaction.authors.add(note.author);
         if (!reactions.contains(reaction)) {
           reactions.add(reaction);
         }
