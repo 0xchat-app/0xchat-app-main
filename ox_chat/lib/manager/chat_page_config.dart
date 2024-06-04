@@ -39,12 +39,17 @@ class ChatPageConfig {
         AssetImageData('icon_quote.png', package: 'ox_chat'),
         MessageLongPressEventType.quote,
       ),
-      if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
+      if (!OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
         ItemModel(
-          Localized.text('ox_chat.message_menu_delete'),
-          AssetImageData('icon_delete.png', package: 'ox_common'),
-          MessageLongPressEventType.delete,
+          Localized.text('ox_chat.message_menu_zap'),
+          AssetImageData('icon_lightning.png', package: 'ox_chat'),
+          MessageLongPressEventType.zap,
         ),
+      ItemModel(
+        Localized.text('ox_chat.message_menu_delete'),
+        AssetImageData('icon_delete.png', package: 'ox_common'),
+        MessageLongPressEventType.delete,
+      ),
     ]);
 
     return menuList;

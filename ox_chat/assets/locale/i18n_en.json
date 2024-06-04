@@ -40,6 +40,7 @@
   "message_menu_delete": "Delete",
   "message_menu_report": "Report",
   "message_menu_block":  "Block",
+  "message_menu_zap": "Zap",
   "message_menu_un_block":  "UnBlock",
   "report_reason_title": "WHAT DO YOU WANT TO REPORT?",
   "report_reason_spam": "Spam",

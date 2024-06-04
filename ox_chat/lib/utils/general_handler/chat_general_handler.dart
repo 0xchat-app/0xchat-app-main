@@ -368,7 +368,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
 extension ChatMenuHandlerEx on ChatGeneralHandler {
   /// Handles the press event for a menu item.
-  void menuItemPressHandler(BuildContext context, types.Message message, MessageLongPressEventType type) {
+  void menuItemPressHandler(BuildContext context, types.Message message, MessageLongPressEventType type, String? emoji) {
     switch (type) {
       case MessageLongPressEventType.copy:
         _copyMenuItemPressHandler(message);
@@ -381,6 +381,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         break;
       case MessageLongPressEventType.quote:
         replyHandler.quoteMenuItemPressHandler(context, message);
+        break;
+      case MessageLongPressEventType.reaction:
+        _reactionMenuItemPressHandler(context, message, emoji);
         break;
       default:
         break;
@@ -435,6 +438,34 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     final messageDeleteHandler = this.messageDeleteHandler;
     if (reportSuccess == true && messageDeleteHandler != null) {
       messageDeleteHandler(message);
+    }
+  }
+
+  /// Handles the press event for the "Reaction" button in a menu item.
+  _reactionMenuItemPressHandler(BuildContext context, types.Message message, String? emoji) async {
+
+    ChatLogUtils.info(
+      className: 'ChatMessagePage',
+      funcName: '_reactionMenuItemPressHandler',
+      message: 'id: ${message.id}, content: ${message.content}, emoji: $emoji',
+    );
+
+    final messageId = message.remoteId;
+    if (messageId != null) {
+      OXLoading.show();
+      OKEvent event = await Messages.sharedInstance.sendMessageReaction(messageId, emoji ?? '');
+      OXLoading.dismiss();
+      if (event.status) {
+        OXNavigator.pop(context);
+        final messageDeleteHandler = this.messageDeleteHandler;
+        if (messageDeleteHandler != null) {
+          messageDeleteHandler(message);
+        }
+      } else {
+        CommonToast.instance.show(context, event.message);
+      }
+    } else {
+      ChatLogUtils.error(className: 'ChatGeneralHandler', funcName: '_reactionMenuItemPressHandler', message: 'messageId: $messageId');
     }
   }
 }

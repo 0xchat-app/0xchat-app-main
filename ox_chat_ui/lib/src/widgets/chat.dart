@@ -387,7 +387,7 @@ class Chat extends StatefulWidget {
   repliedMessageBuilder;
 
   ///Called  when the menu items clicked after a long press‘
-  final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
+  final void Function(types.Message, MessageLongPressEventType type, String? emoji)? onMessageLongPressEvent;
 
   /// Create a menu that pops up when long pressing on a message
   final List<ItemModel> Function(BuildContext context, types.Message message)? longPressMenuItemsCreator;
