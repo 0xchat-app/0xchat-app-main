@@ -321,7 +321,7 @@ extension MessageDBToUIEx on MessageDB {
 
     for (final reactionId in reactionIds) {
       final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
-      if (note == null || note.content.isNotEmpty) continue ;
+      if (note == null || note.content.isEmpty) continue ;
 
       final content = note.content;
       final reaction = reactionModelMap.putIfAbsent(
@@ -330,7 +330,8 @@ extension MessageDBToUIEx on MessageDB {
           content, () => Set());
 
       if (reactionAuthorSet.add(content)) {
-        reaction.authors.add(note.author);
+        UserDB? user = await Account.sharedInstance.getUserInfo(note.author);
+        reaction.authors.add(user?.name ?? '');
         if (!reactions.contains(reaction)) {
           reactions.add(reaction);
         }
@@ -341,7 +342,23 @@ extension MessageDBToUIEx on MessageDB {
   }
 
   Future<List<types.ZapsInfo>> getZapsInfo() async {
-    return [];
+    final zapEventIds = [...(this.zapEventIds ?? [])];
+    final zaps = <types.ZapsInfo>[];
+
+    for (final zapId in zapEventIds) {
+      final zapReceipt = await Zaps.getZapReceipt('', invoice: zapId);
+      if (zapReceipt.isEmpty) continue ;
+
+      final zapDB = zapReceipt.first;
+
+      UserDB? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
+      if(user == null) continue;
+
+      int amount = ZapRecordsDB.getZapAmount(zapDB.bolt11);
+      types.ZapsInfo info = types.ZapsInfo(author: user, amount: amount.toString(), unit: 'sats');
+      zaps.add(info);
+    }
+    return zaps;
   }
 
   Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
