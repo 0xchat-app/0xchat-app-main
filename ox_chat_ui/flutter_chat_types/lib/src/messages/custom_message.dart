@@ -29,6 +29,9 @@ abstract class CustomMessage extends Message {
     MessageType? type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
+    required this.viewWithoutBubble,
   }) : super(type: type ?? MessageType.custom);
 
   const factory CustomMessage({
@@ -45,7 +48,12 @@ abstract class CustomMessage extends Message {
     MessageType? type,
     int? updatedAt,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
+    required bool viewWithoutBubble,
   }) = _CustomMessage;
+
+  final bool viewWithoutBubble;
 
   /// Creates a custom message from a map (decoded JSON).
   factory CustomMessage.fromJson(Map<String, dynamic> json) =>
@@ -63,6 +71,9 @@ abstract class CustomMessage extends Message {
     Status? status,
     int? updatedAt,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
+    required bool viewWithoutBubble,
   }) =>
       _CustomMessage(
         author: author,
@@ -77,6 +88,7 @@ abstract class CustomMessage extends Message {
         type: MessageType.custom,
         updatedAt: updatedAt,
         expiration: expiration,
+        viewWithoutBubble: viewWithoutBubble,
       );
 
   @override
@@ -120,6 +132,8 @@ abstract class CustomMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts a custom message to the map representation,
@@ -144,6 +158,9 @@ class _CustomMessage extends CustomMessage {
     super.type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
+    required super.viewWithoutBubble,
   }) : super._();
 
   @override
@@ -162,6 +179,9 @@ class _CustomMessage extends CustomMessage {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
+    bool? viewWithoutBubble,
   }) =>
       _CustomMessage(
         author: author ?? this.author,
@@ -181,6 +201,7 @@ class _CustomMessage extends CustomMessage {
         status: status == _Unset ? this.status : status as Status?,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         expiration: expiration ?? this.expiration,
+        viewWithoutBubble: viewWithoutBubble ?? this.viewWithoutBubble,
       );
 }
 

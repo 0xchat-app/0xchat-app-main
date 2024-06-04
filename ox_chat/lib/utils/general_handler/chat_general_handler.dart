@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
 import 'package:ox_chat/page/ecash/ecash_sending_page.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
@@ -436,6 +437,34 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     if (reportSuccess == true && messageDeleteHandler != null) {
       messageDeleteHandler(message);
     }
+  }
+
+  /// Handles the press event for the "Reaction emoji" in a menu item.
+  Future<bool> reactionPressHandler(
+    BuildContext context,
+    types.Message message,
+    String content,
+  ) async {
+    ChatLogUtils.info(
+      className: 'ChatMessagePage',
+      funcName: 'reactionPressHandler',
+      message: 'id: ${message.id}, content: ${message.content}',
+    );
+    final messageId = message.remoteId;
+    if (messageId == null || messageId.isEmpty) {
+      ChatLogUtils.error(
+        className: 'ChatMessagePage',
+        funcName: 'reactionPressHandler',
+        message: 'messageId is $messageId',
+      );
+      return false;
+    }
+
+    final event = await Messages.sharedInstance.sendMessageReaction(
+      messageId,
+      content,
+    );
+    return event.status;
   }
 }
 

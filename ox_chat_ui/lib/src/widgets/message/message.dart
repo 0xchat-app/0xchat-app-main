@@ -1,9 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
@@ -18,15 +18,6 @@ import 'video_message.dart';
 /// Base widget for all message types in the chat. Renders bubbles around
 /// messages and status. Sets maximum width for a message for
 /// a nice look on larger screens.
-
-class _LayoutConstant {
-  static double menuVerticalPadding = Adapt.px(16);
-  static double menuHorizontalPadding = Adapt.px(8);
-  static double menuItemWidth = Adapt.px(61);
-  static double menuIconSize = Adapt.px(24);
-  static double menuTitleTopPadding = Adapt.px(6);
-  static double menuTitleSize = Adapt.px(12);
-}
 
 class Message extends StatefulWidget {
   Message({
@@ -64,8 +55,8 @@ class Message extends StatefulWidget {
     this.userAgent,
     this.videoMessageBuilder,
     this.repliedMessageBuilder,
-    this.onMessageLongPressEvent,
-    this.longPressMenuItemsCreator,
+    this.longPressWidgetBuilder,
+    this.reactionViewBuilder,
   });
 
   /// Build an audio message inside predefined bubble.
@@ -150,9 +141,6 @@ class Message extends StatefulWidget {
   /// Called when the message's visibility changes.
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
 
-  ///Called  when the menu items clicked after a long press
-  final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
-
   /// See [TextMessage.onPreviewDataFetched].
   final void Function(types.TextMessage, PreviewData)?
   onPreviewDataFetched;
@@ -194,8 +182,11 @@ class Message extends StatefulWidget {
   final Widget Function(types.Message, {required int messageWidth})?
   repliedMessageBuilder;
 
-  /// Create a menu that pops up when long pressing on a message
-  final List<ItemModel> Function(BuildContext context, types.Message)? longPressMenuItemsCreator;
+  final Widget Function(types.Message, {required int messageWidth})?
+  reactionViewBuilder;
+
+  /// Create a widget that pops up when long pressing on a message
+  final Widget Function(BuildContext context, types.Message, CustomPopupMenuController controller)? longPressWidgetBuilder;
 
   @override
   State<Message> createState() => _MessageState();
@@ -206,18 +197,6 @@ class Message extends StatefulWidget {
 class _MessageState extends State<Message> {
 
   final CustomPopupMenuController _popController = CustomPopupMenuController();
-  List<ItemModel> menuItems = [];
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    final longPressMenuItemsCreator = widget.longPressMenuItemsCreator;
-    if (longPressMenuItemsCreator != null) {
-      menuItems = longPressMenuItemsCreator(context, widget.message);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -375,46 +354,8 @@ class _MessageState extends State<Message> {
       child: child,
     );
 
-  Widget _buildLongPressMenu() => ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: _LayoutConstant.menuHorizontalPadding, vertical: _LayoutConstant.menuVerticalPadding),
-          color: ThemeColor.color180,
-          child: Wrap(
-            children: menuItems
-                .map((item) => GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                widget.onMessageLongPressEvent?.call(widget.message, item.type);
-                _popController.hideMenu();
-              },
-              child: SizedBox(
-                width: _LayoutConstant.menuItemWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    CommonImage(
-                      iconName:item.icon.path,
-                      fit: BoxFit.fill,
-                      width: _LayoutConstant.menuIconSize,
-                      height: _LayoutConstant.menuIconSize,
-                      package: item.icon.package,
-                      useTheme: true,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: _LayoutConstant.menuTitleTopPadding),
-                      child: Text(
-                        item.title,
-                        style: TextStyle(color: ThemeColor.color0, fontSize: _LayoutConstant.menuTitleSize),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )).toList(),
-          ),
-        ),
-      );
+  Widget _buildLongPressMenu() =>
+      widget.longPressWidgetBuilder?.call(context, widget.message, _popController) ?? const SizedBox();
 
   Widget _avatarBuilder(Widget child) {
     final avatarBuilder = widget.avatarBuilder;
@@ -431,10 +372,7 @@ class _MessageState extends State<Message> {
 
     Widget bubble;
 
-    final useThemeBubbleBg = (currentUserIsAuthor
-        && widget.message.type != types.MessageType.image
-        && widget.message.type != types.MessageType.video
-        && widget.message.type != types.MessageType.custom);
+    final useBubbleBg = !widget.message.viewWithoutBubble;
 
     if (widget.bubbleBuilder != null) {
       bubble = widget.bubbleBuilder!(
@@ -446,9 +384,9 @@ class _MessageState extends State<Message> {
       bubble = _messageBuilder(context);
     } else {
       bubble = Container(
-        decoration: BoxDecoration(
+        decoration: useBubbleBg ? BoxDecoration(
           borderRadius: borderRadius,
-          gradient: useThemeBubbleBg ? LinearGradient(
+          gradient: currentUserIsAuthor ? LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
@@ -456,19 +394,19 @@ class _MessageState extends State<Message> {
               ThemeColor.gradientMainStart
             ],
           ) : null,
-          color: !currentUserIsAuthor
-              ? (!currentUserIsAuthor && widget.message.type == types.MessageType.image)
-                  ? null
-                  : ThemeColor.color180
-              : null,
-        ),
+          color: ThemeColor.color180,
+        ) : null,
         child: ClipRRect(
           borderRadius: borderRadius,
-          child: _messageBuilder(context),
+          child: _messageBuilder(context, useBubbleBg),
         ),
       );
     }
-    // return bubble;
+
+    if (!useBubbleBg) {
+      bubble = _reactionWrapper(bubble);
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -509,11 +447,12 @@ class _MessageState extends State<Message> {
     );
   }
 
-  Widget _messageBuilder(BuildContext context) {
+  Widget _messageBuilder(BuildContext context, [bool addReaction = false]) {
+    Widget messageContentWidget;
     switch (widget.message.type) {
       case types.MessageType.audio:
         final audioMessage = widget.message as types.AudioMessage;
-        return widget.audioMessageBuilder?.call(audioMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.audioMessageBuilder?.call(audioMessage, messageWidth: widget.messageWidth)
             ?? AudioMessagePage(
               message: audioMessage,
               fetchAudioFile: widget.onAudioDataFetched,
@@ -521,25 +460,29 @@ class _MessageState extends State<Message> {
                 widget.onMessageTap?.call(context, message);
               },
             );
+        break ;
       case types.MessageType.custom:
         final customMessage = widget.message as types.CustomMessage;
-        return widget.customMessageBuilder?.call(customMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.customMessageBuilder?.call(customMessage, messageWidth: widget.messageWidth)
             ?? const SizedBox();
+        break ;
       case types.MessageType.file:
         final fileMessage = widget.message as types.FileMessage;
-        return widget.fileMessageBuilder?.call(fileMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.fileMessageBuilder?.call(fileMessage, messageWidth: widget.messageWidth)
             ?? FileMessage(message: fileMessage);
+        break ;
       case types.MessageType.image:
         final imageMessage = widget.message as types.ImageMessage;
-        return widget.imageMessageBuilder?.call(imageMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.imageMessageBuilder?.call(imageMessage, messageWidth: widget.messageWidth)
             ?? ImageMessage(
               imageHeaders: widget.imageHeaders,
               message: imageMessage,
               messageWidth: widget.messageWidth,
             );
+        break ;
       case types.MessageType.text:
         final textMessage = widget.message as types.TextMessage;
-        return widget.textMessageBuilder?.call(
+        messageContentWidget = widget.textMessageBuilder?.call(
           textMessage,
           messageWidth: widget.messageWidth,
           showName: widget.showName,
@@ -554,39 +497,48 @@ class _MessageState extends State<Message> {
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
         );
+        break ;
       case types.MessageType.video:
         final videoMessage = widget.message as types.VideoMessage;
-        return widget.videoMessageBuilder?.call(videoMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.videoMessageBuilder?.call(videoMessage, messageWidth: widget.messageWidth)
             ?? VideoMessage(
               imageHeaders: widget.imageHeaders,
               message: videoMessage,
               messageWidth: widget.messageWidth,
             );
+        break ;
       default:
         return const SizedBox();
     }
+
+    if (addReaction) {
+      messageContentWidget = _reactionWrapper(messageContentWidget);
+    }
+
+    return messageContentWidget;
   }
-}
 
-class ItemModel {
-  String title;
-  AssetImageData icon;
-  MessageLongPressEventType type;
-  ItemModel(this.title, this.icon, this.type);
-}
+  Widget _reactionWrapper(Widget content) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      content,
+      _reactionViewBuilder(),
+    ],
+  );
 
-class AssetImageData {
-  String path;
-  String? package;
-  AssetImageData(this.path, { this. package });
-}
-
-enum MessageLongPressEventType {
-  copy,
-  share,
-  delete,
-  forward,
-  quote,
-  report
+  Widget _reactionViewBuilder() {
+    var reaction = widget.reactionViewBuilder?.call(
+      widget.message,
+      messageWidth: widget.messageWidth,
+    );
+    if (reaction != null) {
+      reaction = Padding(
+        padding: EdgeInsets.only(left: 10.px, right: 10.px, bottom: 10.px),
+        child: reaction,
+      );
+    }
+    return reaction ?? const SizedBox();
+  }
 }
 

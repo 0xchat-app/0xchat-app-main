@@ -37,6 +37,8 @@ abstract class AudioMessage extends Message {
     EncryptionType? fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(
     type: type ?? MessageType.audio,
     fileEncryptionType: fileEncryptionType ?? EncryptionType.none,
@@ -65,6 +67,8 @@ abstract class AudioMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _AudioMessage;
 
   /// Creates an audio message from a map (decoded JSON).
@@ -85,6 +89,8 @@ abstract class AudioMessage extends Message {
     int? updatedAt,
     EncryptionType fileEncryptionType = EncryptionType.none,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _AudioMessage(
         author: author,
@@ -178,6 +184,8 @@ abstract class AudioMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts an audio message to the map representation, encodable to JSON.
@@ -210,6 +218,8 @@ class _AudioMessage extends AudioMessage {
     super.fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -235,6 +245,8 @@ class _AudioMessage extends AudioMessage {
     dynamic fileEncryptionType = _Unset,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _AudioMessage(
         author: author ?? this.author,

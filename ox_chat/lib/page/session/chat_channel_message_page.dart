@@ -194,7 +194,6 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
-        onMessageLongPressEvent: _handleMessageLongPress,
         onJoinChannelTap: () async {
           await OXLoading.show();
           final OKEvent okEvent = await Channels.sharedInstance.joinChannel(channelId);
@@ -208,7 +207,12 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
             CommonToast.instance.show(context, okEvent.message);
           }
         },
-        longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
+        longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
+          context: context,
+          message: message,
+          controller: controller,
+          handler: chatGeneralHandler,
+        ),
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(),
@@ -217,6 +221,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        reactionViewBuilder: ChatMessageBuilder.buildReactionsView,
         mentionUserListWidget: chatGeneralHandler.mentionHandler?.buildMentionUserList(),
         onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
         onInsertedContent: (KeyboardInsertedContent insertedContent) => chatGeneralHandler.sendInsertedContentMessage(context, insertedContent),
@@ -272,10 +277,6 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
 
   void _removeMessage(types.Message message) {
     ChatDataCache.shared.deleteMessage(widget.communityItem, message);
-  }
-
-  void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
-    chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
 
   void _handlePreviewDataFetched(

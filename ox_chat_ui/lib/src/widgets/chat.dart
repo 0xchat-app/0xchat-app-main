@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
+import 'package:ox_chat_ui/src/widgets/pop_menu/custom_pop_up_menu.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -119,12 +120,12 @@ class Chat extends StatefulWidget {
     this.videoMessageBuilder,
     this.repliedMessageBuilder,
     this.onVoiceSend,
-    this.onMessageLongPressEvent,
     this.chatStatus,
     this.onJoinChannelTap,
     this.onJoinGroupTap,
     this.onRequestGroupTap,
-    this.longPressMenuItemsCreator,
+    this.longPressWidgetBuilder,
+    this.reactionViewBuilder,
     this.onGifSend,
     this.inputBottomView,
     this.mentionUserListWidget,
@@ -386,11 +387,12 @@ class Chat extends StatefulWidget {
   final Widget Function(types.Message, {required int messageWidth})?
   repliedMessageBuilder;
 
-  ///Called  when the menu items clicked after a long press‘
-  final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
+  /// Create a widget that pops up when long pressing on a message
+  final Widget Function(BuildContext context, types.Message message, CustomPopupMenuController controller)?
+  longPressWidgetBuilder;
 
-  /// Create a menu that pops up when long pressing on a message
-  final List<ItemModel> Function(BuildContext context, types.Message message)? longPressMenuItemsCreator;
+  final Widget Function(types.Message, {required int messageWidth})?
+  reactionViewBuilder;
 
   final Widget? inputBottomView;
 
@@ -806,8 +808,8 @@ class ChatState extends State<Chat> {
               userAgent: widget.userAgent,
               videoMessageBuilder: widget.videoMessageBuilder,
               repliedMessageBuilder: widget.repliedMessageBuilder,
-              onMessageLongPressEvent:widget.onMessageLongPressEvent,
-              longPressMenuItemsCreator: widget.longPressMenuItemsCreator,
+              longPressWidgetBuilder: widget.longPressWidgetBuilder,
+              reactionViewBuilder: widget.reactionViewBuilder,
           );
         }
         return AutoScrollTag(

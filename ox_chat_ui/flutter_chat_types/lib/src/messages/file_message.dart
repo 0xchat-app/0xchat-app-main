@@ -31,6 +31,8 @@ abstract class FileMessage extends Message {
     super.updatedAt,
     required this.uri,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(type: type ?? MessageType.file);
 
   const factory FileMessage({
@@ -51,6 +53,8 @@ abstract class FileMessage extends Message {
     int? updatedAt,
     required String uri,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _FileMessage;
 
   /// Creates a file message from a map (decoded JSON).
@@ -70,6 +74,8 @@ abstract class FileMessage extends Message {
     Status? status,
     int? updatedAt,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _FileMessage(
         author: author,
@@ -151,6 +157,8 @@ abstract class FileMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts a file message to the map representation, encodable to JSON.
@@ -179,6 +187,8 @@ class _FileMessage extends FileMessage {
     super.updatedAt,
     required super.uri,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -204,6 +214,8 @@ class _FileMessage extends FileMessage {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _FileMessage(
         author: author ?? this.author,

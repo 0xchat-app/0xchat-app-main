@@ -33,6 +33,8 @@ abstract class ImageMessage extends Message {
     EncryptionType? fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(
     type: type ?? MessageType.image,
     fileEncryptionType: fileEncryptionType ?? EncryptionType.none,
@@ -59,6 +61,8 @@ abstract class ImageMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _ImageMessage;
 
   /// Creates an image message from a map (decoded JSON).
@@ -78,6 +82,8 @@ abstract class ImageMessage extends Message {
     int? updatedAt,
     EncryptionType fileEncryptionType = EncryptionType.none,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _ImageMessage(
         author: author,
@@ -161,6 +167,8 @@ abstract class ImageMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts an image message to the map representation, encodable to JSON.
@@ -170,6 +178,9 @@ abstract class ImageMessage extends Message {
 
 /// A utility class to enable better copyWith.
 class _ImageMessage extends ImageMessage {
+
+  bool get viewWithoutBubble => true;
+
   const _ImageMessage({
     required super.author,
     required super.createdAt,
@@ -191,6 +202,8 @@ class _ImageMessage extends ImageMessage {
     super.fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -214,6 +227,8 @@ class _ImageMessage extends ImageMessage {
     dynamic fileEncryptionType = _Unset,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _ImageMessage(
         author: author ?? this.author,

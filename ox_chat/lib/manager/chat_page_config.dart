@@ -1,12 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:ox_chat/widget/message_long_press_widget.dart';
+import 'package:ox_chat/widget/reaction_input_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -17,39 +18,19 @@ class ChatPageConfig {
   static const messagesPerPage = 15;
 
   /// Menu item by message long pressed
-  List<ItemModel> longPressMenuItemsCreator(BuildContext context, types.Message message) {
-
-    List<ItemModel> menuList = [];
-
-    // Base
-    menuList.addAll([
-      if (message is types.TextMessage)
-        ItemModel(
-          Localized.text('ox_chat.message_menu_copy'),
-          AssetImageData('icon_copy.png', package: 'ox_common'),
-          MessageLongPressEventType.copy,
-        ),
-      ItemModel(
-        Localized.text('ox_chat.message_menu_report'),
-        AssetImageData('icon_report.png', package: 'ox_chat'),
-        MessageLongPressEventType.report,
-      ),
-      ItemModel(
-        Localized.text('ox_chat.message_menu_quote'),
-        AssetImageData('icon_quote.png', package: 'ox_chat'),
-        MessageLongPressEventType.quote,
-      ),
-      if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
-        ItemModel(
-          Localized.text('ox_chat.message_menu_delete'),
-          AssetImageData('icon_delete.png', package: 'ox_common'),
-          MessageLongPressEventType.delete,
-        ),
-    ]);
-
-    return menuList;
+  Widget longPressWidgetBuilder({
+    required BuildContext context,
+    required types.Message message,
+    required CustomPopupMenuController controller,
+    required ChatGeneralHandler handler,
+  }) {
+    return MessageLongPressWidget(
+      pageContext: context,
+      message: message,
+      controller: controller,
+      handler: handler,
+    );
   }
-
 
   ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
       ImageGalleryOptions(
@@ -74,6 +55,10 @@ class ChatPageConfig {
         ),
         inputTextColor: ThemeColor.color0,
       );
+
+  Widget longPressMenuHeader(BuildContext context, types.Message message) {
+    return ReactionInputWidget();
+  }
 }
 
 extension InputMoreItemEx on InputMoreItem {

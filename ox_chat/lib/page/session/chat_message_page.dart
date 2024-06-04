@@ -172,8 +172,12 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
-        onMessageLongPressEvent: _handleMessageLongPress,
-        longPressMenuItemsCreator: pageConfig.longPressMenuItemsCreator,
+        longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
+          context: context,
+          message: message,
+          controller: controller,
+          handler: chatGeneralHandler,
+        ),
         onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
         textMessageOptions: chatGeneralHandler.textMessageOptions(context),
         imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
@@ -183,6 +187,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
         onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
         repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
+        reactionViewBuilder: ChatMessageBuilder.buildReactionsView,
         onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
         onInsertedContent: (KeyboardInsertedContent insertedContent) => chatGeneralHandler.sendInsertedContentMessage(context, insertedContent),
       ),
@@ -234,10 +239,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         },
       ),
     );
-  }
-
-  void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
-    chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
 
   void _handlePreviewDataFetched(

@@ -188,6 +188,13 @@ extension MessageDBToUIEx on MessageDB {
     // Encryption type
     final fileEncryptionType = getEncryptionType(contentModel);
 
+
+    // Reaction
+    final reactions = await getReactionInfo();
+
+    // Zaps
+    final zapsInfoList = await getZapsInfo();
+
     // RepliedMessage
     final repliedMessage = await getRepliedMessage(loadRepliedMessage);
 
@@ -205,6 +212,8 @@ extension MessageDBToUIEx on MessageDB {
       previewData: this.previewData,
       decryptKey: this.decryptSecret,
       expiration: this.expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
     );
 
     logger?.printMessage = '6 $result';
@@ -298,6 +307,42 @@ extension MessageDBToUIEx on MessageDB {
     }
   }
 
+  Future<List<types.Reaction>> getReactionInfo() async {
+    final reactionIds = [...(this.reactionEventIds ?? [])];
+    final reactions = <types.Reaction>[];
+    // final reactions = [
+    //   types.Reaction(content: '😅', authors: [sender, receiver]),
+    // ];
+
+    // key: content, value: Reaction model
+    final reactionModelMap = <String, types.Reaction>{};
+    // key: content, value: authorPubkeys
+    final reactionAuthorMap = <String, Set<String>>{};
+
+    for (final reactionId in reactionIds) {
+      final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
+      if (note == null || note.content.isNotEmpty) continue ;
+
+      final content = note.content;
+      final reaction = reactionModelMap.putIfAbsent(
+          content, () => types.Reaction(content: content));
+      final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
+          content, () => Set());
+
+      if (reactionAuthorSet.add(content)) {
+        reaction.authors.add(note.author);
+        if (!reactions.contains(reaction)) {
+          reactions.add(reaction);
+        }
+      }
+    }
+
+    return reactions;
+  }
+
+  Future<List<types.ZapsInfo>> getZapsInfo() async {
+    return [];
+  }
 
   Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
     if (replyId.isNotEmpty && loadRepliedMessage) {

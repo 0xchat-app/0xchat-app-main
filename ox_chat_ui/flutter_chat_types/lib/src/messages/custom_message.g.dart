@@ -21,6 +21,7 @@ CustomMessage _$CustomMessageFromJson(Map<String, dynamic> json) =>
       status: $enumDecodeNullable(_$StatusEnumMap, json['status']),
       type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']),
       updatedAt: json['updatedAt'] as int?,
+      viewWithoutBubble: json['viewWithoutBubble'] as bool,
     );
 
 Map<String, dynamic> _$CustomMessageToJson(CustomMessage instance) =>
@@ -36,6 +37,7 @@ Map<String, dynamic> _$CustomMessageToJson(CustomMessage instance) =>
       'status': _$StatusEnumMap[instance.status],
       'type': _$MessageTypeEnumMap[instance.type]!,
       'updatedAt': instance.updatedAt,
+      'viewWithoutBubble': instance.viewWithoutBubble,
     };
 
 const _$StatusEnumMap = {

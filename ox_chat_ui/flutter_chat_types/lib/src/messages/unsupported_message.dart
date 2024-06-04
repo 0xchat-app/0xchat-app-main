@@ -28,6 +28,8 @@ abstract class UnsupportedMessage extends Message {
     MessageType? type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(type: type ?? MessageType.unsupported);
 
   const factory UnsupportedMessage({
@@ -44,6 +46,8 @@ abstract class UnsupportedMessage extends Message {
     MessageType? type,
     int? updatedAt,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _UnsupportedMessage;
 
   /// Creates an unsupported message from a map (decoded JSON).
@@ -82,6 +86,8 @@ abstract class UnsupportedMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts an unsupported message to the map representation,
@@ -107,6 +113,8 @@ class _UnsupportedMessage extends UnsupportedMessage {
     super.type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -128,6 +136,8 @@ class _UnsupportedMessage extends UnsupportedMessage {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _UnsupportedMessage(
         author: author ?? this.author,

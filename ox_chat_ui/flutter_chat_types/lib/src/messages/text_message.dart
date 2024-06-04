@@ -29,6 +29,8 @@ abstract class TextMessage extends Message {
     MessageType? type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(type: type ?? MessageType.text);
 
   const factory TextMessage({
@@ -47,6 +49,8 @@ abstract class TextMessage extends Message {
     MessageType? type,
     int? updatedAt,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _TextMessage;
 
   /// Creates a text message from a map (decoded JSON).
@@ -65,6 +69,8 @@ abstract class TextMessage extends Message {
     Status? status,
     int? updatedAt,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _TextMessage(
         author: author,
@@ -128,6 +134,8 @@ abstract class TextMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts a text message to the map representation, encodable to JSON.
@@ -153,6 +161,8 @@ class _TextMessage extends TextMessage {
     super.type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -173,6 +183,8 @@ class _TextMessage extends TextMessage {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _TextMessage(
         author: author ?? this.author,
