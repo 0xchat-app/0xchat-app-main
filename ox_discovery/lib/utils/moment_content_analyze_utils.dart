@@ -4,11 +4,12 @@ class MomentContentAnalyzeUtils {
   final String content;
   MomentContentAnalyzeUtils(this.content);
 
+  // 'nostrExp': RegExp(r'\bnostr:(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}\b'),
   static Map<String, RegExp> regexMap = {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
-    'nostrExp': RegExp(r'\bnostr:(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}\b'),
-    'noteExp': RegExp(r"nostr:note1\S+|nostr:nevent1\S+"),
+    'nostrExp': RegExp(r'\bnostr:(npub|nprofile)[0-9a-zA-Z]{8,}\b'),
+    'noteExp': RegExp(r'\bnostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
     'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
