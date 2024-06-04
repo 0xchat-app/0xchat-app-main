@@ -236,8 +236,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     );
   }
 
-  void _handleMessageLongPress(types.Message message, MessageLongPressEventType type, String? emoji) async {
-    chatGeneralHandler.menuItemPressHandler(context, message, type, emoji);
+  void _handleMessageLongPress(types.Message message, MessageLongPressEventType type) async {
+    chatGeneralHandler.menuItemPressHandler(context, message, type);
   }
 
   void _handlePreviewDataFetched(

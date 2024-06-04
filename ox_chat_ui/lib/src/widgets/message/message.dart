@@ -151,7 +151,7 @@ class Message extends StatefulWidget {
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
 
   ///Called  when the menu items clicked after a long press
-  final void Function(types.Message, MessageLongPressEventType type, String? emoji)? onMessageLongPressEvent;
+  final void Function(types.Message, MessageLongPressEventType type)? onMessageLongPressEvent;
 
   /// See [TextMessage.onPreviewDataFetched].
   final void Function(types.TextMessage, PreviewData)?
@@ -376,36 +376,16 @@ class _MessageState extends State<Message> {
     );
 
   Widget _buildLongPressMenu() => ClipRRect(
-    borderRadius: BorderRadius.circular(8),
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: _LayoutConstant.menuHorizontalPadding, vertical: _LayoutConstant.menuVerticalPadding),
-      color: ThemeColor.color180,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildEmojiButton('👍'),
-              _buildEmojiButton('❤️'),
-              _buildEmojiButton('😂'),
-              _buildEmojiButton('😮'),
-              _buildEmojiButton('😢'),
-              _buildEmojiButton('👏'),
-              _buildEmojiMoreButton(),
-            ],
-          ),
-          Container(
-            height: 1,
-            color: ThemeColor.color160,
-            margin: const EdgeInsets.symmetric(vertical: 24),
-          ),
-          Wrap(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: _LayoutConstant.menuHorizontalPadding, vertical: _LayoutConstant.menuVerticalPadding),
+          color: ThemeColor.color180,
+          child: Wrap(
             children: menuItems
                 .map((item) => GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                widget.onMessageLongPressEvent?.call(widget.message, item.type, null);
+                widget.onMessageLongPressEvent?.call(widget.message, item.type);
                 _popController.hideMenu();
               },
               child: SizedBox(
@@ -433,40 +413,8 @@ class _MessageState extends State<Message> {
               ),
             )).toList(),
           ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _buildEmojiMoreButton() => GestureDetector(
-      onTap: () {
-        //TODO: click more
-      },
-      child: CommonImage(
-        iconName:'more.png',
-        fit: BoxFit.fill,
-        width: _LayoutConstant.menuIconSize,
-        height: _LayoutConstant.menuIconSize,
-        package: 'ox_chat',
-        useTheme: true,
-      ),
-    );
-
-  Widget _buildEmojiButton(String emoji) => GestureDetector(
-      onTap: () {
-        _messageReaction(emoji);
-      },
-      child: Text(
-        emoji,
-        style: TextStyle(fontSize: 24),
-      ),
-    );
-
-  void _messageReaction(String emoji) {
-    widget.onMessageLongPressEvent?.call(widget.message, MessageLongPressEventType.reaction, emoji);
-    _popController.hideMenu();
-  }
-
+        ),
+      );
 
   Widget _avatarBuilder(Widget child) {
     final avatarBuilder = widget.avatarBuilder;
@@ -639,8 +587,6 @@ enum MessageLongPressEventType {
   delete,
   forward,
   quote,
-  report,
-  reaction,
-  zap,
+  report
 }
 

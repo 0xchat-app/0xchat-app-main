@@ -1,6 +1,5 @@
 
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
 
 class ZapsHelper {
@@ -21,9 +20,6 @@ class ZapsHelper {
     };
 
     final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
-    if (!relayNameList.contains(CommonConstant.oxChatRelay)) {
-      relayNameList.add(CommonConstant.oxChatRelay);
-    }
 
     if (recipient.isEmpty) {
       result['message'] = 'Recipient is empty';
