@@ -173,6 +173,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       );
 
       await _sendMessageHandler(message, context: context);
+
+      OXLoading.dismiss();
     }
   }
 
@@ -235,6 +237,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
 
     _sendMessageHandler(message, context: context);
+
+    OXLoading.dismiss();
   }
 
   Future sendVideoMessageSend(BuildContext context, List<File> images) async {
@@ -275,6 +279,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       );
 
       _sendMessageHandler(message, context: context);
+
+      OXLoading.dismiss();
     }
   }
 
