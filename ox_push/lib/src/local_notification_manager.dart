@@ -88,8 +88,7 @@ class LocalNotificationManager {
       showContent = jsonMap['notification']?['body'] ?? 'default';
       msgType = jsonMap['data']?['msgType'] ?? '0';
     } catch (e) {
-      showContent = '0xchat';
-      showContent = 'FormatException';
+      showContent = 'You’ve received a message ';
       print(e.toString());
     }
     showLocalNotification(notificationID, showTitle, showContent);
