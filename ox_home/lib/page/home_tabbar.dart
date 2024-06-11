@@ -199,6 +199,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
           showTitle = 'ox_common.tips';
           showContent = 'ox_common.str_singer_app_verify_failed_hint';
         }
+        OXUserInfoManager.sharedInstance.resetData();
         OXCommonHintDialog.show(
           context, title: Localized.text(showTitle), content: Localized.text(showContent),
           actionList: [
@@ -206,7 +207,6 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
                 text: Localized.text('ox_common.confirm'),
                 onTap: () {
                   OXNavigator.pop(context);
-                  OXUserInfoManager.sharedInstance.resetData();
                 }),
           ],
         );

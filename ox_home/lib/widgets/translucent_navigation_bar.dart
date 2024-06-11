@@ -367,9 +367,11 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     // TODO: implement didLogout
     setState(() {
       isLogin = false;
-      tabBarList[0].unreadMsgCount = 0;
-      tabBarList[1].unreadMsgCount = 0;
-      tabBarList[3].unreadMsgCount = 0;
+      if (tabBarList.isNotEmpty) {
+        tabBarList[0].unreadMsgCount = 0;
+        tabBarList[1].unreadMsgCount = 0;
+        tabBarList[3].unreadMsgCount = 0;
+      }
     });
   }
 
