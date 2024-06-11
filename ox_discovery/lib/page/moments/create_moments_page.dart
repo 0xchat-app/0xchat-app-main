@@ -155,7 +155,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             },
           ),
           Text(
-            'New Moments',
+            Localized.text('ox_discovery.new_moments_title'),
             style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(16),
@@ -173,7 +173,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 ).createShader(Offset.zero & bounds.size);
               },
               child: Text(
-                'Post',
+                Localized.text('ox_discovery.post'),
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   color: Colors.white,
@@ -226,7 +226,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               bottom: 12.px,
             ),
             child: Text(
-              'Caption',
+              Localized.text('ox_discovery.caption'),
               style: TextStyle(
                   fontSize: 14.px,
                   fontWeight: FontWeight.w600,
@@ -235,7 +235,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           ),
           IntelligentInputBoxWidget(
               textController: _textController,
-              hintText: 'Add a caption...',
+              hintText: Localized.text('ox_discovery.caption_hint_text'),
               cueUserCallback: (UserDB user){
                 String? getName = user.name;
                 if(getName != null){
@@ -267,7 +267,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               bottom: 12.px,
             ),
             child: Text(
-              'Visible to',
+              Localized.text('ox_discovery.visible_destination_title'),
               style: TextStyle(
                   fontSize: 14.px,
                   fontWeight: FontWeight.w600,

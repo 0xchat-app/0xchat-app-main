@@ -12,6 +12,8 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/page/widgets/zap_user_info_Item.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
@@ -43,7 +45,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
   String get zapDescription => _descriptionController.text.orDefault(defaultDescription);
 
   final defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
-  final defaultDescription = 'Zaps';
+  final defaultDescription = Localized.text('ox_discovery.description_hint_text');
 
   IMint? mint;
 
@@ -80,16 +82,17 @@ class _MomentZapPageState extends State<MomentZapPage> {
                     child: Column(
                       children: [
                         Text(
-                          'Zaps',
+                          Localized.text('ox_discovery.zaps_destination_title'),
                           style: TextStyle(
                             fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
-                        if (widget.isDefaultEcashWallet)
-                          _buildMintSelector().setPadding(EdgeInsets.only(top: sectionSpacing)),
+                        ZapUserInfoItem(
+                          userDB: widget.userDB,
+                        ).setPaddingOnly(top: sectionSpacing),
                         _buildSectionView(
-                          title: 'Amount',
+                          title: Localized.text('ox_discovery.zap_amount_label'),
                           children: [
                             _buildInputRow(
                               placeholder: defaultSatsValue,
@@ -102,7 +105,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         _buildSectionView(
-                          title: 'Description',
+                          title: Localized.text('ox_discovery.description_text'),
                           children: [
                             _buildInputRow(
                               placeholder: defaultDescription,
@@ -112,8 +115,11 @@ class _MomentZapPageState extends State<MomentZapPage> {
                           ],
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
+                        if (widget.isDefaultEcashWallet)
+                          _buildMintSelector().setPadding(EdgeInsets.only(top: sectionSpacing)),
+
                         CommonButton.themeButton(
-                          text: 'Zap',
+                          text: Localized.text('ox_discovery.zaps'),
                           onTap: _zap,
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
                       ],
@@ -230,19 +236,19 @@ class _MomentZapPageState extends State<MomentZapPage> {
 
   Future<void> _zap() async {
     if (zapAmount < 1) {
-      await CommonToast.instance.show(context, 'Zap amount cannot be 0');
+      await CommonToast.instance.show(context, Localized.text('ox_discovery.enter_amount_tips'));
       return ;
     }
 
     final mint = this.mint;
     if (widget.isDefaultEcashWallet) {
       if (mint == null) {
-        CommonToast.instance.show(context, 'Must select mint to send ecash');
+        CommonToast.instance.show(context, Localized.text('ox_discovery.mint_empty_tips'));
         return;
       }
 
       if (zapAmount > mint.balance) {
-        CommonToast.instance.show(context, 'Insufficient balance');
+        CommonToast.instance.show(context, Localized.text('ox_discovery.insufficient_balance_tips'));
         return;
       }
     }
