@@ -20,7 +20,6 @@ import 'package:chatcore/src/account/model/relayDB.dart' as prefix2;
 import 'package:chatcore/src/account/model/userDB.dart' as prefix1;
 import 'package:chatcore/src/account/model/zapRecordsDB.dart' as prefix11;
 import 'package:chatcore/src/account/model/zapsDB.dart' as prefix5;
-import 'package:chatcore/src/chat/groups-old/model/groupDB.dart' as prefix8;
 import 'package:chatcore/src/chat/groups/model/joinRequestDB.dart' as prefix13;
 import 'package:chatcore/src/chat/groups/model/moderationDB.dart' as prefix14;
 import 'package:chatcore/src/chat/groups/model/relayGroupDB.dart' as prefix12;
@@ -28,6 +27,7 @@ import 'package:chatcore/src/chat/model/channelDB.dart' as prefix7;
 import 'package:chatcore/src/chat/model/friendRequestDB.dart' as prefix9;
 import 'package:chatcore/src/chat/model/messageDB.dart' as prefix6;
 import 'package:chatcore/src/chat/model/secretSessionDB.dart' as prefix10;
+import 'package:chatcore/src/chat/private-groups/model/groupDB.dart' as prefix8;
 import 'package:chatcore/src/common/cache/eventCacheDB.dart' as prefix17;
 import 'package:chatcore/src/common/config/configDB.dart' as prefix16;
 import 'package:chatcore/src/common/database/db.dart' as prefix0;
@@ -12803,7 +12803,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.LibraryMirrorImpl(
             r'',
             Uri.parse(
-                'package:chatcore/src/chat/groups-old/model/groupDB.dart'),
+                'package:chatcore/src/chat/private-groups/model/groupDB.dart'),
             const prefix0.Reflector(),
             const <int>[],
             {},
