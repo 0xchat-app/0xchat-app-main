@@ -346,18 +346,21 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
+    List<String>? getReplyUser = _getReplyUserList();
+
     if(widget.type == EMomentType.quote && noteDB != null){
-      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags);
+      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
           OXLoading.show();
-          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags);
+          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags,mentions: getReplyUser);
           break;
         case VisibleType.allContact:
           _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteContacts(content,
+                  mentions: getReplyUser,
                   hashTags: getHashTags,
                   sendMessageProgressCallBack: (value) {
                     _updateProgressStatus(value);
@@ -374,6 +377,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteCloseFriends(pubkeys ?? [], content,
+                  mentions: getReplyUser,
                   hashTags: getHashTags,
                   sendMessageProgressCallBack: (value) => _updateProgressStatus(value))
               .then((value) => event = value);
@@ -445,5 +449,14 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     if (value > totalCount) {
       _completer.complete();
     }
+  }
+
+  List<String>? _getReplyUserList(){
+    List<String> replyUserList = [];
+    if(draftCueUserMap.isEmpty) return [];
+    draftCueUserMap.values.map((UserDB user) {
+      replyUserList.add(user.pubKey);
+    });
+    return replyUserList.isEmpty ? null : replyUserList;
   }
 }

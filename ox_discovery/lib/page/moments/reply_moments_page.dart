@@ -341,10 +341,11 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       return;
     }
     await OXLoading.show();
+    List<String>? getReplyUser = _getReplyUserList();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_changeCueUserToPubkey()} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
     await OXLoading.dismiss();
 
     if(event.status){
@@ -372,5 +373,14 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       content = content.replaceAll(tag, replacement.encodedPubkey);
     });
     return content;
+  }
+
+  List<String>? _getReplyUserList(){
+    List<String> replyUserList = [];
+    if(draftCueUserMap.isEmpty) return [];
+    draftCueUserMap.values.map((UserDB user) {
+      replyUserList.add(user.pubKey);
+    });
+    return replyUserList.isEmpty ? null : replyUserList;
   }
 }
