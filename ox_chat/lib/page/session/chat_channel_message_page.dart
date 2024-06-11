@@ -185,12 +185,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         user: _user,
         useTopSafeAreaInset: true,
         chatStatus: chatStatus,
-        inputMoreItems: [
-          InputMoreItemEx.album(chatGeneralHandler),
-          InputMoreItemEx.camera(chatGeneralHandler),
-          InputMoreItemEx.video(chatGeneralHandler),
-          InputMoreItemEx.ecash(chatGeneralHandler),
-        ],
+        inputMoreItems: pageConfig.inputMoreItemsWithHandler(chatGeneralHandler),
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},

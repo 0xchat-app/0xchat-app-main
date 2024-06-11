@@ -53,13 +53,14 @@ class ChatMessageBuilder {
 
   static Widget buildReactionsView(types.Message message,
       {required int messageWidth}) {
+    return const SizedBox();
     final reactions = message.reactions;
     return Wrap(
-      children: reactions.map((reaction) => buildReactionItem(reaction)).toList(),
+      children: reactions.map((reaction) => _buildReactionItem(reaction)).toList(),
     );
   }
 
-  static Widget buildReactionItem(types.Reaction reaction) {
+  static Widget _buildReactionItem(types.Reaction reaction) {
     final notifiers = reaction.authors.map((pubkey) =>
         Account.sharedInstance.getUserNotifier(pubkey)).toList();
     return Container(

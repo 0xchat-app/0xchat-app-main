@@ -528,17 +528,10 @@ class _MessageState extends State<Message> {
   );
 
   Widget _reactionViewBuilder() {
-    var reaction = widget.reactionViewBuilder?.call(
+    return widget.reactionViewBuilder?.call(
       widget.message,
       messageWidth: widget.messageWidth,
-    );
-    if (reaction != null) {
-      reaction = Padding(
-        padding: EdgeInsets.only(left: 10.px, right: 10.px, bottom: 10.px),
-        child: reaction,
-      );
-    }
-    return reaction ?? const SizedBox();
+    ) ?? const SizedBox();
   }
 }
 
