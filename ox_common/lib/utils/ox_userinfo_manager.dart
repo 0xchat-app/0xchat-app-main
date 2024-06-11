@@ -112,7 +112,7 @@ class OXUserInfoManager {
       if (isInstalled) {
         String? signature = await ExternalSignerTool.getPubKey();
         if (signature == null) {
-          CommonToast.instance.show(null, Localized.text('ox_login.sign_request_rejected'));
+          signatureVerifyFailed = true;
           return;
         }
         String decodeSignature = UserDB.decodePubkey(signature) ?? '';
