@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -11,6 +12,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/widgets/zap_user_info_Item.dart';
@@ -21,12 +23,16 @@ import 'package:cashu_dart/cashu_dart.dart';
 class MomentZapPage extends StatefulWidget {
   final UserDB userDB;
   final String? eventId;
+  final bool privateZap;
+  final Function(Map result)? zapsInfoCallback;
 
   const MomentZapPage({
     super.key,
     required this.userDB,
-    required this.eventId,
-  });
+    this.eventId,
+    bool? privateZap,
+    this.zapsInfoCallback,
+  }): privateZap = privateZap ?? false;
 
   @override
   State<MomentZapPage> createState() => _MomentZapPageState();
@@ -153,6 +159,19 @@ class _MomentZapPageState extends State<MomentZapPage> {
         useLargeTitle: false,
         centerTitle: true,
         isClose: true,
+        actions: [
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsSettingPage', {});
+            },
+            child: CommonImage(
+              iconName: 'icon_dapp_more.png',
+              package: 'ox_common',
+              size: 24.px,
+            ).setPaddingOnly(right: 30.px),
+          )
+        ],
       );
 
   Widget _buildMintSelector() {
@@ -284,9 +303,17 @@ class _MomentZapPageState extends State<MomentZapPage> {
       recipient: recipient,
       eventId: widget.eventId,
       content: zapDescription,
-      privateZap: false
+      privateZap: widget.privateZap
     );
     final invoice = invokeResult['invoice'] ?? '';
+    final zapper = invokeResult['zapper'] ?? '';
+
+    final zapInfo = {
+      'zapper': zapper,
+      'invoice': invoice,
+      'amount': zapAmount.toString(),
+      'description': zapDescription,
+    };
 
     if(_isDefaultEcashWallet) {
       final response = await Cashu.payingLightningInvoice(mint: mint!, pr: invoice);
@@ -294,12 +321,29 @@ class _MomentZapPageState extends State<MomentZapPage> {
         CommonToast.instance.show(context, response.errorMsg);
         return;
       }
+      widget.zapsInfoCallback?.call(zapInfo);
       OXLoading.dismiss();
       OXNavigator.pop(context);
     } else {
       OXLoading.dismiss();
-      OXNavigator.pop(context);
-      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});
+      final isTapOnWallet = await _jumpToWalletSelectionPage(zapInfo);
+      if (isTapOnWallet) {
+        OXNavigator.pop(context);
+      }
     }
+  }
+
+  Future<bool> _jumpToWalletSelectionPage(Map result) async {
+    var isConfirm = false;
+    await OXModuleService.pushPage(
+        context, 'ox_usercenter', 'ZapsInvoiceDialog', {
+      'invoice': result['invoice'] ?? '',
+      'walletOnPress': (WalletModel wallet) async {
+        widget.zapsInfoCallback?.call(result);
+        isConfirm = true;
+        return true;
+      },
+    });
+    return isConfirm;
   }
 }

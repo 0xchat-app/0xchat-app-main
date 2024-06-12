@@ -18,6 +18,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
 import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
+import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
@@ -74,6 +75,8 @@ class OXUserCenter extends OXFlutterModule {
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
       case 'VerifyPasscodePage':
         return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
+      case 'ZapsSettingPage':
+        return OXNavigator.pushPage(context, (context) => const ZapsPage());
     }
     return null;
   }

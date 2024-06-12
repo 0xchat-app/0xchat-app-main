@@ -26,6 +26,7 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -554,22 +555,29 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    await OXNavigator.presentPage<Map<String, String>>(
-      context, (_) => ZapsSendingPage(user, (zapsInfo) {
-      final zapper = zapsInfo['zapper'] ?? '';
-      final invoice = zapsInfo['invoice'] ?? '';
-      final amount = zapsInfo['amount'] ?? '';
-      final description = zapsInfo['description'] ?? '';
-      if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-        sendZapsMessage(context, zapper, invoice, amount, description);
-      } else {
-        ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: 'zapsPressHandler',
-          message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-        );
-      }
-    }),
+    await OXModuleService.pushPage(
+      context,
+      'ox_discovery',
+      'MomentZapPage',
+      {
+        'userDB': user,
+        'privateZap':true,
+        'zapsInfoCallback':(zapsInfo) {
+          final zapper = zapsInfo['zapper'] ?? '';
+          final invoice = zapsInfo['invoice'] ?? '';
+          final amount = zapsInfo['amount'] ?? '';
+          final description = zapsInfo['description'] ?? '';
+          if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+            sendZapsMessage(context, zapper, invoice, amount, description);
+          } else {
+            ChatLogUtils.error(
+              className: 'ChatGeneralHandler',
+              funcName: 'zapsPressHandler',
+              message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+            );
+          }
+        }
+      },
     );
   }
 
