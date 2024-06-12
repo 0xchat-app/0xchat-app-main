@@ -368,10 +368,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     if(user == null) return;
-    if (user.lnurl == null || user.lnurl!.isEmpty) {
-      await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
-      return;
-    }
     await OXNavigator.presentPage(
       context,
       (context) => MomentZapPage(

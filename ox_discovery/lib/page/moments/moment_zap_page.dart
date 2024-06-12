@@ -68,11 +68,9 @@ class _MomentZapPageState extends State<MomentZapPage> {
     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
     bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
-    if(isDefaultEcashWallet) {
-      setState(() {
-        _isDefaultEcashWallet = isDefaultEcashWallet;
-      });
-    }
+    setState(() {
+      _isDefaultEcashWallet = isDefaultEcashWallet;
+    });
   }
 
   @override
@@ -163,12 +161,13 @@ class _MomentZapPageState extends State<MomentZapPage> {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsSettingPage', {});
+              OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsSettingPage', {'onChanged': _onChanged});
             },
             child: CommonImage(
-              iconName: 'icon_dapp_more.png',
+              iconName: 'icon_more.png',
               package: 'ox_common',
               size: 24.px,
+              useTheme: true,
             ).setPaddingOnly(right: 30.px),
           )
         ],
@@ -183,6 +182,10 @@ class _MomentZapPageState extends State<MomentZapPage> {
           });
         }
     );
+  }
+
+  void _onChanged(bool value) {
+    _updateDefaultWallet();
   }
 
   Widget _buildSectionView({
@@ -267,6 +270,14 @@ class _MomentZapPageState extends State<MomentZapPage> {
   }
 
   Future<void> _zap() async {
+    String lnurl = widget.userDB.lnurl ?? '';
+    final recipient = widget.userDB.pubKey;
+
+    if (lnurl.isEmpty) {
+      await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
+      return;
+    }
+
     if (zapAmount < 1) {
       await CommonToast.instance.show(context, Localized.text('ox_discovery.enter_amount_tips'));
       return ;
@@ -284,9 +295,6 @@ class _MomentZapPageState extends State<MomentZapPage> {
         return;
       }
     }
-
-    final recipient = widget.userDB.pubKey;
-    String lnurl = widget.userDB.lnurl ?? '';
 
     if (lnurl.contains('@')) {
       try {

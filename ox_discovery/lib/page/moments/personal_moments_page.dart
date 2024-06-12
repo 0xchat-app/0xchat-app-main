@@ -156,10 +156,10 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         },
         child: isCurrentUser
             ? CommonImage(
-                iconName: 'icon_more_operation.png',
+                iconName: 'icon_more.png',
                 width: 24.px,
                 height: 24.px,
-                package: 'ox_discovery',
+                useTheme: true,
               ).setPaddingOnly(right: 24.px)
             : Container(),
       ),

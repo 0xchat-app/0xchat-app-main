@@ -76,7 +76,7 @@ class OXUserCenter extends OXFlutterModule {
       case 'VerifyPasscodePage':
         return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
       case 'ZapsSettingPage':
-        return OXNavigator.pushPage(context, (context) => const ZapsPage());
+        return OXNavigator.pushPage(context, (context) => ZapsPage(onChanged: params?['onChanged'],));
     }
     return null;
   }

@@ -29,7 +29,8 @@ import 'package:ox_common/utils/scan_utils.dart';
 ///@author Michael
 ///CreateTime: 2023/5/10 17:26
 class ZapsPage extends StatefulWidget {
-  const ZapsPage({super.key});
+  final ValueSetter<bool>? onChanged;
+  const ZapsPage({super.key,this.onChanged});
 
   @override
   State<StatefulWidget> createState() {
@@ -623,6 +624,7 @@ class _ZapsPageState extends State<ZapsPage> {
           });
           await OXCacheManager.defaultOXCacheManager
               .saveForeverData('$pubKey.isShowWalletSelector', value);
+          widget.onChanged?.call(value);
         },
         materialTapTargetSize: MaterialTapTargetSize.padded,
       ),
