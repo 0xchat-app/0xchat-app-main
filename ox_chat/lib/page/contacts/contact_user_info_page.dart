@@ -76,7 +76,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
       case OtherInfoItemType.Mute:
         return Localized.text('ox_chat.mute_item');
       case OtherInfoItemType.Moments:
-        return 'Moments';
+        return Localized.text('ox_discovery.moment');
     }
   }
 }

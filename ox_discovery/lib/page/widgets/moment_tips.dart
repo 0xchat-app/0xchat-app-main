@@ -7,6 +7,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class MomentNewPostTips extends StatefulWidget {
   final double? tipsHeight;
@@ -36,7 +37,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips>
             height: (widget.tipsHeight ?? 52).px,
             padding: EdgeInsets.only(top: 12.px),
             child: MomentTips(
-              title: '${_notes.length} new post',
+              title: '${_notes.length} ${Localized.text('ox_discovery.new_post')}',
               avatars: _avatarList,
               onTap: () {
                 OXMomentManager.sharedInstance.clearNewNotes();
@@ -100,7 +101,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips>
             height: (widget.tipsHeight ?? 52).px,
             padding: EdgeInsets.only(top: 12.px),
             child: MomentTips(
-              title: '${_notifications.length} reactions',
+              title: '${_notifications.length} ${Localized.text('ox_discovery.reactions')}',
               avatars: _avatarList,
               onTap: () {
                 OXMomentManager.sharedInstance.clearNewNotifications();

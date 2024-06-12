@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import '../../utils/moment_content_analyze_utils.dart';
 import 'moment_rich_text_widget.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -110,7 +111,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'Reply to ',
+                      text: Localized.text('ox_discovery.reply_destination_title'),
                       style: TextStyle(
                         color: ThemeColor.color120,
                       ),
@@ -149,7 +150,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
                         end: Alignment.centerRight,
                       )),
                   child: Text(
-                    'Post',
+                    Localized.text('ox_discovery.post'),
                     style: TextStyle(
                       fontSize: Adapt.px(14),
                       fontWeight: FontWeight.w600,
@@ -188,7 +189,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
             decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
-              hintText: 'Post your reply',
+              hintText: Localized.text('ox_discovery.post_reply'),
               hintStyle: TextStyle(
                 color: ThemeColor.color120,
               ),
@@ -277,7 +278,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
 
   void _postMoment() async {
     if (_replyController.text.isEmpty && imageUrl == null) {
-      CommonToast.instance.show(context, 'The content cannot be empty !');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
     await OXLoading.show();
@@ -290,7 +291,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     await OXLoading.dismiss();
 
     if (event.status) {
-      CommonToast.instance.show(context, 'Reply successfully !');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.reply_success_tips'));
     }
   }
 

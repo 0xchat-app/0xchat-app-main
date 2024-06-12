@@ -149,8 +149,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       actions: GestureDetector(
         onTap: () {
           final items = [
-            BottomItemModel(title: 'Notifications', onTap: _jumpToNotificationsMomentsPage),
-            BottomItemModel(title: 'Change Cover', onTap: _selectAssetDialog),
+            BottomItemModel(title: Localized.text('ox_discovery.notifications'), onTap: _jumpToNotificationsMomentsPage),
+            BottomItemModel(title: Localized.text('ox_discovery.change_cover_option'), onTap: _selectAssetDialog),
           ];
           MomentBottomSheetDialog.showBottomSheet(context, items);
         },

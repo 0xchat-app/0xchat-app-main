@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -140,7 +141,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
         backgroundColor: ThemeColor.color200,
         appBar: CommonAppBar(
           backgroundColor: ThemeColor.color200,
-          title: 'Moment',
+          title: Localized.text('ox_discovery.moment'),
         ),
         body: Stack(
           children: [
@@ -254,7 +255,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
             width: 20.px,
           ),
           Text(
-            'Show replies',
+            Localized.text('ox_discovery.show_replies_text'),
             style: TextStyle(
               color: ThemeColor.purple2,
               fontSize: 12.px,
@@ -281,7 +282,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
               height: Adapt.px(90),
             ),
             Text(
-              'No Reply !',
+              '${Localized.text('ox_discovery.no')} ${Localized.text('ox_discovery.reply')} !',
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,

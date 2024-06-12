@@ -17,6 +17,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
@@ -99,7 +100,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                     ).createShader(Offset.zero & bounds.size);
                   },
                   child: Text(
-                    'Post',
+                    Localized.text('ox_discovery.post'),
                     style: TextStyle(
                       fontSize: 16.px,
                       fontWeight: FontWeight.w600,
@@ -109,7 +110,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               ),
             ),
           ],
-          title: 'Reply',
+          title: Localized.text('ox_discovery.reply'),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -125,7 +126,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 IntelligentInputBoxWidget(
                   imageUrlList: _showImageList,
                   textController: _textController,
-                  hintText: 'Post your reply',
+                  hintText: Localized.text('ox_discovery.post_reply'),
                   cueUserCallback: (UserDB user) {
                     String? getName = user.name;
                     if (getName != null) {
@@ -279,7 +280,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 selectCount: 9,
                 callback: (List<String> imageList) {
                   if(_showImageList.length + imageList.length > 9){
-                    CommonToast.instance.show(context, 'Only nine images can be selected');
+                    CommonToast.instance.show(context, Localized.text('ox_discovery.selected_image_tips'));
                     return;
                   }
                   _showImageList.addAll(imageList);
@@ -337,7 +338,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   void _postMoment() async {
     if (_textController.text.isEmpty && _showImageList.isEmpty) {
-      CommonToast.instance.show(context, 'The content cannot be empty !');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
     await OXLoading.show();

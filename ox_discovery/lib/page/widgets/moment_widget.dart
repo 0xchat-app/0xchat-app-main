@@ -345,7 +345,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     NotedUIModel? model = notedUIModel?.value;
     if (model == null || !model.noteDB.private) return const SizedBox();
     double momentMm = boundingTextSize(
-            Localized.text('ox_discovery.rivate'),
+            Localized.text('ox_discovery.private'),
             TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Adapt.px(20),

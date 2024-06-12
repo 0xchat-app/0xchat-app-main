@@ -255,7 +255,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             children: [
               _topItemBuild(
                 iconName: 'icon_moment.png',
-                title: 'Moments',
+                title: Localized.text('ox_discovery.moment'),
                 isShowDivider: true,
                 onTap: () {
                   OXModuleService.pushPage(

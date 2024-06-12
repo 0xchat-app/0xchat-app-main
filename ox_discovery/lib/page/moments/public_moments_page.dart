@@ -12,6 +12,7 @@ import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_theme/ox_theme.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../widgets/moment_widget.dart';
@@ -75,6 +76,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     updateNotesList(true);
   }
 
@@ -94,6 +96,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {});
   }
 
   @override

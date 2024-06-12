@@ -9,6 +9,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -124,7 +125,7 @@ class MomentWidgetsUtils {
       ),
       child: Center(
         child: Text(
-          content ?? 'Loading note...',
+          content ?? Localized.text('ox_discovery.loading_note'),
           style: TextStyle(
             color: ThemeColor.color100,
             fontSize: 16.px,
