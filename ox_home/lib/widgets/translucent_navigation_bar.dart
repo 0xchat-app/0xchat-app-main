@@ -129,7 +129,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
 
   @override
   Widget build(BuildContext context) {
-    updateLocaleStatus();
     return Container(
       margin: EdgeInsets.symmetric(
         vertical: widget.verticalPadding,
@@ -317,7 +316,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   Widget _getTabBarTitle(TranslucentNavigationBarItem item) {
-    final title = item.title;
+    final title = item.title?.call();
     if (title == null || title.isEmpty) return Container();
     return Text(
       title,
@@ -402,22 +401,22 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     setState(() {
       tabBarList = [
         TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[0]}'),
+            title: () => Localized.text('ox_home.${riveFileNames[0]}'),
             artboard: riveArtboards[0],
             animationController: riveControllers[0],
             unreadMsgCount: 0),
         TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[1]}'),
+            title: () => Localized.text('ox_home.${riveFileNames[1]}'),
             artboard: riveArtboards[1],
             animationController: riveControllers[1],
             unreadMsgCount: 0),
         TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[2]}'),
+            title: () => Localized.text('ox_home.${riveFileNames[2]}'),
             artboard: riveArtboards[2],
             animationController: riveControllers[2],
             unreadMsgCount: 0),
         TranslucentNavigationBarItem(
-            title: Localized.text('ox_home.${riveFileNames[3]}'),
+            title: () => Localized.text('ox_home.${riveFileNames[3]}'),
             artboard: riveArtboards[3],
             animationController: riveControllers[3],
             unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
@@ -443,12 +442,6 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       fetchUnreadCount();
       if (mounted) setState(() {});
     });
-  }
-
-  updateLocaleStatus() {
-    for (int index = 0; index < tabBarList.length; index++) {
-      tabBarList[index].title = Localized.text('ox_home.${riveFileNames[index]}');
-    }
   }
 
   void clearRefreshMessagesTimer(){

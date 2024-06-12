@@ -6,7 +6,7 @@ class TranslucentNavigationBarItem {
   int unreadMsgCount;
   final StateMachineController? animationController;
   final Artboard? artboard;
-  String? title;
+  String Function()? title;
 
 
   TranslucentNavigationBarItem({
