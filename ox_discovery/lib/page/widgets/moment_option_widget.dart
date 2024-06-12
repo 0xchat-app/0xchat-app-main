@@ -372,16 +372,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
       return;
     }
-    String? pubkey = Account.sharedInstance.me?.pubKey;
-    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
-    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-    bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
     await OXNavigator.presentPage(
       context,
       (context) => MomentZapPage(
         userDB: user,
         eventId: notedUIModel.value.noteDB.noteId,
-        isDefaultEcashWallet: isDefaultEcashWallet,
       ),
     );
   }
