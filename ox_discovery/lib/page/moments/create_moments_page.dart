@@ -354,6 +354,11 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
     List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
 
+    if(content.trim().isEmpty){
+      CommonToast.instance.show(context, 'The content cannot be empty !');
+      return;
+    }
+
     if(widget.type == EMomentType.quote && noteDB != null){
       event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
     }else{
