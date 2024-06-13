@@ -56,8 +56,8 @@ flutter:
   assets:
 #    - assets/theme/
     - assets/images/
-#    - assets/images/dark/
-#    - assets/images/light/
+    - assets/images/dark/
+    - assets/images/light/
     - assets/locale/
 
   # To add assets to your plugin package, add an assets section, like this:

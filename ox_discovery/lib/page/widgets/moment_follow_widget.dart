@@ -48,6 +48,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
                   iconName: 'icon_moment_follow.png',
                   size: 24.px,
                   package: 'ox_discovery',
+                  useTheme: true,
                 ),
                 SizedBox(width: 4.px,)],
               _buildButton(title: _isFollow! ? Localized.text('ox_discovery.unfollow') : Localized.text('ox_discovery.follow')),
