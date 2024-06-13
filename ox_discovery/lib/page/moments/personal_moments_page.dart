@@ -363,20 +363,19 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   Future<void> _loadNotesFromDB() async {
     List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
-    _refreshData(noteList);
+    Future.delayed(const Duration(milliseconds: 400),() => _refreshData(noteList));
   }
 
   Future<void> _loadnewNotesFromRelay() async {
     await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
     List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
-    _refreshData(noteList);
+    List<NoteDB> newNoteList = noteList.where((element) => element.noteId != element.noteId).toList();
+    _refreshData(newNoteList);
   }
 
   Future<void> _loadNotesFromRelay() async {
     try {
-      OXLoading.show();
       List<NoteDB> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
-      OXLoading.dismiss();
       if (noteList.isEmpty) {
         updateStateView(CommonStateView.CommonStateView_NoData);
         _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
