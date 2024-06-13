@@ -91,7 +91,7 @@ class _SatsReceivePageState extends State<SatsReceivePage> {
       await CommonToast.instance.show(context, Localized.text('ox_wallet.select_mint_text'));
       return;
     }
-    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value});
+    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':_invoiceNotifier.value,'isCalledFromEcashWallet' : true});
     // WalletUtils.takeScreen(_stasReceivePageScreenshotKey);
   }
 

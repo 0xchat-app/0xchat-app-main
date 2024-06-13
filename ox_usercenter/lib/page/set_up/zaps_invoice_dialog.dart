@@ -7,6 +7,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -19,9 +20,15 @@ import 'package:ox_localizable/ox_localizable.dart';
 class ZapsInvoiceDialog extends StatefulWidget {
 
   final String invoice;
+  final bool isShowEcashWallet;
   final Future<bool> Function(WalletModel wallet)? walletOnPress;
 
-  const ZapsInvoiceDialog({super.key, required this.invoice, this.walletOnPress});
+  const ZapsInvoiceDialog(
+      {super.key,
+      required this.invoice,
+      this.walletOnPress,
+      bool? isShowEcashWallet})
+      : isShowEcashWallet = isShowEcashWallet ?? true;
 
   @override
   State<StatefulWidget> createState() {
@@ -56,8 +63,8 @@ class _ZapsInvoiceDialogState extends State<ZapsInvoiceDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _topView(),
-                      SizedBox(height: 24.px,),
-                      buildEcashWalletSection(),
+                      if (widget.isShowEcashWallet)
+                        buildEcashWalletSection().setPaddingOnly(top: 24.px),
                       SizedBox(height: 24.px,),
                       buildLightingWallectSection(),
                     ],
