@@ -270,7 +270,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
   }
 
   Future<void> _zap() async {
-    String lnurl = widget.userDB.lnurl ?? '';
+    String lnurl = widget.userDB.lnAddress;
     final recipient = widget.userDB.pubKey;
 
     if (lnurl.isEmpty) {

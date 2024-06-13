@@ -73,11 +73,23 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
     );
   }
 
+  String shortenString(String input) {
+    if (input.length <= 24) {
+      return input;
+    }
+
+    int prefixLength = 12;
+    int suffixLength = 11;  // 11 + 1 (for the total of 24 characters including '...')
+
+    String prefix = input.substring(0, prefixLength);
+    String suffix = input.substring(input.length - suffixLength);
+
+    return '$prefix...$suffix';
+  }
+
   Widget _buildUserInfo() {
     final name = widget.userDB.name ?? widget.userDB.nickName ?? '';
-    final String encodedPubkey = widget.userDB.encodedPubkey;
-    final String start = encodedPubkey.substring(0, 6);
-    final String end = encodedPubkey.substring(encodedPubkey.length - 6);
+    final String lnAddress = widget.userDB.lnAddress;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -90,7 +102,7 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
           ),
         ),
         Text(
-          '$start...$end',
+          shortenString(lnAddress),
           maxLines: 1,
           style: TextStyle(
             fontSize: 14.px,

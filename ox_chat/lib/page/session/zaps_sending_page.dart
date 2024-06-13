@@ -206,7 +206,7 @@ class _ZapsSendingPageState extends State<ZapsSendingPage> {
   Future _sendButtonOnPressed() async {
     final amount = int.tryParse(zapsAmount) ?? 0;
     final description = zapsDescription;
-    final lnurl = widget.otherUser.lnurl ?? '';
+    final lnurl = widget.otherUser.lnAddress ?? '';
     if (amount < 1) {
       CommonToast.instance.show(context, Localized.text('ox_chat.zap_illegal_toast'));
       return ;

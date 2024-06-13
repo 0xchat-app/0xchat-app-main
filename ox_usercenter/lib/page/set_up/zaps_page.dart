@@ -4,6 +4,7 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -21,6 +22,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_common/widgets/common_scan_page.dart';
 import 'package:ox_common/utils/scan_utils.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 
 ///Title: zaps_page
@@ -73,6 +75,39 @@ class _ZapsPageState extends State<ZapsPage> {
     });
     if(mounted){
       setState(() {});
+    }
+
+    claimEcash();
+  }
+
+  Future<void> claimEcash() async {
+    final token = await NpubCash.claim();
+    if(token != null){
+      OXCommonHintDialog.show(
+        context,
+        title: "",
+        content: Localized.text('ox_usercenter.str_claim_ecash_hint'),
+        actionList: [
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_usercenter.str_claim_ecash_confirm'),
+            onTap: () async {
+              OXNavigator.pop(context);
+              final response = await Cashu.redeemEcash(
+                ecashString: token,
+                redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
+                signFunction: (key, message) async {
+                  return Account.getSignatureWithSecret(message, key);
+                },
+              );
+              CommonToast.instance.show(
+                context,
+                Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
+              );
+            },
+          ),
+        ],
+        isRowAction: true,
+      );
     }
   }
 

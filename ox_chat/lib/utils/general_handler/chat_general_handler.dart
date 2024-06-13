@@ -446,7 +446,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
     UserDB? user = await Account.sharedInstance.getUserInfo(message.author.id);
     if(user == null) return;
-    if (user.lnurl == null || user.lnurl!.isEmpty) {
+    if (user.lnAddress.isEmpty) {
       await CommonToast.instance.show(context, 'The friend has not set LNURL!');
       return;
     }
