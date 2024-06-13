@@ -15,6 +15,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_discovery/page/widgets/send_progress_widget.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
@@ -57,6 +58,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   bool _isInputFocused = false;
 
   final TextEditingController _textController = TextEditingController();
+
   final ProcessController _processController = ProcessController();
   final Completer<void> _completer = Completer<void>();
   Completer<String>? _uploadCompleter;
@@ -236,11 +238,14 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           IntelligentInputBoxWidget(
               textController: _textController,
               hintText: Localized.text('ox_discovery.caption_hint_text'),
-              cueUserCallback: (UserDB user){
-                String? getName = user.name;
-                if(getName != null){
-                  draftCueUserMap['@${getName}'] = user;
-                  setState(() {});
+              cueUserCallback: (List<UserDB> userList){
+                if(userList.isEmpty) return;
+                for(UserDB db in userList){
+                  String? getName = db.name;
+                  if(getName != null){
+                    draftCueUserMap['@${getName}'] = db;
+                    setState(() {});
+                  }
                 }
               },
               isFocusedCallback: (bool isFocus) {
@@ -339,14 +344,15 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       OXLoading.dismiss();
     }
     // String getMediaStr = await _getUploadMediaContent();
-    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    final inputText = _textController.text;
+    String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     OKEvent? event;
 
     NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
-    List<String>? getReplyUser = _getReplyUserList();
+    List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
 
     if(widget.type == EMomentType.quote && noteDB != null){
       event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
@@ -396,14 +402,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     OXNavigator.pop(context);
   }
 
-  String _changeCueUserToPubkey(){
-    String content = _textController.text;
-    draftCueUserMap.forEach((tag, replacement) {
-      content = content.replaceAll(tag, replacement.encodedPubkey);
-    });
-    return content;
-  }
-
   Future<String> _getUploadMediaContent() async {
     List<String> imageList = _getImageList();
     String? videoPath = widget.videoPath;
@@ -449,14 +447,5 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     if (value > totalCount) {
       _completer.complete();
     }
-  }
-
-  List<String>? _getReplyUserList(){
-    List<String> replyUserList = [];
-    if(draftCueUserMap.isEmpty) return [];
-    draftCueUserMap.values.map((UserDB user) {
-      replyUserList.add(user.pubKey);
-    });
-    return replyUserList.isEmpty ? null : replyUserList;
   }
 }

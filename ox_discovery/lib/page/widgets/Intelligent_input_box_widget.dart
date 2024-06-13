@@ -1,7 +1,11 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/extension.dart';
+import 'package:ox_common/utils/future_extension.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -10,11 +14,12 @@ import 'package:ox_common/widgets/common_network_image.dart';
 
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
+import '../moments/select_mention_page.dart';
 
 class IntelligentInputBoxWidget extends StatefulWidget {
   final String hintText;
   final Function(bool isFocused)? isFocusedCallback;
-  final Function(UserDB user)? cueUserCallback;
+  final Function(List<UserDB> userList)? cueUserCallback;
   final TextEditingController textController;
   final List<String>? imageUrlList;
   const IntelligentInputBoxWidget({
@@ -32,22 +37,24 @@ class IntelligentInputBoxWidget extends StatefulWidget {
 }
 
 class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
+  final _mentionPrefix = '@';
   final FocusNode _replyFocusNode = FocusNode();
 
   bool isShowUserList = false;
 
   List<UserDB> contactsList = [];
 
+  List<UserDB> showContactsList = [];
+
+  int? saveCursorPosition;
+
   @override
   void initState() {
     super.initState();
     widget.textController.addListener(() {
-      final text = widget.textController.text;
-      bool isShowUser = text.isNotEmpty && text[text.length - 1] == '@';
-
-      setState(() {
-        isShowUserList = isShowUser;
-      });
+      if (widget.textController.selection.isValid) {
+        _inputChangeOption(widget.textController.text);
+      }
     });
 
     _replyFocusNode.addListener(() {
@@ -56,24 +63,6 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     _getContactsList();
   }
 
-  void _getContactsList() {
-    List<UserDB> tempList =  Contacts.sharedInstance.allContacts.values.toList();
-    contactsList = tempList;
-    setState(() {});
-  }
-
-  void _insertText(String textToInsert) {
-    final text = widget.textController.text;
-    final textSelection = widget.textController.selection;
-    final newText = text.replaceRange(textSelection.start, textSelection.end, textToInsert + ' ');
-    widget.textController.value = widget.textController.value.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
-    setState(() {
-      isShowUserList = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +88,9 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
             children: [
               _showImageWidget(),
               TextField(
-                controller: widget.textController,
+                onChanged: _inputChangeOption,
                 focusNode: _replyFocusNode,
+                controller: widget.textController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -108,7 +98,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                 ),
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
-              )
+              ),
             ],
           ),
         ),
@@ -117,15 +107,14 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     );
   }
 
-  Widget _showImageWidget(){
-
+  Widget _showImageWidget() {
     List<String>? imageList = widget.imageUrlList;
-    if(imageList == null || imageList.isEmpty) return const SizedBox();
+    if (imageList == null || imageList.isEmpty) return const SizedBox();
     return Container(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: imageList.map((String image){
+          children: imageList.map((String image) {
             return MomentWidgetsUtils.clipImage(
               borderRadius: 8.px,
               child: Image.asset(
@@ -139,7 +128,6 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
         ),
       ),
     ).setPaddingOnly(top: 12.px);
-
   }
 
   Widget _selectListWidget() {
@@ -156,9 +144,66 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
           topRight: Radius.circular(12.px),
         ),
       ),
-      height: 300.px,
-      child: SingleChildScrollView(
-        child:  _captionToUserListWidget()
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () async {
+              setState(() {
+                saveCursorPosition = widget.textController.selection.start;
+              });
+              final result = await OXNavigator.presentPage(
+                  context, (context) => const SelectMentionPage());
+
+              if (result is List<UserDB>) {
+                widget.cueUserCallback?.call(result);
+                String atContent = '';
+                for (UserDB db in result) {
+                  String name = db.name ?? db.pubKey;
+                  atContent = atContent + '@$name ';
+                }
+                _insertText(atContent,saveCursorPosition);
+
+              }
+              // _insertText(user.name ?? user.pubKey);
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.px,
+                vertical: 10.px,
+              ),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: ThemeColor.color160,
+                    width: 1.px,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Find other friends',
+                    style: TextStyle(
+                      color: ThemeColor.color100,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.px,
+                    ),
+                  ),
+                  CommonImage(
+                    iconName: 'icon_chat_search.png',
+                    size: 24.px,
+                    package: 'ox_chat',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: 300.px,
+            child: SingleChildScrollView(child: _captionToUserListWidget()),
+          ),
+        ],
       ),
     );
   }
@@ -170,7 +215,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
       controller: null,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: contactsList.length,
+      itemCount: showContactsList.length,
       itemBuilder: (context, index) {
         return _captionToUserWidget(index);
       },
@@ -178,11 +223,12 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   }
 
   Widget _captionToUserWidget(int index) {
-    UserDB user = contactsList[index];
+    UserDB user = showContactsList[index];
     return GestureDetector(
       onTap: () {
-        widget.cueUserCallback?.call(user);
-        _insertText(user.name ?? user.pubKey);
+        widget.cueUserCallback?.call([user]);
+        final name = '@${user.name ?? user.pubKey} ';
+        _insertText(name, null);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -206,8 +252,10 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
               child: OXCachedNetworkImage(
                 imageUrl: user.picture ?? '',
                 fit: BoxFit.cover,
-                placeholder: (context, url) => MomentWidgetsUtils.badgePlaceholderImage(),
-                errorWidget: (context, url, error) => MomentWidgetsUtils.badgePlaceholderImage(),
+                placeholder: (context, url) =>
+                    MomentWidgetsUtils.badgePlaceholderImage(),
+                errorWidget: (context, url, error) =>
+                    MomentWidgetsUtils.badgePlaceholderImage(),
                 width: 24.px,
                 height: 24.px,
               ),
@@ -235,7 +283,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
                       fontWeight: FontWeight.w400,
                       fontSize: 14.px,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -243,5 +291,82 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
         ),
       ),
     );
+  }
+
+  void _inputChangeOption(String text){
+    final cursorPosition = widget.textController.selection.start;
+
+    if (text.isEmpty || !text.contains(_mentionPrefix) || !widget.textController.selection.isCollapsed) {
+      _hideUserList();
+      return;
+    }
+
+    if (cursorPosition > 0 && text[cursorPosition - 1] == '@') {
+      setState(() {
+        showContactsList = contactsList;
+        isShowUserList = true;
+      });
+      return;
+    }
+
+    final prefixStart = text.lastIndexOf(_mentionPrefix, cursorPosition - 1);
+    if (prefixStart < 0) {
+      _hideUserList();
+      return;
+    }
+
+    final searchText = text.substring(prefixStart + 1, cursorPosition).toLowerCase();
+    List<UserDB> filteredUserList = _checkAtList(searchText);
+    setState(() {
+      showContactsList = filteredUserList;
+      isShowUserList = filteredUserList.isNotEmpty;
+    });
+  }
+
+  void _hideUserList() {
+    if (isShowUserList) {
+      setState(() {
+        showContactsList = [];
+        isShowUserList = false;
+      });
+    }
+  }
+
+  void _getContactsList() {
+    List<UserDB> tempList = Contacts.sharedInstance.allContacts.values.toList();
+    contactsList = tempList;
+    setState(() {});
+  }
+
+  List<UserDB> _checkAtList(String text) {
+    if (text.isEmpty) return contactsList;
+    List<UserDB> userDB = contactsList.where((UserDB user) {
+      if (user.name != null && user.name!.toLowerCase().contains(text)) {
+        return true;
+      }
+      return false;
+    }).toList();
+    return userDB;
+  }
+
+  void _insertText(String textToInsert,int? saveCursorPosition) {
+    final preText = widget.textController.text;
+    final cursorPosition = saveCursorPosition ?? widget.textController.selection.start;
+    final prefixStart = preText.lastIndexOf(_mentionPrefix, cursorPosition);
+
+    final atWhoStr = '$textToInsert ';
+    final newText = preText.replaceRange(prefixStart, cursorPosition, '$textToInsert ');
+
+    final newSelectionStart = prefixStart + atWhoStr.length;
+    final newTextLength = newText.length;
+    final setSelectionStart = newSelectionStart > newTextLength ? newTextLength : newSelectionStart;
+    widget.textController.value = widget.textController.value.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: setSelectionStart),
+    );
+
+    setState(() {
+      isShowUserList = false;
+    });
   }
 }

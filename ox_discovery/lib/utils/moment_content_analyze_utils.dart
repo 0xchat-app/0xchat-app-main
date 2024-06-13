@@ -8,10 +8,10 @@ class MomentContentAnalyzeUtils {
   static Map<String, RegExp> regexMap = {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
-    'nostrExp': RegExp(r'\bnostr:(npub|nprofile)[0-9a-zA-Z]{8,}\b'),
-    'noteExp': RegExp(r'\bnostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
-    'imgExp': RegExp(r'\bhttps?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
-    'audioExp': RegExp(r'\bhttps?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
+    'nostrExp': RegExp(r'nostr:(npub|nprofile)[0-9a-zA-Z]{8,}\b'),
+    'noteExp': RegExp(r'nostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
+    'imgExp': RegExp(r'https?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
+    'audioExp': RegExp(r'https?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
     'lineFeed': RegExp(r"\n"),
     'showMore': RegExp(r"show more$"),
@@ -24,7 +24,9 @@ class MomentContentAnalyzeUtils {
 
     final List<String> pubKey = matches.map((m) => m.group(0)!).toList();
     for(String key in pubKey){
+      print('======noteContent =====$content=====$key');
       Map<String, dynamic>? userMap = Account.decodeProfile(key);
+      print('======noteContent =====$content===userMap====${userMap}');
       if(userMap == null) break;
       final pubkey = userMap['pubkey'] as String? ?? '';
       UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);

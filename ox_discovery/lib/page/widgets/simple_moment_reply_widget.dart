@@ -287,7 +287,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     List<String> hashTags =
         MomentContentAnalyzeUtils(content).getMomentHashTagList;
     OKEvent event = await Moment.sharedInstance
-        .sendReply(widget.notedUIModel.value.noteDB.noteId, content);
+        .sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
     await OXLoading.dismiss();
 
     if (event.status) {

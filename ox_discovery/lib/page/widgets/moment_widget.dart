@@ -115,7 +115,6 @@ class _MomentWidgetState extends State<MomentWidget> {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(model == null) return const SizedBox();
     List<String> quoteUrlList = model.value.getQuoteUrlList;
-
     if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }

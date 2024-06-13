@@ -45,7 +45,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   Map<String, UserDB> draftCueUserMap = {};
 
   final TextEditingController _textController = TextEditingController();
-
   final List<String> _showImageList = [];
 
 
@@ -77,7 +76,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        // FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
@@ -127,11 +126,12 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   imageUrlList: _showImageList,
                   textController: _textController,
                   hintText: Localized.text('ox_discovery.post_reply'),
-                  cueUserCallback: (UserDB user) {
-                    String? getName = user.name;
-                    if (getName != null) {
-                      draftCueUserMap['@$getName'] = user;
-                      if (mounted) {
+                  cueUserCallback: (List<UserDB> userList){
+                    if(userList.isEmpty) return;
+                    for(UserDB db in userList){
+                      String? getName = db.name;
+                      if(getName != null){
+                        draftCueUserMap['@${getName}'] = db;
                         setState(() {});
                       }
                     }
@@ -342,9 +342,10 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
       return;
     }
     await OXLoading.show();
-    List<String>? getReplyUser = _getReplyUserList();
+    final inputText = _textController.text;
+    List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
     String getMediaStr = await _getUploadMediaContent();
-    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
     await OXLoading.dismiss();
@@ -366,22 +367,5 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     }
 
     return '';
-  }
-
-  String _changeCueUserToPubkey() {
-    String content = _textController.text;
-    draftCueUserMap.forEach((tag, replacement) {
-      content = content.replaceAll(tag, replacement.encodedPubkey);
-    });
-    return content;
-  }
-
-  List<String>? _getReplyUserList(){
-    List<String> replyUserList = [];
-    if(draftCueUserMap.isEmpty) return [];
-    draftCueUserMap.values.map((UserDB user) {
-      replyUserList.add(user.pubKey);
-    });
-    return replyUserList.isEmpty ? null : replyUserList;
   }
 }

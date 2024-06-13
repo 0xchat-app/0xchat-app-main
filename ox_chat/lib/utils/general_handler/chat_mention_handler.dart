@@ -227,6 +227,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
       _updateUserListValue(allUser);
       return ;
     }
+
     final prefixStart = newText.lastIndexOf(_mentionPrefix, cursorPosition);
     if (prefixStart < 0) {
       _updateUserListValue([]);
