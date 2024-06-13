@@ -133,7 +133,10 @@ class _MomentZapPageState extends State<MomentZapPage> {
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         if (_isDefaultEcashWallet)
-                          _buildMintSelector().setPadding(EdgeInsets.only(top: sectionSpacing)),
+                          _buildSectionView(
+                            title: 'Mint',
+                            children: [_buildMintSelector()],
+                          ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         CommonButton.themeButton(
                           text: Localized.text('ox_discovery.zaps'),
