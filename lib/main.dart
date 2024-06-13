@@ -171,6 +171,7 @@ class MainState extends State<MainApp>
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+        key: UniqueKey(),
         navigatorKey: OXNavigator.navigatorKey,
         navigatorObservers: [OXNavigator.routeObserver],
         theme: ThemeData(
@@ -187,7 +188,8 @@ class MainState extends State<MainApp>
                 OXCommon.backToDesktop();
               }
               return Future.value(false);
-            }),
+            },
+        ),
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -203,7 +205,8 @@ class MainState extends State<MainApp>
               child: child!,
             ),
           );
-        });
+        },
+    );
   }
 
   @override
