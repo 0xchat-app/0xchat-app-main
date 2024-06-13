@@ -94,7 +94,7 @@ class _DonatePageState extends State<DonatePage> {
 
   void _initData() async {
     _mCurrentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    _isAppleOrGooglePay = false;
+    _isAppleOrGooglePay = Platform.isIOS;
     _setSatsData();
     if (Platform.isIOS) _requestData();
   }
