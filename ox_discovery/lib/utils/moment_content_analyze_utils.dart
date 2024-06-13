@@ -24,9 +24,7 @@ class MomentContentAnalyzeUtils {
 
     final List<String> pubKey = matches.map((m) => m.group(0)!).toList();
     for(String key in pubKey){
-      print('======noteContent =====$content=====$key');
       Map<String, dynamic>? userMap = Account.decodeProfile(key);
-      print('======noteContent =====$content===userMap====${userMap}');
       if(userMap == null) break;
       final pubkey = userMap['pubkey'] as String? ?? '';
       UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
