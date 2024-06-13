@@ -355,7 +355,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
 
     if(content.trim().isEmpty){
-      CommonToast.instance.show(context, 'The content cannot be empty !');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
 
