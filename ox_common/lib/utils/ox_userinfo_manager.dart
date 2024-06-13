@@ -13,6 +13,8 @@ import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_relay_manager.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 
@@ -61,6 +63,7 @@ class OXUserInfoManager {
   bool canVibrate = true;
   bool canSound = true;
   int defaultZapAmount = 0;
+  bool signatureVerifyFailed = false;
 
   Future initDB(String pubkey) async {
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
@@ -105,12 +108,25 @@ class OXUserInfoManager {
         await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, tempUserDB.pubKey);
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
-      await initDB(localPubKey);
-      UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
-      if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
-        _initDatas();
-        _initFeedback();
+      bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+      if (isInstalled) {
+        String? signature = await ExternalSignerTool.getPubKey();
+        if (signature == null) {
+          signatureVerifyFailed = true;
+          return;
+        }
+        String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+        if (decodeSignature == localPubKey) {
+          await initDB(localPubKey);
+          UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+          if (tempUserDB != null) {
+            currentUserInfo = tempUserDB;
+            _initDatas();
+            _initFeedback();
+          }
+        } else {
+          signatureVerifyFailed = true;
+        }
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty) {
       await initDB(localPubKey);
@@ -239,18 +255,15 @@ class OXUserInfoManager {
     }
     Account.sharedInstance.logout();
     UserConfigTool.clearUserConfigFromDB();
-    LogUtil.d('Michael: data logout friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
+    resetData();
+  }
+
+  void resetData() async {
+    signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, false);
-    resetData();
-    for (OXUserInfoObserver observer in _observers) {
-      observer.didLogout();
-    }
-  }
-
-  void resetData() async {
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,
@@ -259,6 +272,9 @@ class OXUserInfoManager {
     };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();
+    for (OXUserInfoObserver observer in _observers) {
+      observer.didLogout();
+    }
   }
 
   bool isCurrentUser(String userID) {
@@ -337,7 +353,6 @@ class OXUserInfoManager {
       Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
         //List<String> relays
         OXRelayManager.sharedInstance.addRelaysSuccess(value);
-        Account.sharedInstance.syncFollowingListFromRelay(currentUserInfo!.pubKey);
       });
     });
 

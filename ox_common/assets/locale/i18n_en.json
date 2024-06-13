@@ -115,5 +115,6 @@
   "str_uses_app": "Uses app ${appname}",
   "str_disables_push_notification": "Disables Push Notifications",
   "str_select_push_app_title": "Please select push application",
-  "str_permission_call_hint": "Please manually go to 'Settings', open microphone/camera permissions"
+  "str_permission_call_hint": "Please manually go to 'Settings', open microphone/camera permissions",
+  "str_singer_app_verify_failed_hint": "Signature verification failed，please login again"
 }

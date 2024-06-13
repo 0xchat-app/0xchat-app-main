@@ -29,7 +29,16 @@ class ErrorUtils{
     }
     final path = directory.path + '/'+'0xchat_log_${fileNameTime}.txt';
     final file = File(path);
-    await file.writeAsString('\n$error\n', mode: FileMode.append);
+    List<String> errorLogs = [];
+    if (await file.exists()) {
+      final existingContent = await file.readAsString();
+      errorLogs = existingContent.split('\n').where((line) => line.isNotEmpty).toList();
+    }
+    errorLogs.add(error);
+    if (errorLogs.length > 20) {
+      errorLogs = errorLogs.sublist(errorLogs.length - 20);
+    }
+    await file.writeAsString(errorLogs.join('\n') + '\n');
     LogUtil.e('John: ErrorUtils--path =${path}');
   }
 
