@@ -99,4 +99,26 @@ class DiscoveryUtils {
     }
     return results;
   }
+
+  static List<String>? getMentionReplyUserList(Map<String,UserDB> draftCueUserMap,String text){
+    List<String> replyUserList = [];
+
+    if(draftCueUserMap.isEmpty) return null;
+    draftCueUserMap.values.map((UserDB user) {
+      String name = user.name ?? user.pubKey;
+      if(text.toLowerCase().contains(name.toLowerCase())){
+        replyUserList.add(user.pubKey);
+      }
+    }).toList();
+    return replyUserList.isEmpty ? null : replyUserList;
+  }
+
+  static String changeAtUserToNpub(Map<String,UserDB> draftCueUserMap, String text) {
+    String content = text;
+    draftCueUserMap.forEach((tag, replacement) {
+      content = content.replaceAll(tag, 'nostr:${replacement.encodedPubkey}');
+    });
+    return content;
+  }
+
 }

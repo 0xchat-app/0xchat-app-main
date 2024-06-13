@@ -161,9 +161,10 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
 
   TextSpan _buildLinkSpan(String text, BuildContext context) {
     List<String> list = _dealWithText(text);
+    bool hasContent = list[0].isNotEmpty;
     return TextSpan(
-      text: list[0] + ' ',
-      style: TextStyle(color: ThemeColor.purple2),
+      text: hasContent ? list[0] : text + ' ',
+      style: TextStyle(color: list[0].isNotEmpty ? ThemeColor.purple2 : ThemeColor.white),
       recognizer: TapGestureRecognizer()
         ..onTap = () {
           _onTextTap(list[1], context);
