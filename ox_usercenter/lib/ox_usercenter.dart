@@ -66,7 +66,8 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
         final walletOnPress = params?['walletOnPress'];
-        return _showZapDialog(context, invoice, walletOnPress);
+        final isCalledFromEcashWallet = params?['isCalledFromEcashWallet'] ?? false;
+        return _showZapDialog(context, invoice, walletOnPress, isCalledFromEcashWallet);
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
@@ -81,17 +82,19 @@ class OXUserCenter extends OXFlutterModule {
     return null;
   }
 
-   _showZapDialog(context, invoice, walletOnPress) async {
+   _showZapDialog(context, invoice, walletOnPress,[bool isCalledFromEcashWallet = false]) async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
      bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
      String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-     if(isShowWalletSelector){
+     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
+     if(isShowWalletSelector || defaultWalletName == ecashWalletName){
        return OXNavigator.presentPage(
          context,
          (context) {
            return ZapsInvoiceDialog(
              invoice: invoice,
              walletOnPress: walletOnPress,
+             isShowEcashWallet: !isCalledFromEcashWallet,
            );
          },
        );
@@ -103,12 +106,7 @@ class OXUserCenter extends OXFlutterModule {
        walletOnPress?.call(walletModel);
        OXLoading.dismiss();
      }
-     else if (defaultWalletName == 'My Ecash Wallet') {
-       final ecashSendingPage = OXWalletInterface.walletSendLightningPage(
-         invoice: invoice,
-       );
-       OXNavigator.pushPage(context, (context) => ecashSendingPage);
-     } else if(defaultWalletName.isNotEmpty){
+     else if(defaultWalletName.isNotEmpty){
        walletOnPress?.call();
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
        _onTap(context, invoice, walletModel);
