@@ -560,6 +560,7 @@ class _ZapsPageState extends State<ZapsPage> {
         setState(() {
           _selectedWalletName = walletName;
         });
+        widget.onChanged?.call(true);
       },
       child: Container(
         height: Adapt.px(56),

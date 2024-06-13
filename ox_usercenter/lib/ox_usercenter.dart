@@ -107,8 +107,8 @@ class OXUserCenter extends OXFlutterModule {
        OXLoading.dismiss();
      }
      else if(defaultWalletName.isNotEmpty){
-       walletOnPress?.call();
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
+       walletOnPress?.call(walletModel);
        _onTap(context, invoice, walletModel);
      }
      else{
