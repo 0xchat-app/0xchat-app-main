@@ -4,6 +4,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class MomentRepostedTips extends StatefulWidget {
@@ -76,7 +77,7 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
                 ),
               ),
               Text(
-                'Reposted',
+                Localized.text('ox_discovery.reposted'),
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 12.px,

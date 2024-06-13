@@ -130,7 +130,7 @@ extension ChatMentionMessageEx on ChatMentionHandler {
     return null;
   }
 
-  static String? tryDecoder(String text,{ Function(List<ProfileMention>)? mentionsCallback }) {
+  static String? tryDecoder(String text, { Function(List<ProfileMention>)? mentionsCallback }) {
     List<ProfileMention> mentions = Nip27.decodeProfileMention(text);
     if (mentions.isEmpty) return null;
     mentionsCallback?.call(mentions);
@@ -227,6 +227,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
       _updateUserListValue(allUser);
       return ;
     }
+
     final prefixStart = newText.lastIndexOf(_mentionPrefix, cursorPosition);
     if (prefixStart < 0) {
       _updateUserListValue([]);

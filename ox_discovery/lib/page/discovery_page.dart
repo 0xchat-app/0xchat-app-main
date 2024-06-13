@@ -693,7 +693,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildItem(
-            'Camera',
+            Localized.text('ox_discovery.choose_camera_option'),
             index: 0,
             onTap: () {
               OXNavigator.pop(context);
@@ -711,7 +711,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            'Choose Image',
+            Localized.text('ox_discovery.choose_image_option'),
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
@@ -732,7 +732,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildItem(
-            'Choose Video',
+            Localized.text('ox_discovery.choose_video_option'),
             index: 1,
             onTap: () {
               OXNavigator.pop(context);

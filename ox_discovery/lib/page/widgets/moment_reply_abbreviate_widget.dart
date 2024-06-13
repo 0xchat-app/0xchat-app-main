@@ -7,6 +7,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
 import 'package:ox_discovery/page/widgets/moment_widget.dart';
+import 'package:ox_discovery/utils/moment_widgets_utils.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../moments/moments_page.dart';
@@ -22,9 +23,10 @@ class MomentReplyAbbreviateWidget extends StatefulWidget {
       _MomentReplyAbbreviateWidgetState();
 }
 
-class _MomentReplyAbbreviateWidgetState
-    extends State<MomentReplyAbbreviateWidget> {
+class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidget> {
   ValueNotifier<NotedUIModel>? notedUIModel;
+
+  bool hasReplyWidget = false;
 
   @override
   void initState() {
@@ -45,15 +47,27 @@ class _MomentReplyAbbreviateWidgetState
     if (!notedUIModelDraft.value.noteDB.isReply || !widget.isShowReplyWidget) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
+      hasReplyWidget = false;
       setState(() {});
       return;
     }
+
+    hasReplyWidget = true;
+
     String? replyId = notedUIModelDraft.value.noteDB.getReplyId;
-    if (replyId == null) return;
+    if (replyId == null) {
+      setState(() {});
+      return;
+    }
 
     if(NotedUIModelCache.map[replyId] == null){
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
-      if(note == null) return;
+      if(note == null) {
+        if(mounted){
+          setState(() {});
+        }
+        return;
+      }
       NotedUIModelCache.map[replyId] = NotedUIModel(noteDB: note);
     }
 
@@ -67,7 +81,9 @@ class _MomentReplyAbbreviateWidgetState
   @override
   Widget build(BuildContext context) {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (!widget.isShowReplyWidget || model == null) return const SizedBox();
+    if(!widget.isShowReplyWidget) return const SizedBox();
+    if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,200);
+    if(model == null) return const SizedBox();
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,

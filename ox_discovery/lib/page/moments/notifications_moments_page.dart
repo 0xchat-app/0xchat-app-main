@@ -20,6 +20,7 @@ import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
@@ -61,7 +62,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         actions: [
           _isShowClearWidget(),
         ],
-        title: 'Notifications',
+        title: Localized.text('ox_discovery.notifications'),
       ),
       body: _bodyWidget(),
     );
@@ -84,7 +85,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
             ).createShader(Offset.zero & bounds.size);
           },
           child: Text(
-            'Clear',
+            Localized.text('ox_discovery.clear'),
             style: TextStyle(
               fontSize: 16.px,
               fontWeight: FontWeight.w600,
@@ -131,7 +132,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
               height: Adapt.px(90),
             ),
             Text(
-              'No Notifications !',
+              Localized.text('ox_discovery.notifications_no_data'),
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,
@@ -286,13 +287,13 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
         content = notificationDB.content;
         break;
       case ENotificationsMomentType.like:
-        content = "liked your moments";
+        content = Localized.text('ox_discovery.liked_moments_tips');
         break;
       case ENotificationsMomentType.repost:
-        content = "Reposted your moments";
+        content = Localized.text('ox_discovery.reposted_moments_tips');
         break;
       case ENotificationsMomentType.zaps:
-        content = "Zaps +${notificationDB.zapAmount}";
+        content = "${Localized.text('ox_discovery.zaps')} +${notificationDB.zapAmount}";
         break;
     }
     bool isPurpleColor = type != ENotificationsMomentType.quote &&
@@ -342,19 +343,19 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     OXCommonHintDialog.show(
       context,
       title: '',
-      content: 'Are you sure to clear all the notifications ?',
+      content: Localized.text('ox_discovery.clear_tips'),
       actionList: [
         OXCommonHintAction.cancel(onTap: () {
           OXNavigator.pop(context);
         }),
-        OXCommonHintAction.sure(text: 'Sure', onTap: () async {
+        OXCommonHintAction.sure(text: Localized.text('ox_common.confirm'), onTap: () async {
           OXLoading.show();
           await Moment.sharedInstance.deleteAllNotifications();
           OXLoading.dismiss();
           setState(() {
             _aggregatedNotifications.clear();
           });
-          CommonToast.instance.show(context, 'clear notifications successful');
+          CommonToast.instance.show(context, Localized.text('ox_discovery.clear_success_tips'));
          return OXNavigator.pop(context);
         }),
       ],

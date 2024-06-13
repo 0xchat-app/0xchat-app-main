@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/contact_choose_page.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/widgets/flexible_selector.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class VisibilitySelectionPage extends StatefulWidget {
   final VisibleType? visibleType;
@@ -84,7 +85,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
             },
           ),
           Text(
-            'Visible to',
+            Localized.text('ox_discovery.visible_destination_title'),
             style: TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 16.px,
@@ -113,7 +114,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "WHO CAN VIEW AND REPLY",
+          Localized.text('ox_discovery.visible_label'),
           style: TextStyle(
             fontSize: 16.px,
             fontWeight: FontWeight.w600,
@@ -167,7 +168,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
             OXNavigator.presentPage(
               context,
               (context) => ContactChoosePage<UserDB>(
-                title: 'Selected Friends',
+                title: Localized.text('ox_discovery.selected_friends_title'),
                 contactType: ContactType.contact,
                 onSubmitted: _selectedOnChanged,
                 selectedContactList: _excludeContacts,
@@ -181,7 +182,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
 
   void _selectedOnChanged(List<UserDB> userList) {
     if (userList.isEmpty) {
-      CommonToast.instance.show(context, 'Please select at least one user');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.selected_empty_tips'));
       return;
     }
     setState(() {

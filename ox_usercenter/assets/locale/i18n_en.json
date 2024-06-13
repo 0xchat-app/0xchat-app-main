@@ -187,5 +187,10 @@
   "str_log_filemtime": "Log updated at:",
   "str_send_log_to_dev": "Send to Dev",
   "str_send_log_to_dev_dialog_content": "Send the log file to the developer water783",
-  "str_send_log_to_dev_hint": "When your device encounters an anomaly or crashes, it will store logs locally. You can choose to send these to the developers to help us improve the product, or you can choose to ignore them."
+  "str_send_log_to_dev_hint": "When your device encounters an anomaly or crashes, it will store logs locally. You can choose to send these to the developers to help us improve the product, or you can choose to ignore them.",
+  "str_claim_ecash_hint": "You have ecash pending to be claimed",
+  "str_claim_ecash_hint_title": "npub.cash",
+  "str_claim_ecash_confirm": "Claim",
+  "str_claim_ecash_success": "Claim Success",
+  "str_claim_ecash_fail": "Claim Fail"
 }

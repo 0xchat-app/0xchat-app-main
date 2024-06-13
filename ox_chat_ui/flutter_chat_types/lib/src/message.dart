@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -32,6 +33,22 @@ enum EncryptionType {
   encrypted,
 }
 
+class Reaction {
+  String content = '';
+  List<String> authors;
+  Reaction({
+    required this.content,
+    List<String>? authors
+  }) : authors = authors ?? [];
+}
+
+class ZapsInfo {
+  UserDB author;
+  String amount;
+  String unit;
+  ZapsInfo({required this.author, required this.amount, required this.unit});
+}
+
 /// An abstract class that contains all variables and methods
 /// every message will have.
 @immutable
@@ -52,6 +69,8 @@ abstract class Message extends Equatable {
     this.fileEncryptionType = EncryptionType.none,
     this.decryptKey,
     this.expiration,
+    this.reactions = const [],
+    this.zapsInfoList = const [],
   });
 
   /// Creates a particular message from a map (decoded JSON).
@@ -126,6 +145,11 @@ abstract class Message extends Equatable {
 
   final int? expiration;
 
+  final List<Reaction> reactions;
+  final List<ZapsInfo> zapsInfoList;
+
+  bool get viewWithoutBubble => false;
+
   /// Creates a copy of the message with an updated data.
   Message copyWith({
     User? author,
@@ -142,6 +166,8 @@ abstract class Message extends Equatable {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts a particular message to the map representation, serializable to JSON.

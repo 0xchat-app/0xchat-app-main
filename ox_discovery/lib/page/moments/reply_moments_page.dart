@@ -17,6 +17,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
@@ -44,7 +45,6 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   Map<String, UserDB> draftCueUserMap = {};
 
   final TextEditingController _textController = TextEditingController();
-
   final List<String> _showImageList = [];
 
 
@@ -76,7 +76,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        // FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
         backgroundColor: ThemeColor.color200,
@@ -99,7 +99,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                     ).createShader(Offset.zero & bounds.size);
                   },
                   child: Text(
-                    'Post',
+                    Localized.text('ox_discovery.post'),
                     style: TextStyle(
                       fontSize: 16.px,
                       fontWeight: FontWeight.w600,
@@ -109,7 +109,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
               ),
             ),
           ],
-          title: 'Reply',
+          title: Localized.text('ox_discovery.reply'),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -125,12 +125,13 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 IntelligentInputBoxWidget(
                   imageUrlList: _showImageList,
                   textController: _textController,
-                  hintText: 'Post your reply',
-                  cueUserCallback: (UserDB user) {
-                    String? getName = user.name;
-                    if (getName != null) {
-                      draftCueUserMap['@$getName'] = user;
-                      if (mounted) {
+                  hintText: Localized.text('ox_discovery.post_reply'),
+                  cueUserCallback: (List<UserDB> userList){
+                    if(userList.isEmpty) return;
+                    for(UserDB db in userList){
+                      String? getName = db.name;
+                      if(getName != null){
+                        draftCueUserMap['@${getName}'] = db;
                         setState(() {});
                       }
                     }
@@ -279,7 +280,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 selectCount: 9,
                 callback: (List<String> imageList) {
                   if(_showImageList.length + imageList.length > 9){
-                    CommonToast.instance.show(context, 'Only nine images can be selected');
+                    CommonToast.instance.show(context, Localized.text('ox_discovery.selected_image_tips'));
                     return;
                   }
                   _showImageList.addAll(imageList);
@@ -337,14 +338,16 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
 
   void _postMoment() async {
     if (_textController.text.isEmpty && _showImageList.isEmpty) {
-      CommonToast.instance.show(context, 'The content cannot be empty !');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
     await OXLoading.show();
+    final inputText = _textController.text;
+    List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
     String getMediaStr = await _getUploadMediaContent();
-    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
     await OXLoading.dismiss();
 
     if(event.status){
@@ -364,13 +367,5 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     }
 
     return '';
-  }
-
-  String _changeCueUserToPubkey() {
-    String content = _textController.text;
-    draftCueUserMap.forEach((tag, replacement) {
-      content = content.replaceAll(tag, replacement.encodedPubkey);
-    });
-    return content;
   }
 }

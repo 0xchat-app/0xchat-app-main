@@ -139,7 +139,7 @@ class EcashHelper {
         ecashString: token,
         redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
         signFunction: (key, message) async {
-          return getSignatureWithSecret(message, key);
+          return Account.getSignatureWithSecret(message, key);
         },
       );
       if (response.code == ResponseCode.tokenAlreadySpentError) {
@@ -167,20 +167,9 @@ class EcashHelper {
       ecashString: token,
       privateKeyList: [Account.sharedInstance.currentPrivkey],
       signFunction: (key, message) async {
-        return await getSignatureWithSecret(message, key);
+        return await Account.getSignatureWithSecret(message, key);
       },
     ) ?? '';
-  }
-
-  static Future<String> getSignatureWithSecret(String secret, [String? privkey]) async {
-    privkey ??= Account.sharedInstance.currentPrivkey;
-    if (SignerHelper.needSigner(privkey)) {
-      final pubkey = Account.sharedInstance.currentPubkey;
-      return await SignerHelper.signMessage(secret, pubkey) ?? '';
-    }
-    final hexMessage = hex.encode(SHA256Digest()
-        .process(Uint8List.fromList(utf8.encode(secret))));
-    return Keychain(privkey).sign(hexMessage);
   }
 
   static String userListText(

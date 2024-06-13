@@ -49,7 +49,6 @@ class ChatNostrSchemeHandle {
       if (userDB?.lastUpdatedTime == 0) {
         userDB = await Account.sharedInstance.reloadProfileFromRelay(pubkey);
       }
-      ;
       return userToMessageContent(userDB, nostrScheme);
     }
     return null;
@@ -134,8 +133,8 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> userToMessageContent(
-      UserDB? userDB, String nostrScheme) async {
+  static String? userToMessageContent(
+      UserDB? userDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactUserInfoPage',
@@ -151,8 +150,8 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> channelToMessageContent(
-      ChannelDB? channelDB, String nostrScheme) async {
+  static String channelToMessageContent(
+      ChannelDB? channelDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactChanneDetailsPage',
@@ -168,8 +167,8 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> groupDBToMessageContent(
-      GroupDB? groupDB, String nostrScheme) async {
+  static String? groupDBToMessageContent(
+      GroupDB? groupDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'groupInfoPage',

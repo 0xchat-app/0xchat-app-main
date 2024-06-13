@@ -1,12 +1,37 @@
+import 'package:ox_localizable/ox_localizable.dart';
+
 enum VisibleType {
-  everyone(name: 'Everyone', illustrate: 'All People'),
-  allContact(name: 'My Contacts', illustrate: 'All Contacts'),
-  private(name: 'Private', illustrate: 'Just me'),
-  excludeContact(name: 'Selected Friends', illustrate: 'Only Selected Users');
+  everyone,
+  allContact,
+  private,
+  excludeContact,
   // includeContact(name: 'Selected User', illustrate: 'Just Selected Contacts');
+}
 
-  final String name;
-  final String illustrate;
+extension VisibleTypeExtension on VisibleType {
+  String get name {
+    switch (this) {
+      case VisibleType.everyone:
+        return Localized.text('ox_discovery.visible_everyone');
+      case VisibleType.allContact:
+        return Localized.text('ox_discovery.visible_my_contact');
+      case VisibleType.private:
+        return Localized.text('ox_discovery.visible_private');
+      case VisibleType.excludeContact:
+        return Localized.text('ox_discovery.visible_selected_friends');
+    }
+  }
 
-  const VisibleType({required this.name, required this.illustrate});
+  String get illustrate {
+    switch (this) {
+      case VisibleType.everyone:
+        return Localized.text('ox_discovery.visible_everyone_description');
+      case VisibleType.allContact:
+        return Localized.text('ox_discovery.visible_my_contact_description');
+      case VisibleType.private:
+        return Localized.text('ox_discovery.visible_private_description');
+      case VisibleType.excludeContact:
+        return Localized.text('ox_discovery.visible_selected_friends_description');
+    }
+  }
 }

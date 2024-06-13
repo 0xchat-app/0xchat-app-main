@@ -22,6 +22,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -31,6 +32,7 @@ import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
 import 'package:ox_usercenter/page/set_up/settings_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 class UserCenterPage extends StatefulWidget {
   const UserCenterPage({Key? key}) : super(key: key);
@@ -215,6 +217,39 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     );
   }
 
+  Future<void> claimEcash() async {
+    final token = await NpubCash.claim();
+    if(token != null){
+      OXCommonHintDialog.show(
+        context,
+        title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),
+        content: Localized.text('ox_usercenter.str_claim_ecash_hint'),
+        actionList: [
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_usercenter.str_claim_ecash_confirm'),
+            onTap: () async {
+              OXNavigator.pop(context);
+              OXLoading.show();
+              final response = await Cashu.redeemEcash(
+                ecashString: token,
+                redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
+                signFunction: (key, message) async {
+                  return Account.getSignatureWithSecret(message, key);
+                },
+              );
+              OXLoading.dismiss();
+              CommonToast.instance.show(
+                context,
+                Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
+              );
+            },
+          ),
+        ],
+        isRowAction: true,
+      );
+    }
+  }
+
   Widget _body() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -237,6 +272,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           title: 'ox_usercenter.wallet',
           iconName: 'icon_settings_wallet.png',
           onTap: () async {
+            claimEcash();
             OXWalletInterface.openWalletHomePage();
           },
         ),
@@ -255,7 +291,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             children: [
               _topItemBuild(
                 iconName: 'icon_moment.png',
-                title: 'Moments',
+                title: Localized.text('ox_discovery.moment'),
                 isShowDivider: true,
                 onTap: () {
                   OXModuleService.pushPage(

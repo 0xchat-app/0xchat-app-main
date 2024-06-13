@@ -4,6 +4,7 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -29,7 +30,8 @@ import 'package:ox_common/utils/scan_utils.dart';
 ///@author Michael
 ///CreateTime: 2023/5/10 17:26
 class ZapsPage extends StatefulWidget {
-  const ZapsPage({super.key});
+  final ValueSetter<bool>? onChanged;
+  const ZapsPage({super.key,this.onChanged});
 
   @override
   State<StatefulWidget> createState() {
@@ -73,6 +75,7 @@ class _ZapsPageState extends State<ZapsPage> {
     if(mounted){
       setState(() {});
     }
+
   }
 
   @override
@@ -557,6 +560,7 @@ class _ZapsPageState extends State<ZapsPage> {
         setState(() {
           _selectedWalletName = walletName;
         });
+        widget.onChanged?.call(true);
       },
       child: Container(
         height: Adapt.px(56),
@@ -623,6 +627,7 @@ class _ZapsPageState extends State<ZapsPage> {
           });
           await OXCacheManager.defaultOXCacheManager
               .saveForeverData('$pubKey.isShowWalletSelector', value);
+          widget.onChanged?.call(value);
         },
         materialTapTargetSize: MaterialTapTargetSize.padded,
       ),

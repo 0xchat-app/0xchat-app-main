@@ -9,6 +9,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -116,7 +117,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
               height: Adapt.px(90),
             ),
             Text(
-              'No Topic !',
+              Localized.text('ox_discovery.topic_no_data'),
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,

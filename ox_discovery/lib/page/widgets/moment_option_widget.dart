@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_discovery/page/widgets/zap_done_animation.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
@@ -173,7 +174,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
           OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.value.noteDB.noteId);
           if(event.status){
             _updateNoteDB();
-            CommonToast.instance.show(context, 'Successfully liked!!');
+            CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
           }
         };
       case EMomentOptionType.zaps:
@@ -236,7 +237,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
               OKEvent event =  await Moment.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
               if(event.status){
                 _updateNoteDB();
-                CommonToast.instance.show(context, 'repost success !');
+                CommonToast.instance.show(context, Localized.text('ox_discovery.repost_success_tips'));
               }
             },
           ),
@@ -261,7 +262,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
               OXNavigator.pop(context);
             },
             child: Text(
-              'Cancel',
+              Localized.text('ox_common.cancel'),
               style: TextStyle(
                 color: ThemeColor.color0,
                 fontSize: Adapt.px(16),
@@ -367,20 +368,11 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     if(user == null) return;
-    if (user.lnurl == null || user.lnurl!.isEmpty) {
-      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
-      return;
-    }
-    String? pubkey = Account.sharedInstance.me?.pubKey;
-    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
-    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-    bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
     await OXNavigator.presentPage(
       context,
       (context) => MomentZapPage(
         userDB: user,
         eventId: notedUIModel.value.noteDB.noteId,
-        isDefaultEcashWallet: isDefaultEcashWallet,
       ),
     );
   }

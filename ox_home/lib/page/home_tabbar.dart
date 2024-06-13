@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -188,9 +189,19 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
     final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
     if (localIsLoginAmber != null && localIsLoginAmber) {
       bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
-      if (mounted && !isInstalled) {
+      if (mounted && (!isInstalled || OXUserInfoManager.sharedInstance.signatureVerifyFailed)){
+        String showTitle = '';
+        String showContent = '';
+        if (!isInstalled) {
+          showTitle = 'ox_common.open_singer_app_error_title';
+          showContent = 'ox_common.open_singer_app_error_content';
+        } else if (OXUserInfoManager.sharedInstance.signatureVerifyFailed){
+          showTitle = 'ox_common.tips';
+          showContent = 'ox_common.str_singer_app_verify_failed_hint';
+        }
+        OXUserInfoManager.sharedInstance.resetData();
         OXCommonHintDialog.show(
-          context, title: Localized.text('ox_common.open_singer_app_error_title'), content: Localized.text('ox_common.open_singer_app_error_content'),
+          context, title: Localized.text(showTitle), content: Localized.text(showContent),
           actionList: [
             OXCommonHintAction.sure(
                 text: Localized.text('ox_common.confirm'),

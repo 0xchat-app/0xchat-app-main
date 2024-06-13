@@ -149,17 +149,17 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       actions: GestureDetector(
         onTap: () {
           final items = [
-            BottomItemModel(title: 'Notifications', onTap: _jumpToNotificationsMomentsPage),
-            BottomItemModel(title: 'Change Cover', onTap: _selectAssetDialog),
+            BottomItemModel(title: Localized.text('ox_discovery.notifications'), onTap: _jumpToNotificationsMomentsPage),
+            BottomItemModel(title: Localized.text('ox_discovery.change_cover_option'), onTap: _selectAssetDialog),
           ];
           MomentBottomSheetDialog.showBottomSheet(context, items);
         },
         child: isCurrentUser
             ? CommonImage(
-                iconName: 'icon_more_operation.png',
+                iconName: 'icon_more.png',
                 width: 24.px,
                 height: 24.px,
-                package: 'ox_discovery',
+                useTheme: true,
               ).setPaddingOnly(right: 24.px)
             : Container(),
       ),
@@ -363,20 +363,19 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   Future<void> _loadNotesFromDB() async {
     List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
-    _refreshData(noteList);
+    Future.delayed(const Duration(milliseconds: 400),() => _refreshData(noteList));
   }
 
   Future<void> _loadnewNotesFromRelay() async {
     await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
     List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
-    _refreshData(noteList);
+    List<NoteDB> newNoteList = noteList.where((element) => element.noteId != element.noteId).toList();
+    _refreshData(newNoteList);
   }
 
   Future<void> _loadNotesFromRelay() async {
     try {
-      OXLoading.show();
       List<NoteDB> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
-      OXLoading.dismiss();
       if (noteList.isEmpty) {
         updateStateView(CommonStateView.CommonStateView_NoData);
         _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();

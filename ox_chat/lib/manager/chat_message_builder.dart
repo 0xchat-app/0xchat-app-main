@@ -1,7 +1,4 @@
 
-import 'dart:math';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -14,7 +11,6 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
-import 'package:ox_common/utils/future_extension.dart';
 import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -51,6 +47,53 @@ class ChatMessageBuilder {
             fontSize: 12,
           ),
         ),
+      ),
+    );
+  }
+
+  static Widget buildReactionsView(types.Message message,
+      {required int messageWidth}) {
+    return const SizedBox();
+    final reactions = message.reactions;
+    return Wrap(
+      children: reactions.map((reaction) => _buildReactionItem(reaction)).toList(),
+    );
+  }
+
+  static Widget _buildReactionItem(types.Reaction reaction) {
+    final notifiers = reaction.authors.map((pubkey) =>
+        Account.sharedInstance.getUserNotifier(pubkey)).toList();
+    return Container(
+      height: 18.px,
+      padding: EdgeInsets.symmetric(horizontal: 6.px),
+      decoration: BoxDecoration(
+        color: ThemeColor.darkColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(9.px),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            reaction.content,
+            style: TextStyle(
+              fontSize: 14.sp,
+              height: 1.4,
+            ),
+          ),
+          SizedBox(width: 4.px,),
+          ...notifiers.map((notifier) => ValueListenableBuilder(
+            valueListenable: notifier,
+            builder: (_, value, __) {
+              return Text(
+                value.getUserShowName(),
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: ThemeColor.white
+                ),
+              );
+            },
+          )).toList(),
+        ],
       ),
     );
   }

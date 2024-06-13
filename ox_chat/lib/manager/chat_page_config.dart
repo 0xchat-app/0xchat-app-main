@@ -1,12 +1,14 @@
 
 import 'package:flutter/material.dart';
+import 'package:ox_chat/widget/message_long_press_widget.dart';
+import 'package:ox_chat/widget/reaction_input_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -17,39 +19,19 @@ class ChatPageConfig {
   static const messagesPerPage = 15;
 
   /// Menu item by message long pressed
-  List<ItemModel> longPressMenuItemsCreator(BuildContext context, types.Message message) {
-
-    List<ItemModel> menuList = [];
-
-    // Base
-    menuList.addAll([
-      if (message is types.TextMessage)
-        ItemModel(
-          Localized.text('ox_chat.message_menu_copy'),
-          AssetImageData('icon_copy.png', package: 'ox_common'),
-          MessageLongPressEventType.copy,
-        ),
-      ItemModel(
-        Localized.text('ox_chat.message_menu_report'),
-        AssetImageData('icon_report.png', package: 'ox_chat'),
-        MessageLongPressEventType.report,
-      ),
-      ItemModel(
-        Localized.text('ox_chat.message_menu_quote'),
-        AssetImageData('icon_quote.png', package: 'ox_chat'),
-        MessageLongPressEventType.quote,
-      ),
-      if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
-        ItemModel(
-          Localized.text('ox_chat.message_menu_delete'),
-          AssetImageData('icon_delete.png', package: 'ox_common'),
-          MessageLongPressEventType.delete,
-        ),
-    ]);
-
-    return menuList;
+  Widget longPressWidgetBuilder({
+    required BuildContext context,
+    required types.Message message,
+    required CustomPopupMenuController controller,
+    required ChatGeneralHandler handler,
+  }) {
+    return MessageLongPressWidget(
+      pageContext: context,
+      message: message,
+      controller: controller,
+      handler: handler,
+    );
   }
-
 
   ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
       ImageGalleryOptions(
@@ -57,6 +39,22 @@ class ChatPageConfig {
         minScale: PhotoViewComputedScale.contained,
         decryptionKey: decryptionKey,
       );
+
+  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler, [UserDB? otherUser]) {
+    final items = [
+      InputMoreItemEx.album(handler),
+      InputMoreItemEx.camera(handler),
+      InputMoreItemEx.video(handler),
+      InputMoreItemEx.ecash(handler),
+    ];
+
+    if (handler.session.chatType == ChatType.chatSingle) {
+      items.add(InputMoreItemEx.zaps(handler, otherUser));
+      items.add(InputMoreItemEx.call(handler, otherUser));
+    }
+
+    return items;
+  }
 
   ChatTheme get pageTheme =>
       DefaultChatTheme(
@@ -78,7 +76,7 @@ class ChatPageConfig {
 
 extension InputMoreItemEx on InputMoreItem {
 
-  static album(ChatGeneralHandler handler) =>
+  static InputMoreItem album(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'album',
         title: () => Localized.text('ox_chat_ui.input_more_album'),
@@ -88,7 +86,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static camera(ChatGeneralHandler handler) =>
+  static InputMoreItem camera(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'camera',
         title: () => Localized.text('ox_chat_ui.input_more_camera'),
@@ -98,7 +96,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static video(ChatGeneralHandler handler) =>
+  static InputMoreItem video(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'video',
         title: () => Localized.text('ox_chat_ui.input_more_video'),
@@ -108,7 +106,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static call(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem call(ChatGeneralHandler handler, UserDB? otherUser) =>
       InputMoreItem(
         id: 'call',
         title: () => Localized.text('ox_chat_ui.input_more_call'),
@@ -124,7 +122,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static zaps(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem zaps(ChatGeneralHandler handler, UserDB? otherUser) =>
       InputMoreItem(
         id: 'zaps',
         title: () => Localized.text('ox_chat_ui.input_more_zaps'),
@@ -140,7 +138,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static ecash(ChatGeneralHandler handler) =>
+  static InputMoreItem ecash(ChatGeneralHandler handler) =>
       InputMoreItem(
         id: 'ecash',
         title: () => 'Ecash',

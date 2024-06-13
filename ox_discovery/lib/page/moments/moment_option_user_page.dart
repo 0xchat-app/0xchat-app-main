@@ -82,7 +82,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
       if (widget.type == ENotificationsMomentType.zaps) {
         ZapRecordsDB zapRecordsDB = noteDB as ZapRecordsDB;
         String content =
-            'Zaps +${ZapRecordsDB.getZapAmount(zapRecordsDB.bolt11)}';
+            '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDB.getZapAmount(zapRecordsDB.bolt11)}';
         return NotedUIModel(
           noteDB: NoteDB(
             noteId: zapRecordsDB.eventId,
@@ -101,7 +101,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(
         backgroundColor: ThemeColor.color200,
-        title: '${widget.type.text} By',
+        title: '${widget.type.text} ${Localized.text('ox_discovery.by')}',
       ),
       body: Stack(
         children: [
@@ -152,7 +152,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
               height: Adapt.px(90),
             ),
             Text(
-              'No ${widget.type.text} !',
+              '${Localized.text('ox_discovery.no')} ${widget.type.text} !',
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,
@@ -389,7 +389,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Add',
+          Localized.text('ox_discovery.add'),
           style: TextStyle(
             color: Colors.white,
             fontSize: 14.px,

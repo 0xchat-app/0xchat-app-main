@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
@@ -39,15 +40,18 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     NotedUIModel? model = widget.notedUIModel?.value;
     if (model == null || !model.noteDB.isReply) {
       isShowReplyContactWidget = false;
+      noteAuthor = null;
       setState(() {});
       return;
     }
 
 
+    isShowReplyContactWidget = true;
+
+
     String? getReplyId = model.noteDB.getReplyId;
 
     if (getReplyId == null) {
-      isShowReplyContactWidget = false;
       setState(() {});
       return;
     }
@@ -55,7 +59,6 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     if (NotedUIModelCache.map[getReplyId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
       if (note == null) {
-        isShowReplyContactWidget = false;
         if(mounted){
           setState(() {});
         }
@@ -63,7 +66,6 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       }
       NotedUIModelCache.map[getReplyId] = NotedUIModel(noteDB: note);
     }
-    isShowReplyContactWidget = true;
 
     noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
     _getMomentUserInfo(NotedUIModelCache.map[getReplyId]!);
@@ -98,7 +100,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
               fontWeight: FontWeight.w400,
             ),
             children: [
-              const TextSpan(text: 'Reply to'),
+              TextSpan(text: Localized.text('ox_discovery.reply_destination_title')),
               TextSpan(
                 text: ' @${value.name ?? ''}',
                 style: TextStyle(
@@ -132,7 +134,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
           fontWeight: FontWeight.w400,
         ),
         children: [
-          const TextSpan(text: 'Reply to'),
+          TextSpan(text: Localized.text('ox_discovery.reply_destination_title')),
           TextSpan(
             text: ' @ ',
             style: TextStyle(

@@ -89,6 +89,7 @@ class _FlexibleSelectorState extends State<FlexibleSelector> {
         return CommonImage(
           iconName: _isSelected ? 'icon_selected.png' : 'icon_unSelected.png',
           package: 'ox_discovery',
+          useTheme: true,
           size: 24.px,
         );
       case SelectionType.multiple:

@@ -27,6 +27,8 @@ abstract class SystemMessage extends Message {
     MessageType? type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(type: type ?? MessageType.system);
 
   factory SystemMessage({
@@ -44,6 +46,8 @@ abstract class SystemMessage extends Message {
     MessageType? type,
     int? updatedAt,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _SystemMessage;
 
   /// Creates a custom message from a map (decoded JSON).
@@ -90,6 +94,8 @@ abstract class SystemMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts a custom message to the map representation,
@@ -100,6 +106,9 @@ abstract class SystemMessage extends Message {
 
 /// A utility class to enable better copyWith.
 class _SystemMessage extends SystemMessage {
+
+  bool get viewWithoutBubble => true;
+
   const _SystemMessage({
     required super.author,
     required super.createdAt,
@@ -115,6 +124,8 @@ class _SystemMessage extends SystemMessage {
     super.type,
     super.updatedAt,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -134,6 +145,8 @@ class _SystemMessage extends SystemMessage {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _SystemMessage(
         author: author ?? this.author,

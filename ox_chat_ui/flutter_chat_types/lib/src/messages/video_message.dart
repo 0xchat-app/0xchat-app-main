@@ -33,6 +33,8 @@ abstract class VideoMessage extends Message {
     EncryptionType? fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super(
     type: type ?? MessageType.video,
     fileEncryptionType: fileEncryptionType ?? EncryptionType.none,
@@ -59,6 +61,8 @@ abstract class VideoMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction> reactions,
+    List<ZapsInfo> zapsInfoList,
   }) = _VideoMessage;
 
   /// Creates a video message from a map (decoded JSON).
@@ -79,6 +83,8 @@ abstract class VideoMessage extends Message {
     int? updatedAt,
     EncryptionType fileEncryptionType = EncryptionType.none,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _VideoMessage(
         author: author,
@@ -163,6 +169,8 @@ abstract class VideoMessage extends Message {
     EncryptionType? fileEncryptionType,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   });
 
   /// Converts an video message to the map representation, encodable to JSON.
@@ -193,6 +201,8 @@ class _VideoMessage extends VideoMessage {
     super.fileEncryptionType,
     super.decryptKey,
     super.expiration,
+    super.reactions,
+    super.zapsInfoList,
   }) : super._();
 
   @override
@@ -216,6 +226,8 @@ class _VideoMessage extends VideoMessage {
     dynamic fileEncryptionType = _Unset,
     String? decryptKey,
     int? expiration,
+    List<Reaction>? reactions,
+    List<ZapsInfo>? zapsInfoList,
   }) =>
       _VideoMessage(
         author: author ?? this.author,

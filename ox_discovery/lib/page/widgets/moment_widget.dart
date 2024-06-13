@@ -9,7 +9,6 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
-import 'package:ox_discovery/page/widgets/youtube_player_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'moment_option_widget.dart';
@@ -114,11 +113,12 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null || model.value.getMomentShowContent.isEmpty) {
+    if(model == null) return const SizedBox();
+    List<String> quoteUrlList = model.value.getQuoteUrlList;
+    if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
-    List<String> quoteUrlList = model.value.getQuoteUrlList;
     List<String> contentList =
         DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
 
@@ -344,7 +344,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     NotedUIModel? model = notedUIModel?.value;
     if (model == null || !model.noteDB.private) return const SizedBox();
     double momentMm = boundingTextSize(
-            Localized.text('ox_discovery.rivate'),
+            Localized.text('ox_discovery.private'),
             TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Adapt.px(20),

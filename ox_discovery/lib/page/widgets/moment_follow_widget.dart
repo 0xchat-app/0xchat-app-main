@@ -6,6 +6,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class MomentFollowWidget extends StatefulWidget {
   final UserDB userDB;
@@ -47,9 +48,10 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
                   iconName: 'icon_moment_follow.png',
                   size: 24.px,
                   package: 'ox_discovery',
+                  useTheme: true,
                 ),
                 SizedBox(width: 4.px,)],
-              _buildButton(title: _isFollow! ? 'Unfollow' : 'Follow'),
+              _buildButton(title: _isFollow! ? Localized.text('ox_discovery.unfollow') : Localized.text('ox_discovery.follow')),
             ],
           )
         : Container();
@@ -89,7 +91,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
     OXLoading.dismiss();
     if(event.status) {
       _updateStatus(true);
-      CommonToast.instance.show(context, 'Add follow successful');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.follow_success_tips'));
     }
   }
 
@@ -99,7 +101,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
     OXLoading.dismiss();
     if(event.status) {
       _updateStatus(false);
-      CommonToast.instance.show(context, 'Remove follow successful');
+      CommonToast.instance.show(context, Localized.text('ox_discovery.unfollow_success_tips'));
     }
   }
 }

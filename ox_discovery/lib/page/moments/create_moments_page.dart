@@ -15,6 +15,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/visible_type.dart';
 import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_discovery/page/widgets/send_progress_widget.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
@@ -57,6 +58,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   bool _isInputFocused = false;
 
   final TextEditingController _textController = TextEditingController();
+
   final ProcessController _processController = ProcessController();
   final Completer<void> _completer = Completer<void>();
   Completer<String>? _uploadCompleter;
@@ -155,7 +157,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             },
           ),
           Text(
-            'New Moments',
+            Localized.text('ox_discovery.new_moments_title'),
             style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(16),
@@ -173,7 +175,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 ).createShader(Offset.zero & bounds.size);
               },
               child: Text(
-                'Post',
+                Localized.text('ox_discovery.post'),
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   color: Colors.white,
@@ -226,7 +228,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               bottom: 12.px,
             ),
             child: Text(
-              'Caption',
+              Localized.text('ox_discovery.caption'),
               style: TextStyle(
                   fontSize: 14.px,
                   fontWeight: FontWeight.w600,
@@ -235,12 +237,15 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           ),
           IntelligentInputBoxWidget(
               textController: _textController,
-              hintText: 'Add a caption...',
-              cueUserCallback: (UserDB user){
-                String? getName = user.name;
-                if(getName != null){
-                  draftCueUserMap['@${getName}'] = user;
-                  setState(() {});
+              hintText: Localized.text('ox_discovery.caption_hint_text'),
+              cueUserCallback: (List<UserDB> userList){
+                if(userList.isEmpty) return;
+                for(UserDB db in userList){
+                  String? getName = db.name;
+                  if(getName != null){
+                    draftCueUserMap['@${getName}'] = db;
+                    setState(() {});
+                  }
                 }
               },
               isFocusedCallback: (bool isFocus) {
@@ -267,7 +272,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               bottom: 12.px,
             ),
             child: Text(
-              'Visible to',
+              Localized.text('ox_discovery.visible_destination_title'),
               style: TextStyle(
                   fontSize: 14.px,
                   fontWeight: FontWeight.w600,
@@ -339,25 +344,34 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       OXLoading.dismiss();
     }
     // String getMediaStr = await _getUploadMediaContent();
-    String content = '${_changeCueUserToPubkey()} $getMediaStr';
+    final inputText = _textController.text;
+    String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     OKEvent? event;
 
     NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
+    List<String>? getReplyUser = DiscoveryUtils.getMentionReplyUserList(draftCueUserMap, inputText);
+
+    if(content.trim().isEmpty){
+      CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
+      return;
+    }
+
     if(widget.type == EMomentType.quote && noteDB != null){
-      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags);
+      event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
     }else{
       switch (_visibleType) {
         case VisibleType.everyone:
           OXLoading.show();
-          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags);
+          event = await Moment.sharedInstance.sendPublicNote(content,hashTags: getHashTags,mentions: getReplyUser);
           break;
         case VisibleType.allContact:
           _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteContacts(content,
+                  mentions: getReplyUser,
                   hashTags: getHashTags,
                   sendMessageProgressCallBack: (value) {
                     _updateProgressStatus(value);
@@ -374,6 +388,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           _updateProgressStatus(0);
           Moment.sharedInstance
               .sendNoteCloseFriends(pubkeys ?? [], content,
+                  mentions: getReplyUser,
                   hashTags: getHashTags,
                   sendMessageProgressCallBack: (value) => _updateProgressStatus(value))
               .then((value) => event = value);
@@ -390,14 +405,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }
 
     OXNavigator.pop(context);
-  }
-
-  String _changeCueUserToPubkey(){
-    String content = _textController.text;
-    draftCueUserMap.forEach((tag, replacement) {
-      content = content.replaceAll(tag, replacement.encodedPubkey);
-    });
-    return content;
   }
 
   Future<String> _getUploadMediaContent() async {

@@ -18,6 +18,7 @@ import 'package:ox_usercenter/page/set_up/relays_page.dart';
 import 'package:ox_usercenter/page/set_up/relays_selector_dialog.dart';
 import 'package:ox_usercenter/page/set_up/verify_passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_invoice_dialog.dart';
+import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/page/set_up/zaps_record_page.dart';
 import 'package:ox_usercenter/page/usercenter_page.dart';
 import 'package:chatcore/chat-core.dart';
@@ -65,7 +66,8 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
         final walletOnPress = params?['walletOnPress'];
-        return _showZapDialog(context, invoice, walletOnPress);
+        final isCalledFromEcashWallet = params?['isCalledFromEcashWallet'] ?? false;
+        return _showZapDialog(context, invoice, walletOnPress, isCalledFromEcashWallet);
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
@@ -74,21 +76,25 @@ class OXUserCenter extends OXFlutterModule {
         return OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: relayName,));
       case 'VerifyPasscodePage':
         return OXNavigator.pushReplacement(context, const VerifyPasscodePage());
+      case 'ZapsSettingPage':
+        return OXNavigator.pushPage(context, (context) => ZapsPage(onChanged: params?['onChanged'],));
     }
     return null;
   }
 
-   _showZapDialog(context, invoice, walletOnPress) async {
+   _showZapDialog(context, invoice, walletOnPress,[bool isCalledFromEcashWallet = false]) async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
      bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
      String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-     if(isShowWalletSelector){
+     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
+     if(isShowWalletSelector || defaultWalletName == ecashWalletName){
        return OXNavigator.presentPage(
          context,
          (context) {
            return ZapsInvoiceDialog(
              invoice: invoice,
              walletOnPress: walletOnPress,
+             isShowEcashWallet: !isCalledFromEcashWallet,
            );
          },
        );
@@ -100,14 +106,9 @@ class OXUserCenter extends OXFlutterModule {
        walletOnPress?.call(walletModel);
        OXLoading.dismiss();
      }
-     else if (defaultWalletName == 'My Ecash Wallet') {
-       final ecashSendingPage = OXWalletInterface.walletSendLightningPage(
-         invoice: invoice,
-       );
-       OXNavigator.pushPage(context, (context) => ecashSendingPage);
-     } else if(defaultWalletName.isNotEmpty){
-       walletOnPress?.call();
+     else if(defaultWalletName.isNotEmpty){
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
+       walletOnPress?.call(walletModel);
        _onTap(context, invoice, walletModel);
      }
      else{

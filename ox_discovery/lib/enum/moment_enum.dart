@@ -1,3 +1,5 @@
+import 'package:ox_localizable/ox_localizable.dart';
+
 enum EMomentOptionType {
   reply,
   repost,
@@ -30,11 +32,11 @@ extension EMomentQuoteTypeEx on EMomentQuoteType{
   String get text {
     switch (this) {
       case EMomentQuoteType.repost:
-        return 'Repost';
+        return Localized.text('ox_discovery.repost');
       case EMomentQuoteType.quote:
-        return 'Quote';
+        return Localized.text('ox_discovery.quote');
       case EMomentQuoteType.share:
-        return 'Share';
+        return Localized.text('ox_discovery.share');
     }
   }
 
@@ -55,15 +57,15 @@ extension ENotificationsMomentTypeEx on ENotificationsMomentType{
   String get text {
     switch (this) {
       case ENotificationsMomentType.reply:
-        return 'Reply';
+        return Localized.text('ox_discovery.reply');
       case ENotificationsMomentType.repost:
-        return 'Repost';
+        return Localized.text('ox_discovery.repost');
       case ENotificationsMomentType.like:
-        return 'Like';
+        return Localized.text('ox_discovery.like');
       case ENotificationsMomentType.zaps:
-        return 'Zaps';
+        return Localized.text('ox_discovery.zaps');
       case ENotificationsMomentType.quote:
-        return 'Quote';
+        return Localized.text('ox_discovery.quote');
     }
   }
 
@@ -104,13 +106,13 @@ extension EMomentOptionTypeEx on EMomentOptionType{
   String get text {
     switch (this) {
       case EMomentOptionType.reply:
-        return 'Reply';
+        return Localized.text('ox_discovery.reply');
       case EMomentOptionType.repost:
-        return 'Repost';
+        return Localized.text('ox_discovery.repost');
       case EMomentOptionType.like:
-        return 'Like';
+        return Localized.text('ox_discovery.like');
       case EMomentOptionType.zaps:
-        return 'Zaps';
+        return Localized.text('ox_discovery.zaps');
     }
   }
 

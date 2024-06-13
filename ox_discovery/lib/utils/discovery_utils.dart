@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' as Intl;
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 import 'moment_content_analyze_utils.dart';
 import 'moment_widgets_utils.dart';
@@ -16,17 +17,17 @@ class DiscoveryUtils {
     if (diff.inDays >= 1) {
       return formatTimestamp(timestamp * 1000);
     } else if (diff.inHours >= 12) {
-      return '12 hours ago';
+      return '12 ${Localized.text('ox_discovery.hour_age_tips')}';
     } else if (diff.inHours >= 1) {
-      return '${diff.inHours} hours ago';
+      return '${diff.inHours} ${Localized.text('ox_discovery.hour_age_tips')}';
     } else if (diff.inMinutes >= 30) {
-      return '30 minutes ago';
+      return '30 ${Localized.text('ox_discovery.minute_age_tips')}';
     } else if (diff.inMinutes >= 15) {
-      return '15 minutes ago';
+      return '15 ${Localized.text('ox_discovery.minute_age_tips')}';
     } else if (diff.inMinutes >= 1) {
-      return '${diff.inMinutes} minutes ago';
+      return '${diff.inMinutes} ${Localized.text('ox_discovery.minute_age_tips')}';
     } else {
-      return 'just now';
+      return Localized.text('ox_discovery.just_now');
     }
   }
 
@@ -78,30 +79,46 @@ class DiscoveryUtils {
     return ['$dns · $time',dns];
   }
 
-  static List<String> momentContentSplit(String text) {
-    MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
-    List<String> quoteUrlList = analyze.getQuoteUrlList;
-    if(quoteUrlList.isEmpty) return [text];
+  static List<String> momentContentSplit(String input) {
+    int previousMatchEnd = 0;
+    List<String> results = [];
 
-    List<String> showList = text.split(' ');
-    String draft = '';
-    List<String> result = [];
+    RegExp noteExp = MomentContentAnalyzeUtils.regexMap['noteExp'] as RegExp;
+    Iterable<RegExpMatch> matches = noteExp.allMatches(input);
 
-    for (String content in showList) {
-      if (quoteUrlList.contains(content)) {
-        if (draft.isNotEmpty) {
-          result.add(draft.trim());
-          draft = '';
-        }
-        result.add(content);
-      } else {
-        draft += (draft.isEmpty ? "" : " ") + content;
+    for (var match in matches) {
+      if (previousMatchEnd < match.start) {
+        results.add(input.substring(previousMatchEnd, match.start));
       }
+      results.add(input.substring(match.start, match.end));
+      previousMatchEnd = match.end;
     }
 
-    if (draft.isNotEmpty) {
-      result.add(draft.trim());
+    if (previousMatchEnd < input.length) {
+      results.add(input.substring(previousMatchEnd));
     }
-    return result;
+    return results;
   }
+
+  static List<String>? getMentionReplyUserList(Map<String,UserDB> draftCueUserMap,String text){
+    List<String> replyUserList = [];
+
+    if(draftCueUserMap.isEmpty) return null;
+    draftCueUserMap.values.map((UserDB user) {
+      String name = user.name ?? user.pubKey;
+      if(text.toLowerCase().contains(name.toLowerCase())){
+        replyUserList.add(user.pubKey);
+      }
+    }).toList();
+    return replyUserList.isEmpty ? null : replyUserList;
+  }
+
+  static String changeAtUserToNpub(Map<String,UserDB> draftCueUserMap, String text) {
+    String content = text;
+    draftCueUserMap.forEach((tag, replacement) {
+      content = content.replaceAll(tag, 'nostr:${replacement.encodedPubkey}');
+    });
+    return content;
+  }
+
 }

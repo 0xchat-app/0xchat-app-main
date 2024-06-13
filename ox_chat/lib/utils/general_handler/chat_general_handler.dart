@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
 import 'package:ox_chat/page/ecash/ecash_sending_page.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
@@ -25,6 +26,7 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -382,6 +384,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       case MessageLongPressEventType.quote:
         replyHandler.quoteMenuItemPressHandler(context, message);
         break;
+      case MessageLongPressEventType.zaps:
+        _zapMenuItemPressHandler(context, message);
+        break;
       default:
         break;
     }
@@ -436,6 +441,51 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     if (reportSuccess == true && messageDeleteHandler != null) {
       messageDeleteHandler(message);
     }
+  }
+
+  _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
+    UserDB? user = await Account.sharedInstance.getUserInfo(message.author.id);
+    if(user == null) return;
+    if (user.lnAddress.isEmpty) {
+      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
+      return;
+    }
+    // await OXNavigator.presentPage(
+    //   context,
+    //       (context) => MomentZapPage(
+    //     userDB: user,
+    //     eventId: message.remoteId,
+    //     isDefaultEcashWallet: true,
+    //   ),
+    // );
+  }
+
+  /// Handles the press event for the "Reaction emoji" in a menu item.
+  Future<bool> reactionPressHandler(
+    BuildContext context,
+    types.Message message,
+    String content,
+  ) async {
+    ChatLogUtils.info(
+      className: 'ChatMessagePage',
+      funcName: 'reactionPressHandler',
+      message: 'id: ${message.id}, content: ${message.content}',
+    );
+    final messageId = message.remoteId;
+    if (messageId == null || messageId.isEmpty) {
+      ChatLogUtils.error(
+        className: 'ChatMessagePage',
+        funcName: 'reactionPressHandler',
+        message: 'messageId is $messageId',
+      );
+      return false;
+    }
+
+    final event = await Messages.sharedInstance.sendMessageReaction(
+      messageId,
+      content,
+    );
+    return event.status;
   }
 }
 
@@ -505,22 +555,29 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    await OXNavigator.presentPage<Map<String, String>>(
-      context, (_) => ZapsSendingPage(user, (zapsInfo) {
-      final zapper = zapsInfo['zapper'] ?? '';
-      final invoice = zapsInfo['invoice'] ?? '';
-      final amount = zapsInfo['amount'] ?? '';
-      final description = zapsInfo['description'] ?? '';
-      if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-        sendZapsMessage(context, zapper, invoice, amount, description);
-      } else {
-        ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: 'zapsPressHandler',
-          message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-        );
-      }
-    }),
+    await OXModuleService.pushPage(
+      context,
+      'ox_discovery',
+      'MomentZapPage',
+      {
+        'userDB': user,
+        'privateZap':true,
+        'zapsInfoCallback':(zapsInfo) {
+          final zapper = zapsInfo['zapper'] ?? '';
+          final invoice = zapsInfo['invoice'] ?? '';
+          final amount = zapsInfo['amount'] ?? '';
+          final description = zapsInfo['description'] ?? '';
+          if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+            sendZapsMessage(context, zapper, invoice, amount, description);
+          } else {
+            ChatLogUtils.error(
+              className: 'ChatGeneralHandler',
+              funcName: 'zapsPressHandler',
+              message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+            );
+          }
+        }
+      },
     );
   }
 

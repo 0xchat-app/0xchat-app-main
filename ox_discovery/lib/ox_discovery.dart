@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
+import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -38,6 +39,16 @@ class OXDiscovery  extends OXFlutterModule {
       case 'PersonMomentsPage':
         return OXNavigator.pushPage(
             context, (context) => PersonMomentsPage(userDB: params?['userDB'],));
+      case 'MomentZapPage':
+        return OXNavigator.presentPage(
+          context,
+          (context) => MomentZapPage(
+            userDB: params?['userDB'],
+            eventId: params?['eventId'],
+            privateZap: params?['privateZap'],
+            zapsInfoCallback: params?['zapsInfoCallback']
+          ),
+        );
     }
     return null;
   }

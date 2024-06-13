@@ -1,31 +1,38 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/page/widgets/zap_user_info_Item.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 
 class MomentZapPage extends StatefulWidget {
   final UserDB userDB;
-  final String eventId;
-  final bool isDefaultEcashWallet;
+  final String? eventId;
+  final bool privateZap;
+  final Function(Map result)? zapsInfoCallback;
 
   const MomentZapPage({
     super.key,
     required this.userDB,
-    required this.eventId,
-    bool? isDefaultEcashWallet,
-  }) : isDefaultEcashWallet = isDefaultEcashWallet ?? false;
+    this.eventId,
+    bool? privateZap,
+    this.zapsInfoCallback,
+  }): privateZap = privateZap ?? false;
 
   @override
   State<MomentZapPage> createState() => _MomentZapPageState();
@@ -43,15 +50,27 @@ class _MomentZapPageState extends State<MomentZapPage> {
   String get zapDescription => _descriptionController.text.orDefault(defaultDescription);
 
   final defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
-  final defaultDescription = 'Zaps';
+  final defaultDescription = Localized.text('ox_discovery.description_hint_text');
 
   IMint? mint;
+  bool _isDefaultEcashWallet = false;
 
   @override
   void initState() {
     super.initState();
     _amountController.text = defaultSatsValue;
     mint = OXWalletInterface.getDefaultMint();
+    _updateDefaultWallet();
+  }
+
+  void _updateDefaultWallet() async {
+    String? pubkey = Account.sharedInstance.me?.pubKey;
+    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
+    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
+    bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
+    setState(() {
+      _isDefaultEcashWallet = isDefaultEcashWallet;
+    });
   }
 
   @override
@@ -80,16 +99,17 @@ class _MomentZapPageState extends State<MomentZapPage> {
                     child: Column(
                       children: [
                         Text(
-                          'Zaps',
+                          Localized.text('ox_discovery.zaps_destination_title'),
                           style: TextStyle(
                             fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
-                        if (widget.isDefaultEcashWallet)
-                          _buildMintSelector().setPadding(EdgeInsets.only(top: sectionSpacing)),
+                        ZapUserInfoItem(
+                          userDB: widget.userDB,
+                        ).setPaddingOnly(top: sectionSpacing),
                         _buildSectionView(
-                          title: 'Amount',
+                          title: Localized.text('ox_discovery.zap_amount_label'),
                           children: [
                             _buildInputRow(
                               placeholder: defaultSatsValue,
@@ -102,7 +122,7 @@ class _MomentZapPageState extends State<MomentZapPage> {
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         _buildSectionView(
-                          title: 'Description',
+                          title: Localized.text('ox_discovery.description_text'),
                           children: [
                             _buildInputRow(
                               placeholder: defaultDescription,
@@ -112,8 +132,14 @@ class _MomentZapPageState extends State<MomentZapPage> {
                           ],
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
+                        if (_isDefaultEcashWallet)
+                          _buildSectionView(
+                            title: 'Mint',
+                            children: [_buildMintSelector()],
+                          ).setPadding(EdgeInsets.only(top: sectionSpacing)),
+
                         CommonButton.themeButton(
-                          text: 'Zap',
+                          text: Localized.text('ox_discovery.zaps'),
                           onTap: _zap,
                         ).setPadding(EdgeInsets.only(top: sectionSpacing)),
                       ],
@@ -134,6 +160,20 @@ class _MomentZapPageState extends State<MomentZapPage> {
         useLargeTitle: false,
         centerTitle: true,
         isClose: true,
+        actions: [
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsSettingPage', {'onChanged': _onChanged});
+            },
+            child: CommonImage(
+              iconName: 'icon_more.png',
+              package: 'ox_common',
+              size: 24.px,
+              useTheme: true,
+            ).setPaddingOnly(right: 30.px),
+          )
+        ],
       );
 
   Widget _buildMintSelector() {
@@ -145,6 +185,10 @@ class _MomentZapPageState extends State<MomentZapPage> {
           });
         }
     );
+  }
+
+  void _onChanged(bool value) {
+    _updateDefaultWallet();
   }
 
   Widget _buildSectionView({
@@ -229,28 +273,31 @@ class _MomentZapPageState extends State<MomentZapPage> {
   }
 
   Future<void> _zap() async {
+    String lnurl = widget.userDB.lnAddress;
+    final recipient = widget.userDB.pubKey;
+
+    if (lnurl.isEmpty) {
+      await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
+      return;
+    }
+
     if (zapAmount < 1) {
-      await CommonToast.instance.show(context, 'Zap amount cannot be 0');
+      await CommonToast.instance.show(context, Localized.text('ox_discovery.enter_amount_tips'));
       return ;
     }
 
     final mint = this.mint;
-    if (widget.isDefaultEcashWallet) {
+    if (_isDefaultEcashWallet) {
       if (mint == null) {
-        CommonToast.instance.show(context, 'Must select mint to send ecash');
+        CommonToast.instance.show(context, Localized.text('ox_discovery.mint_empty_tips'));
         return;
       }
 
       if (zapAmount > mint.balance) {
-        CommonToast.instance.show(context, 'Insufficient balance');
+        CommonToast.instance.show(context, Localized.text('ox_discovery.insufficient_balance_tips'));
         return;
       }
     }
-
-    final relays = OXRelayManager.sharedInstance.relayAddressList;
-    final noteId = widget.eventId;
-    final recipient = widget.userDB.pubKey;
-    String lnurl = widget.userDB.lnurl ?? '';
 
     if (lnurl.contains('@')) {
       try {
@@ -261,29 +308,53 @@ class _MomentZapPageState extends State<MomentZapPage> {
     }
 
     OXLoading.show();
-    final invokeResult = await Moment.sharedInstance.getZapNoteInvoice(
-      relays,
-      zapAmount,
-      lnurl,
-      recipient,
-      noteId,
-      zapDescription,
-      false,
+    final invokeResult = await OXUserCenterInterface.getInvoice(
+      sats: zapAmount,
+      otherLnurl: lnurl,
+      recipient: recipient,
+      eventId: widget.eventId,
+      content: zapDescription,
+      privateZap: widget.privateZap
     );
     final invoice = invokeResult['invoice'] ?? '';
+    final zapper = invokeResult['zapper'] ?? '';
 
-    if(widget.isDefaultEcashWallet) {
+    final zapInfo = {
+      'zapper': zapper,
+      'invoice': invoice,
+      'amount': zapAmount.toString(),
+      'description': zapDescription,
+    };
+
+    if(_isDefaultEcashWallet) {
       final response = await Cashu.payingLightningInvoice(mint: mint!, pr: invoice);
       if (!response.isSuccess) {
         CommonToast.instance.show(context, response.errorMsg);
         return;
       }
+      widget.zapsInfoCallback?.call(zapInfo);
       OXLoading.dismiss();
       OXNavigator.pop(context);
     } else {
       OXLoading.dismiss();
-      OXNavigator.pop(context);
-      await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {'invoice':invoice});
+      final isTapOnWallet = await _jumpToWalletSelectionPage(zapInfo);
+      if (isTapOnWallet) {
+        OXNavigator.pop(context);
+      }
     }
+  }
+
+  Future<bool> _jumpToWalletSelectionPage(Map result) async {
+    var isConfirm = false;
+    await OXModuleService.pushPage(
+        context, 'ox_usercenter', 'ZapsInvoiceDialog', {
+      'invoice': result['invoice'] ?? '',
+      'walletOnPress': (WalletModel wallet) async {
+        widget.zapsInfoCallback?.call(result);
+        isConfirm = true;
+        return true;
+      },
+    });
+    return isConfirm;
   }
 }
