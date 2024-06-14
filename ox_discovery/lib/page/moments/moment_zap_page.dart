@@ -54,6 +54,8 @@ class _MomentZapPageState extends State<MomentZapPage> {
 
   IMint? mint;
   bool _isDefaultEcashWallet = false;
+  bool _isDefaultThirdPartyWallet = false;
+  String _defaultWalletName = '';
 
   @override
   void initState() {
@@ -65,11 +67,17 @@ class _MomentZapPageState extends State<MomentZapPage> {
 
   void _updateDefaultWallet() async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
+    if (pubkey == null) return;
     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-    bool isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == 'My Ecash Wallet';
+    final ecashWalletName = WalletModel.walletsWithEcash.first.title;
+
+    final isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
+    final isDefaultThirdPartyWallet = !isShowWalletSelector && defaultWalletName != ecashWalletName;
     setState(() {
       _isDefaultEcashWallet = isDefaultEcashWallet;
+      _isDefaultThirdPartyWallet = isDefaultThirdPartyWallet;
+      _defaultWalletName = defaultWalletName;
     });
   }
 
@@ -136,6 +144,12 @@ class _MomentZapPageState extends State<MomentZapPage> {
                           _buildSectionView(
                             title: 'Mint',
                             children: [_buildMintSelector()],
+                          ).setPadding(EdgeInsets.only(top: sectionSpacing)),
+
+                        if (_isDefaultThirdPartyWallet)
+                          _buildSectionView(
+                            title: Localized.text('ox_wallet.wallet_text'),
+                            children: [_buildWalletItem()],
                           ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
                         CommonButton.themeButton(
@@ -269,6 +283,15 @@ class _MomentZapPageState extends State<MomentZapPage> {
             ],
           )
       ),
+    );
+  }
+
+  Widget _buildWalletItem() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(horizontal: 16.px),
+      height: 48.px,
+      child: Text(_defaultWalletName),
     );
   }
 
