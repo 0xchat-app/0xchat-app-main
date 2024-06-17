@@ -40,6 +40,9 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getNotedUIModel();
     }
+    if(hasReplyWidget && notedUIModel == null){
+      _getNotedUIModel();
+    }
   }
 
   void _getNotedUIModel() async {

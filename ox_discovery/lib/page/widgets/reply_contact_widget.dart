@@ -34,7 +34,12 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getMomentUser();
     }
+
+    if(widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.value.noteDB.isReply){
+      _getMomentUser();
+    }
   }
+
 
   void _getMomentUser() async {
     NotedUIModel? model = widget.notedUIModel?.value;
@@ -45,9 +50,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-
     isShowReplyContactWidget = true;
-
 
     String? getReplyId = model.noteDB.getReplyId;
 
