@@ -44,6 +44,9 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
       });
       _initData();
     }
+    if(notedUIModel == null){
+      _initData();
+    }
   }
 
   @override

@@ -74,6 +74,10 @@ class _MomentWidgetState extends State<MomentWidget> {
         oldWidget.notedUIModel.value.noteDB.noteId) {
       _dataInit();
     }
+
+    if(widget.notedUIModel.value.noteDB.isRepost && notedUIModel == null){
+      _dataInit();
+    }
   }
 
   Widget _momentItemWidget() {
@@ -81,7 +85,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(model),
+      onTap: () async {
+       await widget.clickMomentCallback?.call(model);
+        setState(() {});
+      },
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -135,7 +142,10 @@ class _MomentWidgetState extends State<MomentWidget> {
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
-            clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+            clickBlankCallback: () async{
+             await widget.clickMomentCallback?.call(model);
+              setState(() {});
+            },
             showMoreCallback: () async {
              await OXNavigator.pushPage(
                   context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
