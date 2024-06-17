@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/wallet_model.dart';
@@ -342,12 +343,14 @@ class _ZapsPageState extends State<ZapsPage> {
   }
 
   Widget _nwcItemWidget(BuildContext context, int index) {
-    String walletName = index == 0 ? 'Connect to Alby Wallet' : 'Scan QR Code';
+    String walletName = 'Connect to Alby Wallet';
+    if(index == 1) walletName = 'Scan QR Code';
+    if(index == 2) walletName = 'Paste from Clipboard';
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
-        OXNavigator.pop(context);
         if(index == 0){
+          OXNavigator.pop(context);
           OXNavigator.presentPage(
             context,
                 (context) => CommonWebView(
@@ -364,6 +367,22 @@ class _ZapsPageState extends State<ZapsPage> {
         }
         else if(index == 1){
           _gotoScan();
+        }
+        else if(index == 2){
+          ClipboardData? data = await Clipboard.getData('text/plain');
+          String? text;
+          if (data != null) {
+            text = data.text;
+          }
+          if(text?.startsWith('nostr+walletconnect://') == true) {
+            ScanUtils.analysis(context, text!);
+          }
+          else{
+            CommonToast.instance.show(
+              context,
+              Localized.text('ox_wallet.clipboard_no_content_tips'),
+            );
+          }
         }
       },
       child: Container(
@@ -434,7 +453,7 @@ class _ZapsPageState extends State<ZapsPage> {
                         physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.zero,
                         itemBuilder: _nwcItemWidget,
-                        itemCount: 2,
+                        itemCount: 3,
                         shrinkWrap: true,
                       ),
                     ),
