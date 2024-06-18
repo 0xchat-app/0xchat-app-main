@@ -52,6 +52,16 @@ class OXChatInterface {
         #icon: icon,
         #link: link,
         #chatType: chatType,
-      },);
+      },
+    );
+  }
+
+  static Future<String?> tryDecodeNostrScheme(String content) async {
+    String? result = await OXModuleService.invoke<Future<String?>>(
+      moduleName,
+      'getTryDecodeNostrScheme',
+      [content],
+    );
+    return result;
   }
 }
