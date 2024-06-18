@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
@@ -366,19 +367,27 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                   Column(
                     children: [
                       MomentWidgetsUtils.clipImage(
-                        borderRadius: 40.px,
-                        imageSize: 40.px,
-                        child: OXCachedNetworkImage(
-                          imageUrl: value.picture ?? '',
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              MomentWidgetsUtils.badgePlaceholderImage(),
-                          errorWidget: (context, url, error) =>
-                              MomentWidgetsUtils.badgePlaceholderImage(),
-                          width: 40.px,
-                          height: 40.px,
+                          borderRadius: 40.px,
+                          imageSize: 40.px,
+                          child:    GestureDetector(
+                            onTap: (){
+                              OXModuleService.pushPage(
+                                  context, 'ox_chat', 'ContactUserInfoPage', {
+                                'pubkey': value.pubKey,
+                              });
+                            },
+                            child: OXCachedNetworkImage(
+                              imageUrl: value.picture ?? '',
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  MomentWidgetsUtils.badgePlaceholderImage(),
+                              errorWidget: (context, url, error) =>
+                                  MomentWidgetsUtils.badgePlaceholderImage(),
+                              width: 40.px,
+                              height: 40.px,
+                            ),
+                          ),
                         ),
-                      ),
                       Expanded(
                         child: Container(
                           margin: EdgeInsets.symmetric(
