@@ -443,6 +443,15 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return SecretChatKey(session.chatId);
   }
 
+  RelayGroupKey? _convertSessionToRelayGroupKey(ChatSessionModel session) {
+    final groupId = session.groupId;
+    if (groupId == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToRelayGroupKey', message: 'groupId is null');
+      return null;
+    }
+    return RelayGroupKey(groupId);
+  }
+
   Future setSessionAllMessageIsRead(ChatSessionModel session) async {
     final chatTypeKey = _getChatTypeKey(session);
     if (chatTypeKey == null) return ;
@@ -562,6 +571,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       case ChatType.chatSecret:
       case ChatType.chatSecretStranger:
         return _convertSessionToSecretChatKey(session);
+      case ChatType.chatRelayGroup:
+        return _convertSessionToRelayGroupKey(session);
       default:
         ChatLogUtils.error(className: 'ChatDataCache', funcName: '_getChatTypeKey', message: 'unknown chatType');
         return null;
@@ -585,6 +596,10 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
     if (type == 0 || message.sender.isNotEmpty && message.receiver.isNotEmpty) {
       return PrivateChatKey(message.sender, message.receiver);
+    }
+
+    if (type == 4) {
+      return RelayGroupKey(message.groupId);
     }
 
     ChatLogUtils.error(

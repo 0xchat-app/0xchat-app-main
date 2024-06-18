@@ -108,3 +108,27 @@ class SecretChatKey implements ChatTypeKey {
   @override
   int get hashCode => sessionId.hashCode;
 }
+
+@immutable
+class RelayGroupKey implements ChatTypeKey {
+  final String groupId;
+
+  RelayGroupKey(this.groupId);
+
+  String getSQLFilter() {
+    return ' groupId = ? ';
+  }
+
+  List<String> getSQLFilterArgs() {
+    return [groupId];
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is RelayGroupKey && other.groupId == groupId;
+  }
+
+  @override
+  int get hashCode => groupId.hashCode;
+}
