@@ -23,6 +23,9 @@ class ChatType {
   ///5 Stranger secret Chat
   static const int chatSecretStranger = 5;
 
+  ///7 Relay Group Chat
+  static const int chatRelayGroup = 7;
+
   static const int chatNotice = 6;
 
 }
