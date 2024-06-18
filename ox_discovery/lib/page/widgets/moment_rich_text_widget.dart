@@ -6,6 +6,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_webview.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../moments/topic_moment_page.dart';
@@ -106,9 +107,11 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
   List<TextSpan> _buildTextSpans(String text, BuildContext context) {
     MomentContentAnalyzeUtils analyze = MomentContentAnalyzeUtils(text);
     String showContent = analyze.getMomentPlainText;
+    
     if (!widget.isShowAllContent && showContent.length > 300) {
-      text = '${text.substring(0, 300)} show more';
+      text = '${DiscoveryUtils.truncateTextAndProcessUsers(text)} show more';
     }
+
     final List<TextSpan> spans = [];
     Map<String, RegExp> regexMap = MomentContentAnalyzeUtils.regexMap;
     final RegExp contentExp = RegExp(
@@ -116,8 +119,8 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           (regexMap['hashRegex'] as RegExp).pattern,
           (regexMap['urlExp'] as RegExp).pattern,
           (regexMap['nostrExp'] as RegExp).pattern,
-          (regexMap['lineFeed'] as RegExp).pattern,
-          (regexMap['showMore'] as RegExp).pattern,
+          (regexMap['lineFeedExp'] as RegExp).pattern,
+          (regexMap['showMoreExp'] as RegExp).pattern,
           (regexMap['youtubeExp'] as RegExp).pattern,
         ].join('|'),
         caseSensitive: false

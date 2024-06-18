@@ -6,6 +6,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import 'moment_content_analyze_utils.dart';
+import 'dart:math' as Math;
 import 'moment_widgets_utils.dart';
 
 class DiscoveryUtils {
@@ -121,4 +122,30 @@ class DiscoveryUtils {
     return content;
   }
 
+  static String truncateTextAndProcessUsers(String text,{int limit = 300}) {
+    if (!text.contains('nostr:')) {
+      '${text.substring(0, Math.min(limit,text.length))} show more';
+    }
+    int charactersNum = 0;
+    String showContent = '';
+    List<String> splitText = text.split(' ');
+
+    for (String content in splitText) {
+      if(charactersNum >= limit){
+        break;
+      }
+
+      if (content.contains('nostr:')) {
+        Map<String, dynamic>? userMap = Account.decodeProfile(content);
+        if (userMap != null && userMap['pubkey'] != null && userMap['pubkey'].isNotEmpty) {
+          showContent = '$showContent $content';
+          continue;
+        }
+      }
+
+      charactersNum += content.length;
+      showContent = '$showContent $content';
+    }
+    return showContent;
+  }
 }

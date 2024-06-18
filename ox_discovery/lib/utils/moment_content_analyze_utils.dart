@@ -13,8 +13,8 @@ class MomentContentAnalyzeUtils {
     'imgExp': RegExp(r'https?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'https?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
-    'lineFeed': RegExp(r"\n"),
-    'showMore': RegExp(r"show more$"),
+    'lineFeedExp': RegExp(r"\n"),
+    'showMoreExp': RegExp(r"show more$"),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
