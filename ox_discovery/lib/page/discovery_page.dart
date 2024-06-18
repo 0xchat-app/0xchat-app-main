@@ -217,7 +217,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,
-                builder: (context) => _buildBottomDialog());
+                builder: (context) => _buildCreateMomentBottomDialog());
           },
         ),
         SizedBox(
@@ -236,7 +236,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           color: ThemeColor.color100,
         ),
         onTap: () {
-          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildBottomDialog());
+          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
         },
       ),
       SizedBox(
@@ -683,7 +683,84 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     }
   }
 
-  Widget _buildBottomDialog() {
+  Widget _buildChannelBottomDialog() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color:  ThemeColor.color160,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildItem(
+            Localized.text('ox_discovery.recommended_item'),
+            index: 0,
+            onTap: () {
+              _currentIndex.value = 0;
+              OXNavigator.pop(context);
+              _getHotChannels(type: _currentIndex.value + 1,context: context);
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            Localized.text('ox_discovery.popular_item'),
+            index: 1,
+            onTap: () {
+              _currentIndex.value = 1;
+              OXNavigator.pop(context);
+              _getHotChannels(type: _currentIndex.value + 1,context: context);
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            Localized.text('ox_discovery.latest_item'),
+            index: 2,
+            onTap: () {
+              _currentIndex.value = 2;
+              OXNavigator.pop(context);
+              // _getHotChannels(type: _currentIndex.value + 1,context: context);
+              _getLatestChannelList();
+            },
+          ),
+          Container(
+            height: Adapt.px(8),
+            color: ThemeColor.color190,
+          ),
+          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+            OXNavigator.pop(context);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItem(String title, {required int index, GestureTapCallback? onTap}) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: Adapt.px(56),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: ThemeColor.color0,
+            fontSize: Adapt.px(16),
+            fontWeight: index == _currentIndex.value ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildCreateMomentBottomDialog() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
@@ -694,7 +771,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         children: [
           _buildItem(
             Localized.text('ox_discovery.choose_camera_option'),
-            index: 0,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openCamera(context, (List<String> imageList) {
@@ -712,7 +789,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           ),
           _buildItem(
             Localized.text('ox_discovery.choose_image_option'),
-            index: 1,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(context, type: 1,
@@ -733,7 +810,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           ),
           _buildItem(
             Localized.text('ox_discovery.choose_video_option'),
-            index: 1,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(
@@ -780,7 +857,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildItem(
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.all,
             EPublicMomentsPageType.all.text,
             index: 0,
@@ -795,7 +872,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             color: ThemeColor.color170,
             height: Adapt.px(0.5),
           ),
-          _buildItem(
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.public,
             EPublicMomentsPageType.public.text,
             index: 1,
@@ -810,7 +887,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             color: ThemeColor.color170,
             height: Adapt.px(0.5),
           ),
-          _buildItem(
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
             EPublicMomentsPageType.private.text,
             index: 1,
@@ -829,7 +906,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
             OXNavigator.pop(context);
           }),
           SizedBox(
@@ -840,7 +917,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  Widget _buildItem(String title,
+  Widget _buildMomentItem(String title,
       {required int index, GestureTapCallback? onTap,bool isSelect = false}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -860,6 +937,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       onTap: onTap,
     );
   }
+
 
   @override
   void didLoginSuccess(UserDB? userInfo) {
