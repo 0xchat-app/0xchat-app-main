@@ -121,7 +121,6 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
           (regexMap['nostrExp'] as RegExp).pattern,
           (regexMap['lineFeedExp'] as RegExp).pattern,
           (regexMap['showMoreExp'] as RegExp).pattern,
-          (regexMap['youtubeExp'] as RegExp).pattern,
         ].join('|'),
         caseSensitive: false
     );
