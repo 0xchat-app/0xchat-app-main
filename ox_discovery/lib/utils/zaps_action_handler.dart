@@ -6,6 +6,7 @@ import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -16,7 +17,7 @@ class ZapsActionHandler {
   final UserDB userDB;
   final bool isAssistedProcess;
   final bool? privateZap;
-  final Function(Map result)? zapsInfoCallback;
+  Function(Map<String,dynamic> zapsInfo)? zapsInfoCallback;
 
   late bool isDefaultEcashWallet;
 
@@ -37,6 +38,13 @@ class ZapsActionHandler {
     isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
   }
 
+  void addCallback(Function(Map<String, dynamic>) callback) {
+    zapsInfoCallback = callback;
+  }
+
+  void removeCallback() {
+    zapsInfoCallback = null;
+  }
 
   Future<void> handleZap({
     required BuildContext context,
@@ -46,8 +54,6 @@ class ZapsActionHandler {
     bool? privateZap,
   }) async {
     String lnurl = userDB.lnAddress;
-    final recipient = userDB.pubKey;
-    zapAmount = zapAmount ?? OXUserInfoManager.sharedInstance.defaultZapAmount;
 
     if (lnurl.isEmpty) {
       await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
@@ -58,27 +64,10 @@ class ZapsActionHandler {
       try {
         lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
       } catch (error) {
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.enter_lnurl_address_toast'));
         return;
       }
     }
-
-    final invokeResult = await OXUserCenterInterface.getInvoice(
-        sats: zapAmount,
-        otherLnurl: lnurl,
-        recipient: recipient,
-        eventId: eventId,
-        content: description,
-        privateZap: privateZap ?? false,
-    );
-    final invoice = invokeResult['invoice'] ?? '';
-    final zapper = invokeResult['zapper'] ?? '';
-
-    final zapsInfo = {
-      'zapper': zapper,
-      'invoice': invoice,
-      'amount': zapAmount.toString(),
-      'description': description,
-    };
 
     if (isAssistedProcess) {
       OXNavigator.presentPage(
@@ -86,62 +75,77 @@ class ZapsActionHandler {
         (context) => MomentZapPage(
           userDB: userDB,
           eventId: eventId,
+          lnurl: lnurl,
+          handler: this,
         ),
       );
     } else {
-      handleZapChannel(context: context, zapsInfo: zapsInfo);
+      handleZapChannel(
+        context,
+        lnurl: lnurl,
+        zapAmount: zapAmount,
+        eventId: eventId,
+        description: description,
+        privateZap: privateZap,
+      );
     }
   }
 
-  handleZapChannel({
-    required BuildContext context,
-    required Map zapsInfo,
-  }) {
+  handleZapChannel(BuildContext context,{
+    required String lnurl,
+    int? zapAmount,
+    String? eventId,
+    String? description,
+    bool? privateZap,
+    IMint? mint,
+    bool showLoading = false,
+  }) async {
+    final recipient = userDB.pubKey;
+    zapAmount = zapAmount ?? OXUserInfoManager.sharedInstance.defaultZapAmount;
     if (isDefaultEcashWallet) {
-      handleZapWithEcash(zapsInfo: zapsInfo, context: context);
+      mint = mint ?? OXWalletInterface.getDefaultMint();
+      String errorMsg = preprocessHandleZapWithEcash(context, mint, zapAmount);
+      if(errorMsg.isNotEmpty){
+        await CommonToast.instance.show(context,errorMsg);
+        return;
+      }
+      if(showLoading) OXLoading.show();
+      // Map<String, dynamic> zapsInfo = await getInvoice(
+      //     sats: zapAmount,
+      //     recipient: recipient,
+      //     lnurl: lnurl,
+      //     eventId: eventId,
+      //     description: description,
+      //     privateZap: privateZap ?? false);
+      // await handleZapWithEcash(mint: mint!, zapsInfo: zapsInfo, context: context);
+      await Future.delayed(const Duration(seconds: 3));
+      Map<String, dynamic> zapsInfo = {};
+      if(showLoading) OXLoading.dismiss();
+      zapsInfoCallback?.call(zapsInfo);
     } else {
-      handleZapWithThirdPartyWallet(zapsInfo: zapsInfo, context: context);
+      Map<String, dynamic> zapsInfo = await getInvoice(
+          sats: zapAmount,
+          recipient: recipient,
+          lnurl: lnurl,
+          eventId: eventId,
+          description: description,
+          privateZap: privateZap ?? false);
+      await handleZapWithThirdPartyWallet(zapsInfo: zapsInfo, context: context);
     }
   }
 
   handleZapWithEcash({
-    IMint? mint,
+    required IMint mint,
     required Map zapsInfo,
     required BuildContext context,
   }) async {
-    final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
-    mint = mint ?? OXWalletInterface.getDefaultMint();
-
-    if (!isWalletAvailable) {
-      showToast(context, message: 'Please open Ecash Wallet first');
-      return;
-    }
-
-    if (mint == null) {
-      showToast(context, message: Localized.text('ox_discovery.mint_empty_tips'));
-      return;
-    }
-
     final invoice = zapsInfo['invoice'];
-    final sats = int.parse(zapsInfo['amount']);
-    if (sats < 1) {
-      showToast(context, message: Localized.text('ox_discovery.enter_amount_tips'));
-      return ;
-    }
-
-    if (sats > mint.balance) {
-      showToast(context, message: Localized.text('ox_discovery.insufficient_balance_tips'));
-      return;
-    }
 
     final response = await Cashu.payingLightningInvoice(mint: mint, pr: invoice);
     if (!response.isSuccess) {
-      showToast(context, message: response.errorMsg);
+      await CommonToast.instance.show(context, response.errorMsg);
       return;
     }
-    // widget.zapsInfoCallback?.call(zapInfo);
-    // OXLoading.dismiss();
-    // OXNavigator.pop(context);
   }
 
   handleZapWithThirdPartyWallet({
@@ -152,6 +156,48 @@ class ZapsActionHandler {
     if (isTapOnWallet) {
       OXNavigator.pop(context);
     }
+  }
+
+  Future<Map<String,dynamic>> getInvoice({
+    required int sats,
+    required String recipient,
+    required String lnurl,
+    String? description,
+    String? eventId,
+    bool privateZap = false,
+  }) async {
+    final invokeResult = await OXUserCenterInterface.getInvoice(
+      sats: sats,
+      otherLnurl: lnurl,
+      recipient: recipient,
+      eventId: eventId,
+      content: description,
+      privateZap: privateZap,
+    );
+    final invoice = invokeResult['invoice'] ?? '';
+    final zapper = invokeResult['zapper'] ?? '';
+
+    final zapsInfo = {
+      'zapper': zapper,
+      'invoice': invoice,
+      'amount': sats.toString(),
+      'description': description,
+    };
+
+    return zapsInfo;
+  }
+
+  String preprocessHandleZapWithEcash(
+    BuildContext context,
+    IMint? mint,
+    int sats,
+  ) {
+    final isWalletAvailable = OXWalletInterface.isWalletAvailable() ?? false;
+    if (!isWalletAvailable) return 'Please open Ecash Wallet first';
+    if (mint == null) return Localized.text('ox_discovery.mint_empty_tips');
+    if (sats < 1) return Localized.text('ox_discovery.enter_amount_tips');
+    if (sats > mint.balance) return Localized.text('ox_discovery.insufficient_balance_tips');
+    return '';
   }
 
   Future<bool> _jumpToWalletSelectionPage(BuildContext context,Map result) async {
@@ -166,11 +212,4 @@ class ZapsActionHandler {
     });
     return isConfirm;
   }
-
-
-
-  void showToast(BuildContext context, {required String message}) {
-    CommonToast.instance.show(context, message);
-  }
-
 }
