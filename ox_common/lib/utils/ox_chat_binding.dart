@@ -433,6 +433,13 @@ class OXChatBinding {
     }
   }
 
+  void relayGroupMsgCallBack(MessageDB messageDB) async {
+    syncChatSessionTable(messageDB);
+    for (OXChatObserver observer in _observers) {
+      observer.didGroupMessageCallBack(messageDB);
+    }
+  }
+
   void updateMessageDB(MessageDB messageDB) async {
     if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
       messageDB.read = true;
