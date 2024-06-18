@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io' show Platform;
 
+import 'package:ox_common/navigator/navigator.dart';
 
 class Adapt {
   static MediaQueryData? mediaQuery;
@@ -18,7 +20,10 @@ class Adapt {
   static get isInitialized => _ratioW != null;
 
   static init({int standardW = 0, int standardH = 0}) {
-    mediaQuery = MediaQueryData.fromView(window);
+    final context = OXNavigator.navigatorKey.currentContext;
+    final view = context != null ? View.of(context) : window;
+
+    mediaQuery = MediaQueryData.fromView(view);
     _width = mediaQuery?.size.width;
     _height = mediaQuery?.size.height;
     _topbarH = mediaQuery?.padding.top;
