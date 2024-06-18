@@ -7,6 +7,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -121,8 +122,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(model == null) return const SizedBox();
+
     List<String> quoteUrlList = model.value.getQuoteUrlList;
-    if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
+    List<String> getNddrlList = model.value.getNddrlList;
+
+    if (getNddrlList.isEmpty && quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
@@ -139,6 +143,8 @@ class _MomentWidgetState extends State<MomentWidget> {
           return isShowQuote
               ? MomentQuoteWidget(notedId: noteInfo?['channelId'])
               : const SizedBox();
+        } else if(getNddrlList.contains(content)){
+          return MomentArticleWidget(naddr: content);
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,

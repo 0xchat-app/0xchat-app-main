@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'dart:io';
 import 'package:chatcore/chat-core.dart';

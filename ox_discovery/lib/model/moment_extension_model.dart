@@ -37,6 +37,9 @@ extension ENotificationDBEX on NotificationDB {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
 }
 
+class NaddrCache{
+  static Map<String,Map<String,dynamic>?> map = {};
+}
 
 class NotedUIModelCache{
   static Map<String,NotedUIModel?> map = {};
