@@ -63,7 +63,7 @@ class ChatSendMessageHelper {
 
     final sourceKey = jsonEncode(event);
     types.Message sendMsg = message.copyWith(
-      id: event.id,
+      id: event.innerEvent?.id ?? event.id,
       remoteId: event.id,
       sourceKey: sourceKey,
       expiration: senderStrategy.session.expiration == null
