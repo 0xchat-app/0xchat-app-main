@@ -67,12 +67,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         centerTitle: true,
         title: Localized.text('ox_chat.group_info'),
         backgroundColor: ThemeColor.color190,
-        actions: [
-          _appBarActionWidget(),
-          SizedBox(
-            width: Adapt.px(24),
-          ),
-        ],
+        // actions: [
+        //   _appBarActionWidget(),
+        //   SizedBox(
+        //     width: Adapt.px(24),
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -84,8 +84,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               _optionMemberWidget(),
               _groupBaseOptionView(),
               _muteWidget(),
-              _groupLocationView(),
-              _leaveBtnWidget(),
+              // _groupLocationView(),
+              // _leaveBtnWidget(),
             ],
           ),
         ),
@@ -118,7 +118,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _memberAvatarWidget(),
-              _addOrDelMember(),
+              // _addOrDelMember(),
             ],
           ),
           GestureDetector(
@@ -261,28 +261,28 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             onTap: () => _groupMemberOptionFn(GroupListAction.view),
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
-            title: Localized.text('ox_chat.group_qr_code'),
-            actionWidget: CommonImage(
-              iconName: 'qrcode_icon.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
-            ),
-            onTap: _groupQrCodeFn,
-          ),
-          _topItemBuild(
-            title: Localized.text('ox_chat.group_notice'),
-            titleDes: _getGroupNotice,
-            onTap: _updateGroupNoticeFn,
-            isShowMoreIcon: _isGroupMember,
-          ),
-          _topItemBuild(
-            title: Localized.text('ox_chat.join_request'),
-            onTap: _jumpJoinRequestFn,
-            isShowMoreIcon: _isGroupOwner,
-            isShowDivider: false,
-          ),
+          // _topItemBuild(
+          //   title: Localized.text('ox_chat.group_qr_code'),
+          //   actionWidget: CommonImage(
+          //     iconName: 'qrcode_icon.png',
+          //     width: Adapt.px(24),
+          //     height: Adapt.px(24),
+          //     useTheme: true,
+          //   ),
+          //   onTap: _groupQrCodeFn,
+          // ),
+          // _topItemBuild(
+          //   title: Localized.text('ox_chat.group_notice'),
+          //   titleDes: _getGroupNotice,
+          //   onTap: _updateGroupNoticeFn,
+          //   isShowMoreIcon: _isGroupMember,
+          // ),
+          // _topItemBuild(
+          //   title: Localized.text('ox_chat.join_request'),
+          //   onTap: _jumpJoinRequestFn,
+          //   isShowMoreIcon: _isGroupOwner,
+          //   isShowDivider: false,
+          // ),
         ],
       ),
     );
