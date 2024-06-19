@@ -1,7 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -11,7 +10,6 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
-import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_discovery/page/widgets/zap_done_animation.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
