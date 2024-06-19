@@ -49,13 +49,27 @@ class ZapsActionHandler {
   }
 
   Future<void> initialize() async {
+    Map<String, dynamic> defaultWalletInfo = await getDefaultWalletInfo();
+    isDefaultEcashWallet = defaultWalletInfo['isDefaultEcashWallet'];
+  }
+
+  Future<Map<String, dynamic>> getDefaultWalletInfo() async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
-    if (pubkey == null) return;
+    if (pubkey == null) return {};
     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
 
-    isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
+    final isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
+    final isDefaultThirdPartyWallet = !isShowWalletSelector && defaultWalletName != ecashWalletName;
+
+    return {
+      'isShowWalletSelector': isShowWalletSelector,
+      'defaultWalletName': defaultWalletName,
+      'isDefaultEcashWallet': isDefaultEcashWallet,
+      'isDefaultThirdPartyWallet': isDefaultThirdPartyWallet,
+      'ecashWalletName': ecashWalletName,
+    };
   }
 
   void setZapsInfoCallback(Function(Map<String, dynamic>) callback) {

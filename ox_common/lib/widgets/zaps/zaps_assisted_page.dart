@@ -1,8 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
-import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -65,18 +63,13 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   }
 
   void _updateDefaultWallet() async {
-    String? pubkey = Account.sharedInstance.me?.pubKey;
-    if (pubkey == null) return;
-    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
-    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-    final ecashWalletName = WalletModel.walletsWithEcash.first.title;
-
-    final isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
-    final isDefaultThirdPartyWallet = !isShowWalletSelector && defaultWalletName != ecashWalletName;
+    Map<String, dynamic> defaultWalletInfo = await widget.handler.getDefaultWalletInfo();
+    final isDefaultEcashWallet = defaultWalletInfo['isDefaultEcashWallet'];
+    widget.handler.isDefaultEcashWallet = isDefaultEcashWallet;
     setState(() {
       _isDefaultEcashWallet = isDefaultEcashWallet;
-      _isDefaultThirdPartyWallet = isDefaultThirdPartyWallet;
-      _defaultWalletName = defaultWalletName;
+      _isDefaultThirdPartyWallet = defaultWalletInfo['isDefaultThirdPartyWallet'];
+      _defaultWalletName = defaultWalletInfo['defaultWalletName'];
     });
   }
 
