@@ -1,7 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -13,9 +12,8 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/widgets/zap_user_info_Item.dart';
+import 'package:ox_discovery/utils/zaps_action_handler.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/cashu_dart.dart';
@@ -25,6 +23,8 @@ class MomentZapPage extends StatefulWidget {
   final String? eventId;
   final bool privateZap;
   final Function(Map result)? zapsInfoCallback;
+  final ZapsActionHandler? handler;
+  final String? lnurl;
 
   const MomentZapPage({
     super.key,
@@ -32,6 +32,8 @@ class MomentZapPage extends StatefulWidget {
     this.eventId,
     bool? privateZap,
     this.zapsInfoCallback,
+    this.handler,
+    this.lnurl
   }): privateZap = privateZap ?? false;
 
   @override
@@ -63,6 +65,11 @@ class _MomentZapPageState extends State<MomentZapPage> {
     _amountController.text = defaultSatsValue;
     mint = OXWalletInterface.getDefaultMint();
     _updateDefaultWallet();
+    widget.handler?.setZapsInfoCallback(_zapsDoneCallback);
+  }
+
+  _zapsDoneCallback(Map result) {
+    OXNavigator.pop(context);
   }
 
   void _updateDefaultWallet() async {
@@ -296,88 +303,15 @@ class _MomentZapPageState extends State<MomentZapPage> {
   }
 
   Future<void> _zap() async {
-    String lnurl = widget.userDB.lnAddress;
-    final recipient = widget.userDB.pubKey;
-
-    if (lnurl.isEmpty) {
-      await CommonToast.instance.show(context, Localized.text('ox_discovery.not_set_lnurl_tips'));
-      return;
-    }
-
-    if (zapAmount < 1) {
-      await CommonToast.instance.show(context, Localized.text('ox_discovery.enter_amount_tips'));
-      return ;
-    }
-
-    final mint = this.mint;
-    if (_isDefaultEcashWallet) {
-      if (mint == null) {
-        CommonToast.instance.show(context, Localized.text('ox_discovery.mint_empty_tips'));
-        return;
-      }
-
-      if (zapAmount > mint.balance) {
-        CommonToast.instance.show(context, Localized.text('ox_discovery.insufficient_balance_tips'));
-        return;
-      }
-    }
-
-    if (lnurl.contains('@')) {
-      try {
-        lnurl = await Zaps.getLnurlFromLnaddr(lnurl);
-      } catch (error) {
-        return;
-      }
-    }
-
-    OXLoading.show();
-    final invokeResult = await OXUserCenterInterface.getInvoice(
-      sats: zapAmount,
-      otherLnurl: lnurl,
-      recipient: recipient,
+    if (widget.handler == null) return;
+    if (widget.lnurl == null) return;
+    await widget.handler?.handleZapChannel(
+      context,
+      lnurl: widget.lnurl!,
+      zapAmount: zapAmount,
       eventId: widget.eventId,
-      content: zapDescription,
-      privateZap: widget.privateZap
+      description: zapDescription,
+      showLoading: true,
     );
-    final invoice = invokeResult['invoice'] ?? '';
-    final zapper = invokeResult['zapper'] ?? '';
-
-    final zapInfo = {
-      'zapper': zapper,
-      'invoice': invoice,
-      'amount': zapAmount.toString(),
-      'description': zapDescription,
-    };
-
-    if(_isDefaultEcashWallet) {
-      final response = await Cashu.payingLightningInvoice(mint: mint!, pr: invoice);
-      if (!response.isSuccess) {
-        CommonToast.instance.show(context, response.errorMsg);
-        return;
-      }
-      widget.zapsInfoCallback?.call(zapInfo);
-      OXLoading.dismiss();
-      OXNavigator.pop(context);
-    } else {
-      OXLoading.dismiss();
-      final isTapOnWallet = await _jumpToWalletSelectionPage(zapInfo);
-      if (isTapOnWallet) {
-        OXNavigator.pop(context);
-      }
-    }
-  }
-
-  Future<bool> _jumpToWalletSelectionPage(Map result) async {
-    var isConfirm = false;
-    await OXModuleService.pushPage(
-        context, 'ox_usercenter', 'ZapsInvoiceDialog', {
-      'invoice': result['invoice'] ?? '',
-      'walletOnPress': (WalletModel wallet) async {
-        widget.zapsInfoCallback?.call(result);
-        isConfirm = true;
-        return true;
-      },
-    });
-    return isConfirm;
   }
 }

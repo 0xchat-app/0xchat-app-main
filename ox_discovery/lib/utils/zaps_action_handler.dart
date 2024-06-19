@@ -18,6 +18,7 @@ class ZapsActionHandler {
   final bool isAssistedProcess;
   final bool? privateZap;
   Function(Map<String,dynamic> zapsInfo)? zapsInfoCallback;
+  Function()? preprocessCallback;
 
   late bool isDefaultEcashWallet;
 
@@ -25,6 +26,7 @@ class ZapsActionHandler {
     required this.userDB,
     this.privateZap,
     this.zapsInfoCallback,
+    this.preprocessCallback,
     bool? isAssistedProcess,
   }) : isAssistedProcess = isAssistedProcess ?? false;
 
@@ -38,12 +40,20 @@ class ZapsActionHandler {
     isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
   }
 
-  void addCallback(Function(Map<String, dynamic>) callback) {
+  void setZapsInfoCallback(Function(Map<String, dynamic>) callback) {
     zapsInfoCallback = callback;
   }
 
-  void removeCallback() {
+  void removeZapsInfoCallback() {
     zapsInfoCallback = null;
+  }
+
+  void setPreprocessCallback(Function() callback){
+    preprocessCallback = callback;
+  }
+
+  void removeCPreprocessCallback() {
+    preprocessCallback = null;
   }
 
   Future<void> handleZap({
@@ -109,6 +119,7 @@ class ZapsActionHandler {
         await CommonToast.instance.show(context,errorMsg);
         return;
       }
+      preprocessCallback?.call();
       if(showLoading) OXLoading.show();
       // Map<String, dynamic> zapsInfo = await getInvoice(
       //     sats: zapAmount,
@@ -123,6 +134,7 @@ class ZapsActionHandler {
       if(showLoading) OXLoading.dismiss();
       zapsInfoCallback?.call(zapsInfo);
     } else {
+      if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
           sats: zapAmount,
           recipient: recipient,
@@ -130,6 +142,7 @@ class ZapsActionHandler {
           eventId: eventId,
           description: description,
           privateZap: privateZap ?? false);
+      if(showLoading) OXLoading.dismiss();
       await handleZapWithThirdPartyWallet(zapsInfo: zapsInfo, context: context);
     }
   }
@@ -149,7 +162,7 @@ class ZapsActionHandler {
   }
 
   handleZapWithThirdPartyWallet({
-    required Map zapsInfo,
+    required Map<String,dynamic> zapsInfo,
     required BuildContext context,
   }) async {
     final isTapOnWallet = await _jumpToWalletSelectionPage(context,zapsInfo);
@@ -200,12 +213,12 @@ class ZapsActionHandler {
     return '';
   }
 
-  Future<bool> _jumpToWalletSelectionPage(BuildContext context,Map result) async {
+  Future<bool> _jumpToWalletSelectionPage(BuildContext context,Map<String,dynamic> result) async {
     var isConfirm = false;
     await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
       'invoice': result['invoice'] ?? '',
       'walletOnPress': (WalletModel wallet) async {
-        // widget.zapsInfoCallback?.call(result);
+        zapsInfoCallback?.call(result);
         isConfirm = true;
         return true;
       },
