@@ -26,13 +26,11 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
-import 'package:ox_chat/page/session/zaps_sending_page.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -64,6 +62,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
+import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -555,30 +554,26 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    await OXModuleService.pushPage(
-      context,
-      'ox_discovery',
-      'MomentZapPage',
-      {
-        'userDB': user,
-        'privateZap':true,
-        'zapsInfoCallback':(zapsInfo) {
-          final zapper = zapsInfo['zapper'] ?? '';
-          final invoice = zapsInfo['invoice'] ?? '';
-          final amount = zapsInfo['amount'] ?? '';
-          final description = zapsInfo['description'] ?? '';
-          if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-            sendZapsMessage(context, zapper, invoice, amount, description);
-          } else {
-            ChatLogUtils.error(
-              className: 'ChatGeneralHandler',
-              funcName: 'zapsPressHandler',
-              message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-            );
-          }
+    ZapsActionHandler handler = await ZapsActionHandler.create(
+      userDB: user,
+      isAssistedProcess: true,
+      zapsInfoCallback: (zapsInfo) {
+        final zapper = zapsInfo['zapper'] ?? '';
+        final invoice = zapsInfo['invoice'] ?? '';
+        final amount = zapsInfo['amount'] ?? '';
+        final description = zapsInfo['description'] ?? '';
+        if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+          sendZapsMessage(context, zapper, invoice, amount, description);
+        } else {
+          ChatLogUtils.error(
+            className: 'ChatGeneralHandler',
+            funcName: 'zapsPressHandler',
+            message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+          );
         }
-      },
+      }
     );
+    await handler.handleZap(context: context,);
   }
 
   Future ecashPressHandler(BuildContext context) async {

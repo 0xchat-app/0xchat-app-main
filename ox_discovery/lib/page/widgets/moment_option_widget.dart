@@ -10,6 +10,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 import 'package:ox_discovery/page/moments/moment_zap_page.dart';
 import 'package:ox_discovery/page/widgets/zap_done_animation.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -368,12 +369,23 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     if(user == null) return;
-    await OXNavigator.presentPage(
-      context,
-      (context) => MomentZapPage(
-        userDB: user,
-        eventId: notedUIModel.value.noteDB.noteId,
-      ),
+    ZapsActionHandler handler = await ZapsActionHandler.create(
+      userDB: user,
+      isAssistedProcess: false,
+      preprocessCallback: _zapsDoneCallback,
     );
+    await handler.handleZap(context: context,);
+  }
+
+  _zapsDoneCallback() async {
+    await _shakeController.forward();
+    NoteDB newNote = widget.notedUIModel.value.noteDB;
+    newNote.zapAmount = newNote.zapAmount + 3;
+    if(mounted){
+      setState(() {
+        notedUIModel = ValueNotifier(NotedUIModel(noteDB: newNote));
+      });
+    }
+    _isShowAnimation = true;
   }
 }
