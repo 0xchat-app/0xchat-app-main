@@ -47,12 +47,14 @@ class OXDiscovery  extends OXFlutterModule {
   }
 
   void jumpMomentPage(BuildContext? context,{required String noteId}) async {
-    NotedUIModel? notedUIModel = NotedUIModelCache.map[noteId];
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
+    NotedUIModel? notedUIModel = notedUIModelCache[noteId];
     if(notedUIModel == null){
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if(note == null) return CommonToast.instance.show(context, 'Note not found !');
-      NotedUIModelCache.map[noteId] = NotedUIModel(noteDB:note);
-      notedUIModel = NotedUIModelCache.map[noteId];
+      notedUIModelCache[noteId] = NotedUIModel(noteDB:note);
+      notedUIModel = notedUIModelCache[noteId];
     }
     OXNavigator.pushPage(context!, (context) => MomentsPage(isShowReply:false,notedUIModel: ValueNotifier(notedUIModel!)));
   }

@@ -1,4 +1,6 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 
 import '../enum/moment_enum.dart';
@@ -37,14 +39,14 @@ extension ENotificationDBEX on NotificationDB {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
 }
 
-class NaddrCache{
-  static Map<String,Map<String,dynamic>?> map = {};
-}
+class OXMomentCacheManager {
+  static final OXMomentCacheManager sharedInstance = OXMomentCacheManager._internal();
 
-class NotedUIModelCache{
-  static Map<String,NotedUIModel?> map = {};
-}
+  OXMomentCacheManager._internal();
 
-class ExternalLinkCache{
-  static Map<String,PreviewData?> map = {};
+  Map<String,Map<String,dynamic>?> naddrAnalysisCache = {};
+
+  Map<String,NotedUIModel?> notedUIModelCache = {};
+
+  Map<String,PreviewData?> urlPreviewDataCache = {};
 }

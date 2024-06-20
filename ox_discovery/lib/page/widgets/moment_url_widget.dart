@@ -54,7 +54,8 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
 
   void _getUrlInfo() async {
     if (widget.url.contains('youtube.com') || widget.url.contains('youtu.be')) return;
-    PreviewData? previewData = ExternalLinkCache.map[widget.url];
+    final urlPreviewDataCache = OXMomentCacheManager.sharedInstance.urlPreviewDataCache;
+    PreviewData? previewData = urlPreviewDataCache[widget.url];
     if(previewData != null){
       urlData = previewData;
       setState(() {});
@@ -63,7 +64,7 @@ class MomentUrlWidgetState extends State<MomentUrlWidget> {
 
     urlData = await WebURLHelper.getPreviewData(widget.url);
     if(urlData?.title == null && urlData?.image == null && urlData?.description == null) return;
-    ExternalLinkCache.map[widget.url] = urlData;
+    urlPreviewDataCache[widget.url] = urlData;
     if(mounted){
       setState(() {});
     }

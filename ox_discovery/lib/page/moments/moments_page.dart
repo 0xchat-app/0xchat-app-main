@@ -336,15 +336,13 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     }
   }
 
-  void _getMomentUserInfo()async {
+  void _getMomentUserInfo() async {
     String pubKey = widget.notedUIModel.value.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
     }
   }
-
-
 
   Widget _momentItemWidget() {
     String pubKey = widget.notedUIModel.value.noteDB.author;
@@ -369,7 +367,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                       MomentWidgetsUtils.clipImage(
                           borderRadius: 40.px,
                           imageSize: 40.px,
-                          child:    GestureDetector(
+                          child: GestureDetector(
                             onTap: (){
                               OXModuleService.pushPage(
                                   context, 'ox_chat', 'ContactUserInfoPage', {

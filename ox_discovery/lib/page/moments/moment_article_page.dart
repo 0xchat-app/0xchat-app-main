@@ -61,8 +61,10 @@ class MomentArticlePageState extends State<MomentArticlePage> {
   }
 
   void _initData() async {
-    if (NaddrCache.map[widget.naddr] != null) {
-      articleInfo = NaddrCache.map[widget.naddr];
+    final naddrAnalysisCache = OXMomentCacheManager.sharedInstance.naddrAnalysisCache;
+
+    if (naddrAnalysisCache[widget.naddr] != null) {
+      articleInfo = naddrAnalysisCache[widget.naddr];
       if (mounted) {
         setState(() {});
       }
@@ -71,7 +73,7 @@ class MomentArticlePageState extends State<MomentArticlePage> {
     final info = await DiscoveryUtils.tryDecodeNostrScheme(widget.naddr);
 
     if (info != null) {
-      NaddrCache.map[widget.naddr] = info;
+      naddrAnalysisCache[widget.naddr] = info;
       articleInfo = info;
       if (mounted) {
         setState(() {});

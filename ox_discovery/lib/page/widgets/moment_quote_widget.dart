@@ -56,15 +56,15 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   void _initData() async {
     String notedId = widget.notedId;
-    if (NotedUIModelCache.map[notedId] == null) {
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    if (notedUIModelCache[notedId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
       if (note == null) return;
-      NotedUIModel newNotedModel = NotedUIModel(noteDB: note);
-      NotedUIModelCache.map[notedId] = newNotedModel;
+      notedUIModelCache[notedId] = NotedUIModel(noteDB: note);
     }
 
-    notedUIModel = NotedUIModelCache.map[notedId];
-    _getMomentUserInfo(NotedUIModelCache.map[notedId]!);
+    notedUIModel = notedUIModelCache[notedId];
+    _getMomentUserInfo(notedUIModel!);
     if (mounted) {
       setState(() {});
     }
