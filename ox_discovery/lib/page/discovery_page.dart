@@ -25,6 +25,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../enum/moment_enum.dart';
+import '../model/moment_extension_model.dart';
 import '../utils/album_utils.dart';
 import 'moments/channel_page.dart';
 import 'moments/create_moments_page.dart';
@@ -214,6 +215,21 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
           },
           onTap: () {
+            CreateMomentDraft? createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+            if(createMomentMediaDraft!= null){
+              final type = createMomentMediaDraft.type;
+              final imageList = type == EMomentType.picture ? createMomentMediaDraft.imageList : null;
+              final videoPath = type == EMomentType.video ? createMomentMediaDraft.videoPath : null;
+              OXNavigator.presentPage(
+                context,
+                  (context) => CreateMomentsPage(
+                    type: type,
+                    imageList: imageList,
+                    videoPath: videoPath,
+                  ),
+              );
+              return;
+            }
             showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,

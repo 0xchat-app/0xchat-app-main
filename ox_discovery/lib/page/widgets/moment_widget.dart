@@ -108,11 +108,13 @@ class _MomentWidgetState extends State<MomentWidget> {
             _momentQuoteWidget(),
             MomentReplyAbbreviateWidget(
                 notedUIModel: model,
-                isShowReplyWidget: widget.isShowReplyWidget),
+                isShowReplyWidget: widget.isShowReplyWidget,
+            ),
             _momentInteractionDataWidget(),
             MomentOptionWidget(
                 notedUIModel: model,
-                isShowMomentOptionWidget: widget.isShowMomentOptionWidget),
+                isShowMomentOptionWidget: widget.isShowMomentOptionWidget,
+            ),
           ],
         ),
       ),

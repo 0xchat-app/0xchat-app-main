@@ -4,6 +4,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 
 import '../enum/moment_enum.dart';
+import '../enum/visible_type.dart';
 import 'moment_ui_model.dart';
 
 extension ENoteDBEx on NoteDB {
@@ -39,6 +40,29 @@ extension ENotificationDBEX on NotificationDB {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
 }
 
+class CreateMomentDraft{
+  List<String>? imageList;
+  String? videoPath;
+  String? videoImagePath;
+  String content;
+  EMomentType type;
+  Map<String,UserDB>? draftCueUserMap;
+
+  VisibleType visibleType;
+  List<UserDB>? selectedContacts;
+
+  CreateMomentDraft({
+    required this.type,
+    required this.visibleType,
+    this.imageList,
+    this.videoPath,
+    this.content = '',
+    this.draftCueUserMap,
+    this.selectedContacts,
+    this.videoImagePath,
+  });
+}
+
 class OXMomentCacheManager {
   static final OXMomentCacheManager sharedInstance = OXMomentCacheManager._internal();
 
@@ -49,4 +73,7 @@ class OXMomentCacheManager {
   Map<String,NotedUIModel?> notedUIModelCache = {};
 
   Map<String,PreviewData?> urlPreviewDataCache = {};
+
+  CreateMomentDraft? createMomentMediaDraft;
+  CreateMomentDraft? createMomentContentDraft;
 }
