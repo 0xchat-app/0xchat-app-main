@@ -133,6 +133,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   void _editProfile() async {
+    await OXLoading.show();
     if (mCurrentUserInfo == null) {
       CommonToast.instance
           .show(context, Localized.text('ox_common.network_connect_fail'));
@@ -161,6 +162,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       if (result) {
         mCurrentUserInfo!.dns = dns;
       } else {
+        await OXLoading.dismiss();
         return;
       }
 
@@ -169,6 +171,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         if (result) {
           mCurrentUserInfo!.lnurl = lnurl;
         } else {
+          await OXLoading.dismiss();
           return;
         }
       }
@@ -189,10 +192,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
       UserDB? tempUserDB;
       try {
-        await OXLoading.show();
         tempUserDB =
             await Account.sharedInstance.updateProfile(mCurrentUserInfo!);
-        await OXLoading.dismiss();
       } catch (e) {
         await OXLoading.dismiss();
       }
@@ -208,6 +209,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         CommonToast.instance.show(context, Localized.text('ox_usercenter.enter_username_tips'));
       }
     }
+    await OXLoading.dismiss();
   }
 
   Widget createBody() {
