@@ -90,6 +90,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         setState(() { });
       };
     }
+    // connect to other uer dm relays
+    Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
   }
 
   void prepareData() {
@@ -107,6 +109,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
   @override
   void dispose() {
     ChatDataCache.shared.removeObserver(widget.communityItem);
+    // close other uer dm relays
+    Contacts.sharedInstance.closeUserDMRelays(widget.communityItem.chatId);
     super.dispose();
   }
 
