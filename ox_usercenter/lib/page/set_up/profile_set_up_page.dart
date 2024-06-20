@@ -471,7 +471,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   Future<Map<String, dynamic>?> _registerNip05(String dns) async {
     String publicKey = mCurrentUserInfo?.pubKey ?? '';
-    String sig = signData([publicKey, dns, _relayNameList],
+    String sig = await signData([publicKey, dns, _relayNameList],Account.sharedInstance.currentPubkey,
         Account.sharedInstance.currentPrivkey);
     Map<String, dynamic> params = {};
     params['name'] = _userNameTextEditingController.text;
