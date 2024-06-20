@@ -108,7 +108,10 @@ class OXRelayManager {
   }
 
   Future<void> addRelaysSuccess(List<String> relays) async {
-    if(relays.isNotEmpty) relayMap.clear();
+    if(relays.isNotEmpty){
+      await Connect.sharedInstance.closeConnects(relayAddressList);
+      relayMap.clear();
+    }
     for (String relay in relays) {
       relay = relay.replaceFirst(RegExp(r'/+$'), '');
       RelayModel relayModel = RelayModel(
