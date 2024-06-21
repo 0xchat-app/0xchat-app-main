@@ -45,13 +45,13 @@ class WalletModel {
             id: '1456038895',
             appId: 'app.zeusln.zeus',
             title: 'Zeus LN',
-            scheme: 'zeusln:lightning://',
+            scheme: 'zeusln:',
             image: 'icon_lighting_wallet_zeus_ln.png'),
         WalletModel(
             id: '1544097028',
             appId: 'fr.acinq.phoenix.mainnet',
             title: 'Phoenix',
-            scheme: 'phoenix://',
+            scheme: 'phoenix:',
             image: 'icon_lighting_wallet_phoenix.png'),
         WalletModel(
             id: '1463604142',

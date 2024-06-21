@@ -22,6 +22,8 @@ class ZapsActionHandler {
 
   late bool isDefaultEcashWallet;
 
+  int get defaultZapAmount => OXUserInfoManager.sharedInstance.defaultZapAmount;
+
   ZapsActionHandler({
     required this.userDB,
     this.privateZap,
@@ -129,7 +131,7 @@ class ZapsActionHandler {
         eventId: eventId,
         description: description,
         privateZap: privateZap,
-        showLoading: true
+        showLoading: false
       );
     }
   }
@@ -200,7 +202,7 @@ class ZapsActionHandler {
   }) async {
     final isTapOnWallet = await _jumpToWalletSelectionPage(context,zapsInfo);
     if (isTapOnWallet) {
-      OXNavigator.pop(context);
+      if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
     }
   }
 
