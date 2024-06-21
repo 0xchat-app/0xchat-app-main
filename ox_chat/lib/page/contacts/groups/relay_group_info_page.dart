@@ -122,7 +122,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       ),
       child: Row(
         children: [
-
+          OXRelayGroupAvatar(
+            relayGroup: groupDBInfo,
+            size: 56.px,
+          ),
+          
         ],
       ),
     );
