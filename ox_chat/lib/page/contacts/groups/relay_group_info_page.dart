@@ -8,6 +8,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -84,6 +85,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           ),
           child: Column(
             children: [
+              _groupBaseInfoView(),
               _optionMemberWidget(),
               _groupBaseOptionView(),
               _muteWidget(),
@@ -106,6 +108,22 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           height: Adapt.px(20),
           useTheme: true,
         ),
+      ),
+    );
+  }
+
+  Widget _groupBaseInfoView() {
+    return Container(
+      width: double.infinity,
+      height: 80.px,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      child: Row(
+        children: [
+
+        ],
       ),
     );
   }
