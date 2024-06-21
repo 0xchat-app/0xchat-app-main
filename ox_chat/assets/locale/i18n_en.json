@@ -260,5 +260,19 @@
   "ecash_wait_my_signature_title": "${ownerName}'s Ecash, Waiting for your signature",
   "ecash_wait_other_signature_title": "${ownerName}'s Ecash, Waiting for multi-signature",
   "ecash_my_signature_complete_title": "${ownerName}'s Ecash, Your signature completed",
-  "ecash_exclusive_title": "${userNames}'s exclusive Ecash"
+  "ecash_exclusive_title": "${userNames}'s exclusive Ecash",
+  "str_group_create_hint": "Create Group",
+  "str_group_type_open": "Open Group",
+  "str_group_type_close": "Close Group",
+  "str_group_type_private": "Private Group",
+  "str_group_open_description": "Paste & redeem a Cashu token form Clipboard.",
+  "str_group_close_description": "Receive Ecash by Paying a Lightning invoice",
+  "str_group_private_description": "Receive Ecash by Paying a Lightning invoice",
+  "str_group_type": "Type",
+  "str_group_relay": "Relay",
+  "str_group_ID": "ID",
+  "str_group_remark": "Remark",
+  "str_group_my_alias_in": "My Alias in Group",
+  "str_group_clear_chat_history": "Clear Chat History",
+  "str_group_report": "Report"
 }

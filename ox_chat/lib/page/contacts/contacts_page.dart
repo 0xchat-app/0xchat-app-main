@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
@@ -8,6 +9,8 @@ import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/group_create_selector_dialog.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -122,7 +125,8 @@ class _ContractsPageState extends State<ContractsPage>
                 package: 'ox_chat',
               ),
               onPressed: () {
-                _gotoAddFriend();
+                // _gotoAddFriend();
+                _createGroupBottomDialog();
               },
             ),
           ),
@@ -391,6 +395,29 @@ class _ContractsPageState extends State<ContractsPage>
     // TODO: implement didSwitchUser
   }
 
+  void _createGroupBottomDialog() async {
+    var result = await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return const GroupCreateSelectorDialog();
+      },
+    );
+    if (result != null && result is GroupType) {
+      switch(result){
+        case GroupType.openGroup:
+
+          break;
+        case GroupType.closeGroup:
+
+          break;
+        case GroupType.privateGroup:
+
+          break;
+      }
+    }
+  }
+
 }
 
 class _Style {
@@ -407,4 +434,11 @@ enum ContactsItemType{
   contact,
   group,
   channel,
+}
+
+class GroupCreateModel{
+  String groupIcon;
+  String groupType;
+  String groupDesc;
+  GroupCreateModel({this.groupIcon = '', this.groupType = '', this.groupDesc = ''});
 }
