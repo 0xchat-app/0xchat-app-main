@@ -215,7 +215,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDB? groupDB = await Groups.sharedInstance.createGroup(name, members, '${Localized.text("ox_chat.create_group_system_message")}: $name');
+    GroupDB? groupDB = await Groups.sharedInstance.createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
     await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);
@@ -231,7 +231,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
           ),
         ),
       );
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
+      // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
     }else{
       CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
     }

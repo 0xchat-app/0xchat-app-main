@@ -124,7 +124,7 @@ class GroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     String? source,
   }) async {
-    return Groups.sharedInstance.getSendGroupMessageEvent(
+    return Groups.sharedInstance.getSendPrivateGroupMessageEvent(
       receiverId,
       messageType,
       contentString,
@@ -143,7 +143,7 @@ class GroupChatStrategy extends ChatStrategy {
     bool isLocal = false,
     Event? event,
   }) async {
-    return Groups.sharedInstance.sendGroupMessage(
+    return Groups.sharedInstance.sendPrivateGroupMessage(
       receiverId,
       replyMessage: replayId,
       messageType,

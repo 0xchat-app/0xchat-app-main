@@ -9,12 +9,13 @@ class MomentContentAnalyzeUtils {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
     'nostrExp': RegExp(r'nostr:(npub|nprofile)[0-9a-zA-Z]{8,}\b'),
+    'naddrExp': RegExp(r'nostr:(naddr)[0-9a-zA-Z]{8,}\b'),
     'noteExp': RegExp(r'nostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
     'imgExp': RegExp(r'https?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'https?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
-    'lineFeed': RegExp(r"\n"),
-    'showMore': RegExp(r"show more$"),
+    'lineFeedExp': RegExp(r"\n"),
+    'showMoreExp': RegExp(r"show more$"),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
@@ -37,6 +38,13 @@ class MomentContentAnalyzeUtils {
 
   List<String> get getQuoteUrlList {
     final RegExp noteExp = regexMap['noteExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getNddrlList {
+    final RegExp noteExp = regexMap['naddrExp'] as RegExp;
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
     return noteList;

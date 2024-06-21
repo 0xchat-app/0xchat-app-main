@@ -196,11 +196,11 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
         "publicKey": pubKey,
         'relays': [CommonConstant.oxChatRelay],
         "nip05Url": nip05Url,
-        'sig': signData([
+        'sig': await signData([
           pubKey,
           nip05Url,
           [CommonConstant.oxChatRelay]
-        ], Account.sharedInstance.currentPrivkey)
+        ],Account.sharedInstance.currentPubkey, Account.sharedInstance.currentPrivkey)
       };
 
       Map<String, dynamic>? dnsResult = OXModuleService.invoke(

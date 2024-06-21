@@ -34,7 +34,12 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getMomentUser();
     }
+
+    if(widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.value.noteDB.isReply){
+      _getMomentUser();
+    }
   }
+
 
   void _getMomentUser() async {
     NotedUIModel? model = widget.notedUIModel?.value;
@@ -45,9 +50,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-
     isShowReplyContactWidget = true;
-
 
     String? getReplyId = model.noteDB.getReplyId;
 
@@ -56,7 +59,9 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-    if (NotedUIModelCache.map[getReplyId] == null) {
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
+    if (notedUIModelCache[getReplyId] == null) {
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
       if (note == null) {
         if(mounted){
@@ -64,11 +69,11 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
         }
         return;
       }
-      NotedUIModelCache.map[getReplyId] = NotedUIModel(noteDB: note);
+      notedUIModelCache[getReplyId] = NotedUIModel(noteDB: note);
     }
 
-    noteAuthor = NotedUIModelCache.map[getReplyId]!.noteDB.author;
-    _getMomentUserInfo(NotedUIModelCache.map[getReplyId]!);
+    noteAuthor = notedUIModelCache[getReplyId]!.noteDB.author;
+    _getMomentUserInfo(notedUIModelCache[getReplyId]!);
     if (mounted) {
       setState(() {});
     }

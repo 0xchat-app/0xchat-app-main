@@ -40,6 +40,9 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
     if (widget.notedUIModel != oldWidget.notedUIModel) {
       _getNotedUIModel();
     }
+    if(hasReplyWidget && notedUIModel == null){
+      _getNotedUIModel();
+    }
   }
 
   void _getNotedUIModel() async {
@@ -59,8 +62,8 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
       setState(() {});
       return;
     }
-
-    if(NotedUIModelCache.map[replyId] == null){
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    if(notedUIModelCache[replyId] == null){
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
       if(note == null) {
         if(mounted){
@@ -68,10 +71,10 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
         }
         return;
       }
-      NotedUIModelCache.map[replyId] = NotedUIModel(noteDB: note);
+      notedUIModelCache[replyId] = NotedUIModel(noteDB: note);
     }
 
-    notedUIModel = ValueNotifier(NotedUIModelCache.map[replyId]!);
+    notedUIModel = ValueNotifier(notedUIModelCache[replyId]!);
     if(mounted){
       setState(() {});
     }

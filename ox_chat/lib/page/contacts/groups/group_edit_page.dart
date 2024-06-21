@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -281,9 +282,8 @@ class _GroupEditPageState extends State<GroupEditPage> {
     if (groupNameContent.isEmpty) {
       CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_name_not_empty_toast'));
     }
-
     OKEvent event = await Groups.sharedInstance
-        .updateGroupName(widget.groupId, '', groupNameContent);
+        .updatePrivateGroupName(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, widget.groupId, groupNameContent);
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
       return;

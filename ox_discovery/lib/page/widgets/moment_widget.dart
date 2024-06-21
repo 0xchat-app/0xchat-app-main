@@ -7,6 +7,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -74,6 +75,10 @@ class _MomentWidgetState extends State<MomentWidget> {
         oldWidget.notedUIModel.value.noteDB.noteId) {
       _dataInit();
     }
+
+    if(widget.notedUIModel.value.noteDB.isRepost && notedUIModel == null){
+      _dataInit();
+    }
   }
 
   Widget _momentItemWidget() {
@@ -81,7 +86,10 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(model),
+      onTap: () async {
+       await widget.clickMomentCallback?.call(model);
+        setState(() {});
+      },
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -100,11 +108,13 @@ class _MomentWidgetState extends State<MomentWidget> {
             _momentQuoteWidget(),
             MomentReplyAbbreviateWidget(
                 notedUIModel: model,
-                isShowReplyWidget: widget.isShowReplyWidget),
+                isShowReplyWidget: widget.isShowReplyWidget,
+            ),
             _momentInteractionDataWidget(),
             MomentOptionWidget(
                 notedUIModel: model,
-                isShowMomentOptionWidget: widget.isShowMomentOptionWidget),
+                isShowMomentOptionWidget: widget.isShowMomentOptionWidget,
+            ),
           ],
         ),
       ),
@@ -114,8 +124,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(model == null) return const SizedBox();
+
     List<String> quoteUrlList = model.value.getQuoteUrlList;
-    if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
+    List<String> getNddrlList = model.value.getNddrlList;
+
+    if (getNddrlList.isEmpty && quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
@@ -132,10 +145,15 @@ class _MomentWidgetState extends State<MomentWidget> {
           return isShowQuote
               ? MomentQuoteWidget(notedId: noteInfo?['channelId'])
               : const SizedBox();
+        } else if(getNddrlList.contains(content)){
+          return MomentArticleWidget(naddr: content);
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
-            clickBlankCallback: () => widget.clickMomentCallback?.call(model),
+            clickBlankCallback: () async{
+             await widget.clickMomentCallback?.call(model);
+              setState(() {});
+            },
             showMoreCallback: () async {
              await OXNavigator.pushPage(
                   context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
@@ -388,9 +406,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _dataInit() async {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     String? repostId = model.value.noteDB.repostId;
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
     if (model.value.noteDB.isRepost && repostId != null) {
-      if (NotedUIModelCache.map[repostId] != null) {
-        notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
+      if (notedUIModelCache[repostId] != null) {
+        notedUIModel = ValueNotifier(notedUIModelCache[repostId]!);
         _getMomentUserInfo(notedUIModel!.value);
         setState(() {});
       } else {
@@ -419,8 +439,9 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
     if (note == null) {
-      NotedUIModelCache.map[repostId] = null;
+      notedUIModelCache[repostId] = null;
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       if(mounted){
@@ -430,7 +451,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       return;
     }
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
-    NotedUIModelCache.map[repostId] = NotedUIModel(noteDB: note);
+    notedUIModelCache[repostId] = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUserInfo(newNotedUIModel.value);
   }

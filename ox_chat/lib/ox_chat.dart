@@ -17,6 +17,7 @@ import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -66,6 +67,7 @@ class OXChat extends OXFlutterModule {
     'sendTextMsg': _sendTextMsg,
     'sendTemplateMessage': _sendTemplateMessage,
     'openWebviewForEncryptedFile': openWebviewForEncryptedFile,
+    'getTryDecodeNostrScheme': getTryDecodeNostrScheme
   };
 
   @override
@@ -289,5 +291,10 @@ class OXChat extends OXFlutterModule {
     OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
       msg: text,
     ));
+  }
+
+  Future<String?> getTryDecodeNostrScheme(String content)async {
+    String? result = await ChatNostrSchemeHandle.tryDecodeNostrScheme(content);
+    return result;
   }
 }
