@@ -126,7 +126,26 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             relayGroup: groupDBInfo,
             size: 56.px,
           ),
-          
+          SizedBox(width: 10.px),
+          Expanded(child: Column(
+            children: [
+              MyText(groupDBInfo?.name??'', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
+              SizedBox(height: 2.px),
+              MyText(groupDBInfo?.relayPubkey??'', 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
+            ],
+          ),),
+          SizedBox(width: 10.px),
+          CommonImage(
+            iconName: 'qrcode_icon.png',
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+            useTheme: true,
+          ),
+          CommonImage(
+            iconName: 'icon_arrow_more.png',
+            width: Adapt.px(24),
+            height: Adapt.px(24),
+          )
         ],
       ),
     );
