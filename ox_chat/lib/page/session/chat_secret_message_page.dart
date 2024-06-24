@@ -84,6 +84,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     OXChatBinding.sharedInstance.removeObserver(this);
     ChatDataCache.shared.removeObserver(widget.communityItem);
     disProtectScreen();
+    chatGeneralHandler.dispose();
     super.dispose();
   }
 

@@ -113,6 +113,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   void dispose() {
     ChatDataCache.shared.removeObserver(widget.communityItem);
+    chatGeneralHandler.dispose();
     super.dispose();
   }
 

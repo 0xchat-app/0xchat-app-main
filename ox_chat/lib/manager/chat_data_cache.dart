@@ -186,6 +186,20 @@ class ChatDataCache with OXChatObserver {
     addSystemMessage('$userName joined Secret Chat', sessionModel);
   }
 
+  @override
+  void didMessageActionsCallBack(MessageDB message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'didMessageActionsCallBack',
+      message: 'begin',
+    );
+
+    final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+    if (key != null) {
+      await notifyChatObserverValueChanged(key);
+    }
+  }
+
   Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
 
     // author

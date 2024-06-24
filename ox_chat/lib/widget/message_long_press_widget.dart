@@ -86,11 +86,11 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         AssetImageData('icon_quote.png', package: 'ox_chat'),
         MessageLongPressEventType.quote,
       ),
-      // ItemModel(
-      //   Localized.text('ox_chat_ui.input_more_zaps'),
-      //   AssetImageData('icon_zaps.png', package: 'ox_chat'),
-      //   MessageLongPressEventType.zaps,
-      // ),
+      ItemModel(
+        Localized.text('ox_chat_ui.input_more_zaps'),
+        AssetImageData('icon_zaps.png', package: 'ox_chat'),
+        MessageLongPressEventType.zaps,
+      ),
       if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
         ItemModel(
           Localized.text('ox_chat.message_menu_delete'),
@@ -114,31 +114,31 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         constraints: BoxConstraints(
           maxWidth: maxWidth,
           maxHeight: 277.px,
-          // minHeight: 131.px,
+          minHeight: 131.px,
         ),
         color: ThemeColor.color180,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ReactionInputWidget(
-              //   expandedOnChange: (isExpended) => setState(() {
-              //     onlyShowEmoji = isExpended;
-              //   }),
-              //   reactionOnTap: (emojiEntry) {
-              //     widget.handler.reactionPressHandler(
-              //       widget.pageContext,
-              //       widget.message,
-              //       emojiEntry.emoji,
-              //     );
-              //     widget.controller.hideMenu();
-              //   },
-              // ),
+              ReactionInputWidget(
+                expandedOnChange: (isExpended) => setState(() {
+                  onlyShowEmoji = isExpended;
+                }),
+                reactionOnTap: (emojiEntry) {
+                  widget.handler.reactionPressHandler(
+                    widget.pageContext,
+                    widget.message,
+                    emojiEntry.emoji,
+                  );
+                  widget.controller.hideMenu();
+                },
+              ),
               if (!onlyShowEmoji)
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // buildSeparator(),
+                    buildSeparator(),
                     buildMenuItemGrid(),
                   ],
                 ),

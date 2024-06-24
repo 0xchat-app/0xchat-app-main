@@ -111,6 +111,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     ChatDataCache.shared.removeObserver(widget.communityItem);
     // close other uer dm relays
     Contacts.sharedInstance.closeUserDMRelays(widget.communityItem.chatId);
+    chatGeneralHandler.dispose();
     super.dispose();
   }
 

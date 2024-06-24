@@ -1,5 +1,4 @@
 
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -104,9 +103,9 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
         ),
         alignment: Alignment.center,
         child: CommonImage(
-          iconName: 'icon_more_operation.png',
-          size: 20.px,
-          package: 'ox_discovery',
+          iconName: 'icon_more.png',
+          size: 18.px,
+          package: 'ox_chat',
         ),
       ),
     );

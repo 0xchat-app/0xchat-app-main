@@ -84,8 +84,11 @@ class Message extends StatefulWidget {
   final BubbleRtlAlignment? bubbleRtlAlignment;
 
   /// Build a custom message inside predefined bubble.
-  final Widget Function(types.CustomMessage, {required int messageWidth})?
-  customMessageBuilder;
+  final Widget Function({
+    required types.CustomMessage message,
+    required int messageWidth,
+    required Widget reactionWidget,
+  })? customMessageBuilder;
 
   /// Build a custom status widgets.
   final Widget Function(types.Message message, {required BuildContext context})?
@@ -403,10 +406,6 @@ class _MessageState extends State<Message> {
       );
     }
 
-    if (!useBubbleBg) {
-      bubble = _reactionWrapper(bubble);
-    }
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -463,7 +462,11 @@ class _MessageState extends State<Message> {
         break ;
       case types.MessageType.custom:
         final customMessage = widget.message as types.CustomMessage;
-        messageContentWidget = widget.customMessageBuilder?.call(customMessage, messageWidth: widget.messageWidth)
+        messageContentWidget = widget.customMessageBuilder?.call(
+          message: customMessage,
+          messageWidth: widget.messageWidth,
+          reactionWidget: _reactionViewBuilder(),
+        )
             ?? const SizedBox();
         break ;
       case types.MessageType.file:
@@ -527,11 +530,9 @@ class _MessageState extends State<Message> {
     ],
   );
 
-  Widget _reactionViewBuilder() {
-    return widget.reactionViewBuilder?.call(
-      widget.message,
-      messageWidth: widget.messageWidth,
-    ) ?? const SizedBox();
-  }
+  Widget _reactionViewBuilder() => widget.reactionViewBuilder?.call(
+    widget.message,
+    messageWidth: widget.messageWidth,
+  ) ?? const SizedBox();
 }
 

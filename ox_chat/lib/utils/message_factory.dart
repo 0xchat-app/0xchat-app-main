@@ -634,7 +634,7 @@ class CustomMessageFactory implements MessageFactory {
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
-      viewWithoutBubble: false,
+      viewWithoutBubble: true,
     );
   }
 
@@ -672,7 +672,7 @@ class CustomMessageFactory implements MessageFactory {
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,
-      viewWithoutBubble: false,
+      viewWithoutBubble: true,
     );
   }
 }

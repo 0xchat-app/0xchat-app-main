@@ -96,6 +96,8 @@ class ChatGeneralHandler {
 
   ValueChanged<types.Message>? messageDeleteHandler;
 
+  Set<String> reactionsListenMsgId = {};
+
   static types.User _defaultAuthor() {
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
@@ -134,6 +136,10 @@ class ChatGeneralHandler {
 
     this.mentionHandler = mentionHandler;
   }
+
+  void dispose() {
+    removeMessageReactionsListener();
+  }
 }
 
 extension ChatMessageHandlerEx on ChatGeneralHandler {
@@ -161,7 +167,11 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
       end = index + 1 + increasedCount;
     }
     hasMoreMessage = end < allMsg.length;
-    refreshMessageUI?.call(allMsg.sublist(0, min(allMsg.length, end)));
+
+    final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
+    refreshMessageUI?.call(newMessageList);
+
+    updateMessageReactionsListener(newMessageList);
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
@@ -659,6 +669,26 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
     final chatId = session.chatId;
     if (chatId.isEmpty) return ;
     ChatDraftManager.shared.updateTempDraft(chatId, text);
+  }
+}
+
+extension ChatReactionsHandlerEx on ChatGeneralHandler {
+
+  void updateMessageReactionsListener(List<types.Message> newMessageList) {
+    final actionSubscriptionId = newMessageList
+        .map((e) => e.remoteId)
+        .where((id) => id != null && id.isNotEmpty)
+        .toList()
+        .cast<String>();
+
+    reactionsListenMsgId.addAll(actionSubscriptionId);
+
+    Messages.sharedInstance.loadMessagesReactions(reactionsListenMsgId.toList());
+  }
+
+  void removeMessageReactionsListener() {
+    reactionsListenMsgId.clear();
+    Messages.sharedInstance.closeMessagesActionsRequests();
   }
 }
 

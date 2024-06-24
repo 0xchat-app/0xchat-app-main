@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
 
 import '../../util.dart';
@@ -92,6 +93,17 @@ class _ImageMessageState extends State<ImageMessage> {
 
   @override
   Widget build(BuildContext context) {
+    var body = buildImageContent();
+    if (!widget.message.viewWithoutBubble) {
+      body = Padding(
+        padding: EdgeInsets.all(10.px),
+        child: body,
+      );
+    }
+    return body;
+  }
+  
+  Widget buildImageContent() {
     final user = InheritedUser.of(context).user;
 
     if (_size.isEmpty || _size.aspectRatio == 0) {
@@ -140,11 +152,11 @@ class _ImageMessageState extends State<ImageMessage> {
                       widget.message.name,
                       style: user.id == widget.message.author.id
                           ? InheritedChatTheme.of(context)
-                              .theme
-                              .sentMessageBodyTextStyle
+                          .theme
+                          .sentMessageBodyTextStyle
                           : InheritedChatTheme.of(context)
-                              .theme
-                              .receivedMessageBodyTextStyle,
+                          .theme
+                          .receivedMessageBodyTextStyle,
                       textWidthBasis: TextWidthBasis.longestLine,
                     ),
                     Container(
@@ -155,11 +167,11 @@ class _ImageMessageState extends State<ImageMessage> {
                         formatBytes(widget.message.size.truncate()),
                         style: user.id == widget.message.author.id
                             ? InheritedChatTheme.of(context)
-                                .theme
-                                .sentMessageCaptionTextStyle
+                            .theme
+                            .sentMessageCaptionTextStyle
                             : InheritedChatTheme.of(context)
-                                .theme
-                                .receivedMessageCaptionTextStyle,
+                            .theme
+                            .receivedMessageCaptionTextStyle,
                       ),
                     ),
                   ],

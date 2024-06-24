@@ -122,6 +122,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
   @override
   void dispose() {
     ChatDataCache.shared.removeObserver(widget.communityItem);
+    chatGeneralHandler.dispose();
     super.dispose();
   }
 

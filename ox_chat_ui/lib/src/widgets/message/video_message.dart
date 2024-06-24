@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_common/utils/adapt.dart';
 
 import '../../conditional/conditional.dart';
 import '../../util.dart';
@@ -64,6 +65,17 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
+    var body = buildVideoContent();
+    if (!widget.message.viewWithoutBubble) {
+      body = Padding(
+        padding: EdgeInsets.all(10.px),
+        child: body,
+      );
+    }
+    return body;
+  }
+
+  Widget buildVideoContent() {
     final user = InheritedUser.of(context).user;
 
     if (_size.aspectRatio == 0) {

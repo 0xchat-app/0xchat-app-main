@@ -113,6 +113,8 @@ abstract class AudioMessage extends Message {
         waveForm: partialAudio.waveForm,
         fileEncryptionType: fileEncryptionType,
         expiration: expiration,
+        reactions: reactions ?? [],
+        zapsInfoList: zapsInfoList ?? [],
       );
 
   /// The length of the audio.
@@ -276,6 +278,8 @@ class _AudioMessage extends AudioMessage {
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
         decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

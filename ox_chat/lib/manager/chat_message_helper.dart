@@ -310,9 +310,6 @@ extension MessageDBToUIEx on MessageDB {
   Future<List<types.Reaction>> getReactionInfo() async {
     final reactionIds = [...(this.reactionEventIds ?? [])];
     final reactions = <types.Reaction>[];
-    // final reactions = [
-    //   types.Reaction(content: '😅', authors: [sender, receiver]),
-    // ];
 
     // key: content, value: Reaction model
     final reactionModelMap = <String, types.Reaction>{};

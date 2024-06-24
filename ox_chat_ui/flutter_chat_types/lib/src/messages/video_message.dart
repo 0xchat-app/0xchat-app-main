@@ -254,6 +254,8 @@ class _VideoMessage extends VideoMessage {
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
         decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 
