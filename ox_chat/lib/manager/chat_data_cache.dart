@@ -188,15 +188,16 @@ class ChatDataCache with OXChatObserver {
 
   @override
   void didMessageActionsCallBack(MessageDB message) async {
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: 'didMessageActionsCallBack',
-      message: 'begin',
-    );
-
     final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
-    if (key != null) {
-      await notifyChatObserverValueChanged(key);
+    final uiMessage = await message.toChatUIMessage();
+    if (key != null && uiMessage != null) {
+      await updateMessage(chatKey: key, message: uiMessage);
+    } else {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didMessageActionsCallBack',
+        message: 'key: $key, uiMessage: $uiMessage',
+      );
     }
   }
 
@@ -330,7 +331,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
       chatKey ??= _getChatTypeKey(session);
     }
     if (chatKey == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getMessage', message: 'ChatTypeKey is null');
       return null;
     }
     return await _getChatMessages(chatKey, messageId);
