@@ -440,6 +440,12 @@ class OXChatBinding {
     }
   }
 
+  void messageActionsCallBack(MessageDB messageDB) async {
+    for (OXChatObserver observer in _observers) {
+      observer.didMessageActionsCallBack(messageDB);
+    }
+  }
+
   void updateMessageDB(MessageDB messageDB) async {
     if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
       messageDB.read = true;

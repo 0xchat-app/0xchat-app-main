@@ -242,6 +242,10 @@ class OXUserInfoManager {
     Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
+
+    Messages.sharedInstance.actionsCallBack = (MessageDB message) {
+      OXChatBinding.sharedInstance.messageActionsCallBack(message);
+    };
   }
 
   void updateUserInfo(UserDB userDB) {}
