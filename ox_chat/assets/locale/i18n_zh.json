@@ -274,5 +274,14 @@
   "str_group_remark": "群备注",
   "str_group_my_alias_in": "我在本群的昵称",
   "str_group_clear_chat_history": "清空聊天记录",
-  "str_group_report": "投诉"
+  "str_group_report": "投诉",
+  "str_group_photo": "群头像",
+  "str_group_visit_verify_hint": "该群组已启用加群验证。需要当前群管理员的邀请才能加入。",
+  "str_group_join_requests": "加入请求",
+  "str_group_request_join_hint": "${userName} 请求加入\n${groupName}",
+  "str_group_reject": "拒绝",
+  "str_group_approve": "批准",
+  "str_group_rejected": "已拒绝",
+  "str_group_approved": "已批准",
+  "str_group_join_request_msg_delete_tips": "一旦删除，消息无法恢复。确定要继续吗？"
 }

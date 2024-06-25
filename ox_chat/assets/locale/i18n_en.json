@@ -274,5 +274,14 @@
   "str_group_remark": "Remark",
   "str_group_my_alias_in": "My Alias in Group",
   "str_group_clear_chat_history": "Clear Chat History",
-  "str_group_report": "Report"
+  "str_group_report": "Report",
+  "str_group_photo": "Group Photo",
+  "str_group_visit_verify_hint": "This Group has enabled group-join verification. An invitation by a current group admin is required to join.",
+  "str_group_join_requests": "Join Requests",
+  "str_group_request_join_hint": "${userName} request join\n${groupName}",
+  "str_group_reject": "Reject",
+  "str_group_approve": "Approve",
+  "str_group_rejected": "Rejected",
+  "str_group_approved": "Approved",
+  "str_group_join_request_msg_delete_tips": "Once deleted, the messages cannot be recovered. Are you sure you want to proceed?"
 }
