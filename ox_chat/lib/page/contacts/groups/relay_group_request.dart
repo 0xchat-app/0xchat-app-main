@@ -57,6 +57,11 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   void _initData() async {
     List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(widget.groupId);
     if (requestJoinList.isNotEmpty) {
+      requestJoinList.sort((request1, request2) {
+        var joinRequest2Time = request2.createdAt;
+        var joinRequest1Time = request1.createdAt;
+        return joinRequest2Time.compareTo(joinRequest1Time);
+      });
       await Future.forEach(requestJoinList, (joinRequestDB) async {
         _requestMap[joinRequestDB.requestId] = await JoinRequestInfo.toUserRequestInfo(joinRequestDB);
       });
