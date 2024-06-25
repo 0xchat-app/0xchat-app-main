@@ -1,14 +1,15 @@
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -23,9 +24,6 @@ import 'group_edit_page.dart';
 import 'group_join_requests.dart';
 import 'group_notice_page.dart';
 import 'group_setting_qrcode_page.dart';
-
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 
 class RelayGroupInfoPage extends StatefulWidget {
   final String groupId;
@@ -113,41 +111,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _groupBaseInfoView() {
-    return Container(
-      width: double.infinity,
-      height: 80.px,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color180,
-      ),
-      child: Row(
-        children: [
-          OXRelayGroupAvatar(
-            relayGroup: groupDBInfo,
-            size: 56.px,
-          ),
-          SizedBox(width: 10.px),
-          Expanded(child: Column(
-            children: [
-              MyText(groupDBInfo?.name??'', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-              SizedBox(height: 2.px),
-              MyText(groupDBInfo?.relayPubkey??'', 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
-            ],
-          ),),
-          SizedBox(width: 10.px),
-          CommonImage(
-            iconName: 'qrcode_icon.png',
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-            useTheme: true,
-          ),
-          CommonImage(
-            iconName: 'icon_arrow_more.png',
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-          )
-        ],
-      ),
+    return RelayGroupBaseInfoView(
+      relayGroup: groupDBInfo,
     );
   }
 
@@ -267,7 +232,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _removeMemberBtnWidget() {
-    if (!_isGroupManager) return Container();
+    if (!_isGroupManager) return SizedBox();
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.remove),
       child: Container(
@@ -293,38 +258,38 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       ),
       child: Column(
         children: [
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.group_name'),
             subTitle: groupDBInfo?.name ?? '--',
             onTap: _updateGroupNameFn,
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.str_group_type'),
             subTitle: groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup.text: GroupType.openGroup.text) : '--',
             subTitleIcon : groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup.typeIcon: GroupType.openGroup.typeIcon) : null,
             onTap: _updateGroupTypeFn,
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.str_group_relay'),
             subTitle: groupDBInfo?.relay ?? '--',
             onTap: null,
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.str_group_ID'),
             subTitle: groupDBInfo?.groupId ?? '--',
             onTap: null,
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.group_member'),
             subTitle: groupMember.length.toString(),
             onTap: () => _groupMemberOptionFn(GroupListAction.view),
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.group_qr_code'),
             actionWidget: CommonImage(
               iconName: 'qrcode_icon.png',
@@ -334,13 +299,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             ),
             onTap: _groupQrCodeFn,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.group_notice'),
             titleDes: _getGroupNotice,
             onTap: _updateGroupNoticeFn,
             isShowMoreIcon: _isGroupMember,
           ),
-          _topItemBuild(
+          GroupItemBuild(
             title: Localized.text('ox_chat.join_request'),
             onTap: _jumpJoinRequestFn,
             isShowMoreIcon: _isGroupManager,
@@ -369,7 +334,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color180,
       ),
-      child: _topItemBuild(
+      child: GroupItemBuild(
         title: Localized.text('ox_chat.mute_item'),
         isShowDivider: false,
         actionWidget: _muteSwitchWidget(),
@@ -408,106 +373,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             inactiveTrackColor: ThemeColor.color160,
             onChanged: (value) => _changeMuteFn(value),
             materialTapTargetSize: MaterialTapTargetSize.padded,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _topItemBuild({
-    String? title,
-    String? titleDes,
-    String? subTitle,
-    String? subTitleIcon,
-    bool isShowMoreIcon = true,
-    bool isShowDivider = true,
-    Widget? actionWidget,
-    GestureTapCallback? onTap,
-  }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap != null ? onTap : () {},
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: Adapt.px(16),
-            ),
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              vertical: Adapt.px(12),
-            ),
-            // height: Adapt.px(52),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  // margin: EdgeInsets.only(left: Adapt.px(12)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title ?? '',
-                        style: TextStyle(
-                          color: ThemeColor.color0,
-                          fontSize: Adapt.px(16),
-                        ),
-                      ),
-                      titleDes != null
-                          ? Container(
-                              width: Adapt.px(280),
-                              margin: EdgeInsets.only(
-                                top: Adapt.px(4),
-                              ),
-                              child: Text(
-                                titleDes,
-                                style: TextStyle(
-                                  fontSize: Adapt.px(14),
-                                  fontWeight: FontWeight.w400,
-                                  color: ThemeColor.color100,
-                                ),
-                              ),
-                            )
-                          : SizedBox(),
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      actionWidget != null ? actionWidget : SizedBox(),
-                      subTitle != null
-                          ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if(subTitleIcon != null) CommonImage(iconName: subTitleIcon, size: 24.px, package: OXChatInterface.moduleName),
-                          MyText(subTitle, 14.sp,ThemeColor.color100,fontWeight: FontWeight.w400)
-                        ],
-                      )
-                          : SizedBox(),
-                      isShowMoreIcon
-                          ? CommonImage(
-                              iconName: 'icon_arrow_more.png',
-                              width: Adapt.px(24),
-                              height: Adapt.px(24),
-                            )
-                          : SizedBox(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Visibility(
-            visible: isShowDivider,
-            child: Divider(
-              height: Adapt.px(0.5),
-              color: ThemeColor.color160,
-            ),
           ),
         ],
       ),
@@ -720,7 +585,26 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _groupMemberOptionFn(GroupListAction action) async {
     if (!_isGroupMember) return;
-    if (GroupListAction.add == action && !_isGroupManager) return _shareGroupFn();
+    if (GroupListAction.add == action && !_isGroupManager) {
+      if (groupDBInfo?.private ?? false) {
+        OXCommonHintDialog.show(
+          context,
+          content: 'str_group_visit_verify_hint'.localized(),
+          actionList: [
+            OXCommonHintAction.sure(
+              text: Localized.text('ox_common.complete'),
+              onTap: () async {
+                OXNavigator.pop(context);
+                _shareGroupFn();
+              },
+            ),
+          ],
+          isRowAction: true,
+        );
+      } else {
+        return _shareGroupFn();
+      }
+    }
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
