@@ -180,6 +180,9 @@ abstract class VideoMessage extends Message {
 
 /// A utility class to enable better copyWith.
 class _VideoMessage extends VideoMessage {
+
+  bool get viewWithoutBubble => !hasReactions;
+
   const _VideoMessage({
     required super.author,
     required super.createdAt,
