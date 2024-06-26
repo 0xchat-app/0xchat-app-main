@@ -326,7 +326,7 @@ extension MessageDBToUIEx on MessageDB {
       final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
           content, () => Set());
 
-      if (reactionAuthorSet.add(content)) {
+      if (reactionAuthorSet.add(note.author)) {
         reaction.authors.add(note.author);
         if (!reactions.contains(reaction)) {
           reactions.add(reaction);
@@ -339,10 +339,11 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<List<types.ZapsInfo>> getZapsInfo() async {
     final zapEventIds = [...(this.zapEventIds ?? [])];
-    final zaps = <types.ZapsInfo>[];
+    if (zapEventIds.isEmpty) return [];
 
+    final zaps = <types.ZapsInfo>[];
     for (final zapId in zapEventIds) {
-      final zapReceipt = await Zaps.getZapReceipt('', invoice: zapId);
+      final zapReceipt = await Zaps.getZapReceiptFromLocal(zapId);
       if (zapReceipt.isEmpty) continue ;
 
       final zapDB = zapReceipt.first;

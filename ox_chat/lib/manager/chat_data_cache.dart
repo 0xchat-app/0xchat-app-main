@@ -188,6 +188,11 @@ class ChatDataCache with OXChatObserver {
 
   @override
   void didMessageActionsCallBack(MessageDB message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'didMessageActionsCallBack',
+      message: 'begin',
+    );
     final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
     final uiMessage = await message.toChatUIMessage();
     if (key != null && uiMessage != null) {
@@ -202,7 +207,6 @@ class ChatDataCache with OXChatObserver {
   }
 
   Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
-
     // author
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB == null) {

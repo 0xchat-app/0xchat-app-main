@@ -453,20 +453,20 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(message.author.id);
-    if(user == null) return;
-    if (user.lnAddress.isEmpty) {
-      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
-      return;
+    final user = await Account.sharedInstance.getUserInfo(message.author.id);
+    final eventId = message.remoteId;
+    if (user == null || eventId == null || eventId.isEmpty) {
+      CommonToast.instance.show(
+        context,
+        'Failed: Critical information is missing, user is null: ${user == null}, eventId: $eventId',
+      );
+      return ;
     }
-    // await OXNavigator.presentPage(
-    //   context,
-    //       (context) => MomentZapPage(
-    //     userDB: user,
-    //     eventId: message.remoteId,
-    //     isDefaultEcashWallet: true,
-    //   ),
-    // );
+    ZapsActionHandler handler = await ZapsActionHandler.create(
+      userDB: user,
+      isAssistedProcess: true,
+    );
+    await handler.handleZap(context: context, eventId: eventId);
   }
 
   /// Handles the press event for the "Reaction emoji" in a menu item.

@@ -163,6 +163,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
 
   Widget buildMenuItem(ItemModel item) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () {
         widget.handler.menuItemPressHandler(widget.pageContext, widget.message, item.type);
         widget.controller.hideMenu();

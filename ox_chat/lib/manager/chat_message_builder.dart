@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -53,22 +55,63 @@ class ChatMessageBuilder {
 
   static Widget buildReactionsView(types.Message message,
       {required int messageWidth}) {
-    final reactions = message.reactions;
+    if (!message.hasReactions) return SizedBox();
 
-    if (reactions.isEmpty) return SizedBox();
+    final reactions = message.reactions;
+    final zapsInfoList = message.zapsInfoList;
+    final runSpacing = 8.px;
     return Padding(
-      padding: EdgeInsets.only(left: 10.px, right: 10.px, bottom: 10.px),
-      child: Wrap(
-        spacing: 8.px,
-        runSpacing: 8.px,
-        children: reactions.map((reaction) => _buildReactionItem(reaction)).toList(),
+      padding: EdgeInsets.only(left: 10.px, right: 10.px, bottom: 10.px - runSpacing),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (reactions.isNotEmpty)
+            Wrap(
+              spacing: 8.px,
+              runSpacing: runSpacing,
+              children: reactions.map((reaction) => _buildReactionItem(reaction)).toList(),
+            ).setPaddingOnly(bottom: runSpacing),
+          if (zapsInfoList.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: zapsInfoList.map(
+                (e) => _buildZapsItem(e).setPaddingOnly(bottom: runSpacing),
+              ).toList(),
+            ),
+        ],
       ),
     );
   }
 
   static Widget _buildReactionItem(types.Reaction reaction) {
-    final notifiers = reaction.authors.map((pubkey) =>
-        Account.sharedInstance.getUserNotifier(pubkey)).toList();
+    const maxAuthorCount = 3;
+    var reactionNames = <String>[];
+    var reactionNamesLength = 0;
+    var reactionNamesSuffix = '';
+    bool isOverCount = false;
+    for (final pubkey in reaction.authors) {
+      final user = Account.sharedInstance.getUserInfo(pubkey);
+      if (user is UserDB) {
+        var name = user.getUserShowName();
+        if (name.length > 13) {
+          name = name.substring(0, 10) + '...';
+        }
+        reactionNames.add(name);
+        reactionNamesLength += name.length;
+      }
+
+      if (reactionNames.length >= maxAuthorCount || reactionNamesLength > 20) {
+        isOverCount = true;
+        break;
+      }
+    }
+
+    final authorsCount = reaction.authors.length;
+    if (isOverCount) {
+      reactionNamesSuffix = ', ...... $authorsCount People';
+    }
+
     return Container(
       height: 18.px,
       padding: EdgeInsets.symmetric(horizontal: 6.px),
@@ -87,18 +130,43 @@ class ChatMessageBuilder {
             ),
           ),
           SizedBox(width: 4.px,),
-          ...notifiers.map((notifier) => ValueListenableBuilder(
-            valueListenable: notifier,
-            builder: (_, value, __) {
-              return Text(
-                value.getUserShowName(),
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: ThemeColor.white
-                ),
-              );
-            },
-          )).toList(),
+          Text(
+            reactionNames.join(', ') + reactionNamesSuffix,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: ThemeColor.white
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildZapsItem(types.ZapsInfo zapsInfo) {
+    final text = '${zapsInfo.author.getUserShowName()} zaps ${zapsInfo.amount} ${zapsInfo.unit}';
+    return Container(
+      height: 18.px,
+      padding: EdgeInsets.symmetric(horizontal: 6.px),
+      decoration: BoxDecoration(
+        color: ThemeColor.darkColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(9.px),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CommonImage(
+            iconName: 'icon_message_reactions_zaps.png',
+            size: 14.px,
+            package: 'ox_chat',
+          ),
+          SizedBox(width: 4.px,),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: ThemeColor.white,
+            ),
+          ),
         ],
       ),
     );
@@ -124,7 +192,7 @@ class ChatMessageBuilder {
       case CustomMessageType.ecash:
         return _buildEcashMessage(message, reactionWidget, isMe);
       case CustomMessageType.ecashV2:
-        return _buildEcashV2Message(message, reactionWidget, isMe);
+        return _buildEcashV2Message(message, reactionWidget);
       default:
         return SizedBox();
     }
@@ -150,7 +218,7 @@ class ChatMessageBuilder {
         horizontal: 10.px,
       ),
       margin: EdgeInsets.only(
-        bottom: message.reactions.isEmpty ? 0 : 10.px,
+        bottom: message.hasReactions ? 10.px : 0,
       ),
       child: Column(
         children: [
@@ -456,7 +524,7 @@ class ChatMessageBuilder {
                 horizontal: 10.px,
               ),
               margin: EdgeInsets.only(
-                bottom: message.reactions.isEmpty ? 0 : 10.px,
+                bottom: message.hasReactions ? 10.px : 0,
               ),
               child: Column(
                 children: [
@@ -522,7 +590,34 @@ class ChatMessageBuilder {
     );
   }
 
-  static Widget _buildEcashV2Message(types.CustomMessage message, Widget reactionWidget, bool isMe) {
+  static Widget _buildEcashV2Message(types.CustomMessage message, Widget reactionWidget) {
+    final isOpened = EcashV2MessageEx(message).isOpened;
+    final opacity = isOpened ? 0.5 : 1.0;
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            ThemeColor.gradientMainEnd.withOpacity(opacity),
+            ThemeColor.gradientMainStart.withOpacity(opacity),
+          ],
+        ),
+      ),
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildEcashV2MessageContent(message, opacity),
+            reactionWidget,
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildEcashV2MessageContent(types.CustomMessage message, double opacity) {
     final description = EcashV2MessageEx(message).description;
     final isOpened = EcashV2MessageEx(message).isOpened;
     final receivers = EcashV2MessageEx(message).receiverPubkeys
@@ -543,95 +638,80 @@ class ChatMessageBuilder {
         r'${userNames}': userNames,
       });
     }
-
     return Opacity(
-      opacity: isOpened ? 0.5 : 1,
+      opacity: opacity,
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              ThemeColor.gradientMainEnd,
-              ThemeColor.gradientMainStart,
-            ],
-          ),
+        height: 86.px,
+        // width: 240.px,
+        constraints: BoxConstraints(minWidth: 240.px),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.px,
+        ),
+        margin: EdgeInsets.only(
+          bottom: message.hasReactions ? 10.px : 0,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: Adapt.px(240),
-              height: Adapt.px(86),
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.px,
-              ),
-              margin: EdgeInsets.only(
-                bottom: message.reactions.isEmpty ? 0 : 10.px,
-              ),
-              child: Column(
+            Expanded(
+              child: Row(
                 children: [
-                  Expanded(child: Row(
+                  CommonImage(
+                    iconName: 'icon_cashu_logo.png',
+                    package: 'ox_chat',
+                    size: Adapt.px(32),
+                  ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
+                  Expanded(child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CommonImage(
-                        iconName: 'icon_cashu_logo.png',
-                        package: 'ox_chat',
-                        size: Adapt.px(32),
-                      ).setPadding(EdgeInsets.only(right: Adapt.px(10))),
-                      Expanded(child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            description,
+                      Text(
+                        description,
+                        style: TextStyle(
+                          color: ThemeColor.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
+                      ),
+                      Visibility(
+                        visible: subTitle.isNotEmpty,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            subTitle,
+                            maxLines: 2,
                             style: TextStyle(
                               color: ThemeColor.white,
                               fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
                               height: 1.4,
                             ),
                           ),
-                          Visibility(
-                            visible: subTitle.isNotEmpty,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                subTitle,
-                                maxLines: 2,
-                                style: TextStyle(
-                                  color: ThemeColor.white,
-                                  fontSize: 12.sp,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ))
+                        ),
+                      ),
                     ],
-                  )),
-                  Container(
-                    color: ThemeColor.white.withOpacity(0.5),
-                    height: 0.5,
-                  ),
-                  Container(
-                    height: Adapt.px(25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('ecash_token_name'.localized(),
-                          style: TextStyle(color: ThemeColor.white, fontSize: 12),),
-                        CommonImage(iconName: 'icon_zaps_0xchat.png',
-                          package: 'ox_chat',
-                          size: Adapt.px(16),)
-                      ],
-                    ),
-                  ),
+                  ))
                 ],
               ),
             ),
-            reactionWidget,
+            Container(
+              color: ThemeColor.white.withOpacity(0.5),
+              height: 0.5,
+            ),
+            Container(
+              height: Adapt.px(25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('ecash_token_name'.localized(),
+                    style: TextStyle(color: ThemeColor.white, fontSize: 12),),
+                  CommonImage(iconName: 'icon_zaps_0xchat.png',
+                    package: 'ox_chat',
+                    size: Adapt.px(16),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),
