@@ -194,6 +194,7 @@ class InputState extends State<Input>{
 
   Widget getInputWidget(EdgeInsets buttonPadding,EdgeInsetsGeometry textPadding) =>
       Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           defaultInputWidget(buttonPadding, textPadding),
           widget.inputBottomView ?? SizedBox(),
@@ -381,32 +382,19 @@ class InputState extends State<Input>{
     if(widget.chatId == null || _autoDelExTime == 0) return Container();
     return GestureDetector(
       onTap: _selectChatTimeDialog,
-      child: SizedBox(
-        width: 24.px,
-        height: 24.px,
-        child: CommonImage(
-          iconName: 'chat_time.png',
-          useTheme: true,
-          package: 'ox_chat',
-        ),
+      child: CommonImage(
+        iconName: 'chat_time.png',
+        size: 24.px,
+        useTheme: true,
+        package: 'ox_chat',
       ),
     );
   }
 
 
   Widget _buildEmojiButton() =>
-      IconButton(
-        constraints: const BoxConstraints(
-          minHeight: 24,
-          minWidth: 24,
-        ),
-        icon:
-        Image.asset(
-          'assets/images/chat_emoti_icon.png',
-          // color: InheritedChatTheme.of(context).theme.inputTextColor,
-          package: 'ox_chat_ui',
-        ),
-        onPressed: (){
+      CommonIconButton(
+        onPressed: () {
           setState(() {
             inputType = InputType.inputTypeEmoji;
             if (_inputFocusNode.hasFocus) {
@@ -414,32 +402,24 @@ class InputState extends State<Input>{
             }
           });
         },
-        splashRadius: 24,
+        iconName: 'chat_emoti_icon.png',
+        size: 24.px,
+        package: 'ox_chat_ui',
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
-        tooltip: InheritedL10n.of(context).l10n.sendButtonAccessibilityLabel,
       );
 
   Widget _buildMoreButton() =>
-      IconButton(
-        constraints: const BoxConstraints(
-          minHeight: 24,
-          minWidth: 24,
-        ),
-        icon:
-        Image.asset(
-          'assets/images/chat_more_icon.png',
-          // color: InheritedChatTheme.of(context).theme.inputTextColor,
-          package: 'ox_chat_ui',
-        ),
+      CommonIconButton(
         onPressed: () {
           setState(() {
             inputType = InputType.inputTypeMore;
             _inputFocusNode.unfocus();
           });
         },
-        splashRadius: 24,
+        iconName: 'chat_more_icon.png',
+        size: 24.px,
+        package: 'ox_chat_ui',
         padding: EdgeInsets.symmetric(horizontal: _itemSpacing),
-        tooltip: InheritedL10n.of(context).l10n.sendButtonAccessibilityLabel,
       );
 
 
