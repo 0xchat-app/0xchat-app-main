@@ -16,7 +16,7 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   cupertino_icons: ^1.0.3
   shared_preferences: ^2.0.7
-  http: ^0.13.3
+  http: ^1.0.0
   path_provider: ^2.0.2
 
   ox_module_service:
