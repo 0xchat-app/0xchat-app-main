@@ -32,6 +32,7 @@ enum _ContactType {
   contacts,
   channels,
   groups,
+  relayGroups,
 }
 
 class OXUserInfoManager {
@@ -56,6 +57,7 @@ class OXUserInfoManager {
     _ContactType.contacts: false,
     _ContactType.channels: false,
     _ContactType.groups: false,
+    _ContactType.relayGroups: false,
   };
 
   bool get isFetchContactFinish => _contactFinishFlags.values.every((v) => v);
@@ -196,7 +198,11 @@ class OXUserInfoManager {
     };
     RelayGroup.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
-      OXChatBinding.sharedInstance.relayGroupMsgCallBack(messageDB);
+      OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
+    };
+    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDB joinRequestDB) async {
+      LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
+      OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
     };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.d("Michael: init contactUpdatedCallBack");
@@ -205,7 +211,7 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.syncSessionTypesByContact();
     };
     Channels.sharedInstance.myChannelsUpdatedCallBack = () async {
-      LogUtil.d('Michael: init  myChannelsUpdatedCallBack');
+      LogUtil.d('Michael: init myChannelsUpdatedCallBack');
       _fetchFinishHandler(_ContactType.channels);
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
     };
@@ -214,7 +220,11 @@ class OXUserInfoManager {
       _fetchFinishHandler(_ContactType.groups);
       OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
-
+    RelayGroup.sharedInstance.myGroupsUpdatedCallBack = () async {
+      LogUtil.d('Michael: init RelayGroup myGroupsUpdatedCallBack');
+      _fetchFinishHandler(_ContactType.relayGroups);
+      OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
+    };
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
       LogUtil.d('Michael: init  offlinePrivateMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
@@ -276,6 +286,7 @@ class OXUserInfoManager {
       _ContactType.contacts: false,
       _ContactType.channels: false,
       _ContactType.groups: false,
+      _ContactType.relayGroups: false,
     };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();

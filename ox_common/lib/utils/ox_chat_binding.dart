@@ -172,7 +172,11 @@ class OXChatBinding {
 
   void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
     sessionModel.chatId = messageDB.groupId;
-    sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
+    if (messageDB.chatType == 4) {
+      sessionModel.chatType = ChatType.chatRelayGroup;
+    } else {
+      sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
+    }
     ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
@@ -187,6 +191,10 @@ class OXChatBinding {
         ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
         sessionModel.avatar = channelDB?.picture ?? '';
         sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
+      } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
+        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[messageDB.groupId];
+        sessionModel.avatar = relayGroupDB?.picture ?? '';
+        sessionModel.chatName = relayGroupDB?.name ?? messageDB.groupId;
       } else {
         GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
         sessionModel.avatar = groupDBDB?.picture ?? '';
@@ -433,10 +441,9 @@ class OXChatBinding {
     }
   }
 
-  void relayGroupMsgCallBack(MessageDB messageDB) async {
-    syncChatSessionTable(messageDB);
+  void relayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) async {
     for (OXChatObserver observer in _observers) {
-      observer.didGroupMessageCallBack(messageDB);
+      observer.didRelayGroupJoinReqCallBack(joinRequestDB);
     }
   }
 
@@ -564,6 +571,12 @@ class OXChatBinding {
   void groupsUpdatedCallBack() {
     for (OXChatObserver observer in _observers) {
       observer.didGroupsUpdatedCallBack();
+    }
+  }
+
+  void relayGroupsUpdatedCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didRelayGroupsUpdatedCallBack();
     }
   }
 

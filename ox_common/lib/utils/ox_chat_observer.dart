@@ -31,13 +31,15 @@ abstract mixin class OXChatObserver {
 
   void didGroupMessageCallBack(MessageDB message) {}
 
-  void relayGroupMsgCallBack(MessageDB message) {}
+  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {}
 
   void didMessageActionsCallBack(MessageDB message) {}
 
   void didChannelsUpdatedCallBack() {}
 
   void didGroupsUpdatedCallBack() {}
+
+  void didRelayGroupsUpdatedCallBack() {}
 
   void didSessionUpdate() {}
 
