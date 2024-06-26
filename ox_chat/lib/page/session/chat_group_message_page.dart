@@ -71,7 +71,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
       fileEncryptionType: types.EncryptionType.encrypted,

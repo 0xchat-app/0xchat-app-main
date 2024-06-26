@@ -92,7 +92,7 @@ class ChatGeneralHandler {
 
   TextEditingController inputController = TextEditingController();
 
-  Function(List<types.Message>)? refreshMessageUI;
+  Function(List<types.Message>?)? refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
 
@@ -149,6 +149,7 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
         List<types.Message>? allMessage,
         int increasedCount = ChatPageConfig.messagesPerPage,
       }) async {
+    final isRefresh = increasedCount == 0;
     final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
     var end = 0;
     // Find the index of the last message in all the messages.
@@ -171,7 +172,9 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
     final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
     refreshMessageUI?.call(newMessageList);
 
-    updateMessageReactionsListener(newMessageList);
+    if (!isRefresh) {
+      updateMessageReactionsListener(newMessageList);
+    }
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
@@ -494,6 +497,25 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       messageId,
       content,
     );
+    if (event.status) {
+      final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+      if (author != null && author.isNotEmpty) {
+        final reactions = [...message.reactions];
+        var isAdded = false;
+        for (final reaction in reactions) {
+          if (reaction.content != content) continue;
+          if (reaction.authors.any((e) => e == author)) continue;
+
+          reaction.authors.add(author);
+          isAdded = true;
+          break;
+        }
+        if (!isAdded) {
+          message.reactions.add(types.Reaction(content: content, authors: [author]));
+        }
+        refreshMessageUI?.call(null);
+      }
+    }
     return event.status;
   }
 }

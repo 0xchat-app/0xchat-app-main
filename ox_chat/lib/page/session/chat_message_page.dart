@@ -67,7 +67,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
       fileEncryptionType: types.EncryptionType.encrypted,

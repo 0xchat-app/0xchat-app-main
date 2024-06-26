@@ -71,7 +71,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
     );

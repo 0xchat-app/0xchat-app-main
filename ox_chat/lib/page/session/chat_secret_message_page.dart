@@ -134,7 +134,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
       fileEncryptionType: types.EncryptionType.encrypted,

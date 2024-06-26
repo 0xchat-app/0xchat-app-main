@@ -71,7 +71,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
     );
