@@ -4,7 +4,9 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -21,7 +23,7 @@ double itemHeight = Adapt.px(68.0);
 typedef void CursorGroupsChanged(Widget cursor, int noteLength);
 
 class GroupContact extends StatefulWidget {
-  final List<GroupDB> data;
+  final List<GroupUIModel> data;
   final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
@@ -44,7 +46,7 @@ class GroupContact extends StatefulWidget {
 
 class Note {
   String tag;
-  List<GroupDB> childList;
+  List<GroupUIModel> childList;
 
   Note(this.tag, this.childList);
 }
@@ -52,7 +54,7 @@ class Note {
 class GroupContactState extends State<GroupContact> {
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
-  late List<GroupDB> groupList;
+  late List<GroupUIModel> groupList;
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -60,8 +62,8 @@ class GroupContactState extends State<GroupContact> {
   String _tagName = '';
   bool _isTouchTagBar = false;
 
-  List<GroupDB> selectedList = [];
-  Map<String, List<GroupDB>> mapData = Map();
+  List<GroupUIModel> selectedList = [];
+  Map<String, List<GroupUIModel>> mapData = Map();
 
   @override
   void initState() {
@@ -75,7 +77,7 @@ class GroupContactState extends State<GroupContact> {
     });
   }
 
-  void updateContactData(List<GroupDB> data) {
+  void updateContactData(List<GroupUIModel> data) {
     groupList = data;
     _initIndexBarData();
   }
@@ -90,7 +92,7 @@ class GroupContactState extends State<GroupContact> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    Map<GroupDB, String> pinyinMap = Map<GroupDB, String>();
+    Map<GroupUIModel, String> pinyinMap = Map<GroupUIModel, String>();
     for (var groupDB in groupList) {
       String pinyin = PinyinHelper.getFirstWordPinyin(groupDB.name);
       pinyinMap[groupDB] = pinyin;
@@ -331,7 +333,7 @@ class GroupHeaderWidget extends StatelessWidget {
 }
 
 class GroupContactListItem extends StatefulWidget {
-  late GroupDB item;
+  late GroupUIModel item;
   final onCheckChanged;
   final int chatType;
 
@@ -349,24 +351,49 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    OXNavigator.pushPage(
-      context,
-      (context) => ChatGroupMessagePage(
-        communityItem: ChatSessionModel(
-          chatId: widget.item.groupId,
-          groupId: widget.item.groupId,
-          chatType: ChatType.chatGroup,
-          chatName: widget.item.name,
-          createTime: widget.item.updateTime,
-          avatar: widget.item.picture ?? '',
-        ),
-      ),
-    );
+    if (widget.item.chatType == ChatType.chatGroup) {
+      OXNavigator.pushPage(
+        context,
+            (context) =>
+            ChatGroupMessagePage(
+              communityItem: ChatSessionModel(
+                chatId: widget.item.groupId,
+                groupId: widget.item.groupId,
+                chatType: widget.item.chatType,
+                chatName: widget.item.name,
+                createTime: widget.item.updateTime,
+                avatar: widget.item.picture ?? '',
+              ),
+            ),
+      );
+    } else {
+      OXNavigator.pushPage(
+        context,
+            (context) =>
+            ChatRelayGroupMsgPage(
+              communityItem: ChatSessionModel(
+                chatId: widget.item.groupId,
+                groupId: widget.item.groupId,
+                chatType: widget.item.chatType,
+                chatName: widget.item.name,
+                createTime: widget.item.updateTime,
+                avatar: widget.item.picture ?? '',
+              ),
+            ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget iconAvatar = OXGroupAvatar(group: widget.item);
+    Widget iconAvatar = SizedBox();
+    if (widget.item.chatType == ChatType.chatGroup) {
+      GroupDB? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+      iconAvatar = OXGroupAvatar(group: tempGroupDB);
+    } else {
+      RelayGroupDB? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
+      iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _onItemClick,

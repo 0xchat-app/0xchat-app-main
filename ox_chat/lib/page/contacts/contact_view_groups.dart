@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/widget/contact_group.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -28,7 +29,7 @@ class ContactViewGroups extends StatefulWidget {
 
 class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTickerProviderStateMixin,
     AutomaticKeepAliveClientMixin, WidgetsBindingObserver, CommonStateViewMixin, OXChatObserver, OXUserInfoObserver {
-  List<GroupDB> groups = [];
+  List<GroupUIModel> groups = [];
   RefreshController _refreshController = RefreshController();
   GlobalKey<GroupContactState> groupsWidgetKey = new GlobalKey<GroupContactState>();
   num imageV = 0;
@@ -71,10 +72,21 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   void _loadData() async {
-    Map<String, GroupDB> groupsMap =  Groups.sharedInstance.myGroups;
-    groups = groupsMap.values.toList();
     if(Groups.sharedInstance.myGroups.length>0) {
-      groups = Groups.sharedInstance.myGroups.values.toList();
+      List<GroupUIModel> groupUIModelList = [];
+      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
+      tempGroups.forEach((element) {
+        groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
+      });
+      groups.addAll(groupUIModelList);
+    }
+    if(RelayGroup.sharedInstance.myGroups.length>0) {
+      List<GroupUIModel> relayGroupUIModelList = [];
+      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      tempGroups.forEach((element) {
+        relayGroupUIModelList.add(GroupUIModel.relayGroupdbToUIModel(element));
+      });
+      groups.addAll(relayGroupUIModelList);
     }
     _showView();
   }

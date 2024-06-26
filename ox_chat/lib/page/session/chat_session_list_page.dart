@@ -1045,14 +1045,24 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Future<bool> _checkIsMute(MessageDB message, int type) async {
     bool isMute = false;
-    if (type == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId];
-      isMute = channelDB?.mute ?? false;
-      return isMute;
+    switch (type) {
+      case ChatType.chatChannel:
+        ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId];
+        isMute = channelDB?.mute ?? false;
+        return isMute;
+      case ChatType.chatGroup:
+        GroupDB? groupDB = Groups.sharedInstance.myGroups[message.groupId];
+        isMute = groupDB?.mute ?? false;
+        return isMute;
+      case ChatType.chatRelayGroup:
+        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
+        isMute = relayGroupDB?.mute ?? false;
+        return isMute;
+      default:
+        UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
+        isMute = tempUserDB?.mute ?? false;
+        return isMute;
     }
-    UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
-    isMute = tempUserDB?.mute ?? false;
-    return isMute;
   }
 
   void _getGroupMembers(List<ChatSessionModel> chatSessionModelList) async {
