@@ -15,20 +15,18 @@ class PromptToneManager {
   PromptToneManager._internal() : _player = AudioPlayer();
 
   static AudioContext get _defaultAudioContext => AudioContextConfig(
-    forceSpeaker: false,
-    duckAudio: Platform.isAndroid ? true : false,
     respectSilence: Platform.isIOS ? true : false,
     stayAwake: false,
   ).build();
 
   Future setup() async {
-    await AudioPlayer.global.setGlobalAudioContext(_defaultAudioContext);
+    await AudioPlayer.global.setAudioContext(_defaultAudioContext);
   }
 
   void play() async {
     if (_player.state != PlayerState.playing) {
       _player.setReleaseMode(ReleaseMode.release);
-      await AudioPlayer.global.setGlobalAudioContext(_defaultAudioContext);
+      await AudioPlayer.global.setAudioContext(_defaultAudioContext);
       _player.play(
         AssetSource('sounds/message_notice_sound.mp3'),
         ctx: _defaultAudioContext,
