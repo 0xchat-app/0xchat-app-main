@@ -148,7 +148,10 @@ abstract class Message extends Equatable {
   final List<Reaction> reactions;
   final List<ZapsInfo> zapsInfoList;
 
+  bool get hasReactions => reactions.isNotEmpty || zapsInfoList.isNotEmpty;
+
   bool get viewWithoutBubble => false;
+
 
   /// Creates a copy of the message with an updated data.
   Message copyWith({
