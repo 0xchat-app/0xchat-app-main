@@ -21,10 +21,8 @@ class ImageServices {
 enum FileServices {
   blossom('Blossom'),
   nostr_build('nostr.build'),
-  nostr_img_com('nostrimg.com'),
   pomf2_lain_la('pomf2.lain.la'),
   void_cat('void.cat'),
-  nostr_files_dev('nostrfiles.dev'),
   nosto_re('nosto.re');
 
   final String serviceName;
