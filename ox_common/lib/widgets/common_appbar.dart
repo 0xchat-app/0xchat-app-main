@@ -163,6 +163,7 @@ class BaseAppBarState extends State<CommonAppBar> {
       )),
       titleSpacing: widget.titleSpacing,
       backgroundColor: _defaultBackgroundColor(),
+      surfaceTintColor: Colors.transparent,
       centerTitle: widget.centerTitle,
       elevation: widget.elevation,
       leading: _buildLeading(),
