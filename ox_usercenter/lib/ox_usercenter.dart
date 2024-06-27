@@ -66,8 +66,9 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
         final walletOnPress = params?['walletOnPress'];
+        final nwcCompleted = params?['nwcCompleted'];
         final isCalledFromEcashWallet = params?['isCalledFromEcashWallet'] ?? false;
-        return _showZapDialog(context, invoice, walletOnPress, isCalledFromEcashWallet);
+        return _showZapDialog(context, invoice, walletOnPress, nwcCompleted, isCalledFromEcashWallet);
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
@@ -82,7 +83,7 @@ class OXUserCenter extends OXFlutterModule {
     return null;
   }
 
-   _showZapDialog(context, invoice, walletOnPress,[bool isCalledFromEcashWallet = false]) async {
+   _showZapDialog(context, invoice, walletOnPress, Function()? nwcCompleted, [bool isCalledFromEcashWallet = false]) async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
      bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
      String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
@@ -104,6 +105,7 @@ class OXUserCenter extends OXFlutterModule {
        await Zaps.sharedInstance.requestNWC(invoice);
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
        walletOnPress?.call(walletModel);
+       nwcCompleted?.call();
        OXLoading.dismiss();
      }
      else if(defaultWalletName.isNotEmpty){
