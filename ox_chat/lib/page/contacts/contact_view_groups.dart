@@ -72,6 +72,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   void _loadData() async {
+    groups.clear();
     if(Groups.sharedInstance.myGroups.length>0) {
       List<GroupUIModel> groupUIModelList = [];
       List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
@@ -80,7 +81,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
       });
       groups.addAll(groupUIModelList);
     }
-    LogUtil.e('Michael: ---_loadData-${RelayGroup.sharedInstance.myGroups.length}');
     if(RelayGroup.sharedInstance.myGroups.length>0) {
       List<GroupUIModel> relayGroupUIModelList = [];
       List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();

@@ -131,8 +131,6 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   Widget build(BuildContext context) {
     bool showUserNames = true;
     RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
-    LogUtil.e('Michael: ---build-${RelayGroup.sharedInstance.myGroups.length}');
-    LogUtil.e('Michael: ---build--relayGroupDB--${relayGroupDB}');
     String showName = relayGroupDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
