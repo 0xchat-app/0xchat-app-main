@@ -1,12 +1,17 @@
 import 'dart:convert';
 
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/model/ice_server_model.dart';
 
-abstract class OXServerObserver {
+abstract mixin class OXServerObserver {
   void didAddICEServer(List<Map<String,String>> serverConfigList) {}
 
   void didDeleteICEServer(List<Map<String,String>> serverConfigList) {}
+
+  void didAddFileStorageServer(FileStorageServer fileStorageServer) {}
+
+  void didDeleteFileStorageServer() {}
 }
 
 class OXServerManager {
@@ -28,6 +33,9 @@ class OXServerManager {
 
   List<ICEServerModel> iCESeverModelList = [];
 
+  List<FileStorageServer> fileStorageServers = [];
+  // FileStorageServer currentFileStorageServer;
+
   List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
 
   void loadConnectICEServer() async {
@@ -37,6 +45,7 @@ class OXServerManager {
       await saveICEServerList(connectICEServerList);
     }
     iCESeverModelList = connectICEServerList;
+    fileStorageServers = FileStorageServer.defaultFileStorageServers;
   }
 
   Future<void> addServer(ICEServerModel iceServerModel) async {
@@ -81,5 +90,18 @@ class OXServerManager {
     List<ICEServerModel>  iCEServerList = await getICEServerList();
     List<Map<String, String>> serverConfigList = iCEServerList.expand((item) => item.serverConfig).toList();
     return serverConfigList;
+  }
+
+  Future<void> addFileStorageServer(FileStorageServer fileStorageServer) async {
+    fileStorageServers.add(fileStorageServer);
+    for (OXServerObserver observer in _observers) {
+      observer.didAddFileStorageServer(fileStorageServer);
+    }
+  }
+
+  Future<void> deleteFileStorageServer(FileStorageServer fileStorageServer) async {
+    for (OXServerObserver observer in _observers) {
+      observer.didAddFileStorageServer(fileStorageServer);
+    }
   }
 }
