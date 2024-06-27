@@ -160,7 +160,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             onTap: () async {
               var result = await OXNavigator.presentPage(
                 context,
-                (context) => ContactRelayPage(userDB: widget.userDB),
+                (context) => ContactRelayPage(),
               );
               if (result != null && _isWssWithValidURL(result as String)) {
                 _chatRelay = result;

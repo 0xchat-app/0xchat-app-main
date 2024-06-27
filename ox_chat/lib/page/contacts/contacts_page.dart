@@ -125,8 +125,7 @@ class _ContractsPageState extends State<ContractsPage>
                 package: 'ox_chat',
               ),
               onPressed: () {
-                // _gotoAddFriend();
-                _createGroupBottomDialog();
+                _gotoAddFriend();
               },
             ),
           ),
@@ -393,29 +392,6 @@ class _ContractsPageState extends State<ContractsPage>
   @override
   void didSwitchUser(UserDB? userInfo) {
     // TODO: implement didSwitchUser
-  }
-
-  void _createGroupBottomDialog() async {
-    var result = await showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return const GroupCreateSelectorDialog();
-      },
-    );
-    if (result != null && result is GroupType) {
-      switch(result){
-        case GroupType.openGroup:
-
-          break;
-        case GroupType.closeGroup:
-
-          break;
-        case GroupType.privateGroup:
-
-          break;
-      }
-    }
   }
 
 }

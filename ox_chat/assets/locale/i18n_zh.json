@@ -134,7 +134,7 @@
   "session_content_mentioned": "你被提及",
   "session_content_draft":"草稿",
   "lightning_invoice": "闪电发票",
-  "str_new_group": "私有群聊",
+  "str_new_group": "新群聊",
   "create_group_search_hint_text": "你想添加谁？",
   "create_group_select_toast": "请至少选择一个用户",
   "next": "下一步",
@@ -283,5 +283,14 @@
   "str_group_approve": "批准",
   "str_group_rejected": "已拒绝",
   "str_group_approved": "已批准",
-  "str_group_join_request_msg_delete_tips": "一旦删除，消息无法恢复。确定要继续吗？"
+  "str_group_join_request_msg_delete_tips": "一旦删除，消息无法恢复。确定要继续吗？",
+  "str_group_manage": "管理群组",
+  "str_group_membership_approval": "成员审批",
+  "str_group_edit_permission_hint": "谁可以编辑群信息",
+  "str_group_clip_permission_hint": "谁可以置顶",
+  "str_group_add_or_share_hint": "谁可以添加或分享",
+  "str_group_send_msg_permission_hint": "谁可以发送消息",
+  "str_group_at_permission_hint": "谁可以@所有人",
+  "str_group_admin_hint": "群管理员",
+  "str_group_disband_hint": "解散群组"
 }

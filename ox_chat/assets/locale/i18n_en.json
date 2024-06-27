@@ -283,5 +283,14 @@
   "str_group_approve": "Approve",
   "str_group_rejected": "Rejected",
   "str_group_approved": "Approved",
-  "str_group_join_request_msg_delete_tips": "Once deleted, the messages cannot be recovered. Are you sure you want to proceed?"
+  "str_group_join_request_msg_delete_tips": "Once deleted, the messages cannot be recovered. Are you sure you want to proceed?",
+  "str_group_manage": "Manage Group",
+  "str_group_membership_approval": "Membership approval",
+  "str_group_edit_permission_hint": "Who can edit group info",
+  "str_group_clip_permission_hint": "Who can clip to top",
+  "str_group_add_or_share_hint": "Who can add or share",
+  "str_group_send_msg_permission_hint": "Who can send messages",
+  "str_group_at_permission_hint": "Who can @mention all",
+  "str_group_admin_hint": "Group Admin",
+  "str_group_disband_hint": "Disband Group"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
@@ -23,13 +24,16 @@ class ContactGroupListPage extends StatefulWidget {
   final GroupListAction? groupListAction;
   final String? title;
   final String? searchBarHintText;
+  final GroupType? groupType;
 
-  const ContactGroupListPage(
-      {super.key,
-      this.userList,
-      required this.title,
-      this.groupListAction = GroupListAction.view,
-      this.searchBarHintText});
+  const ContactGroupListPage({
+    super.key,
+    this.userList,
+    required this.title,
+    this.groupListAction = GroupListAction.view,
+    this.searchBarHintText,
+    this.groupType = GroupType.openGroup,
+  });
 
   @override
   State<ContactGroupListPage> createState() => ContactGroupListPageState();

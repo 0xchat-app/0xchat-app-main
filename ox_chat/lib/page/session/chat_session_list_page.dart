@@ -15,7 +15,6 @@ import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_chat/model/option_model.dart';
@@ -94,15 +93,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
     SchemeHelper.tryHandlerForOpenAppScheme();
-  }
-
-  _navigateToLoginPage(BuildContext context) async {
-    await OXModuleService.pushPage(
-      context,
-      "ox_login",
-      "LoginPage",
-      {},
-    );
   }
 
   onLocaleChange() {
@@ -336,7 +326,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           ],
         ),
         onTap: () {
-          _optionsOnTap(model.optionModel);
+          CommunityMenuOptionModel.optionsOnTap(context, model.optionModel);
         },
       ),
     );
@@ -552,7 +542,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               highlightWords: [addfriendStr, johnchannelStr],
               onWordTap: (word) async {
                 if (word == addfriendStr) {
-                   _gotoAddFriend();
+                   CommunityMenuOptionModel.gotoAddFriend(context);
                 } else if (word == johnchannelStr) {
                   OXNavigator.pushPage(
                       context,
@@ -902,33 +892,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     return Container();
   }
 
-  void _gotoAddFriend() {
-    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-    if (!isLogin) {
-      _navigateToLoginPage(context);
-      return;
-    }
-    OXNavigator.pushPage(context, (context) => CommunityQrcodeAddFriend());
-  }
-
-  void _gotoCreateGroup() {
-    final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    List<UserDB> userList = Contacts.sharedInstance.allContacts.values.toList();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => Container(
-        height: height,
-        child: ContactGroupChatChoosePage(
-          userList: userList,
-          groupListAction: GroupListAction.add,
-          searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
-        ),
-      ),
-    );
-  }
-
   Widget _topSearch() {
     return InkWell(
       onTap: () {
@@ -1003,43 +966,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void _dismissSlidable() {
     if (_latestGlobalKey != null && _latestGlobalKey!.currentContext != null) {
       Slidable.of(_latestGlobalKey!.currentContext!)!.close();
-    }
-  }
-
-  void _optionsOnTap(OptionModel optionModel) async {
-    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-    if (isLogin == false) {
-      await _navigateToLoginPage(context);
-      return;
-    }
-    if (optionModel == OptionModel.AddFriend) {
-      _gotoAddFriend();
-    } else if (optionModel == OptionModel.NewChannel) {
-      OXNavigator.pushPage(context, (context) => ChatChannelCreate());
-    } else if (optionModel == OptionModel.ScanQCode) {
-      _gotoScan();
-    } else if (optionModel == OptionModel.RecommenderTools) {
-      CommonToast.instance.show(context, 'str_stay_tuned'.localized());
-    } else if (optionModel == OptionModel.AddGroup) {
-      _gotoCreateGroup();
-    }
-  }
-
-  void _gotoScan() async {
-    if (await Permission.camera.request().isGranted) {
-      String? result = await OXNavigator.pushPage(context, (context) => CommonScanPage());
-      if (result != null) {
-        ScanUtils.analysis(context, result);
-      }
-    } else {
-      OXCommonHintDialog.show(context, content: Localized.text('ox_chat.str_permission_camera_hint'), actionList: [
-        OXCommonHintAction(
-            text: () => Localized.text('ox_chat.str_go_to_settings'),
-            onTap: () {
-              openAppSettings();
-              OXNavigator.pop(context);
-            }),
-      ]);
     }
   }
 

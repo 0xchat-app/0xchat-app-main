@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/contacts/contact_relay_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -17,7 +21,13 @@ import 'package:ox_common/widgets/common_loading.dart';
 
 class ContactGroupChatCreatePage extends StatefulWidget {
   final List<UserDB> userList;
-  const ContactGroupChatCreatePage({super.key, required this.userList});
+  final GroupType groupType;
+
+  const ContactGroupChatCreatePage({
+    super.key,
+    required this.userList,
+    required this.groupType,
+  });
 
   @override
   State<ContactGroupChatCreatePage> createState() => _ContactGroupChatCreatePageState();
@@ -28,6 +38,8 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
   TextEditingController _controller = TextEditingController();
 
   List<UserDB> userList = [];
+
+  String _chatRelay = 'wss://relay.0xchat.com';
 
   @override
   void initState() {
@@ -62,6 +74,8 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       children: [
         _buildAppBar(),
         _buildGroupNameEditText(),
+        _buildGroupRelayEditText(),
+        SizedBox(height: 12.px),
         _buildGroupMemberList(),
       ],
     ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24)));
@@ -183,6 +197,92 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     );
   }
 
+  Widget _buildGroupRelayEditText(){
+    return _labelWidget(
+      title:  Localized.text('ox_chat.relay'),
+      content: _chatRelay,
+      onTap: () async {
+        var result = await OXNavigator.presentPage(
+          context,
+              (context) => ContactRelayPage(),
+        );
+        if (result != null && _isWssWithValidURL(result as String)) {
+          _chatRelay = result;
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  bool _isWssWithValidURL(String input) {
+    RegExp regex = RegExp(
+        r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
+    return regex.hasMatch(input);
+  }
+
+  Widget _labelWidget({
+    required String title,
+    required String content,
+    required GestureTapCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          color: ThemeColor.color180,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color0,
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    _ellipsisText(content),
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      fontWeight: FontWeight.w400,
+                      color: ThemeColor.color100,
+                    ),
+                  ),
+                  CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _ellipsisText(String text) {
+    if (text.length > 30) {
+      return text.substring(0, 10) +
+          '...' +
+          text.substring(text.length - 10, text.length);
+    }
+    return text;
+  }
+
   Widget _buildGroupMemberList() {
     return Expanded(
       child: _buildItem(
@@ -214,26 +314,55 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       return;
     };
     await OXLoading.show();
-    List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDB? groupDB = await Groups.sharedInstance.createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
-    await OXLoading.dismiss();
-    if (groupDB != null) {
-      OXNavigator.pop(context);
-      OXNavigator.pushReplacement(
-        context,
-        ChatGroupMessagePage(
-          communityItem: ChatSessionModel(
-            groupId: groupDB.groupId,
-            chatType: ChatType.chatGroup,
-            chatName: groupDB.name,
-            createTime: groupDB.updateTime,
-            avatar: groupDB.picture,
+    if (widget.groupType == GroupType.privateGroup) {
+      List<String> members = userList.map((user) => user.pubKey).toList();
+      GroupDB? groupDB = await Groups.sharedInstance.createPrivateGroup(
+          OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
+      await OXLoading.dismiss();
+      if (groupDB != null) {
+        OXNavigator.pop(context);
+        OXNavigator.pushReplacement(
+          context,
+          ChatGroupMessagePage(
+            communityItem: ChatSessionModel(
+              groupId: groupDB.groupId,
+              chatType: ChatType.chatGroup,
+              chatName: groupDB.name,
+              createTime: groupDB.updateTime,
+              avatar: groupDB.picture,
+            ),
           ),
-        ),
-      );
-      // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
-    }else{
-      CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
+        );
+        // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
+      } else {
+        CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
+      }
+    } else if (widget.groupType == GroupType.openGroup){
+      String tempRelay = '192.168.1.25:5577'; //_chatRelay.replaceFirst('wss://', '');
+      LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${tempRelay}----');
+      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(tempRelay, name);
+        await Future.forEach(userList, (userDB) async {
+                RelayGroup.sharedInstance.addUser(_chatRelay, userDB.pubKey, '');
+              });
+      await OXLoading.dismiss();
+      LogUtil.e('Michael: -_createGroup() ---relayGroupDB =${relayGroupDB}----');
+      if (relayGroupDB != null) {
+        OXNavigator.pop(context);
+        OXNavigator.pushReplacement(
+          context,
+          ChatRelayGroupMsgPage(
+            communityItem: ChatSessionModel(
+              groupId: relayGroupDB.groupId,
+              chatType: ChatType.chatRelayGroup,
+              chatName: relayGroupDB.name,
+              createTime: relayGroupDB.lastUpdatedTime,
+              avatar: relayGroupDB.picture,
+            ),
+          ),
+        );
+      } else {
+        CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
+      }
     }
   }
 }
