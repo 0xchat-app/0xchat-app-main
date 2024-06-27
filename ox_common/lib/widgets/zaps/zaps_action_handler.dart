@@ -19,6 +19,7 @@ class ZapsActionHandler {
   final bool? privateZap;
   Function(Map<String,dynamic> zapsInfo)? zapsInfoCallback;
   Function()? preprocessCallback;
+  Function(ap<String,dynamic> zapsInfo)? nwcCompleted;
 
   late bool isDefaultEcashWallet;
 
@@ -29,6 +30,7 @@ class ZapsActionHandler {
     this.privateZap,
     this.zapsInfoCallback,
     this.preprocessCallback,
+    this.nwcCompleted,
     bool? isAssistedProcess,
   }) : isAssistedProcess = isAssistedProcess ?? false;
 
@@ -257,6 +259,9 @@ class ZapsActionHandler {
         isConfirm = true;
         return true;
       },
+      'nwcCompleted': () {
+        nwcCompleted?.call(result);
+      }
     });
     return isConfirm;
   }
