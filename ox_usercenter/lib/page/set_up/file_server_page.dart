@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_usercenter/model/file_server_model.dart';
 import 'package:ox_usercenter/page/set_up/file_server_add_page.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
@@ -18,23 +18,14 @@ class FileServerPage extends StatefulWidget {
   State<FileServerPage> createState() => _FileServerPageState();
 }
 
-class _FileServerPageState extends State<FileServerPage> {
+class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
   bool _isEditing = false;
   int _currentIndex = 0;
-  final List<FileServerModel> _fileServerModelList = [];
 
   @override
   void initState() {
     super.initState();
-    _fileServerModelList.addAll(
-      FileServices.values
-          .map((e) => FileServerModel(
-                name: e.serviceName,
-                canEdit: false,
-                description: 'Free storage, expired in 7 days',
-              ))
-          .toList(),
-    );
+    OXServerManager.sharedInstance.addObserver(this);
   }
 
   @override
@@ -79,22 +70,23 @@ class _FileServerPageState extends State<FileServerPage> {
   }
 
   Widget _buildBody() {
+    final fileStorageServers = OXServerManager.sharedInstance.fileStorageServers;
     return Column(
       children: [
         ListView.separated(
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => _buildFilesServerItem(_fileServerModelList[index],index),
+          itemBuilder: (context, index) => _buildFilesServerItem(fileStorageServers[index],index),
           separatorBuilder: (context, index) => Container(height: 12.px,),
-          itemCount: _fileServerModelList.length,
+          itemCount: fileStorageServers.length,
         ),
         _buildAddServerButton(),
       ],
     );
   }
 
-  Widget _buildFilesServerItem(FileServerModel fileServer, int index) {
+  Widget _buildFilesServerItem(FileStorageServer fileServer, int index) {
     bool canEdit = fileServer.canEdit && _currentIndex != index;
     final iconName = _isEditing && canEdit ? 'moment_more_icon.png' : _currentIndex == index ? 'icon_selected.png' : 'icon_unSelected.png';
     return GestureDetector(
@@ -102,7 +94,7 @@ class _FileServerPageState extends State<FileServerPage> {
       onTap: () {
         if(_isEditing) {
           if(canEdit) {
-            OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileServerType.nip96));
+            OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.nip96));
           }
         } else {
           setState(() {
@@ -167,8 +159,8 @@ class _FileServerPageState extends State<FileServerPage> {
         onTap: () {
           if(_isEditing) return;
           final items = [
-            BottomSheetItem(title: FileServerType.nip96.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileServerType.nip96))),
-            BottomSheetItem(title: FileServerType.mini.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileServerType.mini))),
+            BottomSheetItem(title: FileStorageProtocol.nip96.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.nip96))),
+            BottomSheetItem(title: FileStorageProtocol.minio.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.minio))),
           ];
           BottomSheetDialog.showBottomSheet(context, items);
         },
@@ -176,5 +168,16 @@ class _FileServerPageState extends State<FileServerPage> {
         EdgeInsets.only(top: 16.px),
       ),
     );
+  }
+
+  @override
+  void didAddFileStorageServer(FileStorageServer fileStorageServer) {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OXServerManager.sharedInstance.removeObserver(this);
+    super.dispose();
   }
 }

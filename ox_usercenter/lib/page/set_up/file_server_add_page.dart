@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/model/file_storage_server_model.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_usercenter/model/file_server_model.dart';
 
 enum OperationType { add, edit }
 
 class FileServerAddPage extends StatefulWidget {
-  final FileServerType fileServerType;
+  final FileStorageProtocol fileServerType;
   final OperationType operationType;
 
   const FileServerAddPage({
@@ -60,11 +62,15 @@ class _FileServerAddPageState extends State<FileServerAddPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildItem('URL', _buildURLTextField()),
-            if(widget.fileServerType == FileServerType.mini)
+            if(widget.fileServerType == FileStorageProtocol.minio)
               _buildItem('Secret Key', _buildURLTextField()).setPaddingOnly(top: 12.px),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
-              onTap: () {},
+              onTap: () {
+                Nip96Server nip96Server = Nip96Server(name: '新添加的');
+                OXServerManager.sharedInstance.addFileStorageServer(nip96Server);
+                OXNavigator.pop(context);
+              },
             ).setPadding(EdgeInsets.only(top: 12.px)),
             if(widget.operationType == OperationType.edit)
               CommonButton.themeButton(
