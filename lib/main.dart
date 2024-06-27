@@ -175,6 +175,7 @@ class MainState extends State<MainApp>
         navigatorKey: OXNavigator.navigatorKey,
         navigatorObservers: [OXNavigator.routeObserver],
         theme: ThemeData(
+          useMaterial3: false,
           brightness: ThemeManager.brightness(),
           scaffoldBackgroundColor: ThemeColor.color190,
           fontFamily: 'Lato', //use regular for ios / thin for android
