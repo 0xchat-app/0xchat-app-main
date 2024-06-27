@@ -266,11 +266,23 @@ class RelayGroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     String? source,
   }) async {
-    return Groups.sharedInstance.getSendGroupMessageEvent(
+    List<String> previous = [];
+    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
+    for (types.Message message in uiMsgList) {
+      final messageId = message.remoteId;
+      if (messageId != null && messageId.isNotEmpty) {
+        previous.add(messageId.substring(0, 8));
+      }
+      if (previous.length ==3){
+        break;
+      }
+    }
+    return RelayGroup.sharedInstance.getSendGroupMessageEvent(
       receiverId,
       messageType,
       contentString,
-      replyMessage: replayId,
+      previous,
+      replyEvent: replayId,
       decryptSecret: decryptSecret,
       source: source,
     );
