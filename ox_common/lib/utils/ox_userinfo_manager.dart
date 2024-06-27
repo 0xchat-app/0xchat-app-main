@@ -369,6 +369,7 @@ class OXUserInfoManager {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
+      RelayGroup.sharedInstance.init(callBack: RelayGroup.sharedInstance.myGroupsUpdatedCallBack);
       Moment.sharedInstance.init();
       BadgesHelper.sharedInstance.init();
       Zaps.sharedInstance.init();
