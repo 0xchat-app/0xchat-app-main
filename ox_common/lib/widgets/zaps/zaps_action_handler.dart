@@ -19,7 +19,7 @@ class ZapsActionHandler {
   final bool? privateZap;
   Function(Map<String,dynamic> zapsInfo)? zapsInfoCallback;
   Function()? preprocessCallback;
-  Function(ap<String,dynamic> zapsInfo)? nwcCompleted;
+  Function(Map<String,dynamic> zapsInfo)? nwcCompleted;
 
   late bool isDefaultEcashWallet;
 
