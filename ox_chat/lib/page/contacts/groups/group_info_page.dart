@@ -85,7 +85,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               _groupBaseOptionView(),
               _muteWidget(),
               // _groupLocationView(),
-              // _leaveBtnWidget(),
+              _leaveBtnWidget(),
             ],
           ),
         ),
