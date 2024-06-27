@@ -13,6 +13,7 @@ import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -129,8 +130,10 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
-    String showName = channelDB?.name ?? '';
+    RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
+    LogUtil.e('Michael: ---build-${RelayGroup.sharedInstance.myGroups.length}');
+    LogUtil.e('Michael: ---build--relayGroupDB--${relayGroupDB}');
+    String showName = relayGroupDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,

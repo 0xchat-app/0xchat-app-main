@@ -60,6 +60,7 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                     alignment: Alignment.center,
                     width: double.infinity,
                     height: 78.px,
+                    margin: EdgeInsets.symmetric(horizontal: 16.px,),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,

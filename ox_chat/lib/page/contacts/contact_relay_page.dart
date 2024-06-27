@@ -14,9 +14,8 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 
 class ContactRelayPage extends StatefulWidget {
-  final UserDB userDB;
 
-  ContactRelayPage({Key? key, required this.userDB}) : super(key: key);
+  ContactRelayPage({Key? key}) : super(key: key);
   @override
   _ContactRelayPage createState() => new _ContactRelayPage();
 }
