@@ -358,20 +358,21 @@ class OXUserInfoManager {
     initDataActions.forEach((fn) {
       fn();
     });
+    Account.sharedInstance.relayListUpdateCallback = (){
+      OXRelayManager.sharedInstance.addRelaysSuccess(Account.sharedInstance.me!.relayList ?? []);
+    };
+    Account.sharedInstance.dmRelayListUpdateCallback = (){
+      // TODO: ADD TO DM RELAY
+      OXRelayManager.sharedInstance.addRelaysSuccess(Account.sharedInstance.me!.relayList ?? []);
+    };
     Relays.sharedInstance.init().then((value) {
-      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
       Moment.sharedInstance.init();
       BadgesHelper.sharedInstance.init();
       Zaps.sharedInstance.init();
       _initMessage();
-    });
-    Future.delayed(Duration(seconds: 5), () {
-      Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
-        //List<String> relays
-        OXRelayManager.sharedInstance.addRelaysSuccess(value);
-      });
     });
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
