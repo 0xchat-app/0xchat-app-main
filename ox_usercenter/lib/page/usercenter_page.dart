@@ -144,7 +144,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         }
       } else {
         List<BadgeDB?>? badgeDBList =
-            await BadgesHelper.getProfileBadgesFromRelay(
+            await BadgesHelper.getAllProfileBadgesFromRelay(
                 OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
           badgeDB = badgeDBList.first;
@@ -357,7 +357,9 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
           child: _topItemBuild(
             title: 'str_settings'.localized(),
             iconName: 'icon_settings.png',
-            onTap: () => OXNavigator.pushPage(context, (context) => const SettingsPage()),
+            onTap: () async {
+              OXNavigator.pushPage(context, (context) => const SettingsPage());
+    }
           ),
         ),
         SizedBox(height: Adapt.px(24),),
