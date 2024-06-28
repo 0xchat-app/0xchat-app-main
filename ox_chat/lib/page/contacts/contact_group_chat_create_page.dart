@@ -325,6 +325,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
           context,
           ChatGroupMessagePage(
             communityItem: ChatSessionModel(
+              chatId: groupDB.groupId,
               groupId: groupDB.groupId,
               chatType: ChatType.chatGroup,
               chatName: groupDB.name,
@@ -337,7 +338,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       } else {
         CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
       }
-    } else if (widget.groupType == GroupType.openGroup){
+    } else if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup){
       String tempRelay = '192.168.1.25:5577'; //_chatRelay.replaceFirst('wss://', '');
       LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${tempRelay}----');
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(tempRelay, name);
@@ -352,6 +353,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
           context,
           ChatRelayGroupMsgPage(
             communityItem: ChatSessionModel(
+              chatId: relayGroupDB.groupId,
               groupId: relayGroupDB.groupId,
               chatType: ChatType.chatRelayGroup,
               chatName: relayGroupDB.name,

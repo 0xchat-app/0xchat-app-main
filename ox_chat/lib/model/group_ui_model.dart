@@ -65,7 +65,7 @@ class GroupUIModel {
       relay: groupDB.relay,
       updateTime: groupDB.lastUpdatedTime,
       private: groupDB.private,
-      chatType: ChatType.chatGroup,
+      chatType: ChatType.chatRelayGroup,
     );
   }
 }

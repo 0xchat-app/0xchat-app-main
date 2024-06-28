@@ -1,3 +1,4 @@
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
@@ -23,6 +24,10 @@ class ChatSessionUtils {
         showName = Groups.sharedInstance.groups[model.chatId]?.name ?? '';
         if (showName.isEmpty) showName = Groups.encodeGroup(model.chatId, null, null);
         break;
+      case ChatType.chatRelayGroup:
+        showName = RelayGroup.sharedInstance.groups[model.chatId]?.name ?? '';
+        if (showName.isEmpty) showName = RelayGroup.encodeGroup(model.chatId, null, null);
+        break;
       case ChatType.chatNotice:
         showName = model.chatName ?? '';
         break;
@@ -43,6 +48,9 @@ class ChatSessionUtils {
       case ChatType.chatGroup:
         showPicUrl = Groups.sharedInstance.groups[model.chatId]?.picture ?? '';
         break;
+      case ChatType.chatRelayGroup:
+        showPicUrl = RelayGroup.sharedInstance.groups[model.chatId]?.picture ?? '';
+        break;
     }
     return showPicUrl;
   }
@@ -58,6 +66,7 @@ class ChatSessionUtils {
         localAvatarPath = 'user_image.png';
         break;
       case ChatType.chatGroup:
+      case ChatType.chatRelayGroup:
         localAvatarPath = 'icon_group_default.png';
         break;
       case ChatType.chatNotice:
@@ -87,6 +96,12 @@ class ChatSessionUtils {
         GroupDB? groupDB = Groups.sharedInstance.groups[model.chatId];
         if (groupDB != null) {
           isMute = groupDB.mute;
+        }
+        break;
+      case ChatType.chatRelayGroup:
+        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[model.chatId];
+        if (relayGroupDB != null) {
+          isMute = relayGroupDB.mute;
         }
         break;
     }
