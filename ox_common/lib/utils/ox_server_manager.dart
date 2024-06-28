@@ -18,6 +18,7 @@ class OXServerManager {
   static final OXServerManager sharedInstance = OXServerManager._internal();
 
   static final String iceServerKey = 'KEY_ICE_SERVER';
+  static final String fileStorageServer = 'KEY_FILE_STORAGE_SERVER';
 
   OXServerManager._internal();
 
@@ -45,7 +46,13 @@ class OXServerManager {
       await saveICEServerList(connectICEServerList);
     }
     iCESeverModelList = connectICEServerList;
-    fileStorageServers = FileStorageServer.defaultFileStorageServers;
+    List<FileStorageServer> tempFileStorageServers = await getFileStorageServers();
+    if(tempFileStorageServers.isEmpty) {
+      fileStorageServers = FileStorageServer.defaultFileStorageServers;
+      await saveFileStorageServers(fileStorageServers);
+    } else {
+      fileStorageServers = tempFileStorageServers;
+    }
   }
 
   Future<void> addServer(ICEServerModel iceServerModel) async {
@@ -90,6 +97,26 @@ class OXServerManager {
     List<ICEServerModel>  iCEServerList = await getICEServerList();
     List<Map<String, String>> serverConfigList = iCEServerList.expand((item) => item.serverConfig).toList();
     return serverConfigList;
+  }
+
+  Future<void> saveFileStorageServers(List<FileStorageServer> fileStorageServers) async {
+    final jsonString = jsonEncode(fileStorageServers.map((fileStorageServer) => fileStorageServer.toJson(fileStorageServer)).toList());
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(fileStorageServer, jsonString);
+  }
+
+  Future<List<FileStorageServer>> getFileStorageServers() async{
+    final jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(fileStorageServer,defaultValue: '');
+
+    if (jsonString.isEmpty) {
+      return [];
+    }
+
+    final fileStorageServers = jsonDecode(jsonString);
+    final fileStorageList = [
+      for (var json in fileStorageServers) FileStorageServer.fromJson(json)
+    ];
+
+    return fileStorageList;
   }
 
   Future<void> addFileStorageServer(FileStorageServer fileStorageServer) async {

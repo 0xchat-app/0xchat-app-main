@@ -21,6 +21,26 @@ class FileStorageServer {
     bool? canEdit,
   }) : canEdit = canEdit ?? true;
 
+  factory FileStorageServer.fromJson(Map<String, dynamic> json) {
+    FileStorageProtocol getFileStorageProtocol(int index) =>
+        FileStorageProtocol.values
+            .where((element) => element.index == index)
+            .first;
+
+    return FileStorageServer(
+      name: json['name'] ?? '',
+      protocol: getFileStorageProtocol(json['protocol'] ?? 0),
+      description: json['description'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson(FileStorageServer fileStorageServer) =>
+      <String, dynamic>{
+        'name': fileStorageServer.name,
+        'protocol': fileStorageServer.protocol.index,
+        'description': fileStorageServer.description,
+      };
+
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
         Nip96Server(
           name: 'nostr.build',
@@ -56,6 +76,18 @@ class BlossomServer extends FileStorageServer {
 }
 
 class MinioServer extends FileStorageServer {
-  MinioServer({required super.name, super.description})
-      : super(protocol: FileStorageProtocol.minio);
+  final String endPoint;
+  final String accessKey;
+  final String secretKey;
+  final bool useSSL;
+
+  MinioServer({
+    required this.endPoint,
+    required this.accessKey,
+    required this.secretKey,
+    required super.name,
+    super.description,
+    bool? useSSL,
+  })  : useSSL = useSSL ?? true,
+        super(protocol: FileStorageProtocol.minio);
 }
