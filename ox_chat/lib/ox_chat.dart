@@ -10,6 +10,7 @@ import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
@@ -61,6 +62,7 @@ class OXChat extends OXFlutterModule {
     'sendSystemMsg': _sendSystemMsg,
     'contactUserInfoPage': _contactUserInfoPage,
     'contactChanneDetailsPage': _contactChanneDetailsPage,
+    'relayGroupInfoPage': _relayGroupInfoPage,
     'groupInfoPage': _groupInfoPage,
     'commonWebview': _commonWebview,
     'zapsRecordDetail' : _zapsRecordDetail,
@@ -115,6 +117,13 @@ class OXChat extends OXFlutterModule {
             groupId: params?['groupId'],
           ),
         );
+      case 'RelayGroupInfoPage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => RelayGroupInfoPage(
+            groupId: params?['groupId'],
+          ),
+        );
       case 'ChatChooseSharePage':
         return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
           msg: params?['url'] ?? '',
@@ -161,6 +170,10 @@ class OXChat extends OXFlutterModule {
       await OXLoading.dismiss();
     }
     OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDB(channelId: channelId)));
+  }
+
+  Future<void> _relayGroupInfoPage(BuildContext? context,{required String groupId}) async {
+    OXNavigator.pushPage(context!, (context) => RelayGroupInfoPage(groupId: groupId));
   }
 
   Future<void> _groupInfoPage(BuildContext? context,{required String groupId}) async {
