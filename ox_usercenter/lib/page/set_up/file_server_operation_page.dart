@@ -9,23 +9,23 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-enum OperationType { add, edit }
+enum OperationType { create, edit }
 
-class FileServerAddPage extends StatefulWidget {
-  final FileStorageProtocol fileServerType;
+class FileServerOperationPage extends StatefulWidget {
+  final FileStorageProtocol fileStorageProtocol;
   final OperationType operationType;
 
-  const FileServerAddPage({
+  const FileServerOperationPage({
     super.key,
-    required this.fileServerType,
+    required this.fileStorageProtocol,
     OperationType? operationType,
-  }) : operationType = operationType ?? OperationType.add;
+  }) : operationType = operationType ?? OperationType.create;
 
   @override
-  State<FileServerAddPage> createState() => _FileServerAddPageState();
+  State<FileServerOperationPage> createState() => _FileServerOperationPageState();
 }
 
-class _FileServerAddPageState extends State<FileServerAddPage> {
+class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   final _UrlController = TextEditingController();
 
@@ -37,7 +37,7 @@ class _FileServerAddPageState extends State<FileServerAddPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = '${widget.operationType.name} ${widget.fileServerType.serverName}';
+    final title = '${widget.operationType.name} ${widget.fileStorageProtocol.serverName}';
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
@@ -61,9 +61,9 @@ class _FileServerAddPageState extends State<FileServerAddPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _buildItem('URL', _buildURLTextField()),
-            if(widget.fileServerType == FileStorageProtocol.minio)
-              _buildItem('Secret Key', _buildURLTextField()).setPaddingOnly(top: 12.px),
+            // _buildItem('URL', _buildTextField()),
+            if(widget.fileStorageProtocol == FileStorageProtocol.minio)
+              _buildMinioTypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: () {
@@ -105,7 +105,7 @@ class _FileServerAddPageState extends State<FileServerAddPage> {
     );
   }
 
-  Widget _buildURLTextField() {
+  Widget _buildTextField() {
     return Container(
       width: double.infinity,
       height: 48.px,
@@ -129,6 +129,16 @@ class _FileServerAddPageState extends State<FileServerAddPage> {
           setState(() {});
         },
       ),
+    );
+  }
+
+  Widget _buildMinioTypeView() {
+    List<String> labels = ['name','endPoint','secretKey','useSSL','description'];
+    return ListView.separated(
+      shrinkWrap: true,
+      itemBuilder: (context, index) => _buildItem(labels[index], _buildTextField()),
+      separatorBuilder: (context, index) => SizedBox(height: 12.px,),
+      itemCount: labels.length,
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_usercenter/page/set_up/file_server_add_page.dart';
+import 'package:ox_usercenter/page/set_up/file_server_operation_page.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
 class FileServerPage extends StatefulWidget {
@@ -94,7 +94,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
       onTap: () {
         if(_isEditing) {
           if(canEdit) {
-            OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.nip96));
+            OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.nip96));
           }
         } else {
           setState(() {
@@ -159,8 +159,8 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
         onTap: () {
           if(_isEditing) return;
           final items = [
-            BottomSheetItem(title: FileStorageProtocol.nip96.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.nip96))),
-            BottomSheetItem(title: FileStorageProtocol.minio.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerAddPage(fileServerType: FileStorageProtocol.minio))),
+            BottomSheetItem(title: FileStorageProtocol.nip96.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.nip96))),
+            BottomSheetItem(title: FileStorageProtocol.minio.serverName,onTap: ()=> OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.minio))),
           ];
           BottomSheetDialog.showBottomSheet(context, items);
         },
