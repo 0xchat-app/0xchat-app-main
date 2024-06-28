@@ -38,11 +38,12 @@ extension SearchDiscoverUI on SearchPageState{
         List<String> relays = map['relays'];
         ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
         if (c != null) {
+          List<ChannelDB> result = [c];
           dataGroups.add(
             Group(
                 title: 'Online Channels',
                 type: SearchItemType.channel,
-                items: [c]),
+                items: result),
           );
         }
       }
