@@ -166,9 +166,8 @@ class OXChat extends OXFlutterModule {
     ChannelDB? channelDB = Channels.sharedInstance.channels[channelId];
     if(channelDB == null){
       await OXLoading.show();
-      List<ChannelDB> channels = await Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]);
+      channelDB = await Channels.sharedInstance.searchChannel(channelId, null);
       await OXLoading.dismiss();
-      channelDB = channels.length > 0 ? channels.first : null;
     }
     OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDB(channelId: channelId)));
   }

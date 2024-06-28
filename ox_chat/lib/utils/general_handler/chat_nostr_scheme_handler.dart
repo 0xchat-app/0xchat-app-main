@@ -55,11 +55,9 @@ class ChatNostrSchemeHandle {
   }
 
   static Future<ChannelDB> _loadChannelOnline(String channelId) async {
-    List<ChannelDB> channels = await Channels.sharedInstance
-        .getChannelsFromRelay(channelIds: [channelId]);
-    return channels.length > 0
-        ? channels.first
-        : ChannelDB(channelId: channelId);
+    ChannelDB? channel = await Channels.sharedInstance
+        .searchChannel(channelId, null);
+    return channel ?? ChannelDB(channelId: channelId);
   }
 
   static Future<String?> addressToMessageContent(

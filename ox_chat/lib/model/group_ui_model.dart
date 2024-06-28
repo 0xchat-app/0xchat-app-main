@@ -36,6 +36,7 @@ class GroupUIModel {
   });
 
   static GroupUIModel groupdbToUIModel(GroupDB groupDB){
+    if(groupDB.name.isEmpty) groupDB.name = groupDB.shortGroupId;
     return GroupUIModel(
       name: groupDB.name,
       groupId: groupDB.groupId,
@@ -53,6 +54,7 @@ class GroupUIModel {
   }
 
   static GroupUIModel relayGroupdbToUIModel(RelayGroupDB groupDB){
+    if(groupDB.name.isEmpty) groupDB.name = groupDB.shortGroupId;
     return GroupUIModel(
       name: groupDB.name,
       groupId: groupDB.groupId,
