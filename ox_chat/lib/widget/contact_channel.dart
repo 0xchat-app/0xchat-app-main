@@ -98,7 +98,7 @@ class ChannelContactState extends State<ChannelContact> {
     });
 
     channelList.forEach((item) {
-      if (item.channelId == '' || item.name == '') return;
+      if (item.channelId.isEmpty) return;
       var cTag = pinyinMap[item]![0].toUpperCase();
       if (!ALPHAS_INDEX.contains(cTag)) cTag = '#';
       mapData[cTag]?.add(item);
@@ -350,7 +350,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
           chatId: widget.item.channelId,
           groupId: widget.item.channelId,
           chatType: ChatType.chatChannel,
-          chatName: widget.item.name!,
+          chatName: widget.item.name ?? '',
           createTime: widget.item.createTime,
           avatar: widget.item.picture!,
         ),
