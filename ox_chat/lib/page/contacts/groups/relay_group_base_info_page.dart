@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -112,6 +113,7 @@ class RelayGroupBaseInfoView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.px),
         color: ThemeColor.color180,
       ),
+      padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 12.px),
       child: Row(
         children: [
           OXRelayGroupAvatar(
@@ -121,11 +123,14 @@ class RelayGroupBaseInfoView extends StatelessWidget {
           SizedBox(width: 10.px),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MyText(relayGroup?.name ?? '', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-                SizedBox(height: 2.px),
-                MyText(relayGroup?.relayPubkey ?? '', 14.sp, ThemeColor.color100,
-                    fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
+                if (relayGroup != null && relayGroup!.relayPubkey.isNotEmpty) SizedBox(height: 2.px),
+                if (relayGroup != null && relayGroup!.relayPubkey.isNotEmpty)
+                  MyText(relayGroup?.relayPubkey ?? '', 14.sp, ThemeColor.color100,
+                      fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

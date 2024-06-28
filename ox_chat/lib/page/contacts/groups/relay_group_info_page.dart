@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -77,9 +78,10 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         ],
       ),
       body: SingleChildScrollView(
+        padding: EdgeInsets.zero,
         child: Container(
           margin: EdgeInsets.symmetric(
-            horizontal: 24.px,
+            horizontal: 12.px,
           ),
           child: Column(
             children: [
@@ -584,32 +586,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _groupMemberOptionFn(GroupListAction action) async {
-    if (!_isGroupMember) return;
-    if (GroupListAction.add == action && !_isGroupManager) {
-      if (groupDBInfo?.private ?? false) {
-        OXCommonHintDialog.show(
-          context,
-          content: 'str_group_visit_verify_hint'.localized(),
-          actionList: [
-            OXCommonHintAction.sure(
-              text: Localized.text('ox_common.complete'),
-              onTap: () async {
-                OXNavigator.pop(context);
-                _shareGroupFn();
-              },
-            ),
-          ],
-          isRowAction: true,
-        );
-      } else {
-        return _shareGroupFn();
-      }
-    }
+    LogUtil.e('Michael: _groupMemberOptionFn===action =${action.name}');
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
         groupId: widget.groupId,
         groupListAction: action,
+        groupType: groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup) : null,
       ),
     );
     if (result != null && result) _groupInfoInit();
@@ -665,18 +648,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _groupInfoInit() async {
     String groupId = widget.groupId;
     RelayGroupDB? groupDB = await RelayGroup.sharedInstance.myGroups[groupId];
-    List<UserDB>? groupList =
-        await Groups.sharedInstance.getAllGroupMembers(groupId);
 
     if (groupDB != null) {
       UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-      if (userInfo == null || groupMember.length == 0) {
-        _isGroupMember = false;
-      } else {
-        _isGroupMember = groupMember.any((userDB) => userDB.pubKey == userInfo.pubKey);
-      }
-      List<GroupAdmin>? admins = groupDB?.admins ?? null;
-      if (userInfo == null || groupDB == null || admins == null || admins.length > 0) {
+      List<GroupAdmin>? admins = groupDB.admins ?? null;
+      if (userInfo == null || admins == null || admins.length > 0) {
         _isGroupManager = false;
       } else {
         for (GroupAdmin amin in admins) {
@@ -685,9 +661,24 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           }
         }
       }
+      _loadMembers(groupDB);
       groupDBInfo = groupDB;
-      groupMember = groupList;
       setState(() {});
     }
   }
+
+  void _loadMembers(RelayGroupDB groupDB) async {
+    List<String>? tempMembers = groupDB.members;
+    if (tempMembers != null){
+      groupMember = await RelayGroup.sharedInstance.getAllGroupMembers(widget.groupId);
+      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+      if (userInfo == null || groupMember.length == 0) {
+        _isGroupMember = false;
+      } else {
+        _isGroupMember = groupMember.any((userDB) => userDB.pubKey == userInfo.pubKey);
+      }
+      setState(() {});
+    }
+  }
+
 }

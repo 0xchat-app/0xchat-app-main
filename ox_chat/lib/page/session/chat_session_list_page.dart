@@ -7,6 +7,7 @@ import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -722,6 +723,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           _setAllRead(item);
           if (item.chatType == 9999) {
             _routeCustomService();
+          } else if (item.chatType == ChatType.chatRelayGroup) {
+            OXNavigator.pushPage(
+                context,
+                (context) => ChatRelayGroupMsgPage(
+                      communityItem: item,
+                    ));
           } else if (item.chatType == ChatType.chatGroup) {
             OXNavigator.pushPage(
                 context,

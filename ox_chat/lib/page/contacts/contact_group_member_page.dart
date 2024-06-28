@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
@@ -13,7 +14,7 @@ class ContactGroupMemberPage extends ContactGroupListPage {
   final String? title;
   final GroupListAction? groupListAction;
 
-  const ContactGroupMemberPage({required this.groupId,this.title,this.groupListAction}) : super(title: title);
+  const ContactGroupMemberPage({required this.groupId,this.title,this.groupListAction, super.groupType}) : super(title: title);
 
   @override
   _ContactGroupMemberState createState() => _ContactGroupMemberState();
@@ -39,11 +40,17 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   }
 
   Future<List<UserDB>> fetchUserList() async {
-    List<UserDB> allGroupMembers = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    List<UserDB> allGroupMembers = widget.groupType ==null || widget.groupType == GroupType.privateGroup ? await Groups.sharedInstance.getAllGroupMembers(groupId)
+      : await RelayGroup.sharedInstance.getAllGroupMembers(groupId);
     List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
-    GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
     String owner = '';
-    if(groupDB != null) owner = groupDB.owner;
+    if (widget.groupType ==null || widget.groupType == GroupType.privateGroup) {
+      GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
+      if (groupDB != null) owner = groupDB.owner;
+    } else {
+      RelayGroupDB? groupDB = RelayGroup.sharedInstance.groups[groupId];
+      if (groupDB != null) owner = groupDB.author;
+    }
     switch (widget.groupListAction) {
       case GroupListAction.view:
         return allGroupMembers;
