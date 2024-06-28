@@ -131,6 +131,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     action: (String str, BuildContext context) async {
       final data = Channels.decodeChannel(str);
       final groupId = data?['channelId'];
+      final relays = data?['relays'];
       if (data == null || groupId == null || groupId is! String || groupId.isEmpty) return true;
 
       final isGroup = Groups.sharedInstance.groups.containsKey(groupId);
@@ -152,17 +153,9 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       } else {
         // Go to Channel
         await OXLoading.show();
-        List<ChannelDB> channelsList = [];
-        ChannelDB? c = Channels.sharedInstance.channels[groupId];
-        if (c == null) {
-          channelsList = await Channels.sharedInstance
-              .getChannelsFromRelay(channelIds: [groupId]);
-        } else {
-          channelsList = [c];
-        }
+        ChannelDB? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
         await OXLoading.dismiss();
-        if (channelsList.isNotEmpty) {
-          ChannelDB channelDB = channelsList[0];
+        if (channelDB != null) {
           if (context.mounted) {
             OXModuleService.pushPage(context, 'ox_chat', 'ChatGroupMessagePage', {
               'chatId': groupId,
