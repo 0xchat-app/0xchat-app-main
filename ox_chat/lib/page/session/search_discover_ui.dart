@@ -35,20 +35,14 @@ extension SearchDiscoverUI on SearchPageState{
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
       if (map != null && map.containsKey('channelId')) {
         String decodeNote = map['channelId'].toString();
-        List<ChannelDB> channelDBList = [];
-        ChannelDB? c = Channels.sharedInstance.channels[decodeNote];
-        if (c == null) {
-          channelDBList = await Channels.sharedInstance
-              .getChannelsFromRelay(channelIds: [decodeNote]);
-        } else {
-          channelDBList = [c];
-        }
-        if (channelDBList.isNotEmpty) {
+        List<String> relays = map['relays'];
+        ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
+        if (c != null) {
           dataGroups.add(
             Group(
                 title: 'Online Channels',
                 type: SearchItemType.channel,
-                items: channelDBList),
+                items: [c]),
           );
         }
       }
