@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -13,18 +14,22 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../utils/theme_color.dart';
+import 'common_loading.dart';
 import 'common_toast.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/widgets.dart';
+
+typedef DoubleClickAnimationListener = void Function();
+
 
 class CommonImageGallery extends StatefulWidget {
   final List<String> imageList;
   final String tag;
   final int initialPage;
-
   const CommonImageGallery(
       {required this.imageList, required this.tag, required this.initialPage});
 
@@ -32,17 +37,59 @@ class CommonImageGallery extends StatefulWidget {
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
 }
 
-class _CommonImageGalleryState extends State<CommonImageGallery> {
+class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProviderStateMixin {
+  late DoubleClickAnimationListener _doubleClickAnimationListener;
   late ExtendedPageController _pageController;
-
+  Animation<double>? _doubleClickAnimation;
+  late AnimationController _doubleClickAnimationController;
+  late AnimationController _slideEndAnimationController;
+  late Animation<double> _slideEndAnimation;
   GlobalKey<ExtendedImageSlidePageState> slidePagekey =
       GlobalKey<ExtendedImageSlidePageState>();
-
+  bool _isPopped = false;
+  double _imageDetailY = 0;
+  bool _showSwiper = true;
+  List<double> doubleTapScales = <double>[1.0, 2.0];
+  final StreamController<bool> rebuildSwiper =
+  StreamController<bool>.broadcast();
+  final StreamController<double> rebuildDetail =
+  StreamController<double>.broadcast();
   @override
   void initState() {
     super.initState();
-    _pageController = ExtendedPageController(initialPage: widget.initialPage);
+    _pageController = ExtendedPageController(
+      initialPage: widget.initialPage!,
+      pageSpacing: 50,
+      shouldIgnorePointerWhenScrolling: false,
+    );
+    _doubleClickAnimationController = AnimationController(
+        duration: const Duration(milliseconds: 150), vsync: this);
+
+    _slideEndAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _slideEndAnimationController.addListener(() {
+      _imageDetailY = _slideEndAnimation.value;
+      if (_imageDetailY == 0) {
+        _showSwiper = true;
+        rebuildSwiper.add(_showSwiper);
+      }
+      rebuildDetail.sink.add(_imageDetailY);
+    });
   }
+
+  void _handleSlideEnd(ExtendedImageSlidePageState state) {
+    if (state.offset.dy > -20 && !_isPopped) {
+      _isPopped = true;
+      Navigator.pop(context);
+    }
+    if (state.offset.dy > 20 && !_isPopped) {
+      _isPopped = true;
+      Navigator.pop(context);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,59 +97,140 @@ class _CommonImageGalleryState extends State<CommonImageGallery> {
       color: Colors.transparent,
       child: Stack(
         children: [
-          ExtendedImageSlidePage(
-            key: slidePagekey,
-            child: ExtendedImageGesturePageView.builder(
-              controller: _pageController,
-              itemCount: widget.imageList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onLongPress: _showBottomMenu,
-                  onTap: () {
-                    OXNavigator.pop(context);
-                  },
-                  child: HeroWidget(
+          GestureDetector(
+            // onPanUpdate: _handleDragUpdate,
+            // onPanEnd: _handleDragEnd,
+            onLongPress: _showBottomMenu,
+            onTap: () {
+              OXNavigator.pop(context);
+            },
+            child: ExtendedImageSlidePage(
+              key: slidePagekey,
+
+              onSlidingPage: (ExtendedImageSlidePageState state) {
+                print('====state===>>>>$state');
+                // 滑动结束时检查偏移量
+                // if (!state.isSliding) {
+                _handleSlideEnd(state);
+                // }
+              },
+              child: ExtendedImageGesturePageView.builder(
+                controller: _pageController,
+                itemCount: widget.imageList.length,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                canScrollPage: (GestureDetails? gestureDetails) {
+
+                  return _imageDetailY >= 0;
+                  //return (gestureDetails?.totalScale ?? 1.0) <= 1.0;
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return HeroWidget(
                     child: ExtendedImage.network(
                       widget.imageList[index],
+                      loadStateChanged: (ExtendedImageState state) {
+                        switch (state.extendedImageLoadState) {
+                          case LoadState.loading:
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          case LoadState.completed:
+                            return null; // Use the completed image
+                          case LoadState.failed:
+                            return Center(
+                              child: Text('Load failed'),
+                            );
+                        }
+                        return null;
+                      },
                       enableSlideOutPage: true,
                       onDoubleTap: (ExtendedImageGestureState state) {
-                        final pointerDownPosition = state.pointerDownPosition;
-                        final begin = state.gestureDetails!.totalScale!;
+                        ///you can use define pointerDownPosition as you can,
+                        ///default value is double tap pointer down postion.
+                        final Offset? pointerDownPosition =
+                            state.pointerDownPosition;
+                        final double? begin = state.gestureDetails!.totalScale;
                         double end;
-                        if (begin == 1) {
-                          end = 3;
+
+                        //remove old
+                        _doubleClickAnimation
+                            ?.removeListener(_doubleClickAnimationListener);
+
+                        //stop pre
+                        _doubleClickAnimationController.stop();
+
+                        //reset to use
+                        _doubleClickAnimationController.reset();
+
+                        if (begin == doubleTapScales[0]) {
+                          end = doubleTapScales[1];
                         } else {
-                          end = 1;
+                          end = doubleTapScales[0];
                         }
-                        state.handleDoubleTap(
-                            scale: end, doubleTapPosition: pointerDownPosition);
+
+                        _doubleClickAnimationListener = () {
+                          //print(_animation.value);
+                          state.handleDoubleTap(
+                              scale: _doubleClickAnimation!.value,
+                              doubleTapPosition: pointerDownPosition);
+                        };
+                        _doubleClickAnimation = _doubleClickAnimationController
+                            .drive(Tween<double>(begin: begin, end: end));
+
+                        _doubleClickAnimation!
+                            .addListener(_doubleClickAnimationListener);
+
+                        _doubleClickAnimationController.forward();
+                      },
+                      mode: ExtendedImageMode.gesture,
+                      initGestureConfigHandler: (state) {
+                        return GestureConfig(
+                          minScale: 0.9,
+                          animationMinScale: 0.7,
+                          maxScale: 3.0,
+                          animationMaxScale: 3.5,
+                          speed: 1.0,
+                          inertialSpeed: 100.0,
+                          initialScale: 1.0,
+                          inPageView: false,
+                          initialAlignment: InitialAlignment.center,
+                        );
                       },
                     ),
                     tag: widget.imageList[index] + widget.tag,
                     slideType: SlideType.onlyImage,
                     slidePagekey: slidePagekey,
-                  ),
-                );
-                // );
-              },
-              onPageChanged: (int index) {
-                print('page changed to $index');
-              },
-              scrollDirection: Axis.horizontal,
+                  );
+                  // );
+                },
+                onPageChanged: (int index) {
+                  print('page changed to $index');
+                },
+              ),
+              slideAxis: SlideAxis.both,
+              slideType: SlideType.onlyImage,
+              // onSlidingPage: (state) {
+              //   print('Sliding state: ${state.toString()}');
+              // },
             ),
-            slideAxis: SlideAxis.both,
-            slideType: SlideType.onlyImage,
-            onSlidingPage: (state) {
-              print('Sliding state: ${state.toString()}');
-            },
           ),
           Positioned.directional(
             end: 16,
             textDirection: Directionality.of(context),
             bottom: 56,
-            child: IconButton(
-              icon: Icon(Icons.save_alt, color: Colors.white),
-              onPressed: _widgetShotAndSave,
+            child: Container(
+              width: 35.px,
+              height: 35.px,
+              decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                borderRadius: BorderRadius.all(Radius.circular(35.px))
+              ),
+              child: Center(
+                child: GestureDetector(
+                  child: Icon(Icons.save_alt, color: Colors.white,size: 24,),
+                  onTap: _widgetShotAndSave,
+                ),
+              )
             ),
           ),
         ],
@@ -114,71 +242,77 @@ class _CommonImageGalleryState extends State<CommonImageGallery> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: new Material(
-          type: MaterialType.transparency,
-          child: new Opacity(
-            opacity: 1, //Opacity containing a widget
-            child: new GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: new Container(
-                decoration: BoxDecoration(
-                  color: ThemeColor.color190,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    new GestureDetector(
-                      onTap: ()async {
-                      await _widgetShotAndSave();
-                      OXNavigator.pop(context);
-                      },
-                      child: Container(
-                        height: 48.px,
-                        padding: EdgeInsets.all(8.px),
-                        alignment: FractionalOffset.center,
-                        decoration: new BoxDecoration(
-                          color: ThemeColor.color180,
-                        ),
-                        child: Text(
-                          Localized.text('ox_chat.str_save_image'),
-                          style: new TextStyle(
-                              color: ThemeColor.gray02,
-                              fontSize: 16.px,
-                              fontWeight: FontWeight.normal),
-                        ),
-                      ),
-                    ),
-                    new Container(
-                      height: 2.px,
-                      color: ThemeColor.dark01,
-                    ),
-                    new GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        height: 48.px,
-                        padding: EdgeInsets.all(8.px),
-                        alignment: FractionalOffset.center,
-                        color: ThemeColor.color180,
-                        child: Text(
-                          'cancel'.commonLocalized(),
-                          style: new TextStyle(
-                            color: ThemeColor.gray02,
-                            fontSize: 16.px,
-                            fontWeight: FontWeight.normal,
+      builder: (BuildContext context) => Container(
+        padding: EdgeInsets.only(
+          bottom: 30.px
+        ),
+        color: ThemeColor.color180,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: new Material(
+            type: MaterialType.transparency,
+            child: new Opacity(
+              opacity: 1, //Opacity containing a widget
+              child: new GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: new Container(
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color190,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      new GestureDetector(
+                        onTap: ()async {
+                          await _widgetShotAndSave();
+                          OXNavigator.pop(context);
+                        },
+                        child: Container(
+                          height: 48.px,
+                          padding: EdgeInsets.all(8.px),
+                          alignment: FractionalOffset.center,
+                          decoration: new BoxDecoration(
+                            color: ThemeColor.color180,
+                          ),
+                          child: Text(
+                            Localized.text('ox_chat.str_save_image'),
+                            style: new TextStyle(
+                                color: ThemeColor.gray02,
+                                fontSize: 16.px,
+                                fontWeight: FontWeight.normal),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      new Container(
+                        height: 2.px,
+                        color: ThemeColor.dark01,
+                      ),
+                      new GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          height: 48.px,
+                          padding: EdgeInsets.all(8.px),
+                          alignment: FractionalOffset.center,
+                          color: ThemeColor.color180,
+                          child: Text(
+                            'cancel'.commonLocalized(),
+                            style: new TextStyle(
+                              color: ThemeColor.gray02,
+                              fontSize: 16.px,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -190,6 +324,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery> {
 
   Future _widgetShotAndSave() async {
     if (widget.imageList.isEmpty) return;
+    OXLoading.show();
     final pageIndex = _pageController.page?.round() ?? 0;
     final imageUri = widget.imageList[pageIndex];
 
@@ -227,6 +362,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery> {
       unawaited(CommonToast.instance
           .show(context, Localized.text('ox_chat.str_save_failed')));
     }
+    OXLoading.dismiss();
   }
 }
 
