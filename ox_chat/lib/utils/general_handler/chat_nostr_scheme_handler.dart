@@ -54,10 +54,10 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
-  static Future<ChannelDB> _loadChannelOnline(String channelId) async {
-    ChannelDB? channel = await Channels.sharedInstance
-        .searchChannel(channelId, null);
-    return channel ?? ChannelDB(channelId: channelId);
+  static Future<ChannelDB> _loadChannelOnline(Channel channel) async {
+    ChannelDB? channelDB = await Channels.sharedInstance
+        .updateChannelMetadataFromRelay(channel.owner, channel.channelId);
+    return channelDB ?? ChannelDB(channelId: channel.channelId);
   }
 
   static Future<String?> addressToMessageContent(
@@ -107,11 +107,11 @@ class ChatNostrSchemeHandle {
                 longFormContent, nostrScheme);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
-            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
+            ChannelDB channelDB = await _loadChannelOnline(channel);
             return await channelToMessageContent(channelDB, nostrScheme);
           case 41:
             Channel channel = Nip28.getChannelMetadata(event);
-            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
+            ChannelDB channelDB = Channels.sharedInstance.getChannelDBFromChannel(channel);
             return await channelToMessageContent(channelDB, nostrScheme);
         }
       }
