@@ -219,13 +219,12 @@ class OXRelayGroupAvatarState extends State<OXRelayGroupAvatar> {
       isClickable: widget.isClickable,
       onTap: () async {
         final group = widget.relayGroup;
-        final groupId = group;
-        if (groupId != null && group != null) {
-          // await OXModuleService.pushPage(context, 'ox_chat', 'ContactChanneDetailsPage', {
-          //   'channelDB': group,
-          // });
-          // final onReturnFromNextPage = widget.onReturnFromNextPage;
-          // if (onReturnFromNextPage != null) onReturnFromNextPage();
+        if (group != null) {
+          await OXModuleService.pushPage(context, 'ox_chat', 'RelayGroupInfoPage', {
+            'groupId': group.groupId,
+          });
+          final onReturnFromNextPage = widget.onReturnFromNextPage;
+          if (onReturnFromNextPage != null) onReturnFromNextPage();
         } else {
           CommonToast.instance.show(context, 'The Group Detail load failed.');
         }
