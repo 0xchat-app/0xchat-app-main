@@ -16,8 +16,7 @@ class RelayGroupManagePage extends StatefulWidget{
   RelayGroupManagePage({super.key, required this.relayGroupDB});
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+    return _RelayGroupManagePageState();
   }
 
 }

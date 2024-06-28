@@ -273,7 +273,6 @@
   "str_group_ID": "群ID",
   "str_group_remark": "群备注",
   "str_group_my_alias_in": "我在本群的昵称",
-  "str_group_clear_chat_history": "清空聊天记录",
   "str_group_report": "投诉",
   "str_group_photo": "群头像",
   "str_group_visit_verify_hint": "该群组已启用加群验证。需要当前群管理员的邀请才能加入。",
@@ -285,6 +284,7 @@
   "str_group_approved": "已批准",
   "str_group_join_request_msg_delete_tips": "一旦删除，消息无法恢复。确定要继续吗？",
   "str_group_manage": "管理群组",
+  "str_group_notes": "群组论坛",
   "str_group_membership_approval": "成员审批",
   "str_group_edit_permission_hint": "谁可以编辑群信息",
   "str_group_clip_permission_hint": "谁可以置顶",
@@ -292,5 +292,8 @@
   "str_group_send_msg_permission_hint": "谁可以发送消息",
   "str_group_at_permission_hint": "谁可以@所有人",
   "str_group_admin_hint": "群管理员",
-  "str_group_disband_hint": "解散群组"
+  "str_group_disband_hint": "解散群组",
+  "str_group_search_history": "解散群组",
+  "str_group_search_chat_history": "搜索聊天记录",
+  "str_group_clear_chat_history": "清空聊天记录"
 }

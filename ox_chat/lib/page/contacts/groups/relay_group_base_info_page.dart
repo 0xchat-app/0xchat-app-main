@@ -101,8 +101,9 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 
 class RelayGroupBaseInfoView extends StatelessWidget {
   final RelayGroupDB? relayGroup;
+  final GestureTapCallback? groupQrCodeFn;
 
-  RelayGroupBaseInfoView({this.relayGroup});
+  RelayGroupBaseInfoView({this.relayGroup, this.groupQrCodeFn});
 
   @override
   Widget build(BuildContext context) {
@@ -135,11 +136,15 @@ class RelayGroupBaseInfoView extends StatelessWidget {
             ),
           ),
           SizedBox(width: 10.px),
-          CommonImage(
-            iconName: 'qrcode_icon.png',
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-            useTheme: true,
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: groupQrCodeFn,
+            child: CommonImage(
+              iconName: 'qrcode_icon.png',
+              width: Adapt.px(24),
+              height: Adapt.px(24),
+              useTheme: true,
+            ),
           ),
           CommonImage(
             iconName: 'icon_arrow_more.png',

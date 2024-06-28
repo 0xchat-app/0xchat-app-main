@@ -41,7 +41,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   Future<List<UserDB>> fetchUserList() async {
     List<UserDB> allGroupMembers = widget.groupType ==null || widget.groupType == GroupType.privateGroup ? await Groups.sharedInstance.getAllGroupMembers(groupId)
-      : await RelayGroup.sharedInstance.getAllGroupMembers(groupId);
+      : await RelayGroup.sharedInstance.getGroupMembersFromLocal(groupId);
     List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
     String owner = '';
     if (widget.groupType ==null || widget.groupType == GroupType.privateGroup) {

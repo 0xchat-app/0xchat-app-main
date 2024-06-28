@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -87,10 +88,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             children: [
               _groupBaseInfoView(),
               _optionMemberWidget(),
-              _groupBaseOptionView(),
+              _groupTypeView(),
+              _groupNotesView(),
               _muteWidget(),
-              _groupLocationView(),
+              _groupHistoryView(),
               _leaveBtnWidget(),
+              SizedBox(height: 50.px),
             ],
           ),
         ),
@@ -115,31 +118,25 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   Widget _groupBaseInfoView() {
     return RelayGroupBaseInfoView(
       relayGroup: groupDBInfo,
+      groupQrCodeFn: _groupQrCodeFn,
     );
   }
 
   Widget _optionMemberWidget() {
     return Container(
-      margin: EdgeInsets.only(
-        top: Adapt.px(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
       ),
+      margin: EdgeInsets.only(top: 16.px),
+      padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 12.px),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _memberAvatarWidget(),
-              _addOrDelMember(),
-            ],
-          ),
           GestureDetector(
             onTap: () => _groupMemberOptionFn(GroupListAction.view),
             child: Container(
-              margin: EdgeInsets.symmetric(
-                vertical: Adapt.px(16),
-              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
@@ -162,6 +159,14 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                 ],
               ),
             ),
+          ),
+          SizedBox(height: 8.px),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _memberAvatarWidget(),
+              _addOrDelMember(),
+            ],
           ),
         ],
       ),
@@ -226,8 +231,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       onTap: () => _groupMemberOptionFn(GroupListAction.add),
       child: CommonImage(
         iconName: 'add_circle_icon.png',
-        width: Adapt.px(48),
-        height: Adapt.px(48),
+        size: 40.px,
         useTheme: true,
       ),
     );
@@ -238,38 +242,35 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.remove),
       child: Container(
-        margin: EdgeInsets.only(
-          left: Adapt.px(12),
-        ),
+        margin: EdgeInsets.only(left: 12.px),
         child: CommonImage(
           iconName: 'del_circle_icon.png',
-          width: Adapt.px(48),
-          height: Adapt.px(48),
+          size: 40.px,
           useTheme: true,
         ),
       ),
     );
   }
 
-  Widget _groupBaseOptionView() {
+  Widget _groupTypeView() {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color180,
       ),
+      margin: EdgeInsets.only(top: 16.px),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           GroupItemBuild(
-            title: Localized.text('ox_chat.group_name'),
-            subTitle: groupDBInfo?.name ?? '--',
-            onTap: _updateGroupNameFn,
-            isShowMoreIcon: _isGroupMember,
-          ),
-          GroupItemBuild(
             title: Localized.text('ox_chat.str_group_type'),
-            subTitle: groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup.text: GroupType.openGroup.text) : '--',
-            subTitleIcon : groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup.typeIcon: GroupType.openGroup.typeIcon) : null,
+            subTitle: groupDBInfo != null
+                ? (groupDBInfo!.private ? GroupType.closeGroup.text : GroupType.openGroup.text)
+                : '--',
+            subTitleIcon: groupDBInfo != null
+                ? (groupDBInfo!.private ? GroupType.closeGroup.typeIcon : GroupType.openGroup.typeIcon)
+                : null,
             onTap: _updateGroupTypeFn,
             isShowMoreIcon: _isGroupMember,
           ),
@@ -280,42 +281,85 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             isShowMoreIcon: _isGroupMember,
           ),
           GroupItemBuild(
-            title: Localized.text('ox_chat.str_group_ID'),
-            subTitle: groupDBInfo?.groupId ?? '--',
-            onTap: null,
-            isShowMoreIcon: _isGroupMember,
-          ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.group_member'),
-            subTitle: groupMember.length.toString(),
-            onTap: () => _groupMemberOptionFn(GroupListAction.view),
-            isShowMoreIcon: _isGroupMember,
-          ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.group_qr_code'),
-            actionWidget: CommonImage(
-              iconName: 'qrcode_icon.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
-            ),
-            onTap: _groupQrCodeFn,
-          ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.group_notice'),
-            titleDes: _getGroupNotice,
-            onTap: _updateGroupNoticeFn,
-            isShowMoreIcon: _isGroupMember,
-          ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.join_request'),
-            onTap: _jumpJoinRequestFn,
-            isShowMoreIcon: _isGroupManager,
+            title: Localized.text('ox_chat.str_group_manage'),
+            onTap: _manageGroupNoticeFn,
+            isShowMoreIcon: true,
             isShowDivider: false,
           ),
         ],
       ),
     );
+  }
+
+  Widget _groupNotesView(){
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.px),
+        color: ThemeColor.color180,
+      ),
+      margin: EdgeInsets.only(top: 16.px),
+      child: Column(
+        children: [
+          GroupItemBuild(
+            title: Localized.text('ox_chat.str_group_notes'),
+            onTap: _gotoGroupNotesFn,
+            isShowMoreIcon: true,
+            isShowDivider: false,
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _groupHistoryView() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(16)),
+        color: ThemeColor.color180,
+      ),
+      margin: EdgeInsets.only(top: 16.px),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GroupItemBuild(
+            title: Localized.text('ox_chat.str_group_search_chat_history'),
+            onTap: _searchChatHistoryFn,
+            isShowMoreIcon: true,
+          ),
+          GroupItemBuild(
+            title: Localized.text('ox_chat.str_group_clear_chat_history'),
+            onTap: _clearChatHistoryFn,
+            isShowMoreIcon: true,
+            isShowDivider: false,
+          ),
+          // GroupItemBuild(
+          //   title: Localized.text('ox_chat.str_group_report'),
+          //   subTitle: groupDBInfo?.groupId ?? '--',
+          //   onTap: _reportFn,
+          //   isShowMoreIcon: _isGroupMember,
+          // ),
+          // GroupItemBuild(
+          //   title: Localized.text('ox_chat.group_notice'),
+          //   titleDes: _getGroupNotice,
+          //   onTap: _updateGroupNoticeFn,
+          //   isShowMoreIcon: _isGroupMember,
+          // ),
+        ],
+      ),
+    );
+  }
+
+  void _searchChatHistoryFn() async {
+
+  }
+
+  void _clearChatHistoryFn() async {
+
+  }
+
+  void _reportFn() async {
+
   }
 
   void _jumpJoinRequestFn() {
@@ -328,35 +372,23 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   Widget _muteWidget() {
     return Container(
-      margin: EdgeInsets.only(
-        top: Adapt.px(16),
-      ),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color180,
-      ),
-      child: GroupItemBuild(
-        title: Localized.text('ox_chat.mute_item'),
-        isShowDivider: false,
-        actionWidget: _muteSwitchWidget(),
-        isShowMoreIcon: false,
-      ),
-    );
-  }
-
-  Widget _groupLocationView() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: Adapt.px(12),
-      ),
+      margin: EdgeInsets.only(top: 16.px),
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(16)),
         color: ThemeColor.color180,
       ),
       child: Column(
-        children: [],
+        children: [
+          ///Remark
+          ///Alias
+          GroupItemBuild(
+            title: Localized.text('ox_chat.mute_item'),
+            isShowDivider: false,
+            actionWidget: _muteSwitchWidget(),
+            isShowMoreIcon: false,
+          ),
+        ],
       ),
     );
   }
@@ -382,14 +414,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _leaveBtnWidget() {
-    if (!_isGroupMember) return Container();
+    if (!_isGroupMember) return SizedBox();
     String content = _isGroupManager ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     return GestureDetector(
       child: Container(
-        margin: EdgeInsets.only(
-          top: Adapt.px(16),
-          bottom: Adapt.px(50),
-        ),
+        margin: EdgeInsets.only(top: 16.px),
         width: double.infinity,
         height: Adapt.px(48),
         decoration: BoxDecoration(
@@ -534,6 +563,21 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     _groupInfoInit();
   }
 
+  void _manageGroupNoticeFn() async {
+    if (!_isGroupManager) return;
+    await OXNavigator.pushPage(
+      context,
+          (context) => RelayGroupManagePage(
+        relayGroupDB: groupDBInfo!,
+      ),
+    );
+    _groupInfoInit();
+  }
+
+  void _gotoGroupNotesFn() async {
+    ///TODO goto group notes
+  }
+
   void _groupQrCodeFn() {
     if (!_isGroupMember) return _DisableShareDialog();
     OXNavigator.pushPage(
@@ -586,7 +630,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _groupMemberOptionFn(GroupListAction action) async {
-    LogUtil.e('Michael: _groupMemberOptionFn===action =${action.name}');
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
@@ -652,12 +695,20 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     if (groupDB != null) {
       UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
       List<GroupAdmin>? admins = groupDB.admins ?? null;
-      if (userInfo == null || admins == null || admins.length > 0) {
-        _isGroupManager = false;
+      if (userInfo == null) {
+        _isGroupManager = true;
       } else {
-        for (GroupAdmin amin in admins) {
-          if (userInfo.pubKey == amin.pubkey) {
-            _isGroupManager = true;
+        if (groupDB.author == userInfo.pubKey) {
+          _isGroupManager = true;
+        } else {
+          if (admins == null || admins.length > 0) {
+            _isGroupManager = false;
+          } else {
+            for (GroupAdmin amin in admins) {
+              if (userInfo.pubKey == amin.pubkey) {
+                _isGroupManager = true;
+              }
+            }
           }
         }
       }
@@ -670,7 +721,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _loadMembers(RelayGroupDB groupDB) async {
     List<String>? tempMembers = groupDB.members;
     if (tempMembers != null){
-      groupMember = await RelayGroup.sharedInstance.getAllGroupMembers(widget.groupId);
+      groupMember = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
       UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
       if (userInfo == null || groupMember.length == 0) {
         _isGroupMember = false;
