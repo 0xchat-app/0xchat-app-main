@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
@@ -259,7 +260,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       chatGeneralHandler.sendSystemMessage(
         context,
         Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
-        isOnlyMemMsg: true,
+        sendingType: ChatSendingType.memory,
       );
     }
     else{
@@ -270,7 +271,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         chatGeneralHandler.sendSystemMessage(
           context,
           Localized.text('ox_chat.my_dmrelay_not_set_hint_message'),
-          isOnlyMemMsg: true,
+          sendingType: ChatSendingType.memory,
         );
       }
     }

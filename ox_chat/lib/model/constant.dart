@@ -8,3 +8,9 @@ enum MessageLongPressEventType {
   report,
   zaps,
 }
+
+enum ChatSendingType {
+  memory,
+  store,
+  remote,
+}

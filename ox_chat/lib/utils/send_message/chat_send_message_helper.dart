@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -21,8 +22,7 @@ class ChatSendMessageHelper {
   static Future<String?> sendMessage({
     required ChatSessionModel session,
     required types.Message message,
-    bool isLocal = false,
-    bool isOnlyMemMsg = false,
+    ChatSendingType sendingType = ChatSendingType.remote,
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
   }) async {
@@ -36,7 +36,7 @@ class ChatSendMessageHelper {
 
     types.Message sendMsg = message;
 
-    if (!isOnlyMemMsg) {
+    if (sendingType == ChatSendingType.remote) {
       // create chat sender strategy
       final senderStrategy = ChatStrategyFactory.getStrategy(session);
       // for test
@@ -97,7 +97,7 @@ class ChatSendMessageHelper {
         replayId: replayId,
         decryptSecret: message.decryptKey,
         event: event,
-        isLocal: isLocal,
+        isLocal: sendingType != ChatSendingType.remote,
       )
           .then((event) async {
         sendFinish.value = true;
@@ -117,7 +117,7 @@ class ChatSendMessageHelper {
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
 
-    if (!isLocal) {
+    if (sendingType == ChatSendingType.remote) {
       // If the message is not sent within a short period of time, change the status to the sending state
       _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
     }
