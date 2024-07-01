@@ -26,7 +26,7 @@ class ChatSessionUtils {
         break;
       case ChatType.chatRelayGroup:
         showName = RelayGroup.sharedInstance.groups[model.chatId]?.name ?? '';
-        if (showName.isEmpty) showName = RelayGroup.encodeGroup(model.chatId, null, null);
+        if (showName.isEmpty) showName = RelayGroup.sharedInstance.encodeGroup(model.chatId) ?? '';
         break;
       case ChatType.chatNotice:
         showName = model.chatName ?? '';
