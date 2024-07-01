@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
-import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -311,6 +308,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Widget _visibleContactsWidget() {
     if(widget.type == EMomentType.quote) return const SizedBox();
+    bool isGroup = ESendMomentsType.group == widget.sendMomentsType;
+
     return Container(
       margin: EdgeInsets.only(
         top: 12.px,
@@ -331,7 +330,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             ),
           ),
           GestureDetector(
-            onTap: _visibleToUser,
+            onTap: (){
+              if(isGroup) return;
+              _visibleToUser();
+            },
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 16.px,
@@ -350,13 +352,14 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    _visibleType.name,
+                    isGroup ? 'Groups - Group Name' : _visibleType.name,
                     style: TextStyle(
                       fontSize: 16.px,
                       color: ThemeColor.color0,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
+                  if(!isGroup)
                   CommonImage(
                     iconName: 'moment_more_icon.png',
                     size: 24.px,
@@ -418,6 +421,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _postMoment() async {
+
     String getMediaStr = '';
     if (_uploadCompleter != null) {
       OXLoading.show();

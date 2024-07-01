@@ -10,20 +10,13 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
-import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:ox_module_service/ox_module_service.dart';
-import 'package:ox_theme/ox_theme.dart';
-import 'package:chatcore/chat-core.dart';
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
 import '../widgets/moment_widget.dart';
 import 'create_moments_page.dart';
 import 'moments_page.dart';
-import 'notifications_moments_page.dart';
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 
 class GroupMomentsPage extends StatefulWidget {
   final String groupId;
@@ -40,9 +33,13 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   int? _allNotesFromDBLastTimestamp;
   final RefreshController _refreshController = RefreshController();
 
+  String _groupName = '';
+
   @override
   void initState() {
     super.initState();
+    updateNotesList(true);
+    _getGroupInfo();
   }
 
   @override
@@ -67,7 +64,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
       backgroundColor: ThemeColor.color200,
       appBar: CommonAppBar(
         backgroundColor: ThemeColor.color200,
-        title: 'Group Name',
+        title: _groupName,
         actions: [
           _createMomentsBtnWidget(),
           SizedBox(
@@ -309,6 +306,15 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
     } catch (e) {
       print('Error loading notes: $e');
       _refreshController.loadFailed();
+    }
+  }
+
+  void _getGroupInfo() {
+    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    if(groupDB == null) return;
+    _groupName = groupDB.name;
+    if(mounted){
+      setState(() {});
     }
   }
 
