@@ -27,7 +27,7 @@ class ChatSessionModel extends DBObject {
   //last message timestamp
   int createTime;
 
-  // 0 Chat  1 Normal Group  2 Channel Group  3 Secret Chat 4 Stranger Chat  5 Stranger secret Chat
+  // 0 Chat  1 Normal Group  2 Channel Group  3 Secret Chat 4 Stranger Chat  5 Stranger secret Chat 7 Relay Group Chat
   int chatType;
 
   //text, image, video, audio, file, template

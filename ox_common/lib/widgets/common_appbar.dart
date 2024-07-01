@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'dart:ui';
 import 'package:ox_theme/ox_theme.dart';
@@ -209,16 +210,15 @@ class BaseAppBarState extends State<CommonAppBar> {
     if (widget.isClose) {
       return Builder(
         builder: (BuildContext content) {
-          return IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: CommonImage(
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child:  CommonImage(
               iconName: "title_close.png",
-              width: 24,
-              height: 24,
+              size:  24.px,
+              height: 24.px,
               useTheme: true,
-            ),
-            onPressed: widget.backCallback ??
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);
                 },
@@ -229,16 +229,14 @@ class BaseAppBarState extends State<CommonAppBar> {
     if (widget.canBack) {
       return Builder(
         builder: (BuildContext content) {
-          return IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: CommonImage(
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: CommonImage(
               iconName: "icon_back_left_arrow.png",
-              width: 24,
-              height: 24,
+              size: 24.px,
               useTheme: true,
-            ),
-            onPressed: widget.backCallback ??
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);
                 },
