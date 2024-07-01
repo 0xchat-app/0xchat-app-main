@@ -277,7 +277,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
 
   Future<void> _getNotesFromRelay() async {
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadPublicNewNotesFromRelay(until: _allNotesFromDBLastTimestamp,limit:_limit) ?? [];
+      List<NoteDB> list = await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp,limit:_limit) ?? [];
       if (list.isEmpty) {
         _refreshController.loadNoData();
         return;
