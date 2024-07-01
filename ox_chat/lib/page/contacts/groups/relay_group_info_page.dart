@@ -48,6 +48,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void initState() {
     super.initState();
     _groupInfoInit();
+    _loadDataFromRelay();
   }
 
   @override
@@ -688,45 +689,71 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _groupInfoInit() async {
     String groupId = widget.groupId;
     RelayGroupDB? groupDB = await RelayGroup.sharedInstance.myGroups[groupId];
-
     if (groupDB != null) {
-      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-      List<GroupAdmin>? admins = groupDB.admins ?? null;
-      if (userInfo == null) {
+      groupDBInfo = groupDB;
+      _getIsGroupManagerValue(groupDB.admins);
+      _loadMembers(groupDB);
+      setState(() {});
+    }
+  }
+
+  void _getIsGroupManagerValue(List<GroupAdmin>? tempAdmins){
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    List<GroupAdmin>? admins = tempAdmins ?? null;
+    if (userInfo == null) {
+      _isGroupManager = false;
+    } else {
+      if (groupDBInfo?.author == userInfo.pubKey) {
         _isGroupManager = true;
       } else {
-        if (groupDB.author == userInfo.pubKey) {
-          _isGroupManager = true;
+        if (admins == null || admins.isEmpty) {
+          _isGroupManager = false;
         } else {
-          if (admins == null || admins.length > 0) {
-            _isGroupManager = false;
-          } else {
-            for (GroupAdmin amin in admins) {
-              if (userInfo.pubKey == amin.pubkey) {
-                _isGroupManager = true;
-              }
+          for (GroupAdmin amin in admins) {
+            if (userInfo.pubKey == amin.pubkey) {
+              _isGroupManager = true;
             }
           }
         }
       }
-      _loadMembers(groupDB);
-      groupDBInfo = groupDB;
-      setState(() {});
+    }
+  }
+
+  void _getIsGroupMemberValue(List<UserDB> memberUserDBs) {
+    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userInfo == null) {
+      _isGroupMember = false;
+    } else {
+      _isGroupMember = memberUserDBs.any((userDB) => userDB.pubKey == userInfo.pubKey);
     }
   }
 
   void _loadMembers(RelayGroupDB groupDB) async {
-    List<String>? tempMembers = groupDB.members;
-    if (tempMembers != null){
-      groupMember = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
-      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-      if (userInfo == null || groupMember.length == 0) {
-        _isGroupMember = false;
-      } else {
-        _isGroupMember = groupMember.any((userDB) => userDB.pubKey == userInfo.pubKey);
-      }
-      setState(() {});
+    List<UserDB> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
+    if (localMembers.isNotEmpty) {
+      _getIsGroupMemberValue(localMembers);
     }
+    setState(() {});
   }
 
+  void _loadDataFromRelay() async {
+    RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId).then((relayGroupDB) {
+      if (!mounted) return ;
+      if (relayGroupDB != null) {
+        setState(() {
+          groupDBInfo = relayGroupDB;
+        });
+      }
+    });
+    RelayGroup.sharedInstance.getGroupAdminsFromRelay(widget.groupId).then((groupAdmins){
+      if (groupAdmins != null && groupAdmins.isNotEmpty) {
+        _getIsGroupManagerValue(groupAdmins);
+      }
+    });
+    RelayGroup.sharedInstance.getGroupMembersFromRelay(widget.groupId).then((memberUsers){
+      if (memberUsers != null && memberUsers.isNotEmpty) {
+        _getIsGroupMemberValue(memberUsers);
+      }
+    });
+  }
 }
