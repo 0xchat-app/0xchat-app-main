@@ -380,12 +380,10 @@ class _RelayGroupQrcodePageState extends State<RelayGroupQrcodePage> {
   }
 
   void _getGroupQrcode(RelayGroupDB groupDB){
-    String relay = groupDB.relay ?? '';
-    String groupOwner = groupDB.author;
     String groupId = groupDB.groupId;
 
     String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-    _groupQrCodeUrl = shareAppLinkDomain + RelayGroup.encodeGroup(groupId,[relay],groupOwner);
+    _groupQrCodeUrl = shareAppLinkDomain + (RelayGroup.sharedInstance.encodeGroup(groupId) ?? '');
   }
 
 
