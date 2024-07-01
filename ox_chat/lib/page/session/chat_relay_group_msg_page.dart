@@ -227,9 +227,8 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   }
 
   void _updateChatStatus() {
-
     if (!RelayGroup.sharedInstance.myGroups.containsKey(groupId)) {
-      chatStatus = ChatStatus.NotJoined;
+      chatStatus = ChatStatus.NotJoinedGroup;
       return ;
     }
 
