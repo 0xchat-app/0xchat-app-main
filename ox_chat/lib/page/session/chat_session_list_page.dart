@@ -565,6 +565,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     } else {
       String showPicUrl = ChatSessionUtils.getChatIcon(item);
       String localAvatarPath = ChatSessionUtils.getChatDefaultIcon(item);
+      Widget? sessionTypeWidget = ChatSessionUtils.getTypeSessionView(item.chatType, item.chatId);
       return Container(
         width: Adapt.px(60),
         height: Adapt.px(60),
@@ -603,7 +604,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                       future: _getUserSelectedBadgeInfo(item),
                     ),
                   )
-                : Container(),
+                : SizedBox(),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: sessionTypeWidget,
+            ),
           ],
         ),
       );

@@ -7,6 +7,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
+import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -394,6 +395,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
       RelayGroupDB? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
       iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
     }
+    Widget? groupTypeWidget = ChatSessionUtils.getTypeSessionView(widget.item.chatType, widget.item.groupId);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _onItemClick,
@@ -404,7 +406,20 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         padding: EdgeInsets.only(left: Adapt.px(24.0), top: Adapt.px(10.0), bottom: Adapt.px(10.0)),
         child: Row(
           children: <Widget>[
-            iconAvatar,
+            SizedBox(
+              width: 48.px,
+              height: 48.px,
+              child: Stack(
+                children: [
+                  iconAvatar,
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: groupTypeWidget,
+                  ),
+                ],
+              ),
+            ),
             Container(
               width: Adapt.screenW() - Adapt.px(120),
               margin: EdgeInsets.only(left: Adapt.px(16)),

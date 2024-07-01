@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_image.dart';
 
 ///Title: chat_session_utils
 ///Description: TODO(Fill in by oneself)
@@ -106,5 +109,31 @@ class ChatSessionUtils {
         break;
     }
     return isMute;
+  }
+
+  static Widget getTypeSessionView(int chatType, String chatId){
+    String? iconName;
+    switch (chatType) {
+      case ChatType.chatChannel:
+        iconName = 'icon_type_channel.png';
+        break;
+      case ChatType.chatGroup:
+        iconName = 'icon_type_private_group.png';
+        break;
+      case ChatType.chatRelayGroup:
+        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[chatId];
+        if (relayGroupDB != null){
+          if (relayGroupDB.private){
+            iconName = 'icon_type_close_group.png';
+          } else {
+            iconName = 'icon_type_open_group.png';
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    Widget typeSessionWidget = iconName != null ? CommonImage(iconName: iconName, size: 24.px, package: 'ox_chat',) : SizedBox();
+    return typeSessionWidget;
   }
 }
