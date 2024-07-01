@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -7,7 +11,11 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:minio/minio.dart';
+import 'package:http/http.dart';
 
 enum OperationType { create, edit }
 
@@ -27,12 +35,15 @@ class FileServerOperationPage extends StatefulWidget {
 
 class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
-  final _UrlController = TextEditingController();
+  final List<String> _minioOptionTextField = ['EndPoint', 'Access Key', 'Secret Key','Custom Name'];
+  Map<String, String> _minioOptionTextFieldData = {};
+  late final List<TextEditingController> _minioOptionControllers ;
 
   @override
   void initState() {
     super.initState();
-    _UrlController.text = 'wss://some.relay.com';
+    _minioOptionControllers = List.generate(_minioOptionTextField.length, (index) => TextEditingController());
+    _minioOptionTextFieldData = {for (var item in _minioOptionTextField) item: ''};
   }
 
   @override
@@ -61,21 +72,25 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // _buildItem('URL', _buildTextField()),
             if(widget.fileStorageProtocol == FileStorageProtocol.minio)
               _buildMinioTypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: () {
-                Nip96Server nip96Server = Nip96Server(name: '新添加的');
-                OXServerManager.sharedInstance.addFileStorageServer(nip96Server);
-                OXNavigator.pop(context);
+                final errorMsg = _verifyMinioOption();
+                if(errorMsg.isNotEmpty){
+                  CommonToast.instance.show(context, errorMsg);
+                  return;
+                }
+                _createMinioServer();
               },
             ).setPadding(EdgeInsets.only(top: 12.px)),
             if(widget.operationType == OperationType.edit)
               CommonButton.themeButton(
                 text: Localized.text('ox_common.delete'),
-                onTap: () {},
+                onTap: () {
+                  print('---- result: $_minioOptionTextFieldData');
+                },
               ).setPadding(EdgeInsets.only(top: 12.px)),
           ],
         ),
@@ -105,40 +120,118 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField({
+    TextEditingController? controller,
+    String? hintText,
+    ValueChanged<String>? onChanged
+  }) {
     return Container(
       width: double.infinity,
-      height: 48.px,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
       alignment: Alignment.center,
-      child: TextField(
-        controller: _UrlController,
+      child: TextFormField(
+        controller: controller,
         decoration: InputDecoration(
+          hintText: hintText,
           hintStyle: TextStyle(
-            color: ThemeColor.color0,
+            color: ThemeColor.color100,
             fontSize: 16.px,
           ),
           border: const OutlineInputBorder(
             borderSide: BorderSide.none,
           ),
         ),
-        onChanged: (value) {
-          setState(() {});
-        },
+        onChanged: onChanged,
+        // onChanged: (value) {
+        //   setState(() {});
+        // },
       ),
     );
   }
 
+  Widget _buildNip96TypeView() {
+    return Container();
+  }
+
   Widget _buildMinioTypeView() {
-    List<String> labels = ['name','endPoint','secretKey','useSSL','description'];
+    Map<String,String> hintText = {
+      _minioOptionTextField[0]:'Enter URL(http or https)',
+      _minioOptionTextField[1]:'Enter Secret Key',
+      _minioOptionTextField[2]:'Enter Access Key',
+      _minioOptionTextField[3]:'Custom Server Name(optional)',
+    };
     return ListView.separated(
       shrinkWrap: true,
-      itemBuilder: (context, index) => _buildItem(labels[index], _buildTextField()),
+      itemBuilder: (context, index) {
+        return _buildItem(
+          _minioOptionTextField[index],
+          _buildTextField(
+            controller: _minioOptionControllers[index],
+            hintText: hintText[_minioOptionTextField[index]],
+            onChanged: (value) {
+              _minioOptionTextFieldData[_minioOptionTextField[index]] = value;
+            }
+          ),
+        );
+      },
       separatorBuilder: (context, index) => SizedBox(height: 12.px,),
-      itemCount: labels.length,
+      itemCount: _minioOptionTextField.length,
     );
+  }
+
+  String _verifyMinioOption() {
+    String errorMsg = '';
+    _minioOptionTextFieldData.forEach((key, value) {
+      if(key == _minioOptionTextField[3]) return;
+      if (value.isEmpty) {
+        errorMsg = 'Please Enter $key';
+      }
+    });
+    return errorMsg;
+  }
+
+  Future<void> _createMinioServer() async {
+    String url = _minioOptionControllers[0].text;
+    String accessKey = _minioOptionControllers[1].text;
+    String secretKey = _minioOptionControllers[2].text;
+    final uri = Uri.parse(url);
+    String endPoint = uri.hasScheme ? url.replaceFirst('${uri.scheme}://', '') : url ;
+    final name = _minioOptionControllers[3].text.isNotEmpty ? _minioOptionControllers[3].text : endPoint;
+    final useSSL = uri.scheme == 'https';
+    final port = uri.port == 0 ? null : uri.port;
+
+    final minio = Minio(
+      endPoint: endPoint,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      useSSL: useSSL,
+      port: port,
+    );
+
+    OXLoading.show();
+    try {
+      await minio.listBuckets();
+      OXLoading.dismiss();
+      MinioServer minioServer = MinioServer(endPoint: endPoint, accessKey: accessKey, secretKey: secretKey, name: name);
+      OXServerManager.sharedInstance.addFileStorageServer(minioServer);
+      OXNavigator.pop(context);
+    } on ClientException catch (e) {
+      final error = e.toString().substring(e.toString().indexOf(':') + 2,e.toString().length);
+      CommonToast.instance.show(context, error);
+    } catch (e) {
+      OXLoading.dismiss();
+      CommonToast.instance.show(context, e.toString());
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _minioOptionControllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 }
