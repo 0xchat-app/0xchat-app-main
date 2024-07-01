@@ -20,6 +20,7 @@ import '../model/moment_extension_model.dart';
 import '../utils/album_utils.dart';
 import 'moments/channel_page.dart';
 import 'moments/create_moments_page.dart';
+import 'moments/group_moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -505,13 +506,28 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildMomentItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.public,
-            EPublicMomentsPageType.public.text,
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.contacts,
+            EPublicMomentsPageType.contacts.text,
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
               if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.public;
+                publicMomentsPageType = EPublicMomentsPageType.contacts;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildMomentItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.follows,
+            EPublicMomentsPageType.follows.text,
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.follows;
               }
             },
           ),

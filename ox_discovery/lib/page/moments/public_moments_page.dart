@@ -19,26 +19,17 @@ import '../widgets/moment_widget.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 
-enum EPublicMomentsPageType { all, public, private }
+enum EPublicMomentsPageType { all, contacts, follows, private }
 
 extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
-  bool? get getValue {
-    switch (this) {
-      case EPublicMomentsPageType.all:
-        return null;
-      case EPublicMomentsPageType.public:
-        return false;
-      case EPublicMomentsPageType.private:
-        return true;
-    }
-  }
-
   String get text {
     switch (this) {
       case EPublicMomentsPageType.all:
         return Localized.text('ox_discovery.all');
-      case EPublicMomentsPageType.public:
-        return Localized.text('ox_discovery.public');
+      case EPublicMomentsPageType.contacts:
+        return 'Contacts';
+      case EPublicMomentsPageType.follows:
+        return 'Follows';
       case EPublicMomentsPageType.private:
         return Localized.text('ox_discovery.private');
     }
@@ -247,6 +238,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
   }
 
   Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
+    // List<NoteDB> list = await _getNoteTypeToDB(isInit);
+
     bool isPrivateMoment = widget.publicMomentsPageType == EPublicMomentsPageType.private;
     if(isWrapRefresh){
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -256,7 +249,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
         });
     }
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+
+      List<NoteDB> list = await _getNoteTypeToDB(isInit);
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
         if(!isPrivateMoment) await _getNotesFromRelay();
@@ -275,9 +269,37 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
     }
   }
 
+  Future<List<NoteDB>> _getNoteTypeToDB(bool isInit)async{
+    switch(widget.publicMomentsPageType){
+      case EPublicMomentsPageType.all:
+        return await Moment.sharedInstance.loadAllNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.contacts:
+        return await Moment.sharedInstance.loadContactsNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.follows:
+        return await Moment.sharedInstance.loadFollowsNotesFromDB(until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.private:
+        return await Moment.sharedInstance.loadAllNotesFromDB(private:true, until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+    }
+  }
+
+  Future<List<NoteDB>> _getNoteTypeToRelay()async{
+    switch(widget.publicMomentsPageType){
+      case EPublicMomentsPageType.all:
+        return await Moment.sharedInstance.loadAllNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.contacts:
+        return await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.follows:
+        return await Moment.sharedInstance.loadFollowsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      case EPublicMomentsPageType.private:
+        return [];
+    }
+  }
+
   Future<void> _getNotesFromRelay() async {
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadContactsNewNotesFromRelay(until: _allNotesFromDBLastTimestamp,limit:_limit) ?? [];
+
+      List<NoteDB> list = await _getNoteTypeToRelay();
+
       if (list.isEmpty) {
         _refreshController.loadNoData();
         return;
