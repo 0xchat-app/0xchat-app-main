@@ -4,6 +4,7 @@ import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/contact_group_chat_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_create_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/group_create_selector_dialog.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -101,20 +102,29 @@ class CommunityMenuOptionModel {
   static void _createGroup(BuildContext context, GroupType groupType) {
     final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     List<UserDB> userList = Contacts.sharedInstance.allContacts.values.toList();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => Container(
-        height: height,
-        child: ContactGroupChatChoosePage(
-          groupType: groupType,
-          userList: userList,
-          groupListAction: GroupListAction.add,
-          searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
-        ),
-      ),
-    );
+    switch(groupType){
+      case GroupType.privateGroup:
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (BuildContext context) =>
+              Container(
+                height: height,
+                child: ContactGroupChatChoosePage(
+                  groupType: groupType,
+                  userList: userList,
+                  groupListAction: GroupListAction.add,
+                  searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
+                ),
+              ),
+        );
+        break;
+      case GroupType.openGroup:
+      case GroupType.closeGroup:
+        OXNavigator.pushPage(context, (context) => RelayGroupCreatePage(groupType: groupType));
+        break;
+    }
   }
 
   static void _createGroupBottomDialog(BuildContext context) async {
