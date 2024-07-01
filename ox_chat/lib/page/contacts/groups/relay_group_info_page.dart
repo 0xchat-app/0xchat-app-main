@@ -6,8 +6,6 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
-import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -19,7 +17,9 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
+import 'package:ox_module_service/ox_module_service.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import '../../../manager/chat_data_cache.dart';
 import '../contact_group_list_page.dart';
 import '../contact_group_member_page.dart';
 import 'group_edit_page.dart';
@@ -293,22 +293,22 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   Widget _groupNotesView(){
     return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.px),
-        color: ThemeColor.color180,
-      ),
-      margin: EdgeInsets.only(top: 16.px),
-      child: Column(
-        children: [
-          GroupItemBuild(
-            title: Localized.text('ox_chat.str_group_notes'),
-            onTap: _gotoGroupNotesFn,
-            isShowMoreIcon: true,
-            isShowDivider: false,
-          ),
-        ],
-      ),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.px),
+          color: ThemeColor.color180,
+        ),
+        margin: EdgeInsets.only(top: 16.px),
+        child: Column(
+          children: [
+            GroupItemBuild(
+              title: Localized.text('ox_chat.str_group_notes'),
+              onTap: _gotoGroupNotesFn,
+              isShowMoreIcon: true,
+              isShowDivider: false,
+            ),
+          ],
+        ),
     );
   }
   Widget _groupHistoryView() {
@@ -575,7 +575,14 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _gotoGroupNotesFn() async {
-    ///TODO goto group notes
+   await OXModuleService.pushPage(
+      context,
+      'ox_discovery',
+      'GroupMomentsPage',
+      {
+        'groupId': widget.groupId,
+      },
+    );
   }
 
   void _groupQrCodeFn() {

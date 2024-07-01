@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -33,7 +34,15 @@ import '../widgets/nine_palace_grid_picture_widget.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
+
+enum ESendMomentsType {
+  personal,
+  group
+}
+
 class CreateMomentsPage extends StatefulWidget {
+  final String? groupId;
+  final ESendMomentsType sendMomentsType;
   final EMomentType type;
   final List<String>? imageList;
   final String? videoPath;
@@ -42,6 +51,8 @@ class CreateMomentsPage extends StatefulWidget {
   const CreateMomentsPage(
       {Key? key,
       required this.type,
+      this.sendMomentsType = ESendMomentsType.personal,
+      this.groupId,
       this.imageList,
       this.videoPath,
       this.videoImagePath,
@@ -429,6 +440,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       return;
     }
 
+    if(widget.sendMomentsType == ESendMomentsType.group) return _postMomentToGroup(content:content,mentions:getReplyUser,hashTags:hashTags);
+
     if(widget.type == EMomentType.quote && noteDB != null){
       event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
     }else{
@@ -471,6 +484,22 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     await OXLoading.dismiss();
     if(event?.status ?? false){
+      _clearDraft();
+      CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+    }
+
+    OXNavigator.pop(context);
+  }
+
+  void _postMomentToGroup({required String content,required List<String>? mentions,required List<String>? hashTags}) async{
+    String? groupId = widget.groupId;
+    if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
+    List<String> previous = Nip29.getPrevious([[groupId]]);
+    OXLoading.show();
+    OKEvent result = await RelayGroup.sharedInstance.sendGroupNotes(groupId,content,previous,mentions:mentions,hashTags:hashTags);
+    await OXLoading.dismiss();
+
+    if(result.status){
       _clearDraft();
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
