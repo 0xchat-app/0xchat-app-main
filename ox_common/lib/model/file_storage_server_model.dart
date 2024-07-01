@@ -1,7 +1,8 @@
 enum FileStorageProtocol {
   nip96(serverName: 'Nip96 Server'),
-  blossom(serverName: 'Mini Server'),
-  minio(serverName: 'Minio Server');
+  blossom(serverName: 'Blossom Server'),
+  minio(serverName: 'Minio Server'),
+  oss(serverName: 'OSS Server');
 
   final String serverName;
 
@@ -42,6 +43,10 @@ class FileStorageServer {
       };
 
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
+        OXChatServer(
+          name: '0xchat File Server',
+          description: 'Free storage, expired in 7 days',
+        ),
         Nip96Server(
           name: 'nostr.build',
           description: 'Free storage, expired in 7 days',
@@ -90,4 +95,11 @@ class MinioServer extends FileStorageServer {
     bool? useSSL,
   })  : useSSL = useSSL ?? true,
         super(protocol: FileStorageProtocol.minio);
+}
+
+class OXChatServer extends FileStorageServer {
+  OXChatServer({
+    required super.name,
+    super.description,
+  }) : super(protocol: FileStorageProtocol.blossom);
 }
