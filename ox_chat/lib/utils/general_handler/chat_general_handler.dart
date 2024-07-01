@@ -98,6 +98,8 @@ class ChatGeneralHandler {
 
   Set<String> reactionsListenMsgId = {};
 
+  final tempMessageSet = <types.Message>{};
+
   static types.User _defaultAuthor() {
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
@@ -138,6 +140,9 @@ class ChatGeneralHandler {
   }
 
   void dispose() {
+    for (var msg in tempMessageSet) {
+      ChatDataCache.shared.deleteMessage(session, msg);
+    }
     removeMessageReactionsListener();
   }
 }
@@ -742,6 +747,7 @@ mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     ChatDraftManager.shared.updateSession();
+    chatGeneralHandler.dispose();
     super.dispose();
   }
 }

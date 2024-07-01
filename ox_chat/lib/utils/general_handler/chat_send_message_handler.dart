@@ -49,6 +49,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         BuildContext? context,
         bool isResend = false,
         bool isLocal = false,
+        bool isOnlyMemMsg = false,
       }) async {
     if (!isResend) {
       final sendMsg = await tryPrepareSendFileMessage(context, message);
@@ -56,10 +57,15 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       message = sendMsg;
     }
 
+    if (isOnlyMemMsg) {
+      tempMessageSet.add(message);
+    }
+
     final errorMsg = await ChatSendMessageHelper.sendMessage(
       session: session,
       message: message,
       isLocal: isLocal,
+      isOnlyMemMsg: isOnlyMemMsg,
       contentEncoder: messageContentEncoder,
       sourceCreator: (message) {
         if (message is types.CustomMessage) {
@@ -307,7 +313,13 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     _sendMessageHandler(message, context: context);
   }
 
-  void sendSystemMessage(BuildContext context, String text, {String? localTextKey, bool isSendToRemote = true}) {
+  void sendSystemMessage(
+      BuildContext context,
+      String text, {
+        String? localTextKey,
+        bool isSendToRemote = true,
+        bool isOnlyMemMsg = false,
+      }) {
     String message_id = const Uuid().v4();
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -322,7 +334,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       },
     );
 
-    _sendMessageHandler(message, context: context, isLocal: !isSendToRemote);
+    _sendMessageHandler(message, context: context, isLocal: !isSendToRemote, isOnlyMemMsg: isOnlyMemMsg);
   }
 
   void sendEcashMessage(BuildContext context, {

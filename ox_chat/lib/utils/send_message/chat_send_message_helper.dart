@@ -22,6 +22,7 @@ class ChatSendMessageHelper {
     required ChatSessionModel session,
     required types.Message message,
     bool isLocal = false,
+    bool isOnlyMemMsg = false,
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
   }) async {
@@ -72,74 +73,9 @@ class ChatSendMessageHelper {
     );
 
     if (sendMsg.type == types.MessageType.text) {
-      final text = message.content;
-      // Nostr Scheme
-      if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
-        sendMsg = CustomMessageFactory().createTemplateMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          title: 'Loading...',
-          content: 'Loading...',
-          icon: '',
-          link: '',
-          sourceKey: sourceKey,
-        );
-        ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
-            .then((nostrSchemeContent) async {
-          if (nostrSchemeContent != null) {
-            MessageContentModel contentModel = MessageContentModel();
-            contentModel.content = nostrSchemeContent;
-            var chatMessage =
-            await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-            if (chatMessage != null) {
-              chatMessage = CustomMessageFactory().createMessage(
-                  author: chatMessage.author,
-                  timestamp: chatMessage.createdAt,
-                  roomId: chatMessage.roomId ?? '',
-                  remoteId: chatMessage.remoteId ?? '',
-                  sourceKey: chatMessage.sourceKey,
-                  contentModel: contentModel,
-                  status: chatMessage.status ?? types.Status.sending)!;
-              ChatDataCache.shared.updateMessage(
-                  message: chatMessage, session: session, originMessage: sendMsg);
-            }
-          }
-        });
-      }
-
-      // Zaps
-      if (Zaps.isLightningInvoice(text)) {
-        Map<String, String> req = Zaps.decodeInvoice(text);
-        sendMsg = CustomMessageFactory().createZapsMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          sourceKey: sourceKey,
-          zapper: '',
-          invoice: text,
-          amount: req['amount'] ?? '0',
-          description: 'Best wishes',
-          expiration: sendMsg.expiration,
-        );
-      }
-
-      // Ecash
-      if (Cashu.isCashuToken(text)) {
-        sendMsg = CustomMessageFactory().createEcashMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          sourceKey: sourceKey,
-          tokenList: [text],
-          expiration: sendMsg.expiration,
-        );
+      final newMsg = tryTransferMessageFromText(session, sendMsg, sourceKey);
+      if (newMsg != null) {
+        sendMsg = newMsg;
       }
     }
 
@@ -151,6 +87,8 @@ class ChatSendMessageHelper {
     );
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
+
+    if (isOnlyMemMsg) return null;
 
     senderStrategy
         .doSendMessageAction(
@@ -175,8 +113,91 @@ class ChatSendMessageHelper {
           .updateMessage(session: session, message: updatedMessage);
     });
 
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
+    if (!isLocal) {
+      // If the message is not sent within a short period of time, change the status to the sending state
+      _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
+    }
+
+    return null;
+  }
+
+  static types.Message? tryTransferMessageFromText(
+    ChatSessionModel session,
+    types.Message sendMsg,
+    String sourceKey,
+  ) {
+    final text = sendMsg.content;
+    // Nostr Scheme
+    if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
+      final templateMsg = CustomMessageFactory().createTemplateMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        title: 'Loading...',
+        content: 'Loading...',
+        icon: '',
+        link: '',
+        sourceKey: sourceKey,
+      );
+
+      ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
+          .then((nostrSchemeContent) async {
+        if (nostrSchemeContent != null) {
+          MessageContentModel contentModel = MessageContentModel();
+          contentModel.content = nostrSchemeContent;
+          var chatMessage =
+          await ChatDataCache.shared.getMessage(null, session, templateMsg.id);
+          if (chatMessage != null) {
+            chatMessage = CustomMessageFactory().createMessage(
+                author: chatMessage.author,
+                timestamp: chatMessage.createdAt,
+                roomId: chatMessage.roomId ?? '',
+                remoteId: chatMessage.remoteId ?? '',
+                sourceKey: chatMessage.sourceKey,
+                contentModel: contentModel,
+                status: chatMessage.status ?? types.Status.sending)!;
+            ChatDataCache.shared.updateMessage(
+                message: chatMessage, session: session, originMessage: templateMsg);
+          }
+        }
+      });
+
+      return templateMsg;
+    }
+
+    // Zaps
+    if (Zaps.isLightningInvoice(text)) {
+      Map<String, String> req = Zaps.decodeInvoice(text);
+      return CustomMessageFactory().createZapsMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        sourceKey: sourceKey,
+        zapper: '',
+        invoice: text,
+        amount: req['amount'] ?? '0',
+        description: 'Best wishes',
+        expiration: sendMsg.expiration,
+      );
+    }
+
+    // Ecash
+    if (Cashu.isCashuToken(text)) {
+      return CustomMessageFactory().createEcashMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        sourceKey: sourceKey,
+        tokenList: [text],
+        expiration: sendMsg.expiration,
+      );
+    }
 
     return null;
   }
