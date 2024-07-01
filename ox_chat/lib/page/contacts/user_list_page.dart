@@ -14,17 +14,21 @@ import 'package:lpinyin/lpinyin.dart';
 
 class UserSelectionPage extends StatefulWidget {
   final String title;
-  final List<UserDB> userList;
+  final List<UserDB>? userList;
   final List<UserDB> defaultSelected;
+  final List<UserDB> additionalUserList;
   final bool isMultiSelect;
+  final bool allowFetchUserFromRelay;
   final bool Function(List<UserDB> userList)? shouldPop;
 
   const UserSelectionPage({
     super.key,
     required this.title,
-    required this.userList,
+    this.userList,
     this.defaultSelected = const [],
+    this.additionalUserList = const [],
     this.isMultiSelect = false,
+    this.allowFetchUserFromRelay = false,
     this.shouldPop,
   });
 
@@ -50,8 +54,11 @@ class UserSelectionPage extends StatefulWidget {
 
 class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
 
+  List<UserDB> allUser = [];
   List<UserDB> userList = [];
   List<UserDB> selectedUserList = [];
+
+  UserDB? userFromRemote;
   Map<String, List<UserDB>> _groupedUserList = {};
 
   TextEditingController _searchController = TextEditingController();
@@ -66,7 +73,12 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
   }
 
   prepareData() {
-    userList = [...widget.userList];
+    final allUser = widget.userList ?? Contacts.sharedInstance.allContacts.values.toList();
+    this.allUser = [
+      ...widget.additionalUserList,
+      ...allUser,
+    ];
+    userList = [...this.allUser];
     selectedUserList = [...widget.defaultSelected];
     updateGroupedUserList();
   }
@@ -111,6 +123,10 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
   }
 
   Widget _buildBody() {
+    final data = <UserDB>[
+      if (userFromRemote != null) userFromRemote!,
+      ...userList,
+    ];
     return Container(
       decoration: BoxDecoration(
         color: ThemeColor.color190,
@@ -128,9 +144,9 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
                 _buildSearchBar(),
                 Expanded(
                   child: ListView.separated(
-                    itemCount: userList.length,
+                    itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return _buildUserItem(userList[index]);
+                      return _buildUserItem(data[index]);
                     },
                     separatorBuilder: (BuildContext context, int index) =>
                         SizedBox(height: 10.px,),
@@ -176,6 +192,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
         children: [
           Expanded(
             child: TextField(
+              onSubmitted: searchTextOnSubmitted,
               controller: _searchController,
               style: TextStyle(
                 fontSize: Adapt.px(16),
@@ -184,36 +201,47 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
                 color: ThemeColor.color0,
               ),
               decoration: InputDecoration(
-                icon: Container(
-                  child: CommonImage(
-                    iconName: 'icon_search.png',
-                    width: Adapt.px(24),
-                    height: Adapt.px(24),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                hintText: 'search'.localized(),
+                hintText: widget.allowFetchUserFromRelay
+                    ? 'please_enter_user_address'.localized()
+                    : 'search'.localized(),
                 hintStyle: TextStyle(
                   fontSize: Adapt.px(16),
                   fontWeight: FontWeight.w400,
                   height: Adapt.px(22.4) / Adapt.px(16),
                   color: ThemeColor.color160,),
                 border: InputBorder.none,
-                suffix: _searchController.text.isEmpty
-                    ? SizedBox()
-                    : GestureDetector(
-                        onTap: () => _searchController.clear(),
-                        behavior: HitTestBehavior.translucent,
-                        child: CommonImage(
-                          iconName: 'icon_textfield_close.png',
-                          size: 16.px,
-                        ),
-                      ),
+                suffix: _buildClearIcon(),
               ),
             ),
           ),
+          _buildSearchIcon(),
         ],
       ),
+    );
+  }
+
+  Widget _buildClearIcon() {
+    return  _searchController.text.isEmpty
+        ? SizedBox()
+        : GestureDetector(
+      onTap: () => _searchController.clear(),
+      behavior: HitTestBehavior.translucent,
+      child: CommonImage(
+        iconName: 'icon_textfield_close.png',
+        size: 16.px,
+      ).setPaddingOnly(left: 8.px, right: 8.px)
+    );
+  }
+
+  Widget _buildSearchIcon() {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: searchIconOnTap,
+      child: CommonImage(
+        iconName: 'icon_search.png',
+        size: 24.px,
+        fit: BoxFit.fill,
+      ).setPaddingOnly(left: 8.px),
     );
   }
 
@@ -252,19 +280,60 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
   void updateUserList() {
     final searchText = _searchController.text.toLowerCase();
     if (searchText.isNotEmpty) {
-      userList = widget.userList.where((user) {
+      userList = allUser.where((user) {
         final nameMatch = user.name?.toLowerCase().contains(searchText) ?? false;
         final nickNameMatch = user.nickName?.toLowerCase().contains(searchText) ?? false;
         final pubkeyMatch = user.pubKey.toLowerCase().contains(searchText);
         return nameMatch || nickNameMatch || pubkeyMatch;
       }).toList();
     } else {
-      userList = widget.userList;
+      userList = allUser;
     }
 
     updateGroupedUserList();
 
     setState(() { });
+  }
+
+  void searchTextOnSubmitted(String text) {
+    if (!widget.allowFetchUserFromRelay) return ;
+    if (isValidNPubString(text) || isNIP05AddressString(text)) {
+      searchIconOnTap();
+    }
+  }
+
+  void searchIconOnTap() async {
+    if (!widget.allowFetchUserFromRelay) return ;
+    setState(() {
+      userFromRemote = null;
+    });
+    final text = _searchController.text;
+    var pubkey = '';
+    if (isValidNPubString(text)) {
+      pubkey = UserDB.decodePubkey(text) ?? '';
+    } else if (isNIP05AddressString(text)) {
+      final name = text.substring(0, text.indexOf('@'));
+      final domain = text.substring(text.indexOf('@') + 1);
+      pubkey = await Account.getDNSPubkey(name, domain) ?? '';
+    }
+
+    if (pubkey.isEmpty) return ;
+
+    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+    if (user != null) {
+      setState(() {
+        userFromRemote = user;
+      });
+    }
+  }
+
+  bool isValidNPubString(String input) {
+    final regex = RegExp(r'^npub[a-zA-Z0-9]+$');
+    return regex.hasMatch(input);
+  }
+
+  bool isNIP05AddressString(String input) {
+    return input.contains('@');
   }
 }
 

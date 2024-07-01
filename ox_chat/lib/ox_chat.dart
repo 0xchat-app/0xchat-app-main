@@ -138,6 +138,7 @@ class OXChat extends OXFlutterModule {
           title: params?['title'] ?? '',
           userList: params?['userList'],
           defaultSelected: params?['defaultSelected'] ?? [],
+          additionalUserList: params?['additionalUserList'],
           isMultiSelect: params?['isMultiSelect'] ?? false,
           allowFetchUserFromRelay: params?['allowFetchUserFromRelay'] ?? false,
           shouldPop: params?['shouldPop'],
