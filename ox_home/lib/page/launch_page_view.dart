@@ -112,7 +112,7 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 }
 
-class CustomRouteFadeIn extends PageRouteBuilder {
+class CustomRouteFadeIn<T> extends PageRouteBuilder<T> {
   final Widget widget;
   CustomRouteFadeIn(this.widget)
       : super(

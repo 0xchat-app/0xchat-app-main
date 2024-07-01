@@ -50,7 +50,7 @@ class OXUserCenter extends OXFlutterModule {
       };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'UserCenterPage':
         return OXNavigator.pushPage(

@@ -1,21 +1,16 @@
 
-import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:convert/convert.dart';
-import 'package:pointycastle/export.dart';
 
 class EcashHelper {
 

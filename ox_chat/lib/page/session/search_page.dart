@@ -12,6 +12,7 @@ import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';

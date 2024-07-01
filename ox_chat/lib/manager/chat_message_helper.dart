@@ -14,6 +14,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -519,24 +520,6 @@ extension UserDBToUIEx on UserDB {
       sourceObject: this,
     );
     return _user;
-  }
-
-  String getUserShowName() {
-    final nickName = (this.nickName ?? '').trim();
-    final name = (this.name ?? '').trim();
-    if (nickName.isNotEmpty) return nickName;
-    if (name.isNotEmpty) return name;
-    return 'unknown';
-  }
-
-  updateWith(UserDB user) {
-    name = user.name;
-    picture = user.picture;
-    about = user.about;
-    lnurl = user.lnurl;
-    gender = user.gender;
-    area = user.area;
-    dns = user.dns;
   }
 }
 

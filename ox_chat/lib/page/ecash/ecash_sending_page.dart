@@ -9,6 +9,7 @@ import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/contacts/user_list_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';

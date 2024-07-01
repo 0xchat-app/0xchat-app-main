@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-class FadeRouteCustom extends PageRouteBuilder {
+class FadeRouteCustom<T> extends PageRouteBuilder<T> {
   final Widget page;
   final int milliseconds;
 
