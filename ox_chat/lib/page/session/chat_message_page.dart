@@ -259,7 +259,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       chatGeneralHandler.sendSystemMessage(
         context,
         Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
-        isSendToRemote: false,
+        isOnlyMemMsg: true,
       );
     }
     else{
@@ -270,7 +270,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         chatGeneralHandler.sendSystemMessage(
           context,
           Localized.text('ox_chat.my_dmrelay_not_set_hint_message'),
-          isSendToRemote: false,
+          isOnlyMemMsg: true,
         );
       }
     }
