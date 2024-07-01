@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
+import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -352,11 +353,11 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _searchChatHistoryFn() async {
-
+    //TODO
   }
 
   void _clearChatHistoryFn() async {
-
+    //TODO
   }
 
   void _reportFn() async {
@@ -587,37 +588,41 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _groupQrCodeFn() {
-    if (!_isGroupMember) return _DisableShareDialog();
-    OXNavigator.pushPage(
-      context,
-      (context) => GroupSettingQrcodePage(groupId: widget.groupId),
-    );
+    _DisableShareDialog(true);
   }
 
-  void _DisableShareDialog() {
+  void _DisableShareDialog(bool isQrCode) {
     OXCommonHintDialog.show(
       context,
       title: "",
       content: Localized.text('ox_chat.enabled_group_join_verification'),
       actionList: [
         OXCommonHintAction.sure(
-          text: Localized.text('ox_common.confirm'),
-          onTap: () => OXNavigator.pop(context),
-        ),
+            text: Localized.text('ox_common.confirm'),
+            onTap: () {
+              OXNavigator.pop(context);
+              if (isQrCode){
+                OXNavigator.pushPage(
+                  context,
+                      (context) => GroupSettingQrcodePage(groupId: widget.groupId),
+                );
+              } else {
+                OXNavigator.presentPage(
+                  context,
+                  (context) => ContactGroupMemberPage(
+                    groupId: widget.groupId,
+                    groupListAction: GroupListAction.send,
+                  ),
+                );
+              }
+            }),
       ],
       isRowAction: true,
     );
   }
 
   void _shareGroupFn() {
-    if (!_isGroupMember) return _DisableShareDialog();
-    OXNavigator.presentPage(
-      context,
-      (context) => ContactGroupMemberPage(
-        groupId: widget.groupId,
-        groupListAction: GroupListAction.send,
-      ),
-    );
+    _DisableShareDialog(false);
   }
 
   void _changeMuteFn(bool value) async {
@@ -626,7 +631,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       return;
     }
     if (value) {
-      await Groups.sharedInstance.muteGroup(widget.groupId);
+      // await RelayGroup.sharedInstance.muteGroup(widget.groupId); //TODO waiting function
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     } else {
       await Groups.sharedInstance.unMuteGroup(widget.groupId);
@@ -738,6 +743,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _loadMembers(RelayGroupDB groupDB) async {
     List<UserDB> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
     if (localMembers.isNotEmpty) {
+      groupMember = localMembers;
       _getIsGroupMemberValue(localMembers);
     }
     setState(() {});
@@ -755,11 +761,14 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     RelayGroup.sharedInstance.getGroupAdminsFromRelay(widget.groupId).then((groupAdmins){
       if (groupAdmins != null && groupAdmins.isNotEmpty) {
         _getIsGroupManagerValue(groupAdmins);
+        setState(() {});
       }
     });
     RelayGroup.sharedInstance.getGroupMembersFromRelay(widget.groupId).then((memberUsers){
       if (memberUsers != null && memberUsers.isNotEmpty) {
+        groupMember = memberUsers;
         _getIsGroupMemberValue(memberUsers);
+        setState(() {});
       }
     });
   }
