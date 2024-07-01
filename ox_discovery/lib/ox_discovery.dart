@@ -1,9 +1,9 @@
-
 import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
+import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -37,7 +37,10 @@ class OXDiscovery  extends OXFlutterModule {
     switch (pageName) {
       case 'PersonMomentsPage':
         return OXNavigator.pushPage(
-            context, (context) => PersonMomentsPage(userDB: params?['userDB'],));
+            context, (context) => PersonMomentsPage(userDB: params?['userDB']));
+      case 'GroupMomentsPage':
+        return OXNavigator.pushPage(
+            context, (context) => GroupMomentsPage(groupId: params?['groupId']));
     }
     return null;
   }
