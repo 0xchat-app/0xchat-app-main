@@ -256,7 +256,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage> with OXMomentObser
         });
     }
     try {
-      List<NoteDB> list = await Moment.sharedInstance.loadMomentNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
+      List<NoteDB> list = await Moment.sharedInstance.loadAllNotesFromDB(private: widget.publicMomentsPageType.getValue,until: isInit ? null : _allNotesFromDBLastTimestamp, limit: _limit) ?? [];
       if (list.isEmpty) {
         isInit ? _refreshController.refreshCompleted() : _refreshController.loadNoData();
         if(!isPrivateMoment) await _getNotesFromRelay();
