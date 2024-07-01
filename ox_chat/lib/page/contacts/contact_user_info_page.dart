@@ -923,7 +923,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             opacity: 1,
             child: Container(
               alignment: Alignment.bottomCenter,
-              height: Adapt.px(widget.isSecretChat ? 142 : 195),
+              height: Adapt.px(142),
               decoration: BoxDecoration(
                 color: ThemeColor.color180,
                 borderRadius: BorderRadius.circular(12),
@@ -941,11 +941,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                     height: Adapt.px(0.5),
                     color: ThemeColor.color160,
                   ),
-                  !widget.isSecretChat ? _chatControlDialogItemWidget(
-                      isSelect: _safeChatStatus,
-                      content:
-                      Localized.text('ox_chat.option_gift_wrap_dm').replaceAll(r'${option}', '${_safeChatStatus ? Localized.text('ox_chat.disable') : Localized.text('ox_chat.enable')} '),
-                      onTap: _updateSafeChat) : Container(),
                   Container(
                     height: Adapt.px(8),
                     color: ThemeColor.color190,
