@@ -34,84 +34,88 @@ class ChatSendMessageHelper {
         message.contentString(message.content);
     final replayId = message.repliedMessage?.id ?? '';
 
-    // create chat sender strategy
-    final senderStrategy = ChatStrategyFactory.getStrategy(session);
-    // for test
-    // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
-    // prepare send event
-    Event? event;
-    var plaintEvent = message.sourceKey;
-    if (plaintEvent != null && plaintEvent is String) {
-      try {
-        event = await Event.fromJson(jsonDecode(plaintEvent));
-      } catch (_) {
-        return 'send message error';
-      }
-    }
+    types.Message sendMsg = message;
 
-    if (event == null) {
-      event = await senderStrategy.getSendMessageEvent(
+    if (!isOnlyMemMsg) {
+      // create chat sender strategy
+      final senderStrategy = ChatStrategyFactory.getStrategy(session);
+      // for test
+      // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
+      // prepare send event
+      Event? event;
+      var plaintEvent = message.sourceKey;
+      if (plaintEvent != null && plaintEvent is String) {
+        try {
+          event = await Event.fromJson(jsonDecode(plaintEvent));
+        } catch (_) {
+          return 'send message error';
+        }
+      }
+
+      if (event == null) {
+        event = await senderStrategy.getSendMessageEvent(
+          messageType: type,
+          contentString: contentString,
+          replayId: replayId,
+          decryptSecret: message.decryptKey,
+          source: await sourceCreator?.call(message),
+        );
+      }
+      if (event == null) {
+        return 'send message fail';
+      }
+
+      final sourceKey = jsonEncode(event);
+      sendMsg = message.copyWith(
+        id: event.innerEvent?.id ?? event.id,
+        remoteId: event.id,
+        sourceKey: sourceKey,
+        expiration: senderStrategy.session.expiration == null
+            ? null
+            : senderStrategy.session.expiration! +
+                currentUnixTimestampSeconds(),
+      );
+
+      if (sendMsg.type == types.MessageType.text) {
+        final newMsg = tryTransferMessageFromText(session, sendMsg, sourceKey);
+        if (newMsg != null) {
+          sendMsg = newMsg;
+        }
+      }
+
+      ChatLogUtils.info(
+        className: 'ChatSendMessageHelper',
+        funcName: 'sendMessage',
+        message:
+            'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
+      );
+
+      senderStrategy
+          .doSendMessageAction(
         messageType: type,
         contentString: contentString,
         replayId: replayId,
         decryptSecret: message.decryptKey,
-        source: await sourceCreator?.call(message),
-      );
-    }
-    if (event == null) {
-      return 'send message fail';
-    }
+        event: event,
+        isLocal: isLocal,
+      )
+          .then((event) async {
+        sendFinish.value = true;
 
-    final sourceKey = jsonEncode(event);
-    types.Message sendMsg = message.copyWith(
-      id: event.innerEvent?.id ?? event.id,
-      remoteId: event.id,
-      sourceKey: sourceKey,
-      expiration: senderStrategy.session.expiration == null
-          ? null
-          : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
-    );
+        final message =
+            await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
+        if (message == null) return;
 
-    if (sendMsg.type == types.MessageType.text) {
-      final newMsg = tryTransferMessageFromText(session, sendMsg, sourceKey);
-      if (newMsg != null) {
-        sendMsg = newMsg;
-      }
+        final updatedMessage = message.copyWith(
+          remoteId: event.eventId,
+          status: event.status ? types.Status.sent : types.Status.error,
+        );
+        ChatDataCache.shared
+            .updateMessage(session: session, message: updatedMessage);
+      });
     }
-
-    ChatLogUtils.info(
-      className: 'ChatSendMessageHelper',
-      funcName: 'sendMessage',
-      message:
-          'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
-    );
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
-
-    if (isOnlyMemMsg) return null;
-
-    senderStrategy
-        .doSendMessageAction(
-      messageType: type,
-      contentString: contentString,
-      replayId: replayId,
-      decryptSecret: message.decryptKey,
-      event: event,
-      isLocal: isLocal,
-    )
-        .then((event) async {
-      sendFinish.value = true;
-
-      final message = await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-      if (message == null) return ;
-
-      final updatedMessage = message.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
-      );
-      ChatDataCache.shared
-          .updateMessage(session: session, message: updatedMessage);
-    });
 
     if (!isLocal) {
       // If the message is not sent within a short period of time, change the status to the sending state
