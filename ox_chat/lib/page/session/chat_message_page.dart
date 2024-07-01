@@ -20,6 +20,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessagePage extends StatefulWidget {
 
@@ -90,14 +91,13 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
         setState(() { });
       };
     }
-    // connect to other uer dm relays
-    Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
   }
 
   void prepareData() {
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
+    _handelDMRelay();
   }
 
   void addListener() {
@@ -253,5 +253,28 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   Future<void> _loadMoreMessages() async {
     await chatGeneralHandler.loadMoreMessage(_messages);
+  }
+
+  void _handelDMRelay(){
+    if(otherUser?.dmRelayList?.isNotEmpty == false){
+      chatGeneralHandler.sendSystemMessage(
+        context,
+        Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
+        isSendToRemote: false,
+      );
+    }
+    else{
+      // connect to other uer dm relays
+      Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
+      // check my dm relay
+      if(_user.sourceObject?.dmRelayList?.isNotEmpty == false){
+        chatGeneralHandler.sendSystemMessage(
+          context,
+          Localized.text('ox_chat.my_dmrelay_not_set_hint_message'),
+          isSendToRemote: false,
+        );
+      }
+    }
+
   }
 }
