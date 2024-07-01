@@ -30,7 +30,9 @@ import 'package:flutter/cupertino.dart';
 
 
 class ChannelPage extends StatefulWidget {
-  const ChannelPage({Key? key}): super(key: key);
+  final int currentIndex;
+
+  const ChannelPage({Key? key,required this.currentIndex}): super(key: key);
 
   @override
   State<ChannelPage> createState() => _ChannelPageState();
@@ -48,10 +50,6 @@ class _ChannelPageState extends State<ChannelPage>
 
   List<ChannelModel?> _channelModelList = [];
 
-  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
-
-
-
   @override
   void initState() {
     super.initState();
@@ -68,8 +66,20 @@ class _ChannelPageState extends State<ChannelPage>
       height: Adapt.px(76),
       package: 'ox_common',
     );
-    _getHotChannels(type: _currentIndex.value + 1,context: context);
+    _getHotChannels(type: widget.currentIndex + 1,context: context);
 
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      if(widget.currentIndex == 2){
+        _getLatestChannelList();
+      }else{
+        _getHotChannels(type: widget.currentIndex + 1,context: context);
+      }
+    }
   }
 
   @override
@@ -132,10 +142,10 @@ class _ChannelPageState extends State<ChannelPage>
   }
 
   void _onRefresh() async {
-    if (_currentIndex.value == 2) {
+    if (widget.currentIndex == 2) {
       _getLatestChannelList();
     } else {
-      _getHotChannels(type: _currentIndex.value + 1);
+      _getHotChannels(type: widget.currentIndex + 1);
     }
     _refreshController.refreshCompleted();
   }
