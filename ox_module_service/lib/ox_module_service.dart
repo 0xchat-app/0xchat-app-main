@@ -74,7 +74,7 @@ abstract class OXFlutterModule {
   /// Module listener, <eventName : List<observerHandle>>
   Map<String, List<OXObserverCallback>> observerMap = {};
 
-  dynamic navigateToPage(
+  Future<T?>? navigateToPage<T>(
       BuildContext context, String pageName, Map<String, dynamic>? params);
 
   /// Add listener
@@ -121,11 +121,11 @@ class OXModuleService {
   }
 
   /// Invoke module navigation
-  static Future? pushPage(BuildContext context, String moduleName,
+  static Future<T?>? pushPage<T>(BuildContext context, String moduleName,
       String pageName, Map<String, dynamic>? params) {
     final module = _modules[moduleName];
     if (module == null) return null;
-    Future? result = module.navigateToPage(context, pageName, params);
+    Future<T?>? result = module.navigateToPage<T>(context, pageName, params);
     if (result == null) {
       OXNavigator.pushPage(
           context,
