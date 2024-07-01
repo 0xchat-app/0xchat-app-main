@@ -457,4 +457,75 @@ class OXCommonHintDialog extends StatelessWidget {
      });
     return completer.future;
   }
+
+  static Future<String?> showInputDialog(
+      BuildContext context, {
+        String? title,
+        String? content,
+        String? hintText,
+        int? maxLength,
+        TextInputType? keyboardType,
+        String? defaultText,
+      }) async {
+    final inputController = TextEditingController(text: defaultText);
+    final result = await OXCommonHintDialog.show(context,
+      title: title,
+      content: content,
+      contentView: Container(
+        child: Column(
+          children: [
+            Container(
+              height: 42.px,
+              decoration: BoxDecoration(
+                color: ThemeColor.color190,
+                borderRadius: BorderRadius.circular(12.px),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 16.px),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: inputController,
+                      maxLength: maxLength,
+                      maxLines: 1,
+                      keyboardType: keyboardType,
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: 16.sp,
+                        height: 1.4,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: hintText,
+                        hintStyle: TextStyle(
+                          color: ThemeColor.color100,
+                          fontSize: 16.sp,
+                          height: 1.4,
+                        ),
+                        border: InputBorder.none,
+                        counterText: '',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actionList: [
+        OXCommonHintAction.cancel(),
+        OXCommonHintAction.sure(
+          text: Localized.text('ox_common.save'),
+          onTap: () => OXNavigator.pop(context, true),
+        ),
+      ],
+      isRowAction: true,
+    );
+
+    if (result != null) {
+      return inputController.text;
+    } else {
+      return null;
+    }
+  }
 }
