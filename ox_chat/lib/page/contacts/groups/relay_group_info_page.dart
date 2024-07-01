@@ -645,10 +645,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     if (requestTag) {
       _changeRequestTagStatus(false);
       OXLoading.show();
-      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-      OKEvent event = await Groups.sharedInstance
-          .leaveGroup(widget.groupId, Localized.text('ox_chat.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
-
+      OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId);
       if (!event.status) {
         _changeRequestTagStatus(true);
         CommonToast.instance.show(context, event.message);
