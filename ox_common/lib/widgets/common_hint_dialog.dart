@@ -85,15 +85,18 @@ class OXCommonHintDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Material(
-            color: Colors.transparent,
-            child: Container(
-                width: Adapt.px(300.0),
-                decoration: BoxDecoration(
-                    color: bgImage == null ? ThemeColor.color180 : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10.0),
-                    image: bgImage == null ? null : DecorationImage(image: bgImage!, fit: BoxFit.fill)),
-                child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[_buildTextArea(), _buildButtonArea(context)])),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          child: Material(
+              color: Colors.transparent,
+              child: Container(
+                  width: Adapt.px(300.0),
+                  decoration: BoxDecoration(
+                      color: bgImage == null ? ThemeColor.color180 : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10.0),
+                      image: bgImage == null ? null : DecorationImage(image: bgImage!, fit: BoxFit.fill)),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[_buildTextArea(), _buildButtonArea(context)])),
+          ),
         ));
   }
 
@@ -468,50 +471,46 @@ class OXCommonHintDialog extends StatelessWidget {
         String? defaultText,
       }) async {
     final inputController = TextEditingController(text: defaultText);
+    final contentWidget = Container(
+      height: 42.px,
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.circular(12.px),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.px),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: inputController,
+              maxLength: maxLength,
+              maxLines: 1,
+              keyboardType: keyboardType,
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: 16.sp,
+                height: 1.4,
+              ),
+              decoration: InputDecoration(
+                hintText: hintText ?? '',
+                hintStyle: TextStyle(
+                  color: ThemeColor.color100,
+                  fontSize: 16.sp,
+                  height: 1.4,
+                ),
+                border: InputBorder.none,
+                counterText: '',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
     final result = await OXCommonHintDialog.show(context,
       title: title,
       content: content,
-      contentView: Container(
-        child: Column(
-          children: [
-            Container(
-              height: 42.px,
-              decoration: BoxDecoration(
-                color: ThemeColor.color190,
-                borderRadius: BorderRadius.circular(12.px),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.px),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: inputController,
-                      maxLength: maxLength,
-                      maxLines: 1,
-                      keyboardType: keyboardType,
-                      style: TextStyle(
-                        color: ThemeColor.color0,
-                        fontSize: 16.sp,
-                        height: 1.4,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: hintText,
-                        hintStyle: TextStyle(
-                          color: ThemeColor.color100,
-                          fontSize: 16.sp,
-                          height: 1.4,
-                        ),
-                        border: InputBorder.none,
-                        counterText: '',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      contentView: contentWidget,
       actionList: [
         OXCommonHintAction.cancel(),
         OXCommonHintAction.sure(
