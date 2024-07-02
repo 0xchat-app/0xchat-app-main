@@ -43,7 +43,11 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   void initState() {
     super.initState();
     _minioOptionControllers = List.generate(_minioOptionTextField.length, (index) => TextEditingController());
-    _minioOptionTextFieldData = {for (var item in _minioOptionTextField) item: ''};
+    if(widget.operationType == OperationType.edit) {
+      _minioOptionTextFieldData[_minioOptionTextField[0]] =
+    } else {
+      _minioOptionTextFieldData = {for (var item in _minioOptionTextField) item: ''};
+    }
   }
 
   @override
@@ -74,6 +78,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
           children: [
             if(widget.fileStorageProtocol == FileStorageProtocol.minio)
               _buildMinioTypeView(),
+            if(widget.fileStorageProtocol == FileStorageProtocol.nip96)
+              _buildNip96TypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: () {
@@ -153,7 +159,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   }
 
   Widget _buildNip96TypeView() {
-    return Container();
+    return _buildItem('URL', _buildTextField(hintText: 'Enter URL(http or https)'));
   }
 
   Widget _buildMinioTypeView() {

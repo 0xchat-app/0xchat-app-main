@@ -25,6 +25,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
   @override
   void initState() {
     super.initState();
+    _currentIndex = OXServerManager.sharedInstance.selectedFileStorageIndex;
     OXServerManager.sharedInstance.addObserver(this);
   }
 
@@ -88,15 +89,16 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
 
   Widget _buildFilesServerItem(FileStorageServer fileServer, int index) {
     bool canEdit = fileServer.canEdit && _currentIndex != index;
-    final iconName = _isEditing && canEdit ? 'moment_more_icon.png' : _currentIndex == index ? 'icon_selected.png' : 'icon_unSelected.png';
+    final iconName = _isEditing && canEdit ? 'icon_more.png' : _currentIndex == index ? 'icon_selected.png' : 'icon_unSelected.png';
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: () async {
         if(_isEditing) {
           if(canEdit) {
             OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.nip96));
           }
         } else {
+          await OXServerManager.sharedInstance.updateSelectedFileStorageServer(index);
           setState(() {
             _currentIndex = index;
           });
@@ -140,7 +142,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
               opacity: _isEditing && !canEdit ? 0.2 : 1,
               child: CommonImage(
                 iconName: iconName,
-                package: 'ox_discovery',
+                package: 'ox_usercenter',
                 useTheme: true,
                 size: 24.px,
               ),
