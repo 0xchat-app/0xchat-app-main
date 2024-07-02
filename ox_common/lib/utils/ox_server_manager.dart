@@ -19,6 +19,7 @@ class OXServerManager {
 
   static final String iceServerKey = 'KEY_ICE_SERVER';
   static final String fileStorageServer = 'KEY_FILE_STORAGE_SERVER';
+  static final String selectedFileStorageServerIndex = 'KEY_FILE_STORAGE_SERVER_INDEX';
 
   OXServerManager._internal();
 
@@ -35,9 +36,11 @@ class OXServerManager {
   List<ICEServerModel> iCESeverModelList = [];
 
   List<FileStorageServer> fileStorageServers = [];
-  // FileStorageServer currentFileStorageServer;
+  late FileStorageServer selectedFileStorageServer;
+  int _selectedFileStorageIndex = 0;
 
   List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
+  int get selectedFileStorageIndex  => _selectedFileStorageIndex;
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
@@ -53,6 +56,8 @@ class OXServerManager {
     } else {
       fileStorageServers = tempFileStorageServers;
     }
+    _selectedFileStorageIndex = await getSelectedFileStorageServer();
+    selectedFileStorageServer = fileStorageServers[_selectedFileStorageIndex];
   }
 
   Future<void> addServer(ICEServerModel iceServerModel) async {
@@ -119,14 +124,31 @@ class OXServerManager {
     return fileStorageList;
   }
 
+  Future<bool> saveSelectedFileStorageServer() async {
+    return await OXCacheManager.defaultOXCacheManager.saveForeverData(selectedFileStorageServerIndex, _selectedFileStorageIndex);
+  }
+  
+  Future<int> getSelectedFileStorageServer() async {
+    return await OXCacheManager.defaultOXCacheManager.getForeverData(selectedFileStorageServerIndex,defaultValue: 0);
+  }
+
+  updateSelectedFileStorageServer(int selectedIndex) async {
+    _selectedFileStorageIndex = selectedIndex;
+    selectedFileStorageServer = fileStorageServers[_selectedFileStorageIndex];
+    await saveSelectedFileStorageServer();
+  }
+
   Future<void> addFileStorageServer(FileStorageServer fileStorageServer) async {
     fileStorageServers.add(fileStorageServer);
+    await saveFileStorageServers(fileStorageServers);
     for (OXServerObserver observer in _observers) {
       observer.didAddFileStorageServer(fileStorageServer);
     }
   }
 
   Future<void> deleteFileStorageServer(FileStorageServer fileStorageServer) async {
+    fileStorageServers.remove(fileStorageServer);
+    await saveFileStorageServers(fileStorageServers);
     for (OXServerObserver observer in _observers) {
       observer.didAddFileStorageServer(fileStorageServer);
     }
