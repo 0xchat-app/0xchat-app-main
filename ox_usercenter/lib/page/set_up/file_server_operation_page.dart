@@ -44,7 +44,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     super.initState();
     _minioOptionControllers = List.generate(_minioOptionTextField.length, (index) => TextEditingController());
     if(widget.operationType == OperationType.edit) {
-      _minioOptionTextFieldData[_minioOptionTextField[0]] =
+      _minioOptionTextFieldData[_minioOptionTextField[0]] = '';
     } else {
       _minioOptionTextFieldData = {for (var item in _minioOptionTextField) item: ''};
     }
