@@ -37,7 +37,7 @@ class RelayGroupCreatePage extends StatefulWidget {
 
 class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   TextEditingController _controller = TextEditingController();
-  String _chatRelay = 'wss://relay.0xchat.com';
+  String _chatRelay = 'wss://group.0xchat.com';
 
   @override
   void initState() {
@@ -137,18 +137,13 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       title: Localized.text('ox_chat.relay'),
       content: _chatRelay,
       onTap: () async {
-        var result = await OXNavigator.presentPage(context, (context) => ContactRelayPage());
-        if (result != null && _isWssWithValidURL(result as String)) {
-          _chatRelay = result;
+        var result = await OXNavigator.presentPage(context, (context) => ContactRelayPage(defaultRelayList: ['wss://group.0xchat.com', 'wss://group.fiatjaf.com', 'ws://192.168.1.25:5577']));
+        if (result != null) {
+          _chatRelay = result as String;
           setState(() {});
         }
       },
     );
-  }
-
-  bool _isWssWithValidURL(String input) {
-    RegExp regex = RegExp(r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
-    return regex.hasMatch(input);
   }
 
   Widget _labelWidget({
@@ -241,9 +236,10 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     ;
     await OXLoading.show();
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
-      String tempRelay = '192.168.1.25:5577'; //_chatRelay.replaceFirst('wss://', '');
-      LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${tempRelay}----');
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(tempRelay, name);
+      LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${_chatRelay}----');
+      var uri = Uri.parse(_chatRelay);
+      var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
+      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(hostWithPort, name);
       await OXLoading.dismiss();
       LogUtil.e('Michael: -_createGroup() ---relayGroupDB =${relayGroupDB}----');
       if (relayGroupDB != null) {
