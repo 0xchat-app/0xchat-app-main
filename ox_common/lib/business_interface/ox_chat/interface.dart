@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -63,5 +64,31 @@ class OXChatInterface {
       [content],
     );
     return result;
+  }
+
+  static Future<List<UserDB>?> pushUserSelectionPage({
+    required BuildContext context,
+    List<UserDB>? userList,
+    String? title,
+    List<UserDB>? defaultSelected,
+    List<UserDB>? additionalUserList,
+    bool isMultiSelect = false,
+    bool allowFetchUserFromRelay = false,
+    bool Function(List<UserDB> userList)? shouldPop,
+  }) async {
+    return OXModuleService.pushPage<List<UserDB>?>(
+      context,
+      moduleName,
+      'UserSelectionPage',
+      {
+        'title': title,
+        'userList': userList,
+        'defaultSelected': defaultSelected,
+        'additionalUserList': additionalUserList,
+        'isMultiSelect': isMultiSelect,
+        'allowFetchUserFromRelay': allowFetchUserFromRelay,
+        'shouldPop': shouldPop,
+      },
+    );
   }
 }
