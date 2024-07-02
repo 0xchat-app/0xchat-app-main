@@ -357,6 +357,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       context,
           (context) => SearchPage(
         searchPageType: SearchPageType.singleSessionRelated,
+        forceFirstPage: true,
         chatMessage: ChatMessage(
           widget.groupId,
           '',

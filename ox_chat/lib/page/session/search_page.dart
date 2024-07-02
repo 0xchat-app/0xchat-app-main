@@ -2,12 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/model/search_history_model.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/page/session/search_discover_ui.dart';
 import 'package:ox_chat/utils/search_txt_util.dart';
@@ -42,12 +44,14 @@ class SearchPage extends StatefulWidget {
   final SearchPageType searchPageType;
   final ChatMessage? chatMessage;
   final Group? defaultGroup;
+  final bool forceFirstPage;
 
   SearchPage({
     this.searchText,
     this.searchPageType = SearchPageType.all,
     this.chatMessage,
     this.defaultGroup,
+    this.forceFirstPage = false,
   });
 
   @override
@@ -75,7 +79,7 @@ class SearchPageState extends State<SearchPage> {
   List<Group> dataGroups = [];
   List<UserDB> _selectedHistoryList = [];
   List<SearchHistoryModel> _txtHistoryList = [];
-  bool isShowAppBar = false;
+  bool isSubpage = false;
   TextEditingController editingController = TextEditingController();
   int lastRequestId = 0;
 
@@ -85,12 +89,12 @@ class SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-
+    searchQuery = widget.searchText ?? '';
     _prepareData(false);
   }
 
   void _prepareData(bool isInput) {
-    searchQuery = widget.searchText ?? '';
+    dataGroups.clear();
 
     if (!OXUserInfoManager.sharedInstance.isLogin) return;
 
@@ -102,10 +106,10 @@ class SearchPageState extends State<SearchPage> {
       case SearchPageType.groupSeeMore:
       case SearchPageType.messagesSeeMore:
       case SearchPageType.singleSessionRelated:
-        isShowAppBar = true;
+        isSubpage = true;
         break;
       default:
-        isShowAppBar = false;
+        isSubpage = false;
         break;
     }
 
@@ -139,7 +143,6 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadAllData(bool isInput) async {
-    dataGroups.clear();
     if (searchQuery.trim().isNotEmpty) {
       _loadFriendsData();
       _loadChannelsData();
@@ -175,7 +178,7 @@ class SearchPageState extends State<SearchPage> {
 
 
   void _loadGroupsData() async {
-    List<GroupDB>? tempGroupList = SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
+    List<GroupUIModel>? tempGroupList = SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
     if (tempGroupList != null && tempGroupList.length > 0) {
       dataGroups.add(
         Group(
@@ -263,7 +266,7 @@ class SearchPageState extends State<SearchPage> {
     final backgroundColor = ThemeColor.color200;
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: isShowAppBar
+      appBar: isSubpage
           ? CommonAppBar(
               useLargeTitle: false,
               centerTitle: true,
@@ -273,7 +276,7 @@ class SearchPageState extends State<SearchPage> {
           : null,
       body: Column(
         children: [
-          isShowAppBar ? Container() : _topSearchView(),
+          isSubpage && !widget.forceFirstPage ? SizedBox() : _topSearchView(),
           Expanded(
             child: _contentView()
                 .setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24))),
@@ -304,7 +307,7 @@ class SearchPageState extends State<SearchPage> {
         padding: EdgeInsets.zero,
         groupHeaderBuilder: (element) {
           final hasMoreItems = element.items.length > maxItemsCount;
-          return isShowAppBar
+          return isSubpage && !widget.forceFirstPage
               ? Container()
               : Container(
                   width: double.infinity,
@@ -365,7 +368,7 @@ class SearchPageState extends State<SearchPage> {
                 );
               }).toList(),
             );
-          } else if (element.type == SearchItemType.groups && items is List<GroupDB>) {
+          } else if (element.type == SearchItemType.groups && items is List<GroupUIModel>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -679,7 +682,7 @@ class SearchPageState extends State<SearchPage> {
   Widget _topSearchView() {
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top,
+        top: widget.forceFirstPage ? 0 : MediaQuery.of(context).padding.top,
       ),
       height: Adapt.px(80),
       alignment: Alignment.center,
@@ -854,6 +857,15 @@ class SearchPageState extends State<SearchPage> {
           ),
         );
         break;
+      case ChatType.chatRelayGroup:
+        OXNavigator.pushPage(
+          context,
+              (context) => ChatRelayGroupMsgPage(
+            communityItem: sessionModel,
+            anchorMsgId: item.msgId,
+          ),
+        );
+        break;
     }
   }
 
@@ -888,18 +900,32 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void gotoChatGroupSession(GroupDB groupDB) {
-    OXNavigator.pushPage(
-        context,
-            (context) => ChatGroupMessagePage(
-          communityItem: ChatSessionModel(
-            chatId: groupDB.groupId,
-            chatName: groupDB.name,
-            chatType: ChatType.chatGroup,
-            avatar: groupDB.picture,
-            groupId: groupDB.groupId,
-          ),
-        ));
+  void gotoChatGroupSession(GroupUIModel groupUIModel) {
+    if (groupUIModel.chatType == ChatType.chatGroup) {
+      OXNavigator.pushPage(
+          context,
+          (context) => ChatGroupMessagePage(
+                communityItem: ChatSessionModel(
+                  chatId: groupUIModel.groupId,
+                  chatName: groupUIModel.name,
+                  chatType: ChatType.chatGroup,
+                  avatar: groupUIModel.picture,
+                  groupId: groupUIModel.groupId,
+                ),
+              ));
+    } else if (groupUIModel.chatType == ChatType.chatRelayGroup) {
+      OXNavigator.pushPage(
+          context,
+          (context) => ChatRelayGroupMsgPage(
+                communityItem: ChatSessionModel(
+                  chatId: groupUIModel.groupId,
+                  chatName: groupUIModel.name,
+                  chatType: ChatType.chatGroup,
+                  avatar: groupUIModel.picture,
+                  groupId: groupUIModel.groupId,
+                ),
+              ));
+    }
   }
 
   void gotoChatChannelSession(ChannelDB channelDB) {

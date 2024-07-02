@@ -1,5 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -24,9 +25,29 @@ class SearchTxtUtil{
     return channelList;
   }
 
-  static List<GroupDB>? loadChatGroupWithSymbol(String symbol) {
+  static List<GroupUIModel>? loadChatGroupWithSymbol(String symbol) {
+    List<GroupUIModel>? groupUIModels;
     final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
-    return groupDBlist;
+    final List<RelayGroupDB>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
+    if(groupDBlist!=null && groupDBlist.length>0) {
+      groupUIModels ??= [];
+      List<GroupUIModel> groupUIModelList = [];
+      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
+      tempGroups.forEach((element) {
+        groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
+      });
+      groupUIModels.addAll(groupUIModelList);
+    }
+    if(relayGroupDBlist!=null && relayGroupDBlist.length>0) {
+      groupUIModels ??= [];
+      List<GroupUIModel> relayGroupUIModelList = [];
+      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      tempGroups.forEach((element) {
+        relayGroupUIModelList.add(GroupUIModel.relayGroupdbToUIModel(element));
+      });
+      groupUIModels.addAll(relayGroupUIModelList);
+    }
+    return groupUIModels;
   }
 
   static Future<List<ChatMessage>> loadChatMessagesWithSymbol(String symbol,
@@ -75,7 +96,7 @@ class SearchTxtUtil{
                 _getName(item),
                 item.decryptContent,
                 _getPicUrl(item),
-                item.chatType ?? ChatType.chatChannel,
+                ChatType.convertMessageChatType(item.chatType ?? ChatType.chatChannel),
                 1,
               );
             } else {
@@ -95,7 +116,7 @@ class SearchTxtUtil{
               _getName(element),
               element.decryptContent,
               _getPicUrl(element),
-              element.chatType ?? ChatType.chatChannel,
+              ChatType.convertMessageChatType(element.chatType ?? ChatType.chatChannel),
               1,
             ));
           });
