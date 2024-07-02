@@ -111,8 +111,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
             },
             child: CommonImage(
               iconName: "title_close.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
+              size: 24.px,
               useTheme: true,
             ),
           ),
@@ -289,9 +288,8 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     bool isShowSelectIcon = _selectRelayIndex == index;
     if (!isShowSelectIcon) return Container();
     return CommonImage(
-      iconName: 'icon_select_follows.png',
-      width: Adapt.px(32),
-      height: Adapt.px(32),
+      iconName: 'icon_select_follows.png',//icon_pic_selected
+      size: 24.px,
       package: 'ox_chat',
     );
   }
