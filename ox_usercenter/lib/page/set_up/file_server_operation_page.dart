@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/minio_uploader.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -16,16 +15,19 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:minio/minio.dart';
 import 'package:http/http.dart';
+import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
 enum OperationType { create, edit }
 
 class FileServerOperationPage extends StatefulWidget {
   final FileStorageProtocol fileStorageProtocol;
   final OperationType operationType;
+  final FileStorageServer? fileStorageServer;
 
   const FileServerOperationPage({
     super.key,
     required this.fileStorageProtocol,
+    this.fileStorageServer,
     OperationType? operationType,
   }) : operationType = operationType ?? OperationType.create;
 
@@ -35,24 +37,33 @@ class FileServerOperationPage extends StatefulWidget {
 
 class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
-  final List<String> _minioOptionTextField = ['EndPoint', 'Access Key', 'Secret Key','Custom Name'];
-  Map<String, String> _minioOptionTextFieldData = {};
-  late final List<TextEditingController> _minioOptionControllers ;
+  final List<String> _minioInputOptions = ['EndPoint', 'Access Key', 'Secret Key', 'Bucket Name', 'Custom Name'];
+  late final List<TextEditingController> _minioInputOptionControllers;
 
   @override
   void initState() {
     super.initState();
-    _minioOptionControllers = List.generate(_minioOptionTextField.length, (index) => TextEditingController());
-    if(widget.operationType == OperationType.edit) {
-      _minioOptionTextFieldData[_minioOptionTextField[0]] = '';
-    } else {
-      _minioOptionTextFieldData = {for (var item in _minioOptionTextField) item: ''};
+    _initMinioData();
+  }
+
+  _initMinioData() {
+    if (widget.fileStorageProtocol == FileStorageProtocol.minio) {
+      _minioInputOptionControllers = List.generate(_minioInputOptions.length, (index) => TextEditingController());
+      if (widget.operationType == OperationType.edit) {
+        MinioServer? minioServer = widget.fileStorageServer as MinioServer;
+        _minioInputOptionControllers[0].text = minioServer.endPoint;
+        _minioInputOptionControllers[1].text = minioServer.accessKey;
+        _minioInputOptionControllers[2].text = minioServer.secretKey;
+        _minioInputOptionControllers[3].text = minioServer.bucketName;
+        _minioInputOptionControllers[4].text = minioServer.name;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final title = '${widget.operationType.name} ${widget.fileStorageProtocol.serverName}';
+    final operation = widget.operationType == OperationType.create ? 'Add' : 'Edit';
+    final title = '$operation ${widget.fileStorageProtocol.serverName}';
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
@@ -82,22 +93,10 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
               _buildNip96TypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
-              onTap: () {
-                final errorMsg = _verifyMinioOption();
-                if(errorMsg.isNotEmpty){
-                  CommonToast.instance.show(context, errorMsg);
-                  return;
-                }
-                _createMinioServer();
-              },
+              onTap: _handleComplete,
             ).setPadding(EdgeInsets.only(top: 12.px)),
             if(widget.operationType == OperationType.edit)
-              CommonButton.themeButton(
-                text: Localized.text('ox_common.delete'),
-                onTap: () {
-                  print('---- result: $_minioOptionTextFieldData');
-                },
-              ).setPadding(EdgeInsets.only(top: 12.px)),
+              _buildDeleteButton(),
           ],
         ),
       ),
@@ -164,64 +163,129 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   Widget _buildMinioTypeView() {
     Map<String,String> hintText = {
-      _minioOptionTextField[0]:'Enter URL(http or https)',
-      _minioOptionTextField[1]:'Enter Secret Key',
-      _minioOptionTextField[2]:'Enter Access Key',
-      _minioOptionTextField[3]:'Custom Server Name(optional)',
+      _minioInputOptions[0]:'Enter URL(http or https)',
+      _minioInputOptions[1]:'Enter Secret Key',
+      _minioInputOptions[2]:'Enter Access Key',
+      _minioInputOptions[3]:'Enter Bucket Name',
+      _minioInputOptions[4]:'Custom Server Name(optional)',
     };
     return ListView.separated(
       shrinkWrap: true,
       itemBuilder: (context, index) {
         return _buildItem(
-          _minioOptionTextField[index],
+          _minioInputOptions[index],
           _buildTextField(
-            controller: _minioOptionControllers[index],
-            hintText: hintText[_minioOptionTextField[index]],
-            onChanged: (value) {
-              _minioOptionTextFieldData[_minioOptionTextField[index]] = value;
-            }
+            controller: _minioInputOptionControllers[index],
+            hintText: hintText[_minioInputOptions[index]],
           ),
         );
       },
       separatorBuilder: (context, index) => SizedBox(height: 12.px,),
-      itemCount: _minioOptionTextField.length,
+      itemCount: _minioInputOptions.length,
     );
+  }
+
+  Widget _buildDeleteButton() {
+    return GestureDetector(
+      onTap: () {
+        BottomSheetDialog.showBottomSheet(
+            context, [BottomSheetItem(title: 'Delete',onTap: _deletedFileServer)],
+            title: 'Delete ${widget.fileStorageProtocol.serverName}?',
+            color: ThemeColor.red1,
+        );
+      },
+      child: Container(
+        alignment: Alignment.center,
+        height: 48.px,
+        decoration: BoxDecoration(
+            color: ThemeColor.color180,
+            borderRadius: BorderRadius.circular(12.px),),
+        child: Text(
+          'Delete',
+          style: TextStyle(
+            fontSize: 16.px,
+            fontWeight: FontWeight.w600,
+            color: ThemeColor.red1,
+          ),
+        ),
+      ).setPadding(EdgeInsets.only(top: 12.px)),
+    );
+  }
+
+  _deletedFileServer() async {
+    if (widget.fileStorageServer != null) {
+      await OXServerManager.sharedInstance.deleteFileStorageServer(widget.fileStorageServer!);
+      OXNavigator.pop(context);
+    }
+  }
+
+  _handleComplete() {
+    switch(widget.fileStorageProtocol) {
+      case FileStorageProtocol.nip96:
+        break;
+      case FileStorageProtocol.blossom:
+        break;
+      case FileStorageProtocol.minio:
+        _createMinioServer();
+        break;
+      case FileStorageProtocol.oss:
+        break;
+    }
   }
 
   String _verifyMinioOption() {
     String errorMsg = '';
-    _minioOptionTextFieldData.forEach((key, value) {
-      if(key == _minioOptionTextField[3]) return;
-      if (value.isEmpty) {
-        errorMsg = 'Please Enter $key';
+    final tips = _minioInputOptions.map((item) => 'Please Enter $item').toList();
+    for (int index = 0; index < _minioInputOptionControllers.length; index++) {
+      if (index == 4) return errorMsg;
+      if (_minioInputOptionControllers[index].text.isEmpty) {
+        errorMsg = tips[index];
+        break;
       }
-    });
+    }
     return errorMsg;
   }
 
   Future<void> _createMinioServer() async {
-    String url = _minioOptionControllers[0].text;
-    String accessKey = _minioOptionControllers[1].text;
-    String secretKey = _minioOptionControllers[2].text;
+    final errorMsg = _verifyMinioOption();
+    if(errorMsg.isNotEmpty){
+      CommonToast.instance.show(context, errorMsg);
+      return;
+    }
+    String url = _minioInputOptionControllers[0].text;
+    String accessKey = _minioInputOptionControllers[1].text;
+    String secretKey = _minioInputOptionControllers[2].text;
+    String bucketName = _minioInputOptionControllers[3].text;
     final uri = Uri.parse(url);
     String endPoint = uri.hasScheme ? url.replaceFirst('${uri.scheme}://', '') : url ;
-    final name = _minioOptionControllers[3].text.isNotEmpty ? _minioOptionControllers[3].text : endPoint;
+    final name = _minioInputOptionControllers[4].text.isNotEmpty ? _minioInputOptionControllers[4].text : endPoint;
     final useSSL = uri.scheme == 'https';
     final port = uri.port == 0 ? null : uri.port;
 
-    final minio = Minio(
-      endPoint: endPoint,
+    MinioUploader.init(
+      url: endPoint,
       accessKey: accessKey,
       secretKey: secretKey,
+      bucketName: bucketName,
       useSSL: useSSL,
       port: port,
     );
 
     OXLoading.show();
     try {
-      await minio.listBuckets();
+      bool result = await MinioUploader.instance.bucketExists();
       OXLoading.dismiss();
-      MinioServer minioServer = MinioServer(endPoint: endPoint, accessKey: accessKey, secretKey: secretKey, name: name);
+      MinioServer minioServer = MinioServer(
+        endPoint: url,
+        accessKey: accessKey,
+        secretKey: secretKey,
+        name: name,
+        bucketName: bucketName,
+      );
+      if(!result) {
+        CommonToast.instance.show(context, 'Bucket Name is not exist!');
+        return;
+      }
       OXServerManager.sharedInstance.addFileStorageServer(minioServer);
       OXNavigator.pop(context);
     } on ClientException catch (e) {
@@ -235,7 +299,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   @override
   void dispose() {
-    for (var controller in _minioOptionControllers) {
+    for (var controller in _minioInputOptionControllers) {
       controller.dispose();
     }
     super.dispose();

@@ -72,18 +72,20 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
 
   Widget _buildBody() {
     final fileStorageServers = OXServerManager.sharedInstance.fileStorageServers;
-    return Column(
-      children: [
-        ListView.separated(
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => _buildFilesServerItem(fileStorageServers[index],index),
-          separatorBuilder: (context, index) => Container(height: 12.px,),
-          itemCount: fileStorageServers.length,
-        ),
-        _buildAddServerButton(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => _buildFilesServerItem(fileStorageServers[index],index),
+            separatorBuilder: (context, index) => Container(height: 12.px,),
+            itemCount: fileStorageServers.length,
+          ),
+          _buildAddServerButton(),
+        ],
+      ),
     );
   }
 
@@ -95,7 +97,13 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
       onTap: () async {
         if(_isEditing) {
           if(canEdit) {
-            OXNavigator.pushPage(context, (context) => const FileServerOperationPage(fileStorageProtocol: FileStorageProtocol.nip96));
+            OXNavigator.pushPage(
+                context,
+                (context) => FileServerOperationPage(
+                      fileStorageProtocol: fileServer.protocol,
+                      fileStorageServer: fileServer,
+                      operationType: OperationType.edit,
+                    ));
           }
         } else {
           await OXServerManager.sharedInstance.updateSelectedFileStorageServer(index);
