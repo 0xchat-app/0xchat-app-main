@@ -99,7 +99,7 @@
   "secret_chat_tips": "For enhanced privacy, you can select a specific relay for your secret chat; all secret chat messages will only be sent to this relay.",
   "secret_chat_relay_tips": "PLEASE ENTER OR SELECT RELAY",
   "secret_chat_relay_enter_tips": "Please select relay or enter relay",
-  "secret_chat_relay_input_right_wss_tips": "Please input the right wss",
+  "secret_chat_relay_input_right_wss_tips": "Please input the right ws/wss",
   "call": "Call",
   "badges": "Badges",
   "public_key": "Pubkey",

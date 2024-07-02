@@ -98,7 +98,7 @@
   "secret_chat_tips": "為了增強隱私，你可以為你的密聊選擇一個特定的中繼器；所有密聊信息只會被發送到這個中繼器。",
   "secret_chat_relay_tips": "請輸入或選擇中繼器",
   "secret_chat_relay_enter_tips": "請選擇中繼器或輸入中繼器",
-  "secret_chat_relay_input_right_wss_tips": "請輸入正確格式的wss地址",
+  "secret_chat_relay_input_right_wss_tips": "請輸入正確格式的ws/wss地址",
   "call": "呼叫",
   "badges": "徽章",
   "public_key": "公開帳戶ID",
