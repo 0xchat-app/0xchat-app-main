@@ -85,10 +85,10 @@ class SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
 
-    _prepareData();
+    _prepareData(false);
   }
 
-  void _prepareData() {
+  void _prepareData(bool isInput) {
     searchQuery = widget.searchText ?? '';
 
     if (!OXUserInfoManager.sharedInstance.isLogin) return;
@@ -110,7 +110,7 @@ class SearchPageState extends State<SearchPage> {
 
     switch (searchPageType) {
       case SearchPageType.all:
-        _loadAllData(false);
+        _loadAllData(isInput);
         break;
       case SearchPageType.singleFriend:
         _loadFriendsData();
@@ -672,7 +672,7 @@ class SearchPageState extends State<SearchPage> {
 
   void _onTextChanged(value) {
     searchQuery = value;
-    _loadAllData(true);
+    _prepareData(true);
   }
 
   Widget _topSearchView() {
