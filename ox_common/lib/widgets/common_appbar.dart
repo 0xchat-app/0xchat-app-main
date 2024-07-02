@@ -91,7 +91,8 @@ class LargeTitleState extends State<LargeTitle> {
 }
 
 // marked by ccso
-class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
+class
+CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool canBack;
   final bool isClose;
   final VoidCallback? backCallback;
@@ -212,11 +213,13 @@ class BaseAppBarState extends State<CommonAppBar> {
         builder: (BuildContext content) {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            child:  CommonImage(
-              iconName: "title_close.png",
-              size:  24.px,
-              height: 24.px,
-              useTheme: true,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "title_close.png",
+                size:  24.px,
+                useTheme: true,
+              ),
             ).setPaddingOnly(left: 24.px),
             onTap: widget.backCallback ??
                 () {
@@ -231,10 +234,13 @@ class BaseAppBarState extends State<CommonAppBar> {
         builder: (BuildContext content) {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            child: CommonImage(
-              iconName: "icon_back_left_arrow.png",
-              size: 24.px,
-              useTheme: true,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "icon_back_left_arrow.png",
+                size: 24.px,
+                useTheme: true,
+              ),
             ).setPaddingOnly(left: 24.px),
             onTap: widget.backCallback ??
                 () {
