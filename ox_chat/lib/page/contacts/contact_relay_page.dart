@@ -327,7 +327,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
 
   bool _isWssWithValidURL(String input) {
     RegExp regex = RegExp(
-        r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
+        r'^wss?:\/\/(([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))(:\d{1,5})?(\/\S*)?$');
     return regex.hasMatch(input);
   }
 }
