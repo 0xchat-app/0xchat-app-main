@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
@@ -129,7 +130,9 @@ class ChatDataCache with OXChatObserver {
   @override
   void didGroupMessageCallBack(MessageDB message) async {
     final groupId = message.groupId;
-    final key = GroupKey(groupId);
+    final key = message.chatType != null && message.chatType == ChatType.chatRelayGroup
+        ? RelayGroupKey(groupId)
+        : GroupKey(groupId);
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
@@ -609,17 +612,15 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     if (type == 1) {
       return GroupKey(message.groupId);
     }
-
+    if (type == 4) {
+      return RelayGroupKey(message.groupId);
+    }
     if (type == 2 || message.groupId.isNotEmpty) {
       return ChannelKey(message.groupId);
     }
 
     if (type == 0 || message.sender.isNotEmpty && message.receiver.isNotEmpty) {
       return PrivateChatKey(message.sender, message.receiver);
-    }
-
-    if (type == 4) {
-      return RelayGroupKey(message.groupId);
     }
 
     ChatLogUtils.error(
