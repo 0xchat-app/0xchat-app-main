@@ -4,9 +4,11 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -19,8 +21,6 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import '../../../manager/chat_data_cache.dart';
 import '../contact_group_list_page.dart';
 import '../contact_group_member_page.dart';
 import 'group_edit_page.dart';
@@ -329,12 +329,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             onTap: _searchChatHistoryFn,
             isShowMoreIcon: true,
           ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.str_group_clear_chat_history'),
-            onTap: _clearChatHistoryFn,
-            isShowMoreIcon: true,
-            isShowDivider: false,
-          ),
+          // GroupItemBuild(
+          //   title: Localized.text('ox_chat.str_group_clear_chat_history'),
+          //   onTap: _clearChatHistoryFn,
+          //   isShowMoreIcon: true,
+          //   isShowDivider: false,
+          // ),
           // GroupItemBuild(
           //   title: Localized.text('ox_chat.str_group_report'),
           //   subTitle: groupDBInfo?.groupId ?? '--',
@@ -353,11 +353,25 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _searchChatHistoryFn() async {
-    //TODO
+    OXNavigator.pushPage(
+      context,
+          (context) => SearchPage(
+        searchPageType: SearchPageType.singleSessionRelated,
+        chatMessage: ChatMessage(
+          widget.groupId,
+          '',
+          groupDBInfo?.name ?? '',
+          '',
+          '',
+          ChatType.chatRelayGroup,
+          1,
+        ),
+      ),
+    );
   }
 
   void _clearChatHistoryFn() async {
-    //TODO
+
   }
 
   void _reportFn() async {
@@ -538,7 +552,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _updateGroupNameFn() async {
     if (!_isGroupMember) return;
-
     bool? result = await OXNavigator.pushPage(
       context,
       (context) => GroupEditPage(
@@ -612,6 +625,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                   (context) => ContactGroupMemberPage(
                     groupId: widget.groupId,
                     groupListAction: GroupListAction.send,
+                    groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
                   ),
                 );
               }
@@ -631,10 +645,10 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       return;
     }
     if (value) {
-      // await RelayGroup.sharedInstance.muteGroup(widget.groupId); //TODO waiting function
+      await RelayGroup.sharedInstance.muteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     } else {
-      await Groups.sharedInstance.unMuteGroup(widget.groupId);
+      await RelayGroup.sharedInstance.unMuteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     }
     setState(() {
