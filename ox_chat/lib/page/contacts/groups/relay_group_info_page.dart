@@ -757,19 +757,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           groupDBInfo = relayGroupDB;
         });
       }
-    });
-    RelayGroup.sharedInstance.getGroupAdminsFromRelay(widget.groupId).then((groupAdmins){
-      if (groupAdmins != null && groupAdmins.isNotEmpty) {
+      RelayGroup.sharedInstance.getGroupMembersFromLocal(groupDBInfo!.groupId).then((value){
+        groupMember = value;
+        _getIsGroupMemberValue(value);
+        List<GroupAdmin>? groupAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(groupDBInfo!.groupId);
         _getIsGroupManagerValue(groupAdmins);
         setState(() {});
-      }
-    });
-    RelayGroup.sharedInstance.getGroupMembersFromRelay(widget.groupId).then((memberUsers){
-      if (memberUsers != null && memberUsers.isNotEmpty) {
-        groupMember = memberUsers;
-        _getIsGroupMemberValue(memberUsers);
-        setState(() {});
-      }
+      });
     });
   }
 }
