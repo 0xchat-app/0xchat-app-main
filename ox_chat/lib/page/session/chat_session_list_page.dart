@@ -428,6 +428,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildListViewItem(context, int index) {
+    if(index >= _msgDatas.length) return SizedBox();
     ChatSessionModel item = _msgDatas[index];
     GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
     // ChatLogUtils.info(
