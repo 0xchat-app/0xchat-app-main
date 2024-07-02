@@ -281,7 +281,6 @@ class _GroupSharePageState extends State<GroupSharePage> {
     int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
     if(status == 2) return _createGroup();
     if(status == 1) return _joinGroupFn();
-    return _requestGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
         contentView: Container(
@@ -354,6 +353,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       }
 
       CommonToast.instance.show(context, Localized.text('ox_chat.request_join_toast_success'));
+      OXNavigator.pop(context);
       OXNavigator.pop(context);
     }
 

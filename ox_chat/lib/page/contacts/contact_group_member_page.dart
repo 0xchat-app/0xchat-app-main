@@ -113,7 +113,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, GroupType.privateGroup);
       return;
     }
     return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
@@ -146,7 +146,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
-                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId);
+                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
                 OXNavigator.pop(context, true);
               }),
         ],
