@@ -1,4 +1,7 @@
+import 'dart:io';
+import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 
 class MinioUploader {
 
@@ -17,27 +20,38 @@ class MinioUploader {
   }
 
   static MinioUploader init({
-    required String endPoint,
+    required String url,
     required String accessKey,
     required String secretKey,
     required String bucketName,
     int? port,
     bool? useSSL,
   }) {
-    var instance = MinioUploader.instance;
-    instance._minio = Minio(
+    _instance = MinioUploader._internal();
+    final uri = Uri.parse(url);
+    String endPoint = uri.hasScheme ? url.replaceFirst('${uri.scheme}://', '') : url ;
+    final useSSL = uri.scheme == 'https';
+    final port = uri.port == 0 ? null : uri.port;
+    _instance!._minio = Minio(
       endPoint: endPoint,
       accessKey: accessKey,
       secretKey: secretKey,
+      useSSL: useSSL,
       port: port,
-      useSSL: useSSL ?? true,
     );
-    bucketName = bucketName;
-    return instance;
+    _instance!.bucketName = bucketName;
+    return _instance!;
   }
 
-  // static Future<String> uploadFile() {
-  //
-  // }
+  Future<String> uploadFile({required File file, required String filename, required FileType fileType}) async {
+    final fileFolder = UploadUtils.getFileFolders(fileType);
+    final objectName = '$fileFolder$filename';
+    await _minio.fPutObject(bucketName, objectName, file.path);
+    int expires = 7 * 24 * 60 * 60;
+    return await _minio.presignedGetObject(bucketName, objectName, expires: expires);
+  }
 
+  Future<bool> bucketExists() async {
+    return await _minio.bucketExists(bucketName);
+  }
 }

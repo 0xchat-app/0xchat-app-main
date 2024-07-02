@@ -1,23 +1,34 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/file_storage_server_model.dart';
+import 'package:ox_common/upload/minio_uploader.dart';
 import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path_provider/path_provider.dart';
 
+enum FileType {
+  image,
+  voice,
+  video,
+  text,
+}
+
 class UploadUtils {
 
-  static Future<String> uploadFile(
-      {BuildContext? context,
-      params,
-      String? encryptedKey,
-      required File file,
-      required String filename,
-      bool showLoading = true}) async {
-
+  static Future<String> uploadFile({
+    BuildContext? context,
+    params,
+    String? encryptedKey,
+    required File file,
+    required String filename,
+    required FileType fileType,
+    bool showLoading = true,
+  }) async {
     File? encryptedFile;
     if(encryptedKey != null) {
       String directoryPath = '';
@@ -37,10 +48,68 @@ class UploadUtils {
       file = encryptedFile;
     }
     final _showLoading = showLoading && (context != null);
-    print('---------begin upload....');
-    String? url = await Uploader.upload(file.path, 'nosto.re', fileName: filename);
-    print('--------- upload done: $url');
-    if (_showLoading) OXLoading.dismiss();
-    return '';
+    FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
+    String url = '';
+    if(_showLoading) OXLoading.show();
+    try {
+      if (fileStorageServer.protocol == FileStorageProtocol.nip96 || fileStorageServer.protocol == FileStorageProtocol.blossom) {
+        final imageServices = fileStorageServer.name;
+        url = await Uploader.upload(file.path, imageServices, fileName: filename) ?? '';
+      }
+
+      if(fileStorageServer.protocol == FileStorageProtocol.minio) {
+        MinioServer minioServer = fileStorageServer as MinioServer;
+        MinioUploader.init(
+          url: minioServer.endPoint,
+          accessKey: minioServer.accessKey,
+          secretKey: minioServer.secretKey,
+          bucketName: minioServer.bucketName,
+          useSSL: minioServer.useSSL,
+          port: minioServer.port,
+        );
+        url = await MinioUploader.instance.uploadFile(file: file, filename: filename, fileType: fileType);
+      }
+
+      if (fileStorageServer.protocol == FileStorageProtocol.oss) {
+        url = await UplodAliyun.uploadFileToAliyun(
+          context: context,
+          file: file,
+          filename: filename,
+          fileType: convertFileTypeToUploadAliyunType(fileType),
+          encryptedKey: encryptedKey,
+          showLoading: showLoading,
+        );
+      }
+      if(_showLoading) OXLoading.dismiss();
+    } catch (e) {
+      CommonToast.instance.show(context, e.toString());
+    }
+    return url;
+  }
+
+  static String getFileFolders(FileType fileType) {
+    switch (fileType) {
+      case FileType.image:
+        return 'images/';
+      case FileType.video:
+        return 'video/';
+      case FileType.voice:
+        return 'voice/';
+      case FileType.text:
+        return 'text/';
+    }
+  }
+
+  static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
+    switch (fileType) {
+      case FileType.image:
+        return UplodAliyunType.imageType;
+      case FileType.voice:
+        return UplodAliyunType.voiceType;
+      case FileType.video:
+        return UplodAliyunType.videoType;
+      case FileType.text:
+        return UplodAliyunType.logType;
+    }
   }
 }
