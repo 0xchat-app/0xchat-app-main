@@ -162,8 +162,8 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
                 context,
                 (context) => ContactRelayPage(),
               );
-              if (result != null && _isWssWithValidURL(result as String)) {
-                _chatRelay = result;
+              if (result != null) {
+                _chatRelay = result as String;
                 setState(() {});
               }
             },
@@ -329,12 +329,6 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     } else {
       CommonToast.instance.show(context, okEvent.message);
     }
-  }
-
-  bool _isWssWithValidURL(String input) {
-    RegExp regex = RegExp(
-        r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
-    return regex.hasMatch(input);
   }
 
   void _selectTimeDialog(Widget? Function(BuildContext, int) itemWidget) {

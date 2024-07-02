@@ -6,6 +6,7 @@ import 'package:ox_wallet/page/wallet_send_ecash_coin_selection_page.dart';
 import 'package:ox_wallet/page/wallet_send_ecash_new_token_page.dart';
 import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/widget/common_card.dart';
+import 'package:ox_wallet/widget/send_p2pk_option_widget.dart';
 import 'package:ox_wallet/widget/switch_widget.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -19,7 +20,8 @@ class WalletSendEcashOverviewPage extends StatefulWidget {
   final int amount;
   final String? memo;
   final IMint mint;
-  const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo, required this.mint});
+  final SendP2PKOption? p2pkOption;
+  const WalletSendEcashOverviewPage({super.key, required this.amount, this.memo, required this.mint, this.p2pkOption,});
 
   @override
   State<WalletSendEcashOverviewPage> createState() => _WalletSendEcashOverviewPageState();
@@ -119,7 +121,29 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
 
   Future<void> _createToken() async {
     await OXLoading.show();
-    final response = await EcashService.sendEcash(mint: widget.mint, amount: widget.amount,memo: widget.memo,proofs: _selectedProofs);
+    CashuResponse<String> response;
+    final p2pkOption = widget.p2pkOption;
+    if (p2pkOption != null) {
+      response = await EcashService.sendEcashForP2PK(
+        mint: widget.mint,
+        amount: widget.amount,
+        memo: widget.memo,
+        singer: p2pkOption.singer,
+        refund: p2pkOption.refund,
+        locktime: p2pkOption.lockTime,
+        signNumRequired: p2pkOption.sigNum,
+        sigFlag: p2pkOption.sigFlag,
+        proofs: _selectedProofs,
+      );
+    } else {
+      response = await EcashService.sendEcash(
+        mint: widget.mint,
+        amount: widget.amount,
+        memo: widget.memo,
+        proofs: _selectedProofs,
+      );
+    }
+
     await OXLoading.dismiss();
     if (response.isSuccess) {
       OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: response.data,));

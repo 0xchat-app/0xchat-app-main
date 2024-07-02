@@ -12,6 +12,7 @@ import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
+import 'package:ox_chat/page/contacts/user_list_page.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
@@ -76,7 +77,7 @@ class OXChat extends OXFlutterModule {
   String get moduleName => OXChatInterface.moduleName;
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
@@ -132,7 +133,16 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.presentPage(context, (context) => ChatVideoPlayPage(
           videoUrl: params?['videoUrl'] ?? '',
         ),fullscreenDialog:true);
-
+      case 'UserSelectionPage':
+        return OXNavigator.presentPage(context, (context) => UserSelectionPage(
+          title: params?['title'] ?? '',
+          userList: params?['userList'],
+          defaultSelected: params?['defaultSelected'] ?? [],
+          additionalUserList: params?['additionalUserList'],
+          isMultiSelect: params?['isMultiSelect'] ?? false,
+          allowFetchUserFromRelay: params?['allowFetchUserFromRelay'] ?? false,
+          shouldPop: params?['shouldPop'],
+        ),);
     }
     return null;
   }

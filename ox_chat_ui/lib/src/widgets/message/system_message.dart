@@ -20,6 +20,7 @@ class SystemMessage extends StatelessWidget {
           message,
           style:
               InheritedChatTheme.of(context).theme.systemMessageTheme.textStyle,
+          textAlign: TextAlign.center,
         ),
       );
 }

@@ -14,8 +14,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 
 class ContactRelayPage extends StatefulWidget {
-
-  ContactRelayPage({Key? key}) : super(key: key);
+  final List<String>? defaultRelayList;
+  const ContactRelayPage({
+    super.key,
+    this.defaultRelayList,
+  });
   @override
   _ContactRelayPage createState() => new _ContactRelayPage();
 }
@@ -300,7 +303,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   void _getRelays() {
-    _relaysList = Connect.sharedInstance.relays();
+    _relaysList = widget.defaultRelayList ?? Connect.sharedInstance.relays();
     setState(() {});
   }
 
@@ -325,7 +328,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
 
   bool _isWssWithValidURL(String input) {
     RegExp regex = RegExp(
-        r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
+        r'^wss?:\/\/(([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))(:\d{1,5})?(\/\S*)?$');
     return regex.hasMatch(input);
   }
 }

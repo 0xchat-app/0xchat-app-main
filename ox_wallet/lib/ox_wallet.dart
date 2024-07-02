@@ -23,7 +23,7 @@ class OXWallet extends OXFlutterModule {
   String get moduleName => OXWalletInterface.moduleName;
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'WalletPage':
         return OXNavigator.pushPage(context, (context) => const WalletPage(),);

@@ -24,11 +24,11 @@ class OxCalling extends OXFlutterModule {
       };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) async {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) async {
     switch (pageName) {
       case 'CallPage':
         bool cmPermission = await PermissionUtils.getCallPermission(context);
-        if (!cmPermission) return;
+        if (!cmPermission) return null;
         String mediaType = params?['media'] ?? 'video';
         if (CallManager.instance.callState == null ) {
           CallManager.instance.connectServer();

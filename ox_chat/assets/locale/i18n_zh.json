@@ -99,7 +99,7 @@
   "secret_chat_tips": "为了增强隐私，你可以为你的秘密聊天选择一个特定的中继；所有秘密聊天信息只会被发送到这个中继。",
   "secret_chat_relay_tips": "请输入或选择中继器",
   "secret_chat_relay_enter_tips": "请选择中继器或输入中继器",
-  "secret_chat_relay_input_right_wss_tips": "请输入正确格式的wss地址",
+  "secret_chat_relay_input_right_wss_tips": "请输入正确格式的ws/wss地址",
   "call": "呼叫",
   "badges": "徽章",
   "public_key": "公开账户ID",
