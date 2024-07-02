@@ -236,14 +236,11 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     ;
     await OXLoading.show();
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
-      LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${_chatRelay}----');
       var uri = Uri.parse(_chatRelay);
       var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(hostWithPort, name);
       await OXLoading.dismiss();
-      LogUtil.e('Michael: -_createGroup() ---relayGroupDB =${relayGroupDB}----');
       if (relayGroupDB != null) {
-        OXNavigator.pop(context);
         OXNavigator.pushReplacement(
           context,
           ChatRelayGroupMsgPage(
