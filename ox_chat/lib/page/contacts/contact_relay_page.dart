@@ -56,38 +56,49 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   Widget _body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        _appBar(),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            vertical: Adapt.px(12),
-            horizontal: Adapt.px(24),
-          ),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            Localized.text('ox_chat.enter_or_relay'),
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
+    return CustomScrollView(
+      physics: BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: _appBar(),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              vertical: Adapt.px(12),
+              horizontal: Adapt.px(24),
+            ),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Localized.text('ox_chat.enter_or_relay'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
-        _inputRelayView(),
-        SizedBox(
-          height: Adapt.px(12),
+        SliverToBoxAdapter(
+          child: _inputRelayView(),
         ),
-        Expanded(
+        SliverToBoxAdapter(
+          child: SizedBox(height: Adapt.px(12)),
+        ),
+        SliverToBoxAdapter(
           child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: ThemeColor.color180,
+            ),
             margin: EdgeInsets.symmetric(
               horizontal: Adapt.px(24),
             ),
             alignment: Alignment.center,
             child: ListView.builder(
               primary: false,
+              shrinkWrap: true,
               itemCount: _relaysList.length,
               itemBuilder: (context, index) => _relayItemWidget(index),
             ),
@@ -227,6 +238,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     String relay = _relaysList[index];
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () {
         if (_selectRelayIndex == null) {
           _selectRelayIndex = index;
@@ -235,51 +247,44 @@ class _ContactRelayPage extends State<ContactRelayPage> {
         }
         setState(() {});
       },
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: ThemeColor.color180,
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: Adapt.px(10),
-                horizontal: Adapt.px(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CommonImage(
-                        iconName: 'icon_settings_relays.png',
-                        width: Adapt.px(32),
-                        height: Adapt.px(32),
-                        package: 'ox_usercenter',
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          left: Adapt.px(12),
-                        ),
-                        child: Text(
-                          relay,
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _selectFollowsWidget(index),
-                ],
-              ),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              vertical: Adapt.px(10),
+              horizontal: Adapt.px(16),
             ),
-            _dividerWidget(index),
-          ],
-        ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CommonImage(
+                      iconName: 'icon_settings_relays.png',
+                      width: Adapt.px(32),
+                      height: Adapt.px(32),
+                      package: 'ox_usercenter',
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(
+                        left: Adapt.px(12),
+                      ),
+                      child: Text(
+                        relay,
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                _selectFollowsWidget(index),
+              ],
+            ),
+          ),
+          _dividerWidget(index),
+        ],
       ),
     );
   }
