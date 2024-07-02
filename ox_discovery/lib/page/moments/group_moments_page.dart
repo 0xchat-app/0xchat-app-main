@@ -134,6 +134,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   Widget _getMomentListWidget() {
+    if(notesList.isEmpty) return _noDataWidget();
     return ListView.builder(
       primary: false,
       controller: null,
@@ -142,27 +143,13 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
       itemBuilder: (context, index) {
         ValueNotifier<NotedUIModel> notedUIModel = notesList[index];
 
-        if (index == 0) {
-          return Container(
-            child: MomentWidget(
-              isShowReplyWidget: true,
-              notedUIModel: notedUIModel,
-              clickMomentCallback:
-                  (ValueNotifier<NotedUIModel> notedUIModel) async {
-                await OXNavigator.pushPage(context,
-                    (context) => MomentsPage(notedUIModel: notedUIModel));
-              },
-            ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
-          );
-        }
-
         return MomentWidget(
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
-          clickMomentCallback:
-              (ValueNotifier<NotedUIModel> notedUIModel) async {
+          clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
+            updateNotesList(true);
           },
         ).setPadding(EdgeInsets.symmetric(horizontal: 24.px));
       },
@@ -307,6 +294,35 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
       print('Error loading notes: $e');
       _refreshController.loadFailed();
     }
+  }
+
+  Widget _noDataWidget() {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 100.px,
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            CommonImage(
+              iconName: 'icon_no_data.png',
+              width: Adapt.px(90),
+              height: Adapt.px(90),
+            ),
+            Text(
+              '${Localized.text('ox_discovery.no')} Moment !',
+              style: TextStyle(
+                fontSize: 16.px,
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color100,
+              ),
+            ).setPaddingOnly(
+              top: 24.px,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _getGroupInfo() {
