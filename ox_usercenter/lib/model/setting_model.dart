@@ -58,6 +58,12 @@ class SettingModel {
       settingItemType: SettingItemType.keys,
     ));
     settingModelList.add(SettingModel(
+      iconName: 'icon_settings_file_server.png',
+      title: 'ox_usercenter.str_file_server_title',
+      rightContent: '',
+      settingItemType: SettingItemType.fileServer,
+    ));
+    settingModelList.add(SettingModel(
       iconName: 'icon_settings_ice_server.png',
       title: 'ox_usercenter.ice_server_title',
       rightContent: '',
@@ -98,6 +104,7 @@ enum SettingItemType {
   keys,
   privacy,
   database,
+  fileServer,
   ice,
   language,
   theme,

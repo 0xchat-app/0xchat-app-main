@@ -186,6 +186,20 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
   }
 
   @override
+  void didUpdateFileStorageServer() {
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  @override
+  void didDeleteFileStorageServer() {
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  @override
   void dispose() {
     OXServerManager.sharedInstance.removeObserver(this);
     super.dispose();

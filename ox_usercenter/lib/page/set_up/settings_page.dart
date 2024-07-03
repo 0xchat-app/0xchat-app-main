@@ -19,6 +19,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_usercenter/model/setting_model.dart';
 import 'package:ox_usercenter/page/set_up/database_setting_page.dart';
+import 'package:ox_usercenter/page/set_up/file_server_page.dart';
 import 'package:ox_usercenter/page/set_up/ice_server_page.dart';
 import 'package:ox_usercenter/page/set_up/keys_page.dart';
 import 'package:ox_usercenter/page/set_up/language_settings_page.dart';
@@ -167,6 +168,8 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           }
         } else if (_settingModel.settingItemType == SettingItemType.devLog) {
           if (_isOpenDevLog) OXNavigator.pushPage(context, (context) => const LogsFilePage());
+        } else if (_settingModel.settingItemType == SettingItemType.fileServer) {
+          OXNavigator.pushPage(context, (context) => const FileServerPage());
         }
       },
       child: itemView(

@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/upload/minio_uploader.dart';
+import 'package:ox_common/upload/nip96_info_loader.dart';
+import 'package:ox_common/upload/nip96_server_adaptation.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -13,7 +15,6 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:minio/minio.dart';
 import 'package:http/http.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
@@ -37,13 +38,16 @@ class FileServerOperationPage extends StatefulWidget {
 
 class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
-  final List<String> _minioInputOptions = ['EndPoint', 'Access Key', 'Secret Key', 'Bucket Name', 'Custom Name'];
+  final List<String> _minioInputOptions = ['URL', 'Access Key', 'Secret Key', 'Bucket Name', 'Custom Name'];
   late final List<TextEditingController> _minioInputOptionControllers;
+  final _urlController = TextEditingController();
+  final _serverNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _initMinioData();
+    _initNip96Data();
   }
 
   _initMinioData() {
@@ -51,11 +55,21 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       _minioInputOptionControllers = List.generate(_minioInputOptions.length, (index) => TextEditingController());
       if (widget.operationType == OperationType.edit) {
         MinioServer? minioServer = widget.fileStorageServer as MinioServer;
-        _minioInputOptionControllers[0].text = minioServer.endPoint;
+        _minioInputOptionControllers[0].text = minioServer.url;
         _minioInputOptionControllers[1].text = minioServer.accessKey;
         _minioInputOptionControllers[2].text = minioServer.secretKey;
         _minioInputOptionControllers[3].text = minioServer.bucketName;
         _minioInputOptionControllers[4].text = minioServer.name;
+      }
+    }
+  }
+
+  _initNip96Data() {
+    if (widget.fileStorageProtocol == FileStorageProtocol.nip96) {
+      if (widget.operationType == OperationType.edit) {
+        Nip96Server? nip96server = widget.fileStorageServer as Nip96Server;
+        _urlController.text = nip96server.url;
+        _serverNameController.text = nip96server.name;
       }
     }
   }
@@ -91,6 +105,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
               _buildMinioTypeView(),
             if(widget.fileStorageProtocol == FileStorageProtocol.nip96)
               _buildNip96TypeView(),
+            if(widget.fileStorageProtocol == FileStorageProtocol.blossom)
+              _buildBlossomTypeView(),
             CommonButton.themeButton(
               text: Localized.text('ox_common.complete'),
               onTap: _handleComplete,
@@ -128,7 +144,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   Widget _buildTextField({
     TextEditingController? controller,
     String? hintText,
-    ValueChanged<String>? onChanged
+    ValueChanged<String>? onChanged,
+    validator,
   }) {
     return Container(
       width: double.infinity,
@@ -150,6 +167,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
           ),
         ),
         onChanged: onChanged,
+        validator: validator,
         // onChanged: (value) {
         //   setState(() {});
         // },
@@ -158,7 +176,27 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   }
 
   Widget _buildNip96TypeView() {
-    return _buildItem('URL', _buildTextField(hintText: 'Enter URL(http or https)'));
+    return Column(
+      children: [
+        _buildItem(
+          'URL',
+          _buildTextField(hintText: 'Enter URL(http or https)', controller: _urlController),
+        ),
+        _buildItem(
+          'Custom Name',
+          _buildTextField(hintText: 'Custom Server Name(Optional)',controller: _serverNameController),
+        ).setPaddingOnly(top: 12.px),
+      ],
+    );
+  }
+
+  Widget _buildBlossomTypeView() {
+    return Column(
+      children: [
+        _buildItem('URL', _buildTextField(hintText: 'Enter URL(http or https)'),),
+        _buildItem('Custom Name', _buildTextField(hintText: 'Custom Server Name(Optional)'),).setPaddingOnly(top: 12.px),
+      ],
+    );
   }
 
   Widget _buildMinioTypeView() {
@@ -222,6 +260,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
   _handleComplete() {
     switch(widget.fileStorageProtocol) {
       case FileStorageProtocol.nip96:
+        _createNip96Server();
         break;
       case FileStorageProtocol.blossom:
         break;
@@ -256,19 +295,18 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     String accessKey = _minioInputOptionControllers[1].text;
     String secretKey = _minioInputOptionControllers[2].text;
     String bucketName = _minioInputOptionControllers[3].text;
-    final uri = Uri.parse(url);
-    String endPoint = uri.hasScheme ? url.replaceFirst('${uri.scheme}://', '') : url ;
-    final name = _minioInputOptionControllers[4].text.isNotEmpty ? _minioInputOptionControllers[4].text : endPoint;
-    final useSSL = uri.scheme == 'https';
-    final port = uri.port == 0 ? null : uri.port;
+    final name = _minioInputOptionControllers[4].text;
+
+    if(!_urlValidator(url)) {
+      CommonToast.instance.show(context, 'Please enter a valid URL');
+      return;
+    }
 
     MinioUploader.init(
-      url: endPoint,
+      url: url,
       accessKey: accessKey,
       secretKey: secretKey,
       bucketName: bucketName,
-      useSSL: useSSL,
-      port: port,
     );
 
     OXLoading.show();
@@ -276,7 +314,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       bool result = await MinioUploader.instance.bucketExists();
       OXLoading.dismiss();
       MinioServer minioServer = MinioServer(
-        endPoint: url,
+        url: url,
         accessKey: accessKey,
         secretKey: secretKey,
         name: name,
@@ -286,7 +324,11 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         CommonToast.instance.show(context, 'Bucket Name is not exist!');
         return;
       }
-      OXServerManager.sharedInstance.addFileStorageServer(minioServer);
+      if(widget.operationType == OperationType.create) {
+        await OXServerManager.sharedInstance.addFileStorageServer(minioServer);
+      }else {
+        await OXServerManager.sharedInstance.updateFileStorageServer(minioServer);
+      }
       OXNavigator.pop(context);
     } on ClientException catch (e) {
       final error = e.toString().substring(e.toString().indexOf(':') + 2,e.toString().length);
@@ -297,11 +339,43 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     }
   }
 
+  _createNip96Server() async {
+    final url = _urlController.text;
+    final name = _serverNameController.text;
+    if(!_urlValidator(url)) {
+      CommonToast.instance.show(context, 'Please enter a valid URL');
+      return;
+    }
+    OXLoading.show();
+    Nip96ServerAdaptation? nip96serverAdaptation = await NIP96InfoLoader.getInstance().pullServerAdaptation(url);
+    OXLoading.dismiss();
+    if(nip96serverAdaptation == null || nip96serverAdaptation.apiUrl == null) {
+      CommonToast.instance.show(context, 'The file server does not support NIP-96');
+      return;
+    }
+    Nip96Server nip96server = Nip96Server(url: url, name: name.isNotEmpty ? name : url);
+    if(widget.operationType == OperationType.create) {
+      await OXServerManager.sharedInstance.addFileStorageServer(nip96server);
+    }else {
+      await OXServerManager.sharedInstance.updateFileStorageServer(nip96server);
+    }
+    OXNavigator.pop(context);
+  }
+
+  bool _urlValidator(String value) {
+    const urlPattern = r'^(https?):\/\/([^\s$.?#].[^\s]*)?(:\d{1,5})?(\/[^\s]*)?$';
+    return RegExp(urlPattern, caseSensitive: false).hasMatch(value);
+  }
+
   @override
   void dispose() {
-    for (var controller in _minioInputOptionControllers) {
-      controller.dispose();
+    if(widget.fileStorageProtocol == FileStorageProtocol.minio) {
+      for (var controller in _minioInputOptionControllers) {
+        controller.dispose();
+      }
     }
+    _urlController.dispose();
+    _serverNameController.dispose();
     super.dispose();
   }
 }
