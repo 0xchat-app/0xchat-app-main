@@ -21,6 +21,7 @@ class ChatSendInvitedTemplateHelper {
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.author ?? '';
       groupPic = groupDB?.picture ?? '';
+      groupId = groupDB?.id ?? '';
     }
 
     String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage', params: {
