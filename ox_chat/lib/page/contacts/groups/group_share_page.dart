@@ -418,7 +418,10 @@ class _GroupSharePageState extends State<GroupSharePage> {
 
   String get _dealWithGroupId {
     String groupId = widget.groupId;
-    return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
+    if(groupId.length > 33) {
+      return groupId.substring(0,15) + '...' +  groupId.substring(groupId.length - 15);
+    }
+    return groupId;
   }
 
   String get _dealWithGroupName {
