@@ -314,57 +314,28 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       return;
     };
     await OXLoading.show();
-    if (widget.groupType == GroupType.privateGroup) {
-      List<String> members = userList.map((user) => user.pubKey).toList();
-      GroupDB? groupDB = await Groups.sharedInstance.createPrivateGroup(
-          OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
-      await OXLoading.dismiss();
-      if (groupDB != null) {
-        OXNavigator.pop(context);
-        OXNavigator.pushReplacement(
-          context,
-          ChatGroupMessagePage(
-            communityItem: ChatSessionModel(
-              chatId: groupDB.groupId,
-              groupId: groupDB.groupId,
-              chatType: ChatType.chatGroup,
-              chatName: groupDB.name,
-              createTime: groupDB.updateTime,
-              avatar: groupDB.picture,
-            ),
+    List<String> members = userList.map((user) => user.pubKey).toList();
+    GroupDB? groupDB = await Groups.sharedInstance
+        .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
+    await OXLoading.dismiss();
+    if (groupDB != null) {
+      OXNavigator.pop(context);
+      OXNavigator.pushReplacement(
+        context,
+        ChatGroupMessagePage(
+          communityItem: ChatSessionModel(
+            chatId: groupDB.groupId,
+            groupId: groupDB.groupId,
+            chatType: ChatType.chatGroup,
+            chatName: groupDB.name,
+            createTime: groupDB.updateTime,
+            avatar: groupDB.picture,
           ),
-        );
-        // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
-      } else {
-        CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
-      }
-    } else if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup){
-      String tempRelay = '192.168.1.25:5577'; //_chatRelay.replaceFirst('wss://', '');
-      LogUtil.e('Michael: -_createGroup() ---${name}; tempRelay =${tempRelay}----');
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(tempRelay, name);
-        await Future.forEach(userList, (userDB) async {
-                RelayGroup.sharedInstance.addUser(_chatRelay, userDB.pubKey, '');
-              });
-      await OXLoading.dismiss();
-      LogUtil.e('Michael: -_createGroup() ---relayGroupDB =${relayGroupDB}----');
-      if (relayGroupDB != null) {
-        OXNavigator.pop(context);
-        OXNavigator.pushReplacement(
-          context,
-          ChatRelayGroupMsgPage(
-            communityItem: ChatSessionModel(
-              chatId: relayGroupDB.groupId,
-              groupId: relayGroupDB.groupId,
-              chatType: ChatType.chatRelayGroup,
-              chatName: relayGroupDB.name,
-              createTime: relayGroupDB.lastUpdatedTime,
-              avatar: relayGroupDB.picture,
-            ),
-          ),
-        );
-      } else {
-        CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
-      }
+        ),
+      );
+      // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
+    } else {
+      CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
     }
   }
 }
