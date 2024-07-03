@@ -377,11 +377,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
       if (widget.groupType == GroupType.privateGroup) {
         event = await Groups.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
       } else {
-        // event = await RelayGroup.sharedInstance.joinGroup(widget.groupId);
+        event = await RelayGroup.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
       }
-      if (event == null || !event.status) {
+      if (!event.status) {
         _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event?.message ?? '');
+        CommonToast.instance.show(context, event.message);
         OXLoading.dismiss();
         return;
       }

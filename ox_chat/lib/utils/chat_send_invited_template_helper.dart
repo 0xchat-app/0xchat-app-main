@@ -29,7 +29,7 @@ class ChatSendInvitedTemplateHelper {
       'groupId': groupId,
       'inviterPubKey': inviterPubKey,
       'groupOwner': groupOwner,
-      'groupType': groupType,
+      'groupTypeIndex': groupType.index,
     });
     selectedUserList.forEach((element) {
       ChatMessageSendEx.sendTemplateMessage(
