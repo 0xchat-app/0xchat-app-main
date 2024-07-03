@@ -118,7 +118,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       okEvent = await RelayGroup.sharedInstance.addUser(
           groupId, List.from(members), '');
     }
-    if(okEvent != null && okEvent.status){
+    if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
       ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, GroupType.privateGroup);
@@ -132,7 +132,14 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
-    OKEvent okEvent = await Groups.sharedInstance.removeGroupMembers(groupId, '${Localized.text('ox_chat.remove_member_title')}: $names', List.from(members));
+    OKEvent? okEvent;
+    if (widget.groupType == GroupType.privateGroup) {
+      okEvent = await Groups.sharedInstance.removeGroupMembers(
+          groupId, '${Localized.text('ox_chat.remove_member_title')}: $names', List.from(members));
+    } else {
+      okEvent = await RelayGroup.sharedInstance.removeUser(
+          groupId, List.from(members), '');
+    }
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
       OXNavigator.pop(context,true);
