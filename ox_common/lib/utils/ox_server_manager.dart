@@ -146,6 +146,14 @@ class OXServerManager {
     }
   }
 
+  Future<void> updateFileStorageServer(FileStorageServer fileStorageServer) async {
+    int index = fileStorageServers.indexOf(fileStorageServer);
+    if(index != -1) {
+      fileStorageServers[index] = fileStorageServer;
+    }
+    await saveFileStorageServers(fileStorageServers);
+  }
+
   Future<void> deleteFileStorageServer(FileStorageServer fileStorageServer) async {
     fileStorageServers.remove(fileStorageServer);
     await saveFileStorageServers(fileStorageServers);

@@ -2,7 +2,6 @@ import 'nostr_build_uploader.dart';
 import 'pomf2_lain_la.dart';
 import 'blossom_uploader.dart';
 import 'nip96_uploader.dart';
-import 'nostrfiles_dev_uploader.dart';
 import 'void_cat.dart';
 import 'package:mime/mime.dart';
 import 'string_util.dart';
@@ -16,18 +15,6 @@ class ImageServices {
   static const VOID_CAT = "void.cat";
   static const NOSTRFILES_DEV = "nostrfiles.dev";
   static const NOSTO_RE = "nosto.re";
-}
-
-enum FileServices {
-  blossom('Blossom'),
-  nostr_build('nostr.build'),
-  pomf2_lain_la('pomf2.lain.la'),
-  void_cat('void.cat'),
-  nosto_re('nosto.re');
-
-  final String serviceName;
-
-  const FileServices(this.serviceName);
 }
 
 class Uploader {
