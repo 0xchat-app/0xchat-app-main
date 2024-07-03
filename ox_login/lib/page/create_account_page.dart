@@ -165,16 +165,8 @@ class _CreateAccountPageState extends BasePageState<CreateAccountPage> {
     widget.userDB.about = _aboutTextEditingController.text;
     widget.userDB.dns = dnsText.length == 0 ? '' : dnsText + dnsSuffix;
 
-    await OXLoading.show();
-    UserDB? tempUserDB =
-        await Account.sharedInstance.updateProfile(widget.userDB);
-    await OXLoading.dismiss();
+    Account.sharedInstance.updateProfile(widget.userDB);
 
-    if (tempUserDB == null) {
-      CommonToast.instance
-          .show(context, Localized.text('ox_common.network_connect_fail'));
-      return;
-    }
     OXNavigator.pushPage(
         context, (context) => SaveAccountPage(userDB: widget.userDB));
   }
