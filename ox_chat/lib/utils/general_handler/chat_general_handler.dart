@@ -20,6 +20,8 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -47,7 +49,6 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';

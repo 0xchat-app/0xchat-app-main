@@ -363,7 +363,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
   String createEncryptKey() => bytesToHex(MessageDB.getRandomSecret());
 
   Future<String> uploadFile({
-    required UplodAliyunType fileType,
+    required FileType fileType,
     required String filePath,
     required String messageId,
     String? encryptedKey,
@@ -371,7 +371,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     final file = File(filePath);
     final ext = Path.extension(filePath);
     final fileName = '$messageId$ext';
-    return await UplodAliyun.uploadFileToAliyun(fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey);
+    return await UploadUtils.uploadFile(fileType: fileType, file: file, filename: fileName, encryptedKey: encryptedKey);
   }
 
   Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message) async {
@@ -416,7 +416,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: UplodAliyunType.imageType, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      final uri = await uploadFile(fileType: FileType.image, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_image_fail'));
         return null;
@@ -444,7 +444,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: UplodAliyunType.voiceType, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      final uri = await uploadFile(fileType: FileType.voice, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_audio_fail'));
         return null;
@@ -472,7 +472,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: UplodAliyunType.videoType, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      final uri = await uploadFile(fileType: FileType.video, filePath: filePath, messageId: message.id, encryptedKey: pk);
       if (uri.isEmpty) {
         CommonToast.instance.show(context, Localized.text('ox_chat.message_send_video_fail'));
         return null;
