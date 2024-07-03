@@ -283,7 +283,7 @@
   "str_group_rejected": "已拒绝",
   "str_group_approved": "已批准",
   "str_group_join_request_msg_delete_tips": "一旦删除，消息无法恢复。确定要继续吗？",
-  "str_group_manage": "管理群组",
+  "str_group_administrators": "管理员",
   "str_group_notes": "群组论坛",
   "str_group_membership_approval": "成员审批",
   "str_group_edit_permission_hint": "谁可以编辑群信息",

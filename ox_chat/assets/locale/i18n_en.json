@@ -285,7 +285,7 @@
   "str_group_rejected": "Rejected",
   "str_group_approved": "Approved",
   "str_group_join_request_msg_delete_tips": "Once deleted, the messages cannot be recovered. Are you sure you want to proceed?",
-  "str_group_manage": "Manage Group",
+  "str_group_administrators": "Administrators",
   "str_group_notes": "Group Notes",
   "str_group_membership_approval": "Membership approval",
   "str_group_edit_permission_hint": "Who can edit group info",

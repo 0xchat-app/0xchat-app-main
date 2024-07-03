@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -23,7 +24,8 @@ class GroupSharePage extends StatefulWidget {
   final String groupOwner;
   final String groupPic;
   final String groupName;
-  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic});
+  final GroupType groupType;
+  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic, required this.groupType});
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
 }
@@ -343,8 +345,14 @@ class _GroupSharePageState extends State<GroupSharePage> {
     if(requestTag){
       _changeRequestTagStatus(false);
       OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner,widget.groupName,_groupJoinInfoText.text);
-
+      OKEvent? event;
+      if (widget.groupType == GroupType.privateGroup) {
+        event = await Groups.sharedInstance.requestGroup(
+            widget.groupId, widget.groupOwner, widget.groupName, _groupJoinInfoText.text);
+      } else {
+        event = await RelayGroup.sharedInstance.sendJoinRequest(
+            widget.groupId, _groupJoinInfoText.text);
+      }
       if (!event.status) {
         _changeRequestTagStatus(true);
         CommonToast.instance.show(context, event.message);

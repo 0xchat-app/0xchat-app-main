@@ -238,7 +238,11 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
       var uri = Uri.parse(_chatRelay);
       var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(hostWithPort, name);
+      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
+        hostWithPort,
+        name,
+        closed: widget.groupType == GroupType.closeGroup ? 'true' : 'false',
+      );
       await OXLoading.dismiss();
       if (relayGroupDB != null) {
         OXNavigator.pushReplacement(

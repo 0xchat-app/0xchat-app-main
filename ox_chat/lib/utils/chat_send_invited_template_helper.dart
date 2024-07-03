@@ -23,7 +23,14 @@ class ChatSendInvitedTemplateHelper {
       groupPic = groupDB?.picture ?? '';
     }
 
-    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage',params: {'groupPic':groupPic,'groupName':groupName,'groupId': groupId,'inviterPubKey':inviterPubKey,'groupOwner':groupOwner});
+    String link = CustomURIHelper.createModuleActionURI(module: 'ox_chat', action: 'groupSharePage', params: {
+      'groupPic': groupPic,
+      'groupName': groupName,
+      'groupId': groupId,
+      'inviterPubKey': inviterPubKey,
+      'groupOwner': groupOwner,
+      'groupType': groupType,
+    });
     selectedUserList.forEach((element) {
       ChatMessageSendEx.sendTemplateMessage(
         receiverPubkey: element.pubKey,

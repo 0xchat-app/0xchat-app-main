@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
@@ -164,8 +165,8 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
-    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
+  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey, required GroupType groupType}){
+    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey, groupType: groupType));
   }
 
   void _contactUserInfoPage(BuildContext? context,{required String pubkey}){
