@@ -28,4 +28,22 @@ class ChatType {
 
   static const int chatNotice = 6;
 
+  static int convertMessageChatType(int msgChatType){
+    int chatType = ChatType.chatChannel;
+    // 0 private chat 1 group chat 2 channel chat 3 secret chat 4 relay group chat
+    switch(msgChatType){
+      case 1:
+      case 2:
+      case 3:
+        chatType = msgChatType;
+        break;
+      case 4:
+        chatType = ChatType.chatRelayGroup;
+        break;
+      default:
+        break;
+    }
+    return chatType;
+  }
+
 }
