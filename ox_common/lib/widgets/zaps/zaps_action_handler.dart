@@ -192,6 +192,7 @@ class ZapsActionHandler {
     final invoice = zapsInfo['invoice'];
 
     final response = await Cashu.payingLightningInvoice(mint: mint, pr: invoice);
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       await CommonToast.instance.show(context, response.errorMsg);
       return;
