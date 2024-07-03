@@ -231,7 +231,9 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   Widget _joinBtnWidget() {
-    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
+    int status = widget.groupType == GroupType.privateGroup
+        ? Groups.sharedInstance.getInGroupStatus(widget.groupId)
+        : RelayGroup.sharedInstance.getInGroupStatus(widget.groupId);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: confirmJoin,
@@ -368,14 +370,18 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   void _joinGroupFn()async{
-    if(requestTag){
+    if(requestTag) {
       _changeRequestTagStatus(false);
       OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'${Account.sharedInstance.me?.name} join the group');
-
-      if (!event.status) {
+      OKEvent? event;
+      if (widget.groupType == GroupType.privateGroup) {
+        event = await Groups.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
+      } else {
+        // event = await RelayGroup.sharedInstance.joinGroup(widget.groupId);
+      }
+      if (event == null || !event.status) {
         _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
+        CommonToast.instance.show(context, event?.message ?? '');
         OXLoading.dismiss();
         return;
       }
