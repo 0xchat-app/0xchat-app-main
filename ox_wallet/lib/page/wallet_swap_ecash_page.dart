@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -123,20 +124,20 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
     try{
       if(!_isValid()) return;
       int amount = int.parse(_amountEditController.text);
-      if(_sendMintNotifier.value!.balance < amount) throw SwapException(Localized.text('ox_wallet.swap_insufficient_balance'));
+      if(_sendMintNotifier.value!.balance < amount) throw SwapException(CashuResponse.fromErrorMsg(Localized.text('ox_wallet.swap_insufficient_balance')));
 
       OXLoading.show();
       final receipt = await EcashService.createLightningInvoice(mint: _receiveNotifier.value!, amount: amount);
-      if(receipt == null) throw SwapException(Localized.text('ox_wallet.swap_failed'));
+      if(receipt == null) throw SwapException(CashuResponse.fromErrorMsg(Localized.text('ox_wallet.swap_failed')));
 
       final payingResponse = await EcashService.payingLightningInvoice(mint: _sendMintNotifier.value!, pr: receipt.request);
       if (payingResponse == null || !payingResponse.isSuccess) {
         await Cashu.deleteLightningInvoice(receipt);
-        throw SwapException(payingResponse?.errorMsg ?? Localized.text('ox_wallet.swap_failed'));
+        throw SwapException(payingResponse ?? CashuResponse.fromErrorMsg(Localized.text('ox_wallet.swap_failed')));
       }
 
       final response = await Cashu.checkReceiptCompleted(receipt);
-      if(!response.isSuccess) throw SwapException(Localized.text('ox_wallet.swap_failed'));
+      if(!response.isSuccess) throw SwapException(CashuResponse.fromErrorMsg(Localized.text('ox_wallet.swap_failed')));
       OXLoading.dismiss();
       setState(() {});
       if (context.mounted) {
@@ -151,7 +152,10 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
       }
     } catch (e) {
       OXLoading.dismiss();
-      if (e is SwapException) if (context.mounted) CommonToast.instance.show(context, e.message);
+      if (e is SwapException && context.mounted) {
+        if (OXWalletInterface.checkAndShowDialog(context, e.response, _sendMintNotifier.value!)) return ;
+        CommonToast.instance.show(context, e.response.errorMsg);
+      }
     }
   }
 
@@ -165,7 +169,7 @@ class _WalletSwapEcashPageState extends State<WalletSwapEcashPage> {
 }
 
 class SwapException implements Exception {
-  final String message;
+  final CashuResponse response;
 
-  SwapException(this.message);
+  SwapException(this.response);
 }

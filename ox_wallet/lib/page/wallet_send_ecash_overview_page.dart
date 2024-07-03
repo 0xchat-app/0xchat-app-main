@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -145,6 +146,8 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
     }
 
     await OXLoading.dismiss();
+
+    if (OXWalletInterface.checkAndShowDialog(context, response, widget.mint)) return ;
     if (response.isSuccess) {
       OXNavigator.pushPage(context, (context) => WalletSendEcashNewTokenPage(amount: widget.amount,token: response.data,));
       return;
