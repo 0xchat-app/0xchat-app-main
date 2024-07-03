@@ -731,6 +731,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -768,6 +769,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -808,6 +810,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -846,19 +849,6 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     }
 
     return result;
-  }
-
-  Future<(String token, String errorMsg)> getEcashToken(IMint mint, int amount, String memo) async {
-    final response = await Cashu.sendEcash(
-      mint: mint,
-      amount: amount,
-      memo: memo,
-    );
-    if (response.isSuccess) {
-      return (response.data, '');
-    } else {
-      return ('', response.errorMsg);
-    }
   }
 
   String get receiverText => EcashHelper.userListText(condition.receiver);
