@@ -16,6 +16,7 @@ import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
@@ -36,7 +37,7 @@ class ContractsPage extends StatefulWidget {
 class _ContractsPageState extends State<ContractsPage>
     with
         SingleTickerProviderStateMixin,
-        OXUserInfoObserver,
+        OXUserInfoObserver, OXChatObserver,
         WidgetsBindingObserver {
   ContactsItemType _selectedType = ContactsItemType.contact;
   final PageController _pageController = PageController();
@@ -48,6 +49,7 @@ class _ContractsPageState extends State<ContractsPage>
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
+    OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange);
     _loadData();
@@ -70,6 +72,7 @@ class _ContractsPageState extends State<ContractsPage>
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
+    OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -341,29 +344,13 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   void _getRequestAddGroupLength() async {
-    List<MessageDB> requestJoinList =
-    await Groups.sharedInstance.getRequestList();
-    List<UserRequestInfo> requestList = [];
-    if (requestJoinList.length > 0) {
-      await Future.forEach(requestJoinList, (msgDB) async {
-        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
-        UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
-        String time = OXDateUtils.convertTimeFormatString2(
-            msgDB.createTime * 1000,
-            pattern: 'MM-dd');
-        requestList.add(new UserRequestInfo(
-          messageDB: msgDB,
-          userName: userDB?.name ?? '--',
-          createTime: time,
-          groupName: groupDB?.name ?? '--',
-          userPic: userDB?.picture ?? '--',
-          groupId: msgDB.groupId,
-          content: msgDB.decryptContent,
-          isShowMore: false,
-        ));
+    if(RelayGroup.sharedInstance.myGroups.length>0) {
+      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      await Future.forEach(tempGroups, (element) async {
+        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+        _addGroupRequestCount += requestJoinList.length;
       });
     }
-    _addGroupRequestCount = requestList.length;
     setState(() {});
   }
 
@@ -394,6 +381,10 @@ class _ContractsPageState extends State<ContractsPage>
     // TODO: implement didSwitchUser
   }
 
+  @override
+  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {
+    _getRequestAddGroupLength();
+  }
 }
 
 class _Style {
