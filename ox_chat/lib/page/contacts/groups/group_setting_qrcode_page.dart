@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -26,8 +28,9 @@ import '../contact_group_member_page.dart';
 class GroupSettingQrcodePage extends StatefulWidget {
 
   final String groupId;
+  final GroupType groupType;
 
-  GroupSettingQrcodePage({required this.groupId});
+  GroupSettingQrcodePage({required this.groupId, required this.groupType});
 
   @override
   State<StatefulWidget> createState() {
@@ -40,7 +43,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   String _groupQrCodeUrl = '';
   GlobalKey _globalKey = new GlobalKey();
 
-  GroupDB? groupDBInfo = null;
+  String? groupId;
+  String? groupName;
 
   @override
   void initState() {
@@ -137,7 +141,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
                               margin: EdgeInsets.only(
                                   left: Adapt.px(16), top: Adapt.px(2)),
                               child: MyText(
-                                groupDBInfo?.name ?? '--',
+                                groupName ?? '--',
                                 16,
                                 ThemeColor.color10,
                                 fontWeight:FontWeight.w600,
@@ -370,12 +374,23 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   }
 
   void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
-
-    if (groupDB != null) {
-      groupDBInfo = groupDB;
-      _getGroupQrcode(groupDB);
-      setState(() {});
+    if (widget.groupType == GroupType.privateGroup) {
+      GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+      if (groupDB != null) {
+        groupId = groupDB.groupId;
+        groupName = groupDB.name;
+        _getGroupQrcode(groupDB);
+        setState(() {});
+      }
+    } else {
+      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
+      if (relayGroupDB != null) {
+        groupId = relayGroupDB.groupId;
+        groupName = relayGroupDB.name;
+        String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
+        _groupQrCodeUrl = shareAppLinkDomain + (RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId) ?? '');
+        setState(() {});
+      }
     }
   }
 
@@ -390,8 +405,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
 
   String get _dealWithGroupId {
-    String? groupId = groupDBInfo?.groupId;
-    if(groupId == null) return '--';
-    return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
+    final tempGroupId = groupId;
+    if(tempGroupId == null) return tempGroupId ?? '--';
+    return tempGroupId.substring(0,5) + '...' +  tempGroupId.substring(tempGroupId.length - 5);
   }
 }

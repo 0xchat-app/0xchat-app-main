@@ -1,6 +1,7 @@
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -619,7 +620,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     if (!_isGroupMember) return _DisableShareDialog();
     OXNavigator.pushPage(
       context,
-      (context) => GroupSettingQrcodePage(groupId: widget.groupId),
+      (context) => GroupSettingQrcodePage(groupId: widget.groupId, groupType: GroupType.privateGroup),
     );
   }
 

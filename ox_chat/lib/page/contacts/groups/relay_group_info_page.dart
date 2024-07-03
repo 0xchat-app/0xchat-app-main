@@ -8,6 +8,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -283,7 +284,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             isShowMoreIcon: _isGroupMember,
           ),
           GroupItemBuild(
-            title: Localized.text('ox_chat.str_group_manage'),
+            title: Localized.text('ox_chat.str_group_administrators'),
             onTap: _manageGroupNoticeFn,
             isShowMoreIcon: true,
             isShowDivider: false,
@@ -377,14 +378,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _reportFn() async {
 
-  }
-
-  void _jumpJoinRequestFn() {
-    if (!_isGroupManager) return;
-    OXNavigator.pushPage(
-      context,
-      (context) => GroupJoinRequests(groupId: groupDBInfo?.groupId ?? ''),
-    );
   }
 
   Widget _muteWidget() {
@@ -618,7 +611,10 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
               if (isQrCode){
                 OXNavigator.pushPage(
                   context,
-                      (context) => GroupSettingQrcodePage(groupId: widget.groupId),
+                  (context) => GroupSettingQrcodePage(
+                    groupId: widget.groupId,
+                    groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
+                  ),
                 );
               } else {
                 OXNavigator.presentPage(
