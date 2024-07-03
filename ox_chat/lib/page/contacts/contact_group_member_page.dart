@@ -4,6 +4,7 @@ import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -109,8 +110,15 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
-    OKEvent okEvent = await Groups.sharedInstance.addGroupMembers(groupId, '${Localized.text('ox_chat.add_member_title')}: $names', List.from(members));
-    if(okEvent.status){
+    OKEvent? okEvent;
+    if (widget.groupType == GroupType.privateGroup) {
+      okEvent = await Groups.sharedInstance.addGroupMembers(
+          groupId, '${Localized.text('ox_chat.add_member_title')}: $names', List.from(members));
+    } else {
+      okEvent = await RelayGroup.sharedInstance.addUser(
+          groupId, List.from(members), '');
+    }
+    if(okEvent != null && okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
       ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, GroupType.privateGroup);
