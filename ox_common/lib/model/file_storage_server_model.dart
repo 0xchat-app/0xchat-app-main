@@ -11,12 +11,14 @@ enum FileStorageProtocol {
 
 class FileStorageServer {
   final String name;
+  final String url;
   final FileStorageProtocol protocol;
   final String? description;
   final bool canEdit;
 
   FileStorageServer({
     required this.name,
+    required this.url,
     this.description,
     required this.protocol,
     bool? canEdit,
@@ -27,6 +29,7 @@ class FileStorageServer {
         FileStorageProtocol.values
             .where((element) => element.index == index)
             .first;
+    final url = json['url'] ?? '';
     final protocol = getFileStorageProtocol(json['protocol'] ?? 0);
     final name = json['name'] ?? '';
     final description = json['description'] ?? '';
@@ -35,12 +38,14 @@ class FileStorageServer {
     switch(protocol) {
       case FileStorageProtocol.nip96:
         return Nip96Server(
+          url: url,
           name: name,
           canEdit: canEdit,
           description: description,
         );
       case FileStorageProtocol.blossom:
         return BlossomServer(
+          url: url,
           name: name,
           canEdit: canEdit,
           description: description,
@@ -48,7 +53,7 @@ class FileStorageServer {
       case FileStorageProtocol.minio:
         return MinioServer(
           name: name,
-          endPoint: json['endPoint'] ?? '',
+          url: url,
           accessKey: json['accessKey'] ?? '',
           secretKey: json['secretKey'] ?? '',
           bucketName: json['bucketName'] ?? '',
@@ -56,12 +61,14 @@ class FileStorageServer {
         );
       case FileStorageProtocol.oss:
         return OXChatServer(
+          url: url,
           name: name,
           canEdit: canEdit,
           description: description,
         );
       default:
         return FileStorageServer(
+          url: url,
           name: name,
           protocol: protocol,
           canEdit: canEdit,
@@ -71,6 +78,7 @@ class FileStorageServer {
 
   Map<String, dynamic> toJson(FileStorageServer fileStorageServer) {
     final fileServerJson = <String, dynamic>{
+      'url': fileStorageServer.url,
       'name': fileStorageServer.name,
       'protocol': fileStorageServer.protocol.index,
       'description': fileStorageServer.description,
@@ -85,7 +93,6 @@ class FileStorageServer {
         MinioServer minioServer = fileStorageServer as MinioServer;
         return <String, dynamic>{
           ...fileServerJson,
-          'endPoint': minioServer.endPoint,
           'accessKey': minioServer.accessKey,
           'secretKey': minioServer.secretKey,
           'bucketName': minioServer.bucketName
@@ -98,28 +105,42 @@ class FileStorageServer {
     }
   }
 
+  @override
+  int get hashCode => super.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is FileStorageServer && other.url == url;
+  }
+
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
         OXChatServer(
+          url: '',
           name: '0xchat File Server',
           canEdit: false,
-          description: 'Free storage, expired in 7 days',
+          description: 'The Official file storage service, and also the default file storage service',
         ),
         Nip96Server(
+          url: '',
           name: 'nostr.build',
           canEdit: false,
           description: 'Free storage, expired in 7 days',
         ),
         Nip96Server(
+          url: '',
           name: 'void.cat',
           canEdit: false,
           description: 'Free storage, expired in 7 days',
         ),
         Nip96Server(
+          url: '',
           name: 'pomf2.lain.la',
           canEdit: false,
           description: 'Free storage, expired in 7 days',
         ),
         BlossomServer(
+          url: '',
           name: 'nosto.re',
           canEdit: false,
           description: 'Free storage, expired in 7 days',
@@ -130,6 +151,7 @@ class FileStorageServer {
 class Nip96Server extends FileStorageServer {
   Nip96Server({
     required super.name,
+    required super.url,
     super.canEdit,
     super.description,
   }) : super(protocol: FileStorageProtocol.nip96);
@@ -138,13 +160,13 @@ class Nip96Server extends FileStorageServer {
 class BlossomServer extends FileStorageServer {
   BlossomServer({
     required super.name,
+    required super.url,
     super.canEdit,
     super.description,
   }) : super(protocol: FileStorageProtocol.blossom);
 }
 
 class MinioServer extends FileStorageServer {
-  final String endPoint;
   final String accessKey;
   final String secretKey;
   final String bucketName;
@@ -152,7 +174,7 @@ class MinioServer extends FileStorageServer {
   final int? port;
 
   MinioServer({
-    required this.endPoint,
+    required super.url,
     required this.accessKey,
     required this.secretKey,
     required this.bucketName,
@@ -162,12 +184,26 @@ class MinioServer extends FileStorageServer {
     bool? useSSL,
   })  : useSSL = useSSL ?? true,
         super(protocol: FileStorageProtocol.minio);
+
+  @override
+  int get hashCode => super.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is MinioServer &&
+        other.url == url &&
+        other.accessKey == accessKey &&
+        secretKey == secretKey &&
+        bucketName == bucketName;
+  }
 }
 
 class OXChatServer extends FileStorageServer {
   OXChatServer({
+    required super.url,
     required super.name,
     super.canEdit,
     super.description,
-  }) : super(protocol: FileStorageProtocol.blossom);
+  }) : super(protocol: FileStorageProtocol.oss);
 }

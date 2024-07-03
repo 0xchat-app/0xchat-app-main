@@ -1,3 +1,6 @@
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/network/network_general.dart';
+import 'package:ox_network/network_manager.dart';
 import 'nip96_server_adaptation.dart';
 
 class NIP96InfoLoader {
@@ -27,6 +30,7 @@ class NIP96InfoLoader {
     var newUri = Uri(
         scheme: uri.scheme,
         host: uri.host,
+        port: uri.port,
         path: "/.well-known/nostr/nip96.json");
 
     // var jsonMap = await dioGet(newUri.toString());
@@ -34,6 +38,19 @@ class NIP96InfoLoader {
     //   return Nip96ServerAdaptation.fromJson(jsonMap);
     // }
 
-    return null;
+    try {
+      OXResponse response = await OXNetwork.instance.doRequest(
+        null,
+        url: newUri.toString(),
+        type: RequestType.GET,
+        showLoading: false,
+      );
+      var result = response.data;
+      LogUtil.e("Get NIP-96 Server Successful");
+      return Nip96ServerAdaptation.fromJson(result);
+    } catch (e, s) {
+      LogUtil.e("Get NIP-96 Server failed: $e\r\n$s");
+      return null;
+    }
   }
 }
