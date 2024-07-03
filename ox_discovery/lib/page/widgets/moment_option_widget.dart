@@ -161,11 +161,23 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
       case EMomentOptionType.like:
         return () async {
-          if(notedUIModel.value.noteDB.reactionCountByMe > 0) return;
-          OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.value.noteDB.noteId);
-          if(event.status){
+          if (notedUIModel.value.noteDB.reactionCountByMe > 0) return;
+          bool isSuccess = false;
+          if (notedUIModel.value.noteDB.groupId.isEmpty) {
+            OKEvent event = await Moment.sharedInstance
+                .sendReaction(notedUIModel.value.noteDB.noteId);
+            isSuccess = event.status;
+          }else{
+            OKEvent event = await RelayGroup.sharedInstance
+                .sendGroupNoteReaction(notedUIModel.value.noteDB.noteId);
+            isSuccess = event.status;
+          }
+
+
+          if (isSuccess) {
             _updateNoteDB();
-            CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
+            CommonToast.instance.show(
+                context, Localized.text('ox_discovery.like_success_tips'));
           }
         };
       case EMomentOptionType.zaps:
@@ -225,10 +237,19 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
             index: 0,
             onTap: () async {
               OXNavigator.pop(context);
-              OKEvent event =  await Moment.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
-              if(event.status){
+              String groupId = notedUIModel.value.noteDB.groupId;
+              bool success = false;
+              if(groupId.isEmpty){
+                OKEvent event = await Moment.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
+                success = event.status;
+              }else{
+                OKEvent event = await RelayGroup.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
+                success = event.status;
+              }
+              if (success) {
                 _updateNoteDB();
-                CommonToast.instance.show(context, Localized.text('ox_discovery.repost_success_tips'));
+                CommonToast.instance.show(context,
+                    Localized.text('ox_discovery.repost_success_tips'));
               }
             },
           ),

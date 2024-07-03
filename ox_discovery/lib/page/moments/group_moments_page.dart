@@ -93,16 +93,17 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         color: ThemeColor.white,
         package: 'ox_discovery',
       ),
-      onLongPress: () {
-        OXNavigator.presentPage(
+      onLongPress: ()async {
+       await OXNavigator.presentPage(
             context,
             (context) => CreateMomentsPage(
                 type: EMomentType.content,
                 groupId: widget.groupId,
-                sendMomentsType: ESendMomentsType.group,
+                sendMomentsType: EOptionMomentsType.group,
             ));
+       updateNotesList(true);
       },
-      onTap: () {
+      onTap: () async{
         CreateMomentDraft? createMomentMediaDraft =
             OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
         if (createMomentMediaDraft != null) {
@@ -113,16 +114,17 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
           final videoPath = type == EMomentType.video
               ? createMomentMediaDraft.videoPath
               : null;
-          OXNavigator.presentPage(
+         await OXNavigator.presentPage(
             context,
             (context) => CreateMomentsPage(
               type: type,
               imageList: imageList,
               videoPath: videoPath,
               groupId: widget.groupId,
-              sendMomentsType: ESendMomentsType.group,
+              sendMomentsType: EOptionMomentsType.group,
             ),
           );
+          updateNotesList(true);
           return;
         }
         showModalBottomSheet(
@@ -148,8 +150,9 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
           notedUIModel: notedUIModel,
           clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
             await OXNavigator.pushPage(
-                context, (context) => MomentsPage(notedUIModel: notedUIModel));
-            updateNotesList(true);
+                context, (context) => MomentsPage(
+                notedUIModel: notedUIModel,
+            ));
           },
         ).setPadding(EdgeInsets.symmetric(horizontal: 24.px));
       },
@@ -170,16 +173,17 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
             index: -1,
             onTap: () {
               OXNavigator.pop(context);
-              AlbumUtils.openCamera(context, (List<String> imageList) {
-                OXNavigator.presentPage(
+              AlbumUtils.openCamera(context, (List<String> imageList)async {
+               await OXNavigator.presentPage(
                   context,
                   (context) => CreateMomentsPage(
                     type: EMomentType.picture,
                     imageList: imageList,
                     groupId: widget.groupId,
-                    sendMomentsType: ESendMomentsType.group,
+                    sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
+               updateNotesList(true);
               });
             },
           ),
@@ -193,16 +197,17 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(context, type: 1,
-                  callback: (List<String> imageList) {
-                OXNavigator.presentPage(
+                  callback: (List<String> imageList) async{
+               await OXNavigator.presentPage(
                   context,
                   (context) => CreateMomentsPage(
                     type: EMomentType.picture,
                     imageList: imageList,
                     groupId: widget.groupId,
-                    sendMomentsType: ESendMomentsType.group,
+                    sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
+                updateNotesList(true);
               });
             },
           ),
@@ -216,17 +221,18 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(context, type: 2, selectCount: 1,
-                  callback: (List<String> imageList) {
-                OXNavigator.presentPage(
+                  callback: (List<String> imageList) async{
+               await OXNavigator.presentPage(
                   context,
                   (context) => CreateMomentsPage(
                     type: EMomentType.video,
                     videoPath: imageList[0],
                     videoImagePath: imageList[1],
                     groupId: widget.groupId,
-                    sendMomentsType: ESendMomentsType.group,
+                    sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
+               updateNotesList(true);
               });
             },
           ),
