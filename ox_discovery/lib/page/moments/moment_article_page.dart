@@ -203,10 +203,4 @@ class MomentArticlePageState extends State<MomentArticlePage> {
       ),
     );
   }
-
-  void _jumpMomentPage(NotedUIModel model) async {
-    OXNavigator.pushPage(
-        context, (context) => MomentsPage(notedUIModel: ValueNotifier(model)));
-    setState(() {});
-  }
 }

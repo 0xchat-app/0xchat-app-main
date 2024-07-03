@@ -1,3 +1,4 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 enum EMomentOptionType {
@@ -26,6 +27,11 @@ enum EMomentQuoteType {
   repost,
   quote,
   share,
+}
+
+enum EOptionMomentsType {
+  personal,
+  group
 }
 
 extension EMomentQuoteTypeEx on EMomentQuoteType{
