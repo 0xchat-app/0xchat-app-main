@@ -63,7 +63,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
       GroupContact(
         key: groupsWidgetKey,
         data: groups,
-        chatType: ChatType.chatGroup,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
         topWidget: widget.topWidget,
@@ -71,23 +70,21 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     );
   }
 
-  void _loadData() async {
+  void _loadData() {
     groups.clear();
     if(Groups.sharedInstance.myGroups.length>0) {
-      List<GroupUIModel> groupUIModelList = [];
       List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
       tempGroups.forEach((element) {
-        groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
+        GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
+        groups.add(tempUIModel);
       });
-      groups.addAll(groupUIModelList);
     }
     if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<GroupUIModel> relayGroupUIModelList = [];
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
-      tempGroups.forEach((element) {
-        relayGroupUIModelList.add(GroupUIModel.relayGroupdbToUIModel(element));
+      List<RelayGroupDB> tempRelayGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      tempRelayGroups.forEach((element) {
+        GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
+        groups.add(uIModel);
       });
-      groups.addAll(relayGroupUIModelList);
     }
     _showView();
   }
@@ -154,6 +151,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
 
   @override
   void didGroupsUpdatedCallBack() {
+    LogUtil.e('Michael: ----didGroupsUpdatedCallBack----------');
     _loadData();
   }
 

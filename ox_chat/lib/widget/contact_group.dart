@@ -8,6 +8,7 @@ import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -25,7 +26,6 @@ typedef void CursorGroupsChanged(Widget cursor, int noteLength);
 
 class GroupContact extends StatefulWidget {
   final List<GroupUIModel> data;
-  final int chatType;
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
@@ -33,7 +33,6 @@ class GroupContact extends StatefulWidget {
   GroupContact({
     Key? key,
     required this.data,
-    required this.chatType,
     this.shrinkWrap = false,
     this.physics,
     this.topWidget,
@@ -260,7 +259,6 @@ class GroupContactState extends State<GroupContact> {
                     (context, i) =>
                     GroupContactListItem(
                       item: item.childList[i],
-                      chatType: widget.chatType,
                     ),
                 childCount: item.childList.length,
               ),
@@ -336,12 +334,10 @@ class GroupHeaderWidget extends StatelessWidget {
 class GroupContactListItem extends StatefulWidget {
   late GroupUIModel item;
   final onCheckChanged;
-  final int chatType;
 
   GroupContactListItem({
     required this.item,
     this.onCheckChanged,
-    required this.chatType,
   });
 
   @override
