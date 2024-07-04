@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
-import 'package:ox_common/upload/upload_utils.dart';
+import 'package:ox_common/upload/file_type.dart';
 
 class MinioUploader {
 
@@ -44,7 +44,7 @@ class MinioUploader {
   }
 
   Future<String> uploadFile({required File file, required String filename, required FileType fileType}) async {
-    final fileFolder = UploadUtils.getFileFolders(fileType);
+    final fileFolder = getFileFolders(fileType);
     final objectName = '$fileFolder$filename';
     await _minio.fPutObject(bucketName, objectName, file.path);
     int expires = 7 * 24 * 60 * 60;
@@ -53,5 +53,18 @@ class MinioUploader {
 
   Future<bool> bucketExists() async {
     return await _minio.bucketExists(bucketName);
+  }
+
+  static String getFileFolders(FileType fileType) {
+    switch (fileType) {
+      case FileType.image:
+        return 'images/';
+      case FileType.video:
+        return 'video/';
+      case FileType.voice:
+        return 'voice/';
+      case FileType.text:
+        return 'text/';
+    }
   }
 }

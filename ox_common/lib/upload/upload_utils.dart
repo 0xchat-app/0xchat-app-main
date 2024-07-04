@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/minio_uploader.dart';
 import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
@@ -10,13 +12,6 @@ import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path_provider/path_provider.dart';
-
-enum FileType {
-  image,
-  voice,
-  video,
-  text,
-}
 
 class UploadUtils {
 
@@ -54,13 +49,13 @@ class UploadUtils {
     try {
       if (fileStorageServer.protocol == FileStorageProtocol.nip96 || fileStorageServer.protocol == FileStorageProtocol.blossom) {
         final imageServices = fileStorageServer.name;
-        url = await Uploader.upload(file.path, imageServices, fileName: filename) ?? '';
+        url = await Uploader.upload(file.path, imageServices, fileName: filename,imageServiceAddr: fileStorageServer.url) ?? '';
       }
 
       if(fileStorageServer.protocol == FileStorageProtocol.minio) {
         MinioServer minioServer = fileStorageServer as MinioServer;
         MinioUploader.init(
-          url: minioServer.endPoint,
+          url: minioServer.url,
           accessKey: minioServer.accessKey,
           secretKey: minioServer.secretKey,
           bucketName: minioServer.bucketName,
@@ -81,23 +76,11 @@ class UploadUtils {
         );
       }
       if(_showLoading) OXLoading.dismiss();
-    } catch (e) {
-      CommonToast.instance.show(context, e.toString());
+    } catch (e,s) {
+      if (_showLoading) OXLoading.dismiss();
+      LogUtil.e('Upload Failed: $e\r\n$s');
     }
     return url;
-  }
-
-  static String getFileFolders(FileType fileType) {
-    switch (fileType) {
-      case FileType.image:
-        return 'images/';
-      case FileType.video:
-        return 'video/';
-      case FileType.voice:
-        return 'voice/';
-      case FileType.text:
-        return 'text/';
-    }
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {

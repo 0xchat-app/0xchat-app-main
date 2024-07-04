@@ -52,7 +52,7 @@ class Uploader {
               fileName: fileName);
         }
       default:
-        return await NostrBuildUploader.upload(localPath, fileName: fileName);
+        return await NIP96Uploader.upload(imageServiceAddr!, localPath, fileName: fileName);
     }
   }
 }

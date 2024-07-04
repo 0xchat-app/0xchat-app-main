@@ -12,6 +12,8 @@ abstract mixin class OXServerObserver {
   void didAddFileStorageServer(FileStorageServer fileStorageServer) {}
 
   void didDeleteFileStorageServer() {}
+
+  void didUpdateFileStorageServer() {}
 }
 
 class OXServerManager {
@@ -152,13 +154,16 @@ class OXServerManager {
       fileStorageServers[index] = fileStorageServer;
     }
     await saveFileStorageServers(fileStorageServers);
+    for (OXServerObserver observer in _observers) {
+      observer.didUpdateFileStorageServer();
+    }
   }
 
   Future<void> deleteFileStorageServer(FileStorageServer fileStorageServer) async {
     fileStorageServers.remove(fileStorageServer);
     await saveFileStorageServers(fileStorageServers);
     for (OXServerObserver observer in _observers) {
-      observer.didAddFileStorageServer(fileStorageServer);
+      observer.didDeleteFileStorageServer();
     }
   }
 }

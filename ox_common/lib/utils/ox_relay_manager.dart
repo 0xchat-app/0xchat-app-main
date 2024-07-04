@@ -100,7 +100,7 @@ class OXRelayManager {
     await saveRelayList(relayModelList);
     Connect.sharedInstance.connect(relayModel.relayName);
     if (OXUserInfoManager.sharedInstance.currentUserInfo != null) {
-      Account.sharedInstance.updateRelaysMetadata(relayAddressList);
+      Account.sharedInstance.setRelayListToRelay(relayAddressList);
     }
     for (OXRelayObserver observer in _observers) {
       observer.didAddRelay(relayModel);
@@ -134,7 +134,7 @@ class OXRelayManager {
     await saveRelayList(relayModelList);
     await Connect.sharedInstance.closeConnect(relayModel.relayName);
     if (OXUserInfoManager.sharedInstance.currentUserInfo != null) {
-      Account.sharedInstance.updateRelaysMetadata(relayAddressList);
+      Account.sharedInstance.setRelayListToRelay(relayAddressList);
     }
     for (OXRelayObserver observer in _observers) {
       observer.didDeleteRelay(relayModel);
