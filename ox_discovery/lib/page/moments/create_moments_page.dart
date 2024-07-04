@@ -305,7 +305,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = _visibleType.name;
     if(isGroup){
       RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
-      content = groupDB?.name ?? '';
+      content = 'Groups - ${groupDB?.name ?? ''}';
     }
     return Container(
       margin: EdgeInsets.only(
