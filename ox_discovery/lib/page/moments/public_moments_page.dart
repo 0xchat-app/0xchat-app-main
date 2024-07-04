@@ -235,8 +235,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                       OXMomentManager.sharedInstance.clearNewNotifications();
                       setState(() {
                         _notifications.clear();
-                        tipContainerHeight.value =
-                            _getPersonalNotificationHeight;
+                        tipContainerHeight.value = _getNotificationHeight;
                       });
                       await OXNavigator.pushPage(context,
                           (context) => const NotificationsMomentsPage());
@@ -268,6 +267,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: _notificationGroupNotes.map((NoteDB item) {
             RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[item.groupId];
             return _groupNotificationItem(groupDB);
@@ -282,8 +282,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       onTap: () async{
         if(groupDB == null) return;
         _notificationGroupNotes.removeWhere((NoteDB db) => db.groupId == groupDB.groupId);
+        tipContainerHeight.value = _getNotificationHeight;
         await OXNavigator.pushPage(context, (context) => GroupMomentsPage(groupId:groupDB.groupId));
-        setState(() {});
+
       },
       child: Stack(
         children: [
@@ -540,7 +541,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
-  double get _getPersonalNotificationHeight {
+  double get _getNotificationHeight {
     double personalHeight =  _notificationNotes.length + _notifications.length == 0
         ? 0
         : tipsHeight;
@@ -552,7 +553,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     OXMomentManager.sharedInstance.clearNewNotes();
     setState(() {
       _notificationNotes.clear();
-      tipContainerHeight.value = _getPersonalNotificationHeight;
+      tipContainerHeight.value = _getNotificationHeight;
     });
   }
 
