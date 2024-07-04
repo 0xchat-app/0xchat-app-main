@@ -35,7 +35,11 @@ class _WalletHomePageState extends State<WalletHomePage> with CommonStateViewMix
   void initState() {
     _scrollController.addListener(_scrollListener);
     _getRecentTransaction();
-    _balanceChangedListener = EcashListener(onEcashBalanceChanged: (value) => _onBalanceChanged(), onInvoicePaidChanged: (value) => _onBalanceChanged());
+    _balanceChangedListener = EcashListener(
+      onEcashBalanceChanged: (_) => _onBalanceChanged(),
+      onInvoicePaidChanged: (_) => _onBalanceChanged(),
+      onHistoryChanged: () => _onBalanceChanged(),
+    );
     Cashu.addInvoiceListener(_balanceChangedListener);
     Cashu.startHighFrequencyDetection();
     super.initState();
