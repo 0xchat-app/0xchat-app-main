@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -33,7 +34,6 @@ class GroupSharePage extends StatefulWidget {
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
   UserDB? inviterUserDB = null;
-
   bool requestTag = true;
 
   @override
@@ -52,10 +52,17 @@ class _GroupSharePageState extends State<GroupSharePage> {
     if(pubKey.isEmpty) return;
     UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if(userDB != null){
-      setState(() {
-        inviterUserDB = userDB;
-      });
+      inviterUserDB = userDB;
     }
+    switch(widget.groupType){
+      case GroupType.privateGroup:
+        break;
+      case GroupType.openGroup:
+      case GroupType.closeGroup:
+        RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
+        break;
+    }
+    setState(() {});
   }
 
 
