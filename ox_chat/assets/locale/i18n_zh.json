@@ -295,5 +295,9 @@
   "str_group_disband_hint": "解散群组",
   "str_group_search_history": "解散群组",
   "str_group_search_chat_history": "搜索聊天记录",
-  "str_group_clear_chat_history": "清空聊天记录"
+  "str_group_clear_chat_history": "清空聊天记录",
+  "str_group_admin_manage_hint": "您可以添加管理员来帮助您管理群组。长按即可移除他们。",
+  "str_group_add_admin": "添加管理员",
+  "str_group_edit_admin_right": "编辑管理员权限",
+  "str_group_dismiss_admin": "撤销管理员"
 }

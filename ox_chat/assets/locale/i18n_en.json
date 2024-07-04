@@ -296,5 +296,9 @@
   "str_group_admin_hint": "Group Admin",
   "str_group_disband_hint": "Disband Group",
   "str_group_search_chat_history": "Search Chat History",
-  "str_group_clear_chat_history": "Clear Chat History"
+  "str_group_clear_chat_history": "Clear Chat History",
+  "str_group_admin_manage_hint": "You can add admins to help you manage your group. Press and hold to remove them.",
+  "str_group_add_admin": "Add Admin",
+  "str_group_edit_admin_right": "Edit admin rights",
+  "str_group_dismiss_admin": "Dismiss admin"
 }
