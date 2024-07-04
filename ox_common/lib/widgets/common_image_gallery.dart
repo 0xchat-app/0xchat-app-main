@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'dart:ui';
+import 'dart:math' as math;
+import 'dart:math';
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -21,10 +20,66 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/widgets.dart';
 
 typedef DoubleClickAnimationListener = void Function();
 
+class SmoothPageScrollPhysics extends ScrollPhysics {
+  final double scrollSpeedMultiplier;
+
+  const SmoothPageScrollPhysics({
+    this.scrollSpeedMultiplier = 1.0,
+    ScrollPhysics? parent,
+  }) : super(parent: parent);
+
+  @override
+  SmoothPageScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return SmoothPageScrollPhysics(
+      scrollSpeedMultiplier: scrollSpeedMultiplier,
+      parent: buildParent(ancestor),
+    );
+  }
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    return offset * scrollSpeedMultiplier;
+  }
+
+  @override
+  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
+    final Tolerance tolerance = this.toleranceFor(position);
+    if (velocity.abs() >= tolerance.velocity || position.outOfRange) {
+      return BouncingScrollSimulation(
+        spring: spring,
+        position: position.pixels,
+        velocity: velocity * scrollSpeedMultiplier,
+        leadingExtent: position.minScrollExtent,
+        trailingExtent: position.maxScrollExtent,
+        tolerance: tolerance,
+      );
+    }
+    return null;
+  }
+
+  @override
+  double frictionFactor(double overscrollFraction) {
+    return 0.3 * math.pow(1 - overscrollFraction, 2);
+  }
+
+  @override
+  SpringDescription get spring {
+    return SpringDescription.withDampingRatio(
+      mass: 0.5,
+      stiffness: 100.0,
+      ratio: 1.1,
+    );
+  }
+
+  @override
+  double get minFlingVelocity => kMinFlingVelocity * 0.5;
+
+  @override
+  double get dragStartDistanceMotionThreshold => 3.5;
+}
 
 class CommonImageGallery extends StatefulWidget {
   final List<String> imageList;
@@ -37,7 +92,8 @@ class CommonImageGallery extends StatefulWidget {
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
 }
 
-class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProviderStateMixin {
+class _CommonImageGalleryState extends State<CommonImageGallery>
+    with TickerProviderStateMixin {
   late DoubleClickAnimationListener _doubleClickAnimationListener;
   late ExtendedPageController _pageController;
   Animation<double>? _doubleClickAnimation;
@@ -51,9 +107,14 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
   bool _showSwiper = true;
   List<double> doubleTapScales = <double>[1.0, 2.0];
   final StreamController<bool> rebuildSwiper =
-  StreamController<bool>.broadcast();
+      StreamController<bool>.broadcast();
   final StreamController<double> rebuildDetail =
-  StreamController<double>.broadcast();
+      StreamController<double>.broadcast();
+
+  bool isScrollComplete = true;
+
+  Offset _offset = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +122,12 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
       initialPage: widget.initialPage!,
       pageSpacing: 50,
       shouldIgnorePointerWhenScrolling: false,
-    );
+    )..addListener(() {
+        double? page = _pageController.page;
+        if (page != null) {
+          isScrollComplete = page % 1 == 0;
+        }
+      });
     _doubleClickAnimationController = AnimationController(
         duration: const Duration(milliseconds: 150), vsync: this);
 
@@ -80,16 +146,14 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
   }
 
   void _handleSlideEnd(ExtendedImageSlidePageState state) {
-    if (state.offset.dy > -20 && !_isPopped) {
-      _isPopped = true;
-      Navigator.pop(context);
-    }
-    if (state.offset.dy > 20 && !_isPopped) {
-      _isPopped = true;
-      Navigator.pop(context);
+    double angle = (math.atan2(state.offset.dy, state.offset.dx) * 180 / math.pi).abs();
+    if (angle > 45 && angle < 135) {
+      if (state.offset.dy > 100 && !_isPopped) {
+        _isPopped = true;
+        Navigator.pop(context);
+      }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -102,27 +166,85 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
             // onPanEnd: _handleDragEnd,
             onLongPress: _showBottomMenu,
             onTap: () {
-              OXNavigator.pop(context);
+              if (isScrollComplete) {
+                OXNavigator.pop(context);
+              }
             },
             child: ExtendedImageSlidePage(
+              slidePageBackgroundHandler: (    Offset offset, Size pageSize){
+                double opacity = 0.0;
+                  opacity = offset.distance /
+                      (Offset(pageSize.width, pageSize.height).distance / 2.0);
+                return ThemeColor.color200.withOpacity(min(1.0, max(1.0 - opacity, 0.0)));
+              },
               key: slidePagekey,
+              slideOffsetHandler: (
+                Offset offset, {
+                ExtendedImageSlidePageState? state,
+              }) {
+                if(_offset != Offset.zero){
+                  _offset = offset;
+                  return offset;
+                }
 
+                if (offset.dy < 0) {
+                  _offset = Offset.zero;
+                  return Offset(0, 0);
+                }
+                if(offset.dy > 1 && (-2 < offset.dx && offset.dx < 2)){
+                  _offset = offset;
+                  return offset;
+                }
+                _offset = Offset.zero;
+                return Offset(0, 0);
+              },
+              slideScaleHandler: (
+                Offset offset, {
+                ExtendedImageSlidePageState? state,
+              }) {
+                return 1.0;
+              },
+
+              slideEndHandler: (
+                Offset offset, {
+                ExtendedImageSlidePageState? state,
+                ScaleEndDetails? details,
+              }) {
+                _offset = Offset.zero;
+                if (state == null || details == null) {
+                  return false;
+                }
+
+                final double velocity = details.velocity.pixelsPerSecond.dy;
+
+                const double positionThreshold = 200;
+                const double velocityThreshold = 1000;
+
+                if (offset.dy > 10 && velocity > 100 && isScrollComplete) {
+                  return true;
+                }
+
+                if (offset.dy > positionThreshold && velocity > velocityThreshold && isScrollComplete) {
+                  return true;
+                }
+
+                return false;
+              },
+              resetPageDuration: const Duration(milliseconds: 1),
               onSlidingPage: (ExtendedImageSlidePageState state) {
-                print('====state===>>>>$state');
-                // 滑动结束时检查偏移量
                 // if (!state.isSliding) {
-                _handleSlideEnd(state);
+                // _handleSlideEnd(state);
                 // }
               },
               child: ExtendedImageGesturePageView.builder(
                 controller: _pageController,
                 itemCount: widget.imageList.length,
                 scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
+                physics:  widget.imageList.length == 1 ? NeverScrollableScrollPhysics() : SmoothPageScrollPhysics(),
                 canScrollPage: (GestureDetails? gestureDetails) {
-
-                  return _imageDetailY >= 0;
-                  //return (gestureDetails?.totalScale ?? 1.0) <= 1.0;
+                  return true;
+                  // return _imageDetailY >= 0;
+                  // return (gestureDetails?.totalScale ?? 1.0) <= 1.0;
                 },
                 itemBuilder: (BuildContext context, int index) {
                   return HeroWidget(
@@ -219,19 +341,21 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
             textDirection: Directionality.of(context),
             bottom: 56,
             child: Container(
-              width: 35.px,
-              height: 35.px,
-              decoration: BoxDecoration(
-                  color: ThemeColor.color180,
-                borderRadius: BorderRadius.all(Radius.circular(35.px))
-              ),
-              child: Center(
-                child: GestureDetector(
-                  child: Icon(Icons.save_alt, color: Colors.white,size: 24,),
-                  onTap: _widgetShotAndSave,
-                ),
-              )
-            ),
+                width: 35.px,
+                height: 35.px,
+                decoration: BoxDecoration(
+                    color: ThemeColor.color180,
+                    borderRadius: BorderRadius.all(Radius.circular(35.px))),
+                child: Center(
+                  child: GestureDetector(
+                    child: Icon(
+                      Icons.save_alt,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    onTap: _widgetShotAndSave,
+                  ),
+                )),
           ),
         ],
       ),
@@ -243,9 +367,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => Container(
-        padding: EdgeInsets.only(
-          bottom: 30.px
-        ),
+        padding: EdgeInsets.only(bottom: 30.px),
         color: ThemeColor.color180,
         child: GestureDetector(
           onTap: () {
@@ -268,7 +390,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery> with TickerProv
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       new GestureDetector(
-                        onTap: ()async {
+                        onTap: () async {
                           await _widgetShotAndSave();
                           OXNavigator.pop(context);
                         },

@@ -18,9 +18,11 @@ class OXMomentManager {
   }
 
   List<NoteDB> _notes = [];
+  List<NoteDB> _relayGroupNotes = [];
   List<NotificationDB> _notifications = [];
 
   List<NoteDB> get notes => _notes;
+  List<NoteDB> get relayGroupNotes => _relayGroupNotes;
   List<NotificationDB> get notifications => _notifications;
 
   final List<OXMomentObserver> _observers = <OXMomentObserver>[];
@@ -39,9 +41,7 @@ class OXMomentManager {
     addMomentCallBack();
   }
 
-  addMomentCallBack() {
-  }
-
+  addMomentCallBack() {}
 
   void clearNewNotes() {
     Moment.sharedInstance.clearNewNotes();
