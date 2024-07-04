@@ -6,6 +6,11 @@ import 'package:ox_common/const/common_constant.dart';
 ///@author Michael
 ///CreateTime: 2023/5/5 15:57
 
+enum RelayType {
+  private,
+  general
+}
+
 class RelayModel {
   String relayName;
   bool canDelete;
