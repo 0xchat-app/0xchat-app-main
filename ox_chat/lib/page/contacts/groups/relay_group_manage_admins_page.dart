@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_add_admin_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_set_admin_rights_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -19,19 +22,19 @@ import 'package:ox_common/widgets/common_menu_dialog.dart';
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2024/6/25 15:10
-class RelayGroupManagePage extends StatefulWidget {
+class RelayGroupManageAdminsPage extends StatefulWidget {
   final RelayGroupDB relayGroupDB;
-  final List<GroupAdmin> admins;
+  List<GroupAdmin> admins;
 
-  RelayGroupManagePage({super.key, required this.relayGroupDB, required this.admins});
+  RelayGroupManageAdminsPage({super.key, required this.relayGroupDB, required this.admins});
 
   @override
   State<StatefulWidget> createState() {
-    return _RelayGroupManagePageState();
+    return _RelayGroupManageAdminsPageState();
   }
 }
 
-class _RelayGroupManagePageState extends State<RelayGroupManagePage> {
+class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage> {
   final Map<int, GlobalKey> _moreGlobalKeyMap = {};
 
   @override
@@ -138,7 +141,7 @@ class _RelayGroupManagePageState extends State<RelayGroupManagePage> {
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _editAdminPermissionFn(index);
+                  _editAdminPermissionFn(index, groupAdmin, userDB);
                 },
                 child: CommonImage(iconName: 'icon_admin_permission_more.png', size: 24.px, package: 'ox_chat'),
               ),
@@ -148,7 +151,7 @@ class _RelayGroupManagePageState extends State<RelayGroupManagePage> {
     );
   }
 
-  void _editAdminPermissionFn(int index) {
+  void _editAdminPermissionFn(int index, GroupAdmin groupAdmin, UserDB? userDB) async {
     GlobalKey? globalKey = _moreGlobalKeyMap[index];
     if (globalKey == null) return;
     BuildContext? keyBuildContext = globalKey.currentContext;
@@ -166,16 +169,28 @@ class _RelayGroupManagePageState extends State<RelayGroupManagePage> {
         text: 'str_group_dismiss_admin'.localized(),
       ),
     ];
-    OXMenuDialog.show(
+    final oxMenuItem = await OXMenuDialog.show(
       context,
       data: menuList,
       width: 160.px,
       left: offset.dx + size.width - 160.px,
       top: offset.dy + size.height + 10.px,
     );
+    if (oxMenuItem != null){
+      if (oxMenuItem.identify == 0){
+        OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB, groupAdmin: groupAdmin));
+      }
+    }
   }
 
   void _addAdminFn() {
-
+    OXNavigator.pushPage(context, (context) => RelayGroupAddAdminPage(relayGroupDB: widget.relayGroupDB)).then((value){
+      setState(() {
+       final tempAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.relayGroupDB.groupId) ;
+       if (tempAdmins != null){
+         widget.admins = tempAdmins;
+       }
+      });
+    });
   }
 }

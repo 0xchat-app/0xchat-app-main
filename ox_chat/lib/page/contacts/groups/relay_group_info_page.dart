@@ -6,7 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
-import 'package:ox_chat/page/contacts/groups/relay_group_manage_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -25,7 +25,6 @@ import 'package:ox_module_service/ox_module_service.dart';
 import '../contact_group_list_page.dart';
 import '../contact_group_member_page.dart';
 import 'group_edit_page.dart';
-import 'group_join_requests.dart';
 import 'group_notice_page.dart';
 import 'group_setting_qrcode_page.dart';
 
@@ -283,12 +282,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             onTap: null,
             isShowMoreIcon: _isGroupMember,
           ),
-          GroupItemBuild(
-            title: Localized.text('ox_chat.str_group_administrators'),
-            onTap: _manageGroupNoticeFn,
-            isShowMoreIcon: true,
-            isShowDivider: false,
-          ),
+          if (true || _isGroupManager)
+            GroupItemBuild(
+              title: Localized.text('ox_chat.str_group_administrators'),
+              onTap: _manageGroupFn,
+              isShowMoreIcon: true,
+              isShowDivider: false,
+            ),
         ],
       ),
     );
@@ -572,12 +572,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     _groupInfoInit();
   }
 
-  void _manageGroupNoticeFn() async {
-    if (!_isGroupManager) return;
+  void _manageGroupFn() async {
     await OXNavigator.pushPage(
       context,
-          (context) => RelayGroupManagePage(
+          (context) => RelayGroupManageAdminsPage(
         relayGroupDB: groupDBInfo!,
+        admins: groupDBInfo!.admins ?? [],
       ),
     );
     _groupInfoInit();
@@ -761,17 +761,20 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _loadDataFromRelay() async {
+    LogUtil.e('Michael: ----_loadDataFromRelay------');
     RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId).then((relayGroupDB) {
       if (!mounted) return ;
       if (relayGroupDB != null) {
+        LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
           groupDBInfo = relayGroupDB;
         });
       }
-      RelayGroup.sharedInstance.getGroupMembersFromLocal(groupDBInfo!.groupId).then((value){
+      RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId).then((value){
         groupMember = value;
+        LogUtil.e('Michael: ----getGroupMembersFromLocal---groupMember.length = ${groupMember.length}');
         _getIsGroupMemberValue(value);
-        List<GroupAdmin>? groupAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(groupDBInfo!.groupId);
+        List<GroupAdmin>? groupAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.groupId);
         _getIsGroupManagerValue(groupAdmins);
         setState(() {});
       });
