@@ -15,6 +15,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_usercenter/page/set_up/relay_detail_page.dart';
 import 'package:ox_usercenter/widget/relay_recommend_widget.dart';
+import 'package:ox_usercenter/widget/relay_selectable_tab_bar.dart';
 
 ///Title: relays_page
 ///Description: TODO(Fill in by oneself)
@@ -38,17 +39,28 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   final Map<String, RelayModel> _relayConnectStatusMap = {};
   bool _isEditing = false;
   bool _isShowDelete = false;
+  final RelaySelectableController _relaySelectableController = RelaySelectableController();
+  RelayType _relayType = RelayType.private;
 
   @override
   void initState() {
     super.initState();
     OXRelayManager.sharedInstance.addObserver(this);
+    _relaySelectableController.currentIndex.addListener(_relaySelectableListener);
     _initDefault();
+  }
+
+  void _relaySelectableListener() {
+    final currentIndex = _relaySelectableController.currentIndex.value;
+    setState(() {
+      _relayType = RelayType.values[currentIndex];
+    });
   }
 
   @override
   void dispose() {
     OXRelayManager.sharedInstance.removeObserver(this);
+    _relaySelectableController.currentIndex.removeListener(_relaySelectableListener);
     super.dispose();
   }
 
@@ -134,6 +146,11 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          RelaySelectableTabBar(
+            tabs: RelayType.values.map((e) => e.name()).toList(),
+            tabTips: RelayType.values.map((e) => e.tips()).toList(),
+            controller: _relaySelectableController,
+          ).setPaddingOnly(top: 12.px),
           Container(
             width: double.infinity,
             height: Adapt.px(46),
@@ -452,6 +469,26 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
                 }),
           ],
           isRowAction: true);
+    }
+  }
+}
+
+extension RelayTypeExtension on RelayType {
+  String name() {
+    switch (this) {
+      case RelayType.private:
+        return 'Private Relays';
+      case RelayType.general:
+        return 'General Relays';
+    }
+  }
+
+  String tips() {
+    switch (this) {
+      case RelayType.private:
+        return "Insert between 1-3 relays to store events no one else cansee, like your Drafts and/or app settings. ldeally, theserelays are either local or require authentication before downloading each user's content.";
+      case RelayType.general:
+        return "Amethyst uses these relays to download posts for you.";
     }
   }
 }
