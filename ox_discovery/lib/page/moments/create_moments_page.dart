@@ -302,7 +302,11 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _visibleContactsWidget() {
     if(widget.type == EMomentType.quote) return const SizedBox();
     bool isGroup = EOptionMomentsType.group == widget.sendMomentsType;
-
+    String content = _visibleType.name;
+    if(isGroup){
+      RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+      content = groupDB?.name ?? '';
+    }
     return Container(
       margin: EdgeInsets.only(
         top: 12.px,
@@ -345,7 +349,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    isGroup ? 'Groups - Group Name' : _visibleType.name,
+                    content,
                     style: TextStyle(
                       fontSize: 16.px,
                       color: ThemeColor.color0,
