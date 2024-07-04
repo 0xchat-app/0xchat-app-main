@@ -1,6 +1,25 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
+enum EMomentMoreOptionType {
+  copyNotedID,
+  copyNotedText,
+  mute,
+}
+
+extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
+  String get text {
+    switch(this){
+      case EMomentMoreOptionType.copyNotedID:
+        return 'Copy Noted ID';
+      case EMomentMoreOptionType.copyNotedText:
+        return 'Copy Note Text';
+      case EMomentMoreOptionType.mute:
+        return 'Mute User';
+    }
+  }
+}
+
 enum EMomentOptionType {
   reply,
   repost,

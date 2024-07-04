@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -279,34 +280,45 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Widget _getNotificationsContentWidget(AggregatedNotification notificationDB) {
-    ENotificationsMomentType type = _fromIndex(notificationDB.kind);
-    String content = '';
-    switch (type) {
-      case ENotificationsMomentType.quote:
-      case ENotificationsMomentType.reply:
-        content = notificationDB.content;
-        break;
-      case ENotificationsMomentType.like:
-        content = Localized.text('ox_discovery.liked_moments_tips');
-        break;
-      case ENotificationsMomentType.repost:
-        content = Localized.text('ox_discovery.reposted_moments_tips');
-        break;
-      case ENotificationsMomentType.zaps:
-        content = "${Localized.text('ox_discovery.zaps')} +${notificationDB.zapAmount}";
-        break;
-    }
-    bool isPurpleColor = type != ENotificationsMomentType.quote &&
-        type != ENotificationsMomentType.reply;
-    return SizedBox(
-      width: 200.px,
-        child: MomentRichTextWidget(
-          text: content,
-          defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
-          textSize: 12.px,
-          maxLines: 2,
-          isShowAllContent: false,
-        )
+    return  FutureBuilder(
+        future: _getNote(notificationDB),
+        builder: (context,snapshot) {
+          ENotificationsMomentType type = _fromIndex(notificationDB.kind);
+          String content = '';
+          bool isOptionMe = true;
+          if(snapshot.data != null){
+            if(snapshot.data!.author.toLowerCase() != (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey.toLowerCase() ?? '')){
+              isOptionMe = false;
+            }
+          }
+          switch (type) {
+            case ENotificationsMomentType.quote:
+            case ENotificationsMomentType.reply:
+              content = isOptionMe ? notificationDB.content : 'replied a note you were mentioned in';
+              break;
+            case ENotificationsMomentType.like:
+              content = isOptionMe ? Localized.text('ox_discovery.liked_moments_tips') : 'liked a note you were mentioned in';
+              break;
+            case ENotificationsMomentType.repost:
+              content = isOptionMe ? Localized.text('ox_discovery.reposted_moments_tips') : 'reposted a note you were mentioned in';
+              break;
+            case ENotificationsMomentType.zaps:
+              content = "${Localized.text('ox_discovery.zaps')} +${notificationDB.zapAmount}";
+              break;
+          }
+          bool isPurpleColor = type != ENotificationsMomentType.quote &&
+              type != ENotificationsMomentType.reply;
+          return SizedBox(
+              width: 200.px,
+              child: MomentRichTextWidget(
+                text: content,
+                defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
+                textSize: 12.px,
+                maxLines: 2,
+                isShowAllContent: false,
+              )
+          );
+        }
     );
   }
 
