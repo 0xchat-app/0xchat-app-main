@@ -2,6 +2,7 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -453,8 +454,12 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   Widget _leaveBtnWidget() {
-    if (!_isGroupMember) return Container();
-    String content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = '';
+    if (!_isGroupMember) {
+      content = 'delete_and_leave_item'.localized();
+    } else {
+      content = _isGroupOwner ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    }
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(
