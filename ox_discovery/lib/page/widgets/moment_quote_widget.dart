@@ -19,8 +19,9 @@ import 'moment_rich_text_widget.dart';
 
 class MomentQuoteWidget extends StatefulWidget {
   final String notedId;
+  final List<String>? relays;
 
-  const MomentQuoteWidget({super.key, required this.notedId});
+  const MomentQuoteWidget({super.key, required this.notedId,this.relays});
 
   @override
   MomentQuoteWidgetState createState() => MomentQuoteWidgetState();
@@ -58,7 +59,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     String notedId = widget.notedId;
     final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
     if (notedUIModelCache[notedId] == null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId,relays: widget.relays);
       if (note == null) return;
       notedUIModelCache[notedId] = NotedUIModel(noteDB: note);
     }

@@ -21,7 +21,8 @@ import 'moment_rich_text_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
@@ -137,13 +138,25 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     return Column(
       children: contentList.map((String content) {
+        String? noteId;
+        List<String>? relays;
         if (quoteUrlList.contains(content)) {
-          final noteInfo = NoteDB.decodeNote(content);
-          String? notedId = noteInfo?['channelId'];
+          if(content.contains('nostr:nevent')){
+            Map result = Nip19.decodeShareableEntity(content);
+            if (result['prefix'] == 'nevent' && result['kind'] == 1) {
+              noteId = result['special'];
+              relays = result['relays'];
+            }
+          }else{
+            final noteInfo = NoteDB.decodeNote(content);
+            noteId = noteInfo?['channelId'];
+          }
+
           bool isShowQuote =
-              notedId != null && notedId != model.value.noteDB.quoteRepostId;
+              noteId != null && noteId != model.value.noteDB.quoteRepostId;
+
           return isShowQuote
-              ? MomentQuoteWidget(notedId: noteInfo?['channelId'])
+              ? MomentQuoteWidget(notedId: noteId,relays: relays)
               : const SizedBox();
         } else if(getNddrlList.contains(content)){
           return MomentArticleWidget(naddr: content);
