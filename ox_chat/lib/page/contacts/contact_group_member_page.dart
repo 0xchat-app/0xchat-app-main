@@ -115,12 +115,12 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       okEvent = await Groups.sharedInstance.addGroupMembers(
           groupId, '${Localized.text('ox_chat.add_member_title')}: $names', List.from(members));
     } else {
-      okEvent = OKEvent('', false, '');
+      okEvent = await RelayGroup.sharedInstance.addUser(groupId, List.from(members), '');
     }
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, GroupType.privateGroup);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
       return;
     }
     return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
@@ -136,7 +136,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       okEvent = await Groups.sharedInstance.removeGroupMembers(
           groupId, '${Localized.text('ox_chat.remove_member_title')}: $names', List.from(members));
     } else {
-      okEvent = OKEvent('', false, '');
+      okEvent = await RelayGroup.sharedInstance.removeUser(groupId, List.from(members), '');
     }
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
