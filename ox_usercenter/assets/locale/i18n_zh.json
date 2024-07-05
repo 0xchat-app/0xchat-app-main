@@ -9,7 +9,7 @@
   "about": "关于我",
   "about_hint_text": "比特币核心开发(选填)",
   "bitcoin_lightning_tips": "比特币闪电地址",
-  "bitcoin_lightning_tips_hint_text": "闪电地址或LUNRL(选填)",
+  "bitcoin_lightning_tips_hint_text": "闪电地址或LNURL(选填)",
   "Profile picture": "个人头像",
   "gallery": "从手机相册选择",
   "camera": "拍照",
@@ -188,5 +188,7 @@
   "str_send_log_to_dev_dialog_content": "将日志文件发送给开发者water783",
   "str_send_log_to_dev_hint": "当你的设备出现异常或者闪退的时候，会存储log到你的本地。你可以选择发送给dev，帮助我们改善产品，也可以选择无视它。",
   "str_data_revovery": "数据恢复",
-  "str_file_server_title": "文件存储服务"
+  "str_file_server_title": "文件存储服务",
+  "str_npub_address_tips": "如果没有lnurl，可以设置一个默认的npub.cash地址。",
+  "str_set_npub_address_tips": "立即设置"
 }

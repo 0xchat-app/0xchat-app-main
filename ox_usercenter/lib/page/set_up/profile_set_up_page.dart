@@ -21,6 +21,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
+import 'package:ox_usercenter/widget/npub_cash_address_widget.dart';
 
 class ProfileSetUpPage extends StatefulWidget {
   const ProfileSetUpPage({Key? key}) : super(key: key);
@@ -253,6 +254,9 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                       Localized.text('ox_usercenter.bitcoin_lightning_tips_hint_text'),
                       editingController: _bltTextEditingController,
                       maxLines: null),
+                  NpubCashAddressWidget(
+                    onClick: () => _bltTextEditingController.text = mCurrentUserInfo?.lnAddress ?? '',
+                  ),
                 ],
               ),
             ),

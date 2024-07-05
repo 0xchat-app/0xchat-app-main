@@ -9,7 +9,7 @@
   "about": "プロフィール",
   "about_hint_text": "ビットコインコア開発者(オプション)",
   "bitcoin_lightning_tips": "ビットコインライトニングアドレス",
-  "bitcoin_lightning_tips_hint_text": "ライトニングアドレスまたはLUNRL(オプション)",
+  "bitcoin_lightning_tips_hint_text": "ライトニングアドレスまたはLNURL(オプション)",
   "Profile picture": "プロフィール画像",
   "gallery": "ギャラリー",
   "camera": "カメラ",
