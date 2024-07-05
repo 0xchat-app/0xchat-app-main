@@ -5,6 +5,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -132,25 +133,9 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       final data = Channels.decodeChannel(str);
       final groupId = data?['channelId'];
       final relays = data?['relays'];
+      final kind = data?['kind'];
       if (data == null || groupId == null || groupId is! String || groupId.isEmpty) return true;
-
-      final isGroup = Groups.sharedInstance.groups.containsKey(groupId);
-
-      if (!await _tryHandleRelaysFromMap(data, context)) return true;
-
-      if (isGroup) {
-        // Go to group page
-        final author = data['author'];
-        OXModuleService.invoke('ox_chat', 'groupSharePage', [
-          context
-        ], {
-          #groupPic: '',
-          #groupName: groupId,
-          #groupOwner: author,
-          #groupId: groupId,
-          #inviterPubKey: '--',
-        });
-      } else {
+      if (kind == 40 || kind == 41) {
         // Go to Channel
         await OXLoading.show();
         ChannelDB? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
@@ -167,7 +152,22 @@ extension ScanAnalysisHandlerEx on ScanUtils {
             });
           }
         }
+      } else if (kind == 39000){
+        if (!await _tryHandleRelaysFromMap(data, context)) return true;
+        // Go to group page
+        final author = data['author'];
+        OXModuleService.invoke('ox_chat', 'groupSharePage', [
+          context
+        ], {
+          Symbol('groupPic'): '',
+          Symbol('groupName'): groupId,
+          Symbol('groupId'): '${relays[0]}\'$groupId',
+          Symbol('inviterPubKey'): '--',
+          Symbol('groupOwner'): author,
+          Symbol('groupTypeIndex'): 0, //default openGroup
+        });
       }
+
     },
   );
 
