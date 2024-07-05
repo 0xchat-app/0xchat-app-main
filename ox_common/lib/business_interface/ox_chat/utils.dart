@@ -28,12 +28,15 @@ extension UserListChatEx on List<UserDB> {
     String noneText = '',
     int showUserCount = 2,
     int maxNameLength = 15,
+    String Function(UserDB user)? userNameBuilder,
   }) {
     if (this.isEmpty) return noneText;
 
+    final nameBuilder = userNameBuilder ?? (user) => user.getUserShowName();
+
     final names = this.sublist(0, min(showUserCount, this.length))
         .map((user) {
-      final name = user.getUserShowName();
+      final name = nameBuilder(user);
       if (name.length > maxNameLength) return name.replaceRange(maxNameLength - 3, name.length, '...');
       return name;
     }).toList().join(',');
