@@ -287,14 +287,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     if (value != _chatRunStatus) {
       _chatRunStatus = value;
       if (_chatRunStatus) {
-
-        Relays.sharedInstance.connectGeneralRelays();
-        Relays.sharedInstance.connectDMRelays();
+        Account.sharedInstance.resumeAllRelays();
       } else {
-        final gRelays = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
-        final dmRelays = Account.sharedInstance.getMyDMRelayList().map((e) => e.url).toList();
-        gRelays.addAll(dmRelays);
-        await Connect.sharedInstance.closeConnects(gRelays);
+        Account.sharedInstance.closeAllRelays();
       }
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
     }
