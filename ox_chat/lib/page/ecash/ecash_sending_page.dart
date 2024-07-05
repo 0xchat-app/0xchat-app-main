@@ -851,6 +851,6 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     return result;
   }
 
-  String get receiverText => EcashHelper.userListText(condition.receiver);
-  String get signessText => EcashHelper.userListText(condition.signees, noneText: Localized.text('ox_common.none'));
+  String get receiverText => condition.receiver.abbrDesc();
+  String get signessText => condition.signees.abbrDesc(noneText: Localized.text('ox_common.none'));
 }

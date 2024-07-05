@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:flutter/widgets.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_common/utils/list_extension.dart';
+import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -35,6 +40,9 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
   bool _isCoinSelection = false;
   List<Proof>? _selectedProofs;
 
+  double get createTokenBtnBottomMargin => 12.px;
+  double get createTokenBtnHeight => 44.px;
+
   @override
   void initState() {
     int balance = widget.mint.balance - widget.amount;
@@ -53,6 +61,10 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
 
   @override
   Widget build(BuildContext context) {
+    final p2pkOption = widget.p2pkOption;
+    final contentBottom = MediaQuery.of(context).padding.bottom +
+        createTokenBtnBottomMargin +
+        createTokenBtnHeight / 2;
     return Scaffold(
       backgroundColor: ThemeColor.color190,
       appBar: CommonAppBar(
@@ -60,64 +72,120 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
         centerTitle: true,
         useLargeTitle: false,
       ),
-      body: ListView(
+      body: Stack(
         children: [
-          CommonCard(
-            verticalPadding: 0,
-            horizontalPadding: 0,
-            child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemBuilder: _buildItem,
-                separatorBuilder: (context,index) => Container(height: 0.5.px,color: ThemeColor.color160,),
-                itemCount: _items.length),
-          ).setPaddingOnly(top: 12.px),
-          ThemeButton(
-            text: Localized.text('ox_wallet.create_token'),
-            height: 48.px,
-            onTap: _createToken,
-          ).setPaddingOnly(top: 24.px),
+          Positioned.fill(
+            bottom: contentBottom,
+            child: ListView(
+              children: [
+                CommonCard(
+                  verticalPadding: 0,
+                  horizontalPadding: 0,
+                  child: ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    itemBuilder: (_, index) => _buildItem(_items[index]),
+                    separatorBuilder: (context,index) => Divider(height: 1, color: ThemeColor.color160,),
+                    itemCount: _items.length,
+                  ),
+                ).setPaddingOnly(top: 12.px),
+                if (p2pkOption != null && p2pkOption.enable)
+                  CommonCard(
+                    verticalPadding: 0,
+                    horizontalPadding: 0,
+                    child: Column(
+                      children: [
+                        _buildItem(CardItemModel(label: 'Pubkey', content: p2pkOption.singer.length.toString())),
+                        if (p2pkOption.singer.isNotEmpty)
+                          _buildUserList(p2pkOption.singer),
+                        _buildItem(CardItemModel(label: 'SigFlags', content: p2pkOption.sigFlagDesc)),
+                        _buildItem(CardItemModel(label: 'N_sig', content: p2pkOption.sigNumDesc)),
+                        _buildItem(CardItemModel(label: 'LockTime', content: p2pkOption.lockTimeDesc)),
+                        _buildItem(CardItemModel(label: 'Refund', content: p2pkOption.refund.length.toString())),
+                        if (p2pkOption.refund.isNotEmpty)
+                          _buildUserList(p2pkOption.refund),
+                      ].insertEveryN(1, Divider(height: 1, color: ThemeColor.color160,)),
+                    ),
+                  ).setPadding(EdgeInsets.symmetric(vertical: 24.px))
+              ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: createTokenBtnBottomMargin,
+            child: SafeArea(
+              top: false,
+              child: ThemeButton(
+                text: Localized.text('ox_wallet.create_token'),
+                height: createTokenBtnHeight,
+                onTap: _createToken,
+              ),
+            ),
+          ),
         ],
       ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
     );
   }
 
-  Widget _buildItem(context,index){
-    List<CommonCardItem> commonCardItemList= _items.map((element){
-      if(element.label == 'Coin Selection'){
-        return CommonCardItem(
-          label: element.label,
-          content: element.content,
-          action: SwitchWidget(
-            value: _isCoinSelection,
-            onChanged: (value) async {
-              if (value) {
-                List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,mint: widget.mint,));
-                if(result != null){
-                  _selectedProofs = result;
-                  int totalAmount = result.fold(0, (pre, proof) => pre + proof.amountNum);
-                  _isCoinSelection = true;
-                  _items.addAll([
-                    CardItemModel(label: 'Selected',content: '$totalAmount/${widget.amount} Sats',),
-                    CardItemModel(label: 'Change',content: 'Sats',),
-                  ]);
-                }else{
-                  _isCoinSelection = false;
-                }
+  Widget _buildItem(CardItemModel item) {
+    if(item.label == 'Coin Selection') {
+      return CommonCardItem(
+        label: item.label,
+        content: item.content,
+        action: SwitchWidget(
+          value: _isCoinSelection,
+          onChanged: (value) async {
+            if (value) {
+              List<Proof>? result = await OXNavigator.pushPage(context, (context) => WalletSendEcashCoinSelectionPage(amount: widget.amount,mint: widget.mint,));
+              if(result != null){
+                _selectedProofs = result;
+                int totalAmount = result.fold(0, (pre, proof) => pre + proof.amountNum);
+                _isCoinSelection = true;
+                _items.addAll([
+                  CardItemModel(label: 'Selected',content: '$totalAmount/${widget.amount} Sats',),
+                  CardItemModel(label: 'Change',content: 'Sats',),
+                ]);
               }else{
-                _items.removeWhere((element) => element.label == 'Selected' || element.label == 'Change');
                 _isCoinSelection = false;
-                _selectedProofs =  null;
               }
-              setState(() {});
-            },
-          ),
+            }else{
+              _items.removeWhere((element) => element.label == 'Selected' || element.label == 'Change');
+              _isCoinSelection = false;
+              _selectedProofs =  null;
+            }
+            setState(() {});
+          },
+        ),
+      );
+    }
+    return CommonCardItem(label: item.label,content: item.content);
+  }
+
+  Widget _buildUserList(List<UserDB> userList) {
+    return Column(
+      children: userList.map((user) {
+        return SizedBox(
+          height: 44.px,
+          child: Row(
+            children: [
+              OXUserAvatar(user: user, size: 24.px,).setPaddingOnly(right: 4.px),
+              Expanded(
+                child: Text(
+                  user.shortEncodedPubkey,
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+            ],
+          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
         );
-      }
-      return CommonCardItem(label: element.label,content: element.content);
-    }).toList();
-    return commonCardItemList[index];
+
+      }).toList(),
+    );
   }
 
   Future<void> _createToken() async {
