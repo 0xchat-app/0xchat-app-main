@@ -12,12 +12,10 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/model/channel_model.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
@@ -43,7 +41,6 @@ class _ChannelPageState extends State<ChannelPage>
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        OXRelayObserver,
         CommonStateViewMixin {
   final RefreshController _refreshController = RefreshController();
   late Image _placeholderImage;
@@ -54,7 +51,9 @@ class _ChannelPageState extends State<ChannelPage>
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
-    OXRelayManager.sharedInstance.addObserver(this);
+    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+       if(mounted) setState(() {});
+    });
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
@@ -85,7 +84,6 @@ class _ChannelPageState extends State<ChannelPage>
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXRelayManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -545,16 +543,6 @@ class _ChannelPageState extends State<ChannelPage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  @override
-  void didAddRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
-
-  @override
-  void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
 
   @override
   void didRelayStatusChange(String relay, int status) {

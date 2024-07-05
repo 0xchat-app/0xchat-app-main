@@ -32,7 +32,6 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_chat/model/community_menu_option_model.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -40,7 +39,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -68,7 +66,7 @@ class ChatSessionListPage extends StatefulWidget {
 }
 
 class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
-    with AutomaticKeepAliveClientMixin, CommonStateViewMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver, OXRelayObserver {
+    with AutomaticKeepAliveClientMixin, CommonStateViewMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver {
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
@@ -86,12 +84,14 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void initState() {
     super.initState();
+    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+      if(mounted) setState(() {});
+    });
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     WidgetsBinding.instance.addObserver(this);
     OXUserInfoManager.sharedInstance.addObserver(this);
-    OXRelayManager.sharedInstance.addObserver(this);
     Localized.addLocaleChangedCallback(onLocaleChange); //fetchNewestNotice
     _merge();
     SchemeHelper.tryHandlerForOpenAppScheme();
@@ -108,7 +108,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     _refreshController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXRelayManager.sharedInstance.removeObserver(this);
     super.dispose();
   }
 
@@ -234,7 +233,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                       width: Adapt.px(4),
                     ),
                     Text(
-                      '${OXRelayManager.sharedInstance.connectedCount}/${OXRelayManager.sharedInstance.relayAddressList.length}',
+                      '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
                       style: TextStyle(
                         fontSize: Adapt.px(14),
                         color: ThemeColor.color100,
@@ -390,16 +389,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         });
       }
     }
-  }
-
-  @override
-  void didAddRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
-
-  @override
-  void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {});
   }
 
   @override

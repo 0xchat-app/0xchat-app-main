@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -288,11 +287,14 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     if (value != _chatRunStatus) {
       _chatRunStatus = value;
       if (_chatRunStatus) {
-        Connect.sharedInstance.connectRelays(OXRelayManager.sharedInstance.relayAddressList);
+
+        Relays.sharedInstance.connectGeneralRelays();
+        Relays.sharedInstance.connectDMRelays();
       } else {
-        await Future.forEach(OXRelayManager.sharedInstance.relayModelList, (element) async {
-          await Connect.sharedInstance.closeConnect(element.relayName);
-        });
+        final gRelays = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+        final dmRelays = Account.sharedInstance.getMyDMRelayList().map((e) => e.url).toList();
+        gRelays.addAll(dmRelays);
+        await Connect.sharedInstance.closeConnects(gRelays);
       }
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
     }

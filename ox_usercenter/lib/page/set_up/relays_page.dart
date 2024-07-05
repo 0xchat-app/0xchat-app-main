@@ -4,12 +4,10 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
@@ -31,12 +29,12 @@ class RelaysPage extends StatefulWidget {
   }
 }
 
-class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
+class _RelaysPageState extends State<RelaysPage> {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  late List<RelayModel> _relayList = [];
-  late List<RelayModel> _commendRelayList = [];
-  final List<String> _relayAddressList = [];
-  final Map<String, RelayModel> _relayConnectStatusMap = {};
+  late List<RelayDB> _generalRelayList = [];
+  late List<RelayDB> _generalRecommendRelayList = [];
+  late List<RelayDB> _dmRelayList = [];
+  late List<RelayDB> _dmRecommendRelayList = [];
   bool _isEditing = false;
   bool _isShowDelete = false;
   final RelaySelectableController _relaySelectableController = RelaySelectableController();
@@ -45,7 +43,6 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   @override
   void initState() {
     super.initState();
-    OXRelayManager.sharedInstance.addObserver(this);
     _relaySelectableController.currentIndex.addListener(_relaySelectableListener);
     _initDefault();
   }
@@ -59,45 +56,25 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
 
   @override
   void dispose() {
-    OXRelayManager.sharedInstance.removeObserver(this);
     _relaySelectableController.currentIndex.removeListener(_relaySelectableListener);
     super.dispose();
   }
 
   void _initDefault() async {
-    _relayAddressList.clear();
-    _relayConnectStatusMap.clear();
-    _commendRelayList.clear();
-    _relayList = OXRelayManager.sharedInstance.relayModelList
-        .map((obj) => RelayModel(
-              relayName: obj.relayName,
-              canDelete: obj.canDelete,
-              isSelected: obj.isSelected,
-              createTime: obj.createTime,
-              connectStatus: obj.connectStatus,
-            ))
-        .toList();
-    for (RelayModel model in _relayList) {
-      _relayAddressList.add(model.identify);
-      _relayConnectStatusMap[model.identify] = model;
-    }
-    _commendRelayList = RelayModel.checkDefaultRelays(_relayAddressList);
-    setState(() {});
-    _relayConnectStatusMap.forEach((key, value) {
-      if (Connect.sharedInstance.webSockets[key]?.connectStatus != null) {
-        value.connectStatus = Connect.sharedInstance.webSockets[key]!.connectStatus;
-      }
+    _generalRelayList = Account.sharedInstance.getMyGeneralRelayList();
+    _generalRecommendRelayList = Account.sharedInstance.getMyRecommendGeneralRelaysList();
+    _dmRelayList = Account.sharedInstance.getMyDMRelayList();
+    _dmRecommendRelayList = Account.sharedInstance.getMyRecommendDMRelaysList();
+    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+        didRelayStatusChange(relay, status);
     });
+    setState(() {});
   }
 
-  @override
   void didRelayStatusChange(String relay, int status) {
-    if (_relayConnectStatusMap[relay] != null && _relayConnectStatusMap[relay]!.connectStatus != status) {
-      _relayConnectStatusMap[relay]!.connectStatus = status;
       if (mounted) {
         setState(() {});
       }
-    }
   }
 
   @override
@@ -251,12 +228,12 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: _itemBuild,
-              itemCount: _relayList.length,
+              itemCount: _generalRelayList.length,
               padding: EdgeInsets.zero,
             ),
           ),
-          RelayCommendWidget(_commendRelayList, (relayModel) {
-            _addOnTap(upcomingRelay: relayModel.relayName);
+          RelayCommendWidget(_generalRecommendRelayList, (RelayDB relayDB) {
+            _addOnTap(upcomingRelay: relayDB.url);
           }),
         ],
       ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
@@ -264,7 +241,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    RelayModel _model = _relayList[index];
+    RelayDB _model = _generalRelayList[index];
     return Column(
       children: [
         SizedBox(
@@ -273,7 +250,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
           child: ListTile(
             onTap: (){
               if(!_isEditing){
-                OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: _model.relayName,));
+                OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: _model.url,));
               }
             },
             contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
@@ -286,7 +263,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             title: Container(
               margin: EdgeInsets.only(left: Adapt.px(12)),
               child: Text(
-                _model.relayName,
+                _model.url,
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(16),
@@ -296,7 +273,7 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
             trailing: _relayStateImage(_model),
           ),
         ),
-        _relayList.length > 1 && _relayList.length - 1 != index
+        _generalRelayList.length > 1 && _generalRelayList.length - 1 != index
             ? Divider(
                 height: Adapt.px(0.5),
                 color: ThemeColor.color160,
@@ -306,27 +283,21 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
     );
   }
 
-  Widget _relayStateImage(RelayModel relayModel) {
+  Widget _relayStateImage(RelayDB relayDB) {
     if (_isEditing) {
       return GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          _deleteOnTap(relayModel);
+          _deleteOnTap(relayDB);
         },
-        child: relayModel.canDelete
-            ? CommonImage(
-                iconName: 'icon_bar_delete_red.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-              )
-            : CommonImage(
-                iconName: 'icon_bar_delete.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-              ),
+        child: CommonImage(
+          iconName: 'icon_bar_delete_red.png',
+          width: Adapt.px(24),
+          height: Adapt.px(24),
+        )
       );
     } else {
-      if (_relayConnectStatusMap[relayModel.identify]?.connectStatus == RelayConnectStatus.open) {
+      if (relayDB.connectStatus == RelayConnectStatus.open) {
         return CommonImage(
           iconName: 'icon_pic_selected.png',
           width: Adapt.px(24),
@@ -422,55 +393,44 @@ class _RelaysPageState extends State<RelaysPage> with OXRelayObserver {
 
   void _addOnTap({String? upcomingRelay}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
-    upcomingRelay = RelayModel.identifyWithAddress(upcomingRelay);
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
     }
-    if (_relayAddressList.contains(upcomingRelay)) {
+    if (_generalRelayList.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
-      RelayModel _tempRelayModel = RelayModel(
-        relayName: upcomingRelay,
-        canDelete: true,
-        connectStatus: 0,
-        createTime: DateTime.now().millisecondsSinceEpoch,
-      );
-      _relayConnectStatusMap[upcomingRelay] = _tempRelayModel;
-      await OXRelayManager.sharedInstance.addRelaySuccess(_tempRelayModel);
-      _commendRelayList.removeWhere((element) => element.relayName == upcomingRelay);
-      // for(RelayModel model in _commendRelayList){
-      //   if(model.relayName == upcomingRelay){
-      //     model.isAddedCommend = true;
-      //   }
-      // }
+      await Account.sharedInstance.addGeneralRelay(upcomingRelay);
+      _generalRecommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
-        _relayList.add(_tempRelayModel);
-        _relayAddressList.add(upcomingRelay!);
+        _generalRelayList.add(RelayDB(url: upcomingRelay!));
       });
     }
   }
 
-  void _deleteOnTap(RelayModel relayModel) async {
-    if (relayModel.canDelete) {
-      OXCommonHintDialog.show(context,
-          title: Localized.text('ox_common.tips'),
-          content: Localized.text('ox_usercenter.delete_relay_hint'),
-          actionList: [
-            OXCommonHintAction.cancel(onTap: () {
-              OXNavigator.pop(context);
-            }),
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () async {
-                  await OXRelayManager.sharedInstance.deleteRelay(relayModel);
-                  OXNavigator.pop(context);
-                  _initDefault();
-                }),
-          ],
-          isRowAction: true);
-    }
+  void _deleteOnTap(RelayDB relayModel) async {
+    OXCommonHintDialog.show(context,
+        title: Localized.text('ox_common.tips'),
+        content: Localized.text('ox_usercenter.delete_relay_hint'),
+        actionList: [
+          OXCommonHintAction.cancel(onTap: () {
+            OXNavigator.pop(context);
+          }),
+          OXCommonHintAction.sure(
+              text: Localized.text('ox_common.confirm'),
+              onTap: () async {
+                await Account.sharedInstance.removeGeneralRelay(relayModel.url);
+                OXNavigator.pop(context);
+                _initDefault();
+              }),
+        ],
+        isRowAction: true);
   }
+}
+
+enum RelayType {
+  private,
+  general
 }
 
 extension RelayTypeExtension on RelayType {
@@ -491,4 +451,11 @@ extension RelayTypeExtension on RelayType {
         return "Amethyst uses these relays to download posts for you.";
     }
   }
+}
+
+class RelayConnectStatus {
+  static final int connecting = 0;
+  static final int open = 1;
+  static final int closing = 2;
+  static final int closed = 3;
 }

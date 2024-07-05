@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -44,7 +42,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        OXRelayObserver,
         CommonStateViewMixin {
 
   int _channelCurrentIndex = 0;
@@ -60,6 +57,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void initState() {
     super.initState();
+    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+      if(mounted) setState(() {});
+    });
   }
 
   void _momentPublic(){
@@ -73,7 +73,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXRelayManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -266,7 +265,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 width: Adapt.px(4),
               ),
               Text(
-                '${OXRelayManager.sharedInstance.connectedCount}/${OXRelayManager.sharedInstance.relayAddressList.length}',
+                '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
                 style: TextStyle(
                   fontSize: Adapt.px(14),
                   color: ThemeColor.color100,
@@ -615,16 +614,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  @override
-  void didAddRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
-
-  @override
-  void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
 
   @override
   void didRelayStatusChange(String relay, int status) {

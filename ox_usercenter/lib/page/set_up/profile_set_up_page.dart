@@ -9,7 +9,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
@@ -56,7 +55,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   void _initData() async {
-    _relayNameList = OXRelayManager.sharedInstance.relayAddressList;
+    _relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
     // mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
     setState(() {});
   }

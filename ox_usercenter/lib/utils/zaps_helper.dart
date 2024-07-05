@@ -1,7 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 
 class ZapsHelper {
 
@@ -20,7 +19,7 @@ class ZapsHelper {
       'message': '',
     };
 
-    final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
+    final relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
     if(!relayNameList.contains(CommonConstant.oxChatRelay)) relayNameList.add(CommonConstant.oxChatRelay);
 
     if (recipient.isEmpty) {

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: relays_selector_page
 ///Description: TODO(Fill in by oneself)
@@ -22,8 +21,14 @@ class RelaysSelectorPage extends StatefulWidget {
   }
 }
 
+class RelaySelectorModule{
+  RelayDB relayDB;
+  bool isSelected;
+  RelaySelectorModule(this.relayDB, this.isSelected);
+}
+
 class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
-  late List<RelayModel> _relayList = [];
+  late List<RelaySelectorModule> _relayList = [];
 
   @override
   void initState() {
@@ -32,13 +37,10 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
   }
 
   void _initDefault() async {
-    _relayList = OXRelayManager.sharedInstance.relayModelList.map((obj) => RelayModel(
-      relayName: obj.relayName,
-      canDelete: obj.canDelete,
-      isSelected: obj.isSelected,
-      createTime: obj.createTime,
-      connectStatus: obj.connectStatus,
-    )).toList();
+    for(var relay in Account.sharedInstance.getMyGeneralRelayList()){
+      _relayList.add(RelaySelectorModule(relay, false));
+    }
+
     setState(() {});
   }
 
@@ -73,9 +75,9 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: () async {
-                      await OXLoading.show();
-                      await OXRelayManager.sharedInstance.saveRelayList(_relayList);
-                      await OXLoading.dismiss();
+                      // await OXLoading.show();
+                      // await OXRelayManager.sharedInstance.saveRelayList(_relayList);
+                      // await OXLoading.dismiss();
                       OXNavigator.pop(context);
                     },
                     child: ShaderMask(
@@ -142,7 +144,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    RelayModel _model = _relayList[index];
+    RelaySelectorModule _model = _relayList[index];
     return Column(
       children: [
         SizedBox(
@@ -158,7 +160,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
             ),
             title: Container(
               child: Text(
-                _model.relayName,
+                _model.relayDB.url,
                 style: TextStyle(
                   color: ThemeColor.color0,
                   fontSize: Adapt.px(16),
@@ -178,7 +180,7 @@ class _RelaysSelectorPageState extends State<RelaysSelectorPage> {
     );
   }
 
-  Widget _relayStateImage(RelayModel relayModel) {
+  Widget _relayStateImage(RelaySelectorModule relayModel) {
     return Switch(
       value: relayModel.isSelected,
       activeColor: Colors.white,

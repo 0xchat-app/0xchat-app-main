@@ -13,7 +13,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -58,7 +57,8 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
   String get routeName => 'MyIdCardDialog';
 
   void _initData() async {
-    List<String> relayList = OXRelayManager.sharedInstance.relayAddressList.take(5).toList();
+    List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    List<String> relayList = relayAddressList.take(5).toList();
     String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
     if (widget.type == CommonConstant.qrCodeUser) {
       _showName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
