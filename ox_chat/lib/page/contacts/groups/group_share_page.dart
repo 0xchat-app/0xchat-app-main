@@ -347,7 +347,10 @@ class _GroupSharePageState extends State<GroupSharePage> {
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: Localized.text('ox_chat.send'), onTap: _requestGroupFn),
+          OXCommonHintAction.sure(text: Localized.text('ox_chat.send'), onTap: () {
+            OXNavigator.pop(context);
+            _requestGroupFn();
+          }),
         ],
         isRowAction: true,
     );
@@ -370,10 +373,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
         CommonToast.instance.show(context, event.message);
         OXLoading.dismiss();
         return;
+      } else {
+        RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
       }
 
       CommonToast.instance.show(context, Localized.text('ox_chat.request_join_toast_success'));
-      OXNavigator.pop(context);
       OXNavigator.pop(context);
     }
 
