@@ -12,7 +12,6 @@ import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -326,8 +325,8 @@ class OXUserInfoManager {
         kinds.remove(9735);
       }
     }
-
-    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
+    List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, relayAddressList);
     updateNotificatin = okEvent.status;
 
     return updateNotificatin;
@@ -339,7 +338,7 @@ class OXUserInfoManager {
     if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
-    List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
+    List<String> relayAddressList = await Account.sharedInstance.getUserGeneralRelayList(pubKey);
     List<String> temp = dnsStr.split('@');
     String name = temp[0];
     String domain = temp[1];
@@ -358,13 +357,6 @@ class OXUserInfoManager {
     initDataActions.forEach((fn) {
       fn();
     });
-    Account.sharedInstance.relayListUpdateCallback = (){
-      OXRelayManager.sharedInstance.addRelaysSuccess(Account.sharedInstance.me!.relayList ?? []);
-    };
-    Account.sharedInstance.dmRelayListUpdateCallback = (){
-      // TODO: ADD TO DM RELAY
-      OXRelayManager.sharedInstance.addRelaysSuccess(Account.sharedInstance.me!.relayList ?? []);
-    };
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);

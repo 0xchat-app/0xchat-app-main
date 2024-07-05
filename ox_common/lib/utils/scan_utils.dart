@@ -7,9 +7,7 @@ import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -66,7 +64,8 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     List<String> relaysList = (map['relays'] ?? []).cast<String>();
     if (relaysList.isEmpty) return true;
     final newRelay = relaysList.first.replaceFirst(RegExp(r'/+$'), '');
-    if (OXRelayManager.sharedInstance.relayAddressList.contains(newRelay)) return true;
+    final relayAddressList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    if (relayAddressList.contains(newRelay)) return true;
 
     final completer = Completer<bool>();
     OXCommonHintDialog.show(context,
@@ -83,12 +82,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context);
-                RelayModel _tempRelayModel = RelayModel(
-                  relayName: newRelay,
-                  canDelete: true,
-                  connectStatus: 0,
-                );
-                await OXRelayManager.sharedInstance.addRelaySuccess(_tempRelayModel);
+                await Account.sharedInstance.addGeneralRelay(newRelay);
                 completer.complete(true);
               }),
         ]);
