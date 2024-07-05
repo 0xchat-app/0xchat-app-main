@@ -294,6 +294,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   void confirmJoin(int status) async {
     if(status == 2) return _createGroup();
     if(status == 1) return _joinGroupFn();
+    if (widget.groupType == GroupType.openGroup) return _requestGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
         contentView: Container(
