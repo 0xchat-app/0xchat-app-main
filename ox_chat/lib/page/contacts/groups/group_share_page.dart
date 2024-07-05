@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -243,7 +244,9 @@ class _GroupSharePageState extends State<GroupSharePage> {
         : RelayGroup.sharedInstance.getInGroupStatus(widget.groupId);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: confirmJoin,
+      onTap: () {
+        confirmJoin(status);
+      },
       child: Container(
         margin: EdgeInsets.symmetric(
           horizontal: Adapt.px(24),
@@ -288,8 +291,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       }
   }
 
-  void confirmJoin() async {
-    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
+  void confirmJoin(int status) async {
     if(status == 2) return _createGroup();
     if(status == 1) return _joinGroupFn();
     OXCommonHintDialog.show(context,
