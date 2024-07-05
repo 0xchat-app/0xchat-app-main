@@ -120,7 +120,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   Widget _groupBaseInfoView() {
     return RelayGroupBaseInfoView(
       relayGroup: groupDBInfo,
-      groupQrCodeFn: _groupQrCodeFn,
+      groupQrCodeFn: () {
+        _DisableShareDialog(true);
+      },
     );
   }
 
@@ -595,10 +597,17 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _groupQrCodeFn() {
-    _DisableShareDialog(true);
+    OXNavigator.pushPage(
+      context,
+          (context) => GroupSettingQrcodePage(
+        groupId: widget.groupId,
+        groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
+      ),
+    );
   }
 
   void _DisableShareDialog(bool isQrCode) {
+    if (groupDBInfo != null && !groupDBInfo!.private) return _groupQrCodeFn();
     OXCommonHintDialog.show(
       context,
       title: "",
