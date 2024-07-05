@@ -37,7 +37,7 @@ class RelayGroupCreatePage extends StatefulWidget {
 
 class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   TextEditingController _controller = TextEditingController();
-  String _chatRelay = 'wss://group.0xchat.com';
+  String _chatRelay = Relays.sharedInstance.recommendGroupRelays.first;
 
   @override
   void initState() {
@@ -137,7 +137,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       title: Localized.text('ox_chat.relay'),
       content: _chatRelay,
       onTap: () async {
-        var result = await OXNavigator.presentPage(context, (context) => ContactRelayPage(defaultRelayList: ['wss://group.0xchat.com', 'wss://group.fiatjaf.com', 'ws://192.168.1.25:5577', 'ws://192.168.1.16:5577']));
+        var result = await OXNavigator.presentPage(context, (context) => ContactRelayPage(defaultRelayList: Relays.sharedInstance.recommendGroupRelays));
         if (result != null) {
           _chatRelay = result as String;
           setState(() {});
