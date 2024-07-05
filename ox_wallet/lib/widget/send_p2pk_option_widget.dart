@@ -27,7 +27,11 @@ class SendP2PKOption {
 }
 
 extension SendP2PKOptionUIEx on SendP2PKOption {
-  String get signerDesc => singer.abbrDesc(noneText: Localized.text('ox_common.none'));
+  String get signerDesc => singer.abbrDesc(
+    noneText: Localized.text('ox_common.none'),
+    showUserCount: 1,
+    userNameBuilder: (user) => user.shortEncodedPubkey,
+  );
 
   String get sigFlagDesc {
     final sigText = sigFlag?.value ?? '';
@@ -49,7 +53,11 @@ extension SendP2PKOptionUIEx on SendP2PKOption {
     return text;
   }
 
-  String get refundDesc => refund.abbrDesc(noneText: Localized.text('ox_common.none'));
+  String get refundDesc => refund.abbrDesc(
+    noneText: Localized.text('ox_common.none'),
+    showUserCount: 1,
+    userNameBuilder: (user) => user.shortEncodedPubkey,
+  );
 }
 
 class SendP2PKOptionWidget extends StatefulWidget {

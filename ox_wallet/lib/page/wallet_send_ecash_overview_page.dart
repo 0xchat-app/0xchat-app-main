@@ -173,7 +173,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
               OXUserAvatar(user: user, size: 24.px,).setPaddingOnly(right: 4.px),
               Expanded(
                 child: Text(
-                  user.getUserShowName(),
+                  user.shortEncodedPubkey,
                   style: TextStyle(
                     color: ThemeColor.color0,
                     fontSize: 14.sp,
