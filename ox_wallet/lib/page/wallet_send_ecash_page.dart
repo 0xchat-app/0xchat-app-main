@@ -107,13 +107,15 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
       CommonToast.instance.show(context, Localized.text('ox_wallet.send_insufficient_balance'));
       return;
     }
-    if (p2pkOption.enable) {
-      OXNavigator.pushPage(context, (context) =>
-          WalletSendEcashOverviewPage(amount: sats,memo: memo, mint: _mint!, p2pkOption: p2pkOption));
-    } else {
-      OXNavigator.pushPage(context, (context) =>
-          WalletSendEcashOverviewPage(amount: sats,memo: memo, mint: _mint!,));
-    }
+
+    OXNavigator.pushPage(context, (context) =>
+      WalletSendEcashOverviewPage(
+        amount: sats,
+        memo: memo,
+        mint: _mint!,
+        p2pkOption: p2pkOption.enable ? p2pkOption : null,
+      ),
+    );
   }
 
   void _onChanged(IMint mint) {

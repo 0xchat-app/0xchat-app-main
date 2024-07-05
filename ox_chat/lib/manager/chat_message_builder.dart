@@ -634,7 +634,7 @@ class ChatMessageBuilder {
     } else if (signees.isNotEmpty && signees.any((signee) => signee.$2.isEmpty)) {
       subTitle = 'ecash_waiting_for_signature'.localized();
     } else if (receivers.isNotEmpty) {
-      final userNames = EcashHelper.userListText(receivers, showUserCount: 1,);
+      final userNames = receivers.abbrDesc(showUserCount: 1,);
       subTitle = 'ecash_exclusive_title'.localized({
         r'${userNames}': userNames,
       });

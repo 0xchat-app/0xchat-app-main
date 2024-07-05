@@ -212,23 +212,26 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
 
   void _showUserListIfNeeded(String newText, TextSelection selection) {
 
-    if (!newText.contains(_mentionPrefix)) {
-      _updateUserListValue([]);
-      return ;
-    }
-
     final cursorPosition = selection.start;
-    if (!selection.isCollapsed) {
+    if (!selection.isCollapsed || cursorPosition <= 0) {
       _updateUserListValue([]);
       return ;
     }
 
-    if (newText.endsWith(_mentionPrefix)) {
+    final text = newText.substring(0, cursorPosition);
+
+    if (!text.contains(_mentionPrefix)) {
+      _updateUserListValue([]);
+      return ;
+    }
+
+    final lastCharIndex = cursorPosition - 1;
+    if (text.substring(lastCharIndex, lastCharIndex + _mentionPrefix.length) == _mentionPrefix) {
       _updateUserListValue(allUser);
       return ;
     }
 
-    final prefixStart = newText.lastIndexOf(_mentionPrefix, cursorPosition);
+    final prefixStart = text.lastIndexOf(_mentionPrefix);
     if (prefixStart < 0) {
       _updateUserListValue([]);
       return ;

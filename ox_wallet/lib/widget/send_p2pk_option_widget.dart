@@ -1,6 +1,4 @@
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
@@ -26,6 +24,32 @@ class SendP2PKOption {
   List<UserDB> refund = [];
 
   bool enable = false;
+}
+
+extension SendP2PKOptionUIEx on SendP2PKOption {
+  String get signerDesc => singer.abbrDesc(noneText: Localized.text('ox_common.none'));
+
+  String get sigFlagDesc {
+    final sigText = sigFlag?.value ?? '';
+    var text = Localized.text('ox_common.none');
+    if (sigText.isNotEmpty) {
+      text = sigText;
+    }
+    return text;
+  }
+
+  String get sigNumDesc => sigNum != null ? '$sigNum' : Localized.text('ox_common.none');
+
+  String get lockTimeDesc {
+    var text = Localized.text('ox_common.none');
+    if (lockTime != null) {
+      final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm:ss');
+      text = formatter.format(lockTime!);
+    }
+    return text;
+  }
+
+  String get refundDesc => refund.abbrDesc(noneText: Localized.text('ox_common.none'));
 }
 
 class SendP2PKOptionWidget extends StatefulWidget {
@@ -106,12 +130,7 @@ class SendP2PKOptionWidgetState extends State<SendP2PKOptionWidget> {
   }
 
   Widget _buildP2PKPubkeyTag() {
-    final singer = widget.option.singer;
-    var text = Localized.text('ox_common.none');
-    if (singer.isNotEmpty) {
-      text = userListText(singer);
-    }
-    return _buildItem('Pubkey', text, () async {
+    return _buildItem('Pubkey', widget.option.signerDesc, () async {
       final pubkeyUser = await OXChatInterface.pushUserSelectionPage(
         context: context,
         defaultSelected: widget.option.singer,
@@ -128,12 +147,7 @@ class SendP2PKOptionWidgetState extends State<SendP2PKOptionWidget> {
   }
 
   Widget _buildP2PKSigFlagTag() {
-    final sigFlag = widget.option.sigFlag?.value ?? '';
-    var text = Localized.text('ox_common.none');
-    if (sigFlag.isNotEmpty) {
-      text = sigFlag;
-    }
-    return _buildItem('SigFlags', text, () async {
+    return _buildItem('SigFlags', widget.option.sigFlagDesc, () async {
       final result = await OXActionDialog.show(
         context,
         data: [
@@ -151,12 +165,7 @@ class SendP2PKOptionWidgetState extends State<SendP2PKOptionWidget> {
   }
 
   Widget _buildP2PKSigNumTag() {
-    final sigNum = widget.option.sigNum;
-    var text = Localized.text('ox_common.none');
-    if (sigNum != null) {
-      text = '$sigNum';
-    }
-    return _buildItem('N_sig', text, () async {
+    return _buildItem('N_sig', widget.option.sigNumDesc, () async {
       final text = await OXCommonHintDialog.showInputDialog(
         context,
         title: 'Input N_sigs numbers',
@@ -173,25 +182,14 @@ class SendP2PKOptionWidgetState extends State<SendP2PKOptionWidget> {
   }
 
   Widget _buildP2PKLockTimeTag() {
-    final lockTime = widget.option.lockTime;
-    var text = Localized.text('ox_common.none');
-    if (lockTime != null) {
-      final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm:ss');
-      text = formatter.format(lockTime);
-    }
-    return _buildItem('LockTime', text, () async {
+    return _buildItem('LockTime', widget.option.lockTimeDesc, () async {
       widget.option.lockTime = await selectLockTime(widget.option.lockTime);
       setState(() { });
     });
   }
 
   Widget _buildP2PKRefundTag() {
-    final refund = widget.option.refund;
-    var text = Localized.text('ox_common.none');
-    if (refund.isNotEmpty) {
-      text = userListText(refund);
-    }
-    return _buildItem('Refund', text, () async {
+    return _buildItem('Refund', widget.option.refundDesc, () async {
       final refundUser = await OXChatInterface.pushUserSelectionPage(
         context: context,
         defaultSelected: widget.option.refund,
@@ -240,29 +238,6 @@ class SendP2PKOptionWidgetState extends State<SendP2PKOptionWidget> {
         ).setPadding(EdgeInsets.symmetric(horizontal: space)),
       ),
     );
-  }
-
-  String userListText(
-      List<UserDB> userList, {
-        String noneText = '',
-        int showUserCount = 2,
-        int maxNameLength = 15,
-      }) {
-    if (userList.isEmpty) return noneText;
-    final names = userList.sublist(0, min(showUserCount, userList.length))
-        .map((user) {
-      final name = user.getUserShowName();
-      if (name.length > maxNameLength) return name.replaceRange(maxNameLength - 3, name.length, '...');
-      return name;
-    })
-        .toList()
-        .join(',');
-    final otherCount = max(0, userList.length - showUserCount);
-    if (otherCount > 0) {
-      return names + ' and $otherCount others';
-    } else {
-      return names;
-    }
   }
 
   Future<DateTime?> selectLockTime(DateTime? defaultDate) async {

@@ -148,7 +148,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   Widget buildTitle() {
     final text = isForOtherUser
         ? 'ecash_for_users_only'.localized({
-            r'${userNames}': EcashHelper.userListText(widget.package.receiver)
+            r'${userNames}': widget.package.receiver.abbrDesc()
           })
         : widget.package.memo;
     return Text(

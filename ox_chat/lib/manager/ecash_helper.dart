@@ -167,29 +167,6 @@ class EcashHelper {
     ) ?? '';
   }
 
-  static String userListText(
-      List<UserDB> userList, {
-        String noneText = '',
-        int showUserCount = 2,
-        int maxNameLength = 15,
-      }) {
-    if (userList.isEmpty) return noneText;
-    final names = userList.sublist(0, min(showUserCount, userList.length))
-        .map((user) {
-      final name = user.getUserShowName();
-      if (name.length > maxNameLength) return name.replaceRange(maxNameLength - 3, name.length, '...');
-      return name;
-    })
-        .toList()
-        .join(',');
-    final otherCount = max(0, userList.length - showUserCount);
-    if (otherCount > 0) {
-      return names + ' and $otherCount others';
-    } else {
-      return names;
-    }
-  }
-
   static Future<bool> isMessageSigned(String messageId) async {
     return (await DB.sharedInstance.objects<EcashSignatureRecord>(
       where: 'messageId = ?',
