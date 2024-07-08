@@ -8,6 +8,8 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/group_create_selector_dialog.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -124,7 +126,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         OXNavigator.pushPage(
           context,
               (context) => RelayGroupBaseInfoPage(
-            groupDB: groupDBInfo,
+            groupId: widget.groupId,
           ),
         );
       },
@@ -293,7 +295,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             title: Localized.text('ox_chat.str_group_relay'),
             subTitle: groupDBInfo?.relay ?? '--',
             onTap: null,
-            isShowMoreIcon: _isGroupMember,
+            isShowMoreIcon: false,
           ),
           if (true || _isGroupManager)
             GroupItemBuild(
@@ -571,7 +573,26 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _updateGroupTypeFn() async {
-
+    var result = await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return GroupCreateSelectorDialog(titleTxT: 'str_group_type_change_hint'.localized(), isChangeType: true,);
+      },
+    );
+    if (result != null && result is GroupType) {
+      await OXLoading.show();
+      bool privateType = result == GroupType.openGroup ? false : true;
+      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, privateType, '');
+      await OXLoading.dismiss();
+      if (!event.status) return CommonToast.instance.show(context, event.message);
+      setState(() {
+        RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        if (groupDB != null) {
+          groupDBInfo = groupDB;
+        }
+      });
+    }
   }
 
   void _updateGroupNoticeFn() async {
@@ -729,14 +750,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     });
   }
 
-  void _groupInfoInit() async {
+  void _groupInfoInit() {
     String groupId = widget.groupId;
-    RelayGroupDB? groupDB = await RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[groupId];
     if (groupDB != null) {
       groupDBInfo = groupDB;
       _getIsGroupManagerValue(groupDB.admins);
       _loadMembers(groupDB);
-      setState(() {});
     }
   }
 

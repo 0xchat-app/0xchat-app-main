@@ -1,15 +1,31 @@
-import 'package:chatcore/chat-core.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_about_show_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
+import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:device_info/device_info.dart';
 
 ///Title: relay_group_base_info_page
 ///Description: TODO(Fill in by oneself)
@@ -17,11 +33,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/21 18:06
 class RelayGroupBaseInfoPage extends StatefulWidget {
-  final RelayGroupDB? groupDB;
+  final String groupId;
 
   RelayGroupBaseInfoPage({
     super.key,
-    required this.groupDB,
+    required this.groupId,
   });
 
   @override
@@ -31,71 +47,217 @@ class RelayGroupBaseInfoPage extends StatefulWidget {
 }
 
 class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
+  late RelayGroupDB? _groupDBInfo;
+  bool _hasEditMetadataPermission = false;
+  String _avatarAliyunUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData(){
+    _groupDBInfo = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins != null && _groupDBInfo!.admins!.length > 0) {
+      List<GroupActionKind>? userPermissions;
+      try {
+        userPermissions = _groupDBInfo!.admins!.firstWhere((admin) => admin.pubkey == userDB.pubKey).permissions;
+        LogUtil.e('Michael:--- pubkey: ${userPermissions.toString()}');
+      } catch (e) {
+        userPermissions = [];
+        LogUtil.e('No admin found with pubkey: ${userDB.pubKey}');
+      }
+      _hasEditMetadataPermission = userPermissions.contains(GroupActionKind.editMetadata);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.px),
-            color: ThemeColor.color180,
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: 76.px,
-                margin: EdgeInsets.symmetric(horizontal: 16.px),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    MyText('Group Photo', 16.sp, ThemeColor.color0),
-                    OXRelayGroupAvatar(relayGroup: widget.groupDB, size: 56.px),
-                  ],
-                ),
-              ),
-              GroupItemBuild(
-                title: 'str_group_ID'.localized(),
-                subTitle: widget.groupDB?.groupId ?? '',
-                isShowMoreIcon: false,
-              ),
-              GroupItemBuild(
-                title: 'group_name'.localized(),
-                subTitle: widget.groupDB?.name ?? '',
-                isShowMoreIcon: false,
-              ),
-              GroupItemBuild(
-                title: 'description'.localized(),
-                titleDes: widget.groupDB?.about ?? '',
-                isShowMoreIcon: false,
-              ),
-            ],
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.px),
-            color: ThemeColor.color180,
-          ),
-          child: GroupItemBuild(
-            title: Localized.text('ox_chat.group_qr_code'),
-            actionWidget: CommonImage(
-              iconName: 'qrcode_icon.png',
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
+    return Scaffold(
+      backgroundColor: ThemeColor.color190,
+      appBar: CommonAppBar(
+        title: 'group_info'.localized(),
+        backgroundColor: ThemeColor.color190,
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.px),
+              color: ThemeColor.color180,
             ),
-            onTap: () {
-              OXNavigator.pushPage(
-                context,
-                    (context) => RelayGroupQrcodePage(groupId: widget.groupDB?.groupId ?? ''),
-              );
-            },
+            child: Column(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _hasEditMetadataPermission ? _handleImageSelection : null,
+                  child: Container(
+                    height: 76.px,
+                    margin: EdgeInsets.symmetric(horizontal: 16.px),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        MyText('Group Photo', 16.sp, ThemeColor.color0),
+                        Row(
+                          children: [
+                            _buildHeader(),
+                            Visibility(
+                              visible: _hasEditMetadataPermission,
+                              child: CommonImage(
+                                iconName: 'icon_arrow_more.png',
+                                size: 24.px,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                GroupItemBuild(
+                  title: 'str_group_ID'.localized(),
+                  subTitle: _groupDBInfo?.groupId ?? '',
+                  isShowMoreIcon: false,
+                ),
+                GroupItemBuild(
+                  title: 'group_name'.localized(),
+                  subTitle: _groupDBInfo?.name ?? '',
+                  isShowMoreIcon: _hasEditMetadataPermission,
+                  onTap: _hasEditMetadataPermission ? _changeGroupNameFn : null,
+                ),
+                GroupItemBuild(
+                  title: 'description'.localized(),
+                  titleDes: _groupDBInfo?.about ?? '',
+                  isShowMoreIcon: _hasEditMetadataPermission,
+                  isShowDivider: false,
+                  onTap: _showGroupAboutFn,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: 16.px),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.px),
+              color: ThemeColor.color180,
+            ),
+            child: GroupItemBuild(
+              title: Localized.text('ox_chat.group_qr_code'),
+              actionWidget: CommonImage(
+                iconName: 'qrcode_icon.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
+              ),
+              isShowDivider: false,
+              onTap: () {
+                OXNavigator.pushPage(
+                  context,
+                      (context) => RelayGroupQrcodePage(groupId: _groupDBInfo?.groupId ?? ''),
+                );
+              },
+            ),
+          ),
+        ],
+      ).setPadding(EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px)),
     );
+  }
+
+  Widget _buildHeader() {
+    Widget placeholderImage = CommonImage(
+      iconName: 'icon_group_default.png',
+      fit: BoxFit.fill,
+      size: 56.px,
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(56.px),
+      child: OXCachedNetworkImage(
+        errorWidget: (context, url, error) => placeholderImage,
+        placeholder: (context, url) => placeholderImage,
+        fit: BoxFit.fill,
+        imageUrl: _avatarAliyunUrl,
+        width: 56.px,
+        height: 56.px,
+      ),
+    );
+  }
+
+  void _changeGroupNameFn() {
+    OXNavigator.pushPage(context, (context) => RelayGroupEditPage(groupId: widget.groupId, pageType: EGroupEditType.groupName)).then((value){
+      if(value!=null && value is bool){
+        setState(() {
+          _loadData();
+        });
+      }
+    });
+  }
+
+  void _showGroupAboutFn() {
+    OXNavigator.pushPage(context, (context) => RelayGroupAboutShowPage(groupId: widget.groupId));
+  }
+
+  void _handleImageSelection() async {
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    bool storagePermission = false;
+    File? _imgFile;
+    if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt >= 34) {
+      Map<String, bool> result = await OXCommon.request34MediaPermission(1);
+      bool readMediaImagesGranted = result['READ_MEDIA_IMAGES'] ?? false;
+      bool readMediaVisualUserSelectedGranted = result['READ_MEDIA_VISUAL_USER_SELECTED'] ?? false;
+      if (readMediaImagesGranted) {
+        storagePermission = true;
+      } else if (readMediaVisualUserSelectedGranted) {
+        final filePaths = await OXCommon.select34MediaFilePaths(1);
+        _imgFile = File(filePaths[0]);
+        _uploadAndRefresh(_imgFile);
+      }
+    } else {
+      storagePermission = await PermissionUtils.getPhotosPermission();
+    }
+    if (storagePermission) {
+      final res = await ImagePickerUtils.pickerPaths(
+        galleryMode: GalleryMode.image,
+        selectCount: 1,
+        showGif: false,
+        compressSize: 2048,
+      );
+      _imgFile = (res[0].path == null) ? null : File(res[0].path ?? '');
+      _uploadAndRefresh(_imgFile);
+    } else {
+      CommonToast.instance.show(context, Localized.text('ox_common.str_grant_permission_photo_hint'));
+      return;
+    }
+  }
+
+  void _uploadAndRefresh(File? imgFile) async {
+    if (imgFile != null) {
+      await OXLoading.show();
+      final String url = await UplodAliyun.uploadFileToAliyun(
+        fileType: UplodAliyunType.imageType,
+        file: imgFile,
+        filename: _groupDBInfo?.name ?? '' +
+            DateTime.now().microsecondsSinceEpoch.toString() +
+            '_avatar01.png',
+      );
+      await OXLoading.dismiss();
+      if (url.isNotEmpty) {
+        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', _avatarAliyunUrl, '');
+        if (!event.status) {
+          CommonToast.instance.show(context, event.message);
+          return;
+        }
+        if (mounted) {
+          setState(() {
+            _avatarAliyunUrl = url;
+          });
+        }
+      }
+    }
   }
 }
 
@@ -213,7 +375,7 @@ class GroupItemBuild extends StatelessWidget {
                       ),
                       titleDes != null
                           ? Container(
-                              width: 280.px,
+                              width: Adapt.screenW() - 104.px,
                               margin: EdgeInsets.only(
                                 top: 4.px,
                               ),

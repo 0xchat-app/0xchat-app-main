@@ -1,16 +1,16 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
-enum EGroupEditType { groupName, notice }
+enum EGroupEditType { groupName, notice, about }
 
 extension EGroupEditTypeStr on EGroupEditType {
   String get title {
@@ -19,6 +19,8 @@ extension EGroupEditTypeStr on EGroupEditType {
         return Localized.text('ox_chat.edit_group_name');
       case EGroupEditType.notice:
         return Localized.text('ox_chat.edit_group_notice');
+      case EGroupEditType.about:
+        return Localized.text('ox_chat.str_edit_group_about');
     }
   }
 
@@ -28,6 +30,8 @@ extension EGroupEditTypeStr on EGroupEditType {
         return Localized.text('ox_chat.group_name_item');
       case EGroupEditType.notice:
         return Localized.text('ox_chat.group_notice');
+      case EGroupEditType.about:
+        return Localized.text('ox_chat.str_group_about');
     }
   }
 
@@ -37,6 +41,8 @@ extension EGroupEditTypeStr on EGroupEditType {
         return Localized.text('ox_chat.edit_group_name_hint');
       case EGroupEditType.notice:
         return Localized.text('ox_chat.edit_group_notice_hint');
+      case EGroupEditType.about:
+        return Localized.text('ox_chat.str_edit_group_about_hint');
     }
   }
 }
@@ -46,17 +52,19 @@ class RelayGroupEditPage extends StatefulWidget {
   final String groupId;
 
   RelayGroupEditPage({required this.pageType, required this.groupId});
+
   @override
   State<StatefulWidget> createState() => new _RelayGroupEditPageState();
 }
 
 class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   TextEditingController _groupNameController = TextEditingController();
+  TextEditingController _groupAboutController = TextEditingController();
   TextEditingController _groupNoticeController = TextEditingController();
 
   bool _isShowDelete = false;
 
-  RelayGroupDB? groupDBInfo = null;
+  RelayGroupDB? _groupDBInfo = null;
 
   @override
   void initState() {
@@ -69,12 +77,13 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
     super.dispose();
   }
 
-  void _groupInfoInit() async {
-    RelayGroupDB? groupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
+  void _groupInfoInit() {
+    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
 
     if (groupDB != null) {
-      groupDBInfo = groupDB;
-
+      _groupDBInfo = groupDB;
+      _groupNameController.text = _groupDBInfo?.name ?? '';
+      _groupAboutController.text = _groupDBInfo?.about ?? '';
       setState(() {});
     }
   }
@@ -86,7 +95,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: '',
+        title: widget.pageType.title,
         backgroundColor: ThemeColor.color190,
         actions: [
           _appBarActionWidget(),
@@ -97,26 +106,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
       ),
       body: Container(
         width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: Adapt.px(24),
-              ),
-              child: Text(
-                widget.pageType.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: Adapt.px(24),
-                  fontWeight: FontWeight.w600,
-                  color: ThemeColor.color0,
-                ),
-              ),
-            ),
-            _EditGroupInfoWidget(),
-          ],
-        ),
+        child: _EditGroupInfoWidget(),
       ),
     );
   }
@@ -137,9 +127,9 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
           child: Text(
             Localized.text('ox_common.complete'),
             style: TextStyle(
-              fontSize: Adapt.px(16),
+              fontSize: 16.px,
               color: Colors.white,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -150,12 +140,8 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   Widget _EditGroupInfoWidget() {
     EGroupEditType type = widget.pageType;
     return Container(
-      padding: EdgeInsets.only(
-        top: Adapt.px(24),
-      ),
-      margin: EdgeInsets.symmetric(
-        horizontal: Adapt.px(30),
-      ),
+      margin: EdgeInsets.only(top: 24.px),
+      padding: EdgeInsets.symmetric(horizontal: 30.px),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -176,7 +162,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
             controller: _getTextController(),
             hintText: _getTextHintText(),
             maxLines: null,
-            height: type == EGroupEditType.notice ? Adapt.px(110) : null,
+            height: type == EGroupEditType.about ? Adapt.px(110) : null,
           )
         ],
       ),
@@ -184,22 +170,15 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   }
 
   String _getTextHintText() {
-    String textHint = '';
-    switch (widget.pageType) {
-      case EGroupEditType.groupName:
-        textHint = groupDBInfo?.name ?? '';
-        break;
-      case EGroupEditType.notice:
-        textHint = groupDBInfo?.pinned?[0] ?? '';
-        break;
-    }
-    return textHint.isEmpty ? widget.pageType.hintText : textHint;
+    return widget.pageType.hintText;
   }
 
   TextEditingController _getTextController() {
     switch (widget.pageType) {
       case EGroupEditType.groupName:
         return _groupNameController;
+      case EGroupEditType.about:
+        return _groupAboutController;
       case EGroupEditType.notice:
         return _groupNoticeController;
     }
@@ -274,6 +253,8 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
         return _updateGroupName();
       case EGroupEditType.notice:
         return _updateGroupNotice();
+      case EGroupEditType.about:
+        return _updateGroupAbout();
     }
   }
 
@@ -282,22 +263,27 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
     if (groupNameContent.isEmpty) {
       CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_name_not_empty_toast'));
     }
-    OKEvent event = await Groups.sharedInstance
-        .updatePrivateGroupName(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, widget.groupId, groupNameContent);
+    OKEvent event = await RelayGroup.sharedInstance
+        .editMetadata(widget.groupId, groupNameContent, _groupDBInfo?.about ?? '', _groupDBInfo?.picture ?? '', '');
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
       return;
     }
+    OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
+    OXNavigator.pop(context, true);
+  }
+
+  void _updateGroupAbout() async {
+    String groupAboutContent = _groupAboutController.text;
+    if (groupAboutContent.isEmpty)
+      return CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_notice_not_empty_toast'));
+    OKEvent event = await RelayGroup.sharedInstance.editMetadata(
+        widget.groupId, _groupDBInfo?.name ?? '', groupAboutContent, _groupDBInfo?.picture ?? '', '');
+    if (!event.status) return CommonToast.instance.show(context, event.message);
     OXNavigator.pop(context, true);
   }
 
   void _updateGroupNotice() async {
-    // String groupNoticeContent = _groupNoticeController.text;
-    // if (groupNoticeContent.isEmpty)
-    //   return CommonToast.instance.show(context, Localized.text('ox_chat.edit_group_notice_not_empty_toast'));
-    // OKEvent event = await RelayGroup.sharedInstance
-    //     .updateGroupPinned(widget.groupId, '${Localized.text('ox_chat.pin')}: \"$groupNoticeContent\"', groupNoticeContent);
-    // if (!event.status) return CommonToast.instance.show(context, event.message);
-    // OXNavigator.pop(context, true);
+    //TODO future need function
   }
 }
