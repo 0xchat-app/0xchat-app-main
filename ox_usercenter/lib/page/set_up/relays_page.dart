@@ -31,14 +31,18 @@ class RelaysPage extends StatefulWidget {
 
 class _RelaysPageState extends State<RelaysPage> {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  late List<RelayDB> _generalRelayList = [];
-  late List<RelayDB> _generalRecommendRelayList = [];
-  late List<RelayDB> _dmRelayList = [];
-  late List<RelayDB> _dmRecommendRelayList = [];
+  final Map<RelayType,List<RelayDB>> _relayListMap = {
+    RelayType.general: [],
+    RelayType.dm: []
+  };
+  final Map<RelayType,List<RelayDB>> _recommendRelayListMap = {
+    RelayType.general: [],
+    RelayType.dm: []
+  };
   bool _isEditing = false;
   bool _isShowDelete = false;
   final RelaySelectableController _relaySelectableController = RelaySelectableController();
-  RelayType _relayType = RelayType.private;
+  RelayType _relayType = RelayType.general;
 
   @override
   void initState() {
@@ -61,10 +65,10 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   void _initDefault() async {
-    _generalRelayList = Account.sharedInstance.getMyGeneralRelayList();
-    _generalRecommendRelayList = Account.sharedInstance.getMyRecommendGeneralRelaysList();
-    _dmRelayList = Account.sharedInstance.getMyDMRelayList();
-    _dmRecommendRelayList = Account.sharedInstance.getMyRecommendDMRelaysList();
+    _relayListMap[RelayType.general] = Account.sharedInstance.getMyGeneralRelayList();
+    _recommendRelayListMap[RelayType.general] = Account.sharedInstance.getMyRecommendGeneralRelaysList();
+    _relayListMap[RelayType.dm] = Account.sharedInstance.getMyDMRelayList();
+    _recommendRelayListMap[RelayType.dm] = Account.sharedInstance.getMyRecommendDMRelaysList();
     Connect.sharedInstance.addConnectStatusListener((relay, status) {
         didRelayStatusChange(relay, status);
     });
@@ -118,130 +122,141 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   Widget _body() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          RelaySelectableTabBar(
-            tabs: RelayType.values.map((e) => e.name()).toList(),
-            tabTips: RelayType.values.map((e) => e.tips()).toList(),
-            controller: _relaySelectableController,
-          ).setPaddingOnly(top: 12.px),
-          Container(
-            width: double.infinity,
-            height: Adapt.px(46),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              Localized.text('ox_usercenter.connect_relay'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
+    List<RelayDB> _relayList = _relayListMap[_relayType]!;
+    List<RelayDB> _recommendRelayList = _recommendRelayListMap[_relayType]!;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            RelaySelectableTabBar(
+              tabs: RelayType.values.map((e) => e.name()).toList(),
+              tabTips: RelayType.values.map((e) => e.tips()).toList(),
+              controller: _relaySelectableController,
+            ).setPaddingOnly(top: 12.px),
+            Container(
+              width: double.infinity,
+              height: Adapt.px(46),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                // Localized.text('ox_usercenter.connect_relay'),
+                'CONNECT TO ${_relayType.sign()} RELAY',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(14),
+                ),
               ),
             ),
-          ),
-          _inputRelay(),
-          SizedBox(
-            height: Adapt.px(12),
-          ),
-          _isShowDelete
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _relayTextFieldControll.text = '';
-                            _isShowDelete = false;
-                          });
-                        },
-                        child: Container(
-                          height: Adapt.px(36),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Adapt.px(8)),
-                            color: ThemeColor.color180,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            Localized.text('ox_common.cancel'),
-                            style: TextStyle(
-                              fontSize: Adapt.px(14),
-                              color: ThemeColor.color0,
+            _inputRelay(),
+            SizedBox(
+              height: Adapt.px(12),
+            ),
+            _isShowDelete
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _relayTextFieldControll.text = '';
+                              _isShowDelete = false;
+                            });
+                          },
+                          child: Container(
+                            height: Adapt.px(36),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(Adapt.px(8)),
+                              color: ThemeColor.color180,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              Localized.text('ox_common.cancel'),
+                              style: TextStyle(
+                                fontSize: Adapt.px(14),
+                                color: ThemeColor.color0,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: Adapt.px(12),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onTap: _addOnTap,
-                        child: Container(
-                          height: Adapt.px(36),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Adapt.px(8)),
-                            gradient: LinearGradient(
-                              colors: [
-                                ThemeColor.gradientMainEnd,
-                                ThemeColor.gradientMainStart,
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
+                      SizedBox(
+                        width: Adapt.px(12),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: _addOnTap,
+                          child: Container(
+                            height: Adapt.px(36),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(Adapt.px(8)),
+                              gradient: LinearGradient(
+                                colors: [
+                                  ThemeColor.gradientMainEnd,
+                                  ThemeColor.gradientMainStart,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
                             ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Add',
-                            style: TextStyle(
-                              fontSize: Adapt.px(14),
-                              color: ThemeColor.color0,
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Add',
+                              style: TextStyle(
+                                fontSize: Adapt.px(14),
+                                color: ThemeColor.color0,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                )
-              : Container(),
-          Container(
-            width: double.infinity,
-            height: Adapt.px(58),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              Localized.text('ox_usercenter.connected_relay'),
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
+                    ],
+                  )
+                : Container(),
+            Container(
+              width: double.infinity,
+              height: Adapt.px(58),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                // Localized.text('ox_usercenter.connected_relay'),
+                'CONNECTED TO ${_relayType.sign()} RELAY',
+                style: TextStyle(
+                  color: ThemeColor.color0,
+                  fontSize: Adapt.px(16),
+                ),
               ),
             ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Adapt.px(16)),
-              color: ThemeColor.color180,
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Adapt.px(16)),
+                color: ThemeColor.color180,
+              ),
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: _itemBuild,
+                itemCount: _relayList.length,
+                padding: EdgeInsets.zero,
+              ),
             ),
-            child: ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: _itemBuild,
-              itemCount: _generalRelayList.length,
-              padding: EdgeInsets.zero,
-            ),
-          ),
-          RelayCommendWidget(_generalRecommendRelayList, (RelayDB relayDB) {
-            _addOnTap(upcomingRelay: relayDB.url);
-          }),
-        ],
-      ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
+            RelayCommendWidget(_recommendRelayList, (RelayDB relayDB) {
+              _addOnTap(upcomingRelay: relayDB.url);
+            }),
+          ],
+        ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
+      ),
     );
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    RelayDB _model = _generalRelayList[index];
+    List<RelayDB> _relayList = _relayListMap[_relayType]!;
+    RelayDB _model = _relayList[index];
     return Column(
       children: [
         SizedBox(
@@ -273,7 +288,7 @@ class _RelaysPageState extends State<RelaysPage> {
             trailing: _relayStateImage(_model),
           ),
         ),
-        _generalRelayList.length > 1 && _generalRelayList.length - 1 != index
+        _relayList.length > 1 && _relayList.length - 1 != index
             ? Divider(
                 height: Adapt.px(0.5),
                 color: ThemeColor.color160,
@@ -393,17 +408,26 @@ class _RelaysPageState extends State<RelaysPage> {
 
   void _addOnTap({String? upcomingRelay}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
+    List<RelayDB> _relayList = _relayListMap[_relayType]!;
+    List<RelayDB> _recommendRelayList = _recommendRelayListMap[_relayType]!;
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
     }
-    if (_generalRelayList.contains(upcomingRelay)) {
+    if (_relayList.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
-      await Account.sharedInstance.addGeneralRelay(upcomingRelay);
-      _generalRecommendRelayList.removeWhere((element) => element.url == upcomingRelay);
+      switch(_relayType) {
+        case RelayType.general:
+          await Account.sharedInstance.addGeneralRelay(upcomingRelay);
+          break;
+        case RelayType.dm:
+          await Account.sharedInstance.addDMRelay(upcomingRelay);
+          break;
+      }
+      _recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
-        _generalRelayList.add(RelayDB(url: upcomingRelay!));
+        _relayList.add(RelayDB(url: upcomingRelay!));
       });
     }
   }
@@ -419,7 +443,14 @@ class _RelaysPageState extends State<RelaysPage> {
           OXCommonHintAction.sure(
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
-                await Account.sharedInstance.removeGeneralRelay(relayModel.url);
+                switch(_relayType) {
+                  case RelayType.general:
+                    await Account.sharedInstance.removeGeneralRelay(relayModel.url);
+                    break;
+                  case RelayType.dm:
+                    await Account.sharedInstance.removeDMRelay(relayModel.url);
+                    break;
+                }
                 OXNavigator.pop(context);
                 _initDefault();
               }),
@@ -429,23 +460,32 @@ class _RelaysPageState extends State<RelaysPage> {
 }
 
 enum RelayType {
-  private,
-  general
+  general,
+  dm,
 }
 
 extension RelayTypeExtension on RelayType {
   String name() {
     switch (this) {
-      case RelayType.private:
-        return 'Private Relays';
+      case RelayType.dm:
+        return 'DM Relays';
       case RelayType.general:
         return 'General Relays';
     }
   }
 
+  String sign() {
+    switch (this) {
+      case RelayType.dm:
+        return 'DM';
+      case RelayType.general:
+        return 'GENERAL';
+    }
+  }
+
   String tips() {
     switch (this) {
-      case RelayType.private:
+      case RelayType.dm:
         return "Insert between 1-3 relays to store events no one else cansee, like your Drafts and/or app settings. ldeally, theserelays are either local or require authentication before downloading each user's content.";
       case RelayType.general:
         return "Amethyst uses these relays to download posts for you.";
