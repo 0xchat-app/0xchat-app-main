@@ -118,11 +118,22 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _groupBaseInfoView() {
-    return RelayGroupBaseInfoView(
-      relayGroup: groupDBInfo,
-      groupQrCodeFn: () {
-        _DisableShareDialog(true);
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        OXNavigator.pushPage(
+          context,
+              (context) => RelayGroupBaseInfoPage(
+            groupDB: groupDBInfo,
+          ),
+        );
       },
+      child: RelayGroupBaseInfoView(
+        relayGroup: groupDBInfo,
+        groupQrCodeFn: () {
+          _DisableShareDialog(true);
+        },
+      ),
     );
   }
 

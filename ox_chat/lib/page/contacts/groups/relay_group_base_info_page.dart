@@ -17,7 +17,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/21 18:06
 class RelayGroupBaseInfoPage extends StatefulWidget {
-  final RelayGroupDB groupDB;
+  final RelayGroupDB? groupDB;
 
   RelayGroupBaseInfoPage({
     super.key,
@@ -57,17 +57,17 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
               ),
               GroupItemBuild(
                 title: 'str_group_ID'.localized(),
-                subTitle: widget.groupDB.groupId,
+                subTitle: widget.groupDB?.groupId ?? '',
                 isShowMoreIcon: false,
               ),
               GroupItemBuild(
                 title: 'group_name'.localized(),
-                subTitle: widget.groupDB.name,
+                subTitle: widget.groupDB?.name ?? '',
                 isShowMoreIcon: false,
               ),
               GroupItemBuild(
                 title: 'description'.localized(),
-                titleDes: widget.groupDB.about,
+                titleDes: widget.groupDB?.about ?? '',
                 isShowMoreIcon: false,
               ),
             ],
@@ -89,7 +89,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
             onTap: () {
               OXNavigator.pushPage(
                 context,
-                    (context) => RelayGroupQrcodePage(groupId: widget.groupDB.groupId),
+                    (context) => RelayGroupQrcodePage(groupId: widget.groupDB?.groupId ?? ''),
               );
             },
           ),
