@@ -301,5 +301,10 @@
   "str_group_edit_admin_right": "编辑管理员权限",
   "str_group_dismiss_admin": "撤销管理员",
   "str_add_admin_search_hint": "您想添加谁？",
-  "str_group_admin_right_title": "管理员权限"
+  "str_group_admin_right_title": "管理员权限",
+  "str_group_about": "群描述",
+  "str_edit_group_about": "编辑群描述",
+  "str_edit_group_about_hint": "这是群描述",
+  "str_edit_group_about_not_empty_toast": "群描述不能为空",
+  "str_group_type_change_hint": "更改类型"
 }
