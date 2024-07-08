@@ -47,7 +47,18 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
 
   void _loadData() {
     _showPermissions = GroupActionKind.values;
-    _currentPermissionKinds = _showPermissions.map((e) => e.kind).toSet();
+    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userDB != null && widget.relayGroupDB.admins != null && widget.relayGroupDB.admins!.length > 0) {
+      List<GroupActionKind>? userPermissions;
+      try {
+        userPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == userDB.pubKey).permissions;
+        _currentPermissionKinds = userPermissions.map((e) => e.kind).toSet();
+        LogUtil.e('Michael: ---userPermissions =${userPermissions.toString()}');
+      } catch (e) {
+        userPermissions = [];
+        LogUtil.e('No admin found with pubkey: ${userDB.pubKey}');
+      }
+    }
   }
 
   @override
@@ -74,14 +85,12 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                   borderRadius: BorderRadius.circular(16.px),
                   color: ThemeColor.color180,
                 ),
-                margin: EdgeInsets.symmetric(horizontal: 24.px, vertical: 12.px),
-                child: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return _buildListViewItem(context, index);
-                    },
-                    childCount: _showPermissions.length,
-                  ),
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 0),
+                  physics: const BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: _buildListViewItem,
+                  itemCount: _showPermissions.length,
                 ),
               ),
             ),
@@ -154,6 +163,7 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                   final okEvent = value ? await RelayGroup.sharedInstance.addPermission(widget.relayGroupDB.groupId, widget.userDB?.pubKey ?? '', groupActionKind.name, '')
                       :  await RelayGroup.sharedInstance.removePermission(widget.relayGroupDB.groupId, widget.userDB?.pubKey ?? '', groupActionKind.name, '');
                   await OXLoading.dismiss();
+                  LogUtil.e('Michael:--value =${value}; ---status: ${okEvent.status}');
                   if (okEvent.status) {
                     setState(() {
                       _currentPermissionKinds.add(groupActionKind.kind);
@@ -167,7 +177,7 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
           ),
         ),
         Visibility(
-          visible: index < _showPermissions.length,
+          visible: index < _showPermissions.length - 1,
           child: Divider(
             height: Adapt.px(0.5),
             color: ThemeColor.color160,

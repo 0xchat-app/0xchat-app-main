@@ -44,10 +44,6 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
   @override
   void initState() {
     super.initState();
-    _groupMembers.add(UserDB(pubKey: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, name: 'Elon Musk', lastUpdatedTime: 82492342423423));
-    _groupMembers.add(UserDB(pubKey: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, name: 'Era', lastUpdatedTime: 82492342423423));
-    _groupMembers.add(UserDB(pubKey: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, name: 'Michael', lastUpdatedTime: 82492342423423));
-    _groupMembers.add(UserDB(pubKey: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, name: 'npub342...2342', lastUpdatedTime: 82492342423423));
     _controller.addListener(() {
       if (_controller.text.isNotEmpty) {
         _isClear.value = true;
@@ -55,7 +51,6 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
         _isClear.value = false;
       }
     });
-    _filterGroupMembers = _groupMembers;
     fetchUserList();
   }
 
@@ -64,7 +59,7 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
     List<GroupAdmin>? loadAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.relayGroupDB.groupId);
     if (loadAdmins != null){
       Set<String> adminPubkeys = loadAdmins.map((admin) => admin.pubkey).toSet();
-      _groupMembers = localGroupMembers.where((member) => adminPubkeys.contains(member.pubKey)).toList();
+      _groupMembers = localGroupMembers.where((member) => !adminPubkeys.contains(member.pubKey)).toList();
       _filterGroupMembers = _groupMembers;
       _groupAdmins = loadAdmins;
       setState(() {});
