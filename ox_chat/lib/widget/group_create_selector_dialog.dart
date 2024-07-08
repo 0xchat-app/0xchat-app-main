@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -14,7 +15,10 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/20 14:39
 class GroupCreateSelectorDialog extends StatefulWidget {
-  const GroupCreateSelectorDialog({Key? key}) : super(key: key);
+  final String titleTxT;
+  final bool? isChangeType;
+
+  const GroupCreateSelectorDialog({Key? key, required this.titleTxT, this.isChangeType}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -23,11 +27,14 @@ class GroupCreateSelectorDialog extends StatefulWidget {
 }
 
 class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
-  final List<GroupType> _itemModelList = GroupType.values;
+  List<GroupType> _itemModelList = GroupType.values;
 
   @override
   void initState() {
     super.initState();
+    if (widget.isChangeType != null && widget.isChangeType!) {
+      _itemModelList = [GroupType.openGroup, GroupType.closeGroup];
+    }
   }
 
   @override
@@ -37,13 +44,13 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
-      height: (78.5 * 4 + 41 + 8).px,
+      height: (78.5 * (_itemModelList.length + 1) + 41 + 8).px,
       child: ListView(
         children: [
           SizedBox(
             height: 41.px,
             child: Center(
-              child: MyText('str_group_create_hint'.localized(), 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
+              child: MyText(widget.titleTxT, 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
             ),
           ),
           for (var tempItem in _itemModelList)
@@ -60,7 +67,9 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                     alignment: Alignment.center,
                     width: double.infinity,
                     height: 78.px,
-                    margin: EdgeInsets.symmetric(horizontal: 16.px,),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: 16.px,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,

@@ -132,7 +132,7 @@ class CommunityMenuOptionModel {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return const GroupCreateSelectorDialog();
+        return GroupCreateSelectorDialog(titleTxT: 'str_group_create_hint'.localized());
       },
     );
     if (result != null && result is GroupType) {
