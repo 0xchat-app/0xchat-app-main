@@ -30,7 +30,7 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
       return await eventIdToMessageContent(
-          tempMap?['channelId'], nostrScheme, tempMap?['relays']);
+          tempMap?['channelId'], nostrScheme, tempMap?['relays'].cast<String>());
     } else if (nostrScheme.startsWith('nostr:naddr') ||
         nostrScheme.startsWith('naddr')) {
       if (nostrScheme.startsWith('nostr:')) {

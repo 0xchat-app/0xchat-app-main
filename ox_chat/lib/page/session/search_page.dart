@@ -749,18 +749,17 @@ class SearchPageState extends State<SearchPage> {
   Future<void> _updateSearchHistory(UserDB? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
-      await DB.sharedInstance.insert<RecentSearchUser>(RecentSearchUser(
+      await DB.sharedInstance.insertBatch<RecentSearchUser>(RecentSearchUser(
         pubKey: userPubkey,
       ));
     } else {
-      final int count =
-          await DB.sharedInstance.insert<SearchHistoryModel>(SearchHistoryModel(
+      await DB.sharedInstance.insertBatch<SearchHistoryModel>(SearchHistoryModel(
         searchTxt: searchQuery,
         pubKey: userDB?.pubKey ?? null,
         name: userDB?.name ?? null,
         picture: userDB?.picture ?? null,
       ));
-      LogUtil.e('Michael: _updateSearchHistory count =${count}');
+      LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }
 

@@ -103,7 +103,7 @@ class EcashHelper {
       tokenMD5: EncryptUtils.generateMd5(token),
       isMe: false,
     );
-    await DB.sharedInstance.insert<EcashReceiptHistory>(history);
+    await DB.sharedInstance.insertBatch<EcashReceiptHistory>(history);
     return history;
   }
 
