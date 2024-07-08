@@ -29,7 +29,7 @@ class MinioUploader {
   }) {
     _instance = MinioUploader._internal();
     final uri = Uri.parse(url);
-    String endPoint = uri.hasScheme ? url.replaceFirst('${uri.scheme}://', '') : url ;
+    String endPoint = uri.host;
     final useSSL = uri.scheme == 'https';
     final port = uri.port == 0 ? null : uri.port;
     _instance!._minio = Minio(
