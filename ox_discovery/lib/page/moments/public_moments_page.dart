@@ -385,7 +385,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         isInit
             ? _refreshController.refreshCompleted()
             : _refreshController.loadNoData();
-        if (!isPrivateMoment) await _getNotesFromRelay();
+        if (!isPrivateMoment && !isInit) await _getNotesFromRelay();
         return;
       }
 
@@ -393,7 +393,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       _updateUI(showList, isInit, list.length);
 
       if (list.length < _limit) {
-        !isPrivateMoment
+        !isPrivateMoment && !isInit
             ? await _getNotesFromRelay()
             : _refreshController.loadNoData();
       }
