@@ -409,6 +409,7 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     if (isLogin) {
+      DB.sharedInstance.startHeartBeat();
       Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();
