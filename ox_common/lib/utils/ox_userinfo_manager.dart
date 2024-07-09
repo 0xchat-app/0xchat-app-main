@@ -252,6 +252,10 @@ class OXUserInfoManager {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
 
+    RelayGroup.sharedInstance.noteCallBack = (NoteDB notes) {
+      OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
+    };
+
     Messages.sharedInstance.actionsCallBack = (MessageDB message) {
       OXChatBinding.sharedInstance.messageActionsCallBack(message);
     };

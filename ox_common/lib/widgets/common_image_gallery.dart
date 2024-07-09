@@ -23,6 +23,7 @@ import 'package:path_provider/path_provider.dart';
 
 typedef DoubleClickAnimationListener = void Function();
 
+
 class SmoothPageScrollPhysics extends ScrollPhysics {
   final double scrollSpeedMultiplier;
 
@@ -62,23 +63,23 @@ class SmoothPageScrollPhysics extends ScrollPhysics {
 
   @override
   double frictionFactor(double overscrollFraction) {
-    return 0.3 * math.pow(1 - overscrollFraction, 2);
+    return 0.1 * math.pow(1 - overscrollFraction, 2);
   }
 
   @override
   SpringDescription get spring {
     return SpringDescription.withDampingRatio(
       mass: 0.5,
-      stiffness: 100.0,
-      ratio: 1.1,
+      stiffness: 80.0,
+      ratio: 1,
     );
   }
 
   @override
-  double get minFlingVelocity => kMinFlingVelocity * 0.5;
+  double get minFlingVelocity => kMinFlingVelocity * 0.05;
 
   @override
-  double get dragStartDistanceMotionThreshold => 3.5;
+  double get dragStartDistanceMotionThreshold => 0.1;
 }
 
 class CommonImageGallery extends StatefulWidget {
@@ -125,7 +126,9 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     )..addListener(() {
         double? page = _pageController.page;
         if (page != null) {
+          _offset = Offset.zero;
           isScrollComplete = page % 1 == 0;
+          setState(() {});
         }
       });
     _doubleClickAnimationController = AnimationController(
