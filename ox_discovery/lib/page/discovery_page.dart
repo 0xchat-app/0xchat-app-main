@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -54,12 +55,15 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
 
+  bool _isLogin = false;
+
   @override
   void initState() {
     super.initState();
     Connect.sharedInstance.addConnectStatusListener((relay, status) {
       if(mounted) setState(() {});
     });
+    _isLogin = OXUserInfoManager.sharedInstance.isLogin;
   }
 
   void _momentPublic(){
@@ -243,10 +247,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
         },
       ),
-      SizedBox(
-        width: Adapt.px(20),
-      ),
-      SizedBox(
+      _isLogin ? SizedBox(
         height: Adapt.px(24),
         child: GestureDetector(
           onTap: () {
@@ -274,7 +275,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             ],
           ),
         ),
-      ),
+      ).setPaddingOnly(left: 20.px) : Container(),
       SizedBox(
         width: Adapt.px(24),
       ),

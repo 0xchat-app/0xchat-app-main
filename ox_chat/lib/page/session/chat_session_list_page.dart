@@ -205,7 +205,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
               )),
           actions: <Widget>[
-            SizedBox(
+            _isLogin ? SizedBox(
               height: Adapt.px(24),
               child: GestureDetector(
                 onTap: () {
@@ -233,7 +233,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   ],
                 ),
               ),
-            ),
+            ) : Container(),
             SizedBox(
               width: Adapt.px(24),
             ),
