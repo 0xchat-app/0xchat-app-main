@@ -92,10 +92,11 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
     final groupId = widget.communityItem.groupId;
     if (groupId == null) return ;
     relayGroup = RelayGroup.sharedInstance.groups[groupId];
-    if (relayGroup == null) {
+    if (relayGroup != null) {
       RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId).then((relayGroupDB) {
         if (!mounted) return ;
         if (relayGroupDB != null) {
+          _updateChatStatus();
           setState(() {
             relayGroup = relayGroupDB;
           });

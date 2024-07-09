@@ -9,6 +9,7 @@ import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/chat_history_for_new_members_selector_dialog.dart';
 import 'package:ox_chat/widget/group_create_selector_dialog.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -47,6 +48,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   bool _hasAddUserPermission = false;
   bool _hasRemoveUserPermission = false;
   bool _hasAddPermission = false;
+  bool _hasEditGroupStatusPermission = false;
   UserDB? userDB;
 
   @override
@@ -66,6 +68,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     _hasAddUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addUser]);
     _hasRemoveUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.removeUser]);
     _hasAddPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addPermission]);
+    _hasEditGroupStatusPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.editGroupStatus]);
   }
 
   @override
@@ -284,13 +287,21 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           GroupItemBuild(
             title: Localized.text('ox_chat.str_group_type'),
             subTitle: groupDBInfo != null
-                ? (groupDBInfo!.private ? GroupType.closeGroup.text : GroupType.openGroup.text)
+                ? (groupDBInfo!.closed ? GroupType.closeGroup.text : GroupType.openGroup.text)
                 : '--',
             subTitleIcon: groupDBInfo != null
-                ? (groupDBInfo!.private ? GroupType.closeGroup.typeIcon : GroupType.openGroup.typeIcon)
+                ? (groupDBInfo!.closed ? null : GroupType.openGroup.typeIcon)
                 : null,
             onTap: _updateGroupTypeFn,
-            isShowMoreIcon: _isGroupMember,
+            isShowMoreIcon: _hasEditGroupStatusPermission,
+          ),
+          GroupItemBuild(
+            title: Localized.text('ox_chat.str_chat_history_for_new_members'),
+            subTitle: groupDBInfo != null
+                ? (groupDBInfo!.private ? ChatHistoryForNewMembersType.hidden.text : ChatHistoryForNewMembersType.show.text)
+                : '--',
+            onTap: _updateGroupHistoryStatusFn,
+            isShowMoreIcon: _hasEditGroupStatusPermission,
           ),
           GroupItemBuild(
             title: Localized.text('ox_chat.str_group_relay'),
@@ -560,6 +571,29 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     );
   }
 
+  void _updateGroupHistoryStatusFn() async {
+    var result = await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ChatHistoryForNewMembersSelectorDialog(titleTxT: 'str_chat_history_for_new_members_change_type_hint'.localized(), isChangeType: true,);
+      },
+    );
+    if (result != null && result is ChatHistoryForNewMembersType) {
+      await OXLoading.show();
+      bool privateType = result == ChatHistoryForNewMembersType.show ? false : true;
+      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, groupDBInfo?.closed ?? false, privateType, '');
+      await OXLoading.dismiss();
+      if (!event.status) return CommonToast.instance.show(context, event.message);
+      setState(() {
+        RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        if (groupDB != null) {
+          groupDBInfo = groupDB;
+        }
+      });
+    }
+  }
+
   void _updateGroupTypeFn() async {
     var result = await showModalBottomSheet(
       context: context,
@@ -571,7 +605,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     if (result != null && result is GroupType) {
       await OXLoading.show();
       bool privateType = result == GroupType.openGroup ? false : true;
-      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, privateType, privateType, '');
+      OKEvent event = await RelayGroup.sharedInstance.editGroupStatus(widget.groupId, privateType, groupDBInfo?.private ?? false, '');
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {

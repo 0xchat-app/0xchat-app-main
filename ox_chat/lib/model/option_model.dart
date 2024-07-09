@@ -16,6 +16,30 @@ enum OptionModel {
   NewChannel,
 }
 
+enum ChatHistoryForNewMembersType{
+  show,
+  hidden,
+}
+
+extension ChatHistoryForNewMembersTypeEx on ChatHistoryForNewMembersType{
+  String get text {
+    switch (this) {
+      case ChatHistoryForNewMembersType.show:
+        return 'str_chat_history_for_new_members_show'.localized();
+      case ChatHistoryForNewMembersType.hidden:
+        return 'str_chat_history_for_new_members_hidden'.localized();
+    }
+  }
+
+  String get typeDesc {
+    switch (this) {
+      case ChatHistoryForNewMembersType.show:
+        return 'str_group_open_description'.localized();
+      case ChatHistoryForNewMembersType.hidden:
+        return 'str_group_close_description'.localized();
+    }
+  }
+}
 
 enum GroupType{
   openGroup,

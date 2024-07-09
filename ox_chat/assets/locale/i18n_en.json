@@ -307,5 +307,9 @@
   "str_edit_group_about": "Edit Group Description",
   "str_edit_group_about_hint": "This is Group Description",
   "str_edit_group_about_not_empty_toast": "The description cannot be empty",
-  "str_group_type_change_hint": "Change Type"
+  "str_group_type_change_hint": "Change Type",
+  "str_chat_history_for_new_members_change_type_hint": "Change Type",
+  "str_chat_history_for_new_members": "Chat history for new members",
+  "str_chat_history_for_new_members_show": "Show",
+  "str_chat_history_for_new_members_hidden": "Hidden"
 }
