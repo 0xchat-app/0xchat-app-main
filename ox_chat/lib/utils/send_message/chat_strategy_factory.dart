@@ -282,7 +282,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       messageType,
       contentString,
       previous,
-      replyEvent: replayId,
+      rootEvent: replayId,
       decryptSecret: decryptSecret,
       source: source,
     );
