@@ -275,7 +275,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             ],
           ),
         ),
-      ).setPaddingOnly(left: 20.px) : Container(),
+      ).setPaddingOnly(left: 20.px) : const SizedBox(),
       SizedBox(
         width: Adapt.px(24),
       ),

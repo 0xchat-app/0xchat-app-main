@@ -233,7 +233,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                   ],
                 ),
               ),
-            ) : Container(),
+            ) : SizedBox(),
             SizedBox(
               width: Adapt.px(24),
             ),
