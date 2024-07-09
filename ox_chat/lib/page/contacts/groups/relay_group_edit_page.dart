@@ -4,6 +4,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -63,6 +64,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   TextEditingController _groupNoticeController = TextEditingController();
 
   bool _isShowDelete = false;
+  bool _hasEditMetadataPermission = false;
 
   RelayGroupDB? _groupDBInfo = null;
 
@@ -84,6 +86,11 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
       _groupDBInfo = groupDB;
       _groupNameController.text = _groupDBInfo?.name ?? '';
       _groupAboutController.text = _groupDBInfo?.about ?? '';
+      UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+      if (myUserDB != null) {
+        _hasEditMetadataPermission = RelayGroup.sharedInstance.hasPermissions(
+            groupDB.admins ?? [], myUserDB.pubKey, [GroupActionKind.editMetadata]);
+      }
       setState(() {});
     }
   }
@@ -98,7 +105,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
         title: widget.pageType.title,
         backgroundColor: ThemeColor.color190,
         actions: [
-          _appBarActionWidget(),
+          if(_hasEditMetadataPermission) _appBarActionWidget(),
           SizedBox(
             width: Adapt.px(24),
           ),
@@ -207,14 +214,15 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
         decoration: InputDecoration(
           hintText: hintText ?? Localized.text('ox_chat.confirm_join_dialog_hint'),
           hintStyle: TextStyle(
-            color: ThemeColor.color0,
-            fontSize: Adapt.px(15),
+            color: ThemeColor.color100,
+            fontSize: 14.px,
           ),
           suffixIcon: _delTextIconWidget(controller),
           border: const OutlineInputBorder(
             borderSide: BorderSide.none,
           ),
         ),
+        readOnly: !_hasEditMetadataPermission,
         onChanged: (str) {
           setState(() {
             if (str.isNotEmpty) {

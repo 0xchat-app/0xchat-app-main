@@ -198,7 +198,15 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   }
 
   void _showGroupAboutFn() {
-    OXNavigator.pushPage(context, (context) => RelayGroupAboutShowPage(groupId: widget.groupId));
+    OXNavigator.pushPage(
+        context, (context) => RelayGroupEditPage(groupId: widget.groupId, pageType: EGroupEditType.about))
+        .then((value) {
+      if (value != null && value is bool) {
+        setState(() {
+          _loadData();
+        });
+      }
+    });
   }
 
   void _handleImageSelection() async {
