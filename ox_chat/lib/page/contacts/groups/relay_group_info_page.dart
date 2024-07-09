@@ -43,13 +43,16 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   bool _isMute = false;
   List<UserDB> groupMember = [];
   RelayGroupDB? groupDBInfo = null;
-  bool requestTag = true;
-  bool _isGroupManager = false;
   bool _isGroupMember = false;
+  bool _hasAddUserPermission = false;
+  bool _hasRemoveUserPermission = false;
+  bool _hasAddPermission = false;
+  UserDB? userDB;
 
   @override
   void initState() {
     super.initState();
+    userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _groupInfoInit();
     _loadDataFromRelay();
   }
@@ -59,13 +62,10 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     super.dispose();
   }
 
-  String get _getGroupNotice {
-    String groupNotice = '';
-    List<String>? pinned = groupDBInfo?.pinned;
-    if (pinned != null && pinned.length > 0) {
-      groupNotice = pinned[0];
-    }
-    return groupNotice.isEmpty ? Localized.text('ox_chat.group_notice_default_hint') : groupNotice;
+  void _getPermissionValue() {
+    _hasAddUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addUser]);
+    _hasRemoveUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.removeUser]);
+    _hasAddPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addPermission]);
   }
 
   @override
@@ -244,6 +244,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _addMemberBtnWidget() {
+    if (!_hasAddUserPermission) return SizedBox();
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.add),
       child: CommonImage(
@@ -255,7 +256,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _removeMemberBtnWidget() {
-    if (!_isGroupManager) return SizedBox();
+    if (!_hasRemoveUserPermission) return SizedBox();
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.remove),
       child: Container(
@@ -297,7 +298,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             onTap: null,
             isShowMoreIcon: false,
           ),
-          if (true || _isGroupManager)
+          if (_hasAddPermission)
             GroupItemBuild(
               title: Localized.text('ox_chat.str_group_administrators'),
               onTap: _manageGroupFn,
@@ -440,7 +441,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   Widget _leaveBtnWidget() {
     if (!_isGroupMember) return SizedBox();
-    String content = _isGroupManager ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(top: 16.px),
@@ -465,10 +466,10 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _leaveConfirmWidget() {
-    String tips = _isGroupManager
+    String tips = _hasAddPermission
         ? Localized.text('ox_chat.delete_group_tips')
         : Localized.text('ox_chat.leave_group_tips');
-    String content = _isGroupManager ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -509,7 +510,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
-                    onTap: _isGroupManager ? _disbandGroupFn : _leaveGroupFn,
+                    onTap: _leaveGroupFn,
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(
@@ -559,19 +560,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     );
   }
 
-  void _updateGroupNameFn() async {
-    if (!_isGroupMember) return;
-    bool? result = await OXNavigator.pushPage(
-      context,
-      (context) => GroupEditPage(
-        pageType: EGroupEditType.groupName,
-        groupId: widget.groupId,
-      ),
-    );
-
-    if (result != null && result) _groupInfoInit();
-  }
-
   void _updateGroupTypeFn() async {
     var result = await showModalBottomSheet(
       context: context,
@@ -596,14 +584,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _updateGroupNoticeFn() async {
-    if (!_isGroupManager) return;
-    await OXNavigator.pushPage(
-      context,
-      (context) => GroupNoticePage(
-        groupId: widget.groupId,
-      ),
-    );
-    _groupInfoInit();
+
   }
 
   void _manageGroupFn() async {
@@ -707,47 +688,17 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _leaveGroupFn() async {
-    if (requestTag) {
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId);
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
-
+    OXLoading.show();
+    OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId);
+    if (!event.status) {
+      CommonToast.instance.show(context, event.message);
       OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_chat.leave_group_success_toast'));
-      OXNavigator.popToRoot(context);
+      return;
     }
-  }
 
-  void _disbandGroupFn() async {
-    if (requestTag) {
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      OKEvent event = await Groups.sharedInstance
-          .deleteAndLeave(widget.groupId, Localized.text('ox_chat.disband_group_toast'));
-
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
-
-      OXLoading.dismiss();
-      CommonToast.instance.show(context, Localized.text('ox_chat.disband_group_toast'));
-      OXNavigator.popToRoot(context);
-    }
-  }
-
-  void _changeRequestTagStatus(bool status) {
-    setState(() {
-      requestTag = status;
-    });
+    OXLoading.dismiss();
+    CommonToast.instance.show(context, Localized.text('ox_chat.leave_group_success_toast'));
+    OXNavigator.popToRoot(context);
   }
 
   void _groupInfoInit() {
@@ -755,30 +706,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[groupId];
     if (groupDB != null) {
       groupDBInfo = groupDB;
-      _getIsGroupManagerValue(groupDB.admins);
+      _getPermissionValue();
+      setState(() {});
       _loadMembers(groupDB);
-    }
-  }
-
-  void _getIsGroupManagerValue(List<GroupAdmin>? tempAdmins){
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
-    List<GroupAdmin>? admins = tempAdmins ?? null;
-    if (userInfo == null) {
-      _isGroupManager = false;
-    } else {
-      if (groupDBInfo?.author == userInfo.pubKey) {
-        _isGroupManager = true;
-      } else {
-        if (admins == null || admins.isEmpty) {
-          _isGroupManager = false;
-        } else {
-          for (GroupAdmin amin in admins) {
-            if (userInfo.pubKey == amin.pubkey) {
-              _isGroupManager = true;
-            }
-          }
-        }
-      }
     }
   }
 
@@ -807,6 +737,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       if (relayGroupDB != null) {
         LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
+          _getPermissionValue();
           groupDBInfo = relayGroupDB;
         });
       }
@@ -814,8 +745,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         groupMember = value;
         LogUtil.e('Michael: ----getGroupMembersFromLocal---groupMember.length = ${groupMember.length}');
         _getIsGroupMemberValue(value);
-        List<GroupAdmin>? groupAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.groupId);
-        _getIsGroupManagerValue(groupAdmins);
         setState(() {});
       });
     });
