@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
-import 'package:ox_chat/page/contacts/groups/relay_group_about_show_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
