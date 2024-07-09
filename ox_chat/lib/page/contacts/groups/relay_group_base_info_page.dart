@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
-import 'package:ox_chat/page/contacts/groups/relay_group_about_show_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -198,7 +197,15 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   }
 
   void _showGroupAboutFn() {
-    OXNavigator.pushPage(context, (context) => RelayGroupAboutShowPage(groupId: widget.groupId));
+    OXNavigator.pushPage(
+        context, (context) => RelayGroupEditPage(groupId: widget.groupId, pageType: EGroupEditType.about))
+        .then((value) {
+      if (value != null && value is bool) {
+        setState(() {
+          _loadData();
+        });
+      }
+    });
   }
 
   void _handleImageSelection() async {
