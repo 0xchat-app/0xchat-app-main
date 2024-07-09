@@ -384,12 +384,17 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
   @override
   Widget build(BuildContext context) {
     Widget iconAvatar = SizedBox();
+    String showName = '';
     if (widget.item.chatType == ChatType.chatGroup) {
       GroupDB? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
       iconAvatar = OXGroupAvatar(group: tempGroupDB);
+      showName = tempGroupDB?.name ?? '';
+      if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
     } else {
       RelayGroupDB? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
       iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
+      showName = tempRelayGroupDB?.name ?? '';
+      if (showName.isEmpty) showName = RelayGroup.sharedInstance.encodeGroup(widget.item.groupId) ?? '';
     }
     Widget? groupTypeWidget = ChatSessionUtils.getTypeSessionView(widget.item.chatType, widget.item.groupId);
     return GestureDetector(
@@ -420,7 +425,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
               width: Adapt.screenW() - Adapt.px(120),
               margin: EdgeInsets.only(left: Adapt.px(16)),
               child: Text(
-                widget.item.name ?? '',
+                showName,
                 style: TextStyle(
                   fontSize: Adapt.px(16),
                   color: ThemeColor.color10,
