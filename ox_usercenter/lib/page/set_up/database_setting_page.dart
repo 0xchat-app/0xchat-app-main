@@ -47,14 +47,19 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    _loadData();
+    _loadCacheInfo();
   }
 
-  void loadData() async {
+  void _loadData() async {
     _databaseModelList = DatabaseSetModel.getUIListData();
     _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
     _selectedTimeType = getType(_selectedTimeCode);
     _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, defaultValue: true);
+    setState(() {});
+  }
+
+  void _loadCacheInfo() async {
     _cacheFileCount = await DatabaseHelper.getCacheFileCount();
     double cacheSize = await DatabaseHelper.getCacheSizeInMB();
     _cacheFileSize = cacheSize.toStringAsFixed(4);
