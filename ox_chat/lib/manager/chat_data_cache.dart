@@ -130,7 +130,7 @@ class ChatDataCache with OXChatObserver {
   @override
   void didGroupMessageCallBack(MessageDB message) async {
     final groupId = message.groupId;
-    final key = message.chatType != null && message.chatType == ChatType.chatRelayGroup
+    final key = message.chatType != null && message.chatType == 4
         ? RelayGroupKey(groupId)
         : GroupKey(groupId);
 
