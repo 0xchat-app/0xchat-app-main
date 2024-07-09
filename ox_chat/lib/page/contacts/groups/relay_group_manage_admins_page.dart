@@ -36,10 +36,27 @@ class RelayGroupManageAdminsPage extends StatefulWidget {
 
 class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage> {
   final Map<int, GlobalKey> _moreGlobalKeyMap = {};
+  bool _hasAddAdminPermission = false;
+  bool _hasRemoveAdminPermission = false;
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (widget.admins.length > 0) {
+      try {
+        if (myUserDB != null) {
+          _hasAddAdminPermission = RelayGroup.sharedInstance.hasPermissions(widget.admins, myUserDB.pubKey, [GroupActionKind.addPermission]);
+          _hasRemoveAdminPermission = RelayGroup.sharedInstance.hasPermissions(widget.admins, myUserDB.pubKey, [GroupActionKind.removePermission]);
+        }
+      } catch (e) {
+        LogUtil.e('No found permission with pubkey: ${myUserDB?.pubKey}');
+      }
+    }
   }
 
   @override
@@ -133,7 +150,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
               ],
             ),
           ),
-          if (widget.relayGroupDB.author == groupAdmin.pubkey)
+          if (_hasAddAdminPermission)
             Container(
               key: indexContenKey,
               width: 24.px,
@@ -141,7 +158,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _editAdminPermissionFn(index, groupAdmin, userDB);
+                  _editAdminPermissionFn(index, groupAdmin, userDB ?? UserDB(pubKey: groupAdmin.pubkey));
                 },
                 child: CommonImage(iconName: 'icon_admin_permission_more.png', size: 24.px, package: 'ox_chat'),
               ),
@@ -151,7 +168,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
     );
   }
 
-  void _editAdminPermissionFn(int index, GroupAdmin groupAdmin, UserDB? userDB) async {
+  void _editAdminPermissionFn(int index, GroupAdmin groupAdmin, UserDB userDB) async {
     GlobalKey? globalKey = _moreGlobalKeyMap[index];
     if (globalKey == null) return;
     BuildContext? keyBuildContext = globalKey.currentContext;
@@ -164,10 +181,11 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
         identify: 0,
         text: 'str_group_edit_admin_right'.localized(),
       ),
-      OXMenuItem(
-        identify: 1,
-        text: 'str_group_dismiss_admin'.localized(),
-      ),
+      if(_hasRemoveAdminPermission)
+        OXMenuItem(
+          identify: 1,
+          text: 'str_group_dismiss_admin'.localized(),
+        ),
     ];
     final oxMenuItem = await OXMenuDialog.show(
       context,
@@ -177,8 +195,17 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
       top: offset.dy + size.height + 10.px,
     );
     if (oxMenuItem != null){
-      if (oxMenuItem.identify == 0){
-        OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB, groupAdmin: groupAdmin));
+      if (oxMenuItem.identify == 0) {
+        OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB, groupAdmin: groupAdmin)).then((value){
+          setState(() {
+            final tempAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.relayGroupDB.groupId) ;
+            if (tempAdmins != null){
+              widget.admins = tempAdmins;
+            }
+          });
+        });
+      } else if (oxMenuItem.identify == 0) {
+
       }
     }
   }

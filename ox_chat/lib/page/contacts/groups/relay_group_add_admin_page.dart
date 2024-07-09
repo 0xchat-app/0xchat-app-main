@@ -210,7 +210,8 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
   }
 
   void _gotoAdminRightsFn(UserDB userDB) {
-    OXNavigator.pop(context);
-    OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB));
+    OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB)).then((value) {
+      OXNavigator.pop(context);
+    });
   }
 }

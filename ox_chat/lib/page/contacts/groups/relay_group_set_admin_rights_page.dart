@@ -24,7 +24,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 ///CreateTime: 2024/7/4 07:38
 class RelayGroupSetAdminRightsPage extends StatefulWidget {
   final RelayGroupDB relayGroupDB;
-  final UserDB? userDB;
+  final UserDB userDB;
   final GroupAdmin? groupAdmin;
 
   RelayGroupSetAdminRightsPage({super.key, required this.relayGroupDB, required this.userDB, this.groupAdmin});
@@ -38,6 +38,7 @@ class RelayGroupSetAdminRightsPage extends StatefulWidget {
 class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsPage> {
   List<GroupActionKind> _showPermissions = [];
   Set<int> _currentPermissionKinds = {};
+  Set<int> _myPermissionKinds = {};
 
   @override
   void initState() {
@@ -47,16 +48,18 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
 
   void _loadData() {
     _showPermissions = GroupActionKind.values;
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if (userDB != null && widget.relayGroupDB.admins != null && widget.relayGroupDB.admins!.length > 0) {
-      List<GroupActionKind>? userPermissions;
+    UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (widget.relayGroupDB.admins != null && widget.relayGroupDB.admins!.length > 0) {
       try {
-        userPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == userDB.pubKey).permissions;
-        _currentPermissionKinds = userPermissions.map((e) => e.kind).toSet();
-        LogUtil.e('Michael: ---userPermissions =${userPermissions.toString()}');
+        if (myUserDB != null) {
+          List<GroupActionKind> userPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == myUserDB.pubKey).permissions;
+          _myPermissionKinds = userPermissions.map((e) => e.kind).toSet();
+          LogUtil.e('Michael: ---_myPermissionKinds =${userPermissions.toString()}');
+        }
+        List<GroupActionKind> selectedUserPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == widget.userDB.pubKey).permissions;
+        _currentPermissionKinds = selectedUserPermissions.map((e) => e.kind).toSet();
       } catch (e) {
-        userPermissions = [];
-        LogUtil.e('No admin found with pubkey: ${userDB.pubKey}');
+        LogUtil.e('No admin found with pubkey: ${widget.userDB.pubKey}');
       }
     }
   }
@@ -85,8 +88,8 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                   borderRadius: BorderRadius.circular(16.px),
                   color: ThemeColor.color180,
                 ),
+                margin: EdgeInsets.only(top: 16.px),
                 child: ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 0),
                   physics: const BouncingScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: _buildListViewItem,
@@ -111,7 +114,7 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
         children: [
           OXUserAvatar(
             user: widget.userDB,
-            imageUrl: widget.userDB?.picture ?? '',
+            imageUrl: widget.userDB.picture ?? '',
             size: 48.px,
             isClickable: true,
             onReturnFromNextPage: () {
@@ -124,9 +127,9 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(widget.userDB?.name ?? '', 16.px, ThemeColor.color0, fontWeight: FontWeight.w600),
+                MyText(widget.userDB.name ?? '', 16.px, ThemeColor.color0, fontWeight: FontWeight.w600),
                 SizedBox(height: 2.px),
-                MyText(OXDateUtils.convertTimeFormatString2((widget.userDB?.lastUpdatedTime ?? 0) * 1000, pattern: 'MM-dd'), 14.px, ThemeColor.color120),
+                MyText(OXDateUtils.convertTimeFormatString2((widget.userDB.lastUpdatedTime ?? 0) * 1000, pattern: 'MM-dd'), 14.px, ThemeColor.color120),
               ],
             ),
           ),
@@ -160,13 +163,17 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                 inactiveTrackColor: ThemeColor.color160,
                 onChanged: (value) async {
                   await OXLoading.show();
-                  final okEvent = value ? await RelayGroup.sharedInstance.addPermission(widget.relayGroupDB.groupId, widget.userDB?.pubKey ?? '', groupActionKind.name, '')
-                      :  await RelayGroup.sharedInstance.removePermission(widget.relayGroupDB.groupId, widget.userDB?.pubKey ?? '', groupActionKind.name, '');
+                  final okEvent = value ? await RelayGroup.sharedInstance.addPermission(widget.relayGroupDB.groupId, widget.userDB.pubKey, groupActionKind.name, '')
+                      :  await RelayGroup.sharedInstance.removePermission(widget.relayGroupDB.groupId, widget.userDB.pubKey, groupActionKind.name, '');
                   await OXLoading.dismiss();
                   LogUtil.e('Michael:--value =${value}; ---status: ${okEvent.status}');
                   if (okEvent.status) {
                     setState(() {
-                      _currentPermissionKinds.add(groupActionKind.kind);
+                      if (value) {
+                        _currentPermissionKinds.add(groupActionKind.kind);
+                      } else {
+                        _currentPermissionKinds.remove(groupActionKind.kind);
+                      }
                     });
                   } else {
                     CommonToast.instance.show(context, okEvent.message);
