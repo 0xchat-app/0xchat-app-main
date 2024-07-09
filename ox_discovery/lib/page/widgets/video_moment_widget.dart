@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -11,6 +12,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 import 'package:path/path.dart' as Path;
 import '../../utils/moment_widgets_utils.dart';
+import '../moments/moment_video_page.dart';
 
 class VideoMomentWidget extends StatefulWidget {
   final String videoUrl;
@@ -53,14 +55,13 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       maxWidth: 218,
       quality: 75,
     );
-    if(mounted){
+    if (mounted) {
       setState(() {
         if (thumbPath != null) {
           _thumbnailFile = File(thumbPath);
         }
       });
     }
-
   }
 
   @override
@@ -87,35 +88,35 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       ),
       child: GestureDetector(
         onTap: () {
-          OXModuleService.pushPage(context, 'ox_chat', 'ChatVideoPlayPage', {
-            'videoUrl': widget.videoUrl,
-          });
+          OXNavigator.pushPage(
+              context, (context) => MomentVideoPage(videoUrl: widget.videoUrl));
         },
         child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                color: ThemeColor.color100,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    Adapt.px(12),
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  color: ThemeColor.color100,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(
+                      Adapt.px(12),
+                    ),
                   ),
                 ),
+                width: 210.px,
+                // height: 154.px,
               ),
-              width: 210.px,
-              // height: 154.px,
-            ),
-            _getPicWidget(),
-            // _videoSurfaceDrawingWidget(),
-            CommonImage(
-              iconName: 'play_moment_icon.png',
-              package: 'ox_discovery',
-              size: 60.0.px,
-              color: Colors.white,
-            )
-          ],
-        ),
+              _getPicWidget(),
+              // _videoSurfaceDrawingWidget(),
+              CommonImage(
+                iconName: 'play_moment_icon.png',
+                package: 'ox_discovery',
+                size: 60.0.px,
+                color: Colors.white,
+              )
+            ],
+          ),
+
       ),
     );
   }

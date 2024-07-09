@@ -38,6 +38,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   @override
   void initState() {
     super.initState();
+    OXMomentManager.sharedInstance.addObserver(this);
     updateNotesList(true);
     _getGroupInfo();
   }
@@ -49,7 +50,6 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
 
   @override
   void dispose() {
-    OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
   }
@@ -183,7 +183,6 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
                     sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
-               updateNotesList(true);
               });
             },
           ),
@@ -207,7 +206,6 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
                     sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
-                updateNotesList(true);
               });
             },
           ),
@@ -232,7 +230,6 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
                     sendMomentsType: EOptionMomentsType.group,
                   ),
                 );
-               updateNotesList(true);
               });
             },
           ),
@@ -374,6 +371,14 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
 
   @override
   didNewNotificationCallBack(List<NotificationDB> notifications) {}
+
+  @override
+  didGroupsNoteCallBack(NoteDB notes) {
+    if(notes.groupId == widget.groupId){
+      notesList = [...[ValueNotifier(NotedUIModel(noteDB: notes))],...notesList];
+      setState(() {});
+    }
+  }
 
   @override
   void didLoginSuccess(UserDB? userInfo) {}
