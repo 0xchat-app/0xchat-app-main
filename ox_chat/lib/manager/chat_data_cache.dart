@@ -358,7 +358,6 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
       return ;
     }
 
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session?.chatId}, key: $key');
     await _addChatMessages(key, message);
   }
 
@@ -529,6 +528,11 @@ extension ChatDataCacheEx on ChatDataCache {
           status: types.Status.error,
         );
       }
+
+      if (message.messageId == MessageDBToUIEx.logger?.messageId) {
+        MessageDBToUIEx.logger?.print('distribute - key: $key');
+        MessageDBToUIEx.logger?.print('distribute - message: $message');
+      }
       await _addChatMessages(key, uiMsg, waitSetup: false);
     } catch(e) {
       ChatLogUtils.error(
@@ -553,6 +557,11 @@ extension ChatDataCacheEx on ChatDataCache {
   }
 
   Future<void> _addChatMessages(ChatTypeKey key, types.Message message, { bool waitSetup = true }) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_addChatMessages',
+      message: 'key: $key, message: $message',
+    );
 
     final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
 
@@ -564,11 +573,21 @@ extension ChatDataCacheEx on ChatDataCache {
   }
 
   Future _removeChatMessages(ChatTypeKey key, types.Message message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_removeChatMessages',
+      message: 'key: $key, message: $message',
+    );
     final messageList = await _getSessionMessage(key);
     _removeMessageFromList(messageList, message);
   }
 
   Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {types.Message? originMessage}) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_updateChatMessages',
+      message: 'key: $key, message: $message',
+    );
     final messageList = await _getSessionMessage(key);
     _updateMessageToList(messageList, message, originMessage: originMessage);
   }

@@ -35,6 +35,11 @@ class PrivateChatKey implements ChatTypeKey {
 
   @override
   int get hashCode => userId1.hashCode ^ userId2.hashCode;
+
+  @override
+  String toString() {
+    return '${super.toString()}, userId1: $userId1, userId2: $userId2';
+  }
 }
 
 @immutable
@@ -59,6 +64,11 @@ class GroupKey implements ChatTypeKey {
 
   @override
   int get hashCode => groupId.hashCode;
+
+  @override
+  String toString() {
+    return '${super.toString()}, groupId: $groupId';
+  }
 }
 
 @immutable
@@ -83,6 +93,11 @@ class ChannelKey implements ChatTypeKey {
 
   @override
   int get hashCode => channelId.hashCode;
+
+  @override
+  String toString() {
+    return '${super.toString()}, channelId: $channelId';
+  }
 }
 
 @immutable
@@ -107,6 +122,11 @@ class SecretChatKey implements ChatTypeKey {
 
   @override
   int get hashCode => sessionId.hashCode;
+
+  @override
+  String toString() {
+    return '${super.toString()}, sessionId: $sessionId';
+  }
 }
 
 @immutable
@@ -131,4 +151,9 @@ class RelayGroupKey implements ChatTypeKey {
 
   @override
   int get hashCode => groupId.hashCode;
+
+  @override
+  String toString() {
+    return '${super.toString()}, groupId: $groupId';
+  }
 }

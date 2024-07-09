@@ -138,17 +138,20 @@ extension MessageDBToUIEx on MessageDB {
 
   String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
+  static MessageCheckLogger? logger; // = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
+
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
     MessageCheckLogger? logger;
-    // logger = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
-    // if (this.messageId != logger.messageId) return null;
+
+    if (this.messageId == MessageDBToUIEx.logger?.messageId) {
+      logger = MessageDBToUIEx.logger;
+    }
 
     // Msg id
     final messageId = this.messageId;
 
-    logger?.printMessage = '1';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step1 - messageId: $messageId');
 
     // ContentModel
     final contentModel = getContentModel();
@@ -157,8 +160,7 @@ extension MessageDBToUIEx on MessageDB {
     final author = await getAuthor();
     if (author == null) return null;
 
-    logger?.printMessage = '2';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step2 - author: $author');
 
     // Status
     final msgStatus = getStatus();
@@ -170,11 +172,9 @@ extension MessageDBToUIEx on MessageDB {
     final chatId = getRoomId();
     if (chatId == null) return null;
 
-    logger?.printMessage = '3';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step3 - chatId: $chatId');
 
-    logger?.printMessage = '4 ${contentModel.contentType}';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step4 - contentType: ${contentModel.contentType}');
 
     // Message UI Model Creator
     MessageFactory messageFactory = await getMessageFactory(
@@ -182,8 +182,7 @@ extension MessageDBToUIEx on MessageDB {
       isMentionMessageCallback,
     );
 
-    logger?.printMessage = '5';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step5 - messageFactory: $messageFactory');
 
     // Encryption type
     final fileEncryptionType = getEncryptionType(contentModel);
@@ -197,6 +196,7 @@ extension MessageDBToUIEx on MessageDB {
 
     // RepliedMessage
     final repliedMessage = await getRepliedMessage(loadRepliedMessage);
+    logger?.print('step6 - replied message: $repliedMessage');
 
     // Execute create
     final result = messageFactory.createMessage(
@@ -216,8 +216,7 @@ extension MessageDBToUIEx on MessageDB {
       zapsInfoList: zapsInfoList,
     );
 
-    logger?.printMessage = '6 $result';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step7 - message UIModel: $result');
 
     return result;
   }
