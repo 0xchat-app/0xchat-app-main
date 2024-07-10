@@ -503,6 +503,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     final event = await Messages.sharedInstance.sendMessageReaction(
       messageId,
       content,
+      groupId: session.groupId
     );
     if (event.status) {
       final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
