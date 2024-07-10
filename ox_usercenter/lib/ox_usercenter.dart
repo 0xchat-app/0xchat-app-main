@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -164,8 +163,21 @@ class OXUserCenter extends OXFlutterModule {
     required String otherLnurl,
     String? content,
     String? eventId,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
     bool privateZap = false,
   }) async {
-    return await ZapsHelper.getInvoice(sats: sats, recipient: recipient, otherLnurl: otherLnurl, content: content, eventId: eventId, privateZap: privateZap);
+    return await ZapsHelper.getInvoice(
+      sats: sats,
+      recipient: recipient,
+      otherLnurl: otherLnurl,
+      content: content,
+      eventId: eventId,
+      privateZap: privateZap,
+      zapType: zapType,
+      receiver: receiver,
+      groupId: groupId
+    );
   }
 }

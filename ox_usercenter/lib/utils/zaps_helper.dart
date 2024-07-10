@@ -10,6 +10,9 @@ class ZapsHelper {
     required String otherLnurl,
     String? content,
     String? eventId,
+    String? receiver,
+    String? groupId,
+    ZapType? zapType,
     bool privateZap = false,
   }) async {
 
@@ -46,13 +49,15 @@ class ZapsHelper {
       }
     }
     final resultMap = await Zaps.getInvoice(
-      ZapType.normal,
+      zapType ?? ZapType.normal,
       sats,
       otherLnurl,
       recipient,
       content: content,
       privateZap: privateZap,
-      eventId: eventId
+      eventId: eventId,
+      groupId: groupId,
+      receiver: receiver,
     );
     final invoice = resultMap['invoice'];
     final zapsDB = resultMap['zapsDB'];
