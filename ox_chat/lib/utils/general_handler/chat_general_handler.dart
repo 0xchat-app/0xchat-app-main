@@ -713,7 +713,7 @@ extension ChatReactionsHandlerEx on ChatGeneralHandler {
 
     reactionsListenMsgId.addAll(actionSubscriptionId);
 
-    Messages.sharedInstance.loadMessagesReactions(reactionsListenMsgId.toList());
+    Messages.sharedInstance.loadMessagesReactions(reactionsListenMsgId.toList(), session.chatType);
   }
 
   void removeMessageReactionsListener() {
