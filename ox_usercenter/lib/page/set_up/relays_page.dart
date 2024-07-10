@@ -486,9 +486,9 @@ extension RelayTypeExtension on RelayType {
   String tips() {
     switch (this) {
       case RelayType.dm:
-        return "Insert between 1-3 relays to store events no one else cansee, like your Drafts and/or app settings. ldeally, theserelays are either local or require authentication before downloading each user's content.";
+        return "It is recommended to set up 1-3 DM relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the general relay by default.";
       case RelayType.general:
-        return "Amethyst uses these relays to download posts for you.";
+        return "0xchat uses these relays to download user profiles, lists, and posts for you";
     }
   }
 }
