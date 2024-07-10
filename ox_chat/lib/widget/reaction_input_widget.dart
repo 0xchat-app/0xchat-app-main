@@ -3,7 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -26,23 +28,28 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
 
   List<Emoji> emojiData = [];
   List<Emoji> frequentlyEmoji = [];
+  final frequentlyEmojiLimit = 16;
 
   Duration expandedDuration = const Duration(milliseconds: 300);
   bool isExpanded = false;
   final Key wholeKey = UniqueKey();
+  bool recentLoadFinish = false;
 
   @override
   void initState() {
     super.initState();
     emojiData = defaultEmoji;
     if (emojiData.isNotEmpty) {
-      frequentlyEmoji.addAll(emojiData.sublist(0, min(emojiData.length, 10)));
+      frequentlyEmoji.addAll(emojiData.sublist(0, min(emojiData.length, frequentlyEmojiLimit)));
     }
-    EmojiPickerUtils().getRecentEmojis().then((recentEmoji) {
-      final frequentlyEmoji = recentEmoji.map((e) => e.emoji).toList();
-      if (frequentlyEmoji.isNotEmpty) {
+    _EmojiLocalStorage.getRecentEmojis().then((recentEmoji) {
+      if (recentEmoji.isNotEmpty) {
         setState(() {
-          this.frequentlyEmoji = frequentlyEmoji;
+          frequentlyEmoji = [
+            ...recentEmoji,
+            ...frequentlyEmoji,
+          ].take(frequentlyEmojiLimit).toList();
+          recentLoadFinish = true;
         });
       }
     });
@@ -69,7 +76,7 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
         child: Row(
           children: [
             Expanded(
-              child: ListView.separated(
+              child: recentLoadFinish ? ListView.separated(
                 itemCount: frequentlyEmoji.length,
                 padding: EdgeInsets.symmetric(horizontal: 8.px),
                 scrollDirection: Axis.horizontal,
@@ -77,7 +84,7 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
                   return buildSingleEmoji(frequentlyEmoji[index]);
                 },
                 separatorBuilder: (_, __) => SizedBox(width: 13.px,),
-              ),
+              ) : const SizedBox(),
             ),
             buildMoreButton().setPaddingOnly(left: 13.px, right: 8.px),
           ],
@@ -113,7 +120,10 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
 
   Widget buildSingleEmoji(Emoji data) {
     return GestureDetector(
-      onTap: () => widget.reactionOnTap?.call(data),
+      onTap: () {
+        _EmojiLocalStorage.addEmojiToRecentlyUsed(emoji: data);
+        widget.reactionOnTap?.call(data);
+      },
       child: Text(
         data.emoji,
         style: TextStyle(
@@ -170,6 +180,45 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
             .toList(),
       ),
     );
+  }
+}
+
+class _EmojiLocalStorage {
+  static const _localKey = 'chat_emoji_recent';
+
+  static String get localKey => _localKey + '_' + (OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
+  /// Returns list of recently used emoji from cache
+  static Future<List<Emoji>> getRecentEmojis() async {
+    final json = await OXCacheManager.defaultOXCacheManager.getForeverData(localKey, defaultValue: []);
+    try {
+      return json.map((e) => Emoji.fromJson(e as Map<String, dynamic>)).cast<Emoji>().toList();
+    } catch(_) {
+      return [];
+    }
+  }
+
+  /// Add an emoji to recently used list or increase its counter
+  static Future<List<Emoji>> addEmojiToRecentlyUsed(
+      {required Emoji emoji, Config config = const Config()}) async {
+    var recentEmoji = await getRecentEmojis();
+    var recentEmojiIndex =
+        recentEmoji.indexWhere((element) => element.emoji == emoji.emoji);
+    if (recentEmojiIndex != -1) {
+      recentEmoji.removeAt(recentEmojiIndex);
+    }
+
+    recentEmoji.insert(0, emoji);
+    recentEmoji =
+        recentEmoji.sublist(0, min(config.recentsLimit, recentEmoji.length));
+
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(localKey, recentEmoji);
+
+    return recentEmoji;
+  }
+
+  /// Clears the list of recent emojis in local storage
+  Future<void> clearRecentEmojisInLocalStorage() async {
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(localKey, []);
   }
 }
 

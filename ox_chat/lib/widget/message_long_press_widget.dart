@@ -137,6 +137,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
               if (!onlyShowEmoji)
                 Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildSeparator(),
                     buildMenuItemGrid(),
