@@ -253,7 +253,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
       );
       await OXLoading.dismiss();
       if (url.isNotEmpty) {
-        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', _avatarAliyunUrl, '');
+        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', url, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
           return;
