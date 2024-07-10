@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -29,7 +31,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   bool _isShowDelete = false;
   List<String> _relaysList = [];
 
-  int? _selectRelayIndex = 0;
+  int? _selectRelayIndex;
 
   @override
   void initState() {
@@ -109,24 +111,29 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   Widget _appBar() {
+    LogUtil.e('Michael: --- _isShowDelete =${_isShowDelete}');
     return Container(
       height: Adapt.px(56),
       padding: EdgeInsets.symmetric(
         horizontal: Adapt.px(24),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          GestureDetector(
-            onTap: () {
-              OXNavigator.pop(context);
-            },
-            child: CommonImage(
-              iconName: "title_close.png",
-              size: 24.px,
-              useTheme: true,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                OXNavigator.pop(context);
+              },
+              child: CommonImage(
+                iconName: "title_close.png",
+                size: 24.px,
+                useTheme: true,
+              ),
             ),
           ),
-          Expanded(
+          Align(
+            alignment: Alignment.center,
             child: Container(
               child: Text(
                 'Relay',
@@ -139,14 +146,18 @@ class _ContactRelayPage extends State<ContactRelayPage> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: _createSecretChat,
-            child: Center(
-              child: CommonImage(
-                iconName: 'icon_done.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                useTheme: true,
+          Align(
+            alignment: Alignment.centerRight,
+            child: Visibility(
+              visible: _isShowDelete,
+              child: GestureDetector(
+                onTap: _confirmRelayFn,
+                child: CommonImage(
+                  iconName: 'icon_done.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                  useTheme: true,
+                ),
               ),
             ),
           ),
@@ -240,12 +251,8 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (_selectRelayIndex == null) {
-          _selectRelayIndex = index;
-        } else {
-          _selectRelayIndex = _selectRelayIndex == index ? null : index;
-        }
-        setState(() {});
+        _selectRelayIndex = index;
+        _confirmRelayFn();
       },
       child: Column(
         children: [
@@ -312,7 +319,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     setState(() {});
   }
 
-  void _createSecretChat() async {
+  void _confirmRelayFn() async {
     String chatRelay = _relaysList[_selectRelayIndex ?? 0];
     String inputText = _relayTextFieldController.text;
     if (_selectRelayIndex == null && !inputText.isNotEmpty) {
