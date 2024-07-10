@@ -5,6 +5,7 @@ import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/widget/reaction_input_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -91,7 +92,7 @@ class MessageLongPressWidgetState extends State<MessageLongPressWidget> {
         AssetImageData('icon_zaps.png', package: 'ox_chat'),
         MessageLongPressEventType.zaps,
       ),
-      if (OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
+      if (widget.handler.session.chatType == ChatType.chatRelayGroup || OXUserInfoManager.sharedInstance.isCurrentUser(message.author.id))
         ItemModel(
           Localized.text('ox_chat.message_menu_delete'),
           AssetImageData('icon_delete.png', package: 'ox_common'),
