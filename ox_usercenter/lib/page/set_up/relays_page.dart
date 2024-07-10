@@ -65,14 +65,45 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   void _initDefault() async {
-    _relayListMap[RelayType.general] = Account.sharedInstance.getMyGeneralRelayList();
-    _recommendRelayListMap[RelayType.general] = Account.sharedInstance.getMyRecommendGeneralRelaysList();
-    _relayListMap[RelayType.dm] = Account.sharedInstance.getMyDMRelayList();
-    _recommendRelayListMap[RelayType.dm] = Account.sharedInstance.getMyRecommendDMRelaysList();
+    for (var relayType in RelayType.values) {
+      _initRelayList(relayType);
+    }
     Connect.sharedInstance.addConnectStatusListener((relay, status) {
         didRelayStatusChange(relay, status);
     });
     setState(() {});
+  }
+
+  void _initRelayList(RelayType relayType) {
+    List<RelayDB> relayList = _getRelayList(relayType);
+    List<RelayDB> recommendRelayList = _getRecommendRelayList(relayType);
+
+    //Filters elements in the relay LIst
+    recommendRelayList.removeWhere((element) => relayList.contains(element));
+    _relayListMap[relayType] = relayList;
+    _recommendRelayListMap[relayType] = recommendRelayList;
+  }
+
+  List<RelayDB> _getRelayList(RelayType relayType) {
+    switch (relayType) {
+      case RelayType.general:
+        return Account.sharedInstance.getMyGeneralRelayList();
+      case RelayType.dm:
+        return Account.sharedInstance.getMyDMRelayList();
+      default:
+        return [];
+    }
+  }
+
+  List<RelayDB> _getRecommendRelayList(RelayType relayType) {
+    switch (relayType) {
+      case RelayType.general:
+        return Account.sharedInstance.getMyRecommendGeneralRelaysList();
+      case RelayType.dm:
+        return Account.sharedInstance.getMyRecommendDMRelaysList();
+      default:
+        return [];
+    }
   }
 
   void didRelayStatusChange(String relay, int status) {
@@ -122,8 +153,8 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   Widget _body() {
-    List<RelayDB> _relayList = _relayListMap[_relayType]!;
-    List<RelayDB> _recommendRelayList = _recommendRelayListMap[_relayType]!;
+    List<RelayDB> relayList = _relayListMap[_relayType]!;
+    List<RelayDB> recommendRelayList = _recommendRelayListMap[_relayType]!;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -219,33 +250,35 @@ class _RelaysPageState extends State<RelaysPage> {
                     ],
                   )
                 : Container(),
-            Container(
-              width: double.infinity,
-              height: Adapt.px(58),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                // Localized.text('ox_usercenter.connected_relay'),
-                'CONNECTED TO ${_relayType.sign()} RELAY',
-                style: TextStyle(
-                  color: ThemeColor.color0,
-                  fontSize: Adapt.px(16),
+            if (relayList.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                height: Adapt.px(58),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  // Localized.text('ox_usercenter.connected_relay'),
+                  'CONNECTED TO ${_relayType.sign()} RELAY',
+                  style: TextStyle(
+                    color: ThemeColor.color0,
+                    fontSize: Adapt.px(16),
+                  ),
                 ),
               ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Adapt.px(16)),
-                color: ThemeColor.color180,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Adapt.px(16)),
+                  color: ThemeColor.color180,
+                ),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: _itemBuild,
+                  itemCount: relayList.length,
+                  padding: EdgeInsets.zero,
+                ),
               ),
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: _itemBuild,
-                itemCount: _relayList.length,
-                padding: EdgeInsets.zero,
-              ),
-            ),
-            RelayCommendWidget(_recommendRelayList, (RelayDB relayDB) {
+            ],
+            RelayCommendWidget(recommendRelayList, (RelayDB relayDB) {
               _addOnTap(upcomingRelay: relayDB.url);
             }),
           ],
@@ -255,8 +288,8 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    List<RelayDB> _relayList = _relayListMap[_relayType]!;
-    RelayDB _model = _relayList[index];
+    List<RelayDB> relayList = _relayListMap[_relayType]!;
+    RelayDB _model = relayList[index];
     return Column(
       children: [
         SizedBox(
@@ -288,7 +321,7 @@ class _RelaysPageState extends State<RelaysPage> {
             trailing: _relayStateImage(_model),
           ),
         ),
-        _relayList.length > 1 && _relayList.length - 1 != index
+        relayList.length > 1 && relayList.length - 1 != index
             ? Divider(
                 height: Adapt.px(0.5),
                 color: ThemeColor.color160,
@@ -408,13 +441,13 @@ class _RelaysPageState extends State<RelaysPage> {
 
   void _addOnTap({String? upcomingRelay}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
-    List<RelayDB> _relayList = _relayListMap[_relayType]!;
-    List<RelayDB> _recommendRelayList = _recommendRelayListMap[_relayType]!;
+    List<RelayDB> relayList = _relayListMap[_relayType]!;
+    List<RelayDB> recommendRelayList = _recommendRelayListMap[_relayType]!;
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
     }
-    if (_relayList.contains(upcomingRelay)) {
+    if (relayList.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
       switch(_relayType) {
@@ -425,9 +458,9 @@ class _RelaysPageState extends State<RelaysPage> {
           await Account.sharedInstance.addDMRelay(upcomingRelay);
           break;
       }
-      _recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
+      recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
-        _relayList.add(RelayDB(url: upcomingRelay!));
+        relayList.add(RelayDB(url: upcomingRelay!));
       });
     }
   }
