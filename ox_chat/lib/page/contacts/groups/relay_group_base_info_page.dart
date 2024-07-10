@@ -269,13 +269,14 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 }
 
 class RelayGroupBaseInfoView extends StatelessWidget {
-  final RelayGroupDB? relayGroup;
+  final String? groupId;
   final GestureTapCallback? groupQrCodeFn;
 
-  RelayGroupBaseInfoView({this.relayGroup, this.groupQrCodeFn});
+  RelayGroupBaseInfoView({this.groupId, this.groupQrCodeFn});
 
   @override
   Widget build(BuildContext context) {
+    RelayGroupDB? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
     return Container(
       width: double.infinity,
       height: 80.px,

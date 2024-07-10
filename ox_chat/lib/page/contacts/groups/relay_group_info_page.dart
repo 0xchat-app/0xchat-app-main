@@ -134,7 +134,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         );
       },
       child: RelayGroupBaseInfoView(
-        relayGroup: groupDBInfo,
+        groupId: widget.groupId,
         groupQrCodeFn: () {
           _DisableShareDialog(true);
         },
