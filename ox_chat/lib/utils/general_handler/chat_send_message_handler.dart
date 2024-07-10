@@ -362,7 +362,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
   String createEncryptKey() => bytesToHex(MessageDB.getRandomSecret());
 
-  Future<String> uploadFile({
+  Future<UploadResult> uploadFile({
     required FileType fileType,
     required String filePath,
     required String messageId,
@@ -416,12 +416,12 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: FileType.image, filePath: filePath, messageId: message.id, encryptedKey: pk);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_image_fail'));
+      final result = await uploadFile(fileType: FileType.image, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      if (!result.isSuccess) {
+        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_image_fail')}: ${result.errorMsg}');
         return null;
       }
-      return message.copyWith(uri: uri);
+      return message.copyWith(uri: result.url);
     }
     return message;
   }
@@ -444,12 +444,12 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: FileType.voice, filePath: filePath, messageId: message.id, encryptedKey: pk);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_audio_fail'));
+      final result = await uploadFile(fileType: FileType.voice, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      if (!result.isSuccess) {
+        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_audio_fail')}: ${result.errorMsg}');
         return null;
       }
-      return message.copyWith(uri: uri);
+      return message.copyWith(uri: result.url);
     }
     return message;
   }
@@ -472,14 +472,14 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath) {
       final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final uri = await uploadFile(fileType: FileType.video, filePath: filePath, messageId: message.id, encryptedKey: pk);
-      if (uri.isEmpty) {
-        CommonToast.instance.show(context, Localized.text('ox_chat.message_send_video_fail'));
+      final result = await uploadFile(fileType: FileType.video, filePath: filePath, messageId: message.id, encryptedKey: pk);
+      if (!result.isSuccess) {
+        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_video_fail')}: ${result.errorMsg}');
         return null;
       }
       return message.copyWith(
         metadata: {
-          'videoUrl': uri,
+          'videoUrl': result.url,
         },
       );
     }
