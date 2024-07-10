@@ -292,7 +292,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             subTitleIcon: groupDBInfo != null
                 ? (groupDBInfo!.closed ? null : GroupType.openGroup.typeIcon)
                 : null,
-            onTap: _updateGroupTypeFn,
+            onTap: _hasEditGroupStatusPermission ? _updateGroupTypeFn : null,
             isShowMoreIcon: _hasEditGroupStatusPermission,
           ),
           GroupItemBuild(
@@ -300,7 +300,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             subTitle: groupDBInfo != null
                 ? (groupDBInfo!.private ? ChatHistoryForNewMembersType.hidden.text : ChatHistoryForNewMembersType.show.text)
                 : '--',
-            onTap: _updateGroupHistoryStatusFn,
+            onTap: _hasEditGroupStatusPermission ? _updateGroupHistoryStatusFn : null,
             isShowMoreIcon: _hasEditGroupStatusPermission,
           ),
           GroupItemBuild(
