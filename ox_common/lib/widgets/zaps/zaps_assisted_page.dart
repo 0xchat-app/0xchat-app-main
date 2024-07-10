@@ -295,6 +295,9 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
       eventId: widget.eventId,
       description: zapDescription,
       showLoading: true,
+      zapType: widget.handler.zapType,
+      receiver: widget.handler.receiver,
+      groupId: widget.handler.groupId,
     );
   }
 }

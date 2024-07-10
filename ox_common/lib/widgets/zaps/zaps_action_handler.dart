@@ -17,6 +17,9 @@ class ZapsActionHandler {
   final UserDB userDB;
   final bool isAssistedProcess;
   final bool? privateZap;
+  final ZapType? zapType;
+  final String? receiver;
+  final String? groupId;
   Function(Map<String,dynamic> zapsInfo)? zapsInfoCallback;
   Function()? preprocessCallback;
   Function(Map<String,dynamic> zapsInfo)? nwcCompleted;
@@ -28,6 +31,9 @@ class ZapsActionHandler {
   ZapsActionHandler({
     required this.userDB,
     this.privateZap,
+    this.zapType,
+    this.receiver,
+    this.groupId,
     this.zapsInfoCallback,
     this.preprocessCallback,
     this.nwcCompleted,
@@ -37,6 +43,9 @@ class ZapsActionHandler {
   static Future<ZapsActionHandler> create({
     required UserDB userDB,
     bool? privateZap,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
     Function(Map<String, dynamic>)? zapsInfoCallback,
     Function()? preprocessCallback,
     bool? isAssistedProcess,
@@ -44,6 +53,9 @@ class ZapsActionHandler {
     ZapsActionHandler handler = ZapsActionHandler(
       userDB: userDB,
       privateZap: privateZap,
+      zapType: zapType,
+      receiver: receiver,
+      groupId: groupId,
       zapsInfoCallback: zapsInfoCallback,
       preprocessCallback: preprocessCallback,
       isAssistedProcess: isAssistedProcess,
@@ -98,6 +110,9 @@ class ZapsActionHandler {
     String? eventId,
     String? description,
     bool? privateZap,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
   }) async {
     String lnurl = userDB.lnAddress;
 
@@ -133,7 +148,10 @@ class ZapsActionHandler {
         eventId: eventId,
         description: description,
         privateZap: privateZap,
-        showLoading: false
+        showLoading: false,
+        zapType: zapType,
+        receiver: receiver,
+        groupId: groupId
       );
     }
   }
@@ -144,6 +162,9 @@ class ZapsActionHandler {
     String? eventId,
     String? description,
     bool? privateZap,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
     IMint? mint,
     bool showLoading = false,
   }) async {
@@ -159,12 +180,16 @@ class ZapsActionHandler {
       preprocessCallback?.call();
       if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
-          sats: zapAmount,
-          recipient: recipient,
-          lnurl: lnurl,
-          eventId: eventId,
-          description: description,
-          privateZap: privateZap ?? false);
+        sats: zapAmount,
+        recipient: recipient,
+        lnurl: lnurl,
+        eventId: eventId,
+        description: description,
+        privateZap: privateZap ?? false,
+        zapType: zapType,
+        receiver: receiver,
+        groupId: groupId
+      );
       await handleZapWithEcash(mint: mint!, zapsInfo: zapsInfo, context: context);
       if(showLoading) OXLoading.dismiss();
       if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
@@ -216,6 +241,9 @@ class ZapsActionHandler {
     String? description,
     String? eventId,
     bool privateZap = false,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
   }) async {
     final invokeResult = await OXUserCenterInterface.getInvoice(
       sats: sats,
@@ -224,6 +252,9 @@ class ZapsActionHandler {
       eventId: eventId,
       content: description,
       privateZap: privateZap,
+      zapType: zapType,
+      receiver: receiver,
+      groupId: groupId
     );
     final invoice = invokeResult['invoice'] ?? '';
     final zapper = invokeResult['zapper'] ?? '';

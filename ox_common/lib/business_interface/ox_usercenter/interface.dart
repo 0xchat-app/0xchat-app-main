@@ -1,4 +1,5 @@
 
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -20,6 +21,9 @@ class OXUserCenterInterface {
     required String otherLnurl,
     String? content,
     String? eventId,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
     bool privateZap = false,
   }) async {
     return await OXModuleService.invoke<Future<Map<String, String>>>(
@@ -32,6 +36,9 @@ class OXUserCenterInterface {
         #otherLnurl: otherLnurl,
         #content: content,
         #eventId: eventId,
+        #zapType: zapType,
+        #receiver: receiver,
+        #groupId: groupId,
         #privateZap: privateZap,
       },) ?? {};
   }
