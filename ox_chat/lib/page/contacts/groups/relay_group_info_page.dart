@@ -451,8 +451,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   Widget _leaveBtnWidget() {
-    if (!_isGroupMember) return SizedBox();
-    String content = _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
+    String content = !_isGroupMember || _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(top: 16.px),
@@ -477,9 +476,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _leaveConfirmWidget() {
-    String tips = _hasAddPermission
-        ? Localized.text('ox_chat.delete_group_tips')
-        : Localized.text('ox_chat.leave_group_tips');
+    String tips = !_isGroupMember ? Localized.text('ox_common.tips'): (_hasAddPermission
+        ? 'delete_group_tips'.localized() : 'leave_group_tips'.localized());
     String content = _hasAddPermission ? Localized.text('ox_chat.delete_and_leave_item') : Localized.text('ox_chat.str_leave_group');
     showModalBottomSheet(
       context: context,
