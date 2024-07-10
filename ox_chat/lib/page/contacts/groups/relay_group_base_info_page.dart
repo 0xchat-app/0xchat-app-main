@@ -253,7 +253,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
       );
       await OXLoading.dismiss();
       if (url.isNotEmpty) {
-        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', _avatarAliyunUrl, '');
+        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', url, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
           return;
@@ -269,13 +269,14 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 }
 
 class RelayGroupBaseInfoView extends StatelessWidget {
-  final RelayGroupDB? relayGroup;
+  final String? groupId;
   final GestureTapCallback? groupQrCodeFn;
 
-  RelayGroupBaseInfoView({this.relayGroup, this.groupQrCodeFn});
+  RelayGroupBaseInfoView({this.groupId, this.groupQrCodeFn});
 
   @override
   Widget build(BuildContext context) {
+    RelayGroupDB? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
     return Container(
       width: double.infinity,
       height: 80.px,
