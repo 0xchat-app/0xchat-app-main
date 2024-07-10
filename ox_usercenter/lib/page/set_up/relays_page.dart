@@ -222,7 +222,7 @@ class _RelaysPageState extends State<RelaysPage> {
                       Expanded(
                         child: GestureDetector(
                           behavior: HitTestBehavior.translucent,
-                          onTap: _addOnTap,
+                          onTap: () => _addOnTap(isUserInput: true),
                           child: Container(
                             height: Adapt.px(36),
                             decoration: BoxDecoration(
@@ -439,15 +439,16 @@ class _RelaysPageState extends State<RelaysPage> {
     return regex.hasMatch(input);
   }
 
-  void _addOnTap({String? upcomingRelay}) async {
+  void _addOnTap({String? upcomingRelay, bool isUserInput = false}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
     List<RelayDB> relayList = _relayListMap[_relayType]!;
     List<RelayDB> recommendRelayList = _recommendRelayListMap[_relayType]!;
+    final upcomingRelays = relayList.map((e) => e.url).toList();
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
       return;
     }
-    if (relayList.contains(upcomingRelay)) {
+    if (upcomingRelays.contains(upcomingRelay)) {
       CommonToast.instance.show(context, 'This Relay already exists');
     } else {
       switch(_relayType) {
@@ -461,6 +462,10 @@ class _RelaysPageState extends State<RelaysPage> {
       recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
         relayList.add(RelayDB(url: upcomingRelay!));
+        if (isUserInput) {
+          _relayTextFieldControll.text = '';
+          _isShowDelete = false;
+        }
       });
     }
   }
