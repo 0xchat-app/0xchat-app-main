@@ -46,7 +46,7 @@ class ZapsHelper {
       }
     }
     final resultMap = await Zaps.getInvoice(
-      relayNameList,
+      ZapType.normal,
       sats,
       otherLnurl,
       recipient,
