@@ -10,12 +10,12 @@ import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
-import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart';
 
 class UploadUtils {
 
-  static Future<String> uploadFile({
+  static Future<UploadResult> uploadFile({
     BuildContext? context,
     params,
     String? encryptedKey,
@@ -30,8 +30,7 @@ class UploadUtils {
       if (Platform.isAndroid) {
         Directory? externalStorageDirectory = await getExternalStorageDirectory();
         if (externalStorageDirectory == null) {
-          CommonToast.instance.show(context, 'Storage function abnormal');
-          return Future.value('');
+          return UploadResult.error('Storage function abnormal');
         }
         directoryPath = externalStorageDirectory.path;
       } else if (Platform.isIOS) {
@@ -79,8 +78,9 @@ class UploadUtils {
     } catch (e,s) {
       if (_showLoading) OXLoading.dismiss();
       LogUtil.e('Upload Failed: $e\r\n$s');
+      return UploadExceptionHandler.handleException(e);
     }
-    return url;
+    return UploadResult.success(url);
   }
 
   static UplodAliyunType convertFileTypeToUploadAliyunType(FileType fileType) {
@@ -93,6 +93,34 @@ class UploadUtils {
         return UplodAliyunType.videoType;
       case FileType.text:
         return UplodAliyunType.logType;
+    }
+  }
+}
+
+class UploadResult {
+  final bool isSuccess;
+  final String url;
+  final String? errorMsg;
+
+  UploadResult({required this.isSuccess, required this.url, this.errorMsg});
+
+  factory UploadResult.success(String url) {
+    return UploadResult(isSuccess: true, url: url);
+  }
+
+  factory UploadResult.error(String errorMsg) {
+    return UploadResult(isSuccess: false, url: '', errorMsg: errorMsg);
+  }
+}
+
+class UploadExceptionHandler {
+  static UploadResult handleException(dynamic e) {
+    if (e is ClientException) {
+      return UploadResult.error(e.message.substring('ClientException: '.length));
+    } else if (e is SocketException) {
+      return UploadResult.error(e.message);
+    } else {
+      return UploadResult.error(e.toString());
     }
   }
 }
