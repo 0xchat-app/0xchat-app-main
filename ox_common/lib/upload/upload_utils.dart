@@ -73,7 +73,6 @@ class UploadUtils {
           file: file,
           filename: filename,
           fileType: convertFileTypeToUploadAliyunType(fileType),
-          encryptedKey: encryptedKey,
           showLoading: showLoading,
         );
       }

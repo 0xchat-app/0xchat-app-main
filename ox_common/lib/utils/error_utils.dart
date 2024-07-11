@@ -3,6 +3,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -48,16 +50,16 @@ class ErrorUtils{
       String createEncryptKey = bytesToHex(MessageDB.getRandomSecret());
       String fileName = logFile.path.substring(logFile.path.lastIndexOf('/') + 1);
       try {
-        String url = await UplodAliyun.uploadFileToAliyun(
-          fileType: UplodAliyunType.logType,
+        UploadResult result = await UploadUtils.uploadFile(
+          fileType: FileType.text,
           file: logFile,
           filename: fileName,
           encryptedKey: createEncryptKey,
         );
-        if (url.isNotEmpty) {
+        if (result.isSuccess && result.url.isNotEmpty) {
           OXChatInterface.sendEncryptedFileMessage(
             context,
-            url: url,
+            url: result.url,
             receiverPubkey: '7adb520c3ac7cb6dc8253508df0ce1d975da49fefda9b5c956744a049d230ace',
             key: createEncryptKey,
             title: 'Log File',
@@ -66,7 +68,8 @@ class ErrorUtils{
           CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
         }
       } catch (e) {
-        CommonToast.instance.show(context, e.toString());
+        UploadResult result = UploadExceptionHandler.handleException(e);
+        CommonToast.instance.show(context, result.errorMsg ?? e.toString());
       }
 
     }
