@@ -123,7 +123,7 @@ class ChatSessionUtils {
       case ChatType.chatRelayGroup:
         RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[chatId];
         if (relayGroupDB != null){
-          if (relayGroupDB.private){
+          if (relayGroupDB.closed){
             iconName = 'icon_type_close_group.png';
           } else {
             iconName = 'icon_type_open_group.png';
