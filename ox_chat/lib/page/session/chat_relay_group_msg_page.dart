@@ -92,7 +92,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
     final groupId = widget.communityItem.groupId;
     if (groupId == null) return ;
     relayGroup = RelayGroup.sharedInstance.groups[groupId];
-    if (relayGroup != null) {
+    if (relayGroup == null) {
       RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId).then((relayGroupDB) {
         if (!mounted) return ;
         if (relayGroupDB != null) {
@@ -130,15 +130,15 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
-    String showName = relayGroupDB?.name ?? '';
+    RelayGroupDB? tempDb = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
+    String showName = tempDb?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: showName,
+        title: showName+'123312',
         backgroundColor: ThemeColor.color200,
         backCallback: () {
           OXNavigator.popToRoot(context);
@@ -227,10 +227,12 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   }
 
   void _updateChatStatus() {
-    if(!RelayGroup.sharedInstance.checkInGroup(groupId)){
+    LogUtil.e('Michael: ----_updateChatStatus =${RelayGroup.sharedInstance.getInGroupStatus(groupId)}');
+    int status = RelayGroup.sharedInstance.getInGroupStatus(groupId);
+    if( status== 0){
       chatStatus = ChatStatus.RequestGroup;
       return ;
-    } else if (!RelayGroup.sharedInstance.myGroups.containsKey(groupId)) {
+    } else if (status == 1) {
       chatStatus = ChatStatus.NotJoinedGroup;
       return ;
     }

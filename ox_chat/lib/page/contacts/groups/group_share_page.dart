@@ -37,11 +37,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
   UserDB? inviterUserDB = null;
   bool requestTag = true;
+  late String _practicalGroupId;
 
   @override
   void initState() {
     super.initState();
-    _getInviterUserDB();
     _getInviterInfo();
   }
 
@@ -50,22 +50,21 @@ class _GroupSharePageState extends State<GroupSharePage> {
     super.dispose();
   }
 
-  void _getInviterUserDB() async {
+  void _getInviterInfo() async {
     String pubKey = widget.inviterPubKey;
     if (pubKey.isEmpty) return;
     UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if (userDB != null) {
       inviterUserDB = userDB;
     }
-    setState(() {});
-  }
-
-  void _getInviterInfo() async {
     switch (widget.groupType) {
       case GroupType.privateGroup:
+        _practicalGroupId = widget.groupId;
         break;
       case GroupType.openGroup:
       case GroupType.closeGroup:
+        SimpleGroups simpleGroups = RelayGroup.sharedInstance.getHostAndGroupId(widget.groupId);
+        _practicalGroupId = simpleGroups.groupId;
         RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
         if (tempRelayGroupDB != null) {
           widget.groupType = tempRelayGroupDB.closed ? GroupType.closeGroup : GroupType.openGroup;
@@ -210,21 +209,17 @@ class _GroupSharePageState extends State<GroupSharePage> {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(
-              left: Adapt.px(16),
-            ),
+            padding: EdgeInsets.only(left: 16.px),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.only(
-                    bottom: Adapt.px(2),
-                  ),
+                  padding: EdgeInsets.only(bottom: 2.px),
                   child: Text(
                     _dealWithGroupName,
                     style: TextStyle(
                       color: ThemeColor.color0,
-                      fontSize: Adapt.px(16),
+                      fontSize: 16.px,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -233,9 +228,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
                   _dealWithGroupId,
                   style: TextStyle(
                     color: ThemeColor.color120,
-                    fontSize: Adapt.px(14),
+                    fontSize: 14.px,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -249,6 +246,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     int status = widget.groupType == GroupType.privateGroup
         ? Groups.sharedInstance.getInGroupStatus(widget.groupId)
         : RelayGroup.sharedInstance.getInGroupStatus(widget.groupId);
+    LogUtil.e('Michael: ---_joinBtnWidget--status =${status}');
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -454,8 +452,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
         context,
         ChatRelayGroupMsgPage(
           communityItem: ChatSessionModel(
-            chatId: widget.groupId,
-            groupId: widget.groupId,
+            chatId: _practicalGroupId,
+            groupId: _practicalGroupId,
             chatType: ChatType.chatRelayGroup,
             chatName: widget.groupName,
           ),
@@ -465,9 +463,9 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   String get _dealWithGroupId {
-    String groupId = widget.groupId;
+    String groupId = _practicalGroupId;
     if(groupId.length > 33) {
-      return groupId.substring(0,15) + '...' +  groupId.substring(groupId.length - 15);
+      return groupId.substring(0,8) + '...' +  groupId.substring(groupId.length - 8);
     }
     return groupId;
   }
