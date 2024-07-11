@@ -5,6 +5,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/minio_uploader.dart';
+import 'package:ox_common/upload/upload_exception.dart';
 import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
@@ -125,6 +126,8 @@ class UploadExceptionHandler {
       return UploadResult.error(e.message ?? errorMessage);
     } else if (e is DioException) {
       return UploadResult.error(parseError(e));
+    } else if (e is UploadException) {
+      return UploadResult.error(e.message);
     } else {
       return UploadResult.error(errorMessage);
     }

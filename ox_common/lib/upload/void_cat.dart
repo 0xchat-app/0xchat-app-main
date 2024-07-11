@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ox_common/upload/upload_exception.dart';
 import 'string_util.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
@@ -57,7 +59,9 @@ class VoidCatUploader {
       var body = response.data;
 
       if (body != null && body.contains('"ok":false')) {
-        return null;
+        Map<String, dynamic> result = jsonDecode(body);
+        final errorMessage = result['errorMessage'] ?? 'Site Error';
+        throw UploadException(errorMessage);
       }
 
       if (StringUtil.isNotBlank(body) && StringUtil.isNotBlank(extName)) {

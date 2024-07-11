@@ -29,11 +29,15 @@ class Pomf2LainLa {
     }
 
     var formData = FormData.fromMap({"files[]": multipartFile});
-    var response =
-        await NostrBuildUploader.dio.post(UPLOAD_ACTION, data: formData);
-    var body = response.data;
-    if (body is Map<String, dynamic>) {
-      return body["files"][0]["url"];
+    try{
+      var response =
+      await NostrBuildUploader.dio.post(UPLOAD_ACTION, data: formData);
+      var body = response.data;
+      if (body is Map<String, dynamic>) {
+        return body["files"][0]["url"];
+      }
+    }catch(e){
+      rethrow;
     }
     return null;
   }
