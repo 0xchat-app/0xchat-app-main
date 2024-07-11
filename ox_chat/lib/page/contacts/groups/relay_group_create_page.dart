@@ -366,11 +366,11 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       var uri = Uri.parse(_chatRelay);
       var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
-        hostWithPort,
-        name,
+        _chatRelay,
+        name: name,
         picture: _avatarAliyunUrl,
         about: _descriptionController.text,
-        closed: widget.groupType == GroupType.closeGroup ? 'true' : 'false',
+        closed: widget.groupType == GroupType.closeGroup ? true : false,
       );
       await OXLoading.dismiss();
       if (relayGroupDB != null) {
