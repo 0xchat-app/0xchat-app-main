@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:minio/minio.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/upload/file_type.dart';
@@ -116,9 +117,9 @@ class UploadResult {
 class UploadExceptionHandler {
   static UploadResult handleException(dynamic e) {
     if (e is ClientException) {
-      return UploadResult.error(e.message.substring('ClientException: '.length));
-    } else if (e is SocketException) {
-      return UploadResult.error(e.message);
+      return UploadResult.error('Unable to connect to the file storage server.');
+    } else if (e is MinioError) {
+      return UploadResult.error(e.message ?? '');
     } else {
       return UploadResult.error(e.toString());
     }

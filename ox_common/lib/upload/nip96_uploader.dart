@@ -119,6 +119,7 @@ class NIP96Uploader {
     } catch (e) {
       print("nostr.build nip96 upload exception:");
       print(e);
+      rethrow;
     }
 
     return null;

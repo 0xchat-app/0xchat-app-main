@@ -46,23 +46,27 @@ class VoidCatUploader {
       headers["V-Filename"] = fileName;
     }
 
-    var response = await NostrBuildUploader.dio.post<String>(
-      UPLOAD_ACTION,
-      data: Stream.fromIterable(bytes.map((e) => [e])),
-      options: Options(
-        headers: headers,
-      ),
-    );
-    var body = response.data;
+    try{
+      var response = await NostrBuildUploader.dio.post<String>(
+        UPLOAD_ACTION,
+        data: Stream.fromIterable(bytes.map((e) => [e])),
+        options: Options(
+          headers: headers,
+        ),
+      );
+      var body = response.data;
 
-    if (body != null && body.contains('"ok":false')) {
-      return null;
+      if (body != null && body.contains('"ok":false')) {
+        return null;
+      }
+
+      if (StringUtil.isNotBlank(body) && StringUtil.isNotBlank(extName)) {
+        body = "$body.$extName";
+      }
+
+      return body;
+    }catch(e){
+      rethrow;
     }
-
-    if (StringUtil.isNotBlank(body) && StringUtil.isNotBlank(extName)) {
-      body = "$body.$extName";
-    }
-
-    return body;
   }
 }

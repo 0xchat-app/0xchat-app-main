@@ -106,6 +106,7 @@ class BolssomUploader {
     } catch (e) {
       print("BolssomUploader.upload upload exception:");
       print(e);
+      rethrow;
     }
 
     return null;

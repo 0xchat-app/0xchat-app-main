@@ -31,28 +31,32 @@ class Uploader {
 
   static Future<String?> upload(String localPath, String imageService,
       {String? imageServiceAddr, String? fileName}) async {
-    switch (imageService) {
-      case ImageServices.POMF2_LAIN_LA:
-        return await Pomf2LainLa.upload(localPath, fileName: fileName);
-      case ImageServices.NOSTR_BUILD:
-        return await NostrBuildUploader.upload(localPath, fileName: fileName);
-      case ImageServices.NOSTO_RE:
-        return await BolssomUploader.upload("https://nosto.re/", localPath,
-            fileName: fileName);
-      case ImageServices.BLOSSOM:
-        if (StringUtil.isNotBlank(imageServiceAddr)) {
-          return await BolssomUploader.upload(imageServiceAddr!, localPath,
+    try{
+      switch (imageService) {
+        case ImageServices.POMF2_LAIN_LA:
+          return await Pomf2LainLa.upload(localPath, fileName: fileName);
+        case ImageServices.NOSTR_BUILD:
+          return await NostrBuildUploader.upload(localPath, fileName: fileName);
+        case ImageServices.NOSTO_RE:
+          return await BolssomUploader.upload("https://nosto.re/", localPath,
               fileName: fileName);
-        }
-      case ImageServices.VOID_CAT:
-        return await VoidCatUploader.upload(localPath);
-      case ImageServices.NIP_96:
-        if (StringUtil.isNotBlank(imageServiceAddr)) {
-          return await NIP96Uploader.upload(imageServiceAddr!, localPath,
-              fileName: fileName);
-        }
-      default:
-        return await NIP96Uploader.upload(imageServiceAddr!, localPath, fileName: fileName);
+        case ImageServices.BLOSSOM:
+          if (StringUtil.isNotBlank(imageServiceAddr)) {
+            return await BolssomUploader.upload(imageServiceAddr!, localPath,
+                fileName: fileName);
+          }
+        case ImageServices.VOID_CAT:
+          return await VoidCatUploader.upload(localPath);
+        case ImageServices.NIP_96:
+          if (StringUtil.isNotBlank(imageServiceAddr)) {
+            return await NIP96Uploader.upload(imageServiceAddr!, localPath,
+                fileName: fileName);
+          }
+        default:
+          return await NIP96Uploader.upload(imageServiceAddr!, localPath, fileName: fileName);
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

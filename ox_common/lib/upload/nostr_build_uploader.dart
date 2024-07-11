@@ -22,10 +22,14 @@ class NostrBuildUploader {
     }
 
     var formData = FormData.fromMap({"file": multipartFile});
-    var response = await dio.post(UPLOAD_ACTION, data: formData);
-    var body = response.data;
-    if (body is Map<String, dynamic> && body["status"] == "success") {
-      return body["data"][0]["url"];
+    try{
+      var response = await dio.post(UPLOAD_ACTION, data: formData);
+      var body = response.data;
+      if (body is Map<String, dynamic> && body["status"] == "success") {
+        return body["data"][0]["url"];
+      }
+    }catch(e){
+      rethrow;
     }
 
     return null;
