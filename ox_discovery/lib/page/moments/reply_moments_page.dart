@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -372,7 +373,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     if (_showImageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.imageType,
+        fileType: FileType.image,
         filePathList: _showImageList,
       );
       String getImageUrlToStr = imgUrlList.join(' ');

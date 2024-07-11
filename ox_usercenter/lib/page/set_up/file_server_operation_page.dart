@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/upload/minio_uploader.dart';
 import 'package:ox_common/upload/nip96_info_loader.dart';
 import 'package:ox_common/upload/nip96_server_adaptation.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -15,7 +14,6 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-import 'package:http/http.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
 enum OperationType { create, edit }
@@ -330,12 +328,10 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         await OXServerManager.sharedInstance.updateFileStorageServer(minioServer);
       }
       OXNavigator.pop(context);
-    } on ClientException catch (e) {
-      final error = e.toString().substring(e.toString().indexOf(':') + 2,e.toString().length);
-      CommonToast.instance.show(context, error);
     } catch (e) {
       OXLoading.dismiss();
-      CommonToast.instance.show(context, e.toString());
+      UploadResult result = UploadExceptionHandler.handleException(e);
+      CommonToast.instance.show(context, result.errorMsg ?? 'Minio Error');
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -521,7 +522,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     if (imageList.isNotEmpty){
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.imageType,
+        fileType: FileType.image,
         filePathList: _getImageList(),
         showLoading: false,
       );
@@ -533,7 +534,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     if (videoPath != null){
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.videoType,
+        fileType: FileType.video,
         filePathList: [videoPath!],
         showLoading: false
       );

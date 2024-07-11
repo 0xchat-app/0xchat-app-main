@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:video_compress/video_compress.dart';
@@ -84,7 +87,7 @@ class AlbumUtils {
   static Future<List<String>> uploadMultipleFiles(
     BuildContext? context, {
     required List<String> filePathList,
-    required UplodAliyunType fileType,
+    required FileType fileType,
     bool showLoading = true
   }) async {
     List<String> uploadedUrls = [];
@@ -93,15 +96,17 @@ class AlbumUtils {
       final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
       String fileName = '$currentTime${Path.basenameWithoutExtension(filePath)}.${fileType == UplodAliyunType.imageType ? 'jpg' : 'mp4'}';
       File imageFile = File(filePath);
-      String uploadedUrl = await UplodAliyun.uploadFileToAliyun(
+      UploadResult result = await UploadUtils.uploadFile(
         context: context,
         fileType: fileType,
         file: imageFile,
         filename: fileName,
         showLoading: showLoading
       );
-      if (uploadedUrl.isNotEmpty) {
-        uploadedUrls.add(uploadedUrl);
+      if (result.isSuccess && result.url.isNotEmpty) {
+        uploadedUrls.add(result.url);
+      } else {
+        CommonToast.instance.show(context, result.errorMsg ?? 'Upload Failed');
       }
     }
     return uploadedUrls;
