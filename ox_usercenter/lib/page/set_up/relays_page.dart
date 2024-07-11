@@ -49,6 +49,11 @@ class _RelaysPageState extends State<RelaysPage> {
     super.initState();
     _relaySelectableController.currentIndex.addListener(_relaySelectableListener);
     _initDefault();
+    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+      didRelayStatusChange(relay, status);
+    });
+    Account.sharedInstance.relayListUpdateCallback = _initDefault;
+    Account.sharedInstance.dmRelayListUpdateCallback = _initDefault;
   }
 
   void _relaySelectableListener() {
@@ -68,9 +73,6 @@ class _RelaysPageState extends State<RelaysPage> {
     for (var relayType in RelayType.values) {
       _initRelayList(relayType);
     }
-    Connect.sharedInstance.addConnectStatusListener((relay, status) {
-        didRelayStatusChange(relay, status);
-    });
     setState(() {});
   }
 
