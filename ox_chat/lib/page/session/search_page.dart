@@ -452,7 +452,7 @@ class SearchPageState extends State<SearchPage> {
                   Text(
                     title ?? '',
                   ).setPadding(EdgeInsets.only(bottom: Adapt.px(2))),
-                  highlightText(subTitle ?? ''),
+                  subTitle == null || subTitle.isEmpty ? SizedBox() : highlightText(subTitle),
                 ],
               ),
             ),

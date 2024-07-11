@@ -26,11 +26,10 @@ class SearchTxtUtil{
   }
 
   static List<GroupUIModel>? loadChatGroupWithSymbol(String symbol) {
-    List<GroupUIModel>? groupUIModels;
+    List<GroupUIModel> groupUIModels = [];
     final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
     final List<RelayGroupDB>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
     if(groupDBlist!=null && groupDBlist.length>0) {
-      groupUIModels ??= [];
       List<GroupUIModel> groupUIModelList = [];
       List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
       tempGroups.forEach((element) {
@@ -39,7 +38,6 @@ class SearchTxtUtil{
       groupUIModels.addAll(groupUIModelList);
     }
     if(relayGroupDBlist!=null && relayGroupDBlist.length>0) {
-      groupUIModels ??= [];
       List<GroupUIModel> relayGroupUIModelList = [];
       List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
       tempGroups.forEach((element) {
