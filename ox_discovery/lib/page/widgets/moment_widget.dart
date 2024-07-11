@@ -142,13 +142,14 @@ class _MomentWidgetState extends State<MomentWidget> {
     return Column(
       children: contentList.map((String content) {
         String? noteId;
+        String? neventId;
         List<String>? relays;
+        String? quoteRepostId = model.value.noteDB.quoteRepostId;
         if (quoteUrlList.contains(content)) {
           if(content.contains('nostr:nevent')){
-            Map result = Nip19.decodeShareableEntity(content);
-            if (result['prefix'] == 'nevent' && result['kind'] == 1) {
-              noteId = result['special'];
-              relays = result['relays'];
+            Map result = Nip19.decodeShareableEntity(Nip21.decode(content)!);
+            if(result['special']?.toLowerCase() != quoteRepostId?.toLowerCase()){
+              neventId = content;
             }
           }else{
             final noteInfo = NoteDB.decodeNote(content);
@@ -156,10 +157,10 @@ class _MomentWidgetState extends State<MomentWidget> {
           }
 
           bool isShowQuote =
-              noteId != null && noteId != model.value.noteDB.quoteRepostId;
+          (noteId != null && noteId.toLowerCase() != quoteRepostId?.toLowerCase()) || neventId != null;
 
           return isShowQuote
-              ? MomentQuoteWidget(notedId: noteId,relays: relays)
+              ? MomentQuoteWidget(notedId: noteId,relays: relays,neventId:neventId)
               : const SizedBox();
         } else if(getNddrlList.contains(content)){
           return MomentArticleWidget(naddr: content);
