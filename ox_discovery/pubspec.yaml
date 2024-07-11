@@ -40,6 +40,8 @@ dependencies:
     path: ../../business_modules/ox_chat_ui
   chatcore:
     path: ../../0xchat-core
+  cashu_dart:
+    path: ../../cashu-dart
 
 
 
