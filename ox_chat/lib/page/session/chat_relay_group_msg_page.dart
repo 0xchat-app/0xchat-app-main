@@ -138,7 +138,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: showName+'123312',
+        title: showName,
         backgroundColor: ThemeColor.color200,
         backCallback: () {
           OXNavigator.popToRoot(context);
@@ -227,7 +227,6 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   }
 
   void _updateChatStatus() {
-    LogUtil.e('Michael: ----_updateChatStatus =${RelayGroup.sharedInstance.getInGroupStatus(groupId)}');
     int status = RelayGroup.sharedInstance.getInGroupStatus(groupId);
     if( status== 0){
       chatStatus = ChatStatus.RequestGroup;
