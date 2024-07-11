@@ -137,8 +137,8 @@ class UploadExceptionHandler {
       errorMsg = socketException.message;
     }
     if (e.error is HttpException) {
-      SocketException socketException = e.error as SocketException;
-      errorMsg = socketException.message;
+      HttpException httpException = e.error as HttpException;
+      errorMsg = httpException.message;
     }
     return errorMsg;
   }
