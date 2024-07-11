@@ -475,6 +475,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: true,
+      zapType: session.asZapType,
     );
     await handler.handleZap(context: context, eventId: eventId);
   }
@@ -597,6 +598,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: true,
+      zapType: session.asZapType,
       zapsInfoCallback: (zapsInfo) {
         final zapper = zapsInfo['zapper'] ?? '';
         final invoice = zapsInfo['invoice'] ?? '';
@@ -752,5 +754,24 @@ mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
     ChatDraftManager.shared.updateSession();
     chatGeneralHandler.dispose();
     super.dispose();
+  }
+}
+
+extension ChatZapsEx on ChatSessionModel {
+  ZapType? get asZapType {
+    switch (chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+        return ZapType.privateChat;
+      case ChatType.chatGroup:
+        return ZapType.privateGroup;
+      case ChatType.chatChannel:
+        return ZapType.channelChat;
+      case ChatType.chatRelayGroup:
+        return ZapType.relayGroup;
+    }
+    return null;
   }
 }

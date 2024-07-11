@@ -55,10 +55,9 @@ class EcashHelper {
       final tokenMD5 = EncryptUtils.generateMd5(token);
       final info = Cashu.infoOfToken(token);
       if (info == null) continue;
-      final (_, amount, _) = info;
       final tokenInfo = EcashTokenInfo(
         token: token,
-        amount: amount,
+        amount: info.amount,
         redeemHistory: historyMap[tokenMD5],
       );
       tokenInfoList.add(tokenInfo);
