@@ -11,18 +11,14 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
 import '../utils/theme_color.dart';
 import 'common_loading.dart';
 import 'common_toast.dart';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-
 import 'package:path_provider/path_provider.dart';
 
 typedef DoubleClickAnimationListener = void Function();
-
 
 class SmoothPageScrollPhysics extends ScrollPhysics {
   final double scrollSpeedMultiplier;
@@ -46,7 +42,8 @@ class SmoothPageScrollPhysics extends ScrollPhysics {
   }
 
   @override
-  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
+  Simulation? createBallisticSimulation(
+      ScrollMetrics position, double velocity) {
     final Tolerance tolerance = this.toleranceFor(position);
     if (velocity.abs() >= tolerance.velocity || position.outOfRange) {
       return BouncingScrollSimulation(
@@ -148,16 +145,6 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
     });
   }
 
-  void _handleSlideEnd(ExtendedImageSlidePageState state) {
-    double angle = (math.atan2(state.offset.dy, state.offset.dx) * 180 / math.pi).abs();
-    if (angle > 45 && angle < 135) {
-      if (state.offset.dy > 100 && !_isPopped) {
-        _isPopped = true;
-        Navigator.pop(context);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -165,8 +152,6 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       child: Stack(
         children: [
           GestureDetector(
-            // onPanUpdate: _handleDragUpdate,
-            // onPanEnd: _handleDragEnd,
             onLongPress: _showBottomMenu,
             onTap: () {
               if (isScrollComplete) {
@@ -174,80 +159,39 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
               }
             },
             child: ExtendedImageSlidePage(
-              slidePageBackgroundHandler: (    Offset offset, Size pageSize){
-                double opacity = 0.0;
-                  opacity = offset.distance /
-                      (Offset(pageSize.width, pageSize.height).distance / 2.0);
-                return ThemeColor.color200.withOpacity(min(1.0, max(1.0 - opacity, 0.0)));
-              },
               key: slidePagekey,
+              slideAxis: SlideAxis.both,
+              slideType: SlideType.onlyImage,
+              slidePageBackgroundHandler: (Offset offset, Size pageSize) =>
+                  _slidePageBackgroundHandler(offset, pageSize),
               slideOffsetHandler: (
                 Offset offset, {
                 ExtendedImageSlidePageState? state,
-              }) {
-                if(_offset != Offset.zero){
-                  _offset = offset;
-                  return offset;
-                }
-
-                if (offset.dy < 0) {
-                  _offset = Offset.zero;
-                  return Offset(0, 0);
-                }
-                if(offset.dy > 1 && (-2 < offset.dx && offset.dx < 2)){
-                  _offset = offset;
-                  return offset;
-                }
-                _offset = Offset.zero;
-                return Offset(0, 0);
-              },
+              }) =>
+                  _slideOffsetHandler(offset, state: state),
               slideScaleHandler: (
                 Offset offset, {
                 ExtendedImageSlidePageState? state,
               }) {
                 return 1.0;
               },
-
               slideEndHandler: (
                 Offset offset, {
                 ExtendedImageSlidePageState? state,
                 ScaleEndDetails? details,
-              }) {
-                _offset = Offset.zero;
-                if (state == null || details == null) {
-                  return false;
-                }
-
-                final double velocity = details.velocity.pixelsPerSecond.dy;
-
-                const double positionThreshold = 200;
-                const double velocityThreshold = 1000;
-
-                if (offset.dy > 10 && velocity > 100 && isScrollComplete) {
-                  return true;
-                }
-
-                if (offset.dy > positionThreshold && velocity > velocityThreshold && isScrollComplete) {
-                  return true;
-                }
-
-                return false;
-              },
+              }) =>
+                  _slideEndHandler(offset, state: state, details: details),
               resetPageDuration: const Duration(milliseconds: 1),
-              onSlidingPage: (ExtendedImageSlidePageState state) {
-                // if (!state.isSliding) {
-                // _handleSlideEnd(state);
-                // }
-              },
+              onSlidingPage: (ExtendedImageSlidePageState state) {},
               child: ExtendedImageGesturePageView.builder(
                 controller: _pageController,
                 itemCount: widget.imageList.length,
                 scrollDirection: Axis.horizontal,
-                physics:  widget.imageList.length == 1 ? NeverScrollableScrollPhysics() : SmoothPageScrollPhysics(),
+                physics: widget.imageList.length == 1
+                    ? NeverScrollableScrollPhysics()
+                    : SmoothPageScrollPhysics(),
                 canScrollPage: (GestureDetails? gestureDetails) {
                   return true;
-                  // return _imageDetailY >= 0;
-                  // return (gestureDetails?.totalScale ?? 1.0) <= 1.0;
                 },
                 itemBuilder: (BuildContext context, int index) {
                   return HeroWidget(
@@ -266,47 +210,10 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                               child: Text('Load failed'),
                             );
                         }
-                        return null;
                       },
                       enableSlideOutPage: true,
-                      onDoubleTap: (ExtendedImageGestureState state) {
-                        ///you can use define pointerDownPosition as you can,
-                        ///default value is double tap pointer down postion.
-                        final Offset? pointerDownPosition =
-                            state.pointerDownPosition;
-                        final double? begin = state.gestureDetails!.totalScale;
-                        double end;
-
-                        //remove old
-                        _doubleClickAnimation
-                            ?.removeListener(_doubleClickAnimationListener);
-
-                        //stop pre
-                        _doubleClickAnimationController.stop();
-
-                        //reset to use
-                        _doubleClickAnimationController.reset();
-
-                        if (begin == doubleTapScales[0]) {
-                          end = doubleTapScales[1];
-                        } else {
-                          end = doubleTapScales[0];
-                        }
-
-                        _doubleClickAnimationListener = () {
-                          //print(_animation.value);
-                          state.handleDoubleTap(
-                              scale: _doubleClickAnimation!.value,
-                              doubleTapPosition: pointerDownPosition);
-                        };
-                        _doubleClickAnimation = _doubleClickAnimationController
-                            .drive(Tween<double>(begin: begin, end: end));
-
-                        _doubleClickAnimation!
-                            .addListener(_doubleClickAnimationListener);
-
-                        _doubleClickAnimationController.forward();
-                      },
+                      onDoubleTap: (ExtendedImageGestureState state) =>
+                          _onDoubleTap(state),
                       mode: ExtendedImageMode.gesture,
                       initGestureConfigHandler: (state) {
                         return GestureConfig(
@@ -332,11 +239,6 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                   print('page changed to $index');
                 },
               ),
-              slideAxis: SlideAxis.both,
-              slideType: SlideType.onlyImage,
-              // onSlidingPage: (state) {
-              //   print('Sliding state: ${state.toString()}');
-              // },
             ),
           ),
           Positioned.directional(
@@ -344,21 +246,22 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
             textDirection: Directionality.of(context),
             bottom: 56,
             child: Container(
-                width: 35.px,
-                height: 35.px,
-                decoration: BoxDecoration(
-                    color: ThemeColor.color180,
-                    borderRadius: BorderRadius.all(Radius.circular(35.px))),
-                child: Center(
-                  child: GestureDetector(
-                    child: Icon(
-                      Icons.save_alt,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    onTap: _widgetShotAndSave,
+              width: 35.px,
+              height: 35.px,
+              decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.all(Radius.circular(35.px))),
+              child: Center(
+                child: GestureDetector(
+                  child: Icon(
+                    Icons.save_alt,
+                    color: Colors.white,
+                    size: 24,
                   ),
-                )),
+                  onTap: _widgetShotAndSave,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -445,6 +348,98 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
         ),
       ),
     );
+  }
+
+  Color _slidePageBackgroundHandler(Offset offset, Size pageSize) {
+    double opacity = 0.0;
+    opacity = offset.distance /
+        (Offset(pageSize.width, pageSize.height).distance / 2.0);
+    return ThemeColor.color200.withOpacity(min(1.0, max(1.0 - opacity, 0.0)));
+  }
+
+  bool? _slideEndHandler(
+    Offset offset, {
+    ExtendedImageSlidePageState? state,
+    ScaleEndDetails? details,
+  }) {
+    _offset = Offset.zero;
+    if (state == null || details == null) {
+      return false;
+    }
+
+    final double velocity = details.velocity.pixelsPerSecond.dy;
+
+    const double positionThreshold = 200;
+    const double velocityThreshold = 1000;
+
+    if (offset.dy > 10 && velocity > 100 && isScrollComplete) {
+      return true;
+    }
+
+    if (offset.dy > positionThreshold &&
+        velocity > velocityThreshold &&
+        isScrollComplete) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void _onDoubleTap(ExtendedImageGestureState state) {
+    ///you can use define pointerDownPosition as you can,
+    ///default value is double tap pointer down postion.
+    final Offset? pointerDownPosition = state.pointerDownPosition;
+    final double? begin = state.gestureDetails!.totalScale;
+    double end;
+
+    //remove old
+    _doubleClickAnimation?.removeListener(_doubleClickAnimationListener);
+
+    //stop pre
+    _doubleClickAnimationController.stop();
+
+    //reset to use
+    _doubleClickAnimationController.reset();
+
+    if (begin == doubleTapScales[0]) {
+      end = doubleTapScales[1];
+    } else {
+      end = doubleTapScales[0];
+    }
+
+    _doubleClickAnimationListener = () {
+      //print(_animation.value);
+      state.handleDoubleTap(
+          scale: _doubleClickAnimation!.value,
+          doubleTapPosition: pointerDownPosition);
+    };
+    _doubleClickAnimation = _doubleClickAnimationController
+        .drive(Tween<double>(begin: begin, end: end));
+
+    _doubleClickAnimation!.addListener(_doubleClickAnimationListener);
+
+    _doubleClickAnimationController.forward();
+  }
+
+  Offset? _slideOffsetHandler(
+    Offset offset, {
+    ExtendedImageSlidePageState? state,
+  }) {
+    if (_offset != Offset.zero) {
+      _offset = offset;
+      return offset;
+    }
+
+    if (offset.dy < 0) {
+      _offset = Offset.zero;
+      return Offset(0, 0);
+    }
+    if (offset.dy > 1 && (-2 < offset.dx && offset.dx < 2)) {
+      _offset = offset;
+      return offset;
+    }
+    _offset = Offset.zero;
+    return Offset(0, 0);
   }
 
   Future _widgetShotAndSave() async {
