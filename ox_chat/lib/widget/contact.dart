@@ -301,11 +301,10 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
           ),
         );
       });
-      double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
       slivers.add(
         SliverToBoxAdapter(
-          child: Container(
-            height: fillH,
+          child: SizedBox(
+            height: 168.px,
           ),
         ),
       );
