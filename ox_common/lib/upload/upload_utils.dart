@@ -13,6 +13,7 @@ import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
+import 'package:dio/dio.dart';
 
 class UploadUtils {
 
@@ -78,8 +79,7 @@ class UploadUtils {
       if(_showLoading) OXLoading.dismiss();
     } catch (e,s) {
       if (_showLoading) OXLoading.dismiss();
-      LogUtil.e('Upload Failed: $e\r\n$s');
-      return UploadExceptionHandler.handleException(e);
+      return UploadExceptionHandler.handleException(e,s);
     }
     return UploadResult.success(url);
   }
@@ -115,13 +115,31 @@ class UploadResult {
 }
 
 class UploadExceptionHandler {
-  static UploadResult handleException(dynamic e) {
+  static const errorMessage = 'Unable to connect to the file storage server.';
+
+  static UploadResult handleException(dynamic e,[dynamic s]) {
+    LogUtil.e('Upload File Exception Handler: $e\r\n$s');
     if (e is ClientException) {
-      return UploadResult.error('Unable to connect to the file storage server.');
+      return UploadResult.error(e.message);
     } else if (e is MinioError) {
-      return UploadResult.error(e.message ?? '');
+      return UploadResult.error(e.message ?? errorMessage);
+    } else if (e is DioException) {
+      return UploadResult.error(parseError(e));
     } else {
-      return UploadResult.error(e.toString());
+      return UploadResult.error(errorMessage);
     }
+  }
+
+  static String parseError(dynamic e) {
+    String errorMsg = e.message ?? errorMessage;
+    if (e.error is SocketException) {
+      SocketException socketException = e.error as SocketException;
+      errorMsg = socketException.message;
+    }
+    if (e.error is HttpException) {
+      SocketException socketException = e.error as SocketException;
+      errorMsg = socketException.message;
+    }
+    return errorMsg;
   }
 }
