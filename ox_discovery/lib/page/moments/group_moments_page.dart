@@ -313,7 +313,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
               height: Adapt.px(90),
             ),
             Text(
-              '${Localized.text('ox_discovery.no')} Moment !',
+              'No Group Note',
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,

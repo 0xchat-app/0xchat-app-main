@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
@@ -302,6 +305,21 @@ class _MomentWidgetState extends State<MomentWidget> {
               );
             },
           ),
+          GestureDetector(
+            onTapDown: (TapDownDetails details) => _showMomentOptionMore(context, details.globalPosition),
+            child: Container(
+              padding: EdgeInsets.only(
+                top: 10.px,
+                left: 10.px,
+                bottom: 10.px,
+              ),
+              child: CommonImage(
+                iconName: 'more_moment_icon.png',
+                size: 20.px,
+                package: 'ox_discovery',
+              ),
+            ),
+          ),
 
           // CommonImage(
           //   iconName: 'more_moment_icon.png',
@@ -311,6 +329,61 @@ class _MomentWidgetState extends State<MomentWidget> {
         ],
       ),
     );
+  }
+
+  void _showMomentOptionMore(BuildContext context, Offset position) async{
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy + 10,
+        overlay.size.width - position.dx,
+        overlay.size.height - position.dy + 10,
+      ),
+      color: ThemeColor.color180,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      ),
+      items: <PopupMenuEntry<EMomentMoreOptionType>>[
+        ...EMomentMoreOptionType.values
+            .toList()
+            .map((EMomentMoreOptionType type) {
+          return PopupMenuItem<EMomentMoreOptionType>(
+            value: type,
+            child: Center(
+              child: Text(
+                type.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: ThemeColor.white,
+                ),
+              ),
+            ),
+          );
+        }).toList()
+      ],
+    ).then((value)async {
+      NoteDB? noteDB = notedUIModel?.value.noteDB;
+      if (noteDB == null) {
+        CommonToast.instance.show(context, 'Option fail');
+        return;
+      }
+      switch (value) {
+        case EMomentMoreOptionType.copyNotedID:
+          await TookKit.copyKey(context, noteDB.encodedNoteId);
+          break;
+        case EMomentMoreOptionType.copyNotedText:
+          await TookKit.copyKey(context, noteDB.content);
+          break;
+        case EMomentMoreOptionType.mute:
+          final okEvent = await Contacts.sharedInstance.addToBlockList(noteDB.author);
+          if (okEvent.status) {
+            CommonToast.instance.show(context, 'Mute success');
+          }
+          break;
+      }
+    });
   }
 
   Widget _momentInteractionDataWidget() {

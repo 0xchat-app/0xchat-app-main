@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,52 +49,72 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
   }
 
   void _onVideoTap() {
-    setState(() {
-      if (_videoPlayerController.value.isPlaying) {
-        _videoPlayerController.pause();
-        _customControlsKey.currentState?.showControls();
-      } else {
-        _videoPlayerController.play();
-        _customControlsKey.currentState?.showControls();
-      }
-    });
+    if (_videoPlayerController.value.isPlaying) {
+      _videoPlayerController.pause();
+      _customControlsKey.currentState?.showControls();
+    } else {
+      _videoPlayerController.play();
+      _customControlsKey.currentState?.showControls();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return _chewieController != null &&
-            _chewieController!.videoPlayerController.value.isInitialized
-        ?  Container(
-              color: ThemeColor.color180,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _onVideoTap,
-                    child: SafeArea(
-                      child: Chewie(
-                        controller: _chewieController!,
-                      ),
-                    ),
-                  )
-                ],
+    bool isShowVideoWidget = _chewieController != null &&
+        _chewieController!.videoPlayerController.value.isInitialized;
+    if(!isShowVideoWidget) return const SizedBox();
+    return Container(
+      color: ThemeColor.color180,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          GestureDetector(
+            onTap: _onVideoTap,
+            child: SafeArea(
+              child: Chewie(
+                controller: _chewieController!,
+              ),
             ),
           )
-        : Container();
+        ],
+      ),
+    );
   }
 
   Future<void> initializePlayer() async {
-    final file = await DefaultCacheManager().getSingleFile(widget.videoUrl);
-
     try {
-      _videoPlayerController = VideoPlayerController.file(file);
-      await Future.wait([
-        _videoPlayerController.initialize(),
-      ]);
+      if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
+
+        final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+        if (fileInfo != null) {
+          _videoPlayerController = VideoPlayerController.file(fileInfo.file);
+        } else {
+          _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+          cacheVideo();
+        }
+
+      } else {
+        File videoFile = File(widget.videoUrl);
+        _videoPlayerController = VideoPlayerController.file(videoFile);
+      }
+      await Future.wait([_videoPlayerController.initialize()]);
       _createChewieController();
-      setState(() {});
+      if(mounted){
+        setState(() {});
+      }
     } catch (e) {
       print('Error playing audio: $e');
+    }
+  }
+
+
+  Future<void> cacheVideo() async {
+    try {
+      print('Starting cache process...');
+      await DefaultCacheManager().downloadFile(widget.videoUrl);
+      print('Video cached successfully');
+    } catch (e) {
+      print('Error caching video: $e');
     }
   }
 
@@ -106,22 +127,9 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
       ),
       showControls: true,
       videoPlayerController: _videoPlayerController,
-      hideControlsTimer: Duration(seconds: 3),
+      hideControlsTimer: const Duration(seconds: 3),
       autoPlay: true,
       looping: false,
-      progressIndicatorDelay:
-          bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
-      additionalOptions: (context) {
-        return <OptionItem>[
-          OptionItem(
-            iconData: Icons.live_tv_sharp,
-            title: 'Toggle Video Src',
-            onTap: () async {
-              await _videoPlayerController.pause();
-            },
-          ),
-        ];
-      },
     );
   }
 }
@@ -135,7 +143,7 @@ class CustomControlsOption {
 class CustomControls extends StatefulWidget {
   final VideoPlayerController videoPlayerController;
   final String videoUrl;
-  CustomControls(
+  const CustomControls(
       {Key? key, required this.videoPlayerController, required this.videoUrl})
       : super(key: key);
 
@@ -145,14 +153,14 @@ class CustomControls extends StatefulWidget {
 
 class _CustomControlsState extends State<CustomControls> {
   ValueNotifier<CustomControlsOption> customControlsStatus =
-      ValueNotifier(CustomControlsOption(
-    isVisible: true,
-    isDragging: false,
-  ));
+    ValueNotifier(CustomControlsOption(
+      isVisible: true,
+      isDragging: false,
+    ));
 
   Timer? _hideTimer;
-  List<double> speekList = [0.5, 1.0, 1.5, 2.0];
-  ValueNotifier<double> speekNotifier = ValueNotifier(1.0);
+  List<double> videoSpeedList = [0.5, 1.0, 1.5, 2.0];
+  ValueNotifier<double> videoSpeedNotifier = ValueNotifier(1.0);
 
   @override
   void initState() {
@@ -164,7 +172,9 @@ class _CustomControlsState extends State<CustomControls> {
           isDragging: false,
         );
       }
-      setState(() {});
+     if(mounted){
+       setState(() {});
+     }
     });
     hideControlsAfterDelay();
   }
@@ -216,9 +226,9 @@ class _CustomControlsState extends State<CustomControls> {
           top: 0,
           left: 0,
           right: 0,
-          child:     GestureDetector(
+          child: GestureDetector(
             onTap: _toggleControls,
-            child: Container(
+            child: SizedBox(
               height: size.height - 200,
               width: double.infinity,
             ),
@@ -244,15 +254,13 @@ class _CustomControlsState extends State<CustomControls> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                    onTap: () {
-                      OXNavigator.pop(context);
-                    },
+                    onTap: () => OXNavigator.pop(context),
                     child: Container(
                         width: 26.px,
                         height: 26.px,
                         decoration: BoxDecoration(
                           color: ThemeColor.color120,
-                          borderRadius: BorderRadius.all(Radius.circular(26)),
+                          borderRadius: const BorderRadius.all(Radius.circular(26)),
                         ),
                         child: Center(
                           child: CommonImage(
@@ -261,7 +269,9 @@ class _CustomControlsState extends State<CustomControls> {
                             size: 16.px,
                             color: Colors.white,
                           ),
-                        ))),
+                        ),
+                    ),
+                ),
                 GestureDetector(
                   onTap: () async {
                     await OXLoading.show();
@@ -288,7 +298,7 @@ class _CustomControlsState extends State<CustomControls> {
                     height: 26.px,
                     decoration: BoxDecoration(
                       color: ThemeColor.color120,
-                      borderRadius: BorderRadius.all(Radius.circular(26)),
+                      borderRadius: const BorderRadius.all(Radius.circular(26)),
                     ),
                     child: Center(
                       child: CommonImage(
@@ -303,17 +313,15 @@ class _CustomControlsState extends State<CustomControls> {
               ],
             ),
           );
-        });
+        },
+    );
   }
 
   Widget _buildPlayPause() {
     return ValueListenableBuilder<CustomControlsOption>(
       valueListenable: customControlsStatus,
       builder: (context, value, child) {
-        if (widget.videoPlayerController.value.isPlaying || value.isDragging) {
-          return Container();
-        }
-        if (!value.isVisible) {
+        if (widget.videoPlayerController.value.isPlaying || value.isDragging || !value.isVisible) {
           return Container();
         }
         Size size = MediaQuery.of(context).size;
@@ -358,7 +366,7 @@ class _CustomControlsState extends State<CustomControls> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
+                    SizedBox(
                       child: Row(
                         children: [
                           Text(
@@ -387,18 +395,18 @@ class _CustomControlsState extends State<CustomControls> {
                       ),
                     ),
                     ValueListenableBuilder<double>(
-                      valueListenable: speekNotifier,
+                      valueListenable: videoSpeedNotifier,
                       builder: (context, value, child) {
                         return GestureDetector(
                             onTap: () {
-                              int findIndex = speekList.indexOf(value);
+                              int findIndex = videoSpeedList.indexOf(value);
                               double lastValue;
-                              if (findIndex == speekList.length - 1) {
-                                lastValue = speekList[0];
+                              if (findIndex == videoSpeedList.length - 1) {
+                                lastValue = videoSpeedList[0];
                               } else {
-                                lastValue = speekList[findIndex + 1];
+                                lastValue = videoSpeedList[findIndex + 1];
                               }
-                              speekNotifier.value = lastValue;
+                              videoSpeedNotifier.value = lastValue;
                               widget.videoPlayerController
                                   .setPlaybackSpeed(lastValue);
                             },
@@ -414,34 +422,31 @@ class _CustomControlsState extends State<CustomControls> {
                 ).setPaddingOnly(bottom: 10.px),
                 CustomVideoProgressIndicator(
                   controller: widget.videoPlayerController,
-                  callback: callback,
+                  callback: _progressCallback,
                 ),
               ],
             ),
           );
-        });
+        },
+    );
   }
 
-  void callback(bool isStart) {
+  void _progressCallback(bool isStart) {
     if (isStart) {
       _hideTimer?.cancel();
       if (widget.videoPlayerController.value.isPlaying) {
         widget.videoPlayerController.pause();
       }
-      customControlsStatus.value = CustomControlsOption(
-        isDragging: true,
-        isVisible: customControlsStatus.value.isVisible,
-      );
     } else {
       if (!widget.videoPlayerController.value.isPlaying) {
         widget.videoPlayerController.play();
       }
-      customControlsStatus.value = CustomControlsOption(
-        isDragging: false,
-        isVisible: customControlsStatus.value.isVisible,
-      );
       hideControlsAfterDelay();
     }
+    customControlsStatus.value = CustomControlsOption(
+      isDragging: isStart,
+      isVisible: customControlsStatus.value.isVisible,
+    );
   }
 
   String _formatDuration(Duration duration) {
@@ -478,25 +483,13 @@ class CustomVideoProgressIndicator extends StatelessWidget {
               behavior: HitTestBehavior.translucent,
               onHorizontalDragStart: (details) {
                 callback(true);
-                final RenderBox box = context.findRenderObject() as RenderBox;
-                final Offset offset = box.globalToLocal(details.globalPosition);
-                double newProgress = offset.dx / constraints.maxWidth;
-                if (newProgress < 0) newProgress = 0;
-                if (newProgress > 1) newProgress = 1;
-                controller.seekTo(controller.value.duration * newProgress);
+                _dragUpdate(context, constraints, details);
               },
               onHorizontalDragEnd: (details) {
                 callback(false);
               },
-              onHorizontalDragUpdate: (details) {
-                final RenderBox box = context.findRenderObject() as RenderBox;
-                final Offset offset = box.globalToLocal(details.globalPosition);
-                double newProgress = offset.dx / constraints.maxWidth;
-                if (newProgress < 0) newProgress = 0;
-                if (newProgress > 1) newProgress = 1;
-                controller.seekTo(controller.value.duration * newProgress);
-              },
-              child: Container(
+              onHorizontalDragUpdate: (details) => _dragUpdate(context, constraints, details),
+              child: SizedBox(
                 height: 40,
                 child: Stack(
                   alignment: Alignment.centerLeft,
@@ -522,17 +515,7 @@ class CustomVideoProgressIndicator extends StatelessWidget {
                       left: constraints.maxWidth * progress -
                           10, // Adjust for circle size
                       child: GestureDetector(
-                        onPanUpdate: (details) {
-                          final RenderBox box =
-                              context.findRenderObject() as RenderBox;
-                          final Offset offset =
-                              box.globalToLocal(details.globalPosition);
-                          double newProgress = offset.dx / constraints.maxWidth;
-                          if (newProgress < 0) newProgress = 0;
-                          if (newProgress > 1) newProgress = 1;
-                          controller
-                              .seekTo(controller.value.duration * newProgress);
-                        },
+                        onPanUpdate: (details) => _dragUpdate(context, constraints, details),
                         child: Container(
                           width: 15,
                           height: 15,
@@ -551,5 +534,14 @@ class CustomVideoProgressIndicator extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _dragUpdate(context, constraints, details){
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final Offset offset = box.globalToLocal(details.globalPosition);
+    double newProgress = offset.dx / constraints.maxWidth;
+    if (newProgress < 0) newProgress = 0;
+    if (newProgress > 1) newProgress = 1;
+    controller.seekTo(controller.value.duration * newProgress);
   }
 }
