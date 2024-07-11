@@ -290,7 +290,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                 ? (groupDBInfo!.closed ? GroupType.closeGroup.text : GroupType.openGroup.text)
                 : '--',
             subTitleIcon: groupDBInfo != null
-                ? (groupDBInfo!.closed ? null : GroupType.openGroup.typeIcon)
+                ? (groupDBInfo!.closed ? GroupType.closeGroup.typeIcon : GroupType.openGroup.typeIcon)
                 : null,
             onTap: _hasEditGroupStatusPermission ? _updateGroupTypeFn : null,
             isShowMoreIcon: _hasEditGroupStatusPermission,
