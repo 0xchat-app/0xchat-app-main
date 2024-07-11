@@ -462,14 +462,18 @@ class _ChannelPageState extends State<ChannelPage>
     await getHotChannels(type: type, context: context);
 
     if (channels.isEmpty) {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_NoData);
-      });
+      if(mounted){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_NoData);
+        });
+      }
     } else {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_None);
-        _channelModelList = channels;
-      });
+      if(mounted){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_None);
+          _channelModelList = channels;
+        });
+      }
     }
   }
 
