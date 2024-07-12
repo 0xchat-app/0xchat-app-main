@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -50,7 +49,7 @@ class OXUserCenter extends OXFlutterModule {
       };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'UserCenterPage':
         return OXNavigator.pushPage(
@@ -66,8 +65,9 @@ class OXUserCenter extends OXFlutterModule {
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];
         final walletOnPress = params?['walletOnPress'];
+        final nwcCompleted = params?['nwcCompleted'];
         final isCalledFromEcashWallet = params?['isCalledFromEcashWallet'] ?? false;
-        return _showZapDialog(context, invoice, walletOnPress, isCalledFromEcashWallet);
+        return _showZapDialog(context, invoice, walletOnPress, nwcCompleted, isCalledFromEcashWallet);
       case 'ZapsRecordPage':
         final zapsDetail = params?['zapsDetail'];
         return OXNavigator.pushPage(context, (context) => ZapsRecordPage(zapsRecordDetail: zapsDetail));
@@ -82,7 +82,7 @@ class OXUserCenter extends OXFlutterModule {
     return null;
   }
 
-   _showZapDialog(context, invoice, walletOnPress,[bool isCalledFromEcashWallet = false]) async {
+   _showZapDialog(context, invoice, walletOnPress, Function()? nwcCompleted, [bool isCalledFromEcashWallet = false]) async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
      bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
      String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
@@ -104,6 +104,7 @@ class OXUserCenter extends OXFlutterModule {
        await Zaps.sharedInstance.requestNWC(invoice);
        WalletModel walletModel = WalletModel.wallets.where((element) => element.title == defaultWalletName).toList().first;
        walletOnPress?.call(walletModel);
+       nwcCompleted?.call();
        OXLoading.dismiss();
      }
      else if(defaultWalletName.isNotEmpty){
@@ -162,8 +163,21 @@ class OXUserCenter extends OXFlutterModule {
     required String otherLnurl,
     String? content,
     String? eventId,
+    ZapType? zapType,
+    String? receiver,
+    String? groupId,
     bool privateZap = false,
   }) async {
-    return await ZapsHelper.getInvoice(sats: sats, recipient: recipient, otherLnurl: otherLnurl, content: content, eventId: eventId, privateZap: privateZap);
+    return await ZapsHelper.getInvoice(
+      sats: sats,
+      recipient: recipient,
+      otherLnurl: otherLnurl,
+      content: content,
+      eventId: eventId,
+      privateZap: privateZap,
+      zapType: zapType,
+      receiver: receiver,
+      groupId: groupId
+    );
   }
 }

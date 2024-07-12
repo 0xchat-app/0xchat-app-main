@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/widget/common_card.dart';
@@ -10,6 +11,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/widgets/theme_button.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_wallet/widget/send_p2pk_option_widget.dart';
 import 'wallet_send_ecash_overview_page.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -29,6 +31,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
   String get amount => _amountController.text;
   String get description => _descriptionController.text;
   bool get enable => amount.isNotEmpty && double.parse(amount) > 0 && _mint != null;
+  SendP2PKOption p2pkOption = SendP2PKOption();
 
   IMint? _mint;
 
@@ -57,6 +60,7 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
             MintIndicatorItem(mint: _mint,onChanged: _onChanged),
             SatsAmountCard(controller: _amountController,).setPaddingOnly(top: 12.px),
             _buildDescription(),
+            SendP2PKOptionWidget(option: p2pkOption,).setPaddingOnly(top: 24.px),
             _buildContinueButton(),
           ],
         ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
@@ -103,7 +107,15 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
       CommonToast.instance.show(context, Localized.text('ox_wallet.send_insufficient_balance'));
       return;
     }
-    OXNavigator.pushPage(context, (context) => WalletSendEcashOverviewPage(amount: sats,memo: memo, mint: _mint!,));
+
+    OXNavigator.pushPage(context, (context) =>
+      WalletSendEcashOverviewPage(
+        amount: sats,
+        memo: memo,
+        mint: _mint!,
+        p2pkOption: p2pkOption.enable ? p2pkOption : null,
+      ),
+    );
   }
 
   void _onChanged(IMint mint) {

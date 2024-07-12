@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_image.dart';
 
 import '../state/inherited_chat_theme.dart';
 import '../state/inherited_l10n.dart';
@@ -25,34 +27,12 @@ class AttachmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         margin: InheritedChatTheme.of(context).theme.attachmentButtonMargin ?? EdgeInsetsDirectional.zero,
-        child: IconButton(
-          constraints: const BoxConstraints(
-            minHeight: 24,
-            minWidth: 24,
-          ),
-          icon: isLoading
-              ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.transparent,
-                    strokeWidth: 1.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      InheritedChatTheme.of(context).theme.inputTextColor,
-                    ),
-                  ),
-                )
-              : InheritedChatTheme.of(context).theme.attachmentButtonIcon ??
-                  Image.asset(
-                    'assets/images/chat_voice_icon.png',
-                    // color: InheritedChatTheme.of(context).theme.inputTextColor,
-                    package: 'ox_chat_ui',
-                  ),
-          onPressed: isLoading ? null : onPressed,
+        child: CommonIconButton(
+          iconName: 'chat_voice_icon.png',
+          size: 24.px,
+          package: 'ox_chat_ui',
+          onPressed: onPressed ?? () {},
           padding: padding,
-          splashRadius: 24,
-          tooltip:
-              InheritedL10n.of(context).l10n.attachmentButtonAccessibilityLabel,
         ),
       );
 }

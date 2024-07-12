@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
@@ -303,7 +304,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     if (imageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.imageType,
+        fileType: FileType.image,
         filePathList: imageList,
       );
       String getImageUrlToStr = imgUrlList.join(' ');

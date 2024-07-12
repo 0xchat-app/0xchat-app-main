@@ -1,10 +1,11 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 
 class ChatStrategyFactory {
@@ -22,6 +23,8 @@ class ChatStrategyFactory {
       case ChatType.chatStranger:
       case ChatType.chatSecretStranger:
         return PrivateChatStrategy(session);
+      case ChatType.chatRelayGroup:
+        return RelayGroupChatStrategy(session);
       default:
         ChatLogUtils.error(
           className: 'ChatSendMessageHelper',
@@ -121,7 +124,7 @@ class GroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     String? source,
   }) async {
-    return Groups.sharedInstance.getSendGroupMessageEvent(
+    return Groups.sharedInstance.getSendPrivateGroupMessageEvent(
       receiverId,
       messageType,
       contentString,
@@ -140,7 +143,7 @@ class GroupChatStrategy extends ChatStrategy {
     bool isLocal = false,
     Event? event,
   }) async {
-    return Groups.sharedInstance.sendGroupMessage(
+    return Groups.sharedInstance.sendPrivateGroupMessage(
       receiverId,
       replyMessage: replayId,
       messageType,
@@ -240,6 +243,76 @@ class SecretChatStrategy extends ChatStrategy {
       replayId,
       messageType,
       contentString,
+      event: event,
+      local: isLocal,
+      decryptSecret: decryptSecret,
+    );
+  }
+}
+
+class RelayGroupChatStrategy extends ChatStrategy {
+  final ChatSessionModel session;
+
+  RelayGroupChatStrategy(this.session);
+
+  @override
+  String get receiverId => session.chatId.orDefault(session.groupId ?? '');
+
+  @override
+  Future getSendMessageEvent({
+    required MessageType messageType,
+    required String contentString,
+    required String replayId,
+    String? decryptSecret,
+    String? source,
+  }) async {
+    List<String> previous = [];
+    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
+    for (types.Message message in uiMsgList) {
+      final messageId = message.remoteId;
+      if (messageId != null && messageId.isNotEmpty) {
+        previous.add(messageId.substring(0, 8));
+      }
+      if (previous.length ==3){
+        break;
+      }
+    }
+    return RelayGroup.sharedInstance.getSendGroupMessageEvent(
+      receiverId,
+      messageType,
+      contentString,
+      previous,
+      rootEvent: replayId,
+      decryptSecret: decryptSecret,
+      source: source,
+    );
+  }
+
+  @override
+  Future doSendMessageAction({
+    required MessageType messageType,
+    required String contentString,
+    required String replayId,
+    String? decryptSecret,
+    bool isLocal = false,
+    Event? event,
+  }) async {
+    List<String> previous = [];
+    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
+    for (types.Message message in uiMsgList) {
+      final messageId = message.remoteId;
+      if (messageId != null && messageId.isNotEmpty) {
+        previous.add(messageId.substring(0, 8));
+      }
+      if (previous.length ==3){
+        break;
+      }
+    }
+    return RelayGroup.sharedInstance.sendGroupMessage(
+      receiverId,
+      messageType,
+      contentString,
+      previous,
       event: event,
       local: isLocal,
       decryptSecret: decryptSecret,

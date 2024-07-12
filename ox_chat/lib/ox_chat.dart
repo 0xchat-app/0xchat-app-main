@@ -5,18 +5,22 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
+import 'package:ox_chat/page/contacts/user_list_page.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
+import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -60,19 +64,21 @@ class OXChat extends OXFlutterModule {
     'sendSystemMsg': _sendSystemMsg,
     'contactUserInfoPage': _contactUserInfoPage,
     'contactChanneDetailsPage': _contactChanneDetailsPage,
+    'relayGroupInfoPage': _relayGroupInfoPage,
     'groupInfoPage': _groupInfoPage,
     'commonWebview': _commonWebview,
     'zapsRecordDetail' : _zapsRecordDetail,
     'sendTextMsg': _sendTextMsg,
     'sendTemplateMessage': _sendTemplateMessage,
     'openWebviewForEncryptedFile': openWebviewForEncryptedFile,
+    'getTryDecodeNostrScheme': getTryDecodeNostrScheme
   };
 
   @override
   String get moduleName => OXChatInterface.moduleName;
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
@@ -113,6 +119,13 @@ class OXChat extends OXFlutterModule {
             groupId: params?['groupId'],
           ),
         );
+      case 'RelayGroupInfoPage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => RelayGroupInfoPage(
+            groupId: params?['groupId'],
+          ),
+        );
       case 'ChatChooseSharePage':
         return OXNavigator.pushPage(context, (context) => ChatChooseSharePage(
           msg: params?['url'] ?? '',
@@ -121,7 +134,16 @@ class OXChat extends OXFlutterModule {
         return OXNavigator.presentPage(context, (context) => ChatVideoPlayPage(
           videoUrl: params?['videoUrl'] ?? '',
         ),fullscreenDialog:true);
-
+      case 'UserSelectionPage':
+        return OXNavigator.presentPage(context, (context) => UserSelectionPage(
+          title: params?['title'] ?? '',
+          userList: params?['userList'],
+          defaultSelected: params?['defaultSelected'] ?? [],
+          additionalUserList: params?['additionalUserList'],
+          isMultiSelect: params?['isMultiSelect'] ?? false,
+          allowFetchUserFromRelay: params?['allowFetchUserFromRelay'] ?? false,
+          shouldPop: params?['shouldPop'],
+        ),);
     }
     return null;
   }
@@ -143,8 +165,13 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey}){
-    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey));
+  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey, int? groupTypeIndex}){
+    GroupType groupType = GroupType.privateGroup;
+    groupTypeIndex ??= GroupType.privateGroup.index;
+    if (groupTypeIndex >= 0 && groupTypeIndex < GroupType.values.length) {
+      groupType = GroupType.values[groupTypeIndex];
+    }
+    OXNavigator.pushPage(context!, (context) => GroupSharePage(groupPic:groupPic,groupName:groupName,groupId: groupId,groupOwner:groupOwner,inviterPubKey:inviterPubKey, groupType: groupType));
   }
 
   void _contactUserInfoPage(BuildContext? context,{required String pubkey}){
@@ -155,11 +182,14 @@ class OXChat extends OXFlutterModule {
     ChannelDB? channelDB = Channels.sharedInstance.channels[channelId];
     if(channelDB == null){
       await OXLoading.show();
-      List<ChannelDB> channels = await Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]);
+      channelDB = await Channels.sharedInstance.searchChannel(channelId, null);
       await OXLoading.dismiss();
-      channelDB = channels.length > 0 ? channels.first : null;
     }
     OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDB(channelId: channelId)));
+  }
+
+  Future<void> _relayGroupInfoPage(BuildContext? context,{required String groupId}) async {
+    OXNavigator.pushPage(context!, (context) => RelayGroupInfoPage(groupId: groupId));
   }
 
   Future<void> _groupInfoPage(BuildContext? context,{required String groupId}) async {
@@ -289,5 +319,10 @@ class OXChat extends OXFlutterModule {
     OXNavigator.pushPage(null, (context) => ChatChooseSharePage(
       msg: text,
     ));
+  }
+
+  Future<String?> getTryDecodeNostrScheme(String content)async {
+    String? result = await ChatNostrSchemeHandle.tryDecodeNostrScheme(content);
+    return result;
   }
 }

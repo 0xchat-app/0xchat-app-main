@@ -167,6 +167,8 @@ class _SystemMessage extends SystemMessage {
         text: text ?? this.text,
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

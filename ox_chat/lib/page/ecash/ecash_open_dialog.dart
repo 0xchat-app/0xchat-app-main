@@ -11,6 +11,7 @@ import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
@@ -147,7 +148,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   Widget buildTitle() {
     final text = isForOtherUser
         ? 'ecash_for_users_only'.localized({
-            r'${userNames}': EcashHelper.userListText(widget.package.receiver)
+            r'${userNames}': widget.package.receiver.abbrDesc()
           })
         : widget.package.memo;
     return Text(

@@ -1,10 +1,9 @@
-
 import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/page/discovery_page.dart';
-import 'package:ox_discovery/page/moments/moment_zap_page.dart';
+import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -34,21 +33,14 @@ class OXDiscovery  extends OXFlutterModule {
   };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'PersonMomentsPage':
         return OXNavigator.pushPage(
-            context, (context) => PersonMomentsPage(userDB: params?['userDB'],));
-      case 'MomentZapPage':
-        return OXNavigator.presentPage(
-          context,
-          (context) => MomentZapPage(
-            userDB: params?['userDB'],
-            eventId: params?['eventId'],
-            privateZap: params?['privateZap'],
-            zapsInfoCallback: params?['zapsInfoCallback']
-          ),
-        );
+            context, (context) => PersonMomentsPage(userDB: params?['userDB']));
+      case 'GroupMomentsPage':
+        return OXNavigator.pushPage(
+            context, (context) => GroupMomentsPage(groupId: params?['groupId']));
     }
     return null;
   }
@@ -58,12 +50,14 @@ class OXDiscovery  extends OXFlutterModule {
   }
 
   void jumpMomentPage(BuildContext? context,{required String noteId}) async {
-    NotedUIModel? notedUIModel = NotedUIModelCache.map[noteId];
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
+    NotedUIModel? notedUIModel = notedUIModelCache[noteId];
     if(notedUIModel == null){
       NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if(note == null) return CommonToast.instance.show(context, 'Note not found !');
-      NotedUIModelCache.map[noteId] = NotedUIModel(noteDB:note);
-      notedUIModel = NotedUIModelCache.map[noteId];
+      notedUIModelCache[noteId] = NotedUIModel(noteDB:note);
+      notedUIModel = notedUIModelCache[noteId];
     }
     OXNavigator.pushPage(context!, (context) => MomentsPage(isShowReply:false,notedUIModel: ValueNotifier(notedUIModel!)));
   }

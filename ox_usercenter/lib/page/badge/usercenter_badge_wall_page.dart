@@ -116,7 +116,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
           _selectedBadgeModel = null;
         }
       }else{
-        List<BadgeDB?>? badgeDBList = await BadgesHelper.getProfileBadgesFromRelay(userPubkey);
+        List<BadgeDB?>? badgeDBList = await BadgesHelper.getAllProfileBadgesFromRelay(userPubkey);
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
           _selectedBadgeModel = BadgeModel.fromBadgeDB(badgeDBList.first!);
         } else {

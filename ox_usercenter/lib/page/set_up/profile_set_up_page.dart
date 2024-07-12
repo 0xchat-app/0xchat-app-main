@@ -9,7 +9,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
@@ -21,6 +20,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/model/request_verify_dns.dart';
 import 'package:ox_usercenter/page/set_up/avatar_preview_page.dart';
+import 'package:ox_usercenter/widget/npub_cash_address_widget.dart';
 
 class ProfileSetUpPage extends StatefulWidget {
   const ProfileSetUpPage({Key? key}) : super(key: key);
@@ -55,7 +55,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   void _initData() async {
-    _relayNameList = OXRelayManager.sharedInstance.relayAddressList;
+    _relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
     // mCurrentUserInfo = await Account.sharedInstance.reloadProfileFromRelay(mCurrentUserInfo!.pubKey);
     setState(() {});
   }
@@ -133,6 +133,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   void _editProfile() async {
+    await OXLoading.show();
     if (mCurrentUserInfo == null) {
       CommonToast.instance
           .show(context, Localized.text('ox_common.network_connect_fail'));
@@ -161,6 +162,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       if (result) {
         mCurrentUserInfo!.dns = dns;
       } else {
+        await OXLoading.dismiss();
         return;
       }
 
@@ -169,6 +171,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         if (result) {
           mCurrentUserInfo!.lnurl = lnurl;
         } else {
+          await OXLoading.dismiss();
           return;
         }
       }
@@ -189,10 +192,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
       UserDB? tempUserDB;
       try {
-        await OXLoading.show();
         tempUserDB =
             await Account.sharedInstance.updateProfile(mCurrentUserInfo!);
-        await OXLoading.dismiss();
       } catch (e) {
         await OXLoading.dismiss();
       }
@@ -208,6 +209,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         CommonToast.instance.show(context, Localized.text('ox_usercenter.enter_username_tips'));
       }
     }
+    await OXLoading.dismiss();
   }
 
   Widget createBody() {
@@ -251,6 +253,9 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                       Localized.text('ox_usercenter.bitcoin_lightning_tips_hint_text'),
                       editingController: _bltTextEditingController,
                       maxLines: null),
+                  NpubCashAddressWidget(
+                    onClick: () => _bltTextEditingController.text = mCurrentUserInfo?.lnAddress ?? '',
+                  ),
                 ],
               ),
             ),
@@ -469,7 +474,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
 
   Future<Map<String, dynamic>?> _registerNip05(String dns) async {
     String publicKey = mCurrentUserInfo?.pubKey ?? '';
-    String sig = signData([publicKey, dns, _relayNameList],
+    String sig = await signData([publicKey, dns, _relayNameList],Account.sharedInstance.currentPubkey,
         Account.sharedInstance.currentPrivkey);
     Map<String, dynamic> params = {};
     params['name'] = _userNameTextEditingController.text;

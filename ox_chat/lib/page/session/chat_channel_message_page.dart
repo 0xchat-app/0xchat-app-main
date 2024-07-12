@@ -71,7 +71,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
     );
@@ -92,11 +92,11 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
     if (channelId == null) return ;
     channel = Channels.sharedInstance.channels[channelId];
     if (channel == null) {
-      Channels.sharedInstance.getChannelsFromRelay(channelIds: [channelId]).then((channels) {
+      Channels.sharedInstance.searchChannel(channelId, null).then((c) {
         if (!mounted) return ;
-        if (channels.isNotEmpty) {
+        if (c != null) {
           setState(() {
-            channel = channels.first;
+            channel = c;
           });
         }
       });

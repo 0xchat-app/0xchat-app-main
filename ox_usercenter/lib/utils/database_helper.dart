@@ -231,15 +231,16 @@ class DatabaseHelper{
   static Future<int> getCacheFileCount() async {
     int fileCount = 0;
     final cacheDir = await getTemporaryDirectory();
-
     if (cacheDir.existsSync()) {
-      cacheDir.listSync().forEach((file) {
-        if (file is File) {
-          fileCount++;
-        } else if (file is Directory) {
-          fileCount += getDirectoryFileCount(file);
+      try {
+        await for (var entity in cacheDir.list(recursive: true, followLinks: false)) {
+          if (entity is File) {
+            fileCount++;
+          }
         }
-      });
+      } catch (e) {
+        print("Error calculating file count: $e");
+      }
     }
 
     return fileCount;
@@ -265,11 +266,15 @@ class DatabaseHelper{
     int totalSize = 0;
     final cacheDir = await getTemporaryDirectory();
     if (cacheDir.existsSync()) {
-      cacheDir.listSync(recursive: true).forEach((file) {
-        if (file is File) {
-          totalSize += file.lengthSync();
+      try {
+        await for (var entity in cacheDir.list(recursive: true, followLinks: false)) {
+          if (entity is File) {
+            totalSize += await entity.length();
+          }
         }
-      });
+      } catch (e) {
+        print("Error calculating directory size: $e");
+      }
     }
     return totalSize / (1024 * 1024);
   }

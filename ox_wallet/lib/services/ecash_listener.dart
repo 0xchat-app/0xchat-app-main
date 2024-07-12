@@ -5,8 +5,14 @@ class EcashListener with CashuListener {
   final ValueChanged<Receipt>? onInvoicePaidChanged;
   final ValueChanged<IMint>? onEcashBalanceChanged;
   final ValueChanged<List<IMint>>? onMintsChanged;
+  final VoidCallback? onHistoryChanged;
 
-  EcashListener({this.onInvoicePaidChanged, this.onEcashBalanceChanged, this.onMintsChanged});
+  EcashListener({
+    this.onInvoicePaidChanged,
+    this.onEcashBalanceChanged,
+    this.onMintsChanged,
+    this.onHistoryChanged,
+  });
 
   @override
   void handleInvoicePaid(Receipt receipt) {
@@ -26,6 +32,13 @@ class EcashListener with CashuListener {
   void handleMintListChanged(List<IMint> mints) {
     if (onMintsChanged != null) {
       onMintsChanged!(mints);
+    }
+  }
+
+  @override
+  void handleHistoryChanged() {
+    if (onHistoryChanged != null) {
+      onHistoryChanged!();
     }
   }
 }

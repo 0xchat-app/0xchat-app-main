@@ -18,9 +18,11 @@ import '../moments/moments_page.dart';
 import 'moment_rich_text_widget.dart';
 
 class MomentQuoteWidget extends StatefulWidget {
-  final String notedId;
+  final String? neventId;
+  final String? notedId;
+  final List<String>? relays;
 
-  const MomentQuoteWidget({super.key, required this.notedId});
+  const MomentQuoteWidget({super.key,this.notedId,this.relays, this.neventId});
 
   @override
   MomentQuoteWidgetState createState() => MomentQuoteWidgetState();
@@ -38,7 +40,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedId != oldWidget.notedId) {
+    if (widget.notedId != oldWidget.notedId || widget.neventId != oldWidget.neventId) {
       setState(() {
         notedUIModel = null;
       });
@@ -55,18 +57,34 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   }
 
   void _initData() async {
-    String notedId = widget.notedId;
-    if (NotedUIModelCache.map[notedId] == null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
+    String? notedId = widget.notedId;
+    String? neventId = widget.neventId;
+
+    if(neventId != null){
+      NoteDB? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
+
       if (note == null) return;
-      NotedUIModel newNotedModel = NotedUIModel(noteDB: note);
-      NotedUIModelCache.map[notedId] = newNotedModel;
+      notedUIModel = NotedUIModel(noteDB:note);
+      _getMomentUserInfo(notedUIModel!);
+      if (mounted) {
+        setState(() {});
+      }
+      return;
     }
 
-    notedUIModel = NotedUIModelCache.map[notedId];
-    _getMomentUserInfo(NotedUIModelCache.map[notedId]!);
-    if (mounted) {
-      setState(() {});
+    if(notedId != null){
+      final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+      if (notedUIModelCache[notedId] == null) {
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId,relays: widget.relays);
+        if (note == null) return;
+        notedUIModelCache[notedId] = NotedUIModel(noteDB: note);
+      }
+
+      notedUIModel = notedUIModelCache[notedId];
+      _getMomentUserInfo(notedUIModel!);
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 

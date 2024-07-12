@@ -20,19 +20,20 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_common/widgets/data_picker/data_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
-import 'package:ox_chat/page/session/zaps_sending_page.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -48,7 +49,6 @@ import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dar
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -64,6 +64,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
+import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
 
 part 'chat_send_message_handler.dart';
 
@@ -93,9 +94,13 @@ class ChatGeneralHandler {
 
   TextEditingController inputController = TextEditingController();
 
-  Function(List<types.Message>)? refreshMessageUI;
+  Function(List<types.Message>?)? refreshMessageUI;
 
   ValueChanged<types.Message>? messageDeleteHandler;
+
+  Set<String> reactionsListenMsgId = {};
+
+  final tempMessageSet = <types.Message>{};
 
   static types.User _defaultAuthor() {
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -135,6 +140,13 @@ class ChatGeneralHandler {
 
     this.mentionHandler = mentionHandler;
   }
+
+  void dispose() {
+    for (var msg in tempMessageSet) {
+      ChatDataCache.shared.deleteMessage(session, msg);
+    }
+    removeMessageReactionsListener();
+  }
 }
 
 extension ChatMessageHandlerEx on ChatGeneralHandler {
@@ -144,6 +156,7 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
         List<types.Message>? allMessage,
         int increasedCount = ChatPageConfig.messagesPerPage,
       }) async {
+    final isRefresh = increasedCount == 0;
     final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
     var end = 0;
     // Find the index of the last message in all the messages.
@@ -162,7 +175,13 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
       end = index + 1 + increasedCount;
     }
     hasMoreMessage = end < allMsg.length;
-    refreshMessageUI?.call(allMsg.sublist(0, min(allMsg.length, end)));
+
+    final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
+    refreshMessageUI?.call(newMessageList);
+
+    if (!isRefresh) {
+      updateMessageReactionsListener(newMessageList);
+    }
   }
 
   void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
@@ -444,20 +463,21 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(message.author.id);
-    if(user == null) return;
-    if (user.lnAddress.isEmpty) {
-      await CommonToast.instance.show(context, 'The friend has not set LNURL!');
-      return;
+    final user = await Account.sharedInstance.getUserInfo(message.author.id);
+    final eventId = message.remoteId;
+    if (user == null || eventId == null || eventId.isEmpty) {
+      CommonToast.instance.show(
+        context,
+        'Failed: Critical information is missing, user is null: ${user == null}, eventId: $eventId',
+      );
+      return ;
     }
-    // await OXNavigator.presentPage(
-    //   context,
-    //       (context) => MomentZapPage(
-    //     userDB: user,
-    //     eventId: message.remoteId,
-    //     isDefaultEcashWallet: true,
-    //   ),
-    // );
+    ZapsActionHandler handler = await ZapsActionHandler.create(
+      userDB: user,
+      isAssistedProcess: true,
+      zapType: session.asZapType,
+    );
+    await handler.handleZap(context: context, eventId: eventId);
   }
 
   /// Handles the press event for the "Reaction emoji" in a menu item.
@@ -484,7 +504,27 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     final event = await Messages.sharedInstance.sendMessageReaction(
       messageId,
       content,
+      groupId: session.groupId
     );
+    if (event.status) {
+      final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+      if (author != null && author.isNotEmpty) {
+        final reactions = [...message.reactions];
+        var isAdded = false;
+        for (final reaction in reactions) {
+          if (reaction.content != content) continue;
+          if (reaction.authors.any((e) => e == author)) continue;
+
+          reaction.authors.add(author);
+          isAdded = true;
+          break;
+        }
+        if (!isAdded) {
+          message.reactions.add(types.Reaction(content: content, authors: [author]));
+        }
+        refreshMessageUI?.call(null);
+      }
+    }
     return event.status;
   }
 }
@@ -555,30 +595,27 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   }
 
   Future zapsPressHandler(BuildContext context, UserDB user) async {
-    await OXModuleService.pushPage(
-      context,
-      'ox_discovery',
-      'MomentZapPage',
-      {
-        'userDB': user,
-        'privateZap':true,
-        'zapsInfoCallback':(zapsInfo) {
-          final zapper = zapsInfo['zapper'] ?? '';
-          final invoice = zapsInfo['invoice'] ?? '';
-          final amount = zapsInfo['amount'] ?? '';
-          final description = zapsInfo['description'] ?? '';
-          if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
-            sendZapsMessage(context, zapper, invoice, amount, description);
-          } else {
-            ChatLogUtils.error(
-              className: 'ChatGeneralHandler',
-              funcName: 'zapsPressHandler',
-              message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
-            );
-          }
+    ZapsActionHandler handler = await ZapsActionHandler.create(
+      userDB: user,
+      isAssistedProcess: true,
+      zapType: session.asZapType,
+      zapsInfoCallback: (zapsInfo) {
+        final zapper = zapsInfo['zapper'] ?? '';
+        final invoice = zapsInfo['invoice'] ?? '';
+        final amount = zapsInfo['amount'] ?? '';
+        final description = zapsInfo['description'] ?? '';
+        if (zapper.isNotEmpty && invoice.isNotEmpty && amount.isNotEmpty && description.isNotEmpty) {
+          sendZapsMessage(context, zapper, invoice, amount, description);
+        } else {
+          ChatLogUtils.error(
+            className: 'ChatGeneralHandler',
+            funcName: 'zapsPressHandler',
+            message: 'zapper: $zapper, invoice: $invoice, amount: $amount, description: $description, ',
+          );
         }
-      },
+      }
     );
+    await handler.handleZap(context: context,);
   }
 
   Future ecashPressHandler(BuildContext context) async {
@@ -667,6 +704,26 @@ extension ChatInputHandlerEx on ChatGeneralHandler {
   }
 }
 
+extension ChatReactionsHandlerEx on ChatGeneralHandler {
+
+  void updateMessageReactionsListener(List<types.Message> newMessageList) {
+    final actionSubscriptionId = newMessageList
+        .map((e) => e.remoteId)
+        .where((id) => id != null && id.isNotEmpty)
+        .toList()
+        .cast<String>();
+
+    reactionsListenMsgId.addAll(actionSubscriptionId);
+
+    Messages.sharedInstance.loadMessagesReactions(reactionsListenMsgId.toList(), session.chatType);
+  }
+
+  void removeMessageReactionsListener() {
+    reactionsListenMsgId.clear();
+    Messages.sharedInstance.closeMessagesActionsRequests();
+  }
+}
+
 extension StringChatEx on String {
   /// Returns whether it is a local path or null if it is not a path String
   bool? get isLocalPath {
@@ -695,6 +752,26 @@ mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     ChatDraftManager.shared.updateSession();
+    chatGeneralHandler.dispose();
     super.dispose();
+  }
+}
+
+extension ChatZapsEx on ChatSessionModel {
+  ZapType? get asZapType {
+    switch (chatType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+        return ZapType.privateChat;
+      case ChatType.chatGroup:
+        return ZapType.privateGroup;
+      case ChatType.chatChannel:
+        return ZapType.channelChat;
+      case ChatType.chatRelayGroup:
+        return ZapType.relayGroup;
+    }
+    return null;
   }
 }

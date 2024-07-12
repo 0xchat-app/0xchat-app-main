@@ -8,6 +8,7 @@ class NotedUIModel {
   NoteDB noteDB;
   late Map<String, UserDB?> getUserInfoMap;
   late List<String> getQuoteUrlList;
+  late List<String> getNddrlList;
   late List<String> getImageList;
   late List<String> getVideoList;
   late List<String> getMomentExternalLink;
@@ -15,6 +16,9 @@ class NotedUIModel {
   late List<String> getMomentHashTagList;
   late String createAtStr;
   late String getMomentPlainText;
+  late List<String> getLightningInvoiceList;
+  late List<String> getEcashList;
+
   NotedUIModel({required this.noteDB}){
     loadInitialData(noteDB);
   }
@@ -23,12 +27,15 @@ class NotedUIModel {
     MomentContentAnalyzeUtils analyzer = MomentContentAnalyzeUtils(noteDB.content);
     // getUserInfoMap = await mediaAnalyzer.getUserInfoMap;
     getQuoteUrlList = analyzer.getQuoteUrlList;
+    getNddrlList = analyzer.getNddrlList;
     getImageList = analyzer.getMediaList(1);
     getVideoList = analyzer.getMediaList(2);
     getMomentExternalLink = analyzer.getMomentExternalLink;
     getMomentShowContent = analyzer.getMomentShowContent;
     getMomentHashTagList = analyzer.getMomentHashTagList;
     getMomentPlainText = analyzer.getMomentPlainText;
+    getLightningInvoiceList = analyzer.getLightningInvoiceList;
+    getEcashList = analyzer.getEcashList;
     createAtStr = DiscoveryUtils.formatTimeAgo(noteDB.createAt);
   }
 }

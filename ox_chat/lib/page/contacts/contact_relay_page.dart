@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -14,9 +16,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 
 class ContactRelayPage extends StatefulWidget {
-  final UserDB userDB;
-
-  ContactRelayPage({Key? key, required this.userDB}) : super(key: key);
+  final List<String>? defaultRelayList;
+  const ContactRelayPage({
+    super.key,
+    this.defaultRelayList,
+  });
   @override
   _ContactRelayPage createState() => new _ContactRelayPage();
 }
@@ -27,7 +31,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   bool _isShowDelete = false;
   List<String> _relaysList = [];
 
-  int? _selectRelayIndex = 0;
+  int? _selectRelayIndex;
 
   @override
   void initState() {
@@ -54,38 +58,49 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   Widget _body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        _appBar(),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            vertical: Adapt.px(12),
-            horizontal: Adapt.px(24),
-          ),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            Localized.text('ox_chat.enter_or_relay'),
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: Adapt.px(16),
-              fontWeight: FontWeight.w600,
+    return CustomScrollView(
+      physics: BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: _appBar(),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              vertical: Adapt.px(12),
+              horizontal: Adapt.px(24),
+            ),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Localized.text('ox_chat.enter_or_relay'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
-        _inputRelayView(),
-        SizedBox(
-          height: Adapt.px(12),
+        SliverToBoxAdapter(
+          child: _inputRelayView(),
         ),
-        Expanded(
+        SliverToBoxAdapter(
+          child: SizedBox(height: Adapt.px(12)),
+        ),
+        SliverToBoxAdapter(
           child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: ThemeColor.color180,
+            ),
             margin: EdgeInsets.symmetric(
               horizontal: Adapt.px(24),
             ),
             alignment: Alignment.center,
             child: ListView.builder(
               primary: false,
+              shrinkWrap: true,
               itemCount: _relaysList.length,
               itemBuilder: (context, index) => _relayItemWidget(index),
             ),
@@ -96,25 +111,29 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   Widget _appBar() {
+    LogUtil.e('Michael: --- _isShowDelete =${_isShowDelete}');
     return Container(
       height: Adapt.px(56),
       padding: EdgeInsets.symmetric(
         horizontal: Adapt.px(24),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          GestureDetector(
-            onTap: () {
-              OXNavigator.pop(context);
-            },
-            child: CommonImage(
-              iconName: "title_close.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                OXNavigator.pop(context);
+              },
+              child: CommonImage(
+                iconName: "title_close.png",
+                size: 24.px,
+                useTheme: true,
+              ),
             ),
           ),
-          Expanded(
+          Align(
+            alignment: Alignment.center,
             child: Container(
               child: Text(
                 'Relay',
@@ -127,14 +146,18 @@ class _ContactRelayPage extends State<ContactRelayPage> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: _createSecretChat,
-            child: Center(
-              child: CommonImage(
-                iconName: 'icon_done.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                useTheme: true,
+          Align(
+            alignment: Alignment.centerRight,
+            child: Visibility(
+              visible: _isShowDelete,
+              child: GestureDetector(
+                onTap: _confirmRelayFn,
+                child: CommonImage(
+                  iconName: 'icon_done.png',
+                  width: Adapt.px(24),
+                  height: Adapt.px(24),
+                  useTheme: true,
+                ),
               ),
             ),
           ),
@@ -226,59 +249,49 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     String relay = _relaysList[index];
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (_selectRelayIndex == null) {
-          _selectRelayIndex = index;
-        } else {
-          _selectRelayIndex = _selectRelayIndex == index ? null : index;
-        }
-        setState(() {});
+        _selectRelayIndex = index;
+        _confirmRelayFn();
       },
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: ThemeColor.color180,
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: Adapt.px(10),
-                horizontal: Adapt.px(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CommonImage(
-                        iconName: 'icon_settings_relays.png',
-                        width: Adapt.px(32),
-                        height: Adapt.px(32),
-                        package: 'ox_usercenter',
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          left: Adapt.px(12),
-                        ),
-                        child: Text(
-                          relay,
-                          style: TextStyle(
-                            color: ThemeColor.color0,
-                            fontSize: Adapt.px(16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _selectFollowsWidget(index),
-                ],
-              ),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              vertical: Adapt.px(10),
+              horizontal: Adapt.px(16),
             ),
-            _dividerWidget(index),
-          ],
-        ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CommonImage(
+                      iconName: 'icon_settings_relays.png',
+                      width: Adapt.px(32),
+                      height: Adapt.px(32),
+                      package: 'ox_usercenter',
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(
+                        left: Adapt.px(12),
+                      ),
+                      child: Text(
+                        relay,
+                        style: TextStyle(
+                          color: ThemeColor.color0,
+                          fontSize: Adapt.px(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                _selectFollowsWidget(index),
+              ],
+            ),
+          ),
+          _dividerWidget(index),
+        ],
       ),
     );
   }
@@ -287,9 +300,8 @@ class _ContactRelayPage extends State<ContactRelayPage> {
     bool isShowSelectIcon = _selectRelayIndex == index;
     if (!isShowSelectIcon) return Container();
     return CommonImage(
-      iconName: 'icon_select_follows.png',
-      width: Adapt.px(32),
-      height: Adapt.px(32),
+      iconName: 'icon_select_follows.png',//icon_pic_selected
+      size: 24.px,
       package: 'ox_chat',
     );
   }
@@ -303,11 +315,11 @@ class _ContactRelayPage extends State<ContactRelayPage> {
   }
 
   void _getRelays() {
-    _relaysList = Connect.sharedInstance.relays();
+    _relaysList = widget.defaultRelayList ?? Connect.sharedInstance.relays();
     setState(() {});
   }
 
-  void _createSecretChat() async {
+  void _confirmRelayFn() async {
     String chatRelay = _relaysList[_selectRelayIndex ?? 0];
     String inputText = _relayTextFieldController.text;
     if (_selectRelayIndex == null && !inputText.isNotEmpty) {
@@ -328,7 +340,7 @@ class _ContactRelayPage extends State<ContactRelayPage> {
 
   bool _isWssWithValidURL(String input) {
     RegExp regex = RegExp(
-        r'^wss:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(:[0-9]{1,5})?(\/\S*)?$');
+        r'^wss?:\/\/(([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))(:\d{1,5})?(\/\S*)?$');
     return regex.hasMatch(input);
   }
 }

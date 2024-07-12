@@ -12,12 +12,10 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/model/channel_model.dart';
 import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
@@ -30,7 +28,9 @@ import 'package:flutter/cupertino.dart';
 
 
 class ChannelPage extends StatefulWidget {
-  const ChannelPage({Key? key}): super(key: key);
+  final int currentIndex;
+
+  const ChannelPage({Key? key,required this.currentIndex}): super(key: key);
 
   @override
   State<ChannelPage> createState() => _ChannelPageState();
@@ -41,22 +41,19 @@ class _ChannelPageState extends State<ChannelPage>
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        OXRelayObserver,
         CommonStateViewMixin {
   final RefreshController _refreshController = RefreshController();
   late Image _placeholderImage;
 
   List<ChannelModel?> _channelModelList = [];
 
-  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
-
-
-
   @override
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
-    OXRelayManager.sharedInstance.addObserver(this);
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
+       if(mounted) setState(() {});
+    });
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
@@ -68,14 +65,25 @@ class _ChannelPageState extends State<ChannelPage>
       height: Adapt.px(76),
       package: 'ox_common',
     );
-    _getHotChannels(type: _currentIndex.value + 1,context: context);
+    _getHotChannels(type: widget.currentIndex + 1,context: context);
 
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      if(widget.currentIndex == 2){
+        _getLatestChannelList();
+      }else{
+        _getHotChannels(type: widget.currentIndex + 1,context: context);
+      }
+    }
   }
 
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXRelayManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -132,10 +140,10 @@ class _ChannelPageState extends State<ChannelPage>
   }
 
   void _onRefresh() async {
-    if (_currentIndex.value == 2) {
+    if (widget.currentIndex == 2) {
       _getLatestChannelList();
     } else {
-      _getHotChannels(type: _currentIndex.value + 1);
+      _getHotChannels(type: widget.currentIndex + 1);
     }
     _refreshController.refreshCompleted();
   }
@@ -454,14 +462,18 @@ class _ChannelPageState extends State<ChannelPage>
     await getHotChannels(type: type, context: context);
 
     if (channels.isEmpty) {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_NoData);
-      });
+      if(mounted){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_NoData);
+        });
+      }
     } else {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_None);
-        _channelModelList = channels;
-      });
+      if(mounted){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_None);
+          _channelModelList = channels;
+        });
+      }
     }
   }
 
@@ -535,16 +547,6 @@ class _ChannelPageState extends State<ChannelPage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  @override
-  void didAddRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
-
-  @override
-  void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
 
   @override
   void didRelayStatusChange(String relay, int status) {

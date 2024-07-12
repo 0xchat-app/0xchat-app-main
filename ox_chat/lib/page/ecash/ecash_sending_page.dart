@@ -9,6 +9,7 @@ import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/contacts/user_list_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -730,6 +731,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -767,6 +769,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -807,6 +810,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     );
     OXLoading.dismiss();
 
+    if (OXWalletInterface.checkAndShowDialog(context, response, mint)) return ;
     if (!response.isSuccess) {
       CommonToast.instance.show(context, response.errorMsg);
       return ;
@@ -847,19 +851,6 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
     return result;
   }
 
-  Future<(String token, String errorMsg)> getEcashToken(IMint mint, int amount, String memo) async {
-    final response = await Cashu.sendEcash(
-      mint: mint,
-      amount: amount,
-      memo: memo,
-    );
-    if (response.isSuccess) {
-      return (response.data, '');
-    } else {
-      return ('', response.errorMsg);
-    }
-  }
-
-  String get receiverText => EcashHelper.userListText(condition.receiver);
-  String get signessText => EcashHelper.userListText(condition.signees, noneText: Localized.text('ox_common.none'));
+  String get receiverText => condition.receiver.abbrDesc();
+  String get signessText => condition.signees.abbrDesc(noneText: Localized.text('ox_common.none'));
 }

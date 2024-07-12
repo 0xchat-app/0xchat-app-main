@@ -1,33 +1,25 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:avatar_stack/avatar_stack.dart';
-import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/widgets/common_network_image.dart';
-import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/channel_model.dart';
-import 'package:ox_common/model/chat_type.dart';
-import 'package:ox_common/model/relay_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/widget_tool.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_common/widgets/common_pull_refresher.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../enum/moment_enum.dart';
+import '../model/moment_extension_model.dart';
 import '../utils/album_utils.dart';
 import 'moments/channel_page.dart';
 import 'moments/create_moments_page.dart';
+import 'moments/group_moments_page.dart';
 import 'moments/public_moments_page.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,13 +43,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
-        OXRelayObserver,
         CommonStateViewMixin {
-  final RefreshController _refreshController = RefreshController();
-  late Image _placeholderImage;
 
-  List<ChannelModel?> _channelModelList = [];
-  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
+  int _channelCurrentIndex = 0;
 
 
   EDiscoveryPageType pageType = EDiscoveryPageType.moment;
@@ -67,9 +55,15 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
 
+  bool _isLogin = false;
+
   @override
   void initState() {
     super.initState();
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
+      if(mounted) setState(() {});
+    });
+    _isLogin = OXUserInfoManager.sharedInstance.isLogin;
   }
 
   void _momentPublic(){
@@ -83,7 +77,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
-    OXRelayManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -214,10 +207,25 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: EMomentType.content));
           },
           onTap: () {
+            CreateMomentDraft? createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+            if(createMomentMediaDraft!= null){
+              final type = createMomentMediaDraft.type;
+              final imageList = type == EMomentType.picture ? createMomentMediaDraft.imageList : null;
+              final videoPath = type == EMomentType.video ? createMomentMediaDraft.videoPath : null;
+              OXNavigator.presentPage(
+                context,
+                  (context) => CreateMomentsPage(
+                    type: type,
+                    imageList: imageList,
+                    videoPath: videoPath,
+                  ),
+              );
+              return;
+            }
             showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,
-                builder: (context) => _buildBottomDialog());
+                builder: (context) => _buildCreateMomentBottomDialog());
           },
         ),
         SizedBox(
@@ -236,13 +244,10 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           color: ThemeColor.color100,
         ),
         onTap: () {
-          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildBottomDialog());
+          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
         },
       ),
-      SizedBox(
-        width: Adapt.px(20),
-      ),
-      SizedBox(
+      _isLogin ? SizedBox(
         height: Adapt.px(24),
         child: GestureDetector(
           onTap: () {
@@ -261,7 +266,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 width: Adapt.px(4),
               ),
               Text(
-                '${OXRelayManager.sharedInstance.connectedCount}/${OXRelayManager.sharedInstance.relayAddressList.length}',
+                '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
                 style: TextStyle(
                   fontSize: Adapt.px(14),
                   color: ThemeColor.color100,
@@ -270,7 +275,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             ],
           ),
         ),
-      ),
+      ).setPaddingOnly(left: 20.px) : const SizedBox(),
       SizedBox(
         width: Adapt.px(24),
       ),
@@ -279,300 +284,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   Widget _body(){
     if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
-    return const ChannelPage();
-  }
-
-  Widget bodyWidget() {
-    return ListView.builder(
-      padding: EdgeInsets.only(
-          left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
-      primary: false,
-      controller: null,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 1,
-      itemBuilder: (context, index) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: hotChatViews(),
-        );
-      },
-    );
-  }
-
-  void _onRefresh() async {
-    if (_currentIndex.value == 2) {
-      _getLatestChannelList();
-    } else {
-      _getHotChannels(type: _currentIndex.value + 1);
-    }
-    _refreshController.refreshCompleted();
-  }
-
-  List<Widget> hotChatViews() {
-    double width = MediaQuery.of(context).size.width;
-    return _channelModelList.map((item) {
-      return Container(
-          margin: EdgeInsets.only(top: Adapt.px(16.0)),
-          child: GestureDetector(
-            child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(16.0)),
-                child: Container(
-                  width: Adapt.px(width - 24 * 2),
-                  color: Colors.transparent,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: ThemeColor.color190,
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(Adapt.px(16))),
-                      ),
-                      child: Column(
-                        children: [
-                          Stack(
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRect(
-                                    child: Transform.scale(
-                                      alignment: Alignment.center,
-                                      scale: 1.2,
-                                      child: OXCachedNetworkImage(
-                                        height: Adapt.px(100),
-                                        imageUrl: item?.picture ?? '',
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        errorWidget: (context, url, error) =>
-                                            _placeholderImage,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: ClipRect(
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(
-                                            sigmaX: 6, sigmaY: 6),
-                                        child: Container(
-                                          color: Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(
-                                    left: Adapt.px(20), top: Adapt.px(53)),
-                                padding: EdgeInsets.all(Adapt.px(1)),
-                                decoration: BoxDecoration(
-                                  color: ThemeColor.color190,
-                                  border: Border.all(
-                                      color: ThemeColor.color180,
-                                      width: Adapt.px(3)),
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(Adapt.px(8))),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(Adapt.px(4))),
-                                  child: OXCachedNetworkImage(
-                                    imageUrl: item?.picture ?? '',
-                                    height: Adapt.px(60),
-                                    width: Adapt.px(60),
-                                    fit: BoxFit.cover,
-                                    errorWidget: (context, url, error) =>
-                                        _placeholderImage,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: Adapt.px(10),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(
-                                left: Adapt.px(16), right: Adapt.px(16)),
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              item?.channelName ?? '',
-                              maxLines: 1,
-                              style: TextStyle(
-                                  color: ThemeColor.color0,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Container(
-                            height: Adapt.px(20),
-                            margin: EdgeInsets.only(
-                                left: Adapt.px(16), right: Adapt.px(16)),
-                            alignment: Alignment.bottomLeft,
-                            child: FutureBuilder(
-                                future: _getCreator(item?.owner ?? ''),
-                                builder: (context, snapshot) {
-                                  return Text(
-                                    '${Localized.text('ox_common.by')} ${snapshot.data}',
-                                    style: TextStyle(
-                                      color: ThemeColor.color100,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    maxLines: 1,
-                                  );
-                                }),
-                          ),
-                          SizedBox(
-                            height: Adapt.px(12),
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: Adapt.px(16),
-                              ),
-                              FutureBuilder(
-                                initialData: const [].cast<String>(),
-                                future: _getChannelMembersAvatars(
-                                    item?.latestChatUsers ?? []),
-                                builder: (context, snapshot) {
-                                  List<String> avatars = snapshot.data ?? [];
-                                  return avatars.isEmpty
-                                      ? const SizedBox()
-                                      : _buildAvatarStack(avatars);
-                                },
-                              ),
-                              item?.msgCount != null
-                                  ? Expanded(
-                                      child: Text(
-                                        '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
-                                        style: TextStyle(
-                                          fontSize: Adapt.px(13),
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ],
-                          ).setPadding(EdgeInsets.only(
-                              bottom: Adapt.px(item?.msgCount != null ||
-                                      item?.latestChatUsers != null
-                                  ? 20
-                                  : 0))),
-                        ],
-                      )),
-                )),
-            onTap: () async {
-              bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-              if (isLogin) {
-                LogUtil.e("groupId : ${item?.channelId}");
-                OXModuleService.pushPage(
-                    context, 'ox_chat', 'ChatGroupMessagePage', {
-                  'chatId': item?.channelId,
-                  'chatName': item?.channelName,
-                  'chatType': ChatType.chatChannel,
-                  'time': item?.createTimeMs,
-                  'avatar': item?.picture,
-                  'groupId': item?.channelId,
-                });
-              } else {
-                await OXModuleService.pushPage(
-                    context, "ox_login", "LoginPage", {});
-              }
-            },
-          ));
-    }).toList();
-  }
-
-  Widget _buildAvatarStack(List<String> avatarURLs) {
-    final avatarCount = min(avatarURLs.length, 4);
-    avatarURLs = avatarURLs.sublist(0, avatarCount);
-
-    double maxWidth = Adapt.px(32);
-    if (avatarURLs.length > 1) {
-      maxWidth = Adapt.px(avatarURLs.length * 26);
-    }
-
-    return Container(
-      margin: EdgeInsets.only(
-        right: Adapt.px(10),
-      ),
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        minWidth: Adapt.px(32),
-      ),
-      child: AvatarStack(
-        settings: RestrictedPositions(
-            // maxCoverage: 0.1,
-            // minCoverage: 0.2,
-            align: StackAlign.left,
-            laying: StackLaying.first),
-        borderColor: ThemeColor.color180,
-        height: Adapt.px(32),
-        avatars: avatarURLs
-            .map((url) {
-              if (url.isEmpty) {
-                return const AssetImage('assets/images/user_image.png',
-                    package: 'ox_common');
-              } else {
-                return OXCachedNetworkImageProviderEx.create(
-                  context,
-                  url,
-                  height: Adapt.px(26),
-                );
-              }
-            })
-            .toList()
-            .cast<ImageProvider>(),
-      ),
-    );
-  }
-
-  Widget _topSearch() {
-    double width = MediaQuery.of(context).size.width;
-    return InkWell(
-      autofocus: true,
-      onTap: () {
-        OXModuleService.pushPage(context, 'ox_chat', 'SearchPage', {});
-      },
-      child: Container(
-        width: width,
-        margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(24),
-          vertical: Adapt.px(6),
-        ),
-        height: Adapt.px(48),
-        decoration: BoxDecoration(
-          color: ThemeColor.color190,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: EdgeInsets.only(left: Adapt.px(18)),
-              child: CommonImage(
-                  iconName: 'icon_chat_search.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
-                  fit: BoxFit.cover,
-                  package: 'ox_chat'),
-            ),
-            SizedBox(
-              width: Adapt.px(8),
-            ),
-            Text(
-              Localized.text('ox_chat.search'),
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: Adapt.px(15),
-                color: ThemeColor.color150,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return ChannelPage(currentIndex: _channelCurrentIndex);
   }
 
   static Size boundingTextSize(String text, TextStyle style,
@@ -617,73 +329,71 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  Future<void> _getHotChannels(
-      {required int type, BuildContext? context}) async {
-    List<ChannelModel> channels =
-        await getHotChannels(type: type, context: context);
-
-    if (channels.isEmpty) {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_NoData);
-      });
-    } else {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_None);
-        _channelModelList = channels;
-      });
-    }
+  Widget _buildChannelBottomDialog() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color:  ThemeColor.color160,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildItem(
+            Localized.text('ox_discovery.recommended_item'),
+            index: 0,
+            onTap: () => _updateChannelCurrentIndex(0),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            Localized.text('ox_discovery.popular_item'),
+            index: 1,
+            onTap: () => _updateChannelCurrentIndex(1),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(
+            Localized.text('ox_discovery.latest_item'),
+            index: 2,
+            onTap: () => _updateChannelCurrentIndex(2),
+          ),
+          Container(
+            height: Adapt.px(8),
+            color: ThemeColor.color190,
+          ),
+          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+            OXNavigator.pop(context);
+          }),
+        ],
+      ),
+    );
   }
 
-  Future<List<UserDB>> _getChannelMembers(List<String> pubKeys) async {
-    List<UserDB> users = [];
-    for (var element in pubKeys) {
-      UserDB? user = await Account.sharedInstance.getUserInfo(element);
-      if (user != null) {
-        users.add(user);
-      }
-    }
-    return users;
+  Widget _buildItem(String title, {required int index, GestureTapCallback? onTap}) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: Adapt.px(56),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: ThemeColor.color0,
+            fontSize: Adapt.px(16),
+            fontWeight: index == _channelCurrentIndex ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ),
+      onTap: onTap,
+    );
   }
 
-  Future<List<String>> _getChannelMembersAvatars(List<String> pubKeys) async {
-    List<String?> avatars = [];
-    List<UserDB> users = await _getChannelMembers(pubKeys);
-    avatars.addAll(users.map((e) => e.picture).toList());
-    return avatars.where((e) => e != null).toList().cast<String>();
-  }
-
-  Future<String> _getCreator(String pubKey) async {
-    List<String> pubKeys = [pubKey];
-    List<UserDB> users = await _getChannelMembers(pubKeys);
-    return users.first.name ?? '';
-  }
-
-  Future<void> _getLatestChannelList() async {
-    try {
-      OXLoading.show(status: Localized.text('ox_common.loading'));
-      List<ChannelDB> channelDBList =
-          await Channels.sharedInstance.getChannelsFromRelay();
-      OXLoading.dismiss();
-      List<ChannelModel> channels = channelDBList
-          .map((channelDB) => ChannelModel.fromChannelDB(channelDB))
-          .toList();
-      if (channels.isEmpty) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-          _channelModelList = channels;
-        });
-      }
-    } catch (error, stack) {
-      OXLoading.dismiss();
-      LogUtil.e("get LatestChannel failed $error\r\n$stack");
-    }
-  }
-
-  Widget _buildBottomDialog() {
+  Widget _buildCreateMomentBottomDialog() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
@@ -694,7 +404,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         children: [
           _buildItem(
             Localized.text('ox_discovery.choose_camera_option'),
-            index: 0,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openCamera(context, (List<String> imageList) {
@@ -712,7 +422,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           ),
           _buildItem(
             Localized.text('ox_discovery.choose_image_option'),
-            index: 1,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(context, type: 1,
@@ -733,7 +443,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           ),
           _buildItem(
             Localized.text('ox_discovery.choose_video_option'),
-            index: 1,
+            index: -1,
             onTap: () {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(
@@ -780,7 +490,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildItem(
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.all,
             EPublicMomentsPageType.all.text,
             index: 0,
@@ -795,14 +505,14 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             color: ThemeColor.color170,
             height: Adapt.px(0.5),
           ),
-          _buildItem(
-            isSelect: publicMomentsPageType == EPublicMomentsPageType.public,
-            EPublicMomentsPageType.public.text,
+          _buildMomentItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.contacts,
+            EPublicMomentsPageType.contacts.text,
             index: 1,
             onTap: () {
               OXNavigator.pop(context);
               if(mounted){
-                publicMomentsPageType = EPublicMomentsPageType.public;
+                publicMomentsPageType = EPublicMomentsPageType.contacts;
               }
             },
           ),
@@ -810,7 +520,22 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             color: ThemeColor.color170,
             height: Adapt.px(0.5),
           ),
-          _buildItem(
+          _buildMomentItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.follows,
+            EPublicMomentsPageType.follows.text,
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.follows;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
             EPublicMomentsPageType.private.text,
             index: 1,
@@ -829,7 +554,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
+          _buildMomentItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
             OXNavigator.pop(context);
           }),
           SizedBox(
@@ -840,7 +565,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     );
   }
 
-  Widget _buildItem(String title,
+  Widget _buildMomentItem(String title,
       {required int index, GestureTapCallback? onTap,bool isSelect = false}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -860,6 +585,14 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       onTap: onTap,
     );
   }
+
+  void _updateChannelCurrentIndex(int index){
+    setState(() {
+      _channelCurrentIndex = index;
+    });
+    OXNavigator.pop(context);
+  }
+
 
   @override
   void didLoginSuccess(UserDB? userInfo) {
@@ -882,16 +615,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  @override
-  void didAddRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
-
-  @override
-  void didDeleteRelay(RelayModel? relayModel) {
-    setState(() {});
-  }
 
   @override
   void didRelayStatusChange(String relay, int status) {

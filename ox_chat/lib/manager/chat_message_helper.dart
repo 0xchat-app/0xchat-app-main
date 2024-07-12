@@ -14,7 +14,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
-import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -138,17 +138,20 @@ extension MessageDBToUIEx on MessageDB {
 
   String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
+  static MessageCheckLogger? logger; // = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
+
   Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
 
     MessageCheckLogger? logger;
-    // logger = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
-    // if (this.messageId != logger.messageId) return null;
+
+    if (this.messageId == MessageDBToUIEx.logger?.messageId) {
+      logger = MessageDBToUIEx.logger;
+    }
 
     // Msg id
     final messageId = this.messageId;
 
-    logger?.printMessage = '1';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step1 - messageId: $messageId');
 
     // ContentModel
     final contentModel = getContentModel();
@@ -157,8 +160,7 @@ extension MessageDBToUIEx on MessageDB {
     final author = await getAuthor();
     if (author == null) return null;
 
-    logger?.printMessage = '2';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step2 - author: $author');
 
     // Status
     final msgStatus = getStatus();
@@ -170,11 +172,9 @@ extension MessageDBToUIEx on MessageDB {
     final chatId = getRoomId();
     if (chatId == null) return null;
 
-    logger?.printMessage = '3';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step3 - chatId: $chatId');
 
-    logger?.printMessage = '4 ${contentModel.contentType}';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step4 - contentType: ${contentModel.contentType}');
 
     // Message UI Model Creator
     MessageFactory messageFactory = await getMessageFactory(
@@ -182,8 +182,7 @@ extension MessageDBToUIEx on MessageDB {
       isMentionMessageCallback,
     );
 
-    logger?.printMessage = '5';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step5 - messageFactory: $messageFactory');
 
     // Encryption type
     final fileEncryptionType = getEncryptionType(contentModel);
@@ -197,6 +196,7 @@ extension MessageDBToUIEx on MessageDB {
 
     // RepliedMessage
     final repliedMessage = await getRepliedMessage(loadRepliedMessage);
+    logger?.print('step6 - replied message: $repliedMessage');
 
     // Execute create
     final result = messageFactory.createMessage(
@@ -216,8 +216,7 @@ extension MessageDBToUIEx on MessageDB {
       zapsInfoList: zapsInfoList,
     );
 
-    logger?.printMessage = '6 $result';
-    ChatLogUtils.debug(className: 'MessageDBToUIEx', funcName: 'toChatUIMessage', logger: logger);
+    logger?.print('step7 - message UIModel: $result');
 
     return result;
   }
@@ -310,9 +309,6 @@ extension MessageDBToUIEx on MessageDB {
   Future<List<types.Reaction>> getReactionInfo() async {
     final reactionIds = [...(this.reactionEventIds ?? [])];
     final reactions = <types.Reaction>[];
-    // final reactions = [
-    //   types.Reaction(content: '😅', authors: [sender, receiver]),
-    // ];
 
     // key: content, value: Reaction model
     final reactionModelMap = <String, types.Reaction>{};
@@ -329,7 +325,7 @@ extension MessageDBToUIEx on MessageDB {
       final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
           content, () => Set());
 
-      if (reactionAuthorSet.add(content)) {
+      if (reactionAuthorSet.add(note.author)) {
         reaction.authors.add(note.author);
         if (!reactions.contains(reaction)) {
           reactions.add(reaction);
@@ -342,10 +338,11 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<List<types.ZapsInfo>> getZapsInfo() async {
     final zapEventIds = [...(this.zapEventIds ?? [])];
-    final zaps = <types.ZapsInfo>[];
+    if (zapEventIds.isEmpty) return [];
 
+    final zaps = <types.ZapsInfo>[];
     for (final zapId in zapEventIds) {
-      final zapReceipt = await Zaps.getZapReceipt('', invoice: zapId);
+      final zapReceipt = await Zaps.getZapReceiptFromLocal(zapId);
       if (zapReceipt.isEmpty) continue ;
 
       final zapDB = zapReceipt.first;
@@ -522,24 +519,6 @@ extension UserDBToUIEx on UserDB {
       sourceObject: this,
     );
     return _user;
-  }
-
-  String getUserShowName() {
-    final nickName = (this.nickName ?? '').trim();
-    final name = (this.name ?? '').trim();
-    if (nickName.isNotEmpty) return nickName;
-    if (name.isNotEmpty) return name;
-    return 'unknown';
-  }
-
-  updateWith(UserDB user) {
-    name = user.name;
-    picture = user.picture;
-    about = user.about;
-    lnurl = user.lnurl;
-    gender = user.gender;
-    area = user.area;
-    dns = user.dns;
   }
 }
 

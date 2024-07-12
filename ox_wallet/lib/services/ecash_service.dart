@@ -1,4 +1,5 @@
 import 'package:cashu_dart/cashu_dart.dart';
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/log_util.dart';
 
 class EcashService {
@@ -13,9 +14,48 @@ class EcashService {
     return receipt;
   }
 
-  static Future<CashuResponse<String>> sendEcash({required IMint mint, required int amount, String? memo, List<Proof>? proofs}) async {
+  static Future<CashuResponse<String>> sendEcash({
+    required IMint mint,
+    required int amount,
+    String? memo,
+    List<Proof>? proofs,
+  }) async {
     try {
-      return await Cashu.sendEcash(mint: mint, amount: amount, memo: memo ?? '',proofs: proofs);
+      return await Cashu.sendEcash(
+        mint: mint,
+        amount: amount,
+        memo: memo ?? '',
+        proofs: proofs,
+      );
+    } catch (e, s) {
+      final msg = 'Send Ecash Failed: $e\r\n$s';
+      return CashuResponse.fromErrorMsg(msg);
+    }
+  }
+
+  static Future<CashuResponse<String>> sendEcashForP2PK({
+    required IMint mint,
+    required int amount,
+    String? memo,
+    required List<UserDB> singer,
+    List<UserDB>? refund,
+    DateTime? locktime,
+    int? signNumRequired,
+    P2PKSecretSigFlag? sigFlag,
+    List<Proof>? proofs,
+  }) async {
+    try {
+      return await Cashu.sendEcashToPublicKeys(
+        mint: mint,
+        amount: amount,
+        memo: memo ?? '',
+        publicKeys: singer.map((e) => '02${e.pubKey}').toList(),
+        refundPubKeys: refund?.map((e) => '02${e.pubKey}').toList(),
+        locktime: locktime != null ? locktime.millisecondsSinceEpoch ~/ 1000 : null,
+        signNumRequired: signNumRequired,
+        sigFlag: sigFlag,
+        proofs: proofs,
+      );
     } catch (e, s) {
       final msg = 'Send Ecash Failed: $e\r\n$s';
       return CashuResponse.fromErrorMsg(msg);
@@ -24,7 +64,13 @@ class EcashService {
 
   static Future<CashuResponse<(String memo, int amount)>> redeemEcash(String ecashString) async {
     try {
-      return await Cashu.redeemEcash(ecashString: ecashString);
+      return await Cashu.redeemEcash(
+        ecashString: ecashString,
+        redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
+        signFunction: (key, message) async {
+          return Account.getSignatureWithSecret(message, key);
+        },
+      );
     } catch(e, s) {
       final msg = 'Create Lightning Invoice Failed: $e\r\n$s';
       return CashuResponse.fromErrorMsg(msg);

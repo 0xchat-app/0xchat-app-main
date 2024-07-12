@@ -192,9 +192,8 @@ extension EcashMessageEx on types.CustomMessage {
     final totalAmount = tokenList.fold(0, (pre, token) {
       final info = Cashu.infoOfToken(token);
       if (info == null) return pre;
-      final (memo, amount, _) = info;
-      memoStr = memo;
-      return pre + amount;
+      memoStr = info.memo;
+      return pre + info.amount;
     });
 
     metadata?[CustomMessageEx.metaContentKey]?[EcashMessageEx.metaMemoKey] = memoStr;
@@ -288,19 +287,15 @@ extension EcashV2MessageEx on types.CustomMessage {
     final totalAmount = tokenList.fold(0, (pre, token) {
       final info = Cashu.infoOfToken(token);
       if (info == null) return pre;
-      final (memo, amount, secretData) = info;
-      if (secretData.isNotEmpty && !isSecretSetupFlag) {
-        // Setup secret data
-        if (secretData.firstOrNull == 'P2PK' && secretData.length >= 2) {
-          final validityDate = NutP2PKHelper.getLockTimeWithSecret(secretData);
-          if (validityDate.isNotEmpty) {
-            metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] = validityDate;
-            isSecretSetupFlag = true;
-          }
+      if (!isSecretSetupFlag) {
+        final validityDate = info.p2pkInfo?.lockTime ?? '';
+        if (validityDate.isNotEmpty) {
+          metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaValidityDateKey] = validityDate;
+          isSecretSetupFlag = true;
         }
       }
-      memoStr = memo;
-      return pre + amount;
+      memoStr = info.memo;
+      return pre + info.amount;
     });
 
     metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaMemoKey] = memoStr;

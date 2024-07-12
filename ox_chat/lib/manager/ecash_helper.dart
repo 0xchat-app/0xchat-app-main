@@ -1,21 +1,16 @@
 
-import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
-import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:convert/convert.dart';
-import 'package:pointycastle/export.dart';
 
 class EcashHelper {
 
@@ -60,10 +55,9 @@ class EcashHelper {
       final tokenMD5 = EncryptUtils.generateMd5(token);
       final info = Cashu.infoOfToken(token);
       if (info == null) continue;
-      final (_, amount, _) = info;
       final tokenInfo = EcashTokenInfo(
         token: token,
-        amount: amount,
+        amount: info.amount,
         redeemHistory: historyMap[tokenMD5],
       );
       tokenInfoList.add(tokenInfo);
@@ -108,7 +102,7 @@ class EcashHelper {
       tokenMD5: EncryptUtils.generateMd5(token),
       isMe: false,
     );
-    await DB.sharedInstance.insert<EcashReceiptHistory>(history);
+    await DB.sharedInstance.insertBatch<EcashReceiptHistory>(history);
     return history;
   }
 
@@ -170,29 +164,6 @@ class EcashHelper {
         return await Account.getSignatureWithSecret(message, key);
       },
     ) ?? '';
-  }
-
-  static String userListText(
-      List<UserDB> userList, {
-        String noneText = '',
-        int showUserCount = 2,
-        int maxNameLength = 15,
-      }) {
-    if (userList.isEmpty) return noneText;
-    final names = userList.sublist(0, min(showUserCount, userList.length))
-        .map((user) {
-      final name = user.getUserShowName();
-      if (name.length > maxNameLength) return name.replaceRange(maxNameLength - 3, name.length, '...');
-      return name;
-    })
-        .toList()
-        .join(',');
-    final otherCount = max(0, userList.length - showUserCount);
-    if (otherCount > 0) {
-      return names + ' and $otherCount others';
-    } else {
-      return names;
-    }
   }
 
   static Future<bool> isMessageSigned(String messageId) async {

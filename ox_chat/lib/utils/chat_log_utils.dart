@@ -4,7 +4,8 @@ import 'package:ox_common/log_util.dart';
 
 class ChatLogUtils {
 
-  static const showInfoLog = kDebugMode;
+  static const showInfoLog = false;
+  // static get showInfoLog => kDebugMode;
 
   static error({String module = 'Chat', required String className, required String funcName, required String message}) {
     LogUtil.e('[Module - $module][$className - $funcName] $message');
@@ -14,11 +15,6 @@ class ChatLogUtils {
     if (showInfoLog)
       LogUtil.i('[Module - $module][$className - $funcName] $message');
   }
-
-  static debug({String module = 'Chat', required String className, required String funcName, MessageCheckLogger? logger}) {
-    if (logger == null) return ;
-    LogUtil.i('[Module - $module][$className - $funcName] ${logger.log}');
-  }
 }
 
 class MessageCheckLogger {
@@ -26,7 +22,7 @@ class MessageCheckLogger {
 
   final messageId;
 
-  String printMessage = '';
-
-  String get log => 'message check $printMessage';
+  void print(String message) {
+    LogUtil.i('[Module - Chat][MessageCheckLogger - print] $message');
+  }
 }

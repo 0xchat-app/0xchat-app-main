@@ -9,7 +9,7 @@
   "about": "О себе",
   "about_hint_text": "Разработчик Bitcoin Core(Необязательно)",
   "bitcoin_lightning_tips": "Адрес в сети Bitcoin Lightning",
-  "bitcoin_lightning_tips_hint_text": "Адрес Lightning или LUNRL(Необязательно)",
+  "bitcoin_lightning_tips_hint_text": "Адрес Lightning или LNURL(Необязательно)",
   "Profile picture": "Фото профиля",
   "gallery": "Галерея",
   "camera": "Камера",

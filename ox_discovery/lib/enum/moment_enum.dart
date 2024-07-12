@@ -1,4 +1,24 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+
+enum EMomentMoreOptionType {
+  copyNotedID,
+  copyNotedText,
+  mute,
+}
+
+extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
+  String get text {
+    switch(this){
+      case EMomentMoreOptionType.copyNotedID:
+        return 'Copy Noted ID';
+      case EMomentMoreOptionType.copyNotedText:
+        return 'Copy Note Text';
+      case EMomentMoreOptionType.mute:
+        return 'Mute User';
+    }
+  }
+}
 
 enum EMomentOptionType {
   reply,
@@ -27,6 +47,37 @@ enum EMomentQuoteType {
   quote,
   share,
 }
+
+enum EOptionMomentsType {
+  personal,
+  group
+}
+
+enum EPaymentType {
+  lighting,
+  ecash
+}
+
+extension EPaymentTypeEx on EPaymentType{
+  String get text {
+    switch (this) {
+      case EPaymentType.lighting:
+        return 'ZAPS';
+      case EPaymentType.ecash:
+        return 'ECASH';
+    }
+  }
+
+  String get getIcon {
+    switch (this) {
+      case EPaymentType.lighting:
+        return 'lighting_icon.png';
+      case EPaymentType.ecash:
+        return 'ecash_icon.png';
+    }
+  }
+}
+
 
 extension EMomentQuoteTypeEx on EMomentQuoteType{
   String get text {

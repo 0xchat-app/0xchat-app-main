@@ -180,8 +180,11 @@ class Chat extends StatefulWidget {
   final String Function(DateTime)? customDateHeaderText;
 
   /// See [Message.customMessageBuilder].
-  final Widget Function(types.CustomMessage, {required int messageWidth})?
-      customMessageBuilder;
+  final Widget Function({
+    required types.CustomMessage message,
+    required int messageWidth,
+    required Widget reactionWidget,
+  })? customMessageBuilder;
 
   /// See [Message.customStatusBuilder].
   final Widget Function(types.Message message, {required BuildContext context})?
@@ -763,8 +766,8 @@ class ChatState extends State<Chat> {
               SystemMessage(message: message.text);
         } else {
           final messageWidth = showUserAvatars && message.author.id != widget.user.id
-              ? min(constraints.maxWidth * 0.72, Adapt.px(250)).floor()
-              : min(constraints.maxWidth * 0.78, Adapt.px(250)).floor();
+              ? min(constraints.maxWidth, 310.px).floor()
+              : min(constraints.maxWidth, 310.px).floor();
 
           messageWidget = Message(
               audioMessageBuilder: widget.audioMessageBuilder,

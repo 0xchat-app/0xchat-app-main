@@ -180,6 +180,9 @@ abstract class VideoMessage extends Message {
 
 /// A utility class to enable better copyWith.
 class _VideoMessage extends VideoMessage {
+
+  bool get viewWithoutBubble => !hasReactions;
+
   const _VideoMessage({
     required super.author,
     required super.createdAt,
@@ -254,6 +257,8 @@ class _VideoMessage extends VideoMessage {
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
         decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

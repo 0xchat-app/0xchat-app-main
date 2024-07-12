@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/utils/album_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
+import 'package:extended_image/extended_image.dart';
 
 class NinePalaceGridPictureWidget extends StatefulWidget {
   final int crossAxisCount;
@@ -33,6 +36,8 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
 
 class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidget> {
   PageController? _galleryPageController;
+
+  String tag = DateTime.now().millisecondsSinceEpoch.toString();
 
   @override
   void initState() {
@@ -87,26 +92,28 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
           (element) => element.id == index.toString() && element.uri == imgPath,
         );
         _galleryPageController = PageController(initialPage: initialPage);
-        OXNavigator.presentPage(
-          context,
-          (context) => ImageGallery(
-            images: previewImageList,
-            pageController: _galleryPageController!,
-            onClosePressed: _onCloseGalleryPressed,
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            opaque: false, // Background transparency
+            pageBuilder: (context, animation, secondaryAnimation) => CommonImageGallery(
+              imageList: imageList,
+              tag: tag,
+                initialPage:index,
+            ),
           ),
-          fullscreenDialog: true,
         );
         _photoOption(false);
       },
-      child: MomentWidgetsUtils.clipImage(
-        borderRadius: 8.px,
-        child: OXCachedNetworkImage(
-          fit: BoxFit.cover,
-          imageUrl: imgPath,
-          placeholder: (context, url) =>
-              MomentWidgetsUtils.badgePlaceholderContainer(),
-          errorWidget: (context, url, error) =>
-              MomentWidgetsUtils.badgePlaceholderContainer(),
+      child: Hero(
+        tag: imgPath + tag,
+        child: MomentWidgetsUtils.clipImage(
+          borderRadius: 8.px,
+          child: ExtendedImage.network(
+            imgPath,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
         ),
       ),
     );

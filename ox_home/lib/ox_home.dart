@@ -19,10 +19,10 @@ class OxChatHome extends OXFlutterModule {
   }
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'HomeTabBarPage':
-        return Navigator.of(context).pushReplacement(CustomRouteFadeIn(const HomeTabBarPage()));
+        return Navigator.of(context).pushReplacement<T, T>(CustomRouteFadeIn<T>(const HomeTabBarPage()));
     }
     return null;
   }

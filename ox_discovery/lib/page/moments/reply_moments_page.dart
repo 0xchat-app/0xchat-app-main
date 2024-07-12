@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart' show InputFacePage;
-import 'package:ox_common/business_interface/ox_discovery/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -20,6 +18,7 @@ import 'package:ox_discovery/utils/moment_content_analyze_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
+import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
 import '../widgets/moment_rich_text_widget.dart';
@@ -27,10 +26,7 @@ import '../../utils/moment_widgets_utils.dart';
 import '../widgets/Intelligent_input_box_widget.dart';
 import 'package:chatcore/chat-core.dart';
 
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
-
-import '../widgets/youtube_player_widget.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
   final ValueNotifier<NotedUIModel> notedUIModel;
@@ -347,7 +343,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     String getMediaStr = await _getUploadMediaContent();
     String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
+
+    OKEvent event = await _sendNoteReply(content:content,hashTags:hashTags,getReplyUser:getReplyUser);
+
     await OXLoading.dismiss();
 
     if(event.status){
@@ -355,11 +353,27 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     }
   }
 
+  Future<OKEvent> _sendNoteReply({
+    required String content,
+    required List<String> hashTags,
+    List<String>? getReplyUser,
+  })async{
+    String groupId = widget.notedUIModel.value.noteDB.groupId;
+    if(groupId.isEmpty){
+      return await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
+
+    }else{
+      List<String> previous = Nip29.getPrevious([[groupId]]);
+      return await RelayGroup.sharedInstance.sendGroupNoteReply(widget.notedUIModel.value.noteDB.noteId, content,previous,hashTags:hashTags, mentions:getReplyUser);
+
+    }
+  }
+
   Future<String> _getUploadMediaContent() async {
     if (_showImageList.isNotEmpty) {
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.imageType,
+        fileType: FileType.image,
         filePathList: _showImageList,
       );
       String getImageUrlToStr = imgUrlList.join(' ');

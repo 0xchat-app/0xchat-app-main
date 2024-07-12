@@ -29,7 +29,8 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('nevent') ||
         nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
-      return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme);
+      return await eventIdToMessageContent(
+          tempMap?['channelId'], nostrScheme, tempMap?['relays'].cast<String>());
     } else if (nostrScheme.startsWith('nostr:naddr') ||
         nostrScheme.startsWith('naddr')) {
       if (nostrScheme.startsWith('nostr:')) {
@@ -54,12 +55,10 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
-  static Future<ChannelDB> _loadChannelOnline(String channelId) async {
-    List<ChannelDB> channels = await Channels.sharedInstance
-        .getChannelsFromRelay(channelIds: [channelId]);
-    return channels.length > 0
-        ? channels.first
-        : ChannelDB(channelId: channelId);
+  static Future<ChannelDB> _loadChannelOnline(Channel channel) async {
+    ChannelDB? channelDB = await Channels.sharedInstance
+        .updateChannelMetadataFromRelay(channel.owner, channel.channelId);
+    return channelDB ?? ChannelDB(channelId: channel.channelId);
   }
 
   static Future<String?> addressToMessageContent(
@@ -78,43 +77,43 @@ class ChatNostrSchemeHandle {
   }
 
   static Future<String?> eventIdToMessageContent(
-      String? eventId, String nostrScheme) async {
+      String? eventId, String nostrScheme, List<String>? relays) async {
     if (eventId != null) {
       // check local group id
       GroupDB? groupDB = Groups.sharedInstance.groups[eventId];
-      if (groupDB != null) return groupDBToMessageContent(groupDB, nostrScheme);
+      if (groupDB != null) return groupDBToMessageContent(groupDB);
       // check local channel id
       ChannelDB? channelDB = Channels.sharedInstance.channels[eventId];
-      if (channelDB != null)
-        return channelToMessageContent(channelDB, nostrScheme);
+      if (channelDB != null) return channelToMessageContent(channelDB);
       // check local moment
       NoteDB? noteDB = Moment.sharedInstance.notesCache[eventId];
       noteDB ??= await Moment.sharedInstance.loadNoteFromDBWithNoteId(eventId);
       if (noteDB != null) {
         Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null,
             noteDB.content, null, '', '');
-        return await noteToMessageContent(note, nostrScheme);
+        return await noteToMessageContent(note);
       }
 
       // check online
-      Event? event = await Account.loadEvent(eventId);
+      Event? event = await Account.loadEvent(eventId, relays: relays);
       if (event != null) {
         switch (event.kind) {
           case 1:
             Note? note = Nip1.decodeNote(event);
-            return await noteToMessageContent(note, nostrScheme);
+            return await noteToMessageContent(note);
           case 30023:
             LongFormContent? longFormContent = Nip23.decode(event);
             return await longFormContentToMessageContent(
                 longFormContent, nostrScheme);
           case 40:
             Channel channel = Nip28.getChannelCreation(event);
-            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
-            return await channelToMessageContent(channelDB, nostrScheme);
+            ChannelDB channelDB = await _loadChannelOnline(channel);
+            return await channelToMessageContent(channelDB);
           case 41:
             Channel channel = Nip28.getChannelMetadata(event);
-            ChannelDB channelDB = await _loadChannelOnline(channel.channelId);
-            return await channelToMessageContent(channelDB, nostrScheme);
+            ChannelDB channelDB =
+                Channels.sharedInstance.getChannelDBFromChannel(channel);
+            return await channelToMessageContent(channelDB);
         }
       }
     }
@@ -133,8 +132,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? userToMessageContent(
-      UserDB? userDB, String nostrScheme) {
+  static String? userToMessageContent(UserDB? userDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactUserInfoPage',
@@ -150,8 +148,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String channelToMessageContent(
-      ChannelDB? channelDB, String nostrScheme) {
+  static String channelToMessageContent(ChannelDB? channelDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactChanneDetailsPage',
@@ -167,8 +164,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? groupDBToMessageContent(
-      GroupDB? groupDB, String nostrScheme) {
+  static String? groupDBToMessageContent(GroupDB? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'groupInfoPage',
@@ -185,8 +181,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> noteToMessageContent(
-      Note? note, String nostrScheme) async {
+  static Future<String?> noteToMessageContent(Note? note) async {
     if (note == null) return null;
     UserDB? userDB = await Account.sharedInstance.getUserInfo(note.pubkey);
     if (userDB?.lastUpdatedTime == 0) {

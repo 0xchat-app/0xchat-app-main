@@ -240,6 +240,8 @@ class _FileMessage extends FileMessage {
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         uri: uri ?? this.uri,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

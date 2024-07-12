@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -48,14 +47,19 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    _loadData();
+    _loadCacheInfo();
   }
 
-  void loadData() async {
+  void _loadData() async {
     _databaseModelList = DatabaseSetModel.getUIListData();
     _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
     _selectedTimeType = getType(_selectedTimeCode);
     _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, defaultValue: true);
+    setState(() {});
+  }
+
+  void _loadCacheInfo() async {
     _cacheFileCount = await DatabaseHelper.getCacheFileCount();
     double cacheSize = await DatabaseHelper.getCacheSizeInMB();
     _cacheFileSize = cacheSize.toStringAsFixed(4);
@@ -288,11 +292,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     if (value != _chatRunStatus) {
       _chatRunStatus = value;
       if (_chatRunStatus) {
-        Connect.sharedInstance.connectRelays(OXRelayManager.sharedInstance.relayAddressList);
+        Account.sharedInstance.resumeAllRelays();
       } else {
-        await Future.forEach(OXRelayManager.sharedInstance.relayModelList, (element) async {
-          await Connect.sharedInstance.closeConnect(element.relayName);
-        });
+        Account.sharedInstance.closeAllRelays();
       }
       await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
     }

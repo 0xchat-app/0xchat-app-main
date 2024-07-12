@@ -29,12 +29,12 @@ class OXLogin extends OXFlutterModule {
   };
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'LoginPage':
         bool isLoginShow = params?['isLoginShow'] ?? false;
 
-       return Navigator.push(context, FadeRouteCustom(page: LoginPage(isLoginShow: isLoginShow)));
+       return Navigator.push(context, FadeRouteCustom<T>(page: LoginPage(isLoginShow: isLoginShow)));
     }
     return null;
   }

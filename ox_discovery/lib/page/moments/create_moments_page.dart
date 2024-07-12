@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:ui';
-import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -19,6 +20,7 @@ import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../model/moment_extension_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/album_utils.dart';
 import '../../utils/moment_content_analyze_utils.dart';
@@ -27,10 +29,11 @@ import '../widgets/Intelligent_input_box_widget.dart';
 import '../widgets/moment_quote_widget.dart';
 import '../widgets/nine_palace_grid_picture_widget.dart';
 
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class CreateMomentsPage extends StatefulWidget {
+  final String? groupId;
+  final EOptionMomentsType sendMomentsType;
   final EMomentType type;
   final List<String>? imageList;
   final String? videoPath;
@@ -39,6 +42,8 @@ class CreateMomentsPage extends StatefulWidget {
   const CreateMomentsPage(
       {Key? key,
       required this.type,
+      this.sendMomentsType = EOptionMomentsType.personal,
+      this.groupId,
       this.imageList,
       this.videoPath,
       this.videoImagePath,
@@ -54,6 +59,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Map<String,UserDB> draftCueUserMap = {};
 
   List<String> addImageList = [];
+
+  String? videoPath;
+  String? videoImagePath;
 
   bool _isInputFocused = false;
 
@@ -77,12 +85,48 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       _getUploadMediaContent();
     }
     super.initState();
+    _initDraft();
   }
 
   @override
   void dispose() {
     _processController.process.dispose();
     super.dispose();
+  }
+
+  void _initDraft(){
+    CreateMomentDraft? createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+    CreateMomentDraft? createMomentContentDraft = OXMomentCacheManager.sharedInstance.createMomentContentDraft;
+
+    videoPath = widget.videoPath;
+    videoImagePath = widget.videoImagePath;
+    if(createMomentMediaDraft != null && widget.type != EMomentType.content){
+
+      _textController.text = createMomentMediaDraft.content;
+      _visibleType = createMomentMediaDraft.visibleType;
+      _selectedContacts = createMomentMediaDraft.selectedContacts;
+      draftCueUserMap = createMomentMediaDraft.draftCueUserMap ?? {};
+
+      if(widget.type == EMomentType.video){
+        videoPath = createMomentMediaDraft.videoPath ?? '';
+        videoImagePath = createMomentMediaDraft.videoImagePath ?? '';
+      }
+
+      if(widget.type == EMomentType.picture){
+        addImageList = createMomentMediaDraft.imageList ?? [];
+      }
+    }
+
+    if(createMomentContentDraft != null && widget.type == EMomentType.content){
+
+      _textController.text = createMomentContentDraft.content;
+      _visibleType = createMomentContentDraft.visibleType;
+      _selectedContacts = createMomentContentDraft.selectedContacts;
+      draftCueUserMap = createMomentContentDraft.draftCueUserMap ?? {};
+    }
+
+    setState(() {});
+
   }
 
   @override
@@ -152,9 +196,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               height: Adapt.px(24),
               useTheme: true,
             ),
-            onTap: () {
-              OXNavigator.pop(context);
-            },
+            onTap: _checkSaveDraft,
           ),
           Text(
             Localized.text('ox_discovery.new_moments_title'),
@@ -206,7 +248,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _videoWidget() {
     if (widget.type != EMomentType.video) return const SizedBox();
     return MomentWidgetsUtils.videoMoment(
-        context, widget.videoPath ?? '', widget.videoImagePath ?? '');
+        context, videoPath ?? '', videoImagePath ?? '');
   }
 
   Widget _quoteWidget() {
@@ -260,6 +302,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Widget _visibleContactsWidget() {
     if(widget.type == EMomentType.quote) return const SizedBox();
+    bool isGroup = EOptionMomentsType.group == widget.sendMomentsType;
+    String content = _visibleType.name;
+    if(isGroup){
+      RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+      content = 'Groups - ${groupDB?.name ?? ''}';
+    }
     return Container(
       margin: EdgeInsets.only(
         top: 12.px,
@@ -280,7 +328,10 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             ),
           ),
           GestureDetector(
-            onTap: _visibleToUser,
+            onTap: (){
+              if(isGroup) return;
+              _visibleToUser();
+            },
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: 16.px,
@@ -299,13 +350,14 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    _visibleType.name,
+                    content,
                     style: TextStyle(
                       fontSize: 16.px,
                       color: ThemeColor.color0,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
+                  if(!isGroup)
                   CommonImage(
                     iconName: 'moment_more_icon.png',
                     size: 24.px,
@@ -336,7 +388,38 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
+  void _checkSaveDraft() async {
+    if(_textController.text.isEmpty && _getImageList().isEmpty && videoPath == null){
+      OXNavigator.pop(context);
+      return;
+    }
+   await OXCommonHintDialog.show(context,
+        title: '',
+        content: 'Whether to reserve this edit ?',
+        actionList: [
+          OXCommonHintAction(
+            text: () => 'UnSave',
+            style: OXHintActionStyle.gray,
+            onTap: () {
+              _clearDraft();
+              OXNavigator.pop(context);
+            },
+          ),
+          OXCommonHintAction.sure(
+              text: 'Save',
+              onTap: () async {
+                _saveCreateMomentDraft();
+                OXNavigator.pop(context);
+              }),
+        ],
+        isRowAction: true,
+    );
+    OXNavigator.pop(context);
+
+  }
+
   void _postMoment() async {
+
     String getMediaStr = '';
     if (_uploadCompleter != null) {
       OXLoading.show();
@@ -358,6 +441,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
     }
+
+    if(widget.sendMomentsType == EOptionMomentsType.group) return _postMomentToGroup(content:content,mentions:getReplyUser,hashTags:hashTags);
 
     if(widget.type == EMomentType.quote && noteDB != null){
       event = await Moment.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:getReplyUser);
@@ -401,6 +486,29 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     await OXLoading.dismiss();
     if(event?.status ?? false){
+      _clearDraft();
+      CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
+    }
+
+    OXNavigator.pop(context);
+  }
+
+  void _postMomentToGroup({required String content,required List<String>? mentions,required List<String>? hashTags}) async{
+    String? groupId = widget.groupId;
+    if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
+    List<String> previous = Nip29.getPrevious([[groupId]]);
+    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
+    OKEvent result;
+    OXLoading.show();
+    if(widget.type == EMomentType.quote && noteDB != null){
+      result = await RelayGroup.sharedInstance.sendQuoteRepost(noteDB.noteId,content,hashTags:hashTags,mentions:mentions);
+    }else{
+      result = await RelayGroup.sharedInstance.sendGroupNotes(groupId,content,previous,mentions:mentions,hashTags:hashTags);
+    }
+    await OXLoading.dismiss();
+
+    if(result.status){
+      _clearDraft();
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 
@@ -409,13 +517,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   Future<String> _getUploadMediaContent() async {
     List<String> imageList = _getImageList();
-    String? videoPath = widget.videoPath;
     if(imageList.isEmpty && videoPath == null) return '';
 
     if (imageList.isNotEmpty){
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.imageType,
+        fileType: FileType.image,
         filePathList: _getImageList(),
         showLoading: false,
       );
@@ -427,8 +534,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     if (videoPath != null){
       List<String> imgUrlList = await AlbumUtils.uploadMultipleFiles(
         context,
-        fileType: UplodAliyunType.videoType,
-        filePathList: [videoPath],
+        fileType: FileType.video,
+        filePathList: [videoPath!],
         showLoading: false
       );
       String getVideoUrlToStr = imgUrlList.join(' ');
@@ -451,6 +558,33 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     _processController.process.value = value;
     if (value > totalCount) {
       _completer.complete();
+    }
+  }
+
+  void _saveCreateMomentDraft() {
+    CreateMomentDraft draft = CreateMomentDraft(
+      type: widget.type,
+      content: _textController.text,
+      selectedContacts: _selectedContacts,
+      draftCueUserMap: draftCueUserMap,
+      visibleType : _visibleType,
+      imageList: _getImageList(),
+      videoPath: videoPath,
+      videoImagePath: videoImagePath,
+    );
+    if(widget.type != EMomentType.content){
+      OXMomentCacheManager.sharedInstance.createMomentMediaDraft = draft;
+      return;
+    }
+    OXMomentCacheManager.sharedInstance.createMomentContentDraft = draft;
+  }
+
+  void _clearDraft() {
+    final sharedInstance = OXMomentCacheManager.sharedInstance;
+    if(widget.type == EMomentType.content){
+      sharedInstance.createMomentContentDraft = null;
+    }else{
+      sharedInstance.createMomentMediaDraft = null;
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_message_builder.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
@@ -12,6 +13,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -20,6 +22,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessagePage extends StatefulWidget {
 
@@ -67,7 +70,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
-          _messages = messages;
+          if (messages != null) _messages = messages;
         });
       },
       fileEncryptionType: types.EncryptionType.encrypted,
@@ -96,6 +99,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
+    _handelDMRelay();
   }
 
   void addListener() {
@@ -107,6 +111,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
   @override
   void dispose() {
     ChatDataCache.shared.removeObserver(widget.communityItem);
+    // close other uer dm relays
+    Contacts.sharedInstance.closeUserDMRelays(widget.communityItem.chatId);
     super.dispose();
   }
 
@@ -248,5 +254,28 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   Future<void> _loadMoreMessages() async {
     await chatGeneralHandler.loadMoreMessage(_messages);
+  }
+
+  void _handelDMRelay(){
+    if(otherUser?.dmRelayList?.isNotEmpty == false){
+      chatGeneralHandler.sendSystemMessage(
+        context,
+        Localized.text('ox_chat.user_dmrelay_not_set_hint_message'),
+        sendingType: ChatSendingType.memory,
+      );
+    }
+    else{
+      // connect to other uer dm relays
+      Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
+      // check my dm relay
+      if(_user.sourceObject?.dmRelayList?.isNotEmpty == false){
+        chatGeneralHandler.sendSystemMessage(
+          context,
+          Localized.text('ox_chat.my_dmrelay_not_set_hint_message'),
+          sendingType: ChatSendingType.memory,
+        );
+      }
+    }
+
   }
 }

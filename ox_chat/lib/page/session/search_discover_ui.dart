@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -7,6 +8,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/channel_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/stopwatch.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -33,23 +35,28 @@ extension SearchDiscoverUI on SearchPageState{
         searchQuery.startsWith('nostr:') ||
         searchQuery.startsWith('note')) {
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
-      if (map != null && map.containsKey('channelId')) {
-        String decodeNote = map['channelId'].toString();
-        List<ChannelDB> channelDBList = [];
-        ChannelDB? c = Channels.sharedInstance.channels[decodeNote];
-        if (c == null) {
-          channelDBList = await Channels.sharedInstance
-              .getChannelsFromRelay(channelIds: [decodeNote]);
-        } else {
-          channelDBList = [c];
-        }
-        if (channelDBList.isNotEmpty) {
-          dataGroups.add(
-            Group(
-                title: 'Online Channels',
-                type: SearchItemType.channel,
-                items: channelDBList),
-          );
+      if (map != null) {
+        final kind = map['kind'];
+        if (kind == 40 || kind == 41) {
+          String decodeNote = map['channelId'].toString();
+          List<String> relays = map['relays'];
+          ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
+          if (c != null) {
+            List<ChannelDB> result = [c];
+            dataGroups.add(
+              Group(title: 'Online Channels', type: SearchItemType.channel, items: result),
+            );
+          }
+        } else if (kind == 39000) {
+          final groupId = map['channelId'];
+          final relays = map['relays'];
+          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId, relay: relays[0]);
+          if (relayGroupDB != null) {
+            List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
+            dataGroups.add(
+              Group(title: 'Online Groups', type: SearchItemType.groups, items: result),
+            );
+          }
         }
       }
     } else {

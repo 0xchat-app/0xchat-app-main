@@ -179,7 +179,7 @@ abstract class ImageMessage extends Message {
 /// A utility class to enable better copyWith.
 class _ImageMessage extends ImageMessage {
 
-  bool get viewWithoutBubble => true;
+  bool get viewWithoutBubble => !hasReactions;
 
   const _ImageMessage({
     required super.author,
@@ -255,6 +255,8 @@ class _ImageMessage extends ImageMessage {
         fileEncryptionType: fileEncryptionType == _Unset ? this.fileEncryptionType : fileEncryptionType,
         decryptKey: decryptKey ?? this.decryptKey,
         expiration: expiration ?? this.expiration,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

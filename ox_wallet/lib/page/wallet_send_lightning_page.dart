@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -217,7 +218,17 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         .then((response) {
         OXLoading.dismiss();
         _enableButton.value = true;
-        if (response != null && response.isSuccess) {
+
+        if (response == null) {
+          CommonToast.instance.show(
+            context,
+            Localized.text('ox_wallet.pay_invoice_failed'),
+          );
+          return ;
+        }
+
+        if (OXWalletInterface.checkAndShowDialog(context, response, mint!)) return ;
+        if (response.isSuccess) {
           OXNavigator.pushReplacement(
             context,
             WalletSuccessfulPage(
@@ -230,7 +241,7 @@ class _WalletSendLightningPageState extends State<WalletSendLightningPage> {
         } else {
           CommonToast.instance.show(
             context,
-            response?.errorMsg ?? Localized.text('ox_wallet.pay_invoice_failed'),
+            response.errorMsg,
           );
         }
       },

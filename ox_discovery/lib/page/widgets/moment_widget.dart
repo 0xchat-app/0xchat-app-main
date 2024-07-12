@@ -4,14 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
+import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
 import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'moment_option_widget.dart';
+import 'moment_payment_widget.dart';
 import 'moment_url_widget.dart';
 import 'moment_quote_widget.dart';
 import 'moment_reply_abbreviate_widget.dart';
@@ -20,7 +25,8 @@ import 'moment_rich_text_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
@@ -107,11 +113,13 @@ class _MomentWidgetState extends State<MomentWidget> {
             _momentQuoteWidget(),
             MomentReplyAbbreviateWidget(
                 notedUIModel: model,
-                isShowReplyWidget: widget.isShowReplyWidget),
+                isShowReplyWidget: widget.isShowReplyWidget,
+            ),
             _momentInteractionDataWidget(),
             MomentOptionWidget(
                 notedUIModel: model,
-                isShowMomentOptionWidget: widget.isShowMomentOptionWidget),
+                isShowMomentOptionWidget: widget.isShowMomentOptionWidget,
+            ),
           ],
         ),
       ),
@@ -121,24 +129,42 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _showMomentContent() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(model == null) return const SizedBox();
+
     List<String> quoteUrlList = model.value.getQuoteUrlList;
-    if (quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
+    List<String> getNddrlList = model.value.getNddrlList;
+    List<String> getLightningInvoiceList = model.value.getLightningInvoiceList;
+    List<String> getEcashList = model.value.getEcashList;
+
+    if (getEcashList.isEmpty && getLightningInvoiceList.isEmpty && getNddrlList.isEmpty && quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
-    List<String> contentList =
-        DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
-
+    List<String> contentList = DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
     return Column(
       children: contentList.map((String content) {
+        String? noteId;
+        String? neventId;
+        List<String>? relays;
+        String? quoteRepostId = model.value.noteDB.quoteRepostId;
         if (quoteUrlList.contains(content)) {
-          final noteInfo = NoteDB.decodeNote(content);
-          String? notedId = noteInfo?['channelId'];
+          if(content.contains('nostr:nevent')){
+            neventId = content;
+          }else{
+            final noteInfo = NoteDB.decodeNote(content);
+            noteId = noteInfo?['channelId'];
+          }
+
           bool isShowQuote =
-              notedId != null && notedId != model.value.noteDB.quoteRepostId;
+          (noteId != null && noteId.toLowerCase() != quoteRepostId?.toLowerCase()) || neventId != null;
           return isShowQuote
-              ? MomentQuoteWidget(notedId: noteInfo?['channelId'])
+              ? MomentQuoteWidget(notedId: noteId,relays: relays,neventId:neventId)
               : const SizedBox();
+        } else if(getNddrlList.contains(content)){
+          return MomentArticleWidget(naddr: content);
+        } else if(getLightningInvoiceList.contains(content)){
+          return MomentPaymentWidget(invoice:content,type: EPaymentType.lighting,);
+        } else if(getEcashList.contains(content)){
+          return MomentPaymentWidget(invoice:content,type: EPaymentType.ecash,);
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
@@ -198,12 +224,22 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentQuoteWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) return const SizedBox();
-
+    List<String> quoteUrlList = model.value.getQuoteUrlList;
     String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
     if (!hasQuoteRepostId) return const SizedBox();
+    bool isRepeat = false;
+    for(String content in quoteUrlList){
+      if(content.contains('nostr:nevent')){
+        Map result = Nip19.decodeShareableEntity(Nip21.decode(content)!);
+        if(result['special']?.toLowerCase() == quoteRepostId.toLowerCase()){
+          isRepeat = true;
+          break;
+        }
+      }
+    }
 
-    return MomentQuoteWidget(notedId: quoteRepostId);
+    return isRepeat ? const SizedBox() : MomentQuoteWidget(notedId: quoteRepostId);
   }
 
   Widget _momentUserInfoWidget() {
@@ -281,6 +317,21 @@ class _MomentWidgetState extends State<MomentWidget> {
               );
             },
           ),
+          GestureDetector(
+            onTapDown: (TapDownDetails details) => _showMomentOptionMore(context, details.globalPosition),
+            child: Container(
+              padding: EdgeInsets.only(
+                top: 10.px,
+                left: 10.px,
+                bottom: 10.px,
+              ),
+              child: CommonImage(
+                iconName: 'more_moment_icon.png',
+                size: 20.px,
+                package: 'ox_discovery',
+              ),
+            ),
+          ),
 
           // CommonImage(
           //   iconName: 'more_moment_icon.png',
@@ -290,6 +341,61 @@ class _MomentWidgetState extends State<MomentWidget> {
         ],
       ),
     );
+  }
+
+  void _showMomentOptionMore(BuildContext context, Offset position) async{
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy + 10,
+        overlay.size.width - position.dx,
+        overlay.size.height - position.dy + 10,
+      ),
+      color: ThemeColor.color180,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      ),
+      items: <PopupMenuEntry<EMomentMoreOptionType>>[
+        ...EMomentMoreOptionType.values
+            .toList()
+            .map((EMomentMoreOptionType type) {
+          return PopupMenuItem<EMomentMoreOptionType>(
+            value: type,
+            child: Center(
+              child: Text(
+                type.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: ThemeColor.white,
+                ),
+              ),
+            ),
+          );
+        }).toList()
+      ],
+    ).then((value)async {
+      NoteDB? noteDB = notedUIModel?.value.noteDB;
+      if (noteDB == null) {
+        CommonToast.instance.show(context, 'Option fail');
+        return;
+      }
+      switch (value) {
+        case EMomentMoreOptionType.copyNotedID:
+          await TookKit.copyKey(context, noteDB.encodedNoteId);
+          break;
+        case EMomentMoreOptionType.copyNotedText:
+          await TookKit.copyKey(context, noteDB.content);
+          break;
+        case EMomentMoreOptionType.mute:
+          final okEvent = await Contacts.sharedInstance.addToBlockList(noteDB.author);
+          if (okEvent.status) {
+            CommonToast.instance.show(context, 'Mute success');
+          }
+          break;
+      }
+    });
   }
 
   Widget _momentInteractionDataWidget() {
@@ -398,9 +504,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _dataInit() async {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     String? repostId = model.value.noteDB.repostId;
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
     if (model.value.noteDB.isRepost && repostId != null) {
-      if (NotedUIModelCache.map[repostId] != null) {
-        notedUIModel = ValueNotifier(NotedUIModelCache.map[repostId]!);
+      if (notedUIModelCache[repostId] != null) {
+        notedUIModel = ValueNotifier(notedUIModelCache[repostId]!);
         _getMomentUserInfo(notedUIModel!.value);
         setState(() {});
       } else {
@@ -429,8 +537,9 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _getRepostId(String repostId) async {
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
     if (note == null) {
-      NotedUIModelCache.map[repostId] = null;
+      notedUIModelCache[repostId] = null;
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       if(mounted){
@@ -440,7 +549,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       return;
     }
     final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
-    NotedUIModelCache.map[repostId] = NotedUIModel(noteDB: note);
+    notedUIModelCache[repostId] = NotedUIModel(noteDB: note);
     notedUIModel = newNotedUIModel;
     _getMomentUserInfo(newNotedUIModel.value);
   }

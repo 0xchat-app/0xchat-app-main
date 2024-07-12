@@ -18,7 +18,7 @@ class MomentFollowWidget extends StatefulWidget {
 
 class _MomentFollowWidgetState extends State<MomentFollowWidget> {
 
-  bool? _isFollow;
+  bool? _isContact;
   String get pubKey => widget.userDB.pubKey;
 
   @override
@@ -28,22 +28,22 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
   }
 
   void _init() async {
-    bool result = await Account.sharedInstance.onFollowingList(pubKey);
+    bool result = Contacts.sharedInstance.allContacts.containsKey(pubKey);
     _updateStatus(result);
   }
 
   void _updateStatus(bool status){
     setState(() {
-      _isFollow = status;
+      _isContact = status;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isFollow != null
+    return _isContact != null
         ? Row(
             children: [
-              if (!_isFollow!) ...[
+              if (!_isContact!) ...[
                 CommonImage(
                   iconName: 'icon_moment_follow.png',
                   size: 24.px,
@@ -51,7 +51,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
                   useTheme: true,
                 ),
                 SizedBox(width: 4.px,)],
-              _buildButton(title: _isFollow! ? Localized.text('ox_discovery.unfollow') : Localized.text('ox_discovery.follow')),
+              _buildButton(title: _isContact! ? Localized.text('ox_discovery.unfollow') : Localized.text('ox_discovery.follow')),
             ],
           )
         : Container();
@@ -60,7 +60,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
   Widget _buildButton({required String title}) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: _isFollow! ? _removeFollows : _addFollows,
+      onTap: _isContact! ? _removeFollows : _addFollows,
       child: Container(
         width: 96.px,
         height: 24.px,
@@ -87,7 +87,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
 
   _addFollows() async {
     OXLoading.show();
-    OKEvent event = await Account.sharedInstance.addFollows([pubKey]);
+    OKEvent event = await Contacts.sharedInstance.addToContact([pubKey]);
     OXLoading.dismiss();
     if(event.status) {
       _updateStatus(true);
@@ -97,7 +97,7 @@ class _MomentFollowWidgetState extends State<MomentFollowWidget> {
 
   _removeFollows() async {
     OXLoading.show();
-    OKEvent event = await Account.sharedInstance.removeFollows([pubKey]);
+    OKEvent event = await Contacts.sharedInstance.removeContact(pubKey);
     OXLoading.dismiss();
     if(event.status) {
       _updateStatus(false);

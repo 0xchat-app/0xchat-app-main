@@ -1,11 +1,16 @@
-import 'package:chatcore/chat-core.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' as Intl;
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_localizable/ox_localizable.dart';
-
+import 'package:chatcore/chat-core.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:path/path.dart';
 import 'moment_content_analyze_utils.dart';
+import 'dart:math' as Math;
 import 'moment_widgets_utils.dart';
 
 class DiscoveryUtils {
@@ -84,7 +89,21 @@ class DiscoveryUtils {
     List<String> results = [];
 
     RegExp noteExp = MomentContentAnalyzeUtils.regexMap['noteExp'] as RegExp;
-    Iterable<RegExpMatch> matches = noteExp.allMatches(input);
+    RegExp naddrExp = MomentContentAnalyzeUtils.regexMap['naddrExp'] as RegExp;
+    RegExp lightningInvoiceExp = MomentContentAnalyzeUtils.regexMap['lightningInvoiceExp'] as RegExp;
+    RegExp ecashExp = MomentContentAnalyzeUtils.regexMap['ecashExp'] as RegExp;
+
+    final RegExp contentExp = RegExp(
+        [
+          noteExp.pattern,
+          naddrExp.pattern,
+          lightningInvoiceExp.pattern,
+          ecashExp.pattern,
+        ].join('|'),
+        caseSensitive: false
+    );
+
+    Iterable<RegExpMatch> matches = contentExp.allMatches(input);
 
     for (var match in matches) {
       if (previousMatchEnd < match.start) {
@@ -121,4 +140,38 @@ class DiscoveryUtils {
     return content;
   }
 
+  static String truncateTextAndProcessUsers(String text,{int limit = 300}) {
+    if (!text.contains('nostr:')) {
+      '${text.substring(0, Math.min(limit,text.length))} show more';
+    }
+    int charactersNum = 0;
+    String showContent = '';
+    List<String> splitText = text.split(' ');
+
+    for (String content in splitText) {
+      if(charactersNum >= limit){
+        break;
+      }
+
+      if (content.contains('nostr:')) {
+        Map<String, dynamic>? userMap = Account.decodeProfile(content);
+        if (userMap != null && userMap['pubkey'] != null && userMap['pubkey'].isNotEmpty) {
+          showContent = '$showContent $content';
+          continue;
+        }
+      }
+
+      charactersNum += content.length;
+      showContent = '$showContent $content';
+    }
+    return showContent;
+  }
+
+
+
+  static Future<Map<String,dynamic>?> tryDecodeNostrScheme(String content) async {
+    String? result = await OXChatInterface.tryDecodeNostrScheme(content);
+    if(result == null) return null;
+    return jsonDecode(result);
+  }
 }

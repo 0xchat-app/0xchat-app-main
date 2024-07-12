@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -21,7 +22,7 @@ class ChatSendMessageHelper {
   static Future<String?> sendMessage({
     required ChatSessionModel session,
     required types.Message message,
-    bool isLocal = false,
+    ChatSendingType sendingType = ChatSendingType.remote,
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
   }) async {
@@ -33,150 +34,174 @@ class ChatSendMessageHelper {
         message.contentString(message.content);
     final replayId = message.repliedMessage?.id ?? '';
 
-    // create chat sender strategy
-    final senderStrategy = ChatStrategyFactory.getStrategy(session);
-    // for test
-    // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
-    // prepare send event
-    Event? event;
-    var plaintEvent = message.sourceKey;
-    if (plaintEvent != null && plaintEvent is String) {
-      try {
-        event = await Event.fromJson(jsonDecode(plaintEvent));
-      } catch (_) {
-        return 'send message error';
-      }
-    }
+    types.Message sendMsg = message;
 
-    if (event == null) {
-      event = await senderStrategy.getSendMessageEvent(
+    if (sendingType == ChatSendingType.remote) {
+      // create chat sender strategy
+      final senderStrategy = ChatStrategyFactory.getStrategy(session);
+      // for test
+      // senderStrategy.session.expiration = currentUnixTimestampSeconds() + 5;
+      // prepare send event
+      Event? event;
+      var plaintEvent = message.sourceKey;
+      if (plaintEvent != null && plaintEvent is String) {
+        try {
+          event = await Event.fromJson(jsonDecode(plaintEvent));
+        } catch (_) {
+          return 'send message error';
+        }
+      }
+
+      if (event == null) {
+        event = await senderStrategy.getSendMessageEvent(
+          messageType: type,
+          contentString: contentString,
+          replayId: replayId,
+          decryptSecret: message.decryptKey,
+          source: await sourceCreator?.call(message),
+        );
+      }
+      if (event == null) {
+        return 'send message fail';
+      }
+
+      final sourceKey = jsonEncode(event);
+      sendMsg = message.copyWith(
+        id: event.innerEvent?.id ?? event.id,
+        remoteId: event.id,
+        sourceKey: sourceKey,
+        expiration: senderStrategy.session.expiration == null
+            ? null
+            : senderStrategy.session.expiration! +
+                currentUnixTimestampSeconds(),
+      );
+
+      if (sendMsg.type == types.MessageType.text) {
+        final newMsg = tryTransferMessageFromText(session, sendMsg, sourceKey);
+        if (newMsg != null) {
+          sendMsg = newMsg;
+        }
+      }
+
+      ChatLogUtils.info(
+        className: 'ChatSendMessageHelper',
+        funcName: 'sendMessage',
+        message:
+            'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
+      );
+
+      senderStrategy
+          .doSendMessageAction(
         messageType: type,
         contentString: contentString,
         replayId: replayId,
         decryptSecret: message.decryptKey,
-        source: await sourceCreator?.call(message),
-      );
-    }
-    if (event == null) {
-      return 'send message fail';
-    }
+        event: event,
+        isLocal: sendingType != ChatSendingType.remote,
+      )
+          .then((event) async {
+        sendFinish.value = true;
 
-    final sourceKey = jsonEncode(event);
-    types.Message sendMsg = message.copyWith(
-      id: event.id,
-      remoteId: event.id,
-      sourceKey: sourceKey,
-      expiration: senderStrategy.session.expiration == null
-          ? null
-          : senderStrategy.session.expiration! + currentUnixTimestampSeconds(),
-    );
-
-    if (sendMsg.type == types.MessageType.text) {
-      final text = message.content;
-      // Nostr Scheme
-      if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
-        sendMsg = CustomMessageFactory().createTemplateMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          title: 'Loading...',
-          content: 'Loading...',
-          icon: '',
-          link: '',
-          sourceKey: sourceKey,
-        );
-        ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
-            .then((nostrSchemeContent) async {
-          if (nostrSchemeContent != null) {
-            MessageContentModel contentModel = MessageContentModel();
-            contentModel.content = nostrSchemeContent;
-            var chatMessage =
+        final message =
             await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-            if (chatMessage != null) {
-              chatMessage = CustomMessageFactory().createMessage(
-                  author: chatMessage.author,
-                  timestamp: chatMessage.createdAt,
-                  roomId: chatMessage.roomId ?? '',
-                  remoteId: chatMessage.remoteId ?? '',
-                  sourceKey: chatMessage.sourceKey,
-                  contentModel: contentModel,
-                  status: chatMessage.status ?? types.Status.sending)!;
-              ChatDataCache.shared.updateMessage(
-                  message: chatMessage, session: session, originMessage: sendMsg);
-            }
-          }
-        });
-      }
+        if (message == null) return;
 
-      // Zaps
-      if (Zaps.isLightningInvoice(text)) {
-        Map<String, String> req = Zaps.decodeInvoice(text);
-        sendMsg = CustomMessageFactory().createZapsMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          sourceKey: sourceKey,
-          zapper: '',
-          invoice: text,
-          amount: req['amount'] ?? '0',
-          description: 'Best wishes',
-          expiration: sendMsg.expiration,
+        final updatedMessage = message.copyWith(
+          remoteId: event.eventId,
+          status: event.status ? types.Status.sent : types.Status.error,
         );
-      }
-
-      // Ecash
-      if (Cashu.isCashuToken(text)) {
-        sendMsg = CustomMessageFactory().createEcashMessage(
-          author: sendMsg.author,
-          timestamp: sendMsg.createdAt,
-          roomId: session.chatId,
-          id: sendMsg.id,
-          remoteId: sendMsg.remoteId,
-          sourceKey: sourceKey,
-          tokenList: [text],
-          expiration: sendMsg.expiration,
-        );
-      }
+        ChatDataCache.shared
+            .updateMessage(session: session, message: updatedMessage);
+      });
     }
-
-    ChatLogUtils.info(
-      className: 'ChatSendMessageHelper',
-      funcName: 'sendMessage',
-      message:
-          'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
-    );
 
     ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
 
-    senderStrategy
-        .doSendMessageAction(
-      messageType: type,
-      contentString: contentString,
-      replayId: replayId,
-      decryptSecret: message.decryptKey,
-      event: event,
-      isLocal: isLocal,
-    )
-        .then((event) async {
-      sendFinish.value = true;
+    if (sendingType == ChatSendingType.remote) {
+      // If the message is not sent within a short period of time, change the status to the sending state
+      _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
+    }
 
-      final message = await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-      if (message == null) return ;
+    return null;
+  }
 
-      final updatedMessage = message.copyWith(
-        remoteId: event.eventId,
-        status: event.status ? types.Status.sent : types.Status.error,
+  static types.Message? tryTransferMessageFromText(
+    ChatSessionModel session,
+    types.Message sendMsg,
+    String sourceKey,
+  ) {
+    final text = sendMsg.content;
+    // Nostr Scheme
+    if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
+      final templateMsg = CustomMessageFactory().createTemplateMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        title: 'Loading...',
+        content: 'Loading...',
+        icon: '',
+        link: '',
+        sourceKey: sourceKey,
       );
-      ChatDataCache.shared
-          .updateMessage(session: session, message: updatedMessage);
-    });
 
-    // If the message is not sent within a short period of time, change the status to the sending state
-    _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
+      ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
+          .then((nostrSchemeContent) async {
+        if (nostrSchemeContent != null) {
+          MessageContentModel contentModel = MessageContentModel();
+          contentModel.content = nostrSchemeContent;
+          var chatMessage =
+          await ChatDataCache.shared.getMessage(null, session, templateMsg.id);
+          if (chatMessage != null) {
+            chatMessage = CustomMessageFactory().createMessage(
+                author: chatMessage.author,
+                timestamp: chatMessage.createdAt,
+                roomId: chatMessage.roomId ?? '',
+                remoteId: chatMessage.remoteId ?? '',
+                sourceKey: chatMessage.sourceKey,
+                contentModel: contentModel,
+                status: chatMessage.status ?? types.Status.sending)!;
+            ChatDataCache.shared.updateMessage(
+                message: chatMessage, session: session, originMessage: templateMsg);
+          }
+        }
+      });
+
+      return templateMsg;
+    }
+
+    // Zaps
+    if (Zaps.isLightningInvoice(text)) {
+      Map<String, String> req = Zaps.decodeInvoice(text);
+      return CustomMessageFactory().createZapsMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        sourceKey: sourceKey,
+        zapper: '',
+        invoice: text,
+        amount: req['amount'] ?? '0',
+        description: 'Best wishes',
+        expiration: sendMsg.expiration,
+      );
+    }
+
+    // Ecash
+    if (Cashu.isCashuToken(text)) {
+      return CustomMessageFactory().createEcashMessage(
+        author: sendMsg.author,
+        timestamp: sendMsg.createdAt,
+        roomId: session.chatId,
+        id: sendMsg.id,
+        remoteId: sendMsg.remoteId,
+        sourceKey: sourceKey,
+        tokenList: [text],
+        expiration: sendMsg.expiration,
+      );
+    }
 
     return null;
   }

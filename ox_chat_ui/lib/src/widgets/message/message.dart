@@ -84,8 +84,11 @@ class Message extends StatefulWidget {
   final BubbleRtlAlignment? bubbleRtlAlignment;
 
   /// Build a custom message inside predefined bubble.
-  final Widget Function(types.CustomMessage, {required int messageWidth})?
-  customMessageBuilder;
+  final Widget Function({
+    required types.CustomMessage message,
+    required int messageWidth,
+    required Widget reactionWidget,
+  })? customMessageBuilder;
 
   /// Build a custom status widgets.
   final Widget Function(types.Message message, {required BuildContext context})?
@@ -403,10 +406,6 @@ class _MessageState extends State<Message> {
       );
     }
 
-    if (!useBubbleBg) {
-      bubble = _reactionWrapper(bubble);
-    }
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -437,7 +436,10 @@ class _MessageState extends State<Message> {
                   bubble,
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: widget.repliedMessageBuilder?.call(widget.message, messageWidth: widget.messageWidth),
+                    child: widget.repliedMessageBuilder?.call(
+                      widget.message,
+                      messageWidth: widget.messageWidth,
+                    ),
                   ),
                 ],
               ),
@@ -452,8 +454,10 @@ class _MessageState extends State<Message> {
     switch (widget.message.type) {
       case types.MessageType.audio:
         final audioMessage = widget.message as types.AudioMessage;
-        messageContentWidget = widget.audioMessageBuilder?.call(audioMessage, messageWidth: widget.messageWidth)
-            ?? AudioMessagePage(
+        messageContentWidget = widget.audioMessageBuilder?.call(
+          audioMessage,
+          messageWidth: widget.messageWidth,
+        ) ?? AudioMessagePage(
               message: audioMessage,
               fetchAudioFile: widget.onAudioDataFetched,
               onPlay: (message) {
@@ -463,18 +467,25 @@ class _MessageState extends State<Message> {
         break ;
       case types.MessageType.custom:
         final customMessage = widget.message as types.CustomMessage;
-        messageContentWidget = widget.customMessageBuilder?.call(customMessage, messageWidth: widget.messageWidth)
-            ?? const SizedBox();
+        messageContentWidget = widget.customMessageBuilder?.call(
+          message: customMessage,
+          messageWidth: widget.messageWidth,
+          reactionWidget: _reactionViewBuilder(),
+        ) ?? const SizedBox();
         break ;
       case types.MessageType.file:
         final fileMessage = widget.message as types.FileMessage;
-        messageContentWidget = widget.fileMessageBuilder?.call(fileMessage, messageWidth: widget.messageWidth)
-            ?? FileMessage(message: fileMessage);
+        messageContentWidget = widget.fileMessageBuilder?.call(
+          fileMessage,
+          messageWidth: widget.messageWidth,
+        ) ?? FileMessage(message: fileMessage);
         break ;
       case types.MessageType.image:
         final imageMessage = widget.message as types.ImageMessage;
-        messageContentWidget = widget.imageMessageBuilder?.call(imageMessage, messageWidth: widget.messageWidth)
-            ?? ImageMessage(
+        messageContentWidget = widget.imageMessageBuilder?.call(
+          imageMessage,
+          messageWidth: widget.messageWidth,
+        ) ?? ImageMessage(
               imageHeaders: widget.imageHeaders,
               message: imageMessage,
               messageWidth: widget.messageWidth,
@@ -500,8 +511,10 @@ class _MessageState extends State<Message> {
         break ;
       case types.MessageType.video:
         final videoMessage = widget.message as types.VideoMessage;
-        messageContentWidget = widget.videoMessageBuilder?.call(videoMessage, messageWidth: widget.messageWidth)
-            ?? VideoMessage(
+        messageContentWidget = widget.videoMessageBuilder?.call(
+          videoMessage,
+          messageWidth: widget.messageWidth,
+        ) ?? VideoMessage(
               imageHeaders: widget.imageHeaders,
               message: videoMessage,
               messageWidth: widget.messageWidth,
@@ -527,11 +540,9 @@ class _MessageState extends State<Message> {
     ],
   );
 
-  Widget _reactionViewBuilder() {
-    return widget.reactionViewBuilder?.call(
-      widget.message,
-      messageWidth: widget.messageWidth,
-    ) ?? const SizedBox();
-  }
+  Widget _reactionViewBuilder() => widget.reactionViewBuilder?.call(
+    widget.message,
+    messageWidth: widget.messageWidth,
+  ) ?? const SizedBox();
 }
 

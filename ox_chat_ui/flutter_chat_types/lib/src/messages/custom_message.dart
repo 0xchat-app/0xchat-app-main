@@ -202,6 +202,8 @@ class _CustomMessage extends CustomMessage {
         updatedAt: updatedAt == _Unset ? this.updatedAt : updatedAt as int?,
         expiration: expiration ?? this.expiration,
         viewWithoutBubble: viewWithoutBubble ?? this.viewWithoutBubble,
+        reactions: reactions ?? this.reactions,
+        zapsInfoList: zapsInfoList ?? this.zapsInfoList,
       );
 }
 

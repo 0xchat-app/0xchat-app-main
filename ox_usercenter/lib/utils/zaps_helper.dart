@@ -1,7 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 
 class ZapsHelper {
 
@@ -11,6 +10,9 @@ class ZapsHelper {
     required String otherLnurl,
     String? content,
     String? eventId,
+    String? receiver,
+    String? groupId,
+    ZapType? zapType,
     bool privateZap = false,
   }) async {
 
@@ -20,7 +22,7 @@ class ZapsHelper {
       'message': '',
     };
 
-    final relayNameList = OXRelayManager.sharedInstance.relayAddressList;
+    final relayNameList = Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
     if(!relayNameList.contains(CommonConstant.oxChatRelay)) relayNameList.add(CommonConstant.oxChatRelay);
 
     if (recipient.isEmpty) {
@@ -47,13 +49,15 @@ class ZapsHelper {
       }
     }
     final resultMap = await Zaps.getInvoice(
-      relayNameList,
+      zapType ?? ZapType.normal,
       sats,
       otherLnurl,
       recipient,
       content: content,
       privateZap: privateZap,
-      eventId: eventId
+      eventId: eventId,
+      groupId: groupId,
+      receiver: receiver,
     );
     final invoice = resultMap['invoice'];
     final zapsDB = resultMap['zapsDB'];

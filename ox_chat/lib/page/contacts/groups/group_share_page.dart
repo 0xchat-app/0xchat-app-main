@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ox_chat/manager/chat_data_manager_models.dart';
+import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -23,7 +27,8 @@ class GroupSharePage extends StatefulWidget {
   final String groupOwner;
   final String groupPic;
   final String groupName;
-  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic});
+  GroupType groupType;
+  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic, required this.groupType});
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
 }
@@ -31,8 +36,8 @@ class GroupSharePage extends StatefulWidget {
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
   UserDB? inviterUserDB = null;
-
   bool requestTag = true;
+  String _practicalGroupId = '';
 
   @override
   void initState() {
@@ -45,18 +50,29 @@ class _GroupSharePageState extends State<GroupSharePage> {
     super.dispose();
   }
 
-  void _getInviterInfo()async {
+  void _getInviterInfo() async {
     String pubKey = widget.inviterPubKey;
-    if(pubKey.isEmpty) return;
+    if (pubKey.isEmpty) return;
     UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
-    if(userDB != null){
-      setState(() {
-        inviterUserDB = userDB;
-      });
+    if (userDB != null) {
+      inviterUserDB = userDB;
     }
+    switch (widget.groupType) {
+      case GroupType.privateGroup:
+        _practicalGroupId = widget.groupId;
+        break;
+      case GroupType.openGroup:
+      case GroupType.closeGroup:
+        SimpleGroups simpleGroups = RelayGroup.sharedInstance.getHostAndGroupId(widget.groupId);
+        _practicalGroupId = simpleGroups.groupId;
+        RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
+        if (tempRelayGroupDB != null) {
+          widget.groupType = tempRelayGroupDB.closed ? GroupType.closeGroup : GroupType.openGroup;
+        }
+        break;
+    }
+    setState(() {});
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -193,21 +209,17 @@ class _GroupSharePageState extends State<GroupSharePage> {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(
-              left: Adapt.px(16),
-            ),
+            padding: EdgeInsets.only(left: 16.px),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.only(
-                    bottom: Adapt.px(2),
-                  ),
+                  padding: EdgeInsets.only(bottom: 2.px),
                   child: Text(
                     _dealWithGroupName,
                     style: TextStyle(
                       color: ThemeColor.color0,
-                      fontSize: Adapt.px(16),
+                      fontSize: 16.px,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -216,9 +228,11 @@ class _GroupSharePageState extends State<GroupSharePage> {
                   _dealWithGroupId,
                   style: TextStyle(
                     color: ThemeColor.color120,
-                    fontSize: Adapt.px(14),
+                    fontSize: 14.px,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -229,10 +243,15 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   Widget _joinBtnWidget() {
-    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
+    int status = widget.groupType == GroupType.privateGroup
+        ? Groups.sharedInstance.getInGroupStatus(widget.groupId)
+        : RelayGroup.sharedInstance.getInGroupStatus(widget.groupId);
+    LogUtil.e('Michael: ---_joinBtnWidget--status =${status}');
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: confirmJoin,
+      onTap: () {
+        confirmJoin(status);
+      },
       child: Container(
         margin: EdgeInsets.symmetric(
           horizontal: Adapt.px(24),
@@ -277,11 +296,10 @@ class _GroupSharePageState extends State<GroupSharePage> {
       }
   }
 
-  void confirmJoin() async {
-    int status = Groups.sharedInstance.getInGroupStatus(widget.groupId);
-    if(status == 2) return _createGroup();
+  void confirmJoin(int status) async {
+    if(status == 2) return _gotoGroupChat();
     if(status == 1) return _joinGroupFn();
-    return _requestGroupFn();
+    if (widget.groupType == GroupType.openGroup) return _requestGroupFn();
     OXCommonHintDialog.show(context,
         title: '',
         contentView: Container(
@@ -334,25 +352,45 @@ class _GroupSharePageState extends State<GroupSharePage> {
           OXCommonHintAction.cancel(onTap: () {
             OXNavigator.pop(context);
           }),
-          OXCommonHintAction.sure(text: Localized.text('ox_chat.send'), onTap: _requestGroupFn),
+          OXCommonHintAction.sure(text: Localized.text('ox_chat.send'), onTap: () {
+            OXNavigator.pop(context);
+            _requestGroupFn();
+          }),
         ],
         isRowAction: true,
     );
   }
 
   void _requestGroupFn()async{
-    if(requestTag){
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.requestGroup(widget.groupId,widget.groupOwner,widget.groupName,_groupJoinInfoText.text);
-
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
-
+    OXLoading.show();
+    OKEvent? event;
+    if (widget.groupType == GroupType.privateGroup) {
+      event = await Groups.sharedInstance.requestGroup(
+          widget.groupId, widget.groupOwner, widget.groupName, _groupJoinInfoText.text);
+    } else {
+      event = await RelayGroup.sharedInstance.sendJoinRequest(
+          widget.groupId, _groupJoinInfoText.text);
+    }
+    if (!event.status) {
+      CommonToast.instance.show(context, event.message);
+      OXLoading.dismiss();
+      return;
+    }
+    RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
+    OXLoading.dismiss();
+    if (widget.groupType != GroupType.privateGroup) {
+      OXNavigator.pushReplacement(
+        context,
+        ChatRelayGroupMsgPage(
+          communityItem: ChatSessionModel(
+            chatId: widget.groupId,
+            groupId: widget.groupId,
+            chatType: ChatType.chatRelayGroup,
+            chatName: widget.groupName,
+          ),
+        ),
+      );
+    } else {
       CommonToast.instance.show(context, Localized.text('ox_chat.request_join_toast_success'));
       OXNavigator.pop(context);
     }
@@ -360,29 +398,37 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   void _joinGroupFn()async{
-    if(requestTag){
-      _changeRequestTagStatus(false);
-      OXLoading.show();
-      OKEvent event = await Groups.sharedInstance.joinGroup(widget.groupId,'${Account.sharedInstance.me?.name} join the group');
-
-      if (!event.status) {
-        _changeRequestTagStatus(true);
-        CommonToast.instance.show(context, event.message);
-        OXLoading.dismiss();
-        return;
-      }
+    OXLoading.show();
+    OKEvent? event;
+    if (widget.groupType == GroupType.privateGroup) {
+      event = await Groups.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
+    } else {
+      event = await RelayGroup.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
     }
+    OXLoading.dismiss();
+    if (!event.status) {
+      CommonToast.instance.show(context, event.message);
+      return;
+    }
+    if (widget.groupType != GroupType.privateGroup) {
+      OXNavigator.pushReplacement(
+        context,
+        ChatRelayGroupMsgPage(
+          communityItem: ChatSessionModel(
+            chatId: widget.groupId,
+            groupId: widget.groupId,
+            chatType: ChatType.chatRelayGroup,
+            chatName: widget.groupName,
+          ),
+        ),
+      );
+    } else {
       CommonToast.instance.show(context, Localized.text('ox_chat.join_group_success'));
       OXNavigator.pop(context);
+    }
   }
 
-  void _changeRequestTagStatus(bool status) {
-    setState(() {
-      requestTag = status;
-    });
-  }
-
-  Future<void> _createGroup() async {
+  Future<void> _gotoGroupChat() async {
     ChatSessionModel? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     if(session == null){
@@ -394,17 +440,34 @@ class _GroupSharePageState extends State<GroupSharePage> {
         avatar: widget.groupPic,
       );
     }
+    if (widget.groupType == GroupType.privateGroup) {
       OXNavigator.pushReplacement(
         context,
         ChatGroupMessagePage(
           communityItem: session,
         ),
       );
+    } else {
+      OXNavigator.pushReplacement(
+        context,
+        ChatRelayGroupMsgPage(
+          communityItem: ChatSessionModel(
+            chatId: _practicalGroupId,
+            groupId: _practicalGroupId,
+            chatType: ChatType.chatRelayGroup,
+            chatName: widget.groupName,
+          ),
+        ),
+      );
+    }
   }
 
   String get _dealWithGroupId {
-    String groupId = widget.groupId;
-    return groupId.substring(0,5) + '...' +  groupId.substring(groupId.length - 5);
+    String groupId = _practicalGroupId;
+    if(groupId.length > 33) {
+      return groupId.substring(0,8) + '...' +  groupId.substring(groupId.length - 8);
+    }
+    return groupId;
   }
 
   String get _dealWithGroupName {

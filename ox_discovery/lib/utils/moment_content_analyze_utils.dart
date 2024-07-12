@@ -1,3 +1,4 @@
+import 'package:cashu_dart/core/nuts/nut_00.dart';
 import 'package:chatcore/chat-core.dart';
 
 class MomentContentAnalyzeUtils {
@@ -9,12 +10,16 @@ class MomentContentAnalyzeUtils {
     'hashRegex': RegExp(r"#(\S+)"),
     'urlExp': RegExp(r"(https?:\/\/[^\s]+)"),
     'nostrExp': RegExp(r'nostr:(npub|nprofile)[0-9a-zA-Z]{8,}\b'),
+    'naddrExp': RegExp(r'nostr:(naddr)[0-9a-zA-Z]{8,}\b'),
     'noteExp': RegExp(r'nostr:(note|nevent)[0-9a-zA-Z]{8,}\b'),
     'imgExp': RegExp(r'https?://\S+\.(?:png|jpg|jpeg|gif)\b\S*', caseSensitive: false),
     'audioExp': RegExp(r'https?://\S+\.(?:mp3|wav|aac|m4a|mp4|avi|mov|wmv)\b\S*', caseSensitive: false),
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
-    'lineFeed': RegExp(r"\n"),
-    'showMore': RegExp(r"show more$"),
+    'lineFeedExp': RegExp(r"\n"),
+    'showMoreExp': RegExp(r"show more$"),
+    'lightningInvoiceExp': RegExp(r'^\s*(lnbc|lntb)[0-9a-zA-Z]+\b\S*'),
+    'ecashExp':RegExp('^(${Nut0.uriPrefixes.map((prefix) => RegExp.escape(prefix)).join('|')}).*\\b\\S*'
+    ),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
@@ -37,6 +42,27 @@ class MomentContentAnalyzeUtils {
 
   List<String> get getQuoteUrlList {
     final RegExp noteExp = regexMap['noteExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getNddrlList {
+    final RegExp noteExp = regexMap['naddrExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getLightningInvoiceList {
+    final RegExp noteExp = regexMap['lightningInvoiceExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getEcashList {
+    final RegExp noteExp = regexMap['ecashExp'] as RegExp;
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
     return noteList;
@@ -75,8 +101,12 @@ class MomentContentAnalyzeUtils {
      final RegExp audioExp = regexMap['audioExp'] as RegExp;
      final RegExp youtubeExp = regexMap['youtubeExp'] as RegExp;
      final RegExp noteExp = regexMap['noteExp'] as RegExp;
+     final RegExp lightningInvoiceExp = regexMap['lightningInvoiceExp'] as RegExp;
+     final RegExp ecashListExp = regexMap['ecashExp'] as RegExp;
 
-      final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${youtubeExp.pattern}', caseSensitive: false);
+
+
+     final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${youtubeExp.pattern}|${lightningInvoiceExp.pattern}|${ecashListExp.pattern}', caseSensitive: false);
      final String cleanedText = content.replaceAll(contentExp, '');
      return cleanedText.trim();
   }

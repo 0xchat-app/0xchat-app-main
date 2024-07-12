@@ -90,6 +90,7 @@ class ChannelContactState extends State<ChannelContact> {
     });
     Map<ChannelDB, String> pinyinMap = Map<ChannelDB, String>();
     for (var channelDB in channelList) {
+      if(channelDB.name == null || channelDB.name!.isEmpty) channelDB.name = channelDB.shortChannelId;
       String pinyin = PinyinHelper.getFirstWordPinyin(channelDB.name ?? '');
       pinyinMap[channelDB] = pinyin;
     }
@@ -261,11 +262,10 @@ class ChannelContactState extends State<ChannelContact> {
           ),
         );
       });
-      double fillH = noteList.length * 68.px > Adapt.screenH() ? 118.px : (Adapt.screenH() - noteList.length * 68.px);
       slivers.add(
         SliverToBoxAdapter(
-          child: Container(
-            height: fillH,
+          child: SizedBox(
+            height: 168.px,
           ),
         ),
       );

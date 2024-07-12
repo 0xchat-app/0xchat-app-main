@@ -21,6 +21,8 @@ dependencies:
   video_thumbnail: ^0.5.3
   youtube_player_flutter: ^8.1.1
   visibility_detector: ^0.3.3
+  chewie: ^1.4.0  #Player
+  flutter_cache_manager: 3.3.1
 
   ox_module_service:
     path: ../../base_framework/ox_module_service
@@ -38,6 +40,8 @@ dependencies:
     path: ../../business_modules/ox_chat_ui
   chatcore:
     path: ../../0xchat-core
+  cashu_dart:
+    path: ../../cashu-dart
 
 
 

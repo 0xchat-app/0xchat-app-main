@@ -30,7 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dependency_overrides:
-  collection: ^1.18.0
+  collection: 1.18.0
 
 dev_dependencies:
   flutter_test:

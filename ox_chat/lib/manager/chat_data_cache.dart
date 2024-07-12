@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +11,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -128,7 +130,9 @@ class ChatDataCache with OXChatObserver {
   @override
   void didGroupMessageCallBack(MessageDB message) async {
     final groupId = message.groupId;
-    final key = GroupKey(groupId);
+    final key = message.chatType != null && message.chatType == 4
+        ? RelayGroupKey(groupId)
+        : GroupKey(groupId);
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
@@ -186,8 +190,27 @@ class ChatDataCache with OXChatObserver {
     addSystemMessage('$userName joined Secret Chat', sessionModel);
   }
 
-  Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
+  @override
+  void didMessageActionsCallBack(MessageDB message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'didMessageActionsCallBack',
+      message: 'begin',
+    );
+    final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+    final uiMessage = await message.toChatUIMessage();
+    if (key != null && uiMessage != null) {
+      await updateMessage(chatKey: key, message: uiMessage);
+    } else {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'didMessageActionsCallBack',
+        message: 'key: $key, uiMessage: $uiMessage',
+      );
+    }
+  }
 
+  Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
     // author
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB == null) {
@@ -316,7 +339,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
       chatKey ??= _getChatTypeKey(session);
     }
     if (chatKey == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'getMessage', message: 'ChatTypeKey is null');
       return null;
     }
     return await _getChatMessages(chatKey, messageId);
@@ -335,7 +358,6 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
       return ;
     }
 
-    ChatLogUtils.info(className: 'ChatDataCache', funcName: 'addNewMessage', message: 'session: ${session?.chatId}, key: $key');
     await _addChatMessages(key, message);
   }
 
@@ -443,6 +465,15 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return SecretChatKey(session.chatId);
   }
 
+  RelayGroupKey? _convertSessionToRelayGroupKey(ChatSessionModel session) {
+    final groupId = session.groupId;
+    if (groupId == null) {
+      ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToRelayGroupKey', message: 'groupId is null');
+      return null;
+    }
+    return RelayGroupKey(groupId);
+  }
+
   Future setSessionAllMessageIsRead(ChatSessionModel session) async {
     final chatTypeKey = _getChatTypeKey(session);
     if (chatTypeKey == null) return ;
@@ -497,6 +528,11 @@ extension ChatDataCacheEx on ChatDataCache {
           status: types.Status.error,
         );
       }
+
+      if (message.messageId == MessageDBToUIEx.logger?.messageId) {
+        MessageDBToUIEx.logger?.print('distribute - key: $key');
+        MessageDBToUIEx.logger?.print('distribute - message: $message');
+      }
       await _addChatMessages(key, uiMsg, waitSetup: false);
     } catch(e) {
       ChatLogUtils.error(
@@ -521,6 +557,11 @@ extension ChatDataCacheEx on ChatDataCache {
   }
 
   Future<void> _addChatMessages(ChatTypeKey key, types.Message message, { bool waitSetup = true }) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_addChatMessages',
+      message: 'key: $key, message: $message',
+    );
 
     final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
 
@@ -532,11 +573,21 @@ extension ChatDataCacheEx on ChatDataCache {
   }
 
   Future _removeChatMessages(ChatTypeKey key, types.Message message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_removeChatMessages',
+      message: 'key: $key, message: $message',
+    );
     final messageList = await _getSessionMessage(key);
     _removeMessageFromList(messageList, message);
   }
 
   Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {types.Message? originMessage}) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_updateChatMessages',
+      message: 'key: $key, message: $message',
+    );
     final messageList = await _getSessionMessage(key);
     _updateMessageToList(messageList, message, originMessage: originMessage);
   }
@@ -562,6 +613,8 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
       case ChatType.chatSecret:
       case ChatType.chatSecretStranger:
         return _convertSessionToSecretChatKey(session);
+      case ChatType.chatRelayGroup:
+        return _convertSessionToRelayGroupKey(session);
       default:
         ChatLogUtils.error(className: 'ChatDataCache', funcName: '_getChatTypeKey', message: 'unknown chatType');
         return null;
@@ -578,7 +631,9 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     if (type == 1) {
       return GroupKey(message.groupId);
     }
-
+    if (type == 4) {
+      return RelayGroupKey(message.groupId);
+    }
     if (type == 2 || message.groupId.isNotEmpty) {
       return ChannelKey(message.groupId);
     }

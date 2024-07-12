@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/widget/contact_group.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -28,7 +29,7 @@ class ContactViewGroups extends StatefulWidget {
 
 class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTickerProviderStateMixin,
     AutomaticKeepAliveClientMixin, WidgetsBindingObserver, CommonStateViewMixin, OXChatObserver, OXUserInfoObserver {
-  List<GroupDB> groups = [];
+  List<GroupUIModel> groups = [];
   RefreshController _refreshController = RefreshController();
   GlobalKey<GroupContactState> groupsWidgetKey = new GlobalKey<GroupContactState>();
   num imageV = 0;
@@ -62,7 +63,6 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
       GroupContact(
         key: groupsWidgetKey,
         data: groups,
-        chatType: ChatType.chatGroup,
         shrinkWrap: widget.shrinkWrap,
         physics: widget.physics,
         topWidget: widget.topWidget,
@@ -70,11 +70,21 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     );
   }
 
-  void _loadData() async {
-    Map<String, GroupDB> groupsMap =  Groups.sharedInstance.myGroups;
-    groups = groupsMap.values.toList();
+  void _loadData() {
+    groups.clear();
     if(Groups.sharedInstance.myGroups.length>0) {
-      groups = Groups.sharedInstance.myGroups.values.toList();
+      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
+      tempGroups.forEach((element) {
+        GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
+        groups.add(tempUIModel);
+      });
+    }
+    if(RelayGroup.sharedInstance.myGroups.length>0) {
+      List<RelayGroupDB> tempRelayGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      tempRelayGroups.forEach((element) {
+        GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
+        groups.add(uIModel);
+      });
     }
     _showView();
   }
@@ -141,7 +151,13 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
 
   @override
   void didGroupsUpdatedCallBack() {
+    LogUtil.e('Michael: ----didGroupsUpdatedCallBack----------');
     _loadData();
   }
 
+  @override
+  void didRelayGroupsUpdatedCallBack() {
+    LogUtil.e('Michael: ----didRelayGroupsUpdatedCallBack----------');
+    _loadData();
+  }
 }
