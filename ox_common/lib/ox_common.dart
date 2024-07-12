@@ -99,7 +99,7 @@ class OXCommon extends OXFlutterModule {
   }
 
   @override
-  navigateToPage(BuildContext context, String pageName, Map<String, dynamic>? params) {
+  Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     // TODO: implement navigateToPage
     return null;
   }

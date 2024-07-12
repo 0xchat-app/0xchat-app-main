@@ -3,9 +3,12 @@ import 'package:chatcore/chat-core.dart';
 abstract mixin class OXMomentObserver {
   didNewNotesCallBackCallBack(List<NoteDB> notes) {}
 
-  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+  didGroupsNoteCallBack(NoteDB notes) {}
 
   didMyZapNotificationCallBack(List<NotificationDB> notifications) {}
+
+  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+
 }
 
 class OXMomentManager {
@@ -18,9 +21,11 @@ class OXMomentManager {
   }
 
   List<NoteDB> _notes = [];
+  List<NoteDB> _relayGroupNotes = [];
   List<NotificationDB> _notifications = [];
 
   List<NoteDB> get notes => _notes;
+  List<NoteDB> get relayGroupNotes => _relayGroupNotes;
   List<NotificationDB> get notifications => _notifications;
 
   final List<OXMomentObserver> _observers = <OXMomentObserver>[];
@@ -39,9 +44,7 @@ class OXMomentManager {
     addMomentCallBack();
   }
 
-  addMomentCallBack() {
-  }
-
+  addMomentCallBack() {}
 
   void clearNewNotes() {
     Moment.sharedInstance.clearNewNotes();
@@ -72,6 +75,12 @@ class OXMomentManager {
   void myZapNotificationCallBack(List<NotificationDB> notifications) {
     for (OXMomentObserver observer in _observers) {
       observer.didMyZapNotificationCallBack(notifications);
+    }
+  }
+
+  void groupsNoteCallBack(NoteDB notes) {
+    for (OXMomentObserver observer in _observers) {
+      observer.didGroupsNoteCallBack(notes);
     }
   }
 }

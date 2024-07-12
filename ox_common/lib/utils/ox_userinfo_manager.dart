@@ -12,7 +12,6 @@ import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -32,6 +31,7 @@ enum _ContactType {
   contacts,
   channels,
   groups,
+  relayGroups,
 }
 
 class OXUserInfoManager {
@@ -56,6 +56,7 @@ class OXUserInfoManager {
     _ContactType.contacts: false,
     _ContactType.channels: false,
     _ContactType.groups: false,
+    _ContactType.relayGroups: false,
   };
 
   bool get isFetchContactFinish => _contactFinishFlags.values.every((v) => v);
@@ -194,7 +195,14 @@ class OXUserInfoManager {
       LogUtil.d('Michael: init  groupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-
+    RelayGroup.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+      LogUtil.d('Michael: init  relayGroupMessageCallBack');
+      OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
+    };
+    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDB joinRequestDB) async {
+      LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
+      OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
+    };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.d("Michael: init contactUpdatedCallBack");
       _fetchFinishHandler(_ContactType.contacts);
@@ -202,7 +210,7 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.syncSessionTypesByContact();
     };
     Channels.sharedInstance.myChannelsUpdatedCallBack = () async {
-      LogUtil.d('Michael: init  myChannelsUpdatedCallBack');
+      LogUtil.d('Michael: init myChannelsUpdatedCallBack');
       _fetchFinishHandler(_ContactType.channels);
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
     };
@@ -211,7 +219,11 @@ class OXUserInfoManager {
       _fetchFinishHandler(_ContactType.groups);
       OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
-
+    RelayGroup.sharedInstance.myGroupsUpdatedCallBack = () async {
+      LogUtil.d('Michael: init RelayGroup myGroupsUpdatedCallBack');
+      _fetchFinishHandler(_ContactType.relayGroups);
+      OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
+    };
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
       LogUtil.d('Michael: init  offlinePrivateMessageFinishCallBack');
       OXChatBinding.sharedInstance.offlinePrivateMessageFinishCallBack();
@@ -238,6 +250,14 @@ class OXUserInfoManager {
 
     Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
+    };
+
+    RelayGroup.sharedInstance.noteCallBack = (NoteDB notes) {
+      OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
+    };
+
+    Messages.sharedInstance.actionsCallBack = (MessageDB message) {
+      OXChatBinding.sharedInstance.messageActionsCallBack(message);
     };
   }
 
@@ -269,6 +289,7 @@ class OXUserInfoManager {
       _ContactType.contacts: false,
       _ContactType.channels: false,
       _ContactType.groups: false,
+      _ContactType.relayGroups: false,
     };
     OXChatBinding.sharedInstance.clearSession();
     AppInitializationManager.shared.reset();
@@ -308,8 +329,8 @@ class OXUserInfoManager {
         kinds.remove(9735);
       }
     }
-
-    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, OXRelayManager.sharedInstance.relayAddressList);
+    List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
+    OKEvent okEvent = await NotificationHelper.sharedInstance.setNotification(deviceId, kinds, relayAddressList);
     updateNotificatin = okEvent.status;
 
     return updateNotificatin;
@@ -321,7 +342,7 @@ class OXUserInfoManager {
     if(dnsStr.isEmpty || dnsStr == 'null') {
       return false;
     }
-    List<String> relayAddressList = OXRelayManager.sharedInstance.relayAddressList;
+    List<String> relayAddressList = await Account.sharedInstance.getUserGeneralRelayList(pubKey);
     List<String> temp = dnsStr.split('@');
     String name = temp[0];
     String domain = temp[1];
@@ -341,19 +362,14 @@ class OXUserInfoManager {
       fn();
     });
     Relays.sharedInstance.init().then((value) {
-      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
+      Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
       Groups.sharedInstance.init(callBack: Groups.sharedInstance.myGroupsUpdatedCallBack);
+      RelayGroup.sharedInstance.init(callBack: RelayGroup.sharedInstance.myGroupsUpdatedCallBack);
       Moment.sharedInstance.init();
       BadgesHelper.sharedInstance.init();
       Zaps.sharedInstance.init();
       _initMessage();
-    });
-    Future.delayed(Duration(seconds: 5), () {
-      Account.sharedInstance.syncRelaysMetadataFromRelay(currentUserInfo!.pubKey).then((value) {
-        //List<String> relays
-        OXRelayManager.sharedInstance.addRelaysSuccess(value);
-      });
     });
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
@@ -397,6 +413,7 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     if (isLogin) {
+      DB.sharedInstance.startHeartBeat();
       Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();

@@ -134,11 +134,9 @@ class OXChatBinding {
         isChange = true;
       }
       if (isChange) {
-        final int count = await DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
-        if (count > 0) {
-          sessionUpdate();
-          changeCount = count;
-        }
+        await DB.sharedInstance.insertBatch<ChatSessionModel>(sessionModel);
+        sessionUpdate();
+        changeCount = 1;
       }
     }
     return changeCount;
@@ -172,7 +170,11 @@ class OXChatBinding {
 
   void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
     sessionModel.chatId = messageDB.groupId;
-    sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
+    if (messageDB.chatType == 4) {
+      sessionModel.chatType = ChatType.chatRelayGroup;
+    } else {
+      sessionModel.chatType = messageDB.chatType ?? ChatType.chatChannel;
+    }
     ChatSessionModel? tempModel = sessionMap[messageDB.groupId];
     if (tempModel != null) {
       if (!messageDB.read && messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey) {
@@ -181,12 +183,16 @@ class OXChatBinding {
       }
       if (messageDB.createTime >= tempModel.createTime) tempModel = sessionModel;
       sessionMap[messageDB.groupId] = tempModel;
-      DB.sharedInstance.insert<ChatSessionModel>(tempModel);
+      DB.sharedInstance.insertBatch<ChatSessionModel>(tempModel);
     } else {
       if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
         ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
         sessionModel.avatar = channelDB?.picture ?? '';
         sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
+      } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
+        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[messageDB.groupId];
+        sessionModel.avatar = relayGroupDB?.picture ?? '';
+        sessionModel.chatName = relayGroupDB?.name ?? messageDB.groupId;
       } else {
         GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
         sessionModel.avatar = groupDBDB?.picture ?? '';
@@ -197,7 +203,7 @@ class OXChatBinding {
         noticePromptToneCallBack(messageDB, sessionModel.chatType);
       }
       sessionMap[messageDB.groupId] = sessionModel;
-      DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+      DB.sharedInstance.insertBatch<ChatSessionModel>(sessionModel);
     }
   }
 
@@ -228,7 +234,7 @@ class OXChatBinding {
         tempModel = sessionModel;
       }
       sessionMap[chatId] = tempModel;
-      DB.sharedInstance.insert<ChatSessionModel>(tempModel);
+      DB.sharedInstance.insertBatch<ChatSessionModel>(tempModel);
     } else {
       userDB = Contacts.sharedInstance.allContacts[otherUserPubkey];
       if (userDB == null) {
@@ -247,7 +253,7 @@ class OXChatBinding {
         noticePromptToneCallBack(messageDB, sessionModel.chatType);
       }
       sessionMap[chatId] = sessionModel;
-      DB.sharedInstance.insert<ChatSessionModel>(sessionModel);
+      DB.sharedInstance.insertBatch<ChatSessionModel>(sessionModel);
     }
   }
 
@@ -433,6 +439,18 @@ class OXChatBinding {
     }
   }
 
+  void relayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) async {
+    for (OXChatObserver observer in _observers) {
+      observer.didRelayGroupJoinReqCallBack(joinRequestDB);
+    }
+  }
+
+  void messageActionsCallBack(MessageDB messageDB) async {
+    for (OXChatObserver observer in _observers) {
+      observer.didMessageActionsCallBack(messageDB);
+    }
+  }
+
   void updateMessageDB(MessageDB messageDB) async {
     if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
       messageDB.read = true;
@@ -459,10 +477,10 @@ class OXChatBinding {
       csModel.chatType = tempChatType;
     }
     sessionMap[csModel.chatId] = csModel;
-    final int count = await DB.sharedInstance.insert<ChatSessionModel>(csModel);
+    await DB.sharedInstance.insertBatch<ChatSessionModel>(csModel);
     _updateUnReadStrangerSessionCount();
     sessionUpdate();
-    return count;
+    return 1;
   }
 
   Future<void> changeChatSessionTypeAll(String pubkey, bool isBecomeContact) async {
@@ -502,7 +520,7 @@ class OXChatBinding {
   Future<void> updateChatSessionDB(ChatSessionModel csModel, int tempChatType) async {
     csModel.chatType = tempChatType;
     sessionMap[csModel.chatId] = csModel;
-    DB.sharedInstance.insert<ChatSessionModel>(csModel);
+    DB.sharedInstance.insertBatch<ChatSessionModel>(csModel);
   }
 
   Future<void> syncSessionTypesByContact() async {
@@ -551,6 +569,12 @@ class OXChatBinding {
   void groupsUpdatedCallBack() {
     for (OXChatObserver observer in _observers) {
       observer.didGroupsUpdatedCallBack();
+    }
+  }
+
+  void relayGroupsUpdatedCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didRelayGroupsUpdatedCallBack();
     }
   }
 

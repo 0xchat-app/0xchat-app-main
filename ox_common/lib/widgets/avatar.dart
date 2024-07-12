@@ -182,6 +182,58 @@ class OXChannelAvatarState extends State<OXChannelAvatar> {
 
 }
 
+class OXRelayGroupAvatar extends StatefulWidget {
+
+  OXRelayGroupAvatar({
+    this.relayGroup,
+    this.imageUrl,
+    double? size,
+    this.isCircular = true,
+    this.isClickable = false,
+    this.onReturnFromNextPage,
+  }) : this.size = size ?? Adapt.px(48);
+
+  final RelayGroupDB? relayGroup;
+  final String? imageUrl;
+  final double size;
+  final bool isCircular;
+  final bool isClickable;
+  final VoidCallback? onReturnFromNextPage;
+
+  @override
+  State<StatefulWidget> createState() => OXRelayGroupAvatarState();
+}
+
+class OXRelayGroupAvatarState extends State<OXRelayGroupAvatar> {
+
+  final defaultImageName = 'icon_group_default.png';
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = widget.relayGroup?.picture ?? widget.imageUrl ?? '';
+    return BaseAvatarWidget(
+      imageUrl: imageUrl,
+      defaultImageName: defaultImageName,
+      size: widget.size,
+      isCircular: widget.isCircular,
+      isClickable: widget.isClickable,
+      onTap: () async {
+        final group = widget.relayGroup;
+        if (group != null) {
+          await OXModuleService.pushPage(context, 'ox_chat', 'RelayGroupInfoPage', {
+            'groupId': group.groupId,
+          });
+          final onReturnFromNextPage = widget.onReturnFromNextPage;
+          if (onReturnFromNextPage != null) onReturnFromNextPage();
+        } else {
+          CommonToast.instance.show(context, 'The Group Detail load failed.');
+        }
+      },
+    );
+  }
+
+}
+
 class OXGroupAvatar extends StatefulWidget {
 
   OXGroupAvatar({

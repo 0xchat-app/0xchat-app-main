@@ -47,6 +47,7 @@ class OXMenuDialog extends StatelessWidget {
     this.bottom,
     this.width,
     this.height,
+    this.bgColor,
   });
 
   final double? left;
@@ -55,8 +56,9 @@ class OXMenuDialog extends StatelessWidget {
   final double? bottom;
   final double? width;
   final double? height;
+  final Color? bgColor;
 
-  double get actionHeight => Adapt.px(40);
+  double get actionHeight => 56.px;
 
   final List<OXMenuItem> data;
   final OXMenuItem? selectedData;
@@ -77,8 +79,8 @@ class OXMenuDialog extends StatelessWidget {
             color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
-                color: ThemeColor.dark03,
-                borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4.0))),
+                color: bgColor ?? ThemeColor.color180,
+                borderRadius: BorderRadius.circular(12.px),
                 boxShadow:[
                   BoxShadow(
                     color: Colors.black.withOpacity(0.2),
@@ -96,11 +98,24 @@ class OXMenuDialog extends StatelessWidget {
   }
 
   Widget _buildActionButtonList() {
+    int index = 0;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: data.map((OXMenuItem item) {
         bool selected = item == selectedData;
-        return _buildActionButton(item, selected,);
+        index++;
+        return Column(
+          children: [
+            _buildActionButton(item, selected),
+            Visibility(
+              visible: index < data.length,
+              child: Divider(
+                height: Adapt.px(0.5),
+                color: ThemeColor.color160,
+              ),
+            ),
+          ],
+        );
       }).toList(),
     );
   }
@@ -115,16 +130,19 @@ class OXMenuDialog extends StatelessWidget {
       },
       height: actionHeight,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.only(left: Adapt.px(10)),
-            child:
-            CommonImage(
-              iconName: item.iconName,
-              width: Adapt.px(16),
-              height: Adapt.px(16),
-              color: ThemeColor.gray02,
-              package: item.package,
+          Visibility(
+            visible: item.iconName.isNotEmpty,
+            child: Padding(
+              padding: EdgeInsets.only(left: Adapt.px(10)),
+              child: CommonImage(
+                iconName: item.iconName,
+                width: Adapt.px(16),
+                height: Adapt.px(16),
+                color: ThemeColor.gray02,
+                package: item.package,
+              ),
             ),
           ),
           Padding(
@@ -153,10 +171,11 @@ class OXMenuDialog extends StatelessWidget {
     double? bottom,
     double? width,
     double? height,
+    Color? bgColor,
   }) {
     return showYLEDialog(
       context: context,
-      barrierColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.5),
       transitionDuration: Duration(milliseconds: 200),
       builder: (BuildContext context) => OXMenuDialog(
         data: data,
@@ -167,6 +186,7 @@ class OXMenuDialog extends StatelessWidget {
         bottom: bottom,
         width: width ?? Adapt.px(170),
         height: height,
+        bgColor: bgColor,
         onPressCallback: (OXMenuItem item) {
           OXNavigator.pop(
             context,

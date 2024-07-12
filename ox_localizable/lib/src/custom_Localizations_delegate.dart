@@ -123,4 +123,22 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   @override
   // TODO: implement noSpellCheckReplacementsLabel
   String get noSpellCheckReplacementsLabel => _en.noSpellCheckReplacementsLabel;
+
+  @override
+  String get clearButtonLabel => _en.clearButtonLabel;
+
+  @override
+  String datePickerStandaloneMonth(int monthIndex) => _en.datePickerStandaloneMonth(monthIndex);
+
+  @override
+  String get lookUpButtonLabel => _en.lookUpButtonLabel;
+
+  @override
+  String get menuDismissLabel => _en.menuDismissLabel;
+
+  @override
+  String get searchWebButtonLabel => _en.searchWebButtonLabel;
+
+  @override
+  String get shareButtonLabel => _en.shareButtonLabel;
 }

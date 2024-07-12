@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'dart:ui';
 import 'package:ox_theme/ox_theme.dart';
@@ -90,7 +91,8 @@ class LargeTitleState extends State<LargeTitle> {
 }
 
 // marked by ccso
-class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
+class
+CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool canBack;
   final bool isClose;
   final VoidCallback? backCallback;
@@ -163,6 +165,7 @@ class BaseAppBarState extends State<CommonAppBar> {
       )),
       titleSpacing: widget.titleSpacing,
       backgroundColor: _defaultBackgroundColor(),
+      surfaceTintColor: Colors.transparent,
       centerTitle: widget.centerTitle,
       elevation: widget.elevation,
       leading: _buildLeading(),
@@ -208,16 +211,17 @@ class BaseAppBarState extends State<CommonAppBar> {
     if (widget.isClose) {
       return Builder(
         builder: (BuildContext content) {
-          return IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: CommonImage(
-              iconName: "title_close.png",
-              width: 24,
-              height: 24,
-              useTheme: true,
-            ),
-            onPressed: widget.backCallback ??
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "title_close.png",
+                size:  24.px,
+                useTheme: true,
+              ),
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);
                 },
@@ -228,16 +232,17 @@ class BaseAppBarState extends State<CommonAppBar> {
     if (widget.canBack) {
       return Builder(
         builder: (BuildContext content) {
-          return IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: CommonImage(
-              iconName: "icon_back_left_arrow.png",
-              width: 24,
-              height: 24,
-              useTheme: true,
-            ),
-            onPressed: widget.backCallback ??
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CommonImage(
+                iconName: "icon_back_left_arrow.png",
+                size: 24.px,
+                useTheme: true,
+              ),
+            ).setPaddingOnly(left: 24.px),
+            onTap: widget.backCallback ??
                 () {
                   OXNavigator.pop(context);
                 },

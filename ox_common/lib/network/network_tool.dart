@@ -59,7 +59,6 @@ class NetworkTool {
       String? host = Config.sharedInstance.hostConfig[domain];
       if (host !=null && host.isNotEmpty) {
         String replaceUrl = url.replaceFirst(domain, host);
-        replaceUrl = replaceUrl.replaceFirst('https://', 'http://');
         return replaceUrl;
       }
     }

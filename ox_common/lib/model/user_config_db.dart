@@ -62,7 +62,7 @@ extension UserConfigTool on UserConfigDB {
   }
 
   static Future<void> updateUserConfigDB(UserConfigDB configDB) async {
-    await DB.sharedInstance.insert<UserConfigDB>(configDB);
+    await DB.sharedInstance.insertBatch<UserConfigDB>(configDB);
   }
 }
 

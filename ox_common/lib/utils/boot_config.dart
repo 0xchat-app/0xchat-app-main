@@ -68,7 +68,7 @@ class BootConfig {
         await DB.sharedInstance.update<UserDB>(userDB);
       }else{
         userDB = UserDB(pubKey: userPubkey,badgesList: badges);
-        await DB.sharedInstance.insert<UserDB>(userDB);
+        await DB.sharedInstance.insertBatch<UserDB>(userDB);
       }
     });
   }
