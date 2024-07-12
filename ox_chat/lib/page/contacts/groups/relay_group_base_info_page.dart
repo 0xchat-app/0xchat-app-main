@@ -128,6 +128,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                   title: 'str_group_ID'.localized(),
                   subTitle: _groupDBInfo?.groupId ?? '',
                   isShowMoreIcon: false,
+                  subTitleMaxLines: 5,
                   onTap: () {
                     String tempGroupId = _groupDBInfo?.groupId ?? '';
                     if (tempGroupId.isNotEmpty) TookKit.copyKey(context, tempGroupId);
@@ -345,6 +346,7 @@ class GroupItemBuild extends StatelessWidget {
   String? subTitleIcon;
   bool isShowMoreIcon;
   bool isShowDivider;
+  int subTitleMaxLines;
   final Widget? actionWidget;
   final GestureTapCallback? onTap;
 
@@ -356,6 +358,7 @@ class GroupItemBuild extends StatelessWidget {
     this.isShowMoreIcon = true,
     this.isShowDivider = true,
     this.actionWidget,
+    this.subTitleMaxLines = 1,
     this.onTap,
   });
 
@@ -393,55 +396,57 @@ class GroupItemBuild extends StatelessWidget {
                           fontSize: 16.px,
                         ),
                       ),
-                      titleDes != null
-                          ? Container(
-                              width: Adapt.screenW() - 104.px,
-                              margin: EdgeInsets.only(
-                                top: 4.px,
-                              ),
-                              child: Text(
-                                titleDes ?? '',
-                                style: TextStyle(
-                                  fontSize: 14.px,
-                                  fontWeight: FontWeight.w400,
-                                  color: ThemeColor.color100,
-                                ),
-                              ),
-                            )
-                          : SizedBox(),
+                      titleDes == null || titleDes!.isEmpty
+                          ? SizedBox()
+                          : Container(
+                        width: Adapt.screenW() - 104.px,
+                        margin: EdgeInsets.only(
+                          top: 4.px,
+                        ),
+                        child: Text(
+                          titleDes ?? '',
+                          style: TextStyle(
+                            fontSize: 14.px,
+                            fontWeight: FontWeight.w400,
+                            color: ThemeColor.color100,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      actionWidget ?? SizedBox(),
-                      subTitle != null
-                          ? Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (subTitleIcon != null)
-                                CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
-                                Flexible(
-                                    child: Container(
-                                  alignment: Alignment.centerRight,
-                                  child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: 5),
-                                ))
-                              ],
-                          ))
-                          : SizedBox(),
-                      isShowMoreIcon
-                          ? CommonImage(
-                        iconName: 'icon_arrow_more.png',
-                        size: 24.px,
-                      )
-                          : SizedBox(),
-                    ],
-                  ),
+                Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    actionWidget ?? SizedBox(),
+                    subTitle != null
+                        ?  Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (subTitleIcon != null)
+                          CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
+                        Flexible(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              constraints: subTitleMaxLines > 1 ? BoxConstraints(
+                                maxWidth: Adapt.screenW() - 180.px,
+                                minWidth: 100.px,
+                              ) : null,
+                              child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines),
+                            ))
+                      ],
+                    )
+                        : SizedBox(),
+                    isShowMoreIcon
+                        ? CommonImage(
+                      iconName: 'icon_arrow_more.png',
+                      size: 24.px,
+                    )
+                        : SizedBox(),
+                  ],
                 ),
               ],
             ),
