@@ -16,6 +16,9 @@ class NotedUIModel {
   late List<String> getMomentHashTagList;
   late String createAtStr;
   late String getMomentPlainText;
+  late List<String> getLightningInvoiceList;
+  late List<String> getEcashList;
+
   NotedUIModel({required this.noteDB}){
     loadInitialData(noteDB);
   }
@@ -31,6 +34,8 @@ class NotedUIModel {
     getMomentShowContent = analyzer.getMomentShowContent;
     getMomentHashTagList = analyzer.getMomentHashTagList;
     getMomentPlainText = analyzer.getMomentPlainText;
+    getLightningInvoiceList = analyzer.getLightningInvoiceList;
+    getEcashList = analyzer.getEcashList;
     createAtStr = DiscoveryUtils.formatTimeAgo(noteDB.createAt);
   }
 }

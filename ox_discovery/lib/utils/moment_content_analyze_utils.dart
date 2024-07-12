@@ -1,3 +1,4 @@
+import 'package:cashu_dart/core/nuts/nut_00.dart';
 import 'package:chatcore/chat-core.dart';
 
 class MomentContentAnalyzeUtils {
@@ -16,6 +17,9 @@ class MomentContentAnalyzeUtils {
     'youtubeExp': RegExp(r'(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/[^\s]*'),
     'lineFeedExp': RegExp(r"\n"),
     'showMoreExp': RegExp(r"show more$"),
+    'lightningInvoiceExp': RegExp(r'^\s*(lnbc|lntb)[0-9a-zA-Z]+\b\S*'),
+    'ecashExp':RegExp('^(${Nut0.uriPrefixes.map((prefix) => RegExp.escape(prefix)).join('|')}).*\\b\\S*'
+    ),
   };
 
   Future<Map<String,UserDB?>> get getUserInfoMap async{
@@ -45,6 +49,20 @@ class MomentContentAnalyzeUtils {
 
   List<String> get getNddrlList {
     final RegExp noteExp = regexMap['naddrExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getLightningInvoiceList {
+    final RegExp noteExp = regexMap['lightningInvoiceExp'] as RegExp;
+    final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
+    final List<String> noteList = matches.map((m) => m.group(0)!).toList();
+    return noteList;
+  }
+
+  List<String> get getEcashList {
+    final RegExp noteExp = regexMap['ecashExp'] as RegExp;
     final Iterable<RegExpMatch> matches = noteExp.allMatches(content);
     final List<String> noteList = matches.map((m) => m.group(0)!).toList();
     return noteList;
@@ -83,8 +101,12 @@ class MomentContentAnalyzeUtils {
      final RegExp audioExp = regexMap['audioExp'] as RegExp;
      final RegExp youtubeExp = regexMap['youtubeExp'] as RegExp;
      final RegExp noteExp = regexMap['noteExp'] as RegExp;
+     final RegExp lightningInvoiceExp = regexMap['lightningInvoiceExp'] as RegExp;
+     final RegExp ecashListExp = regexMap['ecashExp'] as RegExp;
 
-      final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${youtubeExp.pattern}', caseSensitive: false);
+
+
+     final RegExp contentExp = RegExp('${imgExp.pattern}|${audioExp.pattern}|${noteExp.pattern}|${youtubeExp.pattern}|${lightningInvoiceExp.pattern}|${ecashListExp.pattern}', caseSensitive: false);
      final String cleanedText = content.replaceAll(contentExp, '');
      return cleanedText.trim();
   }

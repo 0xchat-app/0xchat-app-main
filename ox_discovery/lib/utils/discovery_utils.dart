@@ -90,11 +90,15 @@ class DiscoveryUtils {
 
     RegExp noteExp = MomentContentAnalyzeUtils.regexMap['noteExp'] as RegExp;
     RegExp naddrExp = MomentContentAnalyzeUtils.regexMap['naddrExp'] as RegExp;
+    RegExp lightningInvoiceExp = MomentContentAnalyzeUtils.regexMap['lightningInvoiceExp'] as RegExp;
+    RegExp ecashExp = MomentContentAnalyzeUtils.regexMap['ecashExp'] as RegExp;
 
     final RegExp contentExp = RegExp(
         [
           noteExp.pattern,
           naddrExp.pattern,
+          lightningInvoiceExp.pattern,
+          ecashExp.pattern,
         ].join('|'),
         caseSensitive: false
     );

@@ -1,3 +1,5 @@
+import 'package:cashu_dart/api/cashu_api.dart';
+import 'package:cashu_dart/model/cashu_token_info.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -6,10 +8,16 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:intl/intl.dart';
+import '../../enum/moment_enum.dart';
 
 class MomentPaymentWidget extends StatefulWidget {
+  final String invoice;
+  final EPaymentType type;
   const MomentPaymentWidget({
     super.key,
+    required this.invoice,
+    required this.type,
   });
 
   @override
@@ -17,15 +25,53 @@ class MomentPaymentWidget extends StatefulWidget {
 }
 
 class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
+  String amount = '';
+
+  String? lightingTime;
+  // List<ZapRecordsDB>
+  String? ecashTime;
+  CashuTokenInfo? cashuTokenInfo;
+
+  String get getInvoice {
+    String invoice = widget.invoice;
+    if (invoice.length < 20) return invoice;
+    return invoice.substring(0, 11) +
+        '...' +
+        invoice.substring(widget.invoice.length - 7);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _initPre();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
+  }
+
+  void _initPre() async {
+    String invoice = widget.invoice;
+
+    if (widget.type == EPaymentType.lighting) {
+      final getZapReceipt = await Zaps.getZapReceipt('', invoice: invoice);
+      final getPaymentRequestInfo = Zaps.getPaymentRequestInfo(invoice);
+      amount = getPaymentRequestInfo.amount.toString();
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+          getPaymentRequestInfo.timestamp.toInt() * 1000);
+      lightingTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+    }
+
+    if (widget.type == EPaymentType.ecash) {
+      cashuTokenInfo = Cashu.infoOfToken(invoice);
+      amount = cashuTokenInfo?.amount.toString() ?? '';
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -47,7 +93,7 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _carTitleWidget(),
-          _tradeUserInfo(),
+          // _tradeUserInfo(),
           _priceWidget(),
           _tradeTimeWidget(),
         ],
@@ -63,23 +109,24 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
       child: Row(
         children: [
           CommonImage(
-            iconName: 'lighting_icon.png',
+            iconName: widget.type.getIcon,
             package: 'ox_discovery',
             size: 24.px,
           ).setPaddingOnly(
             right: 4.px,
           ),
           Text(
-            'ZAPS',
+            widget.type.text,
             style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 14.px,
-                color: ThemeColor.white),
+              fontWeight: FontWeight.w400,
+              fontSize: 14.px,
+              color: ThemeColor.white,
+            ),
           ).setPaddingOnly(
             right: 4.px,
           ),
           Text(
-            'lnbtc xxxxxx...xxxxxx',
+            getInvoice,
             style: TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 12.px,
@@ -133,11 +180,13 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
               ],
             ),
           ),
-        Expanded(child:   CommonImage(
-          iconName: 'right_yellow_arrow_icon.png',
-          package: 'ox_discovery',
-          size: 24.px,
-        ),),
+          Expanded(
+            child: CommonImage(
+              iconName: 'right_yellow_arrow_icon.png',
+              package: 'ox_discovery',
+              size: 24.px,
+            ),
+          ),
           Container(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -179,10 +228,13 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
   }
 
   Widget _priceWidget() {
+    String unit = widget.type == EPaymentType.lighting
+        ? 'Sats'
+        : cashuTokenInfo?.unit ?? '';
     return Container(
       height: 33.px,
       child: Text(
-        '100,000 Sats',
+        '$amount $unit',
         style: TextStyle(
           fontSize: 24.px,
           color: ThemeColor.white,
@@ -193,9 +245,12 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
   }
 
   Widget _tradeTimeWidget() {
+    String? content =
+        widget.type == EPaymentType.lighting ? lightingTime : ecashTime;
+    if (content == null) return const SizedBox();
     return Container(
       child: Text(
-        '2024.07.05 20:00:00',
+        content,
         style: TextStyle(
           fontSize: 10.px,
           color: ThemeColor.color120,

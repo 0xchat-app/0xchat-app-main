@@ -16,6 +16,7 @@ import 'package:ox_discovery/page/widgets/video_moment_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'moment_option_widget.dart';
+import 'moment_payment_widget.dart';
 import 'moment_url_widget.dart';
 import 'moment_quote_widget.dart';
 import 'moment_reply_abbreviate_widget.dart';
@@ -131,14 +132,14 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     List<String> quoteUrlList = model.value.getQuoteUrlList;
     List<String> getNddrlList = model.value.getNddrlList;
+    List<String> getLightningInvoiceList = model.value.getLightningInvoiceList;
+    List<String> getEcashList = model.value.getEcashList;
 
-    if (getNddrlList.isEmpty && quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
+    if (getEcashList.isEmpty && getLightningInvoiceList.isEmpty && getNddrlList.isEmpty && quoteUrlList.isEmpty && model.value.getMomentShowContent.isEmpty) {
       return const SizedBox();
     }
 
-    List<String> contentList =
-        DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
-
+    List<String> contentList = DiscoveryUtils.momentContentSplit(model.value.noteDB.content);
     return Column(
       children: contentList.map((String content) {
         String? noteId;
@@ -147,10 +148,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         String? quoteRepostId = model.value.noteDB.quoteRepostId;
         if (quoteUrlList.contains(content)) {
           if(content.contains('nostr:nevent')){
-            Map result = Nip19.decodeShareableEntity(Nip21.decode(content)!);
-            if(result['special']?.toLowerCase() != quoteRepostId?.toLowerCase()){
-              neventId = content;
-            }
+            neventId = content;
           }else{
             final noteInfo = NoteDB.decodeNote(content);
             noteId = noteInfo?['channelId'];
@@ -158,12 +156,15 @@ class _MomentWidgetState extends State<MomentWidget> {
 
           bool isShowQuote =
           (noteId != null && noteId.toLowerCase() != quoteRepostId?.toLowerCase()) || neventId != null;
-
           return isShowQuote
               ? MomentQuoteWidget(notedId: noteId,relays: relays,neventId:neventId)
               : const SizedBox();
         } else if(getNddrlList.contains(content)){
           return MomentArticleWidget(naddr: content);
+        } else if(getLightningInvoiceList.contains(content)){
+          return MomentPaymentWidget(invoice:content,type: EPaymentType.lighting,);
+        } else if(getEcashList.contains(content)){
+          return MomentPaymentWidget(invoice:content,type: EPaymentType.ecash,);
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
@@ -223,12 +224,22 @@ class _MomentWidgetState extends State<MomentWidget> {
   Widget _momentQuoteWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) return const SizedBox();
-
+    List<String> quoteUrlList = model.value.getQuoteUrlList;
     String? quoteRepostId = model.value.noteDB.quoteRepostId;
     bool hasQuoteRepostId = quoteRepostId != null && quoteRepostId.isNotEmpty;
     if (!hasQuoteRepostId) return const SizedBox();
+    bool isRepeat = false;
+    for(String content in quoteUrlList){
+      if(content.contains('nostr:nevent')){
+        Map result = Nip19.decodeShareableEntity(Nip21.decode(content)!);
+        if(result['special']?.toLowerCase() == quoteRepostId.toLowerCase()){
+          isRepeat = true;
+          break;
+        }
+      }
+    }
 
-    return MomentQuoteWidget(notedId: quoteRepostId);
+    return isRepeat ? const SizedBox() : MomentQuoteWidget(notedId: quoteRepostId);
   }
 
   Widget _momentUserInfoWidget() {
