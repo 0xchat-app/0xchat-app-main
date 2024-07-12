@@ -19,7 +19,6 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_relay_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/boot_config.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -59,7 +58,6 @@ void main() async {
     await ThemeManager.init();
     await Localized.init();
     await setupModules();
-    OXRelayManager.sharedInstance.loadConnectRelay();
     OXServerManager.sharedInstance.loadConnectICEServer();
     await OXUserInfoManager.sharedInstance.initLocalData();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -175,6 +173,7 @@ class MainState extends State<MainApp>
         navigatorKey: OXNavigator.navigatorKey,
         navigatorObservers: [OXNavigator.routeObserver],
         theme: ThemeData(
+          useMaterial3: false,
           brightness: ThemeManager.brightness(),
           scaffoldBackgroundColor: ThemeColor.color190,
           fontFamily: 'Lato', //use regular for ios / thin for android
@@ -234,6 +233,7 @@ class MainState extends State<MainApp>
         }
         break;
       case AppLifecycleState.paused:
+        DB.sharedInstance.batchApply();
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         break;

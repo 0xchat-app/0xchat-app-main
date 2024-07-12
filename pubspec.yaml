@@ -86,7 +86,7 @@ dev_dependencies:
   watcher: ^1.1.0
 
 dependency_overrides:
-  collection: ^1.18.0
+  collection: 1.18.0
   logging: 1.1.1
   sqflite:
     git:
