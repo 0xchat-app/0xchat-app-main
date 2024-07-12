@@ -34,9 +34,9 @@ extension ChatHistoryForNewMembersTypeEx on ChatHistoryForNewMembersType{
   String get typeDesc {
     switch (this) {
       case ChatHistoryForNewMembersType.show:
-        return 'str_group_open_description'.localized();
+        return 'str_group_show_description'.localized();
       case ChatHistoryForNewMembersType.hidden:
-        return 'str_group_close_description'.localized();
+        return 'str_group_hidden_description'.localized();
     }
   }
 }
