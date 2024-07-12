@@ -58,7 +58,7 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
     if (widget.type == EPaymentType.lighting) {
       final getZapReceipt = await Zaps.getZapReceipt('', invoice: invoice);
       final getPaymentRequestInfo = Zaps.getPaymentRequestInfo(invoice);
-      amount = getPaymentRequestInfo.amount.toString();
+      amount = getPaymentRequestInfo.amount.ceil().toString();
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
           getPaymentRequestInfo.timestamp.toInt() * 1000);
       lightingTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
@@ -228,13 +228,14 @@ class _MomentPaymentWidgetState extends State<MomentPaymentWidget> {
   }
 
   Widget _priceWidget() {
-    String unit = widget.type == EPaymentType.lighting
+    String? unit = widget.type == EPaymentType.lighting
         ? 'Sats'
-        : cashuTokenInfo?.unit ?? '';
+        : cashuTokenInfo?.unit;
+    if(unit == null) return const SizedBox();
     return Container(
       height: 33.px,
       child: Text(
-        '$amount $unit',
+        '$amount ${unit[0].toUpperCase()}${unit.substring(1)}',
         style: TextStyle(
           fontSize: 24.px,
           color: ThemeColor.white,
