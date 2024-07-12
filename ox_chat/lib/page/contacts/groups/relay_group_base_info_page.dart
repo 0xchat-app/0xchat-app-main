@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
@@ -10,9 +11,11 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -117,10 +120,18 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                     ),
                   ),
                 ),
+                Divider(
+                  height: 0.5.px,
+                  color: ThemeColor.color160,
+                ),
                 GroupItemBuild(
                   title: 'str_group_ID'.localized(),
                   subTitle: _groupDBInfo?.groupId ?? '',
                   isShowMoreIcon: false,
+                  onTap: () {
+                    String tempGroupId = _groupDBInfo?.groupId ?? '';
+                    if (tempGroupId.isNotEmpty) TookKit.copyKey(context, tempGroupId);
+                  },
                 ),
                 GroupItemBuild(
                   title: 'group_name'.localized(),
@@ -298,9 +309,9 @@ class RelayGroupBaseInfoView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MyText(relayGroup?.name ?? '', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-                if (relayGroup != null && relayGroup!.relayPubkey.isNotEmpty) SizedBox(height: 2.px),
-                if (relayGroup != null && relayGroup!.relayPubkey.isNotEmpty)
-                  MyText(relayGroup?.relayPubkey ?? '', 14.sp, ThemeColor.color100,
+                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty) SizedBox(height: 2.px),
+                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty)
+                  MyText(relayGroup.relayPubkey ?? '', 14.sp, ThemeColor.color100,
                       fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -368,9 +379,10 @@ class GroupItemBuild extends StatelessWidget {
             // height: Adapt.px(52),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  // margin: EdgeInsets.only(left: Adapt.px(12)),
+                  margin: EdgeInsets.only(right: 12.px),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -400,28 +412,33 @@ class GroupItemBuild extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
+                Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       actionWidget ?? SizedBox(),
                       subTitle != null
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (subTitleIcon != null)
-                                  CommonImage(
-                                      iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
-                                MyText(subTitle ?? '', 14.sp, ThemeColor.color100, fontWeight: FontWeight.w400)
+                          ? Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (subTitleIcon != null)
+                                CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
+                                Flexible(
+                                    child: Container(
+                                  alignment: Alignment.centerRight,
+                                  child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: 5),
+                                ))
                               ],
-                            )
+                          ))
                           : SizedBox(),
                       isShowMoreIcon
                           ? CommonImage(
-                              iconName: 'icon_arrow_more.png',
-                              size: 24.px,
-                            )
+                        iconName: 'icon_arrow_more.png',
+                        size: 24.px,
+                      )
                           : SizedBox(),
                     ],
                   ),
