@@ -256,20 +256,22 @@ class _CustomControlsState extends State<CustomControls> {
                 GestureDetector(
                     onTap: () => OXNavigator.pop(context),
                     child: Container(
-                        width: 26.px,
-                        height: 26.px,
-                        decoration: BoxDecoration(
-                          color: ThemeColor.color120,
-                          borderRadius: const BorderRadius.all(Radius.circular(26)),
+                      width: 35.px,
+                      height: 35.px,
+                      decoration: BoxDecoration(
+                        color: ThemeColor.color180,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(35.px),
                         ),
-                        child: Center(
-                          child: CommonImage(
-                            iconName: 'close_icon.png',
-                            package: 'ox_discovery',
-                            size: 16.px,
-                            color: Colors.white,
-                          ),
+                      ),
+                      child: Center(
+                        child: CommonImage(
+                          iconName: 'close_icon.png',
+                          package: 'ox_discovery',
+                          size: 24.px,
+                          color: Colors.white,
                         ),
+                      ),
                     ),
                 ),
                 GestureDetector(
@@ -294,18 +296,18 @@ class _CustomControlsState extends State<CustomControls> {
                     }
                   },
                   child: Container(
-                    width: 26.px,
-                    height: 26.px,
+                    width: 35.px,
+                    height: 35.px,
                     decoration: BoxDecoration(
-                      color: ThemeColor.color120,
-                      borderRadius: const BorderRadius.all(Radius.circular(26)),
+                      color: ThemeColor.color180,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(35.px),
+                      ),
                     ),
                     child: Center(
                       child: CommonImage(
-                        iconName: 'moment_more.png',
-                        package: 'ox_discovery',
-                        size: 16.px,
-                        color: Colors.white,
+                        iconName: 'icon_download.png',
+                        size: 24,
                       ),
                     ),
                   ),

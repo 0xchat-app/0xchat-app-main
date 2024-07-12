@@ -53,6 +53,32 @@ enum EOptionMomentsType {
   group
 }
 
+enum EPaymentType {
+  lighting,
+  ecash
+}
+
+extension EPaymentTypeEx on EPaymentType{
+  String get text {
+    switch (this) {
+      case EPaymentType.lighting:
+        return 'ZAPS';
+      case EPaymentType.ecash:
+        return 'ECASH';
+    }
+  }
+
+  String get getIcon {
+    switch (this) {
+      case EPaymentType.lighting:
+        return 'lighting_icon.png';
+      case EPaymentType.ecash:
+        return 'ecash_icon.png';
+    }
+  }
+}
+
+
 extension EMomentQuoteTypeEx on EMomentQuoteType{
   String get text {
     switch (this) {
