@@ -646,13 +646,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       context,
           (context) => GroupSettingQrcodePage(
         groupId: widget.groupId,
-        groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
+        groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
       ),
     );
   }
 
   void _DisableShareDialog(bool isQrCode) {
-    if (groupDBInfo != null && !groupDBInfo!.private) return _groupQrCodeFn();
+    if (groupDBInfo != null && !groupDBInfo!.closed) return _groupQrCodeFn();
     OXCommonHintDialog.show(
       context,
       title: "",
@@ -667,7 +667,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                   context,
                   (context) => GroupSettingQrcodePage(
                     groupId: widget.groupId,
-                    groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
+                    groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
                   ),
                 );
               } else {
@@ -676,7 +676,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
                   (context) => ContactGroupMemberPage(
                     groupId: widget.groupId,
                     groupListAction: GroupListAction.send,
-                    groupType: groupDBInfo != null && groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup,
+                    groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
                   ),
                 );
               }
@@ -713,7 +713,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       (context) => ContactGroupMemberPage(
         groupId: widget.groupId,
         groupListAction: action,
-        groupType: groupDBInfo != null ? (groupDBInfo!.private ? GroupType.closeGroup : GroupType.openGroup) : null,
+        groupType: groupDBInfo != null ? (groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup) : null,
       ),
     );
     if (result != null && result) _groupInfoInit();

@@ -37,7 +37,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
   UserDB? inviterUserDB = null;
   bool requestTag = true;
-  late String _practicalGroupId;
+  String _practicalGroupId = '';
 
   @override
   void initState() {

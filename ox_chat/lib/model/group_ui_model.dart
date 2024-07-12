@@ -17,6 +17,7 @@ class GroupUIModel {
   String? about;
   String? picture;
   String? relay;
+  bool closed;
   bool private;
   int chatType;
 
@@ -31,6 +32,7 @@ class GroupUIModel {
     this.about,
     this.picture,
     this.relay,
+    this.closed = false,
     this.private = false,
     this.chatType = ChatType.chatRelayGroup
   });
@@ -48,7 +50,7 @@ class GroupUIModel {
       pinned: groupDB.pinned,
       relay: groupDB.relay,
       updateTime: groupDB.updateTime,
-      private: false,
+      closed: false,
       chatType: ChatType.chatGroup,
     );
   }
@@ -66,6 +68,7 @@ class GroupUIModel {
       pinned: groupDB.pinned,
       relay: groupDB.relay,
       updateTime: groupDB.lastUpdatedTime,
+      closed: groupDB.closed,
       private: groupDB.private,
       chatType: ChatType.chatRelayGroup,
     );

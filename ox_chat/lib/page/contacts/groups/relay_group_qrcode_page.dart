@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -218,6 +219,7 @@ class _RelayGroupQrcodePageState extends State<RelayGroupQrcodePage> {
           (context) => ContactGroupMemberPage(
         groupId: widget.groupId,
         groupListAction: GroupListAction.send,
+        groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
       ),);
   }
 

@@ -32,7 +32,7 @@ class ContactGroupListPage extends StatefulWidget {
     required this.title,
     this.groupListAction = GroupListAction.view,
     this.searchBarHintText,
-    this.groupType = GroupType.openGroup,
+    this.groupType,
   });
 
   @override
