@@ -206,6 +206,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       _minioInputOptions[4]:'Custom Server Name(optional)',
     };
     return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (context, index) {
         return _buildItem(
@@ -244,7 +245,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
             color: ThemeColor.red1,
           ),
         ),
-      ).setPadding(EdgeInsets.only(top: 12.px)),
+      ).setPadding(EdgeInsets.symmetric(vertical: 12.px)),
     );
   }
 
