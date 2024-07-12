@@ -60,7 +60,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void initState() {
     super.initState();
-    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
       if(mounted) setState(() {});
     });
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;

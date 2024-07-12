@@ -49,7 +49,7 @@ class _RelaysPageState extends State<RelaysPage> {
     super.initState();
     _relaySelectableController.currentIndex.addListener(_relaySelectableListener);
     _initDefault();
-    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
       didRelayStatusChange(relay, status);
     });
     Account.sharedInstance.relayListUpdateCallback = _initDefault;

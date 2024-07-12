@@ -51,7 +51,7 @@ class _ChannelPageState extends State<ChannelPage>
   void initState() {
     super.initState();
     OXUserInfoManager.sharedInstance.addObserver(this);
-    Connect.sharedInstance.addConnectStatusListener((relay, status) {
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
        if(mounted) setState(() {});
     });
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
