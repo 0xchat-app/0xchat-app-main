@@ -76,4 +76,7 @@ class OXMomentCacheManager {
 
   CreateMomentDraft? createMomentMediaDraft;
   CreateMomentDraft? createMomentContentDraft;
+
+  CreateMomentDraft? createGroupMomentMediaDraft;
+  CreateMomentDraft? createGroupMomentContentDraft;
 }

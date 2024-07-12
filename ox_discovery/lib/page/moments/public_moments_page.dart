@@ -263,6 +263,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Widget _groupNoteTips() {
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.only(left: 24.px),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

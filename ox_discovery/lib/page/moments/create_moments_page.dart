@@ -4,7 +4,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/upload/file_type.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -95,8 +94,16 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   void _initDraft(){
-    CreateMomentDraft? createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
-    CreateMomentDraft? createMomentContentDraft = OXMomentCacheManager.sharedInstance.createMomentContentDraft;
+    CreateMomentDraft? createMomentMediaDraft;
+    CreateMomentDraft? createMomentContentDraft;
+    if(widget.groupId != null){
+      createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createGroupMomentMediaDraft;
+      createMomentContentDraft = OXMomentCacheManager.sharedInstance.createGroupMomentContentDraft;
+    }else{
+      createMomentMediaDraft = OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
+      createMomentContentDraft = OXMomentCacheManager.sharedInstance.createMomentContentDraft;
+    }
+
 
     videoPath = widget.videoPath;
     videoImagePath = widget.videoImagePath;
@@ -401,7 +408,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
             text: () => 'UnSave',
             style: OXHintActionStyle.gray,
             onTap: () {
-              _clearDraft();
+              _optionDraft(null);
               OXNavigator.pop(context);
             },
           ),
@@ -486,7 +493,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
     await OXLoading.dismiss();
     if(event?.status ?? false){
-      _clearDraft();
+      _optionDraft(null);
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 
@@ -508,7 +515,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     await OXLoading.dismiss();
 
     if(result.status){
-      _clearDraft();
+      _optionDraft(null);
       CommonToast.instance.show(context, Localized.text('ox_chat.sent_successfully'));
     }
 
@@ -572,19 +579,24 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       videoPath: videoPath,
       videoImagePath: videoImagePath,
     );
-    if(widget.type != EMomentType.content){
-      OXMomentCacheManager.sharedInstance.createMomentMediaDraft = draft;
-      return;
-    }
-    OXMomentCacheManager.sharedInstance.createMomentContentDraft = draft;
+    _optionDraft(draft);
   }
 
-  void _clearDraft() {
+  void _optionDraft(CreateMomentDraft? draft){
     final sharedInstance = OXMomentCacheManager.sharedInstance;
-    if(widget.type == EMomentType.content){
-      sharedInstance.createMomentContentDraft = null;
-    }else{
-      sharedInstance.createMomentMediaDraft = null;
+
+    if(widget.groupId != null){
+      if(widget.type != EMomentType.content){
+        sharedInstance.createGroupMomentMediaDraft = draft;
+        return;
+      }
+      sharedInstance.createGroupMomentContentDraft = draft;
+    } else {
+      if(widget.type != EMomentType.content){
+        sharedInstance.createMomentMediaDraft = draft;
+        return;
+      }
+      sharedInstance.createMomentContentDraft = draft;
     }
   }
 }
