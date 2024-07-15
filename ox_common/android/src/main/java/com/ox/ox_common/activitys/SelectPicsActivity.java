@@ -1,5 +1,7 @@
 package com.ox.ox_common.activitys;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -7,7 +9,11 @@ import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.annotation.Nullable;
 
 import com.luck.picture.lib.basic.PictureSelector;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -15,6 +21,7 @@ import com.luck.picture.lib.config.SelectMimeType;
 import com.luck.picture.lib.config.SelectModeConfig;
 import com.luck.picture.lib.dialog.RemindDialog;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.interfaces.OnExternalPreviewEventListener;
 import com.luck.picture.lib.interfaces.OnResultCallbackListener;
 import com.luck.picture.lib.language.LanguageConfig;
 import com.luck.picture.lib.style.PictureSelectorStyle;
@@ -41,6 +48,7 @@ import java.util.Map;
 public class SelectPicsActivity extends BaseActivity {
 
     private static final int WRITE_SDCARD = 101;
+    private static final int COMFIRM_PIC = 108;
 
     public static final String GALLERY_MODE = "GALLERY_MODE";
     public static final String UI_COLOR = "UI_COLOR";
@@ -61,12 +69,14 @@ public class SelectPicsActivity extends BaseActivity {
     public static final String VIDEO_SELECT_MIN_SECOND = "VIDEO_SELECT_MIN_SECOND";//Minimum video duration when selecting a video (seconds)
     public static final String LANGUAGE = "LANGUAGE";
 
+    private Activity mActivity;
+    private ArrayList<LocalMedia> resultMedia;
 
     @Override
     public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_pics);
-
+        mActivity = this;
         startSel();
     }
 
@@ -242,7 +252,21 @@ public class SelectPicsActivity extends BaseActivity {
                     .forResult(new OnResultCallbackListener<LocalMedia>() {
                         @Override
                         public void onResult(ArrayList<LocalMedia> result) {
-                            handlerResult(result);
+//                            handlerResult(result);
+                            ArrayList<String> images = new ArrayList<>();
+                            for (LocalMedia med : result) {
+                                String path = med.getAvailablePath();
+                                if (med.isCut()) {
+                                    path = med.getCutPath();
+                                }
+                                images.add(path);
+                            }
+                            resultMedia = result;
+                            Intent photosIntent = new Intent(mActivity, PhotosActivity.class);
+                            photosIntent.putStringArrayListExtra(PhotosActivity.IMAGES, images);
+                            photosIntent.putExtra(PhotosActivity.CURRENT_POSITION, 0);
+                            mActivity.startActivityForResult(photosIntent, COMFIRM_PIC);
+
                         }
 
                         @Override
@@ -292,4 +316,22 @@ public class SelectPicsActivity extends BaseActivity {
         finish();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == COMFIRM_PIC) {
+            boolean needBackValue = data.getBooleanExtra("needBackValue", false);
+            Log.e("John", "resultMedia is null? ="+(resultMedia == null)+"resultMedia = "+resultMedia.size());
+            if (needBackValue && resultMedia != null) {
+                handlerResult(resultMedia);
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra(COMPRESS_PATHS, new ArrayList<>());
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        }
+    }
 }

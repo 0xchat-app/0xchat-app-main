@@ -1,6 +1,7 @@
 package com.ox.ox_common.activitys;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
@@ -36,6 +38,7 @@ import com.ox.ox_common.utils.AppPath;
 import com.ox.ox_common.utils.CommonUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,7 +48,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 @SuppressWarnings("all")
 public class PhotosActivity extends BaseActivity {
@@ -222,21 +224,10 @@ public class PhotosActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.item_activity_photos, container, false);
             final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             final ImageView photoView = (ImageView) view.findViewById(R.id.photoView);
-            final PhotoViewAttacher attacher = new PhotoViewAttacher(photoView);
-            attacher.setOnLongClickListener(new View.OnLongClickListener() {
+            photoView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View view) {
-                        /*if (TextUtils.isEmpty(momontId)){
-                            return false;
-                        }else{
-                        }*/
-                    return true;
-                }
-            });
-            attacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-                @Override
-                public void onViewTap(View view, float x, float y) {
-                    finish();
+                public void onClick(View v) {
+
                 }
             });
             progressBar.setVisibility(View.VISIBLE);
@@ -265,7 +256,6 @@ public class PhotosActivity extends BaseActivity {
                                 layoutParams.height = photoViewHeight;
                                 photoView.setLayoutParams(layoutParams);
 
-                                attacher.update();
                                 progressBar.setVisibility(View.GONE);
                                 photoView.setImageDrawable(resource);
                                 return false;
@@ -283,7 +273,6 @@ public class PhotosActivity extends BaseActivity {
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                         photoView.setImageDrawable(resource);
-                        attacher.update();
                         progressBar.setVisibility(View.GONE);
                         return false;
                     }
@@ -337,14 +326,21 @@ public class PhotosActivity extends BaseActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("needBackValue", false);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
         viewPager = findViewById(R.id.viewPager);
         layout_tip = findViewById(R.id.layout_tip);
+        TextView tv_photos_confirm = findViewById(R.id.tv_photos_confirm);
+        View iv_photos_back = findViewById(R.id.v_photos_back);
         inflater = LayoutInflater.from(this);
         images = getIntent().getStringArrayListExtra(IMAGES);
         currentPosition = getIntent().getIntExtra(CURRENT_POSITION, 0);
@@ -352,6 +348,24 @@ public class PhotosActivity extends BaseActivity {
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
+        iv_photos_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("needBackValue", false);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
+        tv_photos_confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("needBackValue", true);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
 
         if (images != null && images.size() > 0) {
 
