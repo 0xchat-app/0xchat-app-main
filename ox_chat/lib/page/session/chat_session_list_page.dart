@@ -1034,10 +1034,11 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Future<int> _deleteStrangerSessionList() async {
     List<String> chatIds = OXChatBinding.sharedInstance.strangerSessionList.map((e) => e.chatId).toList();
+    final int count = await OXChatBinding.sharedInstance.deleteSession(chatIds, isStranger: true);
     chatIds.forEach((id) {
       Contacts.sharedInstance.close(id);
     });
-    return await OXChatBinding.sharedInstance.deleteSession(chatIds, isStranger: true);
+    return count;
   }
 }
 
