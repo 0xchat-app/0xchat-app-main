@@ -560,7 +560,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                   if(!event.status){
                     CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   }
-                  OXChatBinding.sharedInstance.deleteSession(pubKey);
+                  OXChatBinding.sharedInstance.deleteSession([pubKey]);
                   OXNavigator.pop(context, true);
                 }),
           ],
