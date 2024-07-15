@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bar_grey"
+    android:background="@color/white"
     android:orientation="vertical">
     <RelativeLayout
         android:id="@+id/rl_top_view"
@@ -13,12 +13,12 @@
 
         <RelativeLayout
             android:id="@+id/v_photos_back"
-            android:layout_width="44.dp"
+            android:layout_width="44dp"
             android:layout_height="44dp"
             android:layout_marginLeft="12dp">
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/black_back"/>
         </RelativeLayout>
@@ -27,7 +27,7 @@
     <RelativeLayout
         android:id="@+id/rl_confirm_button"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="44dp"
         android:layout_alignParentBottom="true">
 
         <TextView
@@ -39,8 +39,8 @@
             android:layout_marginEnd="24dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
+            android:paddingHorizontal="9dp"
+            android:paddingVertical="6dp"
             android:background="@drawable/shape_green_bg"/>
     </RelativeLayout>
 
