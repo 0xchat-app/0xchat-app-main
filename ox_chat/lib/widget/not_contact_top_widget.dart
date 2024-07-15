@@ -139,7 +139,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId);
     await OXLoading.dismiss();
     if (okEvent.status) {
-      OXChatBinding.sharedInstance.deleteSession(item.chatId);
+      OXChatBinding.sharedInstance.deleteSession([item.chatId]);
       CommonToast.instance.show(context, Localized.text('ox_chat.rejected_successfully'));
       OXNavigator.pop(context);
     } else {

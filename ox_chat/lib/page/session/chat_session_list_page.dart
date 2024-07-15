@@ -445,7 +445,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                 text: Localized.text('ox_common.confirm'),
                                 onTap: () async {
                                   OXNavigator.pop(context);
-                                  final int count = await OXChatBinding.sharedInstance.deleteSession(item.chatId);
+                                  final int count = await OXChatBinding.sharedInstance.deleteSession([item.chatId]);
                                   if (item.chatType == ChatType.chatSecret) {
                                     Contacts.sharedInstance.close(item.chatId);
                                   } else if (item.chatType == ChatType.chatSingle) {
