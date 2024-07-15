@@ -75,7 +75,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   @override
   void initState() {
     super.initState();
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKind) {
+    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
       if(mounted) setState(() {});
     });
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
