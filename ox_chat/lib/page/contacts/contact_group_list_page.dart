@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
@@ -224,7 +225,8 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
             },
           ),
           _buildTitleWidget(),
-          buildEditButton(),
+          if (widget.groupType != GroupType.privateGroup)
+            buildEditButton(),
         ],
       ),
     );

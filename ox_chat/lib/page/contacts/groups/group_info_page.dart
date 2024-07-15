@@ -680,6 +680,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       (context) => ContactGroupMemberPage(
         groupId: widget.groupId,
         groupListAction: action,
+        groupType: GroupType.privateGroup,
       ),
     );
     if (result != null && result) _groupInfoInit();
