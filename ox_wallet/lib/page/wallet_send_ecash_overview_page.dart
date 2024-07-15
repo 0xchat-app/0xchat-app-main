@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/list_extension.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -173,11 +174,12 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
               OXUserAvatar(user: user, size: 24.px,).setPaddingOnly(right: 4.px),
               Expanded(
                 child: Text(
-                  user.shortEncodedPubkey,
+                  '${user.getUserShowName().truncate(20)}(${user.shortEncodedPubkey})',
                   style: TextStyle(
                     color: ThemeColor.color0,
                     fontSize: 14.sp,
                   ),
+                  maxLines: 1,
                 ),
               ),
             ],
