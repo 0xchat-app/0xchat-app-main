@@ -43,15 +43,15 @@ class ReactionInputWidgetState extends State<ReactionInputWidget> {
       frequentlyEmoji.addAll(emojiData.sublist(0, min(emojiData.length, frequentlyEmojiLimit)));
     }
     _EmojiLocalStorage.getRecentEmojis().then((recentEmoji) {
-      if (recentEmoji.isNotEmpty) {
-        setState(() {
+      setState(() {
+        if (recentEmoji.isNotEmpty) {
           frequentlyEmoji = [
             ...recentEmoji,
             ...frequentlyEmoji,
           ].take(frequentlyEmojiLimit).toList();
-          recentLoadFinish = true;
-        });
-      }
+        }
+        recentLoadFinish = true;
+      });
     });
   }
 
