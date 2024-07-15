@@ -194,6 +194,6 @@
   "str_claim_ecash_success": "Claim Success",
   "str_claim_ecash_fail": "Claim Fail",
   "str_file_server_title": "File Storage Server",
-  "str_npub_address_tips": "If there is no lnurl, you can set a default npub.cash address. ",
+  "str_npub_address_tips": "Set a default npub.cash address as your Lightning address ",
   "str_set_npub_address_tips": "Set Now"
 }
