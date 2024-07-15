@@ -699,7 +699,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
   }
 
   types.Message? _getMessageFromList(List<types.Message> messageList, String messageId){
-    return messageList.firstWhere((msg) => msg.id == messageId);
+    return messageList.where((msg) => msg.id == messageId).firstOrNull;
   }
 
   bool isContainMessage(ChatSessionModel session, MessageDB message) {
