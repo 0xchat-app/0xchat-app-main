@@ -151,6 +151,28 @@ extension StringUtil on String {
     return text;
   }
 
+  /// Examples:
+  /// ```dart
+  /// String longString = "This is a very long string that needs truncation";
+  /// longString.truncate(20); // Returns: "This is a...cation"
+  /// longString.truncate(15); // Returns: "This...ation"
+  /// longString.truncate(10); // Returns: "Thi...ion"
+  /// longString.truncate(5);  // Returns: "T..."
+  /// longString.truncate(5, dots: 1); // Returns: "T.i"
+  /// ```
+  String truncate(int maxLength, {int dots = 3}) {
+    if (maxLength <= 0) return '';
+    if (this.length <= maxLength) return this;
+
+    int charsToShow = maxLength - dots;
+    if (charsToShow <= 0) return '.' * dots;
+
+    int frontChars = charsToShow ~/ 2;
+    int backChars = charsToShow - frontChars;
+
+    return '${this.substring(0, frontChars)}${'.' * dots}${this.substring(this.length - backChars)}';
+  }
+
   String orDefault(String defaultValue) {
     return this.isEmpty ? defaultValue : this;
   }
