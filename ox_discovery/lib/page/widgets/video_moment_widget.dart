@@ -88,8 +88,11 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       ),
       child: GestureDetector(
         onTap: () {
-          OXNavigator.pushPage(
-              context, (context) => MomentVideoPage(videoUrl: widget.videoUrl));
+          OXNavigator.presentPage(
+              context,
+                  (context) => MomentVideoPage(videoUrl: widget.videoUrl),
+              fullscreenDialog:true,
+          );
         },
         child: Stack(
             alignment: Alignment.center,

@@ -152,17 +152,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     ENotificationsMomentType type = _fromIndex(notification.kind);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async {
-        NoteDB? note;
-        if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
-          note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
-        } else {
-          note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
-        }
-        if(note != null){
-          OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: ValueNotifier(NotedUIModel(noteDB: note!))));
-        }
-      },
+      onTap: () => _jumpMomentsPage(type,notification),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: 24.px,
@@ -258,7 +248,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
                                   color: ThemeColor.gradientMainStart,
                                 ),
                               ),
-                              _getNotificationsContentWidget(notification),
+                              _getNotificationsContentWidget(type,notification),
                             ],
                           ),
                         ],
@@ -279,7 +269,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     return await Account.sharedInstance.getUserInfo(pubkey);
   }
 
-  Widget _getNotificationsContentWidget(AggregatedNotification notificationDB) {
+  Widget _getNotificationsContentWidget(type,AggregatedNotification notificationDB) {
     return  FutureBuilder(
         future: _getNote(notificationDB),
         builder: (context,snapshot) {
@@ -308,15 +298,17 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           }
           bool isPurpleColor = type != ENotificationsMomentType.quote &&
               type != ENotificationsMomentType.reply;
-          return SizedBox(
-              width: 200.px,
-              child: MomentRichTextWidget(
-                text: content,
-                defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
-                textSize: 12.px,
-                maxLines: 2,
-                isShowAllContent: false,
-              )
+          return  SizedBox(
+                width: 200.px,
+                child: MomentRichTextWidget(
+                  text: content,
+                  defaultTextColor: isPurpleColor ? ThemeColor.purple2 : ThemeColor.color0,
+                  textSize: 12.px,
+                  maxLines: 2,
+                  isShowAllContent: false,
+                  clickBlankCallback:() => _jumpMomentsPage(type,notificationDB),
+                ),
+
           );
         }
     );
@@ -435,5 +427,17 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     aggregatedNotifications.sort((a, b) => b.createAt.compareTo(a.createAt));
 
     return aggregatedNotifications;
+  }
+
+  void _jumpMomentsPage(ENotificationsMomentType type,AggregatedNotification notification)async {
+    NoteDB? note;
+    if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
+      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
+    } else {
+      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
+    }
+    if(note != null){
+      OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: ValueNotifier(NotedUIModel(noteDB: note!))));
+    }
   }
 }
