@@ -314,5 +314,7 @@
   "str_chat_history_for_new_members": "Message Visibility",
   "str_chat_history_for_new_members_show": "Visible",
   "str_chat_history_for_new_members_hidden": "Hidden",
-  "str_group_share_menu_title": "Menu Selector"
+  "str_group_share_menu_title": "Share Group",
+  "str_group_share_menu_copy": "Copy GroupID",
+  "str_group_share_menu_send_to_friend": "Share to Contacts"
 }

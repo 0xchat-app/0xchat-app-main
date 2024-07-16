@@ -91,10 +91,9 @@ extension GroupMenuTypeEx on GroupMenuType{
   String get text {
     switch (this) {
       case GroupMenuType.copy:
-        return Localized.text('ox_common.copy');
+        return Localized.text('ox_chat.str_group_share_menu_copy');
       case GroupMenuType.share:
-        return Localized.text('ox_common.str_share');
+        return Localized.text('ox_chat.str_group_share_menu_send_to_friend');
     }
   }
-
 }
