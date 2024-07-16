@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
@@ -15,7 +16,12 @@ class ContactGroupMemberPage extends ContactGroupListPage {
   final String? title;
   final GroupListAction? groupListAction;
 
-  const ContactGroupMemberPage({required this.groupId,this.title,this.groupListAction, super.groupType}) : super(title: title);
+  const ContactGroupMemberPage({
+    required this.groupId,
+    this.title,
+    this.groupListAction,
+    super.groupType,
+  }) : super(title: title);
 
   @override
   _ContactGroupMemberState createState() => _ContactGroupMemberState();

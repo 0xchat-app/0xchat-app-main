@@ -53,11 +53,16 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
 
   @override
   Future<void> didPopNext() async {
+    _updateNoted();
+  }
+
+  void _updateNoted() async {
     if(notedUIModel == null) return;
     NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedUIModel!.value.noteDB.noteId);
     if(note == null) return;
     int newReplyNum = note.replyEventIds?.length ?? 0;
     if(newReplyNum > replyList.length){
+      widget.notedUIModel.value = NotedUIModel(noteDB: note);
       _getReplyList();
     }
   }
@@ -177,7 +182,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   Widget _showContentWidget() {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if (model == null) {
-      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 300);
+      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
     }
     return MomentWidget(
       isShowAllContent: true,
@@ -203,6 +208,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
       bottom: 20,
       child: SimpleMomentReplyWidget(
         notedUIModel: model,
+        postNotedCallback: _updateNoted,
         isFocusedCallback: (focusStatus) {
           if (focusStatus == _isShowMask) return;
           setState(() {

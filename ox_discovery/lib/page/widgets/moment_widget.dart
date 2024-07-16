@@ -3,9 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -25,7 +28,6 @@ import 'moment_rich_text_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../../model/moment_ui_model.dart';
@@ -60,6 +62,12 @@ class MomentWidget extends StatefulWidget {
 
 class _MomentWidgetState extends State<MomentWidget> {
   ValueNotifier<NotedUIModel>? notedUIModel;
+
+  List<EMomentMoreOptionType> momentOptionMoreList = [
+    EMomentMoreOptionType.copyNotedID,
+    EMomentMoreOptionType.copyNotedText,
+    EMomentMoreOptionType.shareNoted,
+  ];
 
   @override
   void initState() {
@@ -152,8 +160,8 @@ class _MomentWidgetState extends State<MomentWidget> {
           }else{
             final noteInfo = NoteDB.decodeNote(content);
             noteId = noteInfo?['channelId'];
-          }
 
+          }
           bool isShowQuote =
           (noteId != null && noteId.toLowerCase() != quoteRepostId?.toLowerCase()) || neventId != null;
           return isShowQuote
@@ -345,6 +353,17 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _showMomentOptionMore(BuildContext context, Offset position) async{
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    List<EMomentMoreOptionType> optionList = momentOptionMoreList;
+    String noteAuthor = notedUIModel?.value.noteDB.author.toUpperCase() ?? '';
+    String btnContent = '';
+    bool isInBlocklist = Contacts.sharedInstance.inBlockList(noteAuthor);
+    String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if(myPubkey.toUpperCase() != noteAuthor){
+      btnContent = isInBlocklist
+          ? Localized.text('ox_chat.message_menu_un_block')
+          : Localized.text('ox_chat.message_menu_block');
+      optionList = [...momentOptionMoreList, ...[EMomentMoreOptionType.block]];
+    }
     await showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -358,14 +377,12 @@ class _MomentWidgetState extends State<MomentWidget> {
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
       items: <PopupMenuEntry<EMomentMoreOptionType>>[
-        ...EMomentMoreOptionType.values
-            .toList()
-            .map((EMomentMoreOptionType type) {
+        ...optionList.map((EMomentMoreOptionType type) {
           return PopupMenuItem<EMomentMoreOptionType>(
             value: type,
             child: Center(
               child: Text(
-                type.text,
+                type == EMomentMoreOptionType.block ? btnContent : type.text,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: ThemeColor.white,
@@ -381,6 +398,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         CommonToast.instance.show(context, 'Option fail');
         return;
       }
+
       switch (value) {
         case EMomentMoreOptionType.copyNotedID:
           await TookKit.copyKey(context, noteDB.encodedNoteId);
@@ -388,11 +406,18 @@ class _MomentWidgetState extends State<MomentWidget> {
         case EMomentMoreOptionType.copyNotedText:
           await TookKit.copyKey(context, noteDB.content);
           break;
-        case EMomentMoreOptionType.mute:
-          final okEvent = await Contacts.sharedInstance.addToBlockList(noteDB.author);
-          if (okEvent.status) {
-            CommonToast.instance.show(context, 'Mute success');
-          }
+        case EMomentMoreOptionType.shareNoted:
+         final result =  await OXModuleService.pushPage(
+              context, 'ox_chat', 'chatUserChoosePage',{});
+         if(result is List<UserDB>){
+           for(UserDB user in result)  {
+             OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,noteDB.encodedNoteId]);
+           }
+         }
+         CommonToast.instance.show(context, "Share successfully");
+          break;
+        case EMomentMoreOptionType.block:
+          _blockOptionFn(noteAuthor);
           break;
       }
     });
@@ -520,6 +545,41 @@ class _MomentWidgetState extends State<MomentWidget> {
       setState(() {});
     }
   }
+
+
+  void _blockOptionFn(String pubKey) async {
+    // String pubKey = userDB.pubKey ?? '';
+    bool isInBlock = Contacts.sharedInstance.inBlockList(pubKey ?? '');
+    if (isInBlock) {
+      OKEvent event = await Contacts.sharedInstance.removeBlockList([pubKey]);
+      if (!event.status) {
+        CommonToast.instance
+            .show(context, Localized.text('ox_chat.un_block_fail'));
+      }
+    } else {
+      OXCommonHintDialog.show(context,
+          title: Localized.text('ox_chat.block_dialog_title'),
+          content: Localized.text('ox_chat.block_dialog_content'),
+          actionList: [
+            OXCommonHintAction.cancel(onTap: () {
+              OXNavigator.pop(context, false);
+            }),
+            OXCommonHintAction.sure(
+                text: Localized.text('ox_common.confirm'),
+                onTap: () async {
+                  OKEvent event =  await Contacts.sharedInstance.addToBlockList(pubKey);
+                  if(!event.status){
+                    CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
+                  }
+                  OXChatBinding.sharedInstance.deleteSession([pubKey]);
+                  OXNavigator.pop(context, true);
+                }),
+          ],
+          isRowAction: true);
+    }
+    setState(() {});
+  }
+
 
   void _getMomentUserInfo(NotedUIModel model) async {
     String pubKey = model.noteDB.author;

@@ -340,7 +340,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         fileType: UplodAliyunType.imageType,
         file: imgFile,
         filename: _groupNameController.text +
-            DateTime.now().microsecondsSinceEpoch.toString() +
+            DateTime.now().millisecondsSinceEpoch.toString() +
             '_avatar01.png',
       );
       await OXLoading.dismiss();
@@ -363,8 +363,8 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     ;
     await OXLoading.show();
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
-      var uri = Uri.parse(_chatRelay);
-      var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
+      // var uri = Uri.parse(_chatRelay);
+      // var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
         _chatRelay,
         name: name,

@@ -7,6 +7,7 @@ import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
+import 'package:ox_chat/page/contacts/contact_user_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/page/contacts/groups/group_info_page.dart';
@@ -63,6 +64,7 @@ class OXChat extends OXFlutterModule {
     'groupSharePage': _jumpGroupSharePage,
     'sendSystemMsg': _sendSystemMsg,
     'contactUserInfoPage': _contactUserInfoPage,
+    'chatUserChoosePage': _chatUserChoosePage,
     'contactChanneDetailsPage': _contactChanneDetailsPage,
     'relayGroupInfoPage': _relayGroupInfoPage,
     'groupInfoPage': _groupInfoPage,
@@ -103,6 +105,12 @@ class OXChat extends OXFlutterModule {
             pubkey: params?['pubkey'],
             chatId: params?['chatId'],
             isSecretChat: params?['isSecretChat'] ?? false,
+          ),
+        );
+      case 'chatUserChoosePage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => ChatUserChoosePage(
           ),
         );
       case 'ContactChanneDetailsPage':
@@ -165,7 +173,7 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey, int? groupTypeIndex}){
+  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, String? inviterPubKey, int? groupTypeIndex}){
     GroupType groupType = GroupType.privateGroup;
     groupTypeIndex ??= GroupType.privateGroup.index;
     if (groupTypeIndex >= 0 && groupTypeIndex < GroupType.values.length) {
@@ -176,6 +184,10 @@ class OXChat extends OXFlutterModule {
 
   void _contactUserInfoPage(BuildContext? context,{required String pubkey}){
     OXNavigator.pushPage(context!, (context) => ContactUserInfoPage(pubkey: pubkey));
+  }
+
+  void _chatUserChoosePage(BuildContext? context,{required String pubkey}){
+    OXNavigator.pushPage(context!, (context) => ChatUserChoosePage());
   }
 
   Future<void> _contactChanneDetailsPage(BuildContext? context,{required String channelId}) async {

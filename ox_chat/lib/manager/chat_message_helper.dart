@@ -391,7 +391,6 @@ extension MessageDBToUIEx on MessageDB {
           contentModel.content = mentionDecodeText;
         } else if (ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
           // Template Msg
-          contentModel.content = ChatNostrSchemeHandle.blankToMessageContent();
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
             if(nostrSchemeContent != null) {
               parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
@@ -403,7 +402,6 @@ extension MessageDBToUIEx on MessageDB {
               }
             }
           });
-          return CustomMessageFactory();
         } else if(Zaps.isLightningInvoice(initialText)) {
           // Zaps Msg
           Map<String, String> req = Zaps.decodeInvoice(initialText);

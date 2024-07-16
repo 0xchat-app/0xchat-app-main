@@ -133,26 +133,13 @@ class ChatSendMessageHelper {
     final text = sendMsg.content;
     // Nostr Scheme
     if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
-      final templateMsg = CustomMessageFactory().createTemplateMessage(
-        author: sendMsg.author,
-        timestamp: sendMsg.createdAt,
-        roomId: session.chatId,
-        id: sendMsg.id,
-        remoteId: sendMsg.remoteId,
-        title: 'Loading...',
-        content: 'Loading...',
-        icon: '',
-        link: '',
-        sourceKey: sourceKey,
-      );
-
       ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
           .then((nostrSchemeContent) async {
         if (nostrSchemeContent != null) {
           MessageContentModel contentModel = MessageContentModel();
           contentModel.content = nostrSchemeContent;
           var chatMessage =
-          await ChatDataCache.shared.getMessage(null, session, templateMsg.id);
+          await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
           if (chatMessage != null) {
             chatMessage = CustomMessageFactory().createMessage(
                 author: chatMessage.author,
@@ -163,12 +150,10 @@ class ChatSendMessageHelper {
                 contentModel: contentModel,
                 status: chatMessage.status ?? types.Status.sending)!;
             ChatDataCache.shared.updateMessage(
-                message: chatMessage, session: session, originMessage: templateMsg);
+                message: chatMessage, session: session, originMessage: sendMsg);
           }
         }
       });
-
-      return templateMsg;
     }
 
     // Zaps

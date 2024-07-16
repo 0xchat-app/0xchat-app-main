@@ -214,10 +214,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         }
       }
     }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
-      userDB.updateWith(user);
-      if (mounted) setState(() {});
-    });
+    // Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
+    //   userDB.updateWith(user);
+    //   if(mounted) setState(() {});
+    // });
     OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
         chatName: userDB.name, pic: userDB.picture);
     _verifiedDNS();
@@ -601,7 +601,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                   if(!event.status){
                     CommonToast.instance.show(context, Localized.text('ox_chat.block_fail'));
                   }
-                  OXChatBinding.sharedInstance.deleteSession(pubKey);
+                  OXChatBinding.sharedInstance.deleteSession([pubKey]);
                   OXNavigator.pop(context, true);
                 }),
           ],

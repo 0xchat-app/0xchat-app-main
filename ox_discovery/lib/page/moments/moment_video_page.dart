@@ -266,8 +266,7 @@ class _CustomControlsState extends State<CustomControls> {
                       ),
                       child: Center(
                         child: CommonImage(
-                          iconName: 'close_icon.png',
-                          package: 'ox_discovery',
+                          iconName: 'circle_close_icon.png',
                           size: 24.px,
                           color: Colors.white,
                         ),

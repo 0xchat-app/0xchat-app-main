@@ -39,7 +39,7 @@ extension SearchDiscoverUI on SearchPageState{
         final kind = map['kind'];
         if (kind == 40 || kind == 41) {
           String decodeNote = map['channelId'].toString();
-          List<String> relays = map['relays'];
+          List<String> relays = List<String>.from(map['relays']);
           ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
           if (c != null) {
             List<ChannelDB> result = [c];

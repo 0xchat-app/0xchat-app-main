@@ -150,6 +150,7 @@ class MomentTips extends StatelessWidget {
     return avatars.isNotEmpty
         ? GestureDetector(
             onTap: onTap,
+            behavior: HitTestBehavior.translucent,
             child: Container(
               height: 40.px,
               padding: EdgeInsets.symmetric(

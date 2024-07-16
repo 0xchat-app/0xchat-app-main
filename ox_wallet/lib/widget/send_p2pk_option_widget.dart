@@ -30,7 +30,6 @@ extension SendP2PKOptionUIEx on SendP2PKOption {
   String get signerDesc => singer.abbrDesc(
     noneText: Localized.text('ox_common.none'),
     showUserCount: 1,
-    userNameBuilder: (user) => user.shortEncodedPubkey,
   );
 
   String get sigFlagDesc {
@@ -56,7 +55,6 @@ extension SendP2PKOptionUIEx on SendP2PKOption {
   String get refundDesc => refund.abbrDesc(
     noneText: Localized.text('ox_common.none'),
     showUserCount: 1,
-    userNameBuilder: (user) => user.shortEncodedPubkey,
   );
 }
 

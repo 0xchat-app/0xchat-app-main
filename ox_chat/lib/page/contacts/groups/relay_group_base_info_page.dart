@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/contacts/groups/group_setting_qrcode_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
-import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
@@ -28,6 +29,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:device_info/device_info.dart';
+
 
 ///Title: relay_group_base_info_page
 ///Description: TODO(Fill in by oneself)
@@ -61,6 +63,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 
   void _loadData(){
     _groupDBInfo = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    _avatarAliyunUrl = _groupDBInfo?.picture ?? '';
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins != null && _groupDBInfo!.admins!.length > 0) {
       List<GroupActionKind>? userPermissions;
@@ -128,6 +131,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                   title: 'str_group_ID'.localized(),
                   subTitle: _groupDBInfo?.groupId ?? '',
                   isShowMoreIcon: false,
+                  subTitleMaxLines: 5,
                   onTap: () {
                     String tempGroupId = _groupDBInfo?.groupId ?? '';
                     if (tempGroupId.isNotEmpty) TookKit.copyKey(context, tempGroupId);
@@ -167,7 +171,11 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
               onTap: () {
                 OXNavigator.pushPage(
                   context,
-                      (context) => RelayGroupQrcodePage(groupId: _groupDBInfo?.groupId ?? ''),
+                  (context) => GroupSettingQrcodePage(
+                    groupId: _groupDBInfo?.groupId ?? '',
+                    groupType:
+                        _groupDBInfo != null && _groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
+                  ),
                 );
               },
             ),
@@ -255,18 +263,17 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
       await OXLoading.show();
+      String fileName = "${_groupDBInfo?.name ?? ''}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png";
       final String url = await UplodAliyun.uploadFileToAliyun(
         fileType: UplodAliyunType.imageType,
         file: imgFile,
-        filename: _groupDBInfo?.name ?? '' +
-            DateTime.now().microsecondsSinceEpoch.toString() +
-            '_avatar01.png',
+        filename: fileName,
       );
-      await OXLoading.dismiss();
       if (url.isNotEmpty) {
         OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', url, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
+          await OXLoading.dismiss();
           return;
         }
         if (mounted) {
@@ -275,6 +282,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
           });
         }
       }
+      await OXLoading.dismiss();
     }
   }
 }
@@ -345,6 +353,7 @@ class GroupItemBuild extends StatelessWidget {
   String? subTitleIcon;
   bool isShowMoreIcon;
   bool isShowDivider;
+  int subTitleMaxLines;
   final Widget? actionWidget;
   final GestureTapCallback? onTap;
 
@@ -356,6 +365,7 @@ class GroupItemBuild extends StatelessWidget {
     this.isShowMoreIcon = true,
     this.isShowDivider = true,
     this.actionWidget,
+    this.subTitleMaxLines = 1,
     this.onTap,
   });
 
@@ -393,55 +403,57 @@ class GroupItemBuild extends StatelessWidget {
                           fontSize: 16.px,
                         ),
                       ),
-                      titleDes != null
-                          ? Container(
-                              width: Adapt.screenW() - 104.px,
-                              margin: EdgeInsets.only(
-                                top: 4.px,
-                              ),
-                              child: Text(
-                                titleDes ?? '',
-                                style: TextStyle(
-                                  fontSize: 14.px,
-                                  fontWeight: FontWeight.w400,
-                                  color: ThemeColor.color100,
-                                ),
-                              ),
-                            )
-                          : SizedBox(),
+                      titleDes == null || titleDes!.isEmpty
+                          ? SizedBox()
+                          : Container(
+                        width: Adapt.screenW() - 104.px,
+                        margin: EdgeInsets.only(
+                          top: 4.px,
+                        ),
+                        child: Text(
+                          titleDes ?? '',
+                          style: TextStyle(
+                            fontSize: 14.px,
+                            fontWeight: FontWeight.w400,
+                            color: ThemeColor.color100,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      actionWidget ?? SizedBox(),
-                      subTitle != null
-                          ? Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (subTitleIcon != null)
-                                CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
-                                Flexible(
-                                    child: Container(
-                                  alignment: Alignment.centerRight,
-                                  child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: 5),
-                                ))
-                              ],
-                          ))
-                          : SizedBox(),
-                      isShowMoreIcon
-                          ? CommonImage(
-                        iconName: 'icon_arrow_more.png',
-                        size: 24.px,
-                      )
-                          : SizedBox(),
-                    ],
-                  ),
+                Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    actionWidget ?? SizedBox(),
+                    subTitle != null
+                        ?  Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (subTitleIcon != null)
+                          CommonImage(iconName: subTitleIcon ?? '', size: 24.px, package: OXChatInterface.moduleName),
+                        Flexible(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              constraints: subTitleMaxLines > 1 ? BoxConstraints(
+                                maxWidth: Adapt.screenW() - 180.px,
+                                minWidth: 100.px,
+                              ) : null,
+                              child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines),
+                            ))
+                      ],
+                    )
+                        : SizedBox(),
+                    isShowMoreIcon
+                        ? CommonImage(
+                      iconName: 'icon_arrow_more.png',
+                      size: 24.px,
+                    )
+                        : SizedBox(),
+                  ],
                 ),
               ],
             ),

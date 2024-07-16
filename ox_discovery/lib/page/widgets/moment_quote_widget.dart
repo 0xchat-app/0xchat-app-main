@@ -8,7 +8,6 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 
-import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
@@ -16,6 +15,8 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../moments/moments_page.dart';
 import 'moment_rich_text_widget.dart';
+import 'package:nostr_core_dart/nostr.dart';
+
 
 class MomentQuoteWidget extends StatefulWidget {
   final String? neventId;
@@ -59,12 +60,20 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
   void _initData() async {
     String? notedId = widget.notedId;
     String? neventId = widget.neventId;
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
 
     if(neventId != null){
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
+      Map result = Nip19.decodeShareableEntity(Nip21.decode(neventId)!);
+      String notedId = result['special'];
+      if(notedUIModelCache[notedId] != null){
+        notedUIModel = notedUIModelCache[notedId];
+      }else{
+        NoteDB? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
+        if (note == null) return;
+        notedUIModel = NotedUIModel(noteDB:note);
+        notedUIModelCache[notedId] = notedUIModel;
+      }
 
-      if (note == null) return;
-      notedUIModel = NotedUIModel(noteDB:note);
       _getMomentUserInfo(notedUIModel!);
       if (mounted) {
         setState(() {});
@@ -73,7 +82,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
 
     if(notedId != null){
-      final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
       if (notedUIModelCache[notedId] == null) {
         NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId,relays: widget.relays);
         if (note == null) return;
@@ -128,7 +137,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
 
   Widget quoteMoment() {
     NotedUIModel? model = notedUIModel;
-    if (model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,200);
+    if (model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
     String pubKey = model.noteDB.author;
     return GestureDetector(
       onTap: () {

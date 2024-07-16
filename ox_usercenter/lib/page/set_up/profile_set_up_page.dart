@@ -182,7 +182,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           file: imageFile!,
           filename: 'avatar_' +
               _userNameTextEditingController.text +
-              DateTime.now().microsecondsSinceEpoch.toString() +
+              DateTime.now().millisecondsSinceEpoch.toString() +
               '.png',
         );
         if (url.isNotEmpty) {
@@ -254,7 +254,12 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
                       editingController: _bltTextEditingController,
                       maxLines: null),
                   NpubCashAddressWidget(
-                    onClick: () => _bltTextEditingController.text = mCurrentUserInfo?.lnAddress ?? '',
+                    onClick: () {
+                      if (mCurrentUserInfo != null) {
+                        final npubCashAddress = NpubCash.address(mCurrentUserInfo!.pubKey);
+                        _bltTextEditingController.text = npubCashAddress;
+                      }
+                    },
                   ),
                 ],
               ),

@@ -36,7 +36,7 @@ class _ChatUserChoosePageState extends State<ChatUserChoosePage> {
               // Process the selected users
               final selectedUsers = _selectableUsers.where((su) => su.isSelected).map((su) => su.user).toList();
               // ...
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(selectedUsers);
             },
           ),
         ],

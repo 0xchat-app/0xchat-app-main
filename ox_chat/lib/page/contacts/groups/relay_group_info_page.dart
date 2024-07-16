@@ -8,6 +8,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/chat_history_for_new_members_selector_dialog.dart';
 import 'package:ox_chat/widget/group_create_selector_dialog.dart';
@@ -27,8 +28,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../contact_group_list_page.dart';
 import '../contact_group_member_page.dart';
-import 'group_edit_page.dart';
-import 'group_notice_page.dart';
 import 'group_setting_qrcode_page.dart';
 
 class RelayGroupInfoPage extends StatefulWidget {
@@ -131,7 +130,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
               (context) => RelayGroupBaseInfoPage(
             groupId: widget.groupId,
           ),
-        );
+        ).then((value){
+          setState(() {});
+        });
       },
       child: RelayGroupBaseInfoView(
         groupId: widget.groupId,
@@ -205,8 +206,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
       child: AvatarStack(
         settings: RestrictedPositions(
-            // maxCoverage: 0.1,
-            // minCoverage: 0.2,
             align: StackAlign.left,
             laying: StackLaying.first),
         borderColor: ThemeColor.color180,
@@ -224,7 +223,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         avatarList.add(OXCachedNetworkImageProviderEx.create(
           context,
           groupPic,
-          // height: Adapt.px(26),
         ));
       } else {
         avatarList.add(
@@ -308,6 +306,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             subTitle: groupDBInfo?.relay ?? '--',
             onTap: null,
             isShowMoreIcon: false,
+            isShowDivider: _hasAddPermission,
           ),
           if (_hasAddPermission)
             GroupItemBuild(
@@ -356,6 +355,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             title: Localized.text('ox_chat.str_group_search_chat_history'),
             onTap: _searchChatHistoryFn,
             isShowMoreIcon: true,
+            isShowDivider: false,
           ),
           // GroupItemBuild(
           //   title: Localized.text('ox_chat.str_group_clear_chat_history'),
@@ -641,18 +641,23 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     );
   }
 
-  void _groupQrCodeFn() {
-    OXNavigator.pushPage(
-      context,
-          (context) => GroupSettingQrcodePage(
-        groupId: widget.groupId,
-        groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
-      ),
-    );
+  void _groupQrCodeFn(bool isQrCode) {
+    if (isQrCode) {
+      OXNavigator.pushPage(
+        context,
+            (context) => GroupSettingQrcodePage(
+          groupId: widget.groupId,
+          groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
+        ),
+      );
+    } else {
+      GroupShareUtils.shareGroup(context, widget.groupId,
+        groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,);
+    }
   }
 
   void _DisableShareDialog(bool isQrCode) {
-    if (groupDBInfo != null && !groupDBInfo!.closed) return _groupQrCodeFn();
+    if ((groupDBInfo != null && !groupDBInfo!.closed) || (groupDBInfo != null && groupDBInfo!.closed && _hasAddUserPermission)) return _groupQrCodeFn(isQrCode);
     OXCommonHintDialog.show(
       context,
       title: "",
@@ -769,8 +774,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       if (relayGroupDB != null) {
         LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
-          _getPermissionValue();
           groupDBInfo = relayGroupDB;
+          _getPermissionValue();
         });
       }
       RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId).then((value){

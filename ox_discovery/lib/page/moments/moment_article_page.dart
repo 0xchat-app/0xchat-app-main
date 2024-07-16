@@ -111,7 +111,7 @@ class MomentArticlePageState extends State<MomentArticlePage> {
   Widget articleMoment() {
     Map<String, dynamic>? info = articleInfo;
     if (info == null)
-      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 200);
+      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
     return GestureDetector(
       onTap: () {},
       child: Container(

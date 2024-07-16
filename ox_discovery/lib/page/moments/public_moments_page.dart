@@ -2,6 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -9,6 +10,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -22,6 +24,7 @@ import '../widgets/moment_widget.dart';
 import 'group_moments_page.dart';
 import 'moments_page.dart';
 import 'notifications_moments_page.dart';
+import 'package:flutter/services.dart';
 
 enum EPublicMomentsPageType { all, contacts, follows, private }
 
@@ -55,7 +58,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   bool isLogin = false;
   final int _limit = 50;
   final double tipsHeight = 52;
-  final double tipsGroupHeight = 96;
+  final double tipsGroupHeight = 52;
 
   int? _allNotesFromDBLastTimestamp;
   List<ValueNotifier<NotedUIModel>> notesList = [];
@@ -128,7 +131,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           child: Center(
             child: Column(
               children: [
-                _groupNoteTips(),
                 _newMomentTipsWidget(),
               ],
             ),
@@ -152,15 +154,22 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             builder: (context, value, child) {
               return Container(
                 padding: EdgeInsets.only(top: value),
-                child: MomentWidget(
-                  isShowReplyWidget: true,
-                  notedUIModel: notedUIModel,
-                  clickMomentCallback:
-                      (ValueNotifier<NotedUIModel> notedUIModel) async {
-                    await OXNavigator.pushPage(context,
-                        (context) => MomentsPage(notedUIModel: notedUIModel));
-                  },
-                ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+                child: Column(
+                  children: [
+                    _groupNoteTips(),
+                    MomentWidget(
+                      isShowReplyWidget: true,
+                      notedUIModel: notedUIModel,
+                      clickMomentCallback:
+                          (ValueNotifier<NotedUIModel> notedUIModel) async {
+                        await OXNavigator.pushPage(
+                            context,
+                            (context) =>
+                                MomentsPage(notedUIModel: notedUIModel));
+                      },
+                    ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+                  ],
+                ),
               );
             },
           );
@@ -263,13 +272,15 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Widget _groupNoteTips() {
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.only(left: 24.px),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: _notificationGroupNotes.map((NoteDB item) {
-            RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[item.groupId];
+            RelayGroupDB? groupDB =
+                RelayGroup.sharedInstance.myGroups[item.groupId];
             return _groupNotificationItem(groupDB);
           }).toList(),
         ),
@@ -279,27 +290,28 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Widget _groupNotificationItem(RelayGroupDB? groupDB) {
     return GestureDetector(
-      onTap: () async{
-        if(groupDB == null) return;
-        _notificationGroupNotes.removeWhere((NoteDB db) => db.groupId == groupDB.groupId);
+      onTap: () async {
+        if (groupDB == null) return;
+        _notificationGroupNotes
+            .removeWhere((NoteDB db) => db.groupId == groupDB.groupId);
         tipContainerHeight.value = _getNotificationHeight;
-        await OXNavigator.pushPage(context, (context) => GroupMomentsPage(groupId:groupDB.groupId));
-
+        await OXNavigator.pushPage(
+            context, (context) => GroupMomentsPage(groupId: groupDB.groupId));
       },
       child: Stack(
         children: [
           MomentWidgetsUtils.clipImage(
-              borderRadius: 16,
-              child: OXCachedNetworkImage(
-                imageUrl: groupDB?.picture ?? '',
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    MomentWidgetsUtils.badgePlaceholderImage(),
-                errorWidget: (context, url, error) =>
-                    MomentWidgetsUtils.badgePlaceholderImage(),
-                width: 120.px,
-                height: 80.px,
-              ),
+            borderRadius: 16,
+            child: OXCachedNetworkImage(
+              imageUrl: groupDB?.picture ?? '',
+              fit: BoxFit.cover,
+              placeholder: (context, url) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              errorWidget: (context, url, error) =>
+                  MomentWidgetsUtils.badgePlaceholderImage(),
+              width: 120.px,
+              height: 80.px,
+            ),
           ),
           Positioned(
             bottom: 0,
@@ -365,8 +377,9 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
-    if(isInit){
+  Future<void> updateNotesList(bool isInit,
+      {bool isWrapRefresh = false}) async {
+    if (isInit) {
       _clearNotedNotification();
     }
     bool isPrivateMoment =
@@ -495,11 +508,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   void _notificationUpdateNotes(List<NoteDB> notes) async {
-    if(notes.isEmpty) return;
+    if (notes.isEmpty) return;
     List<NoteDB> personalNoteList = [];
     List<NoteDB> groupNoteList = [];
 
-    for(NoteDB noteDB in notes){
+    for (NoteDB noteDB in notes) {
       bool isGroupNoted = noteDB.groupId.isNotEmpty;
       isGroupNoted ? groupNoteList.add(noteDB) : personalNoteList.add(noteDB);
     }
@@ -513,17 +526,17 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       _notificationGroupNotes = groupNoteList;
     });
     double height = 0;
-    if(groupNoteList.isNotEmpty) {
+    if (groupNoteList.isNotEmpty) {
       height += tipsGroupHeight;
     }
-    if(personalNoteList.isNotEmpty) {
+    if (personalNoteList.isNotEmpty) {
       height += tipsHeight;
     }
     tipContainerHeight.value = height;
   }
 
   void _updateNotifications(List<NotificationDB> notifications) async {
-    if(notifications.isEmpty) return;
+    if (notifications.isEmpty) return;
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
@@ -542,14 +555,13 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   double get _getNotificationHeight {
-    double personalHeight =  _notificationNotes.length + _notifications.length == 0
-        ? 0
-        : tipsHeight;
+    double personalHeight =
+        _notificationNotes.length + _notifications.length == 0 ? 0 : tipsHeight;
     double groupHeight = _notificationGroupNotes.isEmpty ? 0 : tipsGroupHeight;
     return personalHeight + groupHeight;
   }
 
-  void _clearNotedNotification(){
+  void _clearNotedNotification() {
     OXMomentManager.sharedInstance.clearNewNotes();
     setState(() {
       _notificationNotes.clear();

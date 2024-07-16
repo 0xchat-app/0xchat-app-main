@@ -53,6 +53,4 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/
-    - assets/images/dark/
-    - assets/images/light/
     - assets/locale/
