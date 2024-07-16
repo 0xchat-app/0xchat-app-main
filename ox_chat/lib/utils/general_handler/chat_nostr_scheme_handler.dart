@@ -204,6 +204,8 @@ class ChatNostrSchemeHandle {
         'groupId': groupDB?.groupId ?? '',
         'groupName': groupDB?.name ?? '',
         'groupPic': groupDB?.picture ?? '',
+        'groupOwner': groupDB?.author ?? '',
+        'inviterPubKey': '--',
         'groupTypeIndex': groupDB == null || !groupDB.closed ? GroupType.openGroup.index : GroupType.closeGroup.index,
       },
     );

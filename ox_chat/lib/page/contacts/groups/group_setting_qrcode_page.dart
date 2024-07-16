@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
+import 'package:ox_chat/widget/group_share_menu_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
@@ -40,6 +42,7 @@ class GroupSettingQrcodePage extends StatefulWidget {
 
 class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   String _imgUrl = '';
+  String? _groupNevent;
   String _groupQrCodeUrl = '';
   GlobalKey _globalKey = new GlobalKey();
 
@@ -216,13 +219,39 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     );
   }
 
-  void _shareGroupFn() {
-    OXNavigator.presentPage(
-      context,
-          (context) => ContactGroupMemberPage(
-        groupId: widget.groupId,
-        groupListAction: GroupListAction.send,
-      ),);
+  void _shareGroupFn() async {
+    if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
+
+      var result = await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return GroupShareMenuDialog(titleTxT: 'str_group_share_menu_title'.localized());
+        },
+      );
+      if (result != null && result is GroupMenuType) {
+        if (result == GroupMenuType.copy) {
+          TookKit.copyKey(context, _groupNevent ??'');
+        } else if (result == GroupMenuType.share){
+          OXNavigator.presentPage(
+            context,
+            (context) => ContactGroupMemberPage(
+              groupId: widget.groupId,
+              groupListAction: GroupListAction.send,
+              groupType: widget.groupType,
+              shareContent: _groupNevent,
+            ),
+          );
+        }
+      }
+    } else {
+      OXNavigator.presentPage(
+        context,
+            (context) => ContactGroupMemberPage(
+          groupId: widget.groupId,
+          groupListAction: GroupListAction.send,
+        ),);
+    }
   }
 
   Widget _appBarActionWidget() {
@@ -388,7 +417,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
         groupId = relayGroupDB.groupId;
         groupName = relayGroupDB.name;
         String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-        _groupQrCodeUrl = shareAppLinkDomain + (RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId) ?? '');
+        _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);
+        _groupQrCodeUrl = shareAppLinkDomain + (_groupNevent ?? '');
         setState(() {});
       }
     }
@@ -400,7 +430,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     String groupId = groupDB.groupId;
 
     String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-    _groupQrCodeUrl = shareAppLinkDomain + Groups.encodeGroup(groupId,[relay],groupOwner);
+    _groupNevent = Groups.encodeGroup(groupId,[relay],groupOwner);
+    _groupQrCodeUrl = shareAppLinkDomain + (_groupNevent ?? '');
   }
 
 

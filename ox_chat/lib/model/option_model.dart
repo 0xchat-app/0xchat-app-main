@@ -1,4 +1,5 @@
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: option_model
 ///Description: TODO(Fill in by oneself)
@@ -80,6 +81,20 @@ extension GroupTypeEx on GroupType{
         return 'str_group_private_description'.localized();
     }
   }
+}
+enum GroupMenuType{
+  copy,
+  share,
+}
 
+extension GroupMenuTypeEx on GroupMenuType{
+  String get text {
+    switch (this) {
+      case GroupMenuType.copy:
+        return Localized.text('ox_common.copy');
+      case GroupMenuType.share:
+        return Localized.text('ox_common.str_share');
+    }
+  }
 
 }
