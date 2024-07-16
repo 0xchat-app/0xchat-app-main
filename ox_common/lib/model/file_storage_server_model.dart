@@ -117,33 +117,33 @@ class FileStorageServer {
   static List<FileStorageServer> get defaultFileStorageServers => List.from([
         OXChatServer(
           url: '',
-          name: '0xchat File Server',
+          name: '0xchat.com',
           canEdit: false,
-          description: 'The Official file storage service, and also the default file storage service',
+          description: 'https://www.0xchat.com',
         ),
         Nip96Server(
           url: '',
           name: 'nostr.build',
           canEdit: false,
-          description: 'Free storage, expired in 7 days',
+          description: 'https://nostr.build',
         ),
         Nip96Server(
           url: '',
           name: 'void.cat',
           canEdit: false,
-          description: 'Free storage, expired in 7 days',
+          description: 'https://void.cat',
         ),
         Nip96Server(
           url: '',
           name: 'pomf2.lain.la',
           canEdit: false,
-          description: 'Free storage, expired in 7 days',
+          description: 'https://pomf2.lain.la',
         ),
         BlossomServer(
           url: '',
           name: 'nosto.re',
           canEdit: false,
-          description: 'Free storage, expired in 7 days',
+          description: 'https://nosto.re',
         )
       ]);
 }

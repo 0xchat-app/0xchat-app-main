@@ -270,13 +270,13 @@ class OXChatBinding {
     return {'ChatId': chatId, 'otherUserPubkey': otherUserPubkey};
   }
 
-  Future<int> deleteSession(String chatId, {bool isStranger = false}) async {
-    sessionMap.remove(chatId);
+  Future<int> deleteSession(List<String> chatIds, {bool isStranger = false}) async {
+    chatIds.forEach((chatId) {sessionMap.remove(chatId); });
     if(isStranger) {
       _updateUnReadStrangerSessionCount();
     }
     int changeCount = 0;
-    final int count = await DB.sharedInstance.delete<ChatSessionModel>(where: "chatId = ?", whereArgs: [chatId]);
+    final int count = await DB.sharedInstance.delete<ChatSessionModel>(where: "chatId = ?", whereArgs: chatIds);
     if (count > 0) {
       changeCount = count;
       OXChatBinding.sharedInstance.sessionUpdate();

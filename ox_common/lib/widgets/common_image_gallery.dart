@@ -10,6 +10,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import '../utils/theme_color.dart';
 import 'common_loading.dart';
@@ -250,12 +251,14 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
               height: 35.px,
               decoration: BoxDecoration(
                   color: ThemeColor.color180,
-                  borderRadius: BorderRadius.all(Radius.circular(35.px))),
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(35.px),
+                  ),
+              ),
               child: Center(
                 child: GestureDetector(
-                  child: Icon(
-                    Icons.save_alt,
-                    color: Colors.white,
+                  child: CommonImage(
+                    iconName: 'icon_download.png',
                     size: 24,
                   ),
                   onTap: _widgetShotAndSave,

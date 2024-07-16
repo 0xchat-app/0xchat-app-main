@@ -67,6 +67,7 @@ class OXUserInfoManager {
   bool signatureVerifyFailed = false;
 
   Future initDB(String pubkey) async {
+    await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     DB.sharedInstance.deleteDBIfNeedMirgration = false;
     String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
