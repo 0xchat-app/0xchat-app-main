@@ -445,7 +445,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                 text: Localized.text('ox_common.confirm'),
                                 onTap: () async {
                                   OXNavigator.pop(context);
-                                  final int count = await OXChatBinding.sharedInstance.deleteSession([item.chatId]);
+                                  int count = 0;
+                                  if(item.chatType == ChatType.chatNotice) {
+                                    count = await _deleteStrangerSessionList();
+                                  } else {
+                                    count = await OXChatBinding.sharedInstance.deleteSession([item.chatId]);
+                                  }
                                   if (item.chatType == ChatType.chatSecret) {
                                     Contacts.sharedInstance.close(item.chatId);
                                   } else if (item.chatType == ChatType.chatSingle) {
@@ -1025,6 +1030,15 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         _msgDatas.add(mergeStrangerSession);
       }
     }
+  }
+
+  Future<int> _deleteStrangerSessionList() async {
+    List<String> chatIds = OXChatBinding.sharedInstance.strangerSessionList.map((e) => e.chatId).toList();
+    final int count = await OXChatBinding.sharedInstance.deleteSession(chatIds, isStranger: true);
+    chatIds.forEach((id) {
+      Contacts.sharedInstance.close(id);
+    });
+    return count;
   }
 }
 

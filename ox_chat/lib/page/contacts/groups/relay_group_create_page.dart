@@ -340,7 +340,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         fileType: UplodAliyunType.imageType,
         file: imgFile,
         filename: _groupNameController.text +
-            DateTime.now().microsecondsSinceEpoch.toString() +
+            DateTime.now().millisecondsSinceEpoch.toString() +
             '_avatar01.png',
       );
       await OXLoading.dismiss();
