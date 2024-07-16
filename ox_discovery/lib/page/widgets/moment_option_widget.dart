@@ -39,6 +39,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   bool _isShowAnimation = false;
   bool _isDefaultEcashWallet = false;
   int _defaultZapAmount = 0;
+  bool _isZapProcessing = false;
 
   final List<EMomentOptionType> momentOptionTypeList = [
     EMomentOptionType.reply,
@@ -380,10 +381,13 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     if(user == null) return;
+    if(_isZapProcessing) return;
+    _isZapProcessing = true;
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: false,
       preprocessCallback: () async {
+        _isZapProcessing = false;
         if(_isDefaultEcashWallet) {
           await _shakeController.forward();
           _updateZapsUIWithUnreal();
@@ -397,6 +401,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
     _defaultZapAmount = handler.defaultZapAmount;
     await handler.handleZap(context: context,);
+    _isZapProcessing = false;
   }
 
   _updateZapsUIWithUnreal() {
