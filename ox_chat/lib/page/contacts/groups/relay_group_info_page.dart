@@ -8,6 +8,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
+import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/chat_history_for_new_members_selector_dialog.dart';
 import 'package:ox_chat/widget/group_create_selector_dialog.dart';
@@ -640,18 +641,23 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     );
   }
 
-  void _groupQrCodeFn() {
-    OXNavigator.pushPage(
-      context,
-          (context) => GroupSettingQrcodePage(
-        groupId: widget.groupId,
-        groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
-      ),
-    );
+  void _groupQrCodeFn(bool isQrCode) {
+    if (isQrCode) {
+      OXNavigator.pushPage(
+        context,
+            (context) => GroupSettingQrcodePage(
+          groupId: widget.groupId,
+          groupType: groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
+        ),
+      );
+    } else {
+      GroupShareUtils.shareGroup(context, widget.groupId,
+        groupDBInfo != null && groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,);
+    }
   }
 
   void _DisableShareDialog(bool isQrCode) {
-    if (groupDBInfo != null && !groupDBInfo!.closed) return _groupQrCodeFn();
+    if (groupDBInfo != null && !groupDBInfo!.closed) return _groupQrCodeFn(isQrCode);
     OXCommonHintDialog.show(
       context,
       title: "",

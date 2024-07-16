@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
+import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/widget/group_share_menu_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/took_kit.dart';
@@ -46,7 +47,6 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   String _groupQrCodeUrl = '';
   GlobalKey _globalKey = new GlobalKey();
 
-  String? groupId;
   String? groupName;
 
   @override
@@ -220,38 +220,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
   }
 
   void _shareGroupFn() async {
-    if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
-
-      var result = await showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (BuildContext context) {
-          return GroupShareMenuDialog(titleTxT: 'str_group_share_menu_title'.localized());
-        },
-      );
-      if (result != null && result is GroupMenuType) {
-        if (result == GroupMenuType.copy) {
-          TookKit.copyKey(context, _groupNevent ??'');
-        } else if (result == GroupMenuType.share){
-          OXNavigator.presentPage(
-            context,
-            (context) => ContactGroupMemberPage(
-              groupId: widget.groupId,
-              groupListAction: GroupListAction.send,
-              groupType: widget.groupType,
-              shareContent: _groupNevent,
-            ),
-          );
-        }
-      }
-    } else {
-      OXNavigator.presentPage(
-        context,
-            (context) => ContactGroupMemberPage(
-          groupId: widget.groupId,
-          groupListAction: GroupListAction.send,
-        ),);
-    }
+    GroupShareUtils.shareGroup(context, widget.groupId, widget.groupType);
   }
 
   Widget _appBarActionWidget() {
@@ -406,7 +375,6 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     if (widget.groupType == GroupType.privateGroup) {
       GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
       if (groupDB != null) {
-        groupId = groupDB.groupId;
         groupName = groupDB.name;
         _getGroupQrcode(groupDB);
         setState(() {});
@@ -414,7 +382,6 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     } else {
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
       if (relayGroupDB != null) {
-        groupId = relayGroupDB.groupId;
         groupName = relayGroupDB.name;
         String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
         _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);
@@ -436,8 +403,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
 
   String get _dealWithGroupId {
-    final tempGroupId = groupId;
-    if(tempGroupId == null) return tempGroupId ?? '--';
+    final tempGroupId = widget.groupId;
     return tempGroupId.substring(0,5) + '...' +  tempGroupId.substring(tempGroupId.length - 5);
   }
 }

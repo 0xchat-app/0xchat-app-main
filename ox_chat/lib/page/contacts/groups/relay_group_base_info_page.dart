@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/contacts/groups/group_setting_qrcode_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_edit_page.dart';
-import 'package:ox_chat/page/contacts/groups/relay_group_qrcode_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
@@ -28,7 +29,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:device_info/device_info.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 
 ///Title: relay_group_base_info_page
@@ -171,7 +171,11 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
               onTap: () {
                 OXNavigator.pushPage(
                   context,
-                      (context) => RelayGroupQrcodePage(groupId: _groupDBInfo?.groupId ?? ''),
+                  (context) => GroupSettingQrcodePage(
+                    groupId: _groupDBInfo?.groupId ?? '',
+                    groupType:
+                        _groupDBInfo != null && _groupDBInfo!.closed ? GroupType.closeGroup : GroupType.openGroup,
+                  ),
                 );
               },
             ),
