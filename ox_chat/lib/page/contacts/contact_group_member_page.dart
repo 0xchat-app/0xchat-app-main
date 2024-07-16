@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
@@ -14,8 +15,15 @@ class ContactGroupMemberPage extends ContactGroupListPage {
   final String groupId;
   final String? title;
   final GroupListAction? groupListAction;
+  final String? shareContent;
 
-  const ContactGroupMemberPage({required this.groupId,this.title,this.groupListAction, super.groupType}) : super(title: title);
+  const ContactGroupMemberPage({
+    required this.groupId,
+    this.title,
+    this.groupListAction,
+    this.shareContent,
+    super.groupType,
+  }) : super(title: title);
 
   @override
   _ContactGroupMemberState createState() => _ContactGroupMemberState();
@@ -24,11 +32,13 @@ class ContactGroupMemberPage extends ContactGroupListPage {
 class _ContactGroupMemberState extends ContactGroupListPageState {
 
   late final groupId;
+  late final shareContent;
 
   @override
   void initState() {
     super.initState();
     groupId = (widget as ContactGroupMemberPage).groupId;
+    shareContent = (widget as ContactGroupMemberPage).shareContent;
     _fetchUserListAsync();
   }
 
@@ -120,7 +130,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup, shareContent);
       return;
     }
     return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
@@ -159,7 +169,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
-                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
+                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup, shareContent);
                 OXNavigator.pop(context, true);
               }),
         ],

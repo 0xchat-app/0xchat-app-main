@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_discovery/interface.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -29,8 +30,8 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('nevent') ||
         nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
-      return await eventIdToMessageContent(
-          tempMap?['channelId'], nostrScheme, tempMap?['relays'].cast<String>());
+      return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme,
+          tempMap?['relays'].cast<String>(), tempMap?['kind']);
     } else if (nostrScheme.startsWith('nostr:naddr') ||
         nostrScheme.startsWith('naddr')) {
       if (nostrScheme.startsWith('nostr:')) {
@@ -76,46 +77,60 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
-  static Future<String?> eventIdToMessageContent(
-      String? eventId, String nostrScheme, List<String>? relays) async {
-    if (eventId != null) {
-      // check local group id
-      GroupDB? groupDB = Groups.sharedInstance.groups[eventId];
-      if (groupDB != null) return groupDBToMessageContent(groupDB);
-      // check local channel id
-      ChannelDB? channelDB = Channels.sharedInstance.channels[eventId];
-      if (channelDB != null) return channelToMessageContent(channelDB);
-      // check local moment
-      NoteDB? noteDB = Moment.sharedInstance.notesCache[eventId];
-      noteDB ??= await Moment.sharedInstance.loadNoteFromDBWithNoteId(eventId);
-      if (noteDB != null) {
-        Note note = Note(noteDB.noteId, noteDB.author, noteDB.createAt, null,
-            noteDB.content, null, '', '');
-        return await noteToMessageContent(note);
+  static Future<String?> eventIdToMessageContent(String? eventId,
+      String nostrScheme, List<String>? relays, int? kind) async {
+    if (eventId == null) return null;
+    Event? event;
+    if (kind == null) {
+      if (Channels.sharedInstance.channels.containsKey(eventId))
+        kind = 40;
+      else if (Moment.sharedInstance.notesCache.containsKey(eventId))
+        kind = 1;
+      else if (RelayGroup.sharedInstance.groups.containsKey(eventId))
+        kind = 39000;
+      else {
+        event = await Account.loadEvent(eventId, relays: relays);
+        kind = event?.kind;
       }
-
-      // check online
-      Event? event = await Account.loadEvent(eventId, relays: relays);
-      if (event != null) {
-        switch (event.kind) {
-          case 1:
-            Note? note = Nip1.decodeNote(event);
-            return await noteToMessageContent(note);
-          case 30023:
-            LongFormContent? longFormContent = Nip23.decode(event);
-            return await longFormContentToMessageContent(
-                longFormContent, nostrScheme);
-          case 40:
-            Channel channel = Nip28.getChannelCreation(event);
-            ChannelDB channelDB = await _loadChannelOnline(channel);
-            return await channelToMessageContent(channelDB);
-          case 41:
-            Channel channel = Nip28.getChannelMetadata(event);
-            ChannelDB channelDB =
-                Channels.sharedInstance.getChannelDBFromChannel(channel);
-            return await channelToMessageContent(channelDB);
+    }
+    if (kind == null) return null;
+    switch (kind) {
+      case 40:
+        if (Channels.sharedInstance.channels.containsKey(eventId)) {
+          return channelToMessageContent(
+              Channels.sharedInstance.channels[eventId]);
+        } else if (event != null) {
+          Channel channel = Nip28.getChannelCreation(event);
+          ChannelDB channelDB =
+              Channels.sharedInstance.getChannelDBFromChannel(channel);
+          return channelToMessageContent(channelDB);
         }
-      }
+        break;
+      case 1:
+        NoteDB? noteDB = await Moment.sharedInstance
+            .loadNoteWithNoteId(eventId, relays: relays);
+        if (noteDB != null) return await noteToMessageContent(noteDB);
+        break;
+      case 30023:
+        if (event != null) {
+          LongFormContent? longFormContent = Nip23.decode(event);
+          return await longFormContentToMessageContent(
+              longFormContent, nostrScheme);
+        }
+        break;
+      case 39000:
+        if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
+          RelayGroupDB? relayGroupDB =
+              RelayGroup.sharedInstance.groups[eventId];
+          return relayGroupDBToMessageContent(relayGroupDB);
+        } else if (event != null && relays != null && relays.isNotEmpty) {
+          await RelayGroup.sharedInstance
+              .handleGroupMetadata(event, relays.first);
+          RelayGroupDB? relayGroupDB =
+              RelayGroup.sharedInstance.groups[eventId];
+          return relayGroupDBToMessageContent(relayGroupDB);
+        }
+        break;
     }
     return null;
   }
@@ -181,26 +196,53 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> noteToMessageContent(Note? note) async {
-    if (note == null) return null;
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(note.pubkey);
+  static String? relayGroupDBToMessageContent(RelayGroupDB? groupDB) {
+    String link = CustomURIHelper.createModuleActionURI(
+      module: 'ox_chat',
+      action: 'groupSharePage',
+      params: {
+        'groupId': groupDB?.groupId ?? '',
+        'groupName': groupDB?.name ?? '',
+        'groupPic': groupDB?.picture ?? '',
+        'groupOwner': groupDB?.author ?? '',
+        'inviterPubKey': '--',
+        'groupTypeIndex': groupDB == null || !groupDB.closed ? GroupType.openGroup.index : GroupType.closeGroup.index,
+      },
+    );
+
+    Map<String, dynamic> map = {};
+    map['type'] = '3';
+    map['content'] = {
+      'title': '${groupDB?.name}',
+      'content': '${groupDB?.about}',
+      'icon': '${groupDB?.picture}',
+      'link': link
+    };
+    return jsonEncode(map);
+  }
+
+  static Future<String?> noteToMessageContent(NoteDB? noteDB) async {
+    if (noteDB == null) return null;
+    UserDB? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
     if (userDB?.lastUpdatedTime == 0) {
-      userDB = await Account.sharedInstance.reloadProfileFromRelay(note.pubkey);
+      userDB =
+          await Account.sharedInstance.reloadProfileFromRelay(noteDB.author);
     }
     ;
 
     // String resultString = nostrScheme.replaceFirst('nostr:', "");
     // final url = '${CommonConstant.njumpURL}${resultString}';
-    String link = await OXDiscoveryInterface.getJumpMomentPageUri(note.nodeId);
+    String link =
+        await OXDiscoveryInterface.getJumpMomentPageUri(noteDB.noteId);
     Map<String, dynamic> map = {};
     map['type'] = '4';
     map['content'] = {
       'authorIcon': '${userDB?.picture}',
       'authorName': '${userDB?.name}',
       'authorDNS': '${userDB?.dns}',
-      'createTime': '${note.createdAt}',
-      'note': '${note.content}',
-      'image': '${_extractFirstImageUrl(note.content)}',
+      'createTime': '${noteDB.createAt}',
+      'note': '${noteDB.content}',
+      'image': '${_extractFirstImageUrl(noteDB.content)}',
       'link': link,
     };
     return jsonEncode(map);

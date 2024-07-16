@@ -508,7 +508,7 @@ extension RelayTypeExtension on RelayType {
   String name() {
     switch (this) {
       case RelayType.dm:
-        return 'DM Relays';
+        return 'DM Inbox Relays';
       case RelayType.general:
         return 'General Relays';
     }
@@ -526,7 +526,7 @@ extension RelayTypeExtension on RelayType {
   String tips() {
     switch (this) {
       case RelayType.dm:
-        return "It is recommended to set up 1-3 DM relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the general relay by default.";
+        return "It is recommended to set up 1-3 DM inbox relays. Your private messages and private group chat messages will be sent to your DM relay. If not set, they will be sent to the general relay by default.";
       case RelayType.general:
         return "0xchat uses these relays to download user profiles, lists, and posts for you";
     }

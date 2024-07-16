@@ -313,5 +313,6 @@
   "str_chat_history_for_new_members_change_type_hint": "Change Type",
   "str_chat_history_for_new_members": "Message Visibility",
   "str_chat_history_for_new_members_show": "Visible",
-  "str_chat_history_for_new_members_hidden": "Hidden"
+  "str_chat_history_for_new_members_hidden": "Hidden",
+  "str_group_share_menu_title": "Menu Selector"
 }

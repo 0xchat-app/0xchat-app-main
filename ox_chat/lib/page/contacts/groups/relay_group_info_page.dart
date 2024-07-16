@@ -205,8 +205,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
       child: AvatarStack(
         settings: RestrictedPositions(
-            // maxCoverage: 0.1,
-            // minCoverage: 0.2,
             align: StackAlign.left,
             laying: StackLaying.first),
         borderColor: ThemeColor.color180,
@@ -224,7 +222,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         avatarList.add(OXCachedNetworkImageProviderEx.create(
           context,
           groupPic,
-          // height: Adapt.px(26),
         ));
       } else {
         avatarList.add(
@@ -771,8 +768,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       if (relayGroupDB != null) {
         LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
-          _getPermissionValue();
           groupDBInfo = relayGroupDB;
+          _getPermissionValue();
         });
       }
       RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId).then((value){
