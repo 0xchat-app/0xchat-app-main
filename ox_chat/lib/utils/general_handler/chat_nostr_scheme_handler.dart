@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_discovery/interface.dart';
 import 'package:ox_common/const/common_constant.dart';
@@ -197,9 +198,15 @@ class ChatNostrSchemeHandle {
 
   static String? relayGroupDBToMessageContent(RelayGroupDB? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
-        module: 'ox_chat',
-        action: 'groupInfoPage',
-        params: {'groupId': groupDB?.groupId ?? ''});
+      module: 'ox_chat',
+      action: 'groupSharePage',
+      params: {
+        'groupId': groupDB?.groupId ?? '',
+        'groupName': groupDB?.name ?? '',
+        'groupPic': groupDB?.picture ?? '',
+        'groupTypeIndex': groupDB == null || !groupDB.closed ? GroupType.openGroup.index : GroupType.closeGroup.index,
+      },
+    );
 
     Map<String, dynamic> map = {};
     map['type'] = '3';
