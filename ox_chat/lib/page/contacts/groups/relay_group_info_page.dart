@@ -63,6 +63,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _getPermissionValue() {
+    LogUtil.e('');
     _hasAddUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addUser]);
     _hasRemoveUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.removeUser]);
     _hasAddPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addPermission]);
@@ -771,8 +772,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       if (relayGroupDB != null) {
         LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
-          _getPermissionValue();
           groupDBInfo = relayGroupDB;
+          _getPermissionValue();
         });
       }
       RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId).then((value){
