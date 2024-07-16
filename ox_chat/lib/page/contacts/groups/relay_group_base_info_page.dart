@@ -28,6 +28,8 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
 
 ///Title: relay_group_base_info_page
 ///Description: TODO(Fill in by oneself)
@@ -61,6 +63,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
 
   void _loadData(){
     _groupDBInfo = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    _avatarAliyunUrl = _groupDBInfo?.picture ?? '';
     UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins != null && _groupDBInfo!.admins!.length > 0) {
       List<GroupActionKind>? userPermissions;
@@ -256,18 +259,17 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
       await OXLoading.show();
+      String fileName = "${_groupDBInfo?.name ?? ''}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png";
       final String url = await UplodAliyun.uploadFileToAliyun(
         fileType: UplodAliyunType.imageType,
         file: imgFile,
-        filename: _groupDBInfo?.name ?? '' +
-            DateTime.now().microsecondsSinceEpoch.toString() +
-            '_avatar01.png',
+        filename: fileName,
       );
-      await OXLoading.dismiss();
       if (url.isNotEmpty) {
         OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', url, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
+          await OXLoading.dismiss();
           return;
         }
         if (mounted) {
@@ -276,6 +278,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
           });
         }
       }
+      await OXLoading.dismiss();
     }
   }
 }

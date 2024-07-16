@@ -27,8 +27,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../contact_group_list_page.dart';
 import '../contact_group_member_page.dart';
-import 'group_edit_page.dart';
-import 'group_notice_page.dart';
 import 'group_setting_qrcode_page.dart';
 
 class RelayGroupInfoPage extends StatefulWidget {
@@ -131,7 +129,9 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
               (context) => RelayGroupBaseInfoPage(
             groupId: widget.groupId,
           ),
-        );
+        ).then((value){
+          setState(() {});
+        });
       },
       child: RelayGroupBaseInfoView(
         groupId: widget.groupId,
@@ -308,6 +308,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             subTitle: groupDBInfo?.relay ?? '--',
             onTap: null,
             isShowMoreIcon: false,
+            isShowDivider: _hasAddPermission,
           ),
           if (_hasAddPermission)
             GroupItemBuild(
@@ -356,6 +357,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             title: Localized.text('ox_chat.str_group_search_chat_history'),
             onTap: _searchChatHistoryFn,
             isShowMoreIcon: true,
+            isShowDivider: false,
           ),
           // GroupItemBuild(
           //   title: Localized.text('ox_chat.str_group_clear_chat_history'),

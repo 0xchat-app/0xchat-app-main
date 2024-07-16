@@ -182,7 +182,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           file: imageFile!,
           filename: 'avatar_' +
               _userNameTextEditingController.text +
-              DateTime.now().microsecondsSinceEpoch.toString() +
+              DateTime.now().millisecondsSinceEpoch.toString() +
               '.png',
         );
         if (url.isNotEmpty) {

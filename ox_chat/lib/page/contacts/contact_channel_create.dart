@@ -467,9 +467,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       final String url = await UplodAliyun.uploadFileToAliyun(
         fileType: UplodAliyunType.imageType,
         file: imgFile,
-        filename: _channelNameController.text +
-            DateTime.now().microsecondsSinceEpoch.toString() +
-            '_avatar01.png',
+        filename: "${_channelNameController.text}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png"
       );
       if (url.isNotEmpty) {
         if (mounted) {
