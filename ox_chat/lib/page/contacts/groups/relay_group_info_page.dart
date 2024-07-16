@@ -657,7 +657,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _DisableShareDialog(bool isQrCode) {
-    if (groupDBInfo != null && !groupDBInfo!.closed) return _groupQrCodeFn(isQrCode);
+    if ((groupDBInfo != null && !groupDBInfo!.closed) || (groupDBInfo != null && groupDBInfo!.closed && _hasAddUserPermission)) return _groupQrCodeFn(isQrCode);
     OXCommonHintDialog.show(
       context,
       title: "",
