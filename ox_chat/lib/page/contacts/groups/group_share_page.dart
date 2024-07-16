@@ -23,12 +23,12 @@ import '../../session/chat_group_message_page.dart';
 
 class GroupSharePage extends StatefulWidget {
   final String groupId;
-  final String inviterPubKey;
+  final String? inviterPubKey;
   final String groupOwner;
   final String groupPic;
   final String groupName;
   GroupType groupType;
-  GroupSharePage({required this.groupId,required this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic, required this.groupType});
+  GroupSharePage({required this.groupId, this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic, required this.groupType});
   @override
   _GroupSharePageState createState() => new _GroupSharePageState();
 }
@@ -51,11 +51,12 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   void _getInviterInfo() async {
-    String pubKey = widget.inviterPubKey;
-    if (pubKey.isEmpty) return;
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
-    if (userDB != null) {
-      inviterUserDB = userDB;
+    final pubKey = widget.inviterPubKey;
+    if (pubKey != null && pubKey.isNotEmpty) {
+      UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
+      if (userDB != null) {
+        inviterUserDB = userDB;
+      }
     }
     switch (widget.groupType) {
       case GroupType.privateGroup:

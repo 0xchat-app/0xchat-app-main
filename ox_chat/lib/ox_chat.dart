@@ -165,7 +165,7 @@ class OXChat extends OXFlutterModule {
     return ContractsPage();
   }
 
-  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, required String inviterPubKey, int? groupTypeIndex}){
+  void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, String? inviterPubKey, int? groupTypeIndex}){
     GroupType groupType = GroupType.privateGroup;
     groupTypeIndex ??= GroupType.privateGroup.index;
     if (groupTypeIndex >= 0 && groupTypeIndex < GroupType.values.length) {

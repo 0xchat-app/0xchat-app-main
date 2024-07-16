@@ -15,13 +15,11 @@ class ContactGroupMemberPage extends ContactGroupListPage {
   final String groupId;
   final String? title;
   final GroupListAction? groupListAction;
-  final String? shareContent;
 
   const ContactGroupMemberPage({
     required this.groupId,
     this.title,
     this.groupListAction,
-    this.shareContent,
     super.groupType,
   }) : super(title: title);
 
@@ -32,13 +30,11 @@ class ContactGroupMemberPage extends ContactGroupListPage {
 class _ContactGroupMemberState extends ContactGroupListPageState {
 
   late final groupId;
-  late final shareContent;
 
   @override
   void initState() {
     super.initState();
     groupId = (widget as ContactGroupMemberPage).groupId;
-    shareContent = (widget as ContactGroupMemberPage).shareContent;
     _fetchUserListAsync();
   }
 
@@ -130,7 +126,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
-      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup, shareContent);
+      ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
       return;
     }
     return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
@@ -169,7 +165,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context, true);
-                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup, shareContent);
+                ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
                 OXNavigator.pop(context, true);
               }),
         ],
