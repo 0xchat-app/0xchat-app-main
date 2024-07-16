@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:ox_common/upload/upload_exception.dart';
 import 'string_util.dart';
 import 'base64.dart';
 import 'package:dio/dio.dart';
@@ -102,6 +103,8 @@ class BolssomUploader {
       log(jsonEncode(response.data));
       if (body is Map<String, dynamic> && body["url"] != null) {
         return body["url"];
+      } else {
+        throw UploadException('${uri.host} Bad Gateway');
       }
     } catch (e) {
       print("BolssomUploader.upload upload exception:");
