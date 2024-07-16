@@ -63,7 +63,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _getPermissionValue() {
-    LogUtil.e('');
     _hasAddUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addUser]);
     _hasRemoveUserPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.removeUser]);
     _hasAddPermission = RelayGroup.sharedInstance.hasPermissions(groupDBInfo?.admins ?? [], userDB?.pubKey??'', [GroupActionKind.addPermission]);
@@ -206,8 +205,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
           maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
       child: AvatarStack(
         settings: RestrictedPositions(
-            // maxCoverage: 0.1,
-            // minCoverage: 0.2,
             align: StackAlign.left,
             laying: StackLaying.first),
         borderColor: ThemeColor.color180,
@@ -225,7 +222,6 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         avatarList.add(OXCachedNetworkImageProviderEx.create(
           context,
           groupPic,
-          // height: Adapt.px(26),
         ));
       } else {
         avatarList.add(
