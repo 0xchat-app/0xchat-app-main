@@ -58,6 +58,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
     if(note == null) return;
     int newReplyNum = note.replyEventIds?.length ?? 0;
     if(newReplyNum > replyList.length){
+      widget.notedUIModel.value = NotedUIModel(noteDB: note);
       _getReplyList();
     }
   }
