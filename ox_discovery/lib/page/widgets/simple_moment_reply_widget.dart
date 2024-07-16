@@ -23,9 +23,10 @@ import 'package:nostr_core_dart/nostr.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
   final ValueNotifier<NotedUIModel> notedUIModel;
+  final Function? postNotedCallback;
   final Function(bool isFocused)? isFocusedCallback;
   const SimpleMomentReplyWidget(
-      {super.key, this.isFocusedCallback, required this.notedUIModel});
+      {super.key, this.isFocusedCallback, required this.notedUIModel,this.postNotedCallback});
 
   @override
   _SimpleMomentReplyWidgetState createState() =>
@@ -292,6 +293,11 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     await OXLoading.dismiss();
 
     if (event.status) {
+      widget.postNotedCallback?.call();
+      _replyController.text = '';
+      _replyFocusNode.unfocus();
+      widget.isFocusedCallback?.call(false);
+
       CommonToast.instance.show(context, Localized.text('ox_discovery.reply_success_tips'));
     }
   }
