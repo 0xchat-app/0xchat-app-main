@@ -4,6 +4,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 enum EMomentMoreOptionType {
   copyNotedID,
   copyNotedText,
+  shareNoted,
   block,
 }
 
@@ -14,6 +15,8 @@ extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
         return 'Copy Noted ID';
       case EMomentMoreOptionType.copyNotedText:
         return 'Copy Note Text';
+      case EMomentMoreOptionType.shareNoted:
+        return 'Share Noted';
       case EMomentMoreOptionType.block:
         return 'Mute User';
     }

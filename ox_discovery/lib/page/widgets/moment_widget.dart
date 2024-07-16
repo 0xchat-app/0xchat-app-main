@@ -66,6 +66,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   List<EMomentMoreOptionType> momentOptionMoreList = [
     EMomentMoreOptionType.copyNotedID,
     EMomentMoreOptionType.copyNotedText,
+    EMomentMoreOptionType.shareNoted,
   ];
 
   @override
@@ -397,12 +398,23 @@ class _MomentWidgetState extends State<MomentWidget> {
         CommonToast.instance.show(context, 'Option fail');
         return;
       }
+
       switch (value) {
         case EMomentMoreOptionType.copyNotedID:
           await TookKit.copyKey(context, noteDB.encodedNoteId);
           break;
         case EMomentMoreOptionType.copyNotedText:
           await TookKit.copyKey(context, noteDB.content);
+          break;
+        case EMomentMoreOptionType.shareNoted:
+         final result =  await OXModuleService.pushPage(
+              context, 'ox_chat', 'chatUserChoosePage',{});
+         if(result is List<UserDB>){
+           for(UserDB user in result)  {
+             OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,noteDB.encodedNoteId]);
+           }
+         }
+         CommonToast.instance.show(context, "Share successfully");
           break;
         case EMomentMoreOptionType.block:
           _blockOptionFn(noteAuthor);
