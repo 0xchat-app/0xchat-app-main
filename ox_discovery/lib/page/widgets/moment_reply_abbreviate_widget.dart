@@ -85,7 +85,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   Widget build(BuildContext context) {
     ValueNotifier<NotedUIModel>? model = notedUIModel;
     if(!widget.isShowReplyWidget) return const SizedBox();
-    if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,200);
+    if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
     if(model == null) return const SizedBox();
     return Container(
       margin: EdgeInsets.only(

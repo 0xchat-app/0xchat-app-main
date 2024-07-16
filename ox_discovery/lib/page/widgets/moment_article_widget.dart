@@ -101,7 +101,7 @@ class MomentArticleWidgetState extends State<MomentArticleWidget> {
 
   Widget quoteMoment() {
     Map<String,dynamic>? info = articleInfo;
-    if (info == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,200);
+    if (info == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
     return GestureDetector(
       onTap: () {
         OXNavigator.presentPage(context, (context) => MomentArticlePage(naddr: widget.naddr));

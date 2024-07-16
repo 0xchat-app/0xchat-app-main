@@ -28,7 +28,6 @@ import 'moment_rich_text_widget.dart';
 import 'nine_palace_grid_picture_widget.dart';
 import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../../model/moment_ui_model.dart';
