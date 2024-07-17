@@ -266,7 +266,15 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     }
     else{
       // connect to other uer dm relays
-      Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
+      Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId).then((result){
+         if(!result){
+           chatGeneralHandler.sendSystemMessage(
+             context,
+             Localized.text('ox_chat.user_dmrelay_not_connect_hint_message'),
+             sendingType: ChatSendingType.memory,
+           );
+         }
+      });
       // check my dm relay
       if(_user.sourceObject?.dmRelayList?.isNotEmpty == false){
         chatGeneralHandler.sendSystemMessage(
