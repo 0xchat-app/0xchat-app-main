@@ -16,5 +16,7 @@
   "giphy_collect": "Samle",
   "giphy_search": "Søg",
   "giphy_tips": "Leveret af GIPHY",
-  "chat_input_hint_text": "Besked"
+  "chat_input_hint_text": "Besked",
+  "giphy_use_hint": "Aktivér Giphy-funktionen for at understøtte afsendelse af GIF-billeder og få mere sjov i chatten. Da vi bruger Giphys API-interface, vil anmodning til Giphy API dog udsætte din IP-adresse for Giphy-tjenesten. Er du enig i at aktivere det?",
+  "giphy_continue": "Fortsæt"
 }

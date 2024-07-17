@@ -16,5 +16,7 @@
   "giphy_collect": "Recull",
   "giphy_search": "Cerca",
   "giphy_tips": "Suportat per GIPHY",
-  "chat_input_hint_text": "Missatge"
+  "chat_input_hint_text": "Missatge",
+  "giphy_use_hint": "Activa la funció Giphy per donar suport a l'enviament d'imatges GIF i gaudir de més diversió en les xerrades. Tanmateix, com que utilitzem la interfície API de Giphy, sol·licitar l'API de Giphy exposarà la teva adreça IP al servei de Giphy. Estàs d'acord a activar-ho?",
+  "giphy_continue": "Continua"
 }

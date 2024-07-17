@@ -16,5 +16,7 @@
   "giphy_collect": "Koguma",
   "giphy_search": "Otsing",
   "giphy_tips": "Powered by GIPHY",
-  "chat_input_hint_text": "Sõnum"
+  "chat_input_hint_text": "Sõnum",
+  "giphy_use_hint": "Luba Giphy funktsioon, et toetada GIF-piltide saatmist ja nautida rohkem lõbu vestlemisel. Kuid kuna kasutame Giphy API-liidest, siis Giphy API taotlemine paljastab teie IP-aadressi Giphy teenusele. Kas nõustute selle lubamisega?",
+  "giphy_continue": "Jätka"
 }

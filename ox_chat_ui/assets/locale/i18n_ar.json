@@ -16,5 +16,7 @@
   "giphy_collect": "جمع",
   "giphy_search": "بحث",
   "giphy_tips": "مدعوم من GIPHY",
-  "chat_input_hint_text": "رسالة"
+  "chat_input_hint_text": "رسالة",
+  "giphy_use_hint": "قم بتمكين ميزة Giphy لدعم إرسال صور GIF والاستمتاع بمزيد من المرح في الدردشة. ومع ذلك، نظرًا لأننا نستخدم واجهة برمجة تطبيقات Giphy، فإن طلب واجهة برمجة تطبيقات Giphy سيعرض عنوان IP الخاص بك لخدمة Giphy. هل توافق على تمكينها؟",
+  "giphy_continue": "استمر"
 }
