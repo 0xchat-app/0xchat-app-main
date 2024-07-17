@@ -16,5 +16,7 @@
   "giphy_collect": "Topla",
   "giphy_search": "Axtarış",
   "giphy_tips": "GIPHY tərəfindən dəstəklənir",
-  "chat_input_hint_text": "Mesaj"
+  "chat_input_hint_text": "Mesaj",
+  "giphy_use_hint": "GIF şəkilləri göndərməyi dəstəkləmək və söhbətdə daha çox əyləncə əldə etmək üçün Giphy funksiyasını aktivləşdirin. Lakin, biz Giphy-nin API interfeysindən istifadə etdiyimiz üçün, Giphy API tələb etmək IP ünvanınızı Giphy xidmətinə açıqlayacaq. Onu aktivləşdirməyə razısınızmı?",
+  "giphy_continue": "Davam et"
 }

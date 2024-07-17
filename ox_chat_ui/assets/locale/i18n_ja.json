@@ -16,5 +16,7 @@
   "giphy_collect": "収集",
   "giphy_search": "検索",
   "giphy_tips": "GIPHYによって提供",
-  "chat_input_hint_text": "メッセージ"
+  "chat_input_hint_text": "メッセージ",
+  "giphy_use_hint": "Giphy機能を有効にしてGIF画像の送信をサポートし、チャットをより楽しみましょう。ただし、GiphyのAPIインターフェースを使用しているため、Giphy APIをリクエストすると、IPアドレスがGiphyサービスに公開されます。有効にすることに同意しますか？",
+  "giphy_continue": "続行"
 }

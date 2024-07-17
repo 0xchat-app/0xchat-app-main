@@ -16,5 +16,7 @@
   "giphy_collect": "Mengumpulkan",
   "giphy_search": "Cari",
   "giphy_tips": "Didukung oleh GIPHY",
-  "chat_input_hint_text": "Pesan"
+  "chat_input_hint_text": "Pesan",
+  "giphy_use_hint": "Aktifkan fitur Giphy untuk mendukung pengiriman gambar GIF dan nikmati lebih banyak kesenangan dalam obrolan. Namun, karena kami menggunakan antarmuka API Giphy, permintaan API Giphy akan mengekspos alamat IP Anda ke layanan Giphy. Apakah Anda setuju untuk mengaktifkannya?",
+  "giphy_continue": "Lanjutkan"
 }

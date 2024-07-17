@@ -16,5 +16,7 @@
   "giphy_collect": "수집",
   "giphy_search": "검색",
   "giphy_tips": "GIPHY 제공",
-  "chat_input_hint_text": "메시지"
+  "chat_input_hint_text": "메시지",
+  "giphy_use_hint": "Giphy 기능을 활성화하여 GIF 이미지를 보내고 채팅을 더 즐겁게 즐기세요. 그러나 Giphy의 API 인터페이스를 사용하기 때문에 Giphy API를 요청하면 IP 주소가 Giphy 서비스에 노출됩니다. 활성화에 동의하십니까?",
+  "giphy_continue": "계속"
 }

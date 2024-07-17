@@ -16,5 +16,7 @@
   "giphy_collect": "Toplamak",
   "giphy_search": "Ara",
   "giphy_tips": "GIPHY Tarafından Desteklenmektedir",
-  "chat_input_hint_text": "Mesaj yazın"
+  "chat_input_hint_text": "Mesaj yazın",
+  "giphy_use_hint": "GIF görüntüleri göndermeyi desteklemek ve sohbette daha fazla eğlenmek için Giphy özelliğini etkinleştirin. Ancak, Giphy'nin API arayüzünü kullandığımız için, Giphy API'si istemek IP adresinizi Giphy hizmetine maruz bırakacaktır. Etkinleştirmeyi kabul ediyor musunuz?",
+  "giphy_continue": "Devam et"
 }

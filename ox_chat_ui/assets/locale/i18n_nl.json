@@ -16,5 +16,7 @@
   "giphy_collect": "Verzamelen",
   "giphy_search": "Zoeken",
   "giphy_tips": "Aangedreven door GIPHY",
-  "chat_input_hint_text": "Bericht"
+  "chat_input_hint_text": "Bericht",
+  "giphy_use_hint": "Schakel de Giphy-functie in om het verzenden van GIF-afbeeldingen te ondersteunen en meer plezier te hebben in chatten. Omdat we echter de API-interface van Giphy gebruiken, zal het aanvragen van de Giphy API uw IP-adres blootstellen aan de Giphy-service. Gaat u akkoord om het in te schakelen?",
+  "giphy_continue": "Doorgaan"
 }
