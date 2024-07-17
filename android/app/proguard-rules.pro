@@ -75,6 +75,13 @@
 -dontwarn com.vc.**
 -keep class com.vc.**{*;}
 
+-keep class com.luck.picture.lib.** { *; }
+# use Camerax
+-keep class com.luck.lib.camerax.** { *; }
+#use uCrop
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
 
 -dontwarn com.geetest.captcha.**
 -keep class com.geetest.captcha.**{*;}
