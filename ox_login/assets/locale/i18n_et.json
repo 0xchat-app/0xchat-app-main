@@ -1,6 +1,8 @@
 {
   "login_title": "Logi sisse",
   "login_button" : "LOGI SISSE",
+  "login_with_amber": "Logi sisse Amberiga",
+  "sign_request_rejected": "Allkirjastamise taotlus lükati tagasi",
   "login_tips": "Logige sisse oma privaatvõtmega või looge uus.",
   "or" : "VÕI",
   "terms_of_service_privacy_policy": "Kontot ühendades nõustute Kasutustingimustega ja Privaatsuspoliitikaga.",
@@ -24,5 +26,8 @@
   "public_key": "Avalik võti",
   "private_key": "Privaatvõti",
   "lets_go": "Lähme!",
-  "enter_account_key_login_hint": "Sisestage sisselogimiseks oma privaatvõti:"
+  "enter_account_key_login_hint": "Sisestage sisselogimiseks oma privaatvõti:",
+  "private_key_regular_failed": "Privaatvõti regulaarselt ebaõnnestus",
+  "pub_key_regular_failed": "Avalik võti regulaarselt ebaõnnestus",
+  "str_not_installed_amber": "Teil ei ole Amberi installitud"
 }

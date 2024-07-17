@@ -1,6 +1,8 @@
 {
   "login_title": "Inloggen",
   "login_button" : "INLOGGEN",
+  "login_with_amber": "Inloggen met Amber",
+  "sign_request_rejected": "Handtekeningverzoek afgewezen",
   "login_tips": "Log in met de privésleutel of maak een nieuwe.",
   "or" : "OF",
   "terms_of_service_privacy_policy": "Door uw account te verbinden, accepteert u de Gebruiksvoorwaarden en Privacybeleid.",
@@ -24,5 +26,8 @@
   "public_key": "Openbare sleutel",
   "private_key": "Privésleutel",
   "lets_go": "Laten we gaan!",
-  "enter_account_key_login_hint": "Voer uw privésleutel in om in te loggen:"
+  "enter_account_key_login_hint": "Voer uw privésleutel in om in te loggen:",
+  "private_key_regular_failed": "Reguliere privésleutel mislukt",
+  "pub_key_regular_failed": "Reguliere openbare sleutel mislukt",
+  "str_not_installed_amber": "U hebt Amber niet geïnstalleerd"
 }

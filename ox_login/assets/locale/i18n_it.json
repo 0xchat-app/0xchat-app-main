@@ -1,6 +1,8 @@
 {
   "login_title": "Accesso",
   "login_button" : "ACCEDI",
+  "login_with_amber": "Accedi con Amber",
+  "sign_request_rejected": "Richiesta di firma rifiutata",
   "login_tips": "Accedi con la chiave privata o crea una nuova.",
   "or" : "O",
   "terms_of_service_privacy_policy": "Connetendo il tuo account accetti i Termini d'uso e l'Informativa sulla privacy.",
@@ -24,5 +26,8 @@
   "public_key": "Chiave pubblica",
   "private_key": "Chiave privata",
   "lets_go": "Andiamo!",
-  "enter_account_key_login_hint": "Inserisci la tua chiave privata per accedere:"
+  "enter_account_key_login_hint": "Inserisci la tua chiave privata per accedere:",
+  "private_key_regular_failed": "Chiave privata regolare fallita",
+  "pub_key_regular_failed": "Chiave pubblica regolare fallita",
+  "str_not_installed_amber": "Non hai installato Amber"
 }

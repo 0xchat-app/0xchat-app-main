@@ -1,6 +1,8 @@
 {
   "login_title": "ログイン",
   "login_button": "ログイン",
+  "login_with_amber": "Amberでログイン",
+  "sign_request_rejected": "署名リクエストが拒否されました",
   "login_tips": "秘密鍵でログインするか、新しいものを作成してください。",
   "or": "または",
   "terms_of_service_privacy_policy": "アカウントを接続することで、利用規約とプライバシーポリシーに同意します。",
@@ -24,5 +26,8 @@
   "public_key": "公開鍵",
   "private_key": "秘密鍵",
   "lets_go": "始めましょう！",
-  "enter_account_key_login_hint": "ログインするための秘密鍵を入力してください："
+  "enter_account_key_login_hint": "ログインするための秘密鍵を入力してください：",
+  "private_key_regular_failed": "プライベートキーの定期チェックに失敗しました",
+  "pub_key_regular_failed": "公開キーの定期チェックに失敗しました",
+  "str_not_installed_amber": "Amberがインストールされていません"
 }

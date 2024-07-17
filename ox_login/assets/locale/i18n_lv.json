@@ -1,6 +1,8 @@
 {
   "login_title": "Pieslēgties",
   "login_button" : "PIESLĒGTIES",
+  "login_with_amber": "Pieteikties ar Amber",
+  "sign_request_rejected": "Paraksta pieprasījums tika noraidīts",
   "login_tips": "Pieslēgties, izmantojot privāto atslēgu, vai izveidojiet jaunu.",
   "or" : "VAI",
   "terms_of_service_privacy_policy": "Pievienojot savu kontu, jūs piekrītat Lietošanas noteikumiem un Konfidencialitātes politikai.",
@@ -24,5 +26,8 @@
   "public_key": "Publiskā atslēga",
   "private_key": "Privātā atslēga",
   "lets_go": "Aiziet!",
-  "enter_account_key_login_hint": "Lai iegūtu piekļuvi, ievadiet savu privāto atslēgu:"
+  "enter_account_key_login_hint": "Lai iegūtu piekļuvi, ievadiet savu privāto atslēgu:",
+  "private_key_regular_failed": "Privātās atslēgas regulāra kļūme",
+  "pub_key_regular_failed": "Publiskās atslēgas regulāra kļūme",
+  "str_not_installed_amber": "Jūs neesat instalējis Amber"
 }
