@@ -1,6 +1,8 @@
 {
   "login_title": "로그인",
   "login_button": "로그인",
+  "login_with_amber": "Amber로 로그인",
+  "sign_request_rejected": "서명 요청이 거부되었습니다",
   "login_tips": "개인 키로 로그인하거나 새로 생성하세요.",
   "or": "또는",
   "terms_of_service_privacy_policy": "계정을 연결함으로써 이용 약관 및 개인정보 보호정책에 동의합니다.",
@@ -24,5 +26,8 @@
   "public_key": "공개 키",
   "private_key": "개인 키",
   "lets_go": "시작해요!",
-  "enter_account_key_login_hint": "로그인을 위해 개인 키를 입력하세요:"
+  "enter_account_key_login_hint": "로그인을 위해 개인 키를 입력하세요:",
+  "private_key_regular_failed": "개인 키 정기 실패",
+  "pub_key_regular_failed": "공개 키 정기 실패",
+  "str_not_installed_amber": "Amber를 설치하지 않았습니다"
 }

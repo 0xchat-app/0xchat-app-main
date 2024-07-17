@@ -1,6 +1,8 @@
 {
   "login_title": "Přihlášení",
   "login_button" : "PŘIHLÁSIT SE",
+  "login_with_amber": "Přihlásit se pomocí Amber",
+  "sign_request_rejected": "Požadavek na podpis byl zamítnut",
   "login_tips": "Přihlaste se pomocí soukromého klíče nebo vytvořte nový.",
   "or" : "NEBO",
   "terms_of_service_privacy_policy": "Připojením svého účtu souhlasíte s Podmínkami použití a Zásadami ochrany osobních údajů.",
@@ -24,5 +26,8 @@
   "public_key": "Veřejný klíč",
   "private_key": "Soukromý klíč",
   "lets_go": "Pojďme na to!",
-  "enter_account_key_login_hint": "Zadejte svůj soukromý klíč pro přihlášení:"
+  "enter_account_key_login_hint": "Zadejte svůj soukromý klíč pro přihlášení:",
+  "private_key_regular_failed": "Pravidelný soukromý klíč selhal",
+  "pub_key_regular_failed": "Pravidelný veřejný klíč selhal",
+  "str_not_installed_amber": "Nemáte nainstalovaný Amber"
 }

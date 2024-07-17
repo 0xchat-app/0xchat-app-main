@@ -1,6 +1,8 @@
 {
   "login_title": "Đăng nhập",
   "login_button": "ĐĂNG NHẬP",
+  "login_with_amber": "Đăng nhập bằng Amber",
+  "sign_request_rejected": "Yêu cầu ký bị từ chối",
   "login_tips": "Đăng nhập bằng khóa riêng hoặc tạo mới.",
   "or": "HOẶC",
   "terms_of_service_privacy_policy": "Kết nối tài khoản, bạn đồng ý với Điều khoản sử dụng và Chính sách riêng tư.",
@@ -24,5 +26,8 @@
   "public_key": "Khóa công khai",
   "private_key": "Khóa riêng tư",
   "lets_go": "Chúng ta bắt đầu!",
-  "enter_account_key_login_hint": "Nhập khóa riêng để đăng nhập:"
+  "enter_account_key_login_hint": "Nhập khóa riêng để đăng nhập:",
+  "private_key_regular_failed": "Khóa riêng thất bại thường xuyên",
+  "pub_key_regular_failed": "Khóa công khai thất bại thường xuyên",
+  "str_not_installed_amber": "Bạn chưa cài đặt Amber"
 }

@@ -1,6 +1,8 @@
 {
   "login_title": "Anmelden",
   "login_button": "ANMELDEN",
+  "login_with_amber": "Mit Amber anmelden",
+  "sign_request_rejected": "Signaturanfrage abgelehnt",
   "login_tips": "Mit dem Privatschlüssel anmelden oder einen neuen erstellen.",
   "or": "ODER",
   "terms_of_service_privacy_policy": "Durch Verknüpfung Ihres Kontos akzeptieren Sie die Nutzungsbedingungen und Datenschutzrichtlinie.",
@@ -24,5 +26,8 @@
   "public_key": "Öffentlicher Schlüssel",
   "private_key": "Privatschlüssel",
   "lets_go": "Los geht's!",
-  "enter_account_key_login_hint": "Geben Sie Ihren Privatschlüssel zur Anmeldung ein:"
+  "enter_account_key_login_hint": "Geben Sie Ihren Privatschlüssel zur Anmeldung ein:",
+  "private_key_regular_failed": "Privater Schlüssel regulär fehlgeschlagen",
+  "pub_key_regular_failed": "Öffentlicher Schlüssel regulär fehlgeschlagen",
+  "str_not_installed_amber": "Sie haben Amber nicht installiert"
 }

@@ -1,6 +1,8 @@
 {
   "login_title": "เข้าสู่ระบบ",
   "login_button": "เข้าสู่ระบบ",
+  "login_with_amber": "เข้าสู่ระบบด้วย Amber",
+  "sign_request_rejected": "ปฏิเสธคำขอลงชื่อ",
   "login_tips": "ใช้กุญแจส่วนตัวเข้าสู่ระบบหรือสร้างใหม่",
   "or": "หรือ",
   "terms_of_service_privacy_policy": "ยอมรับข้อกำหนดในการใช้งานและนโยบายความเป็นส่วนตัวเมื่อเชื่อมต่อบัญชี",
@@ -24,5 +26,8 @@
   "public_key": "กุญแจสาธารณะ",
   "private_key": "กุญแจส่วนตัว",
   "lets_go": "ไปเลย!",
-  "enter_account_key_login_hint": "ใส่กุญแจส่วนตัวเพื่อเข้าสู่ระบบ:"
+  "enter_account_key_login_hint": "ใส่กุญแจส่วนตัวเพื่อเข้าสู่ระบบ:",
+  "private_key_regular_failed": "คีย์ส่วนตัวล้มเหลวตามปกติ",
+  "pub_key_regular_failed": "คีย์สาธารณะล้มเหลวตามปกติ",
+  "str_not_installed_amber": "คุณยังไม่ได้ติดตั้ง Amber"
 }
