@@ -64,9 +64,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   ValueNotifier<NotedUIModel>? notedUIModel;
 
   List<EMomentMoreOptionType> momentOptionMoreList = [
+    EMomentMoreOptionType.shareNoted,
     EMomentMoreOptionType.copyNotedID,
     EMomentMoreOptionType.copyNotedText,
-    EMomentMoreOptionType.shareNoted,
   ];
 
   @override
@@ -354,11 +354,11 @@ class _MomentWidgetState extends State<MomentWidget> {
   void _showMomentOptionMore(BuildContext context, Offset position) async{
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     List<EMomentMoreOptionType> optionList = momentOptionMoreList;
-    String noteAuthor = notedUIModel?.value.noteDB.author.toUpperCase() ?? '';
+    String noteAuthor = notedUIModel?.value.noteDB.author ?? '';
     String btnContent = '';
     bool isInBlocklist = Contacts.sharedInstance.inBlockList(noteAuthor);
     String myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    if(myPubkey.toUpperCase() != noteAuthor){
+    if(myPubkey.toUpperCase() != noteAuthor.toUpperCase()){
       btnContent = isInBlocklist
           ? Localized.text('ox_chat.message_menu_un_block')
           : Localized.text('ox_chat.message_menu_block');
