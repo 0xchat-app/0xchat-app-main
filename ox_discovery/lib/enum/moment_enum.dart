@@ -12,13 +12,13 @@ extension EMomentMoreOptionTypeEx on EMomentMoreOptionType{
   String get text {
     switch(this){
       case EMomentMoreOptionType.copyNotedID:
-        return 'Copy Noted ID';
+        return 'Copy Note ID';
       case EMomentMoreOptionType.copyNotedText:
         return 'Copy Note Text';
       case EMomentMoreOptionType.shareNoted:
-        return 'Share Noted';
+        return 'Share Note';
       case EMomentMoreOptionType.block:
-        return 'Mute User';
+        return 'Block User';
     }
   }
 }
