@@ -36,7 +36,13 @@ class FileServerOperationPage extends StatefulWidget {
 
 class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
-  final List<String> _minioInputOptions = ['URL', 'Access Key', 'Secret Key', 'Bucket Name', 'Custom Name'];
+  final List<String> _minioInputOptions = [
+    'URL',
+    'Access Key',
+    'Secret Key',
+    'Bucket Name',
+    Localized.text('ox_usercenter.str_custom_name')
+  ];
   late final List<TextEditingController> _minioInputOptionControllers;
   final _urlController = TextEditingController();
   final _serverNameController = TextEditingController();
@@ -74,7 +80,9 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final operation = widget.operationType == OperationType.create ? 'Add' : 'Edit';
+    final operation = widget.operationType == OperationType.create
+        ? Localized.text('ox_usercenter.str_add')
+        : Localized.text('ox_usercenter.str_edit');
     final title = '$operation ${widget.fileStorageProtocol.serverName}';
     return Scaffold(
       backgroundColor: ThemeColor.color190,
@@ -178,11 +186,17 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       children: [
         _buildItem(
           'URL',
-          _buildTextField(hintText: 'Enter URL(http or https)', controller: _urlController),
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_url_hint_text'),
+            controller: _urlController,
+          ),
         ),
         _buildItem(
-          'Custom Name',
-          _buildTextField(hintText: 'Custom Server Name(Optional)',controller: _serverNameController),
+          Localized.text('ox_usercenter.str_custom_name'),
+          _buildTextField(
+            hintText: Localized.text('ox_usercenter.str_name_hint_text'),
+            controller: _serverNameController,
+          ),
         ).setPaddingOnly(top: 12.px),
       ],
     );
@@ -199,11 +213,11 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   Widget _buildMinioTypeView() {
     Map<String,String> hintText = {
-      _minioInputOptions[0]:'Enter URL(http or https)',
-      _minioInputOptions[1]:'Enter Secret Key',
-      _minioInputOptions[2]:'Enter Access Key',
-      _minioInputOptions[3]:'Enter Bucket Name',
-      _minioInputOptions[4]:'Custom Server Name(optional)',
+      _minioInputOptions[0]: Localized.text('ox_usercenter.str_url_hint_text'),
+      _minioInputOptions[1]:'${Localized.text('ox_usercenter.str_enter')} Secret Key',
+      _minioInputOptions[2]:'${Localized.text('ox_usercenter.str_enter')} Access Key',
+      _minioInputOptions[3]:'${Localized.text('ox_usercenter.str_enter')} Bucket Name',
+      _minioInputOptions[4]: Localized.text('ox_usercenter.str_name_hint_text'),
     };
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
@@ -226,8 +240,8 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     return GestureDetector(
       onTap: () {
         BottomSheetDialog.showBottomSheet(
-            context, [BottomSheetItem(title: 'Delete',onTap: _deletedFileServer)],
-            title: 'Delete ${widget.fileStorageProtocol.serverName}?',
+            context, [BottomSheetItem(title: Localized.text('ox_usercenter.str_delete'),onTap: _deletedFileServer)],
+            title: '${Localized.text('ox_usercenter.str_delete')} ${widget.fileStorageProtocol.serverName}?',
             color: ThemeColor.red1,
         );
       },
@@ -238,7 +252,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
             color: ThemeColor.color180,
             borderRadius: BorderRadius.circular(12.px),),
         child: Text(
-          'Delete',
+          Localized.text('ox_usercenter.str_delete'),
           style: TextStyle(
             fontSize: 16.px,
             fontWeight: FontWeight.w600,
@@ -273,7 +287,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
 
   String _verifyMinioOption() {
     String errorMsg = '';
-    final tips = _minioInputOptions.map((item) => 'Please Enter $item').toList();
+    final tips = _minioInputOptions.map((item) => '${Localized.text('ox_usercenter.str_enter')} $item').toList();
     for (int index = 0; index < _minioInputOptionControllers.length; index++) {
       if (index == 4) return errorMsg;
       if (_minioInputOptionControllers[index].text.isEmpty) {
@@ -297,7 +311,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     final name = _minioInputOptionControllers[4].text;
 
     if(!_urlValidator(url)) {
-      CommonToast.instance.show(context, 'Please enter a valid URL');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
       return;
     }
 
@@ -320,7 +334,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         bucketName: bucketName,
       );
       if(!result) {
-        CommonToast.instance.show(context, 'Bucket Name is not exist!');
+        CommonToast.instance.show(context, Localized.text('ox_usercenter.str_bucket__name_tips_text'));
         return;
       }
       if(widget.operationType == OperationType.create) {
@@ -340,14 +354,14 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     final url = _urlController.text;
     final name = _serverNameController.text;
     if(!_urlValidator(url)) {
-      CommonToast.instance.show(context, 'Please enter a valid URL');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
       return;
     }
     OXLoading.show();
     Nip96ServerAdaptation? nip96serverAdaptation = await NIP96InfoLoader.getInstance().pullServerAdaptation(url);
     OXLoading.dismiss();
     if(nip96serverAdaptation == null || nip96serverAdaptation.apiUrl == null) {
-      CommonToast.instance.show(context, 'The file server does not support NIP-96');
+      CommonToast.instance.show(context, Localized.text('ox_usercenter.str_nip96_tips_text'));
       return;
     }
     Nip96Server nip96server = Nip96Server(url: url, name: name.isNotEmpty ? name : url);

@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/page/set_up/file_server_operation_page.dart';
 import 'package:ox_usercenter/widget/bottom_sheet_dialog.dart';
 
@@ -36,7 +37,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
       appBar: CommonAppBar(
         useLargeTitle: false,
         centerTitle: true,
-        title: 'Files Server',
+        title: Localized.text('ox_usercenter.str_file_server'),
         backgroundColor: ThemeColor.color190,
         actions: [
           Container(
@@ -165,7 +166,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
     return Opacity(
       opacity: _isEditing ? 0.24 : 1,
       child: CommonButton.themeButton(
-        text: 'Add Server',
+        text: Localized.text('ox_usercenter.str_add_server'),
         onTap: () {
           if(_isEditing) return;
           final items = [
