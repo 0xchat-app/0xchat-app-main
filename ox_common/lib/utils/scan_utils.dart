@@ -156,7 +156,6 @@ extension ScanAnalysisHandlerEx on ScanUtils {
           Symbol('groupPic'): '',
           Symbol('groupName'): groupId,
           Symbol('groupId'): '${relays[0]}\'$groupId',
-          Symbol('inviterPubKey'): '--',
           Symbol('groupOwner'): author,
           Symbol('groupTypeIndex'): 0, //default openGroup
         });
