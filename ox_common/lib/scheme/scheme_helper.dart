@@ -4,7 +4,7 @@ import '../const/common_constant.dart';
 import '../log_util.dart';
 import '../ox_common.dart';
 
-typedef SchemeHandler = Function(String scheme, String action, Map<String, String> queryParameters);
+typedef SchemeHandler = Function(String uri, String action, Map<String, String> queryParameters);
 
 class SchemeHelper {
 
@@ -16,29 +16,40 @@ class SchemeHelper {
   }
 
   static tryHandlerForOpenAppScheme() async {
-    String scheme = await OXCommon.channelPreferences.invokeMethod(
+    String url = await OXCommon.channelPreferences.invokeMethod(
       'getAppOpenURL',
     );
-    LogUtil.d("App open URL: $scheme");
+    LogUtil.d("App open URL: $url");
 
-    if (scheme.isEmpty) return ;
+    handleAppURI(url);
+  }
+
+  static handleAppURI(String uri) async {
+    if (uri.isEmpty) return ;
 
     String action = '';
     Map<String, String> query = <String, String>{};
 
     try {
-      final uri = Uri.parse(scheme);
-      if (uri.scheme != CommonConstant.APP_SCHEME) return ;
+      final uriObj = Uri.parse(uri);
+      if (uriObj.scheme != CommonConstant.APP_SCHEME) return ;
 
-      action = uri.host.toLowerCase();
-      query = uri.queryParameters;
+      action = uriObj.host.toLowerCase();
+      query = uriObj.queryParameters;
     } catch (_) {
       final appScheme = '${CommonConstant.APP_SCHEME}://';
-      if (scheme.startsWith(appScheme)) {
-        action = scheme.replaceFirst(appScheme, '');
-        scheme = appScheme;
+      if (uri.startsWith(appScheme)) {
+        action = uri.replaceFirst(appScheme, '');
+        uri = appScheme;
       }
     }
-    defaultHandler?.call(scheme, action, query);
+
+    final handler = schemeAction[action];
+    if (handler != null) {
+      handler(uri, action, query);
+      return;
+    }
+
+    defaultHandler?.call(uri, action, query);
   }
 }
