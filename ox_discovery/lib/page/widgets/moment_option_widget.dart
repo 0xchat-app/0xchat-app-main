@@ -5,6 +5,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/stopwatch.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -41,6 +42,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   bool _isDefaultEcashWallet = false;
   int _defaultZapAmount = 0;
   bool _isZapProcessing = false;
+
+  bool _reactionTag = false;
 
   final List<EMomentOptionType> momentOptionTypeList = [
     EMomentOptionType.reply,
@@ -163,7 +166,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
       case EMomentOptionType.like:
         return () async {
-          if (notedUIModel.value.noteDB.reactionCountByMe > 0) return;
+          if (notedUIModel.value.noteDB.reactionCountByMe > 0 || _reactionTag) return;
           bool isSuccess = false;
           if (notedUIModel.value.noteDB.groupId.isEmpty) {
             OKEvent event = await Moment.sharedInstance
@@ -178,8 +181,10 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
           if (isSuccess) {
             _updateNoteDB();
-            CommonToast.instance.show(
-                context, Localized.text('ox_discovery.like_success_tips'));
+            CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
+            setState(() {
+              _reactionTag = true;
+            });
           }
         };
       case EMomentOptionType.zaps:
@@ -250,8 +255,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
               }
               if (success) {
                 _updateNoteDB();
-                CommonToast.instance.show(context,
-                    Localized.text('ox_discovery.repost_success_tips'));
+                CommonToast.instance.show(context, Localized.text('ox_discovery.repost_success_tips'));
               }
             },
           ),
@@ -353,7 +357,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       case EMomentOptionType.repost:
         return noteDB.repostCountByMe > 0;
       case EMomentOptionType.like:
-        return noteDB.reactionCountByMe > 0;
+        return _reactionTag ? _reactionTag : noteDB.reactionCountByMe > 0;
       case EMomentOptionType.zaps:
         return noteDB.zapAmountByMe > 0;
       case EMomentOptionType.reply:
@@ -373,7 +377,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     if(note == null) return;
     if(mounted){
       setState(() {
-        notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
+        notedUIModel.value = NotedUIModel(noteDB: note);
       });
     }
 

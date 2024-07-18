@@ -385,6 +385,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                 type == EMomentMoreOptionType.block ? btnContent : type.text,
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontSize: 16.px,
                   color: ThemeColor.white,
                 ),
               ),
