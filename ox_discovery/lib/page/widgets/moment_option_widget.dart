@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -380,24 +381,24 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
+    String? pubkey = Account.sharedInstance.me?.pubKey;
+    final isAssistedProcess = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     if(user == null) return;
     if(_isZapProcessing) return;
     _isZapProcessing = true;
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
-      isAssistedProcess: false,
+      isAssistedProcess: isAssistedProcess,
       preprocessCallback: () async {
         _isZapProcessing = false;
-        if(_isDefaultEcashWallet) {
-          await _shakeController.forward();
-          _updateZapsUIWithUnreal();
-        }
+        await _shakeController.forward();
+        _updateZapsUIWithUnreal();
       },
-        zapsInfoCallback: (zapsInfo) {
-          if (!_isDefaultEcashWallet) {
-            _isShowAnimation = true;
-          }
-        });
+      zapsInfoCallback: (zapsInfo) {
+        if (!_isDefaultEcashWallet) {
+          _isShowAnimation = true;
+        }
+      });
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
     _defaultZapAmount = handler.defaultZapAmount;
     await handler.handleZap(context: context,);
