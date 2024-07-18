@@ -15,6 +15,7 @@ import 'package:lpinyin/lpinyin.dart';
 
 enum GroupListAction {
   view,
+  create,
   add,
   remove,
   send
@@ -210,23 +211,32 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
   Widget _buildAppBar(){
     return Container(
       height: Adapt.px(57),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
         children: [
-          GestureDetector(
-            child: CommonImage(
-              iconName: "icon_back_left_arrow.png",
-              width: Adapt.px(24),
-              height: Adapt.px(24),
-              useTheme: true,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              child: CommonImage(
+                iconName: "icon_back_left_arrow.png",
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
+              ),
+              onTap: () {
+                OXNavigator.pop(context);
+              },
             ),
-            onTap: () {
-              OXNavigator.pop(context);
-            },
           ),
-          _buildTitleWidget(),
-          if (widget.groupType != GroupType.privateGroup)
-            buildEditButton(),
+          Align(
+            alignment: Alignment.center,
+            child: _buildTitleWidget(),
+          ),
+          if ((widget.groupType == GroupType.privateGroup && widget.groupListAction == GroupListAction.create)
+          || widget.groupType != GroupType.privateGroup)
+            Align(
+              alignment: Alignment.centerRight,
+              child: buildEditButton(),
+            ),
         ],
       ),
     );

@@ -8,6 +8,7 @@ import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -113,6 +114,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       CommonToast.instance.show(context, Localized.text('ox_chat.create_group_select_toast'));
       return;
     }
+    await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
@@ -123,17 +125,20 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     } else {
       okEvent = await RelayGroup.sharedInstance.addUser(groupId, List.from(members), '');
     }
+    await OXLoading.dismiss();
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.add_member_success_tips'));
       OXNavigator.pop(context,true);
       ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(selectedUserList,groupId, widget.groupType ?? GroupType.openGroup);
       return;
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
     }
-    return CommonToast.instance.show(context, Localized.text('ox_chat.add_member_fail_tips'));
   }
 
   @override
   buildRemovePressed() async {
+    await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
     Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
@@ -144,12 +149,14 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     } else {
       okEvent = await RelayGroup.sharedInstance.removeUser(groupId, List.from(members), '');
     }
+    await OXLoading.dismiss();
     if(okEvent.status){
       await CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_success_tips'));
       OXNavigator.pop(context,true);
       return;
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
     }
-    return CommonToast.instance.show(context, Localized.text('ox_chat.remove_member_fail_tips'));
   }
 
   @override
