@@ -476,6 +476,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       userDB: user,
       isAssistedProcess: true,
       zapType: session.asZapType,
+      groupId: session.hasMultipleUsers ? session.groupId : null,
     );
     await handler.handleZap(context: context, eventId: eventId);
   }
