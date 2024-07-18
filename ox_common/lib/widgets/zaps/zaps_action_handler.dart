@@ -13,7 +13,6 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/zaps/zaps_assisted_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:cashu_dart/cashu_dart.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsActionHandler {
   final UserDB userDB;
@@ -151,6 +150,7 @@ class ZapsActionHandler {
         ),
       );
     } else {
+      final showLoading = !isDefaultEcashWallet && !isDefaultNWCWallet;
       handleZapChannel(
         context,
         lnurl: lnurl,
@@ -158,7 +158,7 @@ class ZapsActionHandler {
         eventId: eventId,
         description: description,
         privateZap: privateZap,
-        showLoading: false,
+        showLoading: showLoading,
         zapType: zapType,
         receiver: receiver,
         groupId: groupId
