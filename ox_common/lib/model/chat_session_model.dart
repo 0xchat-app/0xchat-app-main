@@ -101,6 +101,34 @@ class ChatSessionModel extends DBObject {
   }
 
   bool get hasMultipleUsers => {ChatType.chatGroup, ChatType.chatChannel}.contains(chatType);
+
+  static ChatSessionModel getDefaultSession(int type, String receiverPubkey, String sender, {String secretSessionId = ''}) {
+    String chatId = '';
+    String receiver = '';
+    switch (type) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+        chatId = receiverPubkey;
+        receiver = receiverPubkey;
+        break;
+      case ChatType.chatGroup:
+      case ChatType.chatChannel:
+      case ChatType.chatRelayGroup:
+        chatId = receiverPubkey;
+        break;
+      case ChatType.chatSecret:
+      case ChatType.chatSecretStranger:
+        chatId = secretSessionId;
+        receiver = receiverPubkey;
+        break;
+    }
+    return ChatSessionModel(
+      chatId: chatId,
+      receiver: receiver,
+      chatType: type,
+      sender: sender,
+    );
+  }
 }
 
 ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
