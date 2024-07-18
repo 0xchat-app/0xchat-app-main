@@ -52,6 +52,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   IMint? mint;
   bool _isDefaultEcashWallet = false;
   bool _isDefaultThirdPartyWallet = false;
+  bool _isDefaultNWCWallet = false;
   String _defaultWalletName = '';
 
   @override
@@ -70,6 +71,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
       _isDefaultEcashWallet = isDefaultEcashWallet;
       _isDefaultThirdPartyWallet = defaultWalletInfo['isDefaultThirdPartyWallet'];
       _defaultWalletName = defaultWalletInfo['defaultWalletName'];
+      _isDefaultNWCWallet = defaultWalletInfo['isDefaultNWCWallet'];
     });
   }
 
@@ -138,7 +140,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
                             children: [_buildMintSelector()],
                           ).setPadding(EdgeInsets.only(top: sectionSpacing)),
 
-                        if (_isDefaultThirdPartyWallet)
+                        if (_isDefaultThirdPartyWallet || _isDefaultNWCWallet)
                           _buildSectionView(
                             title: Localized.text('ox_wallet.wallet_text'),
                             children: [_buildWalletItem()],
@@ -279,11 +281,18 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   }
 
   Widget _buildWalletItem() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(horizontal: 16.px),
-      height: 48.px,
-      child: Text(_defaultWalletName),
+    final hint = _defaultWalletName.isEmpty ? 'No payment wallet was selected' : _defaultWalletName;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsSettingPage', {'onChanged': _onChanged});
+      },
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(horizontal: 16.px),
+        height: 48.px,
+        child: Text(hint),
+      ),
     );
   }
 

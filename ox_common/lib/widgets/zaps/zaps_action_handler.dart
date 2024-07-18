@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
+import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -11,7 +13,6 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/zaps/zaps_assisted_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:cashu_dart/cashu_dart.dart';
-import 'package:ox_module_service/ox_module_service.dart';
 
 class ZapsActionHandler {
   final UserDB userDB;
@@ -25,6 +26,10 @@ class ZapsActionHandler {
   Function(Map<String,dynamic> zapsInfo)? nwcCompleted;
 
   late bool isDefaultEcashWallet;
+
+  late bool isDefaultNWCWallet;
+
+  late String defaultWalletName;
 
   int get defaultZapAmount => OXUserInfoManager.sharedInstance.defaultZapAmount;
 
@@ -67,6 +72,8 @@ class ZapsActionHandler {
   Future<void> initialize() async {
     Map<String, dynamic> defaultWalletInfo = await getDefaultWalletInfo();
     isDefaultEcashWallet = defaultWalletInfo['isDefaultEcashWallet'];
+    isDefaultNWCWallet = defaultWalletInfo['isDefaultNWCWallet'];
+    defaultWalletName = defaultWalletInfo['defaultWalletName'];
   }
 
   Future<Map<String, dynamic>> getDefaultWalletInfo() async {
@@ -76,13 +83,15 @@ class ZapsActionHandler {
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
 
-    final isDefaultEcashWallet = !isShowWalletSelector && defaultWalletName == ecashWalletName;
-    final isDefaultThirdPartyWallet = !isShowWalletSelector && defaultWalletName != ecashWalletName;
+    final isDefaultEcashWallet = defaultWalletName == ecashWalletName;
+    final isDefaultNWCWallet = defaultWalletName == 'NWC';
+    final isDefaultThirdPartyWallet = !isDefaultEcashWallet && !isDefaultNWCWallet;
 
     return {
       'isShowWalletSelector': isShowWalletSelector,
       'defaultWalletName': defaultWalletName,
       'isDefaultEcashWallet': isDefaultEcashWallet,
+      'isDefaultNWCWallet': isDefaultNWCWallet,
       'isDefaultThirdPartyWallet': isDefaultThirdPartyWallet,
       'ecashWalletName': ecashWalletName,
     };
@@ -141,6 +150,7 @@ class ZapsActionHandler {
         ),
       );
     } else {
+      final showLoading = !isDefaultEcashWallet && !isDefaultNWCWallet;
       handleZapChannel(
         context,
         lnurl: lnurl,
@@ -148,7 +158,7 @@ class ZapsActionHandler {
         eventId: eventId,
         description: description,
         privateZap: privateZap,
-        showLoading: false,
+        showLoading: showLoading,
         zapType: zapType,
         receiver: receiver,
         groupId: groupId
@@ -172,7 +182,7 @@ class ZapsActionHandler {
     zapAmount = zapAmount ?? OXUserInfoManager.sharedInstance.defaultZapAmount;
     if (isDefaultEcashWallet) {
       mint = mint ?? OXWalletInterface.getDefaultMint();
-      String errorMsg = preprocessHandleZapWithEcash(context, mint, zapAmount);
+      String errorMsg = preprocessHandleZapWithEcash(mint, zapAmount);
       if(errorMsg.isNotEmpty){
         await CommonToast.instance.show(context,errorMsg);
         return;
@@ -194,6 +204,29 @@ class ZapsActionHandler {
       if(showLoading) OXLoading.dismiss();
       if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
       zapsInfoCallback?.call(zapsInfo);
+    } else if (isDefaultNWCWallet) {
+      String nwcURI = Account.sharedInstance.me?.nwcURI ?? '';
+      if(nwcURI.isEmpty) {
+        await CommonToast.instance.show(context,'nwc not exit');
+        return;
+      }
+      preprocessCallback?.call();
+      if(showLoading) OXLoading.show();
+      Map<String, dynamic> zapsInfo = await getInvoice(
+          sats: zapAmount,
+          recipient: recipient,
+          lnurl: lnurl,
+          eventId: eventId,
+          description: description,
+          privateZap: privateZap ?? false,
+          zapType: zapType,
+          receiver: receiver,
+          groupId: groupId
+      );
+      await handleZapWithNWC(zapsInfo: zapsInfo, context: context);
+      if(showLoading) OXLoading.dismiss();
+      if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
+      zapsInfoCallback?.call(zapsInfo);
     } else {
       if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
@@ -202,10 +235,15 @@ class ZapsActionHandler {
           lnurl: lnurl,
           eventId: eventId,
           description: description,
-          privateZap: privateZap ?? false);
-      preprocessCallback?.call();
+          privateZap: privateZap ?? false,
+          zapType: zapType,
+          receiver: receiver,
+          groupId: groupId
+      );
       if(showLoading) OXLoading.dismiss();
       await handleZapWithThirdPartyWallet(zapsInfo: zapsInfo, context: context);
+      if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
+      zapsInfoCallback?.call(zapsInfo);
     }
   }
 
@@ -224,13 +262,26 @@ class ZapsActionHandler {
     }
   }
 
+  handleZapWithNWC({
+    required Map<String,dynamic> zapsInfo,
+    required BuildContext context,
+  }) async {
+    final invoice = zapsInfo['invoice'];
+    await Zaps.sharedInstance.requestNWC(invoice);
+    nwcCompleted?.call(zapsInfo);
+  }
+
   handleZapWithThirdPartyWallet({
     required Map<String,dynamic> zapsInfo,
     required BuildContext context,
   }) async {
-    final isTapOnWallet = await _jumpToWalletSelectionPage(context,zapsInfo);
-    if (isTapOnWallet) {
-      if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
+    WalletModel walletModel = WalletModel.wallets.firstWhere((element) => element.title == defaultWalletName);
+    final invoice = zapsInfo['invoice'];
+    String url = '${walletModel.scheme}$invoice';
+    if (Platform.isIOS) {
+      await LaunchThirdPartyApp.openWallet(url, walletModel.appStoreUrl ?? '', context: context);
+    } else if (Platform.isAndroid) {
+      await LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl ?? '', context: context);
     }
   }
 
@@ -270,7 +321,6 @@ class ZapsActionHandler {
   }
 
   String preprocessHandleZapWithEcash(
-    BuildContext context,
     IMint? mint,
     int sats,
   ) {
@@ -280,21 +330,5 @@ class ZapsActionHandler {
     if (sats < 1) return Localized.text('ox_discovery.enter_amount_tips');
     if (sats > mint.balance) return Localized.text('ox_discovery.insufficient_balance_tips');
     return '';
-  }
-
-  Future<bool> _jumpToWalletSelectionPage(BuildContext context,Map<String,dynamic> result) async {
-    var isConfirm = false;
-    await OXModuleService.pushPage(context, 'ox_usercenter', 'ZapsInvoiceDialog', {
-      'invoice': result['invoice'] ?? '',
-      'walletOnPress': (WalletModel wallet) async {
-        zapsInfoCallback?.call(result);
-        isConfirm = true;
-        return true;
-      },
-      'nwcCompleted': () {
-        nwcCompleted?.call(result);
-      }
-    });
-    return isConfirm;
   }
 }
