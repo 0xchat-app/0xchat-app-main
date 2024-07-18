@@ -100,7 +100,7 @@ class ChatSessionModel extends DBObject {
     return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind, expiration: $expiration}';
   }
 
-  bool get hasMultipleUsers => {ChatType.chatGroup, ChatType.chatChannel}.contains(chatType);
+  bool get hasMultipleUsers => {ChatType.chatGroup, ChatType.chatChannel, ChatType.chatRelayGroup}.contains(chatType);
 
   static ChatSessionModel getDefaultSession(int type, String receiverPubkey, String sender, {String secretSessionId = ''}) {
     String chatId = '';
@@ -129,6 +129,7 @@ class ChatSessionModel extends DBObject {
       sender: sender,
     );
   }
+
 }
 
 ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
