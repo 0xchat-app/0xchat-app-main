@@ -23,19 +23,22 @@ class SchemeHelper {
 
     if (scheme.isEmpty) return ;
 
+    String action = '';
+    Map<String, String> query = <String, String>{};
 
-    final uri = Uri.parse(scheme);
-    if (uri.scheme != CommonConstant.APP_SCHEME) return ;
+    try {
+      final uri = Uri.parse(scheme);
+      if (uri.scheme != CommonConstant.APP_SCHEME) return ;
 
-    final action = uri.host.toLowerCase();
-    final query = uri.queryParameters;
-
-    final handler = schemeAction[action];
-    if (handler != null) {
-      handler(scheme, action, query);
-      return ;
+      action = uri.host.toLowerCase();
+      query = uri.queryParameters;
+    } catch (_) {
+      final appScheme = '${CommonConstant.APP_SCHEME}://';
+      if (scheme.startsWith(appScheme)) {
+        action = scheme.replaceFirst(appScheme, '');
+        scheme = appScheme;
+      }
     }
-
     defaultHandler?.call(scheme, action, query);
   }
 }
