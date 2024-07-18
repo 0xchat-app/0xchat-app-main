@@ -8,12 +8,19 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         int chatType = ChatType.chatSingle,
         BuildContext? context,
         ChatSessionModel? session,
+        String secretSessionId = '',
       }) async {
-    session ??= _getSessionModel(receiverPubkey, chatType);
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return ;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
     if (session == null) return ;
 
-    final handler = ChatGeneralHandler(session: session);
-    handler.sendTextMessage(context, text);
+    ChatGeneralHandler(session: session).sendTextMessage(context, text);
   }
 
   static void sendTemplateMessage({
@@ -23,24 +30,39 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String icon = '',
     String link = '',
     int chatType = ChatType.chatSingle,
+    String secretSessionId = '',
     ChatSessionModel? session,
   }) {
-    session ??= _getSessionModel(receiverPubkey,chatType);
+    final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    if (sender.isEmpty) return ;
+
+    session ??= _getSessionModel(
+      receiverPubkey,
+      chatType,
+      secretSessionId,
+    );
     if (session == null) return ;
-    ChatGeneralHandler(session: session)._sendTemplateMessage(title: title, content: subTitle, icon: icon, link: link);
+
+    ChatGeneralHandler(session: session)._sendTemplateMessage(
+      title: title,
+      content: subTitle,
+      icon: icon,
+      link: link,
+    );
   }
 
-  static ChatSessionModel? _getSessionModel(String receiverPubkey, int type) {
+  static ChatSessionModel? _getSessionModel(String receiverPubkey, int type, [String secretSessionId = '']) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (sender.isEmpty) return null;
 
     final session = OXChatBinding.sharedInstance.sessionMap[receiverPubkey];
     if (session != null) return session;
 
-    return ChatSessionModel(
-      receiver: receiverPubkey,
-      chatType: type,
-      sender: sender,
+    return ChatSessionModel.getDefaultSession(
+      type,
+      receiverPubkey,
+      sender,
+      secretSessionId: secretSessionId,
     );
   }
 
