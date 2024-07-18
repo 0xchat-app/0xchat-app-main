@@ -385,7 +385,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
         groupName = relayGroupDB.name;
         String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
         _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);
-        _groupQrCodeUrl = shareAppLinkDomain + (_groupNevent ?? '');
+        _groupQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + (_groupNevent ?? '');
         setState(() {});
       }
     }
@@ -398,7 +398,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
     String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
     _groupNevent = Groups.encodeGroup(groupId,[relay],groupOwner);
-    _groupQrCodeUrl = shareAppLinkDomain + (_groupNevent ?? '');
+    _groupQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + (_groupNevent ?? '');
   }
 
 

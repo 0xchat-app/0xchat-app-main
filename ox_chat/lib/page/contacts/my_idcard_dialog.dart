@@ -64,7 +64,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
       _showName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
       _imgUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
       _showScanHint = 'str_scan_user_qrcode_hint'.localized();
-      _userQrCodeUrl = shareAppLinkDomain + Account.encodeProfile(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '', relayList);
+      _userQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + Account.encodeProfile(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '', relayList);
       setState(() {});
     } else if (widget.type == CommonConstant.qrCodeChannel) {
       if (widget.channelDB == null) {
@@ -73,7 +73,7 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
         _showName = widget.channelDB!.name ?? '';
         _imgUrl = widget.channelDB!.picture ?? '';
         _showScanHint = 'str_scan_channel_qrcode_hint'.localized();
-        _userQrCodeUrl = shareAppLinkDomain + Channels.encodeChannel(widget.channelDB!.channelId ?? '', relayList, widget.channelDB!.creator);
+        _userQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + Channels.encodeChannel(widget.channelDB!.channelId ?? '', relayList, widget.channelDB!.creator);
         setState(() {});
       }
     }
