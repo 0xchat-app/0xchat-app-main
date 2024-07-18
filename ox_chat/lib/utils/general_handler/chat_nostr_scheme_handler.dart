@@ -123,12 +123,11 @@ class ChatNostrSchemeHandle {
           RelayGroupDB? relayGroupDB =
               RelayGroup.sharedInstance.groups[eventId];
           return relayGroupDBToMessageContent(relayGroupDB);
-        } else if (event != null && relays != null && relays.isNotEmpty) {
-          await RelayGroup.sharedInstance
-              .handleGroupMetadata(event, relays.first);
-          RelayGroupDB? relayGroupDB =
-              RelayGroup.sharedInstance.groups[eventId];
-          return relayGroupDBToMessageContent(relayGroupDB);
+        } else if (relays != null && relays.isNotEmpty) {
+          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance
+              .getGroupMetadataFromRelay(eventId, relay: relays.first);
+          if (relayGroupDB != null)
+            return relayGroupDBToMessageContent(relayGroupDB);
         }
         break;
     }
@@ -205,7 +204,9 @@ class ChatNostrSchemeHandle {
         'groupName': groupDB?.name ?? '',
         'groupPic': groupDB?.picture ?? '',
         'groupOwner': groupDB?.author ?? '',
-        'groupTypeIndex': groupDB == null || !groupDB.closed ? GroupType.openGroup.index : GroupType.closeGroup.index,
+        'groupTypeIndex': groupDB == null || !groupDB.closed
+            ? GroupType.openGroup.index
+            : GroupType.closeGroup.index,
       },
     );
 
