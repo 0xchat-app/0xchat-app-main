@@ -16,5 +16,7 @@
   "giphy_collect": "Zbierać",
   "giphy_search": "Szukaj",
   "giphy_tips": "Zasilane przez GIPHY",
-  "chat_input_hint_text": "Napisz wiadomość"
+  "chat_input_hint_text": "Napisz wiadomość",
+  "giphy_use_hint": "Włącz funkcję Giphy, aby obsługiwać wysyłanie obrazów GIF i cieszyć się większą zabawą podczas czatowania. Jednakże, ponieważ używamy interfejsu API Giphy, żądanie API Giphy ujawni Twój adres IP usługom Giphy. Czy zgadzasz się to włączyć?",
+  "giphy_continue": "Kontynuuj"
 }

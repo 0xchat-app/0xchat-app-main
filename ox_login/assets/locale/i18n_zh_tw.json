@@ -1,6 +1,8 @@
 {
   "login_title": "登入",
   "login_button": "登入",
+  "login_with_amber": "使用 Amber 登入",
+  "sign_request_rejected": "簽名請求被拒絕",
   "login_tips": "使用私鑰登入或創建新的私鑰",
   "or": "或",
   "terms_of_service_privacy_policy": "連接帳戶即表示您同意使用條款和隱私政策",
@@ -24,5 +26,8 @@
   "public_key": "公開帳戶ID",
   "private_key": "帳戶私鑰",
   "lets_go": "讓我們出發吧！",
-  "enter_account_key_login_hint": "輸入您的私鑰登入："
+  "enter_account_key_login_hint": "輸入您的私鑰登入：",
+  "private_key_regular_failed": "私鑰常規失敗",
+  "pub_key_regular_failed": "公鑰常規失敗",
+  "str_not_installed_amber": "你尚未安裝 Amber"
 }

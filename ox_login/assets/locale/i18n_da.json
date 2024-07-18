@@ -1,6 +1,8 @@
 {
   "login_title": "Log ind",
   "login_button" : "LOG IND",
+  "login_with_amber": "Log ind med Amber",
+  "sign_request_rejected": "Signaturanmodning afvist",
   "login_tips": "Log ind med din private nøgle eller opret en ny.",
   "or" : "ELLER",
   "terms_of_service_privacy_policy": "Ved at tilslutte din konto accepterer du Brugsbetingelserne og Fortrolighedspolitikken.",
@@ -24,5 +26,8 @@
   "public_key": "Offentlig nøgle",
   "private_key": "Privat nøgle",
   "lets_go": "Lad os komme i gang!",
-  "enter_account_key_login_hint": "Indtast din private nøgle for at logge ind:"
+  "enter_account_key_login_hint": "Indtast din private nøgle for at logge ind:",
+  "private_key_regular_failed": "Privat nøgle regelmæssig mislykkedes",
+  "pub_key_regular_failed": "Offentlig nøgle regelmæssig mislykkedes",
+  "str_not_installed_amber": "Du har ikke installeret Amber"
 }

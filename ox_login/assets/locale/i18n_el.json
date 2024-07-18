@@ -1,6 +1,8 @@
 {
   "login_title": "Σύνδεση",
   "login_button" : "ΣΥΝΔΕΣΗ",
+  "login_with_amber": "Σύνδεση με Amber",
+  "sign_request_rejected": "Η αίτηση υπογραφής απορρίφθηκε",
   "login_tips": "Συνδεθείτε με τον ιδιωτικό κλειδί σας ή δημιουργήστε ένα νέο.",
   "or" : "Ή",
   "terms_of_service_privacy_policy": "Συνδέοντας τον λογαριασμό σας, αποδέχεστε τους Όρους Χρήσης και την Πολιτική Απορρήτου.",
@@ -24,5 +26,8 @@
   "public_key": "Δημόσιο Κλειδί",
   "private_key": "Ιδιωτικό Κλειδί",
   "lets_go": "Ας πάμε!",
-  "enter_account_key_login_hint": "Εισαγάγετε το ιδιωτικό σας κλειδί για να συνδεθείτε:"
+  "enter_account_key_login_hint": "Εισαγάγετε το ιδιωτικό σας κλειδί για να συνδεθείτε:",
+  "private_key_regular_failed": "Η κανονική ιδιωτική κλείδα απέτυχε",
+  "pub_key_regular_failed": "Η κανονική δημόσια κλείδα απέτυχε",
+  "str_not_installed_amber": "Δεν έχετε εγκαταστήσει το Amber"
 }

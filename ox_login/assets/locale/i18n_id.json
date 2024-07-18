@@ -1,6 +1,8 @@
 {
   "login_title": "Masuk",
   "login_button" : "MASUK",
+  "login_with_amber": "Masuk dengan Amber",
+  "sign_request_rejected": "Permintaan tanda tangan ditolak",
   "login_tips": "Masuk dengan kunci pribadi atau buat yang baru.",
   "or" : "ATAU",
   "terms_of_service_privacy_policy": "Dengan menghubungkan akun Anda, Anda menerima Syarat Penggunaan dan Kebijakan Privasi.",
@@ -24,5 +26,8 @@
   "public_key": "Kunci Publik",
   "private_key": "Kunci Pribadi",
   "lets_go": "Ayo mulai!",
-  "enter_account_key_login_hint": "Masukkan kunci pribadi Anda untuk masuk:"
+  "enter_account_key_login_hint": "Masukkan kunci pribadi Anda untuk masuk:",
+  "private_key_regular_failed": "Kunci pribadi gagal reguler",
+  "pub_key_regular_failed": "Kunci publik gagal reguler",
+  "str_not_installed_amber": "Anda belum menginstal Amber"
 }

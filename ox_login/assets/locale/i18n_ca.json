@@ -1,6 +1,8 @@
 {
   "login_title": "Inicia la sessió",
   "login_button" : "INICIA LA SESSIÓ",
+  "login_with_amber": "Inicia sessió amb Amber",
+  "sign_request_rejected": "Sol·licitud de signatura rebutjada",
   "login_tips": "Inicia la sessió amb la clau privada o crea'n una de nova.",
   "or" : "O",
   "terms_of_service_privacy_policy": "En connectar el teu compte, acceptes les Condicions d'ús i la Política de privadesa.",
@@ -24,5 +26,8 @@
   "public_key": "Clau pública",
   "private_key": "Clau privada",
   "lets_go": "Anem-hi!",
-  "enter_account_key_login_hint": "Introdueix la teva clau privada per iniciar la sessió:"
+  "enter_account_key_login_hint": "Introdueix la teva clau privada per iniciar la sessió:",
+  "private_key_regular_failed": "Error en la clau privada regular",
+  "pub_key_regular_failed": "Error en la clau pública regular",
+  "str_not_installed_amber": "No has instal·lat Amber"
 }

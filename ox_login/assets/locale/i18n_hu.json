@@ -1,6 +1,8 @@
 {
   "login_title": "Bejelentkezés",
   "login_button" : "BEJELENTKEZÉS",
+  "login_with_amber": "Bejelentkezés Amber-rel",
+  "sign_request_rejected": "Aláírási kérelem elutasítva",
   "login_tips": "Jelentkezzen be a privát kulcs használatával vagy hozzon létre egy újat.",
   "or" : "VAGY",
   "terms_of_service_privacy_policy": "Az ön fiókjának csatlakoztatásával elfogadja a Felhasználási feltételeket és az Adatvédelmi irányelveket.",
@@ -24,5 +26,8 @@
   "public_key": "Nyilvános kulcs",
   "private_key": "Privát kulcs",
   "lets_go": "Gyertek!",
-  "enter_account_key_login_hint": "Adja meg a privát kulcsát a bejelentkezéshez:"
+  "enter_account_key_login_hint": "Adja meg a privát kulcsát a bejelentkezéshez:",
+  "private_key_regular_failed": "A magánkulcs rendszeres hibája",
+  "pub_key_regular_failed": "A nyilvános kulcs rendszeres hibája",
+  "str_not_installed_amber": "Nem telepítetted az Amber-t",
 }

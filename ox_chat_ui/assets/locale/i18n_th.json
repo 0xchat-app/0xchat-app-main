@@ -16,5 +16,7 @@
   "giphy_collect": "เก็บ",
   "giphy_search": "ค้นหา",
   "giphy_tips": "สนับสนุนโดย GIPHY",
-  "chat_input_hint_text": "ข้อความ"
+  "chat_input_hint_text": "ข้อความ",
+  "giphy_use_hint": "เปิดใช้งานฟีเจอร์ Giphy เพื่อรองรับการส่งภาพ GIF และสนุกกับการแชทมากขึ้น อย่างไรก็ตาม เนื่องจากเราใช้ส่วนต่อประสาน API ของ Giphy การร้องขอ API ของ Giphy จะแสดงที่อยู่ IP ของคุณไปยังบริการ Giphy คุณตกลงที่จะเปิดใช้งานหรือไม่?",
+  "giphy_continue": "ดำเนินการต่อ"
 }

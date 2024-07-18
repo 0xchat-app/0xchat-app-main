@@ -1,6 +1,8 @@
 {
   "login_title": "تسجيل الدخول",
   "login_button": "دخول",
+  "login_with_amber": "تسجيل الدخول باستخدام Amber",
+  "sign_request_rejected": "تم رفض طلب التوقيع",
   "login_tips": "سجل دخولك باستخدام المفتاح الخاص أو قم بإنشاء واحد جديد.",
   "or": "أو",
   "terms_of_service_privacy_policy": "بتوصيل حسابك، توافق على شروط الاستخدام وسياسة الخصوصية.",
@@ -24,5 +26,8 @@
   "public_key": "المفتاح العام",
   "private_key": "المفتاح الخاص",
   "lets_go": "هيا بنا!",
-  "enter_account_key_login_hint": "أدخل المفتاح الخاص للدخول:"
+  "enter_account_key_login_hint": "أدخل المفتاح الخاص للدخول:",
+  "private_key_regular_failed": "فشل المفتاح الخاص العادي",
+  "pub_key_regular_failed": "فشل المفتاح العام العادي",
+  "str_not_installed_amber": "لم تقم بتثبيت Amber"
 }

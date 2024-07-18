@@ -178,9 +178,9 @@
   "str_create_passcode": "Create your Passcode",
   "str_confirm_passcode": "Confirm your Passcode",
   "str_enter_passcode": "Enter your Passcode",
+  "str_data_revovery": "Data Recovery",
   "str_tor_orbot_setup": "Tor/Orbot setup",
   "str_settings": "Settings",
-  "str_data_revovery": "Data Recovery",
   "str_dev_log": "Developer",
   "str_push_app": "Push Application",
   "str_send_dev_log_detail": "Log Detail",
@@ -195,5 +195,16 @@
   "str_claim_ecash_fail": "Claim Fail",
   "str_file_server_title": "File Storage Server",
   "str_npub_address_tips": "Set a default npub.cash address as your Lightning address ",
-  "str_set_npub_address_tips": "Set Now"
+  "str_set_npub_address_tips": "Set Now",
+  "str_file_server": "Files Server",
+  "str_add_server": "Add Server",
+  "str_custom_name": "Custom Server Name",
+  "str_add": "Add",
+  "str_edit": "Edit",
+  "str_url_hint_text": "Enter URL(http or https)",
+  "str_name_hint_text": "Custom Server Name(Optional)",
+  "str_enter": "Enter",
+  "str_url_tips_text": "Please enter a valid URL",
+  "str_bucket__name_tips_text": "Bucket Name is not exist!",
+  "str_nip96_tips_text": "The file server does not support NIP-96"
 }

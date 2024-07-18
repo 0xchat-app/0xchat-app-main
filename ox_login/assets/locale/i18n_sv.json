@@ -1,6 +1,8 @@
 {
   "login_title": "Logga in",
   "login_button" : "LOGGA IN",
+  "login_with_amber": "Logga in med Amber",
+  "sign_request_rejected": "Signaturförfrågan avvisad",
   "login_tips": "Logga in med privat nyckel eller skapa en ny.",
   "or" : "ELLER",
   "terms_of_service_privacy_policy": "Genom att ansluta ditt konto godkänner du Användarvillkoren och Sekretesspolicyn.",
@@ -24,5 +26,8 @@
   "public_key": "Offentlig nyckel",
   "private_key": "Privat nyckel",
   "lets_go": "Låt oss gå!",
-  "enter_account_key_login_hint": "Ange din privata nyckel för att logga in:"
+  "enter_account_key_login_hint": "Ange din privata nyckel för att logga in:",
+  "private_key_regular_failed": "Privat nyckel regelbundet misslyckad",
+  "pub_key_regular_failed": "Offentlig nyckel regelbundet misslyckad",
+  "str_not_installed_amber": "Du har inte installerat Amber"
 }

@@ -1,6 +1,8 @@
 {
   "login_title": "Вход",
   "login_button": "ВОЙТИ",
+  "login_with_amber": "Войти с Amber",
+  "sign_request_rejected": "Запрос на подпись отклонен",
   "login_tips": "Войдите с помощью приватного ключа или создайте новый.",
   "or": "ИЛИ",
   "terms_of_service_privacy_policy": "Подключая аккаунт, вы соглашаетесь с Условиями использования и Политикой конфиденциальности.",
@@ -24,5 +26,8 @@
   "public_key": "Публичный ключ",
   "private_key": "Приватный ключ",
   "lets_go": "Поехали!",
-  "enter_account_key_login_hint": "Введите ваш приватный ключ для входа:"
+  "enter_account_key_login_hint": "Введите ваш приватный ключ для входа:",
+  "private_key_regular_failed": "Регулярный сбой закрытого ключа",
+  "pub_key_regular_failed": "Регулярный сбой открытого ключа",
+  "str_not_installed_amber": "Вы не установили Amber"
 }

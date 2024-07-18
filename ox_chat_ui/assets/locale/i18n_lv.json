@@ -16,5 +16,7 @@
   "giphy_collect": "Savākt",
   "giphy_search": "Meklēt",
   "giphy_tips": "Powered by GIPHY",
-  "chat_input_hint_text": "Ziņa"
+  "chat_input_hint_text": "Ziņa",
+  "giphy_use_hint": "Iespējojiet Giphy funkciju, lai atbalstītu GIF attēlu sūtīšanu un baudītu vairāk jautrības čatošanā. Tomēr, tā kā mēs izmantojam Giphy API saskarni, pieprasot Giphy API, jūsu IP adrese tiks pakļauta Giphy pakalpojumam. Vai piekrītat to iespējot?",
+  "giphy_continue": "Turpināt"
 }

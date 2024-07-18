@@ -1,6 +1,8 @@
 {
   "login_title": "Giriş",
   "login_button" : "GİRİŞ",
+  "login_with_amber": "Amber ile giriş yap",
+  "sign_request_rejected": "İmza talebi reddedildi",
   "login_tips": "Özel anahtarla giriş yapın veya yeni bir tane oluşturun.",
   "or" : "VEYA",
   "terms_of_service_privacy_policy": "Hesabınızı bağlayarak Kullanım Koşullarını ve Gizlilik Politikasını kabul edersiniz.",
@@ -24,5 +26,8 @@
   "public_key": "Halka Açık Anahtar",
   "private_key": "Özel Anahtar",
   "lets_go": "Haydi gidelim!",
-  "enter_account_key_login_hint": "Giriş yapmak için özel anahtarınızı girin:"
+  "enter_account_key_login_hint": "Giriş yapmak için özel anahtarınızı girin:",
+  "private_key_regular_failed": "Özel Anahtar düzenli başarısız oldu",
+  "pub_key_regular_failed": "Genel Anahtar düzenli başarısız oldu",
+  "str_not_installed_amber": "Amber'i yüklemediniz"
 }

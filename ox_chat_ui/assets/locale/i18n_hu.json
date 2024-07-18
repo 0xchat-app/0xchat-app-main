@@ -16,5 +16,7 @@
   "giphy_collect": "Gyűjt",
   "giphy_search": "Keresés",
   "giphy_tips": "Powered by GIPHY",
-  "chat_input_hint_text": "Üzenet"
+  "chat_input_hint_text": "Üzenet",
+  "giphy_use_hint": "Engedélyezze a Giphy funkciót GIF képek küldésének támogatásához és több szórakozáshoz a csevegésben. Azonban, mivel a Giphy API interfészt használjuk, a Giphy API kérése kiteszi az IP címét a Giphy szolgáltatásnak. Egyetért az engedélyezéssel?",
+  "giphy_continue": "Folytatás"
 }

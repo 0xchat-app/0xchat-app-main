@@ -1,6 +1,8 @@
 {
   "login_title": "Logowanie",
   "login_button" : "ZALOGUJ SIĘ",
+  "login_with_amber": "Zaloguj się za pomocą Amber",
+  "sign_request_rejected": "Żądanie podpisu odrzucone",
   "login_tips": "Zaloguj się za pomocą klucza prywatnego lub utwórz nowy.",
   "or" : "LUB",
   "terms_of_service_privacy_policy": "Podłączając swoje konto, akceptujesz Regulamin i Politykę prywatności.",
@@ -24,5 +26,8 @@
   "public_key": "Klucz publiczny",
   "private_key": "Klucz prywatny",
   "lets_go": "Zaczynamy!",
-  "enter_account_key_login_hint": "Wprowadź swój klucz prywatny, aby się zalogować:"
+  "enter_account_key_login_hint": "Wprowadź swój klucz prywatny, aby się zalogować:",
+  "private_key_regular_failed": "Regularny klucz prywatny nie powiódł się",
+  "pub_key_regular_failed": "Regularny klucz publiczny nie powiódł się",
+  "str_not_installed_amber": "Nie zainstalowałeś Amber"
 }

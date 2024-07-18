@@ -16,5 +16,7 @@
   "giphy_collect": "Samla",
   "giphy_search": "Sök",
   "giphy_tips": "Drivs av GIPHY",
-  "chat_input_hint_text": "Meddelande"
+  "chat_input_hint_text": "Meddelande",
+  "giphy_use_hint": "Aktivera Giphy-funktionen för att stödja sändning av GIF-bilder och ha roligare i chatten. Eftersom vi använder Giphys API-gränssnitt kommer en förfrågan till Giphy API att avslöja din IP-adress för Giphys tjänst. Godkänner du att aktivera det?",
+  "giphy_continue": "Fortsätt"
 }

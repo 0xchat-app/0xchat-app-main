@@ -16,5 +16,7 @@
   "giphy_collect": "Sbírat",
   "giphy_search": "Hledat",
   "giphy_tips": "Powered by GIPHY",
-  "chat_input_hint_text": "Zpráva"
+  "chat_input_hint_text": "Zpráva",
+  "giphy_use_hint": "Povolte funkci Giphy, aby podporovala odesílání GIF obrázků a užívejte si více zábavy v chatu. Nicméně, protože používáme rozhraní API Giphy, požádáním o API Giphy bude vaše IP adresa vystavena službě Giphy. Souhlasíte s jejím povolením?",
+  "giphy_continue": "Pokračovat"
 }

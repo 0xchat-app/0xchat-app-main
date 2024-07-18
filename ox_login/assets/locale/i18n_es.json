@@ -1,6 +1,8 @@
 {
   "login_title": "Iniciar sesión",
   "login_button": "ENTRAR",
+  "login_with_amber": "Iniciar sesión con Amber",
+  "sign_request_rejected": "Solicitud de firma rechazada",
   "login_tips": "Inicia sesión con la clave privada o crea una nueva.",
   "or": "O",
   "terms_of_service_privacy_policy": "Al conectar tu cuenta, aceptas los Términos de Uso y la Política de Privacidad.",
@@ -24,5 +26,8 @@
   "public_key": "Clave pública",
   "private_key": "Clave privada",
   "lets_go": "¡Vamos!",
-  "enter_account_key_login_hint": "Introduce tu clave privada para iniciar sesión:"
+  "enter_account_key_login_hint": "Introduce tu clave privada para iniciar sesión:",
+  "private_key_regular_failed": "Clave privada regular fallida",
+  "pub_key_regular_failed": "Clave pública regular fallida",
+  "str_not_installed_amber": "No has instalado Amber"
 }
