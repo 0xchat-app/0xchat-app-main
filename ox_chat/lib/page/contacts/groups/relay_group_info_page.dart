@@ -743,6 +743,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[groupId];
     if (groupDB != null) {
       groupDBInfo = groupDB;
+      _isMute = groupDB.mute;
       _getPermissionValue();
       setState(() {});
       _loadMembers(groupDB);
@@ -775,6 +776,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
         LogUtil.e('Michael: ----_loadDataFromRelay---admins.length =${relayGroupDB.admins?.length ?? 'admins null'}');
         setState(() {
           groupDBInfo = relayGroupDB;
+          _isMute = relayGroupDB.mute;
           _getPermissionValue();
         });
       }
