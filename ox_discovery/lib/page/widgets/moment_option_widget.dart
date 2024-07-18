@@ -2,7 +2,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/mixin/common_navigator_observer_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/stopwatch.dart';
@@ -34,12 +33,12 @@ class MomentOptionWidget extends StatefulWidget {
 }
 
 class _MomentOptionWidgetState extends State<MomentOptionWidget>
-    with SingleTickerProviderStateMixin, NavigatorObserverMixin {
+    with SingleTickerProviderStateMixin {
 
   late ValueNotifier<NotedUIModel> notedUIModel;
   late final AnimationController _shakeController;
-  bool _isShowAnimation = false;
   bool _isDefaultEcashWallet = false;
+  bool _isDefaultNWCWallet = false;
   int _defaultZapAmount = 0;
   bool _isZapProcessing = false;
 
@@ -68,16 +67,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       _init();
     }
   }
-
-  @override
-  Future<void> didPopNext() async {
-    if (_isShowAnimation) {
-      await _shakeController.forward();
-      _updateZapsUIWithUnreal();
-      _isShowAnimation = false;
-    }
-  }
-
 
   @override
   void dispose() {
@@ -386,6 +375,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _handleZap() async {
     UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     String? pubkey = Account.sharedInstance.me?.pubKey;
+    //Special product requirement
     final isAssistedProcess = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     if(user == null) return;
     if(_isZapProcessing) return;
@@ -394,24 +384,29 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       userDB: user,
       isAssistedProcess: isAssistedProcess,
       preprocessCallback: () async {
-        _isZapProcessing = false;
-        await _shakeController.forward();
-        _updateZapsUIWithUnreal();
-      },
-      zapsInfoCallback: (zapsInfo) {
-        if (!_isDefaultEcashWallet) {
-          _isShowAnimation = true;
+        if(_isDefaultEcashWallet || _isDefaultNWCWallet) {
+          await _shakeController.forward();
+          _updateZapsUIWithUnreal(_defaultZapAmount);
         }
+      },
+      zapsInfoCallback: (zapsInfo) async {
+        if(isAssistedProcess && (_isDefaultEcashWallet || _isDefaultNWCWallet)) {
+          final amount = int.parse(zapsInfo['amount']);
+          await _shakeController.forward();
+          _updateZapsUIWithUnreal(amount);
+        }
+        _isZapProcessing = false;
       });
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
+    _isDefaultNWCWallet = handler.isDefaultNWCWallet;
     _defaultZapAmount = handler.defaultZapAmount;
     await handler.handleZap(context: context,);
     _isZapProcessing = false;
   }
 
-  _updateZapsUIWithUnreal() {
+  _updateZapsUIWithUnreal(int amount) {
     NoteDB newNote = widget.notedUIModel.value.noteDB;
-    newNote.zapAmount = newNote.zapAmount + _defaultZapAmount;
+    newNote.zapAmount = newNote.zapAmount + amount;
     newNote.zapAmountByMe = _defaultZapAmount;
 
     if (mounted) {
