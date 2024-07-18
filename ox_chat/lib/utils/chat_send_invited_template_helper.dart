@@ -45,7 +45,7 @@ class ChatSendInvitedTemplateHelper {
         ChatMessageSendEx.sendTextMessageHandler(
           element.pubKey,
           shareContent,
-          chatType: ChatType.chatRelayGroup,
+          chatType: ChatType.chatSingle,
         );
       });
     }

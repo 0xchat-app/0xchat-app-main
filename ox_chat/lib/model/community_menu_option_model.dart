@@ -114,7 +114,7 @@ class CommunityMenuOptionModel {
                 child: ContactGroupChatChoosePage(
                   groupType: groupType,
                   userList: userList,
-                  groupListAction: GroupListAction.add,
+                  groupListAction: GroupListAction.create,
                   searchBarHintText: Localized.text('ox_chat.create_group_search_hint_text'),
                 ),
               ),

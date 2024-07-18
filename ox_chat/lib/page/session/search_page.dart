@@ -907,7 +907,7 @@ class SearchPageState extends State<SearchPage> {
                 communityItem: ChatSessionModel(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
-                  chatType: ChatType.chatGroup,
+                  chatType: groupUIModel.chatType,
                   avatar: groupUIModel.picture,
                   groupId: groupUIModel.groupId,
                 ),
@@ -919,7 +919,7 @@ class SearchPageState extends State<SearchPage> {
                 communityItem: ChatSessionModel(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
-                  chatType: ChatType.chatGroup,
+                  chatType: groupUIModel.chatType,
                   avatar: groupUIModel.picture,
                   groupId: groupUIModel.groupId,
                 ),

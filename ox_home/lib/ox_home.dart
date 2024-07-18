@@ -12,10 +12,13 @@ class OxChatHome extends OXFlutterModule {
   @override
   String get moduleName => 'ox_home';
 
+  final nostrActionKey = 'nostr';
+
   @override
   Future<void> setup() async {
     await super.setup();
     SchemeHelper.defaultHandler = nostrHandler;
+    SchemeHelper.register(nostrActionKey, nostrHandler);
   }
 
   @override
@@ -31,6 +34,14 @@ class OxChatHome extends OXFlutterModule {
     BuildContext? context = OXNavigator.navigatorKey.currentContext;
     if(context == null) return;
 
-    ScanUtils.analysis(context, action);
+    String nostrString = '';
+    if (action == nostrActionKey) {
+      nostrString = queryParameters['value'] ?? '';
+    } else {
+      nostrString = action;
+    }
+    if (nostrString.isEmpty) return ;
+
+    ScanUtils.analysis(context, nostrString);
   }
 }

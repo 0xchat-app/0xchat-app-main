@@ -1,7 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_wallet/services/ecash_manager.dart';
 import 'package:ox_wallet/widget/common_card.dart';
@@ -53,17 +53,23 @@ class _WalletSendEcashPageState extends State<WalletSendEcashPage> {
           centerTitle: true,
           useLargeTitle: false,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            MintIndicatorItem(mint: _mint,onChanged: _onChanged),
-            SatsAmountCard(controller: _amountController,).setPaddingOnly(top: 12.px),
-            _buildDescription(),
-            SendP2PKOptionWidget(option: p2pkOption,).setPaddingOnly(top: 24.px),
-            _buildContinueButton(),
-          ],
-        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+        body: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              MintIndicatorItem(mint: _mint,onChanged: _onChanged),
+              SatsAmountCard(controller: _amountController,).setPaddingOnly(top: 12.px),
+              _buildDescription(),
+              SendP2PKOptionWidget(option: p2pkOption,).setPaddingOnly(top: 24.px),
+              SafeArea(
+                top: false,
+                child: _buildContinueButton().setPaddingOnly(bottom: 12.px),
+              ),
+            ],
+          ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
+        ),
       ),
     );
   }

@@ -180,6 +180,7 @@ extension MessageDBToUIEx on MessageDB {
     MessageFactory messageFactory = await getMessageFactory(
       contentModel,
       isMentionMessageCallback,
+      logger,
     );
 
     logger?.print('step5 - messageFactory: $messageFactory');
@@ -371,7 +372,10 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<MessageFactory> getMessageFactory(
     MessageContentModel contentModel,
-    [VoidCallback? isMentionMessageCallback = null]
+    [
+      VoidCallback? isMentionMessageCallback = null,
+      MessageCheckLogger? logger,
+    ]
   ) async {
     final messageType = contentModel.contentType;
     switch (messageType) {
@@ -392,6 +396,7 @@ extension MessageDBToUIEx on MessageDB {
         } else if (ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
           // Template Msg
           ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
+            logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
             if(nostrSchemeContent != null) {
               parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
               await DB.sharedInstance.update(this);
@@ -415,6 +420,7 @@ extension MessageDBToUIEx on MessageDB {
             );
             parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
             contentModel.content = this.decryptContent;
+            logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
             await DB.sharedInstance.update(this);
             return CustomMessageFactory();
           }
@@ -422,6 +428,7 @@ extension MessageDBToUIEx on MessageDB {
           // Ecash Msg
           parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
           contentModel.content = this.decryptContent;
+          logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
           await DB.sharedInstance.update(this);
           return CustomMessageFactory();
         }

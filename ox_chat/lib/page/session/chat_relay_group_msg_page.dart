@@ -191,19 +191,8 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
         onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
         onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
         onAttachmentPressed: () {},
-        onJoinChannelTap: () async {
-          await OXLoading.show();
-          final OKEvent okEvent = await RelayGroup.sharedInstance.sendJoinRequest(groupId, '${_user.firstName} join the group');
-          await OXLoading.dismiss();
-          if (okEvent.status) {
-            OXChatBinding.sharedInstance.channelsUpdatedCallBack();
-            setState(() {
-              _updateChatStatus();
-            });
-          } else {
-            CommonToast.instance.show(context, okEvent.message);
-          }
-        },
+        onJoinGroupTap: _onJoinGroupTap,
+        onRequestGroupTap: _onRequestGroupTap,
         longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
           context: context,
           message: message,
@@ -265,5 +254,32 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
 
   Future<void> _loadMoreMessages() async {
     await chatGeneralHandler.loadMoreMessage(_messages);
+  }
+
+  void _onJoinGroupTap() async {
+    OXLoading.show();
+    OKEvent event = await RelayGroup.sharedInstance.joinGroup(groupId, '${_user.firstName} join the group');
+    OXLoading.dismiss();
+    if (event.status) {
+      setState(() {
+        _updateChatStatus();
+      });
+    } else {
+      CommonToast.instance.show(context, event.message);
+    }
+  }
+
+  void _onRequestGroupTap() async {
+    await OXLoading.show();
+    final OKEvent okEvent =
+        await RelayGroup.sharedInstance.sendJoinRequest(groupId, '${_user.firstName} join the group');
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      setState(() {
+        _updateChatStatus();
+      });
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
+    }
   }
 }
