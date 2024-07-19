@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0C3F4E902AC41D180059FC01 /* OXPerferencePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */; };
+		0C52EF982BFDF8FB00C2E301 /* OCXCrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C52EF972BFDF8FB00C2E301 /* OCXCrashManager.swift */; };
+		0C52EF9A2BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C52EF992BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift */; };
 		0C829C2E2B8C95F70066C893 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98C7542B8C6D3200950443 /* ShareViewController.swift */; };
 		0C829C302B8DBF1E0066C893 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98C7542B8C6D3200950443 /* ShareViewController.swift */; };
 		0C829C322B8DBF5B0066C893 /* AppGroupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C829C312B8DBF5B0066C893 /* AppGroupHelper.swift */; };
@@ -68,6 +70,8 @@
 		04CC841A88E489CC26B16769 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OXPerferencePlugin.m; sourceTree = "<group>"; };
 		0C3F4E8F2AC41D180059FC01 /* OXPerferencePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OXPerferencePlugin.h; sourceTree = "<group>"; };
+		0C52EF972BFDF8FB00C2E301 /* OCXCrashManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OCXCrashManager.swift; sourceTree = "<group>"; };
+		0C52EF992BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OXCLaunchCoordinator.swift; sourceTree = "<group>"; };
 		0C829C2F2B8C9A360066C893 /* OxChatShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OxChatShareExtension.entitlements; sourceTree = "<group>"; };
 		0C829C312B8DBF5B0066C893 /* AppGroupHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppGroupHelper.swift; path = Runner/Common/AppGroupHelper.swift; sourceTree = SOURCE_ROOT; };
 		0C98C7522B8C6D3200950443 /* OxChatShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OxChatShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -195,6 +199,7 @@
 				CF8DE50E2673384500EF6C1B /* Common */,
 				CF8DD7FD2664D91800EF6C1B /* OXCBaseNavigationController.h */,
 				CF8DD7FC2664D91700EF6C1B /* OXCBaseNavigationController.m */,
+				0C52EF992BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift */,
 				CF7D7861264AC52900F33C52 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				CF8DE80C2678B80500EF6C1B /* Launch Screen.storyboard */,
@@ -213,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				0C829C312B8DBF5B0066C893 /* AppGroupHelper.swift */,
+				0C52EF972BFDF8FB00C2E301 /* OCXCrashManager.swift */,
 				0C3F4E8F2AC41D180059FC01 /* OXPerferencePlugin.h */,
 				0C3F4E8E2AC41D170059FC01 /* OXPerferencePlugin.m */,
 				CF0086EC267CCAD0006C7ED7 /* OXCNavigator.h */,
@@ -276,7 +282,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1510;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					0C98C7512B8C6D3200950443 = {
@@ -420,10 +426,12 @@
 			files = (
 				CF8DE51426733D7300EF6C1B /* OXCFlutterViewController.m in Sources */,
 				0C3F4E902AC41D180059FC01 /* OXPerferencePlugin.m in Sources */,
+				0C52EF9A2BFDFC0B00C2E301 /* OXCLaunchCoordinator.swift in Sources */,
 				CF0086EE267CCAD1006C7ED7 /* OXCNavigator.m in Sources */,
 				CF8DE5112673386100EF6C1B /* OXCFlutterEngineManager.m in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				0C52EF982BFDF8FB00C2E301 /* OCXCrashManager.swift in Sources */,
 				0C829C322B8DBF5B0066C893 /* AppGroupHelper.swift in Sources */,
 				0C829C302B8DBF1E0066C893 /* ShareViewController.swift in Sources */,
 				CF8DD7FE2664D91800EF6C1B /* OXCBaseNavigationController.m in Sources */,
