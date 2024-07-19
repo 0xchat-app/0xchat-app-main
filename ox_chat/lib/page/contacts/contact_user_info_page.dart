@@ -986,8 +986,15 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             if(widget.chatId == null) OXNavigator.pop(context);
             await OXChatBinding.sharedInstance.updateChatSession(widget.chatId!, expiration: time);
             String username = Account.sharedInstance.me?.name ?? '';
-
-            String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
+            String timeStr;
+            if(time >= 24 * 3600){
+              timeStr = (time ~/ (24*3600)).toString() + Localized.text('ox_chat.day');
+            } else if (time >= 3600){
+              timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
+            } else {
+              timeStr = (time ~/ 60).toString() + Localized.text('ox_chat.minutes');
+            }
+            String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', timeStr );
             String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
             String content =  time > 0 ? setMsgContent : disableMsgContent;
 
