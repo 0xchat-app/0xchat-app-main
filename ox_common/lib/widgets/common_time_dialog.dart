@@ -112,7 +112,7 @@ class _CommonTimeDialogState extends State<CommonTimeDialog> {
                           if(EDialogTime.other == time){
                             final time = await showTimePicker(
                               context: context,
-                              initialTime: TimeOfDay.now(),
+                              initialTime: TimeOfDay(hour: 0, minute: 0),
                               initialEntryMode: TimePickerEntryMode.inputOnly,
                               cancelText: 'Cancel',
                               builder: (_, child) {
