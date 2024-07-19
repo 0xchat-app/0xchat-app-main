@@ -148,7 +148,7 @@ class ZapsActionHandler {
         ),
       );
     } else {
-      final showLoading = !isDefaultEcashWallet && !isDefaultNWCWallet;
+      // final showLoading = !isDefaultEcashWallet && !isDefaultNWCWallet;
       handleZapChannel(
         context,
         lnurl: lnurl,
@@ -156,7 +156,7 @@ class ZapsActionHandler {
         eventId: eventId,
         description: description,
         privateZap: privateZap,
-        showLoading: showLoading,
+        showLoading: true,
         zapType: zapType,
         receiver: receiver,
         groupId: groupId
@@ -262,6 +262,7 @@ class ZapsActionHandler {
       await CommonToast.instance.show(context, response.errorMsg);
       return;
     }
+    CommonToast.instance.show(context, 'Zap Successful');
   }
 
   handleZapWithNWC({
@@ -270,6 +271,7 @@ class ZapsActionHandler {
   }) async {
     final invoice = zapsInfo['invoice'];
     await Zaps.sharedInstance.requestNWC(invoice);
+    CommonToast.instance.show(context, 'Zap Successful');
     nwcCompleted?.call(zapsInfo);
   }
 
