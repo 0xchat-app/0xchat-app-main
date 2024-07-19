@@ -8,6 +8,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -31,9 +32,18 @@ class ScanUtils {
       return;
     }
 
-    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
-    if (url.startsWith(shareAppLinkDomain)) {
-      url = url.substring(shareAppLinkDomain.length);
+    try {
+      final uri = Uri.parse(url);
+      if (uri.pathSegments.last == CustomURIHelper.nostrAction) {
+        url = uri.queryParameters['value'] ?? '';
+      } else {
+        url = uri.pathSegments.last;
+      }
+    } catch (_) {
+      String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN + '/';
+      if (url.startsWith(shareAppLinkDomain)) {
+        url = url.substring(shareAppLinkDomain.length);
+      }
     }
 
     final handlers = [
