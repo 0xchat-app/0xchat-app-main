@@ -992,7 +992,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             } else if (time >= 3600){
               timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
             } else {
-              timeStr = (time ~/ 60).toString() + Localized.text('ox_chat.minutes');
+              timeStr = (time ~/ 60).toString() + ' ' + Localized.text('ox_chat.minutes');
             }
             String setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', timeStr );
             String disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
