@@ -407,7 +407,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   _updateZapsUIWithUnreal(int amount) {
     NoteDB newNote = widget.notedUIModel.value.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
-    newNote.zapAmountByMe = _defaultZapAmount;
+    newNote.zapAmountByMe = amount;
 
     if (mounted) {
       setState(() {
