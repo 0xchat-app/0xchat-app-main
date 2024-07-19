@@ -3,8 +3,9 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_theme/ox_theme.dart';
 
-enum EDialogTime { oneDay, twoDays, sevenDays, thirtyDays }
+enum EDialogTime { oneDay, twoDays, sevenDays, thirtyDays, other }
 
 extension ESafeChatTimeToSecond on EDialogTime {
   int days() {
@@ -17,6 +18,8 @@ extension ESafeChatTimeToSecond on EDialogTime {
         return 7;
       case EDialogTime.thirtyDays:
         return 30;
+      case EDialogTime.other:
+        return -1;
     }
   }
 
@@ -30,6 +33,8 @@ extension ESafeChatTimeToSecond on EDialogTime {
         return '7 days';
       case EDialogTime.thirtyDays:
         return '30 days';
+      case EDialogTime.other:
+        return 'Other';
     }
   }
 }
@@ -75,8 +80,6 @@ class _CommonTimeDialogState extends State<CommonTimeDialog> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -105,8 +108,35 @@ class _CommonTimeDialogState extends State<CommonTimeDialog> {
                       EDialogTime time = EDialogTime.values[index];
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        onTap: () {
-                          widget.callback?.call(time.days() * 24 *  3600);
+                        onTap: () async {
+                          if(EDialogTime.other == time){
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                              initialEntryMode: TimePickerEntryMode.inputOnly,
+                              cancelText: 'Cancel',
+                              builder: (_, child) {
+                                return Theme(
+                                  data: ThemeData(
+                                    useMaterial3: true,
+                                    brightness: ThemeManager.brightness(),
+                                  ),
+                                  child: MediaQuery(
+                                    data: MediaQuery.of(context).copyWith(
+                                      alwaysUse24HourFormat: true,
+                                    ),
+                                    child: child!,
+                                  ),
+                                );
+                              },
+                            );
+                            if(time != null){
+                              widget.callback?.call(time.hour * 3600 + time.minute * 60);
+                            }
+                          }else{
+                            widget.callback?.call(time.days() * 24 *  3600);
+                          }
+
                         },
                         child: Column(
                           children: [
