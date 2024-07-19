@@ -256,7 +256,8 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     await chatGeneralHandler.loadMoreMessage(_messages);
   }
 
-  void _handelDMRelay(){
+  Future<void> _handelDMRelay() async {
+    await Account.sharedInstance.reloadProfileFromRelay(otherUser?.pubKey ?? '');
     if(otherUser?.dmRelayList?.isNotEmpty == false){
       chatGeneralHandler.sendSystemMessage(
         context,
