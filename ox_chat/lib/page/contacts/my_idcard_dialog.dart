@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -59,12 +60,15 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
   void _initData() async {
     List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
     List<String> relayList = relayAddressList.take(5).toList();
-    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
     if (widget.type == CommonConstant.qrCodeUser) {
       _showName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? '';
       _imgUrl = OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
       _showScanHint = 'str_scan_user_qrcode_hint'.localized();
-      _userQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + Account.encodeProfile(OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '', relayList);
+      final nostrValue = Account.encodeProfile(
+        OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '',
+        relayList,
+      );
+      _userQrCodeUrl = CustomURIHelper.createNostrURI(nostrValue);
       setState(() {});
     } else if (widget.type == CommonConstant.qrCodeChannel) {
       if (widget.channelDB == null) {
@@ -73,7 +77,12 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
         _showName = widget.channelDB!.name ?? '';
         _imgUrl = widget.channelDB!.picture ?? '';
         _showScanHint = 'str_scan_channel_qrcode_hint'.localized();
-        _userQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + Channels.encodeChannel(widget.channelDB!.channelId ?? '', relayList, widget.channelDB!.creator);
+        final nostrValue = Channels.encodeChannel(
+          widget.channelDB?.channelId ?? '',
+          relayList, widget.channelDB!.creator,
+        );
+        _userQrCodeUrl = CustomURIHelper.createNostrURI(nostrValue);
+
         setState(() {});
       }
     }

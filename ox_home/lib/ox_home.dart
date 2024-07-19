@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_home/page/home_tabbar.dart';
 import 'package:ox_home/page/launch_page_view.dart';
@@ -12,13 +13,11 @@ class OxChatHome extends OXFlutterModule {
   @override
   String get moduleName => 'ox_home';
 
-  final nostrActionKey = 'nostr';
-
   @override
   Future<void> setup() async {
     await super.setup();
     SchemeHelper.defaultHandler = nostrHandler;
-    SchemeHelper.register(nostrActionKey, nostrHandler);
+    SchemeHelper.register(CustomURIHelper.nostrAction, nostrHandler);
   }
 
   @override
@@ -35,7 +34,7 @@ class OxChatHome extends OXFlutterModule {
     if(context == null) return;
 
     String nostrString = '';
-    if (action == nostrActionKey) {
+    if (action == CustomURIHelper.nostrAction) {
       nostrString = queryParameters['value'] ?? '';
     } else {
       nostrString = action;
