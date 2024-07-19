@@ -29,7 +29,7 @@ abstract class ConstantInterface {
   String get NOSTR_SCHEME => 'nostr://';
 
   /// share app link domain
-  String get SHARE_APP_LINK_DOMAIN => 'https://www.0xchat.com/link/';
+  String get SHARE_APP_LINK_DOMAIN => 'https://www.0xchat.com/link';
 
   /// Push Notifications
   int get NOTIFICATION_PUSH_NOTIFICATIONS => 0;

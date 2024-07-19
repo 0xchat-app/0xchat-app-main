@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
@@ -9,6 +10,7 @@ extension CustomURIHelper on String {
 
   static const scheme = 'oxChat';
   static const moduleAction = 'moduleAction';
+  static const nostrAction = 'nostr';
 
   bool get isOXChatURI => Uri.parse(this).scheme == scheme.toLowerCase();
 
@@ -50,6 +52,21 @@ extension CustomURIHelper on String {
       queryParameters['params'] = paramsJsonString;
     }
     return _createURI(host: moduleAction, queryParameters: queryParameters);
+  }
+
+  static String createNostrURI(String content) {
+    final shareURI = Uri.parse(CommonConstant.SHARE_APP_LINK_DOMAIN);
+    return Uri(
+      scheme: shareURI.scheme,
+      host: shareURI.host,
+      pathSegments: [
+        ...shareURI.pathSegments,
+        nostrAction,
+      ],
+      queryParameters: {
+        'value': content,
+      },
+    ).toString();
   }
 
   static String _createURI({required String host, Map<String, String>? queryParameters}) {
