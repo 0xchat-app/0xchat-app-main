@@ -23,7 +23,7 @@ class MintItem extends StatelessWidget {
       onTap: _onChanged,
       behavior: HitTestBehavior.translucent,
       child: Container(
-        height: height ?? 58.px,
+        height: height,
         padding: EdgeInsets.symmetric(vertical: 8.px,horizontal: 16.px),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.px),

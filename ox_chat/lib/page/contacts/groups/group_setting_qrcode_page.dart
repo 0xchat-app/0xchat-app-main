@@ -10,6 +10,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/widget/group_share_menu_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/took_kit.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -383,9 +384,9 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
       RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
       if (relayGroupDB != null) {
         groupName = relayGroupDB.name;
-        String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
         _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);
-        _groupQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + (_groupNevent ?? '');
+        _groupQrCodeUrl = CustomURIHelper.createNostrURI(_groupNevent ?? '');
+
         setState(() {});
       }
     }
@@ -395,10 +396,8 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     String relay = groupDB.relay ?? '';
     String groupOwner = groupDB.owner;
     String groupId = groupDB.groupId;
-
-    String shareAppLinkDomain = CommonConstant.SHARE_APP_LINK_DOMAIN;
     _groupNevent = Groups.encodeGroup(groupId,[relay],groupOwner);
-    _groupQrCodeUrl = shareAppLinkDomain + 'nostr?value=' + (_groupNevent ?? '');
+    _groupQrCodeUrl = CustomURIHelper.createNostrURI(_groupNevent ?? '');
   }
 
 

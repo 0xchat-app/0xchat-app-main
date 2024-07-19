@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   late final AnimationController _shakeController;
   bool _isDefaultEcashWallet = false;
   bool _isDefaultNWCWallet = false;
-  int _defaultZapAmount = 0;
   bool _isZapProcessing = false;
+  final Completer<bool> _completer = Completer();
 
   bool _reactionTag = false;
 
@@ -383,31 +384,32 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: isAssistedProcess,
-      preprocessCallback: () async {
-        if(_isDefaultEcashWallet || _isDefaultNWCWallet) {
-          await _shakeController.forward();
-          _updateZapsUIWithUnreal(_defaultZapAmount);
-        }
-      },
       zapsInfoCallback: (zapsInfo) async {
-        if(isAssistedProcess && (_isDefaultEcashWallet || _isDefaultNWCWallet)) {
+        if(_isDefaultEcashWallet || _isDefaultNWCWallet) {
           final amount = int.parse(zapsInfo['amount']);
           await _shakeController.forward();
           _updateZapsUIWithUnreal(amount);
+          if (!_completer.isCompleted) {
+            _completer.complete(false);
+          }
+        } else {
+          _completer.complete(false);
         }
-        _isZapProcessing = false;
       });
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
     _isDefaultNWCWallet = handler.isDefaultNWCWallet;
-    _defaultZapAmount = handler.defaultZapAmount;
     await handler.handleZap(context: context,);
-    _isZapProcessing = false;
+    if (isAssistedProcess) {
+      _isZapProcessing = false;
+    } else {
+      _isZapProcessing = await _completer.future;
+    }
   }
 
   _updateZapsUIWithUnreal(int amount) {
     NoteDB newNote = widget.notedUIModel.value.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
-    newNote.zapAmountByMe = _defaultZapAmount;
+    newNote.zapAmountByMe = amount;
 
     if (mounted) {
       setState(() {

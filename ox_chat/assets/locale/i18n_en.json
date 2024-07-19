@@ -200,7 +200,7 @@
   "set": "Set",
   "enable": "Enable",
   "disable": "Disable",
-  "set_msg_auto_delete_system": "${username} Set messages to auto-delete after ${time} days",
+  "set_msg_auto_delete_system": "${username} Set messages to auto-delete after ${time} ",
   "disabled_msg_auto_delete_system": "${username} Disabled the auto-delete timer",
   "set_normal_dm_system": "${username} Set the current conversation as normal DM",
   "set_gift_wrapped_dm_system": "${username} Set the current conversation as gift-wrapped DM",
@@ -317,5 +317,9 @@
   "str_chat_history_for_new_members_hidden": "Hidden",
   "str_group_share_menu_title": "Share Group",
   "str_group_share_menu_copy": "Copy GroupID",
-  "str_group_share_menu_send_to_friend": "Share to Contacts"
+  "str_group_share_menu_send_to_friend": "Share to Contacts",
+  "day": "day",
+  "hours": "hours",
+  "minutes": "minutes",
+  "and": "and"
 }

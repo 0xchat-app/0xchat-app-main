@@ -200,7 +200,7 @@
   "set": "设置",
   "enable": "启用",
   "disable": "禁用",
-  "set_msg_auto_delete_system": "${username} 设置消息在 ${time} 天后自动删除",
+  "set_msg_auto_delete_system": "${username} 设置消息在 ${time} 后自动删除",
   "disabled_msg_auto_delete_system": "${username} 禁用了自动删除计时器",
   "set_normal_dm_system": "${username} 将当前对话设置为普通 DM",
   "set_gift_wrapped_dm_system": "${username} 将当前对话设置为礼物包装 DM",
@@ -317,5 +317,9 @@
   "str_chat_history_for_new_members_hidden": "隐藏",
   "str_group_share_menu_title": "分享群聊",
   "str_group_share_menu_copy": "Copy GroupID",
-  "str_group_share_menu_send_to_friend": "Share to Contacts"
+  "str_group_share_menu_send_to_friend": "Share to Contacts",
+  "day": "天",
+  "hour": "小时",
+  "minutes": "分钟",
+  "and": " "
 }
