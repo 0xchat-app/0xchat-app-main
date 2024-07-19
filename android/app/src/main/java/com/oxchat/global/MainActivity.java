@@ -65,13 +65,15 @@ public class MainActivity extends FlutterFragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getOpenData();
+        getOpenData(getIntent());
         handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+        getOpenData(getIntent());
+        handleIntent(getIntent());
     }
 
     @Override
@@ -81,9 +83,9 @@ public class MainActivity extends FlutterFragmentActivity {
 
     }
 
-    private void getOpenData() {
+    private void getOpenData(Intent intent) {
         try {
-            Uri uridata = getIntent().getData();
+            Uri uridata = intent.getData();
             if (uridata == null) {
                 return;
             }

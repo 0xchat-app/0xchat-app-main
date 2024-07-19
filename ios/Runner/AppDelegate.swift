@@ -9,51 +9,26 @@ import ox_push
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        
-        if let navController = self.window.rootViewController as? UINavigationController,
-           let flutterController = navController.viewControllers.first as? FlutterViewController {
-            GeneratedPluginRegistrant.register(with: flutterController)
-            if let plugin = flutterController.registrar(forPlugin: "OXPerference") {
-                OXPerferencePlugin.register(with:plugin)
-            }
-            OXCNavigator.register(with: flutterController.engine)
+        OCXCrashManager.shared.appLaunched()
+        OCXCrashManager.shared.continueCallback = {
+            OXCLaunchCoordinator.shared.start(window: self.window)
+        }
+        if OCXCrashManager.shared.showCrashAlert {
+            
+            self.window?.rootViewController = UIViewController()
+            self.window?.makeKeyAndVisible()
+            
+            OCXCrashManager.shared.showWarningDialog()
+            return false
         }
         
-        registeNotification()
+        OXCLaunchCoordinator.shared.start(window: self.window)
         
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
-    func registeNotification() -> Void {
-        if #available(iOS 10.0, *) {
-            let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.delegate = self
-            notificationCenter.requestAuthorization(options:[.sound, .alert, .badge]) { (granted, error) in
-                if (granted) {
-                    DispatchQueue.main.async {
-                        UIApplication.shared.registerForRemoteNotifications()
-                    }
-                    
-                }
-            }
-        }
-        else {
-            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings.init(types: [.sound, .alert, .badge], categories: nil))
-        }
-    }
-    
-    @available(iOS 10.0, *)
-    override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.sound, .alert, .badge])
-    }
-    
-    @available(iOS 10.0, *)
-    override func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        completionHandler()
-    }
-
-    
     override func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {
+        super.application(application, didRegister: notificationSettings)
         DispatchQueue.main.async {
             UIApplication.shared.registerForRemoteNotifications()
         }
@@ -66,7 +41,7 @@ import ox_push
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let deviceTokenStr = deviceToken.map { String(format: "%02.2hhx", arguments: [$0]) }.joined()
         print(deviceTokenStr)
-        OXPushPlugin.channel()?.invokeMethod("savePushToken", arguments: deviceTokenStr)
+        OXPushPlugin.channel?.invokeMethod("savePushToken", arguments: deviceTokenStr)
     }
     
     override func applicationDidBecomeActive(_ application: UIApplication) {
