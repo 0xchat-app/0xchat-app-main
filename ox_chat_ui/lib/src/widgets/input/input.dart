@@ -434,7 +434,16 @@ class InputState extends State<Input>{
 
           final username = Account.sharedInstance.me?.name ?? '';
 
-          final setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', (time ~/ (24*3600)).toString());
+          String timeStr;
+          if(time >= 24 * 3600){
+            timeStr = (time ~/ (24*3600)).toString() + Localized.text('ox_chat.day');
+          } else if (time >= 3600){
+            timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
+          } else {
+            timeStr = (time ~/ 60).toString() + ' ' + Localized.text('ox_chat.minutes');
+          }
+
+          final setMsgContent = Localized.text('ox_chat.set_msg_auto_delete_system').replaceAll(r'${username}', username).replaceAll(r'${time}', timeStr );
           final disableMsgContent = Localized.text('ox_chat.disabled_msg_auto_delete_system').replaceAll(r'${username}', username);
           final content =  time > 0 ? setMsgContent : disableMsgContent;
 
