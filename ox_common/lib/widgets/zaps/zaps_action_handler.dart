@@ -79,7 +79,6 @@ class ZapsActionHandler {
   Future<Map<String, dynamic>> getDefaultWalletInfo() async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
     if (pubkey == null) return {};
-    bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
 
@@ -88,7 +87,6 @@ class ZapsActionHandler {
     final isDefaultThirdPartyWallet = !isDefaultEcashWallet && !isDefaultNWCWallet;
 
     return {
-      'isShowWalletSelector': isShowWalletSelector,
       'defaultWalletName': defaultWalletName,
       'isDefaultEcashWallet': isDefaultEcashWallet,
       'isDefaultNWCWallet': isDefaultNWCWallet,
@@ -228,6 +226,10 @@ class ZapsActionHandler {
       if(context.widget is ZapsAssistedPage) OXNavigator.pop(context);
       zapsInfoCallback?.call(zapsInfo);
     } else {
+      if (defaultWalletName.isEmpty) {
+        CommonToast.instance.show(context, 'Please select a payment wallet');
+        return;
+      }
       if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
           sats: zapAmount,
@@ -279,9 +281,9 @@ class ZapsActionHandler {
     final invoice = zapsInfo['invoice'];
     String url = '${walletModel.scheme}$invoice';
     if (Platform.isIOS) {
-      await LaunchThirdPartyApp.openWallet(url, walletModel.appStoreUrl ?? '', context: context);
+      await LaunchThirdPartyApp.openWallet(url, walletModel.appStoreUrl, context: context);
     } else if (Platform.isAndroid) {
-      await LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl ?? '', context: context);
+      await LaunchThirdPartyApp.openWallet(url, walletModel.playStoreUrl, context: context);
     }
   }
 
