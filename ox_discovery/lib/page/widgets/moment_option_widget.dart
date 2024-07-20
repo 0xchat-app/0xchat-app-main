@@ -398,7 +398,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       });
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
     _isDefaultNWCWallet = handler.isDefaultNWCWallet;
-    await handler.handleZap(context: context,);
+    await handler.handleZap(context: context,eventId: notedUIModel.value.noteDB.noteId,);
     if (isAssistedProcess) {
       _isZapProcessing = false;
     } else {
