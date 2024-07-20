@@ -94,7 +94,7 @@ class AlbumUtils {
 
     for (String filePath in filePathList) {
       final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
-      String fileName = '$currentTime${Path.basenameWithoutExtension(filePath)}.${fileType == UplodAliyunType.imageType ? 'jpg' : 'mp4'}';
+      String fileName = '$currentTime${Path.basenameWithoutExtension(filePath)}.${fileType == FileType.image ? 'jpg' : 'mp4'}';
       File imageFile = File(filePath);
       UploadResult result = await UploadUtils.uploadFile(
         context: context,
