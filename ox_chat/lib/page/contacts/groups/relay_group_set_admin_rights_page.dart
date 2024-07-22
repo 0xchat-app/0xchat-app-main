@@ -163,8 +163,8 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                 inactiveTrackColor: ThemeColor.color160,
                 onChanged: (value) async {
                   await OXLoading.show();
-                  final okEvent = value ? await RelayGroup.sharedInstance.addPermission(widget.relayGroupDB.groupId, widget.userDB.pubKey, groupActionKind.name, '')
-                      :  await RelayGroup.sharedInstance.removePermission(widget.relayGroupDB.groupId, widget.userDB.pubKey, groupActionKind.name, '');
+                  final okEvent = value ? await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, widget.userDB.pubKey, [groupActionKind], '')
+                      :  await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, widget.userDB.pubKey, [groupActionKind], '');
                   await OXLoading.dismiss();
                   LogUtil.e('Michael:--value =${value}; ---status: ${okEvent.status}');
                   if (okEvent.status) {
