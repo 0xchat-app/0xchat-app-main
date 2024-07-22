@@ -14,6 +14,7 @@ import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model.dart';
@@ -38,7 +39,7 @@ class ChatRelayGroupMsgPage extends StatefulWidget {
   State<ChatRelayGroupMsgPage> createState() => _ChatRelayGroupMsgPageState();
 }
 
-class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
+class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with MessagePromptToneMixin, ChatGeneralHandlerMixin, OXChatObserver {
 
   List<types.Message> _messages = [];
   
@@ -281,5 +282,12 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
     } else {
       CommonToast.instance.show(context, okEvent.message);
     }
+  }
+
+  @override
+  void didRelayGroupModerationCallBack(ModerationDB moderationDB) {
+    setState(() {
+      _updateChatStatus();
+    });
   }
 }

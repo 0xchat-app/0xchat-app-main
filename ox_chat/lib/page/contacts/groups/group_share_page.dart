@@ -380,7 +380,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       return;
     }
     OXLoading.dismiss();
-    if (widget.groupType != GroupType.privateGroup) {
+    if (widget.groupType == GroupType.openGroup) {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
