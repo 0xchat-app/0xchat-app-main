@@ -445,6 +445,12 @@ class OXChatBinding {
     }
   }
 
+  void relayGroupModerationCallBack(ModerationDB moderationDB) async {
+    for (OXChatObserver observer in _observers) {
+      observer.didRelayGroupModerationCallBack(moderationDB);
+    }
+  }
+
   void messageActionsCallBack(MessageDB messageDB) async {
     for (OXChatObserver observer in _observers) {
       observer.didMessageActionsCallBack(messageDB);
