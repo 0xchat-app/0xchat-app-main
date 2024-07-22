@@ -32,6 +32,7 @@ import 'package:ox_usercenter/page/set_up/zaps_page.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 ///Title: settings_page
 ///Description: TODO(Fill in by oneself)
@@ -110,6 +111,39 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     );
   }
 
+  Future<void> claimEcash() async {
+    final token = await NpubCash.claim();
+    if(token != null){
+      OXCommonHintDialog.show(
+        context,
+        title: Localized.text('ox_usercenter.str_claim_ecash_hint_title'),
+        content: Localized.text('ox_usercenter.str_claim_ecash_hint'),
+        actionList: [
+          OXCommonHintAction.sure(
+            text: Localized.text('ox_usercenter.str_claim_ecash_confirm'),
+            onTap: () async {
+              OXNavigator.pop(context);
+              OXLoading.show();
+              final response = await Cashu.redeemEcash(
+                ecashString: token,
+                redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
+                signFunction: (key, message) async {
+                  return Account.getSignatureWithSecret(message, key);
+                },
+              );
+              OXLoading.dismiss();
+              CommonToast.instance.show(
+                context,
+                Localized.text(response.isSuccess ? 'ox_usercenter.str_claim_ecash_success' : 'ox_usercenter.str_claim_ecash_fail'),
+              );
+            },
+          ),
+        ],
+        isRowAction: true,
+      );
+    }
+  }
+
   Widget _itemBuild(BuildContext context, int index) {
     SettingModel _settingModel = _settingModelList[index];
     if (_settingModel.settingItemType == SettingItemType.language) {
@@ -143,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
               });
             });
           }
+          claimEcash();
           OXNavigator.pushPage(context, (context) => const ZapsPage());
         } else if (_settingModel.settingItemType == SettingItemType.privacy) {
           OXNavigator.pushPage(context, (context) => const PrivacyPage());
