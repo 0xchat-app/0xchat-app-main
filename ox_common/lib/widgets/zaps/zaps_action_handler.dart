@@ -31,6 +31,7 @@ class ZapsActionHandler {
   late bool isDefaultNWCWallet;
 
   late String defaultWalletName;
+  late String defaultZapDescription;
 
   int get defaultZapAmount => OXUserInfoManager.sharedInstance.defaultZapAmount;
 
@@ -75,6 +76,7 @@ class ZapsActionHandler {
     isDefaultEcashWallet = defaultWalletInfo['isDefaultEcashWallet'];
     isDefaultNWCWallet = defaultWalletInfo['isDefaultNWCWallet'];
     defaultWalletName = defaultWalletInfo['defaultWalletName'];
+    defaultZapDescription = defaultWalletInfo['defaultZapDescription'];
   }
 
   Future<Map<String, dynamic>> getDefaultWalletInfo() async {
@@ -159,7 +161,7 @@ class ZapsActionHandler {
         lnurl: lnurl,
         zapAmount: zapAmount,
         eventId: eventId,
-        description: description,
+        description: description ?? defaultZapDescription,
         privateZap: privateZap,
         showLoading: true,
         zapType: zapType,
