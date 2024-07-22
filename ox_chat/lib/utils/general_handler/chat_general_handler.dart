@@ -198,7 +198,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         await OXCommonHintDialog.show(
           context,
           title: Localized.text('ox_usercenter.warn_title'),
-          content: 'This message is of kind 4 type.',
+          content: 'This message is not a gift-wrapped message.',
+          actionList: [OXCommonHintAction.sure(
+              text: 'OK')
+          ],
           isRowAction: true,
           showCancelButton: false,
         );
