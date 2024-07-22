@@ -209,20 +209,20 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
               final type = createMomentMediaDraft.type;
               final imageList = type == EMomentType.picture ? createMomentMediaDraft.imageList : null;
               final videoPath = type == EMomentType.video ? createMomentMediaDraft.videoPath : null;
+              final videoImagePath = type == EMomentType.video ? createMomentMediaDraft.videoImagePath : null;
+
               OXNavigator.presentPage(
                 context,
                   (context) => CreateMomentsPage(
                     type: type,
                     imageList: imageList,
                     videoPath: videoPath,
+                    videoImagePath: videoImagePath,
                   ),
               );
               return;
             }
-            showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                builder: (context) => _buildCreateMomentBottomDialog());
+            OXNavigator.presentPage(context, (context) => const CreateMomentsPage(type: null));
           },
         ),
         SizedBox(
@@ -387,94 +387,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         ),
       ),
       onTap: onTap,
-    );
-  }
-
-  Widget _buildCreateMomentBottomDialog() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(12)),
-        color: ThemeColor.color180,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildItem(
-            Localized.text('ox_discovery.choose_camera_option'),
-            index: -1,
-            onTap: () {
-              OXNavigator.pop(context);
-              AlbumUtils.openCamera(context, (List<String> imageList) {
-                OXNavigator.presentPage(
-                  context,
-                  (context) => CreateMomentsPage(
-                      type: EMomentType.picture, imageList: imageList),
-                );
-              });
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildItem(
-            Localized.text('ox_discovery.choose_image_option'),
-            index: -1,
-            onTap: () {
-              OXNavigator.pop(context);
-              AlbumUtils.openAlbum(context, type: 1,
-                  callback: (List<String> imageList) {
-                OXNavigator.presentPage(
-                  context,
-                  (context) => CreateMomentsPage(
-                    type: EMomentType.picture,
-                    imageList: imageList,
-                  ),
-                );
-              });
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          _buildItem(
-            Localized.text('ox_discovery.choose_video_option'),
-            index: -1,
-            onTap: () {
-              OXNavigator.pop(context);
-              AlbumUtils.openAlbum(
-                  context,
-                  type: 2,
-                  selectCount: 1,
-                  callback: (List<String> imageList) {
-                OXNavigator.presentPage(
-                  context,
-                  (context) => CreateMomentsPage(
-                    type: EMomentType.video,
-                    videoPath: imageList[0],
-                    videoImagePath: imageList[1],
-                  ),
-                );
-              });
-            },
-          ),
-          Divider(
-            color: ThemeColor.color170,
-            height: Adapt.px(0.5),
-          ),
-          Container(
-            height: Adapt.px(8),
-            color: ThemeColor.color190,
-          ),
-          _buildItem(Localized.text('ox_common.cancel'), index: 3, onTap: () {
-            OXNavigator.pop(context);
-          }),
-          SizedBox(
-            height: Adapt.px(21),
-          ),
-        ],
-      ),
     );
   }
 
