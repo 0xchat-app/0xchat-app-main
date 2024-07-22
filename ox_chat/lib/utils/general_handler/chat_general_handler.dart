@@ -192,14 +192,28 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
 extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void messageStatusPressHandler(BuildContext context, types.Message message) async {
-    if (message.status != types.Status.error) return ;
-    final result = await OXCommonHintDialog.showConfirmDialog(
-      context,
-      content: Localized.text('ox_chat.message_resend_hint'),
-    );
-    if (result) {
-      OXNavigator.pop(context);
-      resendMessage(context, message);
+    final status = message.status;
+    switch (status) {
+      case types.Status.warning:
+        await OXCommonHintDialog.show(
+          context,
+          title: Localized.text('ox_usercenter.warn_title'),
+          content: 'This message is of kind 4 type.',
+          isRowAction: true,
+          showCancelButton: false,
+        );
+      case types.Status.error:
+        final result = await OXCommonHintDialog.showConfirmDialog(
+          context,
+          content: Localized.text('ox_chat.message_resend_hint'),
+        );
+        if (result) {
+          OXNavigator.pop(context);
+          resendMessage(context, message);
+        }
+        break ;
+      default:
+        break ;
     }
   }
 

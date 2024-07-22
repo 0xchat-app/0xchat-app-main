@@ -261,14 +261,17 @@ extension MessageDBToUIEx on MessageDB {
     switch (status) {
       case 0:
         return UIMessage.Status.sending;
-      case 1:
-      case 3:
-        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
       case 2:
         return UIMessage.Status.error;
       default :
-        return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
+        break;
     }
+
+    if (kind == 4) {
+      return UIMessage.Status.warning;
+    }
+
+    return senderIsMe ? UIMessage.Status.sent : UIMessage.Status.delivered;
   }
 
   String? getRoomId() {

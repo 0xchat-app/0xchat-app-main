@@ -4,6 +4,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
+import 'package:ox_common/utils/widget_tool.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../ox_chat_ui.dart';
@@ -411,20 +412,7 @@ class _MessageState extends State<Message> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (currentUserIsAuthor)
-          Padding(
-            padding: EdgeInsets.only(right: Adapt.px(8),),
-            child: GestureDetector(
-              onLongPress: () =>
-                  widget.onMessageStatusLongPress?.call(context, widget.message),
-              onTap: () {
-                if (widget.message.status == types.Status.error) {
-                  widget.onMessageStatusTap?.call(context, widget.message);
-                }
-              },
-              child: widget.customStatusBuilder?.call(widget.message, context: context)
-                  ?? MessageStatus(status: widget.message.status),
-            ),
-          ),
+          _buildStatusWidget().setPaddingOnly(right: 8.px),
         if (widget.message.repliedMessage == null)
           Flexible(child: bubble,)
         else
@@ -445,9 +433,21 @@ class _MessageState extends State<Message> {
               ),
             ),
           ),
+        if (!currentUserIsAuthor)
+          _buildStatusWidget().setPaddingOnly(left: 8.px),
       ],
     );
   }
+
+  Widget _buildStatusWidget() => GestureDetector(
+    onLongPress: () =>
+        widget.onMessageStatusLongPress?.call(context, widget.message),
+    onTap: () {
+      widget.onMessageStatusTap?.call(context, widget.message);
+    },
+    child: widget.customStatusBuilder?.call(widget.message, context: context)
+        ?? MessageStatus(status: widget.message.status),
+  );
 
   Widget _messageBuilder(BuildContext context, [bool addReaction = false]) {
     Widget messageContentWidget;
