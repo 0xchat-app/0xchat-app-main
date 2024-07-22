@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -37,8 +38,8 @@ class RelayGroupSetAdminRightsPage extends StatefulWidget {
 
 class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsPage> {
   List<GroupActionKind> _showPermissions = [];
-  Set<int> _currentPermissionKinds = {};
-  Set<int> _myPermissionKinds = {};
+  Set<GroupActionKind> _currentPermissionKinds = {};
+  Set<GroupActionKind> _myPermissionKinds = {};
 
   @override
   void initState() {
@@ -53,11 +54,10 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
       try {
         if (myUserDB != null) {
           List<GroupActionKind> userPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == myUserDB.pubKey).permissions;
-          _myPermissionKinds = userPermissions.map((e) => e.kind).toSet();
-          LogUtil.e('Michael: ---_myPermissionKinds =${userPermissions.toString()}');
+          _myPermissionKinds = userPermissions.toSet();
         }
         List<GroupActionKind> selectedUserPermissions = widget.relayGroupDB.admins!.firstWhere((admin) => admin.pubkey == widget.userDB.pubKey).permissions;
-        _currentPermissionKinds = selectedUserPermissions.map((e) => e.kind).toSet();
+        _currentPermissionKinds = selectedUserPermissions.toSet();
       } catch (e) {
         LogUtil.e('No admin found with pubkey: ${widget.userDB.pubKey}');
       }
@@ -69,6 +69,20 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
     return Scaffold(
       appBar: CommonAppBar(
         title: 'str_group_admin_right_title'.localized(),
+        actions: [
+          IconButton(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              icon: CommonImage(
+                iconName: 'icon_done.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                useTheme: true,
+              ),
+              onPressed: _confirmPermissions,
+          ),
+          SizedBox(width: 24.px),
+        ],
       ),
       backgroundColor: ThemeColor.color190,
       body: Container(
@@ -156,28 +170,19 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
                 ),
               ),
               trailing: Switch(
-                value: _currentPermissionKinds.contains(groupActionKind.kind),
+                value: _currentPermissionKinds.contains(groupActionKind),
                 activeColor: Colors.white,
                 activeTrackColor: ThemeColor.gradientMainStart,
                 inactiveThumbColor: Colors.white,
                 inactiveTrackColor: ThemeColor.color160,
                 onChanged: (value) async {
-                  await OXLoading.show();
-                  final okEvent = value ? await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, widget.userDB.pubKey, [groupActionKind], '')
-                      :  await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, widget.userDB.pubKey, [groupActionKind], '');
-                  await OXLoading.dismiss();
-                  LogUtil.e('Michael:--value =${value}; ---status: ${okEvent.status}');
-                  if (okEvent.status) {
-                    setState(() {
-                      if (value) {
-                        _currentPermissionKinds.add(groupActionKind.kind);
-                      } else {
-                        _currentPermissionKinds.remove(groupActionKind.kind);
-                      }
-                    });
-                  } else {
-                    CommonToast.instance.show(context, okEvent.message);
-                  }
+                  setState(() {
+                    if (value) {
+                      _currentPermissionKinds.add(groupActionKind);
+                    } else {
+                      _currentPermissionKinds.remove(groupActionKind);
+                    }
+                  });
                 },
                 materialTapTargetSize: MaterialTapTargetSize.padded,
               )
@@ -192,6 +197,18 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
         ),
       ],
     );
+  }
+
+  void _confirmPermissions() async {
+    await OXLoading.show();
+    final okEvent = await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, widget.userDB.pubKey, _currentPermissionKinds.toList(), '');
+    await OXLoading.dismiss();
+    if (okEvent.status) {
+      CommonToast.instance.show(context, 'str_group_admin_permission_success_toast'.localized());
+      OXNavigator.pop(context);
+    } else {
+      CommonToast.instance.show(context, okEvent.message);
+    }
   }
 
 }

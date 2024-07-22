@@ -321,5 +321,6 @@
   "day": "day",
   "hours": "hours",
   "minutes": "minutes",
-  "and": "and"
+  "and": "and",
+  "str_group_admin_permission_success_toast": "Permission changed successfully."
 }

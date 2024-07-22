@@ -321,5 +321,6 @@
   "day": "天",
   "hour": "小时",
   "minutes": "分钟",
-  "and": " "
+  "and": " ",
+  "str_group_admin_permission_success_toast": "更改权限成功"
 }
