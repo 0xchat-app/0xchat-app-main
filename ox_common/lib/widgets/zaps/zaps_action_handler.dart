@@ -8,6 +8,7 @@ import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/zaps/zaps_assisted_page.dart';
@@ -80,6 +81,10 @@ class ZapsActionHandler {
     String? pubkey = Account.sharedInstance.me?.pubKey;
     if (pubkey == null) return {};
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
+    String defaultZapDescription = await OXCacheManager.defaultOXCacheManager.getForeverData(
+      '${pubkey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',
+      defaultValue: Localized.text('ox_discovery.description_hint_text'),
+    );
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
 
     final isDefaultEcashWallet = defaultWalletName == ecashWalletName;
@@ -91,7 +96,7 @@ class ZapsActionHandler {
       'isDefaultEcashWallet': isDefaultEcashWallet,
       'isDefaultNWCWallet': isDefaultNWCWallet,
       'isDefaultThirdPartyWallet': isDefaultThirdPartyWallet,
-      'ecashWalletName': ecashWalletName,
+      'defaultZapDescription': defaultZapDescription,
     };
   }
 
