@@ -83,6 +83,7 @@ class CommonIconButton extends StatelessWidget {
           iconName: iconName,
           height: height,
           width: width,
+          color: color,
           package: package,
         ),
       ),
