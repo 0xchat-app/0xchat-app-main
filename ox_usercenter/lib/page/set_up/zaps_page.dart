@@ -43,12 +43,15 @@ class ZapsPage extends StatefulWidget {
 class _ZapsPageState extends State<ZapsPage> {
   bool _walletSwitchSelected = true;
   final TextEditingController _zapAmountTextEditingController = TextEditingController();
+  final TextEditingController _zapDescriptionController = TextEditingController();
   final List<WalletModel> _walletList = WalletModel.walletsWithEcash;
   String _selectedWalletName = '';
   ZapsRecord? _zapsRecord;
   String pubKey = '';
   int _defaultZapAmount = 0;
+  String _defaultDescription = '';
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _descriptionFocusNote = FocusNode();
 
   @override
   void initState() {
@@ -65,18 +68,36 @@ class _ZapsPageState extends State<ZapsPage> {
             .getForeverData('$pubKey.isShowWalletSelector') ??
         true;
     _defaultZapAmount = OXUserInfoManager.sharedInstance.defaultZapAmount;
+    _defaultDescription =
+        await OXCacheManager.defaultOXCacheManager.getForeverData(
+      '${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',
+      defaultValue: Localized.text('ox_discovery.description_hint_text'),
+    );
     _zapsRecord = await getZapsRecord();
-    _focusNode.addListener(() {
-    if(!_focusNode.hasFocus){
-      int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultZapAmount);
-      OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
-    }
-    });
+    _focusNode.addListener(_amountFocusNoteListener);
+    _descriptionFocusNote.addListener(_descriptionFocusNoteListener);
     if(mounted){
       setState(() {});
     }
 
+  }
+
+  _amountFocusNoteListener() {
+    if(!_focusNode.hasFocus){
+      int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultZapAmount);
+      OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
+      widget.onChanged?.call(true);
+    }
+  }
+
+  _descriptionFocusNoteListener() {
+    if(!_descriptionFocusNote.hasFocus){
+      String defaultZapDescription = _zapDescriptionController.text;
+      defaultZapDescription = defaultZapDescription.isNotEmpty ? defaultZapDescription : _defaultDescription;
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',defaultZapDescription);
+      widget.onChanged?.call(true);
+    }
   }
 
   @override
@@ -133,6 +154,14 @@ class _ZapsPageState extends State<ZapsPage> {
             ),
           ),
           _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
+          _buildItem(
+            label: 'Default zap message',
+            itemBody: _zapAmountView(
+              hitText: _defaultDescription,
+              controller: _zapDescriptionController,
+              focusNode: _descriptionFocusNote,
+            ),
+          ),
           // _buildItem(label: 'Cumulative Zaps', itemBody: _zapAmountView(hitText: totalZaps,enable: false)),
           zapsRecordDetails.isNotEmpty
               ? _buildItem(
@@ -745,6 +774,17 @@ class _ZapsPageState extends State<ZapsPage> {
     );
 
     return zapsRecord;
+  }
+
+  @override
+  void dispose() {
+    _zapAmountTextEditingController.dispose();
+    _focusNode.dispose();
+    _focusNode.removeListener(_amountFocusNoteListener);
+    _zapDescriptionController.dispose();
+    _descriptionFocusNote.dispose();
+    _descriptionFocusNote.removeListener(_descriptionFocusNoteListener);
+    super.dispose();
   }
 }
 

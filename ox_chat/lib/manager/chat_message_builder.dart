@@ -1,6 +1,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -183,7 +184,7 @@ class ChatMessageBuilder {
 
     switch (type) {
       case CustomMessageType.zaps:
-        return _buildZapsMessage(message);
+        return _buildZapsMessage(message, reactionWidget);
       case CustomMessageType.call:
         return _buildCallMessage(message, isMe);
       case CustomMessageType.template:
@@ -199,12 +200,8 @@ class ChatMessageBuilder {
     }
   }
 
-  static Widget _buildZapsMessage(types.CustomMessage message) {
-    final amount = ZapsMessageEx(message).amount.formatWithCommas();
-    final description = ZapsMessageEx(message).description;
+  static Widget _buildZapsMessage(types.CustomMessage message, Widget reactionWidget) {
     return Container(
-      width: 240.px,
-      height: 86.px,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
@@ -215,6 +212,25 @@ class ChatMessageBuilder {
           ],
         ),
       ),
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildZapsMessageContent(message),
+            reactionWidget,
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildZapsMessageContent(types.CustomMessage message) {
+    final amount = ZapsMessageEx(message).amount.formatWithCommas();
+    final description = ZapsMessageEx(message).description;
+    return Container(
+      height: 86.px,
+      constraints: BoxConstraints(minWidth: 240.px),
       padding: EdgeInsets.symmetric(
         horizontal: 10.px,
       ),
@@ -261,7 +277,7 @@ class ChatMessageBuilder {
                   size: Adapt.px(16),)
               ],
             ),
-          )
+          ),
         ],
       ),
     );

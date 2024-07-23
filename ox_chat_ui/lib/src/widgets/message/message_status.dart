@@ -18,6 +18,13 @@ class MessageStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     const size = 20.0;
     switch (status) {
+      case types.Status.warning:
+        return Image.asset(
+          'assets/images/message_status_warn_icon.png',
+          height: size,
+          width: size,
+          package: 'ox_chat_ui',
+        );
       case types.Status.error:
         return InheritedChatTheme.of(context).theme.errorIcon != null
             ? InheritedChatTheme.of(context).theme.errorIcon!

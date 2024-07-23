@@ -25,11 +25,9 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/24 16:24
 class RelayGroupRequestsPage extends StatefulWidget {
-  final String groupId;
 
   RelayGroupRequestsPage({
     super.key,
-    required this.groupId,
   });
 
   @override
@@ -55,14 +53,21 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   }
 
   void _initData() async {
-    List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(widget.groupId);
-    if (requestJoinList.isNotEmpty) {
-      requestJoinList.sort((request1, request2) {
+    List<JoinRequestDB> allRequestJoinList = [];
+    if(RelayGroup.sharedInstance.myGroups.length>0) {
+      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      await Future.forEach(tempGroups, (element) async {
+        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+        allRequestJoinList.addAll(requestJoinList);
+      });
+    }
+    if (allRequestJoinList.isNotEmpty) {
+      allRequestJoinList.sort((request1, request2) {
         var joinRequest2Time = request2.createdAt;
         var joinRequest1Time = request1.createdAt;
         return joinRequest2Time.compareTo(joinRequest1Time);
       });
-      await Future.forEach(requestJoinList, (joinRequestDB) async {
+      await Future.forEach(allRequestJoinList, (joinRequestDB) async {
         _requestMap[joinRequestDB.requestId] = await JoinRequestInfo.toUserRequestInfo(joinRequestDB);
       });
       setState(() {
@@ -96,6 +101,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
         title: 'str_group_join_requests'.localized(),
         useLargeTitle: false,
         centerTitle: true,
+        backgroundColor: ThemeColor.color200,
       ),
       body: commonStateViewWidget(
         context,

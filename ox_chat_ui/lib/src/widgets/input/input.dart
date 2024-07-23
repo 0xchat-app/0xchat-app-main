@@ -264,44 +264,55 @@ class InputState extends State<Input>{
     }
   }
 
-  Widget defaultInputWidget(EdgeInsets buttonPadding, EdgeInsetsGeometry textPadding) => Container(
-    decoration: BoxDecoration(
-      color: ThemeColor.color190,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    margin: EdgeInsets.only(bottom: Adapt.px(10)),
-    padding: EdgeInsets.symmetric(vertical: Adapt.px(8),),
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        _buildMoreButton(),
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: ThemeColor.color180,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: EdgeInsets.symmetric(vertical: Adapt.px(8),),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildInputTextField().setPadding(EdgeInsets.only(left: _itemSpacing),),
-                ),
-                _buildChatTimeButton(),
-                _buildEmojiButton(),
-              ],
+  Widget defaultInputWidget(EdgeInsets buttonPadding, EdgeInsetsGeometry textPadding) {
+    final verticalPadding = EdgeInsets.symmetric(vertical: 8.px,);
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColor.color190,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: EdgeInsets.only(bottom: Adapt.px(10)),
+      padding: EdgeInsets.symmetric(
+        vertical: Adapt.px(8),
+      ),
+      child: Row(
+        textDirection: TextDirection.ltr,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildMoreButton().setPadding(verticalPadding),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: ThemeColor.color180,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: verticalPadding,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: _buildInputTextField().setPadding(
+                      EdgeInsets.only(left: _itemSpacing),
+                    ),
+                  ),
+                  _buildChatTimeButton(),
+                  _buildEmojiButton(),
+                ],
+              ),
             ),
           ),
-        ),
-        AnimatedCrossFade(
-          duration: const Duration(milliseconds: 200),
-          firstChild: _buildSendButton(),
-          secondChild: _buildVoiceButton(),
-          crossFadeState: _sendButtonVisible ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-        ),
-      ],
-    ),
-  );
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 200),
+            firstChild: _buildSendButton(),
+            secondChild: _buildVoiceButton(),
+            crossFadeState: _sendButtonVisible
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+          ).setPadding(verticalPadding),
+        ],
+      ),
+    );
+  }
 
   Widget _buildVoiceButton() =>
       AttachmentButton(
@@ -343,7 +354,7 @@ class InputState extends State<Input>{
         ),
         focusNode: _inputFocusNode,
         keyboardType: widget.options.keyboardType,
-        maxLines: 5,
+        maxLines: 10,
         minLines: 1,
         onChanged: widget.options.onTextChanged,
         onTap: (){

@@ -25,8 +25,8 @@ class GroupSharePage extends StatefulWidget {
   final String groupId;
   final String? inviterPubKey;
   final String groupOwner;
-  final String groupPic;
-  final String groupName;
+  String groupPic;
+  String groupName;
   GroupType groupType;
   GroupSharePage({required this.groupId, this.inviterPubKey,required this.groupOwner,required this.groupName, required this.groupPic, required this.groupType});
   @override
@@ -68,6 +68,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
         _practicalGroupId = simpleGroups.groupId;
         RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
         if (tempRelayGroupDB != null) {
+          widget.groupName = tempRelayGroupDB.name;
+          widget.groupPic = tempRelayGroupDB.picture;
           widget.groupType = tempRelayGroupDB.closed ? GroupType.closeGroup : GroupType.openGroup;
         }
         break;
@@ -377,9 +379,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXLoading.dismiss();
       return;
     }
-    RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
     OXLoading.dismiss();
-    if (widget.groupType != GroupType.privateGroup) {
+    if (widget.groupType == GroupType.openGroup) {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(

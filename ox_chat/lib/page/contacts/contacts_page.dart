@@ -7,6 +7,7 @@ import 'package:ox_chat/page/contacts/contact_request.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
 import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/group_create_selector_dialog.dart';
@@ -139,10 +140,6 @@ class _ContractsPageState extends State<ContractsPage>
         controller: _pageController,
         onPageChanged: (index) {
           _selectedType = ContactsItemType.values.elementAt(index);
-          if (_selectedType == ContactsItemType.group) {
-            _getRequestAddGroupLength();
-          }
-          setState(() {});
         },
         children: [
           ContractViewFriends(
@@ -315,7 +312,7 @@ class _ContractsPageState extends State<ContractsPage>
                         content: Localized.text(_selectedType == ContactsItemType.group ? 'ox_chat.join_request' : 'ox_chat.string_request_title'),
                         onTap: () {
                           if (_selectedType == ContactsItemType.group) {
-                            OXNavigator.pushPage(context, (context) => GroupJoinRequests(groupId: null));
+                            OXNavigator.pushPage(context, (context) => RelayGroupRequestsPage());
                           } else {
                             OXNavigator.pushPage(context, (context) => ContactRequest());
                           }

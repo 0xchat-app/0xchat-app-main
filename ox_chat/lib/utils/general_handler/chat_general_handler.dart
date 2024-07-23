@@ -28,7 +28,7 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_common/widgets/data_picker/data_picker.dart';
+import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -192,14 +192,31 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
 extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   void messageStatusPressHandler(BuildContext context, types.Message message) async {
-    if (message.status != types.Status.error) return ;
-    final result = await OXCommonHintDialog.showConfirmDialog(
-      context,
-      content: Localized.text('ox_chat.message_resend_hint'),
-    );
-    if (result) {
-      OXNavigator.pop(context);
-      resendMessage(context, message);
+    final status = message.status;
+    switch (status) {
+      case types.Status.warning:
+        await OXCommonHintDialog.show(
+          context,
+          title: Localized.text('ox_usercenter.warn_title'),
+          content: 'This message is not a gift-wrapped message.',
+          actionList: [OXCommonHintAction.sure(
+              text: 'OK')
+          ],
+          isRowAction: true,
+          showCancelButton: false,
+        );
+      case types.Status.error:
+        final result = await OXCommonHintDialog.showConfirmDialog(
+          context,
+          content: Localized.text('ox_chat.message_resend_hint'),
+        );
+        if (result) {
+          OXNavigator.pop(context);
+          resendMessage(context, message);
+        }
+        break ;
+      default:
+        break ;
     }
   }
 
@@ -256,6 +273,14 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         default:
           break;
       }
+    } else if (message is types.TextMessage && message.text.length > message.maxLimit) {
+      final text = message.text;
+      OXNavigator.presentPage(context, (context) =>
+          CommonLongContentPage(
+            content: text,
+            author: message.author.sourceObject,
+            timeStamp: message.createdAt,
+          ));
     }
   }
 

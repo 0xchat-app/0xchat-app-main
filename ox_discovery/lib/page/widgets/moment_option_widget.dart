@@ -388,7 +388,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
         if(_isDefaultEcashWallet || _isDefaultNWCWallet) {
           final amount = int.parse(zapsInfo['amount']);
           await _shakeController.forward();
-          _updateZapsUIWithUnreal(amount);
+          // _updateZapsUIWithUnreal(amount);
+          _updateNoteDB();
           if (!_completer.isCompleted) {
             _completer.complete(false);
           }

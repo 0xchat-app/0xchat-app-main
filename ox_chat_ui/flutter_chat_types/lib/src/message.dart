@@ -25,7 +25,7 @@ enum MessageType {
 }
 
 /// All possible statuses message can have.
-enum Status { delivered, error, seen, sending, sent }
+enum Status { delivered, warning, error, seen, sending, sent }
 
 /// File encryption type.
 enum EncryptionType {
