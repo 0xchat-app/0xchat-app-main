@@ -1,4 +1,6 @@
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -18,6 +20,7 @@ class CommonLongContentPage extends StatefulWidget {
   final String userPic;
   final String userName;
   final bool isShowOriginalText;
+  final UserDB? author;
 
   CommonLongContentPage({
     this.content,
@@ -27,6 +30,7 @@ class CommonLongContentPage extends StatefulWidget {
     this.pubkey,
     this.userPic = '',
     this.userName = '',
+    this.author,
     this.isShowOriginalText = true,
   });
 
@@ -110,7 +114,7 @@ class CommonLongContentPageState extends State<CommonLongContentPage> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          String? pubkey = widget.pubkey;
+                          String? pubkey = widget.author?.pubKey ?? widget.pubkey;
                           if (pubkey != null) {
                             await OXModuleService.pushPage(
                                 context, 'ox_chat', 'ContactUserInfoPage', {
@@ -121,7 +125,7 @@ class CommonLongContentPageState extends State<CommonLongContentPage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(40.px),
                           child: OXCachedNetworkImage(
-                            imageUrl: widget.userPic,
+                            imageUrl: widget.author?.picture ?? widget.userPic,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => badgePlaceholderImage(),
                             errorWidget: (context, url, error) => badgePlaceholderImage(),
@@ -131,7 +135,7 @@ class CommonLongContentPageState extends State<CommonLongContentPage> {
                         ),
                       ),
                       Text(
-                        widget.userName,
+                        widget.author?.getUserShowName() ?? widget.userName,
                         style: TextStyle(
                           fontSize: 12.px,
                           fontWeight: FontWeight.w500,
