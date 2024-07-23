@@ -42,21 +42,19 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  String get zapAmountStr => _amountController.text.orDefault(defaultSatsValue);
+  String get zapAmountStr => _amountController.text.orDefault(_defaultSatsValue);
+  String get zapDescription => _descriptionController.text.orDefault(_defaultZapDescription);
   int get zapAmount => int.tryParse(zapAmountStr) ?? 0;
-  String get zapDescription => _descriptionController.text.orDefault(defaultDescription);
-
-  final defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
-  final defaultDescription = Localized.text('ox_discovery.description_hint_text');
 
   IMint? mint;
   bool _isDefaultEcashWallet = false;
   String _defaultWalletName = '';
+  String _defaultZapDescription = '';
+  String _defaultSatsValue = '0';
 
   @override
   void initState() {
     super.initState();
-    _amountController.text = defaultSatsValue;
     mint = OXWalletInterface.getDefaultMint();
     _updateDefaultWallet();
   }
@@ -72,6 +70,9 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
     setState(() {
       _isDefaultEcashWallet = isDefaultEcashWallet;
       _defaultWalletName = defaultWalletName;
+      _defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
+      _amountController.text = _defaultSatsValue;
+      _defaultZapDescription = defaultWalletInfo['defaultZapDescription'];
     });
   }
 
@@ -114,7 +115,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
                           title: Localized.text('ox_discovery.zap_amount_label'),
                           children: [
                             _buildInputRow(
-                              placeholder: defaultSatsValue,
+                              placeholder: _defaultSatsValue,
                               controller: _amountController,
                               suffix: 'Sats',
                               maxLength: 9,
@@ -127,7 +128,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
                           title: Localized.text('ox_discovery.description_text'),
                           children: [
                             _buildInputRow(
-                              placeholder: defaultDescription,
+                              placeholder: _defaultZapDescription,
                               controller: _descriptionController,
                               maxLength: 50,
                             )
@@ -312,6 +313,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
       zapAmount: zapAmount,
       eventId: widget.eventId,
       description: zapDescription,
+      mint: mint,
       showLoading: true,
       zapType: widget.handler.zapType,
       receiver: widget.handler.receiver,
