@@ -28,7 +28,7 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
-import 'package:ox_common/widgets/data_picker/data_picker.dart';
+import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -273,6 +273,14 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         default:
           break;
       }
+    } else if (message is types.TextMessage && message.text.length > message.maxLimit) {
+      final text = message.text;
+      OXNavigator.presentPage(context, (context) =>
+          CommonLongContentPage(
+            content: text,
+            author: message.author.sourceObject,
+            timeStamp: message.createdAt,
+          ));
     }
   }
 

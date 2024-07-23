@@ -98,6 +98,8 @@ abstract class TextMessage extends Message {
   @override
   String get content => text;
 
+  int get maxLimit => 500;
+
   /// Equatable props.
   @override
   List<Object?> get props => [

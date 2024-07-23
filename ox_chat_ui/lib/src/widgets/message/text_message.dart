@@ -5,6 +5,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/emoji_enlargement_behavior.dart';
@@ -27,6 +28,7 @@ class TextMessage extends StatelessWidget {
     required this.showName,
     required this.usePreviewData,
     this.userAgent,
+    this.maxLimit,
   });
 
   /// See [Message.emojiEnlargementBehavior].
@@ -57,6 +59,8 @@ class TextMessage extends StatelessWidget {
 
   /// User agent to fetch preview data with.
   final String? userAgent;
+
+  final int? maxLimit;
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +181,7 @@ class TextMessage extends StatelessWidget {
             text: message.text,
             maxLines: 30,
             overflow: TextOverflow.ellipsis,
+            maxLimit: maxLimit,
           ),
       ],
     );
@@ -195,6 +200,7 @@ class TextMessageText extends StatelessWidget {
     this.options = const TextMessageOptions(),
     this.overflow = TextOverflow.clip,
     required this.text,
+    this.maxLimit,
   });
 
   /// Style to apply to anything that matches a link.
@@ -221,123 +227,153 @@ class TextMessageText extends StatelessWidget {
   /// Text that is shown as markdown.
   final String text;
 
-  @override
-  Widget build(BuildContext context) => ParsedText(
-    parse: [
-      ...options.matchers,
-      MatchText(
-        onTap: (mail) async {
-          final url = Uri(scheme: 'mailto', path: mail);
-          if (await canLaunchUrl(url)) {
-            await launchUrl(url);
-          }
-        },
-        pattern: WebURLHelper.regexEmail,
-        style: bodyLinkTextStyle ??
-            bodyTextStyle.copyWith(
-              decoration: TextDecoration.underline,
-            ),
-      ),
-      MatchText(
-        onTap: (urlText) async {
-          final protocolIdentifierRegex = RegExp(
-            r'^((http|ftp|https):\/\/)',
-            caseSensitive: false,
-          );
-          if (!urlText.startsWith(protocolIdentifierRegex)) {
-            urlText = 'https://$urlText';
-          }
-          if (options.onLinkPressed != null) {
-            options.onLinkPressed!(urlText);
-          } else {
-            final url = Uri.tryParse(urlText);
-            if (url != null && await canLaunchUrl(url)) {
-              await launchUrl(
-                url,
-                mode: LaunchMode.externalApplication,
-              );
-            }
-          }
-        },
-        pattern: WebURLHelper.regexLink,
-        style: bodyLinkTextStyle ??
-            bodyTextStyle.copyWith(
-              decoration: TextDecoration.underline,
-            ),
-      ),
-      MatchText(
-        onTap: (urlText) async {
-          urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
-          if (options.onLinkPressed != null) {
-            options.onLinkPressed!(urlText);
-          } else {
-            final url = Uri.tryParse(urlText);
-            if (url != null && await canLaunchUrl(url)) {
-              await launchUrl(
-                url,
-                mode: LaunchMode.externalApplication,
-              );
-            }
-          }
-        },
-        pattern: WebURLHelper.regexNostr,
-        style: bodyLinkTextStyle ??
-            bodyTextStyle.copyWith(
-              decoration: TextDecoration.underline,
-            ),
-      ),
-      MatchText(
-        pattern: PatternStyle.bold.pattern,
-        style: boldTextStyle ??
-            bodyTextStyle.merge(PatternStyle.bold.textStyle),
-        renderText: ({required String str, required String pattern}) => {
-          'display': str.replaceAll(
-            PatternStyle.bold.from,
-            PatternStyle.bold.replace,
-          ),
-        },
-      ),
-      MatchText(
-        pattern: PatternStyle.italic.pattern,
-        style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
-        renderText: ({required String str, required String pattern}) => {
-          'display': str.replaceAll(
-            PatternStyle.italic.from,
-            PatternStyle.italic.replace,
-          ),
-        },
-      ),
-      MatchText(
-        pattern: PatternStyle.lineThrough.pattern,
-        style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
-        renderText: ({required String str, required String pattern}) => {
-          'display': str.replaceAll(
-            PatternStyle.lineThrough.from,
-            PatternStyle.lineThrough.replace,
-          ),
-        },
-      ),
-      MatchText(
-        pattern: PatternStyle.code.pattern,
-        style: codeTextStyle ??
-            bodyTextStyle.merge(PatternStyle.code.textStyle),
-        renderText: ({required String str, required String pattern}) => {
-          'display': str.replaceAll(
-            PatternStyle.code.from,
-            PatternStyle.code.replace,
-          ),
-        },
-      ),
-    ],
-    maxLines: maxLines,
-    overflow: overflow,
-    regexOptions: const RegexOptions(multiLine: true, dotAll: true),
-    selectable: options.isTextSelectable,
-    style: bodyTextStyle,
-    text: text,
-    textWidthBasis: TextWidthBasis.longestLine,
+  final int? maxLimit;
 
-  );
+  @override
+  Widget build(BuildContext context) {
+    var text = this.text;
+    final maxLimit = this.maxLimit;
+    final moreText = Localized.text('ox_chat.more');
+    final moreFlag = '\${$moreText}';
+    if (maxLimit != null && text.length > maxLimit) {
+      text = this.text.substring(0, maxLimit) + '...' + moreFlag;
+    }
+    return ParsedText(
+      parse: [
+        ...options.matchers,
+        MatchText(
+          pattern: r'\$\{(.*?)\}',
+          renderWidget: ({required String text, required String pattern,}) => IgnorePointer(
+            child: Text(
+              moreText,
+              style: bodyTextStyle.copyWith(
+                color: Colors.blueAccent,
+              ),
+            ),
+          )
+        ),
+        MatchText(
+          onTap: (mail) async {
+            final url = Uri(scheme: 'mailto', path: mail);
+            if (await canLaunchUrl(url)) {
+              await launchUrl(url);
+            }
+          },
+          pattern: WebURLHelper.regexEmail,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        MatchText(
+          onTap: (urlText) async {
+            final protocolIdentifierRegex = RegExp(
+              r'^((http|ftp|https):\/\/)',
+              caseSensitive: false,
+            );
+            if (!urlText.startsWith(protocolIdentifierRegex)) {
+              urlText = 'https://$urlText';
+            }
+            if (options.onLinkPressed != null) {
+              options.onLinkPressed!(urlText);
+            } else {
+              final url = Uri.tryParse(urlText);
+              if (url != null && await canLaunchUrl(url)) {
+                await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
+              }
+            }
+          },
+          pattern: WebURLHelper.regexLink,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        MatchText(
+          onTap: (urlText) async {
+            urlText = urlText.replaceFirst('nostr:', CommonConstant.njumpURL);
+            if (options.onLinkPressed != null) {
+              options.onLinkPressed!(urlText);
+            } else {
+              final url = Uri.tryParse(urlText);
+              if (url != null && await canLaunchUrl(url)) {
+                await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
+              }
+            }
+          },
+          pattern: WebURLHelper.regexNostr,
+          style: bodyLinkTextStyle ??
+              bodyTextStyle.copyWith(
+                decoration: TextDecoration.underline,
+              ),
+        ),
+        MatchText(
+          pattern: PatternStyle.bold.pattern,
+          style: boldTextStyle ??
+              bodyTextStyle.merge(PatternStyle.bold.textStyle),
+          renderText: ({
+            required String str, required String pattern
+          }) => {
+            'display': str.replaceAll(
+              PatternStyle.bold.from,
+              PatternStyle.bold.replace,
+            ),
+          },
+        ),
+        MatchText(
+          pattern: PatternStyle.italic.pattern,
+          style: bodyTextStyle.merge(PatternStyle.italic.textStyle),
+          renderText: ({
+            required String str, required String pattern
+          }) => {
+            'display': str.replaceAll(
+              PatternStyle.italic.from,
+              PatternStyle.italic.replace,
+            ),
+          },
+        ),
+        MatchText(
+          pattern: PatternStyle.lineThrough.pattern,
+          style: bodyTextStyle.merge(PatternStyle.lineThrough.textStyle),
+          renderText: ({
+            required String str, required String pattern
+          }) => {
+            'display': str.replaceAll(
+              PatternStyle.lineThrough.from,
+              PatternStyle.lineThrough.replace,
+            ),
+          },
+        ),
+        MatchText(
+          pattern: PatternStyle.code.pattern,
+          style: codeTextStyle ??
+              bodyTextStyle.merge(PatternStyle.code.textStyle),
+          renderText: ({
+            required String str, required String pattern
+          }) => {
+            'display': str.replaceAll(
+              PatternStyle.code.from,
+              PatternStyle.code.replace,
+            ),
+          },
+        ),
+      ],
+      maxLines: maxLines,
+      overflow: overflow,
+      regexOptions: const RegexOptions(multiLine: true, dotAll: true),
+      selectable: options.isTextSelectable,
+      style: bodyTextStyle,
+      text: text,
+      textWidthBasis: TextWidthBasis.longestLine,
+
+    );
+  }
 }
 
 @immutable

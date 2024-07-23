@@ -507,6 +507,7 @@ class _MessageState extends State<Message> {
           showName: widget.showName,
           usePreviewData: widget.usePreviewData,
           userAgent: widget.userAgent,
+          maxLimit: textMessage.maxLimit,
         );
         break ;
       case types.MessageType.video:
