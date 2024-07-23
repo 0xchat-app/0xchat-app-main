@@ -312,6 +312,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
       zapAmount: zapAmount,
       eventId: widget.eventId,
       description: _defaultZapDescription,
+      mint: mint,
       showLoading: true,
       zapType: widget.handler.zapType,
       receiver: widget.handler.receiver,
