@@ -185,7 +185,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },
-        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px));
+        ).setPadding(EdgeInsets.only(
+            left: 24.px,
+            right:24.px,
+            bottom: index == notesList.length - 1 ? 24.px : 0,
+        ));
       },
     );
   }
