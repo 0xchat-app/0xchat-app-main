@@ -445,6 +445,21 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             height: Adapt.px(0.5),
           ),
           _buildMomentItem(
+            isSelect: publicMomentsPageType == EPublicMomentsPageType.reacted,
+            EPublicMomentsPageType.reacted.text,
+            index: 1,
+            onTap: () {
+              OXNavigator.pop(context);
+              if(mounted){
+                publicMomentsPageType = EPublicMomentsPageType.reacted;
+              }
+            },
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          _buildMomentItem(
             isSelect: publicMomentsPageType == EPublicMomentsPageType.private,
             EPublicMomentsPageType.private.text,
             index: 1,

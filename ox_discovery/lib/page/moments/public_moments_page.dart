@@ -26,7 +26,7 @@ import 'moments_page.dart';
 import 'notifications_moments_page.dart';
 import 'package:flutter/services.dart';
 
-enum EPublicMomentsPageType { all, contacts, follows, private }
+enum EPublicMomentsPageType { all, contacts, follows, reacted, private }
 
 extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
   String get text {
@@ -37,8 +37,10 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
         return 'Contacts';
       case EPublicMomentsPageType.follows:
         return 'Follows';
+      case EPublicMomentsPageType.reacted:
+        return 'Likes & Zaps';
       case EPublicMomentsPageType.private:
-        return Localized.text('ox_discovery.private');
+        return 'Private';
     }
   }
 }
@@ -430,6 +432,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
             [];
       case EPublicMomentsPageType.follows:
         return await Moment.sharedInstance.loadFollowsNotesFromDB(
+            until: isInit ? null : _allNotesFromDBLastTimestamp,
+            limit: _limit) ??
+            [];
+      case EPublicMomentsPageType.reacted:
+        return await Moment.sharedInstance.loadMyReactedNotesFromDB(
                 until: isInit ? null : _allNotesFromDBLastTimestamp,
                 limit: _limit) ??
             [];
@@ -456,6 +463,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         return await Moment.sharedInstance.loadFollowsNewNotesFromRelay(
                 until: _allNotesFromDBLastTimestamp, limit: _limit) ??
             [];
+      case EPublicMomentsPageType.reacted:
+        return [];
       case EPublicMomentsPageType.private:
         return [];
     }
