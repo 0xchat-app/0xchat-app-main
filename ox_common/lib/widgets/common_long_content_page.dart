@@ -182,7 +182,7 @@ class CommonLongContentPageState extends State<CommonLongContentPage> {
         widget.content ?? '',
         style: TextStyle(
           fontSize: contentFontSize.px,
-          color: ThemeColor.white,
+          color: ThemeColor.color0,
         ),
       );
     }
