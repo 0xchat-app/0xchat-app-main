@@ -208,10 +208,12 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       },
       child: MomentWidgetsUtils.clipImage(
         borderRadius: 8.px,
-        child: Image.asset(
-          'assets/images/add_moment.png',
+        child: CommonImage(
+          iconName: 'add_moment.png',
           fit: BoxFit.cover,
           package: 'ox_discovery',
+          size: 104,
+          useTheme: true,
         ),
       ),
     );

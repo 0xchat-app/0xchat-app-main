@@ -136,7 +136,7 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
       BuildContext context, int index, List<String> imageList) {
     bool isShowAddIcon = imageList[index] == 'add_moment.png';
     String imgPath =
-        isShowAddIcon ? 'assets/images/add_moment.png' : imageList[index];
+        isShowAddIcon ? 'add_moment.png' : imageList[index];
 
     Widget imageWidget = Image.file(
       File(imgPath),
@@ -145,10 +145,11 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
     );
 
     if(isShowAddIcon){
-      imageWidget = Image.asset(
-        imgPath,
+      imageWidget = CommonImage(
+        iconName: imgPath,
         fit: BoxFit.cover,
         package: 'ox_discovery',
+        useTheme: true,
       );
     }
 
@@ -182,9 +183,10 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
                 ),
                 child: Center(
                   child: CommonImage(
-                    iconName: 'circle_close_icon.png',
-                    size: 24.px,
-                    color: Colors.white,
+                    iconName: 'close_icon.png',
+                    size: 20.px,
+                    color: Colors.red,
+                    package: 'ox_discovery',
                   ),
                 ),
               ),

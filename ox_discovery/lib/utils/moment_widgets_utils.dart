@@ -108,8 +108,8 @@ class MomentWidgetsUtils {
             color: Colors.white,
           ),
           Positioned(
-            top: 5,
-            right: 5,
+            top: 10,
+            right: 10,
             child: GestureDetector(
               onTap: () {
                 delVideoCallback?.call();
@@ -125,9 +125,10 @@ class MomentWidgetsUtils {
                 ),
                 child: Center(
                   child: CommonImage(
-                    iconName: 'circle_close_icon.png',
-                    size: 24.px,
-                    color: Colors.white,
+                    iconName: 'close_icon.png',
+                    size: 20.px,
+                    color: Colors.red,
+                    package: 'ox_discovery',
                   ),
                 ),
               ),
