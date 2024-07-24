@@ -4,6 +4,7 @@ import 'package:flutter_link_previewer/flutter_link_previewer.dart'
     show LinkPreview, regexEmail, regexLink, regexNostr;
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:ox_common/const/common_constant.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -159,7 +160,9 @@ class TextMessage extends StatelessWidget {
     final emojiTextStyle = user.id == message.author.id
         ? theme.sentEmojiMessageTextStyle
         : theme.receivedEmojiMessageTextStyle;
-
+    final moreBtnColor = user.id == message.author.id
+        ? Colors.black.withOpacity(0.6)
+        : ThemeColor.gradientMainStart;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -182,6 +185,7 @@ class TextMessage extends StatelessWidget {
             maxLines: 40,
             overflow: TextOverflow.ellipsis,
             maxLimit: maxLimit,
+            moreBtnColor: moreBtnColor,
           ),
       ],
     );
@@ -201,6 +205,7 @@ class TextMessageText extends StatelessWidget {
     this.overflow = TextOverflow.clip,
     required this.text,
     this.maxLimit,
+    this.moreBtnColor,
   });
 
   /// Style to apply to anything that matches a link.
@@ -229,6 +234,8 @@ class TextMessageText extends StatelessWidget {
 
   final int? maxLimit;
 
+  final Color? moreBtnColor;
+
   @override
   Widget build(BuildContext context) {
     var text = this.text;
@@ -247,7 +254,8 @@ class TextMessageText extends StatelessWidget {
             child: Text(
               moreText,
               style: bodyTextStyle.copyWith(
-                color: Colors.blueAccent,
+                color: moreBtnColor ?? Colors.blueAccent,
+                height: 1.1,
               ),
             ),
           )

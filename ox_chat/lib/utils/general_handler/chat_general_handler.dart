@@ -454,7 +454,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       final messageId = message.remoteId;
       if (messageId != null) {
         OXLoading.show();
-        OKEvent event = await Messages.deleteMessageFromRelay([messageId], '');
+        OKEvent event = await Messages.deleteMessageFromRelay(messageId, '');
         OXLoading.dismiss();
         if (event.status) {
           OXNavigator.pop(context);

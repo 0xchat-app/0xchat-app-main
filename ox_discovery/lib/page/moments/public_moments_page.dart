@@ -38,7 +38,7 @@ extension EPublicMomentsPageTypeEx on EPublicMomentsPageType {
       case EPublicMomentsPageType.follows:
         return 'Follows';
       case EPublicMomentsPageType.reacted:
-        return 'Likes & Zaps';
+        return 'Liked & Zapped';
       case EPublicMomentsPageType.private:
         return 'Private';
     }
