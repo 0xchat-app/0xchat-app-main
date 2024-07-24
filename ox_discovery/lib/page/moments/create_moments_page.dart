@@ -58,6 +58,8 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Map<String,UserDB> draftCueUserMap = {};
 
   List<String> addImageList = [];
+  List<String>? preImageList;
+
 
   String? videoPath;
   String? videoImagePath;
@@ -136,7 +138,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }
 
     currentPageType = widget.type;
-
+    preImageList = widget.imageList;
     setState(() {});
 
   }
@@ -247,7 +249,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
               OXNavigator.pop(context);
               AlbumUtils.openAlbum(context, type: 1,
                   callback: (List<String> imageList) {
-
                     currentPageType = EMomentType.picture;
                     addImageList = [...addImageList,...imageList];
                     setState(() {});
@@ -272,7 +273,6 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                     currentPageType = EMomentType.video;
                     videoPath = imageList[0];
                     videoImagePath = imageList[1];
-                    addImageList = [...addImageList,...imageList];
                     setState(() {});
 
                     // OXNavigator.presentPage(
@@ -381,6 +381,17 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     return NinePalaceGridPictureWidget(
       isEdit: true,
       imageList: _getImageList(),
+      delImageCallback:(int index) {
+        if(preImageList != null &&  (preImageList!.length - 1 >= index )){
+          preImageList!.removeAt(index);
+        }else{
+          addImageList.removeAt(index);
+        }
+        if(_getImageList().isEmpty){
+          currentPageType = null;
+        }
+        setState(() {});
+      },
       addImageCallback: (List<String> newImageList) {
         addImageList = [...addImageList, ...newImageList];
         setState(() {});
@@ -391,7 +402,17 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   Widget _videoWidget() {
     if (currentPageType != EMomentType.video) return const SizedBox();
     return MomentWidgetsUtils.videoMoment(
-        context, videoPath ?? '', videoImagePath ?? '');
+        context,
+        videoPath ?? '',
+        videoImagePath ?? '',
+        isEdit : true,
+        delVideoCallback: (){
+          videoPath = null;
+          videoImagePath = null;
+          currentPageType = null;
+          setState(() {});
+        }
+    );
   }
 
   Widget _quoteWidget() {
@@ -692,7 +713,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
   List<String> _getImageList() {
     List<String> containsImageList = [
-      ...widget.imageList ?? [],
+      ...preImageList ?? [],
       ...addImageList
     ];
     return containsImageList;

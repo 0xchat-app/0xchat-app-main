@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -19,15 +21,19 @@ class NinePalaceGridPictureWidget extends StatefulWidget {
   final List<String> imageList;
   final int axisSpacing;
   final Function(List<String> imageList)? addImageCallback;
+  final Function(int index)? delImageCallback;
 
   const NinePalaceGridPictureWidget(
-      {super.key,
-      required this.imageList,
-      this.addImageCallback,
-      this.width,
-      this.axisSpacing = 10,
-      this.isEdit = false,
-      this.crossAxisCount = 3});
+      {
+        super.key,
+        required this.imageList,
+        this.addImageCallback,
+        this.width,
+        this.axisSpacing = 10,
+        this.isEdit = false,
+        this.crossAxisCount = 3,
+        this.delImageCallback,
+      });
 
   @override
   _NinePalaceGridPictureWidgetState createState() =>
@@ -148,9 +154,43 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
 
     return GestureDetector(
       onTap: () => _photoOption(isShowAddIcon),
-      child: MomentWidgetsUtils.clipImage(
-        borderRadius: 8.px,
-        child: imageWidget,
+      child: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: MomentWidgetsUtils.clipImage(
+              borderRadius: 8.px,
+              child: imageWidget,
+            ),
+          ),
+          isShowAddIcon ? const SizedBox() : Positioned(
+            top: 5,
+            right: 5,
+            child: GestureDetector(
+              onTap: () {
+                widget.delImageCallback?.call(index);
+              },
+              child: Container(
+                width: 30.px,
+                height: 30.px,
+                decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30.px),
+                  ),
+                ),
+                child: Center(
+                  child: CommonImage(
+                    iconName: 'circle_close_icon.png',
+                    size: 24.px,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -42,7 +42,11 @@ class MomentWidgetsUtils {
     );
   }
 
-  static Widget videoMoment(context, String videoUrl, String? videoImagePath) {
+  static Widget videoMoment(context, String videoUrl, String? videoImagePath,
+      {
+        isEdit = false,
+        Function? delVideoCallback,
+      }) {
     Widget _showImageWidget() {
       if (videoImagePath != null) {
         return MomentWidgetsUtils.clipImage(
@@ -102,7 +106,33 @@ class MomentWidgetsUtils {
             package: 'ox_discovery',
             size: 60.0.px,
             color: Colors.white,
-          )
+          ),
+          Positioned(
+            top: 5,
+            right: 5,
+            child: GestureDetector(
+              onTap: () {
+                delVideoCallback?.call();
+              },
+              child: Container(
+                width: 30.px,
+                height: 30.px,
+                decoration: BoxDecoration(
+                  color: ThemeColor.color180,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30.px),
+                  ),
+                ),
+                child: Center(
+                  child: CommonImage(
+                    iconName: 'circle_close_icon.png',
+                    size: 24.px,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
