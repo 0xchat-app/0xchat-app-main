@@ -153,10 +153,19 @@ class _ZapsPageState extends State<ZapsPage> {
               ),
             ),
           ),
-          _buildItem(label: 'Default zap amount in sats', itemBody: _zapAmountView(hitText: '$_defaultZapAmount',controller: _zapAmountTextEditingController,focusNode: _focusNode),),
+          _buildItem(
+            label: 'Default zap amount in sats',
+            itemBody: _buildInputView(
+              hitText: '$_defaultZapAmount',
+              controller: _zapAmountTextEditingController,
+              focusNode: _focusNode,
+              keyboardType: const TextInputType.numberWithOptions(decimal: false),
+            ),
+          ),
+
           _buildItem(
             label: 'Default zap message',
-            itemBody: _zapAmountView(
+            itemBody: _buildInputView(
               hitText: _defaultDescription,
               controller: _zapDescriptionController,
               focusNode: _descriptionFocusNote,
@@ -176,11 +185,13 @@ class _ZapsPageState extends State<ZapsPage> {
     );
   }
 
-  Widget _zapAmountView(
+  Widget _buildInputView(
       {String? hitText,
       TextEditingController? controller,
       bool? enable,
-      FocusNode? focusNode}) {
+      FocusNode? focusNode,
+      TextInputType? keyboardType,
+      }) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -204,7 +215,7 @@ class _ZapsPageState extends State<ZapsPage> {
           border: InputBorder.none,
         ),
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: false),
+        keyboardType: keyboardType,
         style: TextStyle(color: ThemeColor.color40),
       ),
     );
