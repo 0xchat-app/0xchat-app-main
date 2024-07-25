@@ -108,18 +108,16 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
             OXMomentCacheManager.sharedInstance.createMomentMediaDraft;
         if (createMomentMediaDraft != null) {
           final type = createMomentMediaDraft.type;
-          final imageList = type == EMomentType.picture
-              ? createMomentMediaDraft.imageList
-              : null;
-          final videoPath = type == EMomentType.video
-              ? createMomentMediaDraft.videoPath
-              : null;
+          final imageList = type == EMomentType.picture ? createMomentMediaDraft.imageList : null;
+          final videoPath = type == EMomentType.video ? createMomentMediaDraft.videoPath : null;
+          final videoImagePath = type == EMomentType.video ? createMomentMediaDraft.videoImagePath : null;
          await OXNavigator.presentPage(
             context,
             (context) => CreateMomentsPage(
               type: type,
               imageList: imageList,
               videoPath: videoPath,
+              videoImagePath: videoImagePath,
               groupId: widget.groupId,
               sendMomentsType: EOptionMomentsType.group,
             ),
