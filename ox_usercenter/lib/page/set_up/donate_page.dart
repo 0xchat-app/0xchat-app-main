@@ -150,6 +150,7 @@ class _DonatePageState extends State<DonatePage> {
         return;
       }
       _productDetails = productDetailResponse.productDetails;
+      print('[IAP Info] Product details: ${_productDetails?.map((e) => 'id: ${e.id}, title: ${e.title}').join(';')}');
       setState(() {});
     }
   }
