@@ -94,7 +94,9 @@ class _DonatePageState extends State<DonatePage> {
   void _initData() async {
     _mCurrentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     _isAppleOrGooglePay = Platform.isIOS;
-    _setSatsData();
+    if (!_isAppleOrGooglePay) {
+      _setSatsData();
+    }
     if (Platform.isIOS) _requestData();
   }
 
@@ -237,6 +239,9 @@ class _DonatePageState extends State<DonatePage> {
     _productList = await PurchaseUtil.getProductList(pubKey: _mCurrentUserInfo!.pubKey);
     LogUtil.e("Michael: server myProductListEntity :${_productList?.toString()}");
     initStoreInfo();
+    if (_isAppleOrGooglePay) {
+      _setThirdPay();
+    }
   }
 
   void _setThirdPay() {
@@ -549,18 +554,18 @@ class _DonatePageState extends State<DonatePage> {
       final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(_kIds);
       if (productDetailResponse.error != null) {
         await OXLoading.dismiss();
-        LogUtil.e("Michael: donate Purchase : productDetailResponse.error =${productDetailResponse.error}");
+        print('[IAP Error] error: ${productDetailResponse.error}');
         return;
       }
       if (productDetailResponse.notFoundIDs.isNotEmpty) {
         // Handle the error.
         await OXLoading.dismiss();
-        LogUtil.e("Michael: donate Purchase : isNotEmpty ${productDetailResponse.notFoundIDs}");
+        print('[IAP Error] isNotEmpty: ${productDetailResponse.notFoundIDs}');
         return;
       }
       if (productDetailResponse.productDetails.isEmpty) {
         await OXLoading.dismiss();
-        LogUtil.e("Michael: donate Purchase : isEmpty");
+        print('[IAP Error] Product details is empty');
         return;
       }
       _inAppPurchase.buyConsumable(purchaseParam: PurchaseParam(productDetails: productDetailResponse.productDetails.first));
