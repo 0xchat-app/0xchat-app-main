@@ -127,10 +127,11 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
           updateNotesList(true);
           return;
         }
-        showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            builder: (context) => _buildCreateMomentBottomDialog());
+        OXNavigator.presentPage(context, (context) => CreateMomentsPage(
+          type: null,
+          groupId: widget.groupId,
+          sendMomentsType: EOptionMomentsType.group,
+        ));
       },
     );
   }
