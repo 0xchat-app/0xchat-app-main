@@ -139,6 +139,7 @@ class _DonatePageState extends State<DonatePage> {
       final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(_kIds);
       if(!mounted) return;
       if (productDetailResponse.error != null) {
+        print('[IAP Error] ${productDetailResponse.error}');
         setState(() {});
         return;
       }
