@@ -132,7 +132,7 @@ class _FileServerPageState extends State<FileServerPage> with OXServerObserver {
                     style: TextStyle(
                       fontSize: 16.px,
                       fontWeight: FontWeight.w400,
-                      color: _isEditing && !canEdit ? ThemeColor.white.withOpacity(0.2) : ThemeColor.white,
+                      color: _isEditing && !canEdit ? ThemeColor.color0.withOpacity(0.2) : ThemeColor.color0,
                     ),
                   ),
                   SizedBox(height: 4.px,),
