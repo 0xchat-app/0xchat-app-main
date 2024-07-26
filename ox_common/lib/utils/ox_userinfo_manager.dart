@@ -6,7 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
@@ -90,58 +90,45 @@ class OXUserInfoManager {
 
   Future initLocalData() async {
     ///account auto-login
-    final String? localPriv = await OXCacheManager.defaultOXCacheManager.getForeverData('PrivKey');
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
-    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
-    if (localPriv != null && localPriv.isNotEmpty) {
-      OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
-      OXCacheManager.defaultOXCacheManager.removeData('PrivKey');
-      String? privKey = UserDB.decodePrivkey(localPriv);
-      if (privKey == null || privKey.isEmpty) {
-        LogUtil.e('Oxchat : Auto-login failed, please log in again.');
-        return;
-      }
-      String pubkey = Account.getPublicKey(privKey);
-      await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
-      if (tempUserDB != null) {
-        currentUserInfo = Account.sharedInstance.me;
-        _initDatas();
-        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, tempUserDB.pubKey);
-      }
-    } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
-      bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
-      if (isInstalled) {
-        String? signature = await ExternalSignerTool.getPubKey();
-        if (signature == null) {
-          signatureVerifyFailed = true;
-          return;
-        }
-        String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-        if (decodeSignature == localPubKey) {
-          await initDB(localPubKey);
-          UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
-          if (tempUserDB != null) {
-            currentUserInfo = tempUserDB;
-            _initDatas();
-            _initFeedback();
+    if (localPubKey != null) {
+      final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
+      if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
+        bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+        if (isInstalled) {
+          String? signature = await ExternalSignerTool.getPubKey();
+          if (signature == null) {
+            signatureVerifyFailed = true;
+            return;
           }
-        } else {
-          signatureVerifyFailed = true;
+          String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+          if (decodeSignature == localPubKey) {
+            await initDB(localPubKey);
+            UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+            if (tempUserDB != null) {
+              currentUserInfo = tempUserDB;
+              _initDatas();
+              _initFeedback();
+            }
+          } else {
+            signatureVerifyFailed = true;
+          }
         }
-      }
-    } else if (localPubKey != null && localPubKey.isNotEmpty) {
-      await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
-      LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
-      if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
-        _initDatas();
-        _initFeedback();
+      } else if (localPubKey != null && localPubKey.isNotEmpty) {
+        await initDB(localPubKey);
+        final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+        LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
+        if (tempUserDB != null) {
+          currentUserInfo = tempUserDB;
+          _initDatas();
+          _initFeedback();
+        }
+      } else {
+        AppInitializationManager.shared.shouldShowInitializationLoading = false;
+        return;
       }
     } else {
       AppInitializationManager.shared.shouldShowInitializationLoading = false;
-      return;
     }
   }
 
@@ -152,7 +139,8 @@ class OXUserInfoManager {
   Future<void> loginSuccess(UserDB userDB) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
-    UserConfigTool.updateUserConfigDB(UserConfigDB(pubKey: userDB.pubKey));
+    UserConfigTool.saveUser(userDB);
+    UserConfigTool.updateSettingFromDB(userDB.settings);
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -273,21 +261,29 @@ class OXUserInfoManager {
     }
   }
 
+  Future<void> switchAccount(String selectedPubKey) async {
+    logout();
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
+    await OXUserInfoManager.sharedInstance.initLocalData();
+    for (OXUserInfoObserver observer in _observers) {
+      observer.didSwitchUser(currentUserInfo);
+    }
+  }
+
   Future logout() async {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
     Account.sharedInstance.logout();
-    UserConfigTool.clearUserConfigFromDB();
     resetData();
   }
 
-  void resetData() async {
+  Future<void> resetData() async {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, false);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey??''}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', false);
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PASSCODE.name, '');
+    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, false);
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,
@@ -309,8 +305,8 @@ class OXUserInfoManager {
   Future<bool> setNotification() async {
     bool updateNotificatin = false;
     if (!isLogin) return updateNotificatin;
-    String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUSH_TOKEN, defaultValue: '');
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
+    String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
+    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
 
     ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
@@ -360,7 +356,7 @@ class OXUserInfoManager {
   }
 
   void _initDatas() async {
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, true);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
@@ -377,8 +373,8 @@ class OXUserInfoManager {
     });
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
-    OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
-    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 21);
+    OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${StorageSettingKey.KEY_ZAP_BADGE.name}',defaultValue: false);
+    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name}',defaultValue: 21);
   }
 
   void _initMessage() {
@@ -402,7 +398,7 @@ class OXUserInfoManager {
   }
 
   Future<bool> _fetchFeedback(int feedback) async {
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
+    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: []);
     if (dynamicList.isNotEmpty) {
       List<String> jsonStringList = dynamicList.cast<String>();
       for (var jsonString in jsonStringList) {
