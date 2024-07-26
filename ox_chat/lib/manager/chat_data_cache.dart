@@ -503,7 +503,7 @@ extension ChatDataCacheEx on ChatDataCache {
 
     List<MessageDB> allMessage = result;
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    int msgDeletePeriod = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME_TYPE.name, defaultValue: 0);
+    int msgDeletePeriod = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME.name, defaultValue: 0);
     await Future.forEach(allMessage, (message) async {
       if(msgDeletePeriod > 0 && message.createTime + msgDeletePeriod < currentTime){
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);

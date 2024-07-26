@@ -133,7 +133,7 @@ class ChatSessionUtils {
       default:
         break;
     }
-    Widget typeSessionWidget = iconName != null ? CommonImage(iconName: iconName, size: 24.px, package: 'ox_chat',) : SizedBox();
+    Widget typeSessionWidget = iconName != null ? CommonImage(iconName: iconName, size: 24.px, package: 'ox_chat',useTheme: true,) : SizedBox();
     return typeSessionWidget;
   }
 }
