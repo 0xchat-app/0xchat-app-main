@@ -62,36 +62,46 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
   Widget build(BuildContext context) {
     bool isShowVideoWidget = _chewieController != null &&
         _chewieController!.videoPlayerController.value.isInitialized;
-    if(!isShowVideoWidget) return const SizedBox();
+    if(!isShowVideoWidget) {
+      return Container(
+        color: ThemeColor.color180,
+        width: double.infinity,
+        height: double.infinity,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 100,
+              left: 24,
+              child: GestureDetector(
+                onTap: () => OXNavigator.pop(context),
+                child: Container(
+                  width: 35.px,
+                  height: 35.px,
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color180,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(35.px),
+                    ),
+                  ),
+                  child: Center(
+                    child: CommonImage(
+                      iconName: 'circle_close_icon.png',
+                      size: 24.px,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       color: ThemeColor.color180,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(
-            top: 100,
-            right: 24,
-            child: GestureDetector(
-              onTap: () => OXNavigator.pop(context),
-              child: Container(
-                width: 35.px,
-                height: 35.px,
-                decoration: BoxDecoration(
-                  color: ThemeColor.color180,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(35.px),
-                  ),
-                ),
-                child: Center(
-                  child: CommonImage(
-                    iconName: 'circle_close_icon.png',
-                    size: 24.px,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
           GestureDetector(
             onTap: _onVideoTap,
             child: SafeArea(
