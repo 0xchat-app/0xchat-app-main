@@ -1,25 +1,19 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_chat/model/option_model.dart';
-import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_qrcode_add_friend.dart';
 import 'package:ox_chat/page/contacts/contact_request.dart';
+import 'package:ox_chat/page/contacts/contact_view_channels.dart';
 import 'package:ox_chat/page/contacts/contact_view_friends.dart';
 import 'package:ox_chat/page/contacts/contact_view_groups.dart';
-import 'package:ox_chat/page/contacts/groups/group_join_requests.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_chat/widget/group_create_selector_dialog.dart';
-import 'package:ox_common/business_interface/ox_chat/interface.dart';
-import 'package:ox_common/log_util.dart';
-import 'package:ox_common/utils/date_utils.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
-import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/categoryView/common_category_title_view.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -140,6 +134,7 @@ class _ContractsPageState extends State<ContractsPage>
         controller: _pageController,
         onPageChanged: (index) {
           _selectedType = ContactsItemType.values.elementAt(index);
+          setState(() {});
         },
         children: [
           ContractViewFriends(
