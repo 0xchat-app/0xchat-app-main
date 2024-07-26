@@ -43,6 +43,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   String get zapAmountStr => _amountController.text.orDefault(_defaultSatsValue);
+  String get zapDescription => _descriptionController.text.orDefault(_defaultZapDescription);
   int get zapAmount => int.tryParse(zapAmountStr) ?? 0;
 
   IMint? mint;
@@ -311,7 +312,8 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
       lnurl: widget.lnurl,
       zapAmount: zapAmount,
       eventId: widget.eventId,
-      description: _defaultZapDescription,
+      description: zapDescription,
+      mint: mint,
       showLoading: true,
       zapType: widget.handler.zapType,
       receiver: widget.handler.receiver,
