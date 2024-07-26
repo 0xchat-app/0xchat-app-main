@@ -208,7 +208,7 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
         _imgFile = File(filePaths[0]);
       }
     } else {
-      storagePermission = await PermissionUtils.getPhotosPermission();
+      storagePermission = await PermissionUtils.getPhotosPermission(context);
     }
     if (storagePermission) {
       final res = await ImagePickerUtils.pickerPaths(

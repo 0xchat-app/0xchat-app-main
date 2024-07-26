@@ -36,7 +36,7 @@ class PermissionUtils{
     }
   }
 
-  static Future<bool> getPhotosPermission({int type = 1}) async {
+  static Future<bool> getPhotosPermission(BuildContext context, {int type = 1}) async {
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
     bool permissionGranted = false;
     if (Platform.isAndroid && (await plugin.androidInfo).version.sdkInt < 33) {
@@ -56,7 +56,15 @@ class PermissionUtils{
       if (status.isGranted || status.isLimited) {
         permissionGranted = true;
       } else if (status.isPermanentlyDenied) {
-        await openAppSettings();
+        await OXCommonHintDialog.show(context, content: Localized.text('ox_common.str_grant_permission_photo_hint'), actionList: [
+          OXCommonHintAction(
+              text: () => Localized.text('ox_chat.str_go_to_settings'),
+              onTap: () {
+                openAppSettings();
+                OXNavigator.pop(context);
+              }),
+        ], isRowAction: true, showCancelButton: true,);
+        permissionGranted = false;
       } else if (status.isDenied) {
         permissionGranted = false;
       }
