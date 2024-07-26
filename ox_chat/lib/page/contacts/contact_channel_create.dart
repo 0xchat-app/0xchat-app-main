@@ -445,7 +445,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
         _uploadAndRefresh(_imgFile);
       }
     } else {
-      storagePermission = await PermissionUtils.getPhotosPermission();
+      storagePermission = await PermissionUtils.getPhotosPermission(context);
     }
     if (storagePermission) {
       final res = await ImagePickerUtils.pickerPaths(

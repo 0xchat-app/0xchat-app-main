@@ -581,19 +581,11 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
         return;
       }
     } else {
-      storagePermission = await PermissionUtils.getPhotosPermission(type: type);
+      storagePermission = await PermissionUtils.getPhotosPermission(context,type: type);
     }
     if(storagePermission){
       await _goToPhoto(context, type);
     } else {
-      await OXCommonHintDialog.show(context, content: 'Please grant permission to access the photo', actionList: [
-        OXCommonHintAction(
-            text: () => 'Go to settings',
-            onTap: () {
-              openAppSettings();
-              OXNavigator.pop(context);
-            }),
-      ], isRowAction: true, showCancelButton: true,);
     }
   }
 

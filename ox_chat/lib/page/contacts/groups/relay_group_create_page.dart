@@ -316,7 +316,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         _uploadAndRefresh(_imgFile);
       }
     } else {
-      storagePermission = await PermissionUtils.getPhotosPermission();
+      storagePermission = await PermissionUtils.getPhotosPermission(context);
     }
     if (storagePermission) {
       final res = await ImagePickerUtils.pickerPaths(

@@ -98,7 +98,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
         return File(filePaths[0]);
       }
     } else {
-      storagePermission = await PermissionUtils.getPhotosPermission();
+      storagePermission = await PermissionUtils.getPhotosPermission(context);
     }
     if(storagePermission){
       OXLoading.show();
