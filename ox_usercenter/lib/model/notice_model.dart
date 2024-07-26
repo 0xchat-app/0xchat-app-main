@@ -9,17 +9,17 @@ class NoticeModel {
 
   NoticeModel({this.id = 0, this.isSelected = false});
 
-  NoticeModel noticeModelFomJson(Map<String, dynamic> json) {
+  factory NoticeModel.noticeModelFromJson(Map<String, dynamic> json) {
     return NoticeModel(
       id : json['id'],
       isSelected: json['isSelected'] ?? false,
     );
   }
 
-  Map<String, dynamic> noticeModelToMap(NoticeModel model) {
+  Map<String, dynamic> noticeModelToJson() {
     return <String, dynamic>{
-      'id': model.id,
-      'isSelected': model.isSelected ,
+      'id': id,
+      'isSelected': isSelected ,
     };
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -156,7 +158,11 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
       CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
       return;
     }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}; value =${value.toMap()}');
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);

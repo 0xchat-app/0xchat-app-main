@@ -33,7 +33,7 @@ class SecureModel {
       showArrow: true,
       settingItemType: SecureItemType.block,
     ));
-    String passcode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    String passcode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     bool passcodeSwitchValue = false;
     if (passcode.isNotEmpty) {
       passcodeSwitchValue = true;
@@ -48,7 +48,7 @@ class SecureModel {
       return settingModelList;
     }
     List<BiometricType> availableBiometrics = await SecurityAuthUtils.getAvailableBiometrics();
-    bool faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
+    bool faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
     if (availableBiometrics.contains(BiometricType.face)) {
       if (Platform.isIOS) {
         settingModelList.add(SecureModel(
@@ -59,7 +59,7 @@ class SecureModel {
         ));
       }
     }
-    bool fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
+    bool fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
     if (Platform.isAndroid || availableBiometrics.contains(BiometricType.fingerprint)) {
       settingModelList.add(SecureModel(
         iconName: 'icon_secure_fingerprint.png',

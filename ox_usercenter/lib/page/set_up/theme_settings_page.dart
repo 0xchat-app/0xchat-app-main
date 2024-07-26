@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -66,16 +68,9 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
   }
 
   void _getSelectIndex ()async{
-    var getStyle = await OXCacheManager.defaultOXCacheManager.getForeverData('themeSetting',defaultValue: ThemeSettingType.dark.saveText);
-    if(getStyle == '') {
-      _selectedIndex = 0;
-    }
-    if(getStyle == 'dark'){
-      _selectedIndex = 1;
-    }
-    if(getStyle == 'light'){
-      _selectedIndex = 2;
-    }
+    final cacheStyle = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_THEME_INDEX.name, defaultValue: ThemeSettingType.dark.index);
+    LogUtil.e('Michael:---settings---cacheStyle =${cacheStyle}');
+    _selectedIndex = cacheStyle;
     setState(() {});
 
   }
@@ -145,14 +140,10 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
       onTap: () async {
         final selectedIndex = index ?? 0;
         ThemeManager.changeTheme(ThemeSettingType.values[selectedIndex].themeStyle);
-        OXCacheManager.defaultOXCacheManager.saveForeverData('themeSetting', ThemeSettingType.values[selectedIndex].saveText);
+        final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_THEME_INDEX.name, selectedIndex);
         _selectedIndex = selectedIndex;
-        UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-        if (userConfigDB != null) {
-          userConfigDB.themeIndex = selectedIndex;
-          UserConfigTool.updateUserConfigDB(userConfigDB);
-        }
         if (mounted) setState(() { });
+        UserConfigTool.saveSettingToDB();
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),

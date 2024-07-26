@@ -64,7 +64,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
   }
 
   void _getGiphyUseState() async {
-    _isAgreeUseGiphy = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, defaultValue: false);
+    _isAgreeUseGiphy = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_IS_AGREE_USE_GIPHY.name, defaultValue: false);
   }
 
   @override
@@ -162,7 +162,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, true);
+            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_IS_AGREE_USE_GIPHY.name, true);
             setState(() {
               _isAgreeUseGiphy = true;
             });

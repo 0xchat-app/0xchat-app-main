@@ -41,7 +41,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   }
 
   void _loadData() async {
-    localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
   }
 
   @override

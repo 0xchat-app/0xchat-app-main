@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -147,11 +148,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> with Single
     });
     _controller.repeat();
     await Localized.changeLocale(LocaleType.values[selectedIndex]);
-    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (userConfigDB != null) {
-      userConfigDB.languageIndex = selectedIndex;
-      UserConfigTool.updateUserConfigDB(userConfigDB);
-    }
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_LANGUAGE_INDEX.name, selectedIndex);
+    UserConfigTool.saveSettingToDB();
     if (mounted) {
       setState(() {
         _isShowLoading = false;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
@@ -299,9 +300,12 @@ class _LoginPageState extends State<LoginPage> {
       CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
       return;
     }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, true);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
     AppInitializationManager.shared.showInitializationLoading();

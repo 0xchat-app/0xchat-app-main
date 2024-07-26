@@ -206,5 +206,12 @@
   "str_enter": "Enter",
   "str_url_tips_text": "Please enter a valid URL",
   "str_bucket__name_tips_text": "Bucket Name is not exist!",
-  "str_nip96_tips_text": "The file server does not support NIP-96"
+  "str_nip96_tips_text": "The file server does not support NIP-96",
+  "str_switch_account": "Switch Account",
+  "str_account_manage": "Manage",
+  "str_add_account": "Add Account",
+  "str_account_manage_hint": "Tap Profile to Switch \nBetween Account",
+  "str_clear_account": "Clear",
+  "str_clear_account_dialog_hint": "Remove ${name}’s Login info?",
+  "str_clear_account_dialog_remove": "Remove"
 }

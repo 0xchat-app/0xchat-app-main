@@ -127,7 +127,7 @@ class _PasscodePageState extends State<PasscodePage> {
         });
       } else if (widget.type == 1) {
         if (_inputPwd == widget.passcode) {
-          OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, _inputPwd);
+          OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PASSCODE.name, _inputPwd);
           OXNavigator.popToPage(context, pageType: 'PrivacyPage');
         } else {
           inputError();

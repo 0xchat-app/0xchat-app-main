@@ -11,6 +11,7 @@ import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
 import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -217,6 +218,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
       userDB.updateWith(user);
       if(mounted) setState(() {});
+      UserConfigTool.saveUser(user);
+      UserConfigTool.updateSettingFromDB(user.settings);
     });
     OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
         chatName: userDB.name, pic: userDB.picture);

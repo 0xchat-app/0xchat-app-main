@@ -58,7 +58,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
 
   void loadData() async {
     pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    _isOriginalPw = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, defaultValue: true);
+    _isOriginalPw = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_IS_ORIGINAL_PASSPHRASE.name, defaultValue: true);
     currentDBPW = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey', defaultValue: '');
     if (_isOriginalPw) {
       _currentTeController.text = currentDBPW;
@@ -239,10 +239,10 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
 
   Future<void> keychainWrite() async {
     String confirmPW = _confirmTeController.text.isEmpty ? '' : _confirmTeController.text;
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_ORIGINAL_PASSPHRASE, false);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_IS_ORIGINAL_PASSPHRASE.name, false);
     try {
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', confirmPW);
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, true);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_IS_CHANGE_DEFAULT_DB_PW.name, true);
       CommonToast.instance.show(context, 'str_update_pw_success'.localized());
       await changeDatabasePassword(currentDBPW, confirmPW);
     } catch (e) {
