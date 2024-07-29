@@ -25,9 +25,10 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/24 16:24
 class RelayGroupRequestsPage extends StatefulWidget {
-
+  final String? groupId;
   RelayGroupRequestsPage({
     super.key,
+    this.groupId,
   });
 
   @override
@@ -54,12 +55,17 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
 
   void _initData() async {
     List<JoinRequestDB> allRequestJoinList = [];
-    if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
-      await Future.forEach(tempGroups, (element) async {
-        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
-        allRequestJoinList.addAll(requestJoinList);
-      });
+    String? tempGroupId = widget.groupId;
+    if (tempGroupId != null) {
+      allRequestJoinList = await RelayGroup.sharedInstance.getRequestList(tempGroupId);
+    } else {
+      if(RelayGroup.sharedInstance.myGroups.length>0) {
+        List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+        await Future.forEach(tempGroups, (element) async {
+          List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+          allRequestJoinList.addAll(requestJoinList);
+        });
+      }
     }
     if (allRequestJoinList.isNotEmpty) {
       allRequestJoinList.sort((request1, request2) {

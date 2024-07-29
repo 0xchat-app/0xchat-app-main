@@ -7,6 +7,7 @@ import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -307,6 +308,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             onTap: null,
             isShowMoreIcon: false,
             isShowDivider: _hasAddPermission,
+          ),
+          GroupItemBuild(
+            title: Localized.text('ox_chat.join_request'),
+            onTap: _groupRequestFn,
+            isShowMoreIcon: true,
+            isShowDivider: true,
           ),
           if (_hasAddPermission)
             GroupItemBuild(
@@ -619,6 +626,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   }
 
+  void _groupRequestFn() async {
+    OXNavigator.pushPage(context, (context) => RelayGroupRequestsPage(groupId: widget.groupId)).then((value) {
+      _loadMembers();
+    });
+  }
+
   void _manageGroupFn() async {
     await OXNavigator.pushPage(
       context,
@@ -746,7 +759,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       _isMute = groupDB.mute;
       _getPermissionValue();
       setState(() {});
-      _loadMembers(groupDB);
+      _loadMembers();
     }
   }
 
@@ -759,7 +772,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     }
   }
 
-  void _loadMembers(RelayGroupDB groupDB) async {
+  void _loadMembers() async {
     List<UserDB> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
     if (localMembers.isNotEmpty) {
       groupMember = localMembers;
