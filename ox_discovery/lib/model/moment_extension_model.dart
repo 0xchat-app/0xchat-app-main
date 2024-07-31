@@ -46,10 +46,10 @@ class CreateMomentDraft{
   String? videoImagePath;
   String content;
   EMomentType type;
-  Map<String,UserDB>? draftCueUserMap;
+  Map<String,UserDBISAR>? draftCueUserMap;
 
   VisibleType visibleType;
-  List<UserDB>? selectedContacts;
+  List<UserDBISAR>? selectedContacts;
 
   CreateMomentDraft({
     required this.type,

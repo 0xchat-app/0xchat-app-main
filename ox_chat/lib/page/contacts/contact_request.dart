@@ -274,7 +274,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildItemName(ChatSessionModel item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showName = otherDB?.getUserShowName() ?? '';
     return item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
         ? Row(
@@ -358,7 +358,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   Widget _buildAvatar(ChatSessionModel item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showPicUrl = otherDB?.picture ?? '';
     return OXUserAvatar(
       user: otherDB,
@@ -374,7 +374,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   Future<bool> _getChatSessionMute(ChatSessionModel csModel) async {
     bool isMute = false;
     if (csModel.chatType == ChatType.chatStranger || csModel.chatType == ChatType.chatSecretStranger) {
-      UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId);
+      UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId);
       if (tempUserDB != null) {
         isMute = tempUserDB.mute ?? false;
       }

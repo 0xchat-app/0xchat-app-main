@@ -125,8 +125,8 @@ mixin ShareItemInfoMixin {
   }
 
   //Queries the list of Friends to see if each Friend name contains a search character
-  List<UserDB>? loadChatFriendsWithSymbol(String symbol) {
-    List<UserDB>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
+  List<UserDBISAR>? loadChatFriendsWithSymbol(String symbol) {
+    List<UserDBISAR>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
     return friendList;
   }
 

@@ -94,7 +94,7 @@ class ChatMessageBuilder {
     bool isOverCount = false;
     for (final pubkey in reaction.authors) {
       final user = Account.sharedInstance.getUserInfo(pubkey);
-      if (user is UserDB) {
+      if (user is UserDBISAR) {
         var name = user.getUserShowName();
         if (name.length > 13) {
           name = name.substring(0, 10) + '...';
@@ -639,9 +639,9 @@ class ChatMessageBuilder {
     final isOpened = EcashV2MessageEx(message).isOpened;
     final receivers = EcashV2MessageEx(message).receiverPubkeys
         .map((pubkey) => Account.sharedInstance.getUserInfo(pubkey))
-        .where((user) => user is UserDB)
+        .where((user) => user is UserDBISAR)
         .toList()
-        .cast<UserDB>();
+        .cast<UserDBISAR>();
     final signees = EcashV2MessageEx(message).signees;
 
     var subTitle = '';

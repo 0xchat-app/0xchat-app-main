@@ -36,7 +36,7 @@ class GroupInfoPage extends StatefulWidget {
 
 class _GroupInfoPageState extends State<GroupInfoPage> {
   bool _isMute = false;
-  List<UserDB> groupMember = [];
+  List<UserDBISAR> groupMember = [];
   GroupDB? groupDBInfo = null;
 
   bool requestTag = true;
@@ -582,14 +582,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   bool get _isGroupOwner {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null || groupDBInfo == null) return false;
 
     return userInfo.pubKey == groupDBInfo?.owner;
   }
 
   bool get _isGroupMember {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null || groupMember.length == 0) return false;
     bool hasMember =
         groupMember.any((userDB) => userDB.pubKey == userInfo.pubKey);
@@ -690,7 +690,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     if (requestTag) {
       _changeRequestTagStatus(false);
       OXLoading.show();
-      UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+      UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
       OKEvent event = await Groups.sharedInstance
           .leaveGroup(widget.groupId, Localized.text('ox_chat.leave_group_system_message').replaceAll(r'${name}', '${userInfo?.name}'));
 
@@ -736,7 +736,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   void _groupInfoInit() async {
     String groupId = widget.groupId;
     GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
-    List<UserDB>? groupList =
+    List<UserDBISAR>? groupList =
         await Groups.sharedInstance.getAllGroupMembers(groupId);
 
     if (groupDB != null) {

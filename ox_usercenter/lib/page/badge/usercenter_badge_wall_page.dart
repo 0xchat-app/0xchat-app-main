@@ -23,7 +23,7 @@ import 'package:nostr_core_dart/nostr.dart';
 ///@author Michael
 ///CreateTime: 2023/5/6 16:21
 class UsercenterBadgeWallPage extends StatefulWidget {
-  final UserDB? userDB;
+  final UserDBISAR? userDB;
 
   const UsercenterBadgeWallPage({Key? key, required this.userDB}) : super(key: key);
 
@@ -37,7 +37,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   List<BadgeModel> _defaultBadgeModelList = [];
   final List<BadgeModel> _currentUserBadgeModelList = [];
   final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 32 + 48)) / 3;
-  UserDB? _mUserInfo;
+  UserDBISAR? _mUserInfo;
   BadgeModel? _selectedBadgeModel;
 
   @override
@@ -143,7 +143,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         });
         String badges = '["${badgeModel.badgeId}"]';
         _mUserInfo?.badges = badges;
-        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
+        UserDBISAR? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
         if(tempUserDB == null){
           CommonToast.instance.show(context, 'Fail to update profile badge ');
         }

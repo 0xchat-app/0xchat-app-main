@@ -764,8 +764,8 @@ class _ZapsPageState extends State<ZapsPage> {
         final toPubKey = zapRecordsDB.recipient;
         final paidAt = (zapRecordsDB.paidAt * 1000).toString();
 
-        UserDB? fromUser = await Account.sharedInstance.getUserInfo(fromPubKey);
-        UserDB? toUser = await Account.sharedInstance.getUserInfo(toPubKey);
+        UserDBISAR? fromUser = await Account.sharedInstance.getUserInfo(fromPubKey);
+        UserDBISAR? toUser = await Account.sharedInstance.getUserInfo(toPubKey);
 
         zapsRecordDetailList.add(
           ZapsRecordDetail(

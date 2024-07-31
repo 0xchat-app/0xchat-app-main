@@ -72,8 +72,8 @@ class EcashSendingPage extends StatefulWidget {
   });
 
   final bool isGroupEcash;
-  final UserDB? singleReceiver;
-  final Future<List<UserDB>?> Function() membersGetter;
+  final UserDBISAR? singleReceiver;
+  final Future<List<UserDBISAR>?> Function() membersGetter;
   final Function(EcashInfo ecash) ecashInfoCallback;
 
   @override
@@ -552,14 +552,14 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
 
   Future receiverOnTap() async {
     final members = await widget.membersGetter() ?? [];
-    final selectedUser = await OXNavigator.presentPage<List<UserDB>>(
+    final selectedUser = await OXNavigator.presentPage<List<UserDBISAR>>(
       null, (context) => UserSelectionPage(
         title: 'group_member'.localized(),
         userList: members,
         defaultSelected: condition.receiver,
         isMultiSelect: true,
         shouldPop: (selectedUser) {
-          UserDB? duplicateUser = condition.signees.where((signee) =>
+          UserDBISAR? duplicateUser = condition.signees.where((signee) =>
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
@@ -602,14 +602,14 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
 
   Future signatureOnTap() async {
     final members = await widget.membersGetter() ?? [];
-    final selectedUser = await OXNavigator.presentPage<List<UserDB>>(
+    final selectedUser = await OXNavigator.presentPage<List<UserDBISAR>>(
       null, (context) => UserSelectionPage(
         title: 'group_member'.localized(),
         userList: members,
         defaultSelected: condition.signees,
         isMultiSelect: true,
         shouldPop: (selectedUser) {
-          UserDB? duplicateUser = condition.receiver.where((signee) =>
+          UserDBISAR? duplicateUser = condition.receiver.where((signee) =>
               selectedUser.contains(signee)).firstOrNull;
 
           if (duplicateUser != null) {
@@ -748,7 +748,7 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   Future createEcashForMultipleType(
     IMint mint,
     List<int> amountList,
-    List<UserDB> signee,
+    List<UserDBISAR> signee,
     int? lockTime,
   ) async {
 
@@ -786,8 +786,8 @@ class _EcashSendingPageState extends State<EcashSendingPage> with
   Future createEcashForExclusiveType(
     IMint mint,
     int amount,
-    List<UserDB> receiver,
-    List<UserDB> signee,
+    List<UserDBISAR> receiver,
+    List<UserDBISAR> signee,
     int? lockTime,
   ) async {
     final refundPubkey = condition.refundPubkey ?? '';

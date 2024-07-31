@@ -12,7 +12,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 class DiyUserDB {
   bool isSelect;
-  UserDB db;
+  UserDBISAR db;
   DiyUserDB(this.isSelect, this.db);
 }
 
@@ -176,7 +176,7 @@ class _SelectMentionPageState extends State<SelectMentionPage> {
   }
 
   Widget _mentionsUserInfoWidget(DiyUserDB userInfo) {
-    UserDB userDB = userInfo.db;
+    UserDBISAR userDB = userInfo.db;
     String? nickName = userDB.nickName;
     String name = (nickName != null && nickName.isNotEmpty)
         ? nickName
@@ -215,7 +215,7 @@ class _SelectMentionPageState extends State<SelectMentionPage> {
   }
 
   Widget _mentionsUserPicWidget(DiyUserDB userInfo) {
-    UserDB userDB = userInfo.db;
+    UserDBISAR userDB = userInfo.db;
     Widget picWidget;
     if ((userDB.picture != null && userDB.picture!.isNotEmpty)) {
       picWidget = OXCachedNetworkImage(
@@ -262,13 +262,13 @@ class _SelectMentionPageState extends State<SelectMentionPage> {
     String text = _textController.text.trim();
     String? info;
     if (text.startsWith('npub')) {
-      info = UserDB.decodePubkey(text)!;
+      info = UserDBISAR.decodePubkey(text)!;
     } else if (text.contains('@')) {
       info = await Account.getDNSPubkey(text.substring(0, text.indexOf('@')),
           text.substring(text.indexOf('@') + 1));
     }
     if (info == null) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(info);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(info);
 
     if (user == null) return;
     contactsMap = {
@@ -354,8 +354,8 @@ class _SelectMentionPageState extends State<SelectMentionPage> {
     );
   }
 
-  List<UserDB> _getMentionSelectUserList() {
-    List<UserDB> selectMentionsList = [];
+  List<UserDBISAR> _getMentionSelectUserList() {
+    List<UserDBISAR> selectMentionsList = [];
     contactsMap.values.map((DiyUserDB diyUserDB) {
       if (diyUserDB.isSelect) {
         selectMentionsList.add(diyUserDB.db);
@@ -365,7 +365,7 @@ class _SelectMentionPageState extends State<SelectMentionPage> {
   }
 
   void _getContactsMap() {
-    List<UserDB> tempList = Contacts.sharedInstance.allContacts.values.toList();
+    List<UserDBISAR> tempList = Contacts.sharedInstance.allContacts.values.toList();
     for (var info in tempList) {
       contactsMap[info.pubKey] = DiyUserDB(false, info);
     }

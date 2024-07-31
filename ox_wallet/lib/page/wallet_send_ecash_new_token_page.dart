@@ -64,7 +64,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
                   height: 48.px,
                   onTap: () => OXNavigator.presentPage(
                       context,
-                      (context) => ContactChoosePage<UserDB>(contactType: ContactType.contact, onSubmitted: _shareCashuToken,)),
+                      (context) => ContactChoosePage<UserDBISAR>(contactType: ContactType.contact, onSubmitted: _shareCashuToken,)),
               ).setPaddingOnly(top: 24.px),
             ],
           ).setPadding(EdgeInsets.symmetric(horizontal: 24.px)),
@@ -103,7 +103,7 @@ class _WalletSendEcashNewTokenPageState extends State<WalletSendEcashNewTokenPag
     );
   }
 
-  void _shareCashuToken(List<UserDB> userList){
+  void _shareCashuToken(List<UserDBISAR> userList){
     if(userList.isEmpty){
       CommonToast.instance.show(context, Localized.text('ox_wallet.share_selected_tips'));
       return;

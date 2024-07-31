@@ -23,7 +23,7 @@ double itemHeight = Adapt.px(68.0);
 typedef void CursorContactsChanged(Widget cursor, int noteLength);
 
 class ContactWidget extends StatefulWidget {
-  final List<UserDB> data;
+  final List<UserDBISAR> data;
   final bool editable;
   final onSelectChanged;
   String hostName = ''; //The current domain
@@ -50,16 +50,16 @@ class ContactWidget extends StatefulWidget {
 
 class Note {
   String tag;
-  List<UserDB> childList;
+  List<UserDBISAR> childList;
 
   Note(this.tag, this.childList);
 }
 
 class ContactWidgetState<T extends ContactWidget> extends State<T> {
-  late List<UserDB> _data;
+  late List<UserDBISAR> _data;
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
-  List<UserDB>? userList;
+  List<UserDBISAR>? userList;
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -67,8 +67,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   String _tagName = '';
   bool _isTouchTagBar = false;
 
-  List<UserDB> selectedList = [];
-  Map<String, List<UserDB>> mapData = Map();
+  List<UserDBISAR> selectedList = [];
+  Map<String, List<UserDBISAR>> mapData = Map();
   String mHostName = '';
 
   @override
@@ -91,7 +91,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     super.didUpdateWidget(oldWidget);
   }
 
-  void updateContactData(List<UserDB> data) {
+  void updateContactData(List<UserDBISAR> data) {
     _data = data;
     _initIndexBarData();
   }
@@ -106,7 +106,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    Map<UserDBISAR, String> pinyinMap = Map<UserDBISAR, String>();
     for (var user in userList!) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
@@ -256,7 +256,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     );
   }
 
-  void _onCheckChangedListener(bool checked, UserDB item) {
+  void _onCheckChangedListener(bool checked, UserDBISAR item) {
     if (checked)
       selectedList.add(item);
     else
@@ -366,7 +366,7 @@ class HeaderWidget extends StatelessWidget {
 }
 
 class ContractListItem extends StatefulWidget {
-  late UserDB item;
+  late UserDBISAR item;
 
   final onCheckChanged;
   final bool editable;
@@ -398,7 +398,7 @@ class _ContractListItemState extends State<ContractListItem> {
 
   void _onItemClick() async {
     if (widget.item.pubKey.isNotEmpty) {
-      UserDB? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDB;
+      UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
       OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
     }
   }
@@ -481,8 +481,8 @@ class _ContractListItemState extends State<ContractListItem> {
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
+  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+    UserDBISAR? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
     if (friendUserDB == null) {
       return null;
     }

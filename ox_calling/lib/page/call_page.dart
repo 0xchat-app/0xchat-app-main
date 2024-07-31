@@ -24,7 +24,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 ///@author Michael
 ///CreateTime: 2023/7/27 16:36
 class CallPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   final String mediaType; // audio;  video.
 
   const CallPage(this.userDB, this.mediaType, {super.key});

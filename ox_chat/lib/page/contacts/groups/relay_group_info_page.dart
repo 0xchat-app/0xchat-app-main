@@ -42,14 +42,14 @@ class RelayGroupInfoPage extends StatefulWidget {
 
 class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   bool _isMute = false;
-  List<UserDB> groupMember = [];
+  List<UserDBISAR> groupMember = [];
   RelayGroupDB? groupDBInfo = null;
   bool _isGroupMember = false;
   bool _hasAddUserPermission = false;
   bool _hasRemoveUserPermission = false;
   bool _hasAddPermission = false;
   bool _hasEditGroupStatusPermission = false;
-  UserDB? userDB;
+  UserDBISAR? userDB;
 
   @override
   void initState() {
@@ -763,8 +763,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     }
   }
 
-  void _getIsGroupMemberValue(List<UserDB> memberUserDBs) {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+  void _getIsGroupMemberValue(List<UserDBISAR> memberUserDBs) {
+    UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null) {
       _isGroupMember = false;
     } else {
@@ -773,7 +773,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   }
 
   void _loadMembers() async {
-    List<UserDB> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
+    List<UserDBISAR> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
     if (localMembers.isNotEmpty) {
       groupMember = localMembers;
       _getIsGroupMemberValue(localMembers);

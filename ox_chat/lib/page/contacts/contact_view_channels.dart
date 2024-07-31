@@ -117,7 +117,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     LogUtil.e('Topic List didLoginStateChanged : $userInfo');
     setState(() {
       channels.clear();
@@ -134,7 +134,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     _onRefresh();
   }
 

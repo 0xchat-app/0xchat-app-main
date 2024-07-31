@@ -29,7 +29,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
 class PersonMomentsPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   const PersonMomentsPage({super.key, required this.userDB});
 
   @override
@@ -317,7 +317,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _changeCover(List<String> filePathList) async {
-    UserDB? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     final pubkey = currentUserInfo?.pubKey ?? '';
     final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
     final fileName = 'banner_${pubkey}_$currentTime.png';

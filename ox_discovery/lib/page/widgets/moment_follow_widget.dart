@@ -9,7 +9,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class MomentFollowWidget extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   const MomentFollowWidget({super.key, required this.userDB});
 
   @override

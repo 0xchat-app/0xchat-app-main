@@ -355,7 +355,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
       _isShowTools = true;
     });
@@ -369,7 +369,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

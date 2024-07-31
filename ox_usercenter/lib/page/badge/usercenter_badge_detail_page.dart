@@ -21,7 +21,7 @@ class UserCenterBadgeDetailPage extends StatefulWidget {
   final BadgeModel badgeModel;
   final bool isHad;
   final bool? isSelected;
-  final UserDB? userDB;
+  final UserDBISAR? userDB;
 
   const UserCenterBadgeDetailPage(
       {Key? key,

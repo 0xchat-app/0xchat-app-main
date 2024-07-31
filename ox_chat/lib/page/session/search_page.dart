@@ -77,7 +77,7 @@ enum SearchPageType {
 class SearchPageState extends State<SearchPage> {
   String searchQuery = '';
   List<Group> dataGroups = [];
-  List<UserDB> _selectedHistoryList = [];
+  List<UserDBISAR> _selectedHistoryList = [];
   List<SearchHistoryModel> _txtHistoryList = [];
   bool isSubpage = false;
   TextEditingController editingController = TextEditingController();
@@ -208,7 +208,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadFriendsData() async {
-    List<UserDB>? tempFriendList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
+    List<UserDBISAR>? tempFriendList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
     if (tempFriendList != null && tempFriendList.length > 0) {
       dataGroups.add(
         Group(
@@ -224,14 +224,14 @@ class SearchPageState extends State<SearchPage> {
 
   void _loadUsersData() async {
     if (searchQuery.startsWith('npub')) {
-      String? pubkey = UserDB.decodePubkey(searchQuery);
+      String? pubkey = UserDBISAR.decodePubkey(searchQuery);
       if (pubkey != null) {
-        UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+        UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
         dataGroups.add(
           Group(
               title: 'str_title_top_hins_contacts'.localized(),
               type: SearchItemType.friend,
-              items: List<UserDB>.from([user])),
+              items: List<UserDBISAR>.from([user])),
         );
       }
     }
@@ -356,7 +356,7 @@ class SearchPageState extends State<SearchPage> {
         },
         itemBuilder: (context, element) {
           final items = showingItems(element.items);
-          if (element.type == SearchItemType.friend && items is List<UserDB>) {
+          if (element.type == SearchItemType.friend && items is List<UserDBISAR>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -530,7 +530,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildHistoryUserView() {
-    List<UserDB?> userList = []..addAll(_selectedHistoryList);
+    List<UserDBISAR?> userList = []..addAll(_selectedHistoryList);
     if (userList.length < 1) return SizedBox();
 
     if (userList.length > 4) {
@@ -746,7 +746,7 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  Future<void> _updateSearchHistory(UserDB? userDB) async {
+  Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
       await DB.sharedInstance.insertBatch<RecentSearchUser>(RecentSearchUser(
@@ -780,7 +780,7 @@ class SearchPageState extends State<SearchPage> {
     list.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
         List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
         avatars.removeWhere((element) => element.isEmpty);
         _groupMembersCache[groupId] = avatars;
@@ -788,7 +788,7 @@ class SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _gotoFriendSession(UserDB userDB) {
+  void _gotoFriendSession(UserDBISAR userDB) {
     _updateSearchHistory(userDB);
     OXNavigator.pushPage(
         context,

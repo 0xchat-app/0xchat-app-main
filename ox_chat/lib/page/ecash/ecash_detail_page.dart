@@ -200,7 +200,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
     );
   }
 
-  Widget _buildHistoryItem(UserDB? user, int? timestamp, int amount, String unit) {
+  Widget _buildHistoryItem(UserDBISAR? user, int? timestamp, int amount, String unit) {
     String formattedDate = '';
     if (timestamp != null) {
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);

@@ -99,7 +99,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ValueListenableBuilder<UserDB>(
+          ValueListenableBuilder<UserDBISAR>(
             valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
               return RichText(

@@ -132,7 +132,7 @@ class CallManager {
           _signaling?.isDisconnected(false);
           _signaling?.isStreamConnected(false);
           ///lack of speech type
-          ChatCore.UserDB? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
+          ChatCore.UserDBISAR? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
           if (userDB == null) {
             break;
           } else {
@@ -332,7 +332,7 @@ class CallManager {
     });
   }
 
-  void toggleFloatingWindow(ChatCore.UserDB userDB) {
+  void toggleFloatingWindow(ChatCore.UserDBISAR userDB) {
     overlayEntry ??= OverlayEntry(
         builder: (context) => CallFloatingDraggableOverlay(userDB: userDB),
       );

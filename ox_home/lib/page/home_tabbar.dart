@@ -147,7 +147,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
@@ -163,7 +163,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

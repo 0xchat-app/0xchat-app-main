@@ -136,7 +136,7 @@ class _CommunityContactAddFriendState extends State<CommunityContactAddFriend> w
       _isPreventUserClicks = true;// Prevent user clicks"
       String? info;
       if (value.startsWith('npub')) {
-        info = UserDB.decodePubkey(value);
+        info = UserDBISAR.decodePubkey(value);
       } else if (value.contains('@')) {
         info = await Account.getDNSPubkey(value.substring(0, value.indexOf('@')), value.substring(value.indexOf('@') + 1));
       }
@@ -146,7 +146,7 @@ class _CommunityContactAddFriendState extends State<CommunityContactAddFriend> w
         CommonToast.instance.show(context, 'User not found, please re-enter.');
         return;
       }
-      UserDB? user = await Account.sharedInstance.getUserInfo(info);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(info);
       await OXLoading.dismiss();
       _isPreventUserClicks = false;
       if (user == null) {

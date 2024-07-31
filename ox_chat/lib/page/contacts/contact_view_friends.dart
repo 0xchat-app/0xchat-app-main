@@ -25,7 +25,7 @@ class ContractViewFriends extends StatefulWidget {
 class _ContractViewFriendsState extends State<ContractViewFriends>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin,
         CommonStateViewMixin, OXUserInfoObserver , OXChatObserver{
-  List<UserDB> userList = [];
+  List<UserDBISAR> userList = [];
 
   GlobalKey<ContactWidgetState> contractWidgetKey = new GlobalKey<ContactWidgetState>();
 
@@ -65,7 +65,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   void _loadData() {
-    Iterable<UserDB> tempList =  Contacts.sharedInstance.allContacts.values;
+    Iterable<UserDBISAR> tempList =  Contacts.sharedInstance.allContacts.values;
     userList.clear();
     if (tempList.isNotEmpty) userList.addAll(tempList);
     _showView();
@@ -110,7 +110,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
 
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     LogUtil.e('Michael: contact_view_friends didLoginSuccess: $userInfo');
     setState(() {
       userList.clear();
@@ -128,7 +128,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     LogUtil.e('Michael: contact_view_friends didAccountChanged');
     _onRefresh();
   }

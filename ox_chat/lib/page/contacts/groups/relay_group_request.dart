@@ -262,7 +262,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   }
 
   Widget _buildAvatar(JoinRequestInfo item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.joinRequestDB.author]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[item.joinRequestDB.author]?.value;
     String showPicUrl = otherDB?.picture ?? '';
     return SizedBox(
       width: 60.px,
@@ -301,7 +301,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDB? otherDB) async {
+  Future<BadgeDB?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDBISAR? otherDB) async {
     if (otherDB == null) return null;
     String badges = otherDB.badges ?? '';
     if (badges.isNotEmpty) {

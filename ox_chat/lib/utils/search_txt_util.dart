@@ -13,8 +13,8 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 ///CreateTime: 2024/2/27 17:02
 class SearchTxtUtil{
   //Queries the list of Friends to see if each Friend name contains a search character
-  static List<UserDB>? loadChatFriendsWithSymbol(String symbol) {
-    List<UserDB>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
+  static List<UserDBISAR>? loadChatFriendsWithSymbol(String symbol) {
+    List<UserDBISAR>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
     return friendList;
   }
 

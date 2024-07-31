@@ -68,7 +68,7 @@ class _ChatUserChoosePageState extends State<ChatUserChoosePage> {
 
 
 class SelectableUser {
-  final UserDB user;
+  final UserDBISAR user;
   bool isSelected;
 
   SelectableUser({required this.user, this.isSelected = false});

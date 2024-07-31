@@ -594,7 +594,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
       isLogin = true;
     });
@@ -610,7 +610,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     setState(() {
       isLogin = true;
     });

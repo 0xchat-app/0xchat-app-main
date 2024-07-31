@@ -30,7 +30,7 @@ class ProfileSetUpPage extends StatefulWidget {
 }
 
 class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
-  UserDB? mCurrentUserInfo;
+  UserDBISAR? mCurrentUserInfo;
   final TextEditingController _userNameTextEditingController =
       TextEditingController();
   final TextEditingController _dnsTextEditingController =
@@ -190,7 +190,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
         }
       }
 
-      UserDB? tempUserDB;
+      UserDBISAR? tempUserDB;
       try {
         tempUserDB =
             await Account.sharedInstance.updateProfile(mCurrentUserInfo!);

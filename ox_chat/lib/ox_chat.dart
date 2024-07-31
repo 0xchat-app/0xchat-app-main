@@ -227,7 +227,7 @@ class OXChat extends OXFlutterModule {
   }
 
   void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
 
     ChatSessionModel? sessionModel = OXChatBinding.sharedInstance.sessionMap[chatId];
     if(sessionModel == null) return;

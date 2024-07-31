@@ -26,7 +26,7 @@ class JoinRequestInfo {
   static Future<JoinRequestInfo> toUserRequestInfo(JoinRequestDB joinRequest) async {
     RelayGroupDB? groupDB = RelayGroup.sharedInstance.groups[joinRequest.groupId];
     String time = OXDateUtils.convertTimeFormatString2(joinRequest.createdAt * 1000, pattern: 'MM-dd');
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(joinRequest.author);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(joinRequest.author);
     return JoinRequestInfo(
       userName: userDB?.name ?? '--',
       createTime: time,

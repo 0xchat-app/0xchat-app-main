@@ -81,7 +81,7 @@ class ChatMessageDBToUIHelper {
             var senderName = '';
             final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(sender);
             final userDB = Account.sharedInstance.getUserInfo(sender);
-            if (userDB is UserDB) {
+            if (userDB is UserDBISAR) {
               senderName = userDB.name ?? '';
             }
             final name = isMe
@@ -351,7 +351,7 @@ extension MessageDBToUIEx on MessageDBISAR {
 
       final zapDB = zapReceipt.first;
 
-      UserDB? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
       if(user == null) continue;
 
       int amount = ZapRecordsDB.getZapAmount(zapDB.bolt11);
@@ -517,7 +517,7 @@ extension MessageUIToDBEx on types.Message {
   }
 }
 
-extension UserDBToUIEx on UserDB {
+extension UserDBToUIEx on UserDBISAR {
   types.User toMessageModel() {
     types.User _user = types.User(
       id: pubKey,

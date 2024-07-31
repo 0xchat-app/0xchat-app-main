@@ -519,7 +519,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {});
   }
@@ -532,7 +532,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

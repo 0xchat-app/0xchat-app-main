@@ -67,7 +67,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
 
     for (var contact in _contactList) {
       String nameToConvert = '';
-      if(contact is UserDB){
+      if(contact is UserDBISAR){
         nameToConvert = contact.nickName != null && contact.nickName!.isNotEmpty ? contact.nickName! : (contact.name ?? '');
       }
       if(contact is GroupDB){

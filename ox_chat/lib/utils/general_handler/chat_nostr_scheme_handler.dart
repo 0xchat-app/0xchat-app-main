@@ -47,7 +47,7 @@ class ChatNostrSchemeHandle {
   static Future<String?> pubkeyToMessageContent(
       String? pubkey, String nostrScheme) async {
     if (pubkey != null) {
-      UserDB? userDB = await Account.sharedInstance.getUserInfo(pubkey);
+      UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubkey);
       if (userDB?.lastUpdatedTime == 0) {
         userDB = await Account.sharedInstance.reloadProfileFromRelay(pubkey);
       }
@@ -146,7 +146,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? userToMessageContent(UserDB? userDB, String nostrScheme) {
+  static String? userToMessageContent(UserDBISAR? userDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactUserInfoPage',
@@ -223,7 +223,7 @@ class ChatNostrSchemeHandle {
 
   static Future<String?> noteToMessageContent(NoteDB? noteDB) async {
     if (noteDB == null) return null;
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
     if (userDB?.lastUpdatedTime == 0) {
       userDB =
           await Account.sharedInstance.reloadProfileFromRelay(noteDB.author);
@@ -251,7 +251,7 @@ class ChatNostrSchemeHandle {
   static Future<String?> longFormContentToMessageContent(
       LongFormContent? longFormContent, String nostrScheme) async {
     if (longFormContent == null) return null;
-    UserDB? userDB =
+    UserDBISAR? userDB =
         await Account.sharedInstance.getUserInfo(longFormContent.pubkey);
     if (userDB?.lastUpdatedTime == 0) {
       userDB = await Account.sharedInstance

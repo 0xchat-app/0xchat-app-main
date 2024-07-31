@@ -179,7 +179,7 @@ class MomentUserItemWidget extends StatefulWidget {
 }
 
 class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
-  UserDB? user;
+  UserDBISAR? user;
   NotedUIModel? notedUIModel;
   @override
   void initState() {
@@ -222,7 +222,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _getUserDB(String pubKey) async {
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if (userDB != null) {
       user = userDB;
       if(mounted){
@@ -243,7 +243,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
 
   Widget _userItemWidget() {
     String pubKey = widget.notedUIModel.noteDB.author;
-    return ValueListenableBuilder<UserDB>(
+    return ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Container(
@@ -363,7 +363,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     );
   }
 
-  Widget _addFriendWidget(UserDB userDB) {
+  Widget _addFriendWidget(UserDBISAR userDB) {
     if (isFriend(userDB.pubKey)) return const SizedBox();
 
     return GestureDetector(
@@ -401,7 +401,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _addFriends() async {
-    UserDB? userDB = user;
+    UserDBISAR? userDB = user;
     if (userDB == null) return;
 
     if (isFriend(userDB.pubKey) == false) {
@@ -435,7 +435,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   bool isFriend(String pubKey) {
-    UserDB? user = Contacts.sharedInstance.allContacts[pubKey];
+    UserDBISAR? user = Contacts.sharedInstance.allContacts[pubKey];
     return user != null;
   }
 }

@@ -82,7 +82,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
 
   void setupUser() {
     // Mine
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,

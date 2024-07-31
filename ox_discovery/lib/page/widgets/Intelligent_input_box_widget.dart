@@ -19,7 +19,7 @@ import '../moments/select_mention_page.dart';
 class IntelligentInputBoxWidget extends StatefulWidget {
   final String hintText;
   final Function(bool isFocused)? isFocusedCallback;
-  final Function(List<UserDB> userList)? cueUserCallback;
+  final Function(List<UserDBISAR> userList)? cueUserCallback;
   final TextEditingController textController;
   final List<String>? imageUrlList;
   const IntelligentInputBoxWidget({
@@ -42,9 +42,9 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
 
   bool isShowUserList = false;
 
-  List<UserDB> contactsList = [];
+  List<UserDBISAR> contactsList = [];
 
-  List<UserDB> showContactsList = [];
+  List<UserDBISAR> showContactsList = [];
 
   int? saveCursorPosition;
 
@@ -154,10 +154,10 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
               final result = await OXNavigator.presentPage(
                   context, (context) => const SelectMentionPage());
 
-              if (result is List<UserDB>) {
+              if (result is List<UserDBISAR>) {
                 widget.cueUserCallback?.call(result);
                 String atContent = '';
-                for (UserDB db in result) {
+                for (UserDBISAR db in result) {
                   String name = db.name ?? db.pubKey;
                   atContent = atContent + '@$name ';
                 }
@@ -223,7 +223,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   }
 
   Widget _captionToUserWidget(int index) {
-    UserDB user = showContactsList[index];
+    UserDBISAR user = showContactsList[index];
     return GestureDetector(
       onTap: () {
         widget.cueUserCallback?.call([user]);
@@ -316,7 +316,7 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
     }
 
     final searchText = text.substring(prefixStart + 1, cursorPosition).toLowerCase();
-    List<UserDB> filteredUserList = _checkAtList(searchText);
+    List<UserDBISAR> filteredUserList = _checkAtList(searchText);
     setState(() {
       showContactsList = filteredUserList;
       isShowUserList = filteredUserList.isNotEmpty;
@@ -333,14 +333,14 @@ class _IntelligentInputBoxWidgetState extends State<IntelligentInputBoxWidget> {
   }
 
   void _getContactsList() {
-    List<UserDB> tempList = Contacts.sharedInstance.allContacts.values.toList();
+    List<UserDBISAR> tempList = Contacts.sharedInstance.allContacts.values.toList();
     contactsList = tempList;
     setState(() {});
   }
 
-  List<UserDB> _checkAtList(String text) {
+  List<UserDBISAR> _checkAtList(String text) {
     if (text.isEmpty) return contactsList;
-    List<UserDB> userDB = contactsList.where((UserDB user) {
+    List<UserDBISAR> userDB = contactsList.where((UserDBISAR user) {
       if (user.name != null && user.name!.toLowerCase().contains(text)) {
         return true;
       }

@@ -164,7 +164,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           width: 1.px,
           color: ThemeColor.color180,
         ))),
-        child: FutureBuilder<UserDB?>(
+        child: FutureBuilder<UserDBISAR?>(
           future: _getUser(notification.author),
           builder: (context,snapshot) {
             final placeholder = MomentWidgetsUtils.badgePlaceholderImage(size: 40);
@@ -265,7 +265,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Future<UserDB?> _getUser(String pubkey) async {
+  Future<UserDBISAR?> _getUser(String pubkey) async {
     return await Account.sharedInstance.getUserInfo(pubkey);
   }
 

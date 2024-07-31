@@ -66,7 +66,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     if (requestJoinList.length > 0) {
       await Future.forEach(requestJoinList, (msgDB) async {
         GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
-        UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
+        UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
         String time = OXDateUtils.convertTimeFormatString2(
             msgDB.createTime * 1000,
@@ -116,7 +116,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   Widget _buildAvatar(UserRequestInfo userInfo) {
-    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender]?.value;
     return OXUserAvatar(
       user: otherDB,
       imageUrl: userInfo.userPic,

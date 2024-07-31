@@ -362,7 +362,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
         setState(() {});
       },
       child: IntrinsicHeight(
-        child: ValueListenableBuilder<UserDB>(
+        child: ValueListenableBuilder<UserDBISAR>(
             valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
               return Row(
@@ -441,7 +441,7 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     );
   }
 
-  Widget _momentUserInfoWidget(UserDB userDB) {
+  Widget _momentUserInfoWidget(UserDBISAR userDB) {
     return RichText(
       maxLines: 1,
       overflow: TextOverflow.ellipsis,

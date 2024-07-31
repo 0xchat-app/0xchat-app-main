@@ -353,7 +353,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
@@ -375,7 +375,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

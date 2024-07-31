@@ -132,7 +132,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   void _checkAccountKey() {
     String textContent = _accountKeyEditingController.text;
     if (textContent.length == 63) {
-      final String? decodeResult = UserDB.decodePrivkey(textContent);
+      final String? decodeResult = UserDBISAR.decodePrivkey(textContent);
       if (decodeResult == null || decodeResult.isEmpty) return;
       setState(() {
         _accountKeyInput = decodeResult;
@@ -151,7 +151,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     await OXLoading.show();
     String pubkey = Account.getPublicKey(_accountKeyInput);
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    UserDB? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
     if (userDB == null) {
       CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
       return;

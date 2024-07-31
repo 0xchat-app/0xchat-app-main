@@ -374,7 +374,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   _handleZap() async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
     String? pubkey = Account.sharedInstance.me?.pubKey;
     //Special product requirement
     final isAssistedProcess = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;

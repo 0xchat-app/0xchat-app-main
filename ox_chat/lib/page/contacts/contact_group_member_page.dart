@@ -40,17 +40,17 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   }
 
   Future<void> _fetchUserListAsync() async {
-    List<UserDB> users = await fetchUserList();
+    List<UserDBISAR> users = await fetchUserList();
     setState(() {
       userList = users;
       super.groupedUser();
     });
   }
 
-  Future<List<UserDB>> fetchUserList() async {
-    List<UserDB> allGroupMembers = widget.groupType ==null || widget.groupType == GroupType.privateGroup ? await Groups.sharedInstance.getAllGroupMembers(groupId)
+  Future<List<UserDBISAR>> fetchUserList() async {
+    List<UserDBISAR> allGroupMembers = widget.groupType ==null || widget.groupType == GroupType.privateGroup ? await Groups.sharedInstance.getAllGroupMembers(groupId)
       : await RelayGroup.sharedInstance.getGroupMembersFromLocal(groupId);
-    List<UserDB> allContacts = Contacts.sharedInstance.allContacts.values.toList();
+    List<UserDBISAR> allContacts = Contacts.sharedInstance.allContacts.values.toList();
     String owner = '';
     if (widget.groupType ==null || widget.groupType == GroupType.privateGroup) {
       GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
@@ -116,7 +116,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     }
     await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
+    Map<String, UserDBISAR> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
     OKEvent? okEvent;
     if (widget.groupType == GroupType.privateGroup) {
@@ -140,7 +140,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   buildRemovePressed() async {
     await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    Map<String, UserDB> users = await Account.sharedInstance.getUserInfos(members);
+    Map<String, UserDBISAR> users = await Account.sharedInstance.getUserInfos(members);
     String names = users.values.map((user) => user.name).join(', ');
     OKEvent? okEvent;
     if (widget.groupType == GroupType.privateGroup) {

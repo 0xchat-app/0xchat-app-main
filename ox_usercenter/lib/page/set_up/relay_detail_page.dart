@@ -214,7 +214,7 @@ extension RelayAttributes on RelayDB {
 
   Future<Map<String, dynamic>> get relayAttributes async {
 
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey ?? '');
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey ?? '');
 
     Map<String, dynamic> relayOwner = <String, dynamic>{
       'name': user?.name ?? '',

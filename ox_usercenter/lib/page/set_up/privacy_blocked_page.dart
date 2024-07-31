@@ -17,7 +17,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 
 class PrivacyBlockedPage extends StatefulWidget {
 
-  final List<UserDB> blockedUsers;
+  final List<UserDBISAR> blockedUsers;
 
   const PrivacyBlockedPage({super.key,required this.blockedUsers});
 
@@ -27,7 +27,7 @@ class PrivacyBlockedPage extends StatefulWidget {
 
 class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStateViewMixin{
 
-  final List<UserDB> _selectedUserList = [];
+  final List<UserDBISAR> _selectedUserList = [];
 
   bool _isEdit = false;
 
@@ -134,7 +134,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
     );
   }
 
-  Widget _buildBlockedUserItem(UserDB blockedUser,int index){
+  Widget _buildBlockedUserItem(UserDBISAR blockedUser,int index){
 
     bool isSelected = _selectedUserList.contains(widget.blockedUsers[index]);
 
@@ -199,7 +199,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
     );
   }
 
-  Widget _buildUserInfo(UserDB userInfo) {
+  Widget _buildUserInfo(UserDBISAR userInfo) {
     String? nickName = userInfo.nickName;
     String name = (nickName != null && nickName.isNotEmpty) ? nickName : userInfo.name ?? '';
     String encodedPubKey = userInfo.encodedPubkey;
@@ -272,7 +272,7 @@ class _PrivacyBlockedPageState extends State<PrivacyBlockedPage> with CommonStat
     );
   }
 
-  Future<void> _removeBlockList(List<UserDB> blockUsers) async {
+  Future<void> _removeBlockList(List<UserDBISAR> blockUsers) async {
     List<String> blockPubKeys = blockUsers.map((item) => item.pubKey).toList();
     await OXLoading.show();
     try{

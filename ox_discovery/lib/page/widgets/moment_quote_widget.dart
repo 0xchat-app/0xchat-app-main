@@ -160,7 +160,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
         child: Column(
           children: [
             _getImageWidget(),
-            ValueListenableBuilder<UserDB>(
+            ValueListenableBuilder<UserDBISAR>(
                 valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
                 builder: (context, value, child) {
                   return Container(

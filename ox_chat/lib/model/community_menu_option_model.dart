@@ -101,7 +101,7 @@ class CommunityMenuOptionModel {
 
   static void _createGroup(BuildContext context, GroupType groupType) {
     final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    List<UserDB> userList = Contacts.sharedInstance.allContacts.values.toList();
+    List<UserDBISAR> userList = Contacts.sharedInstance.allContacts.values.toList();
     switch(groupType){
       case GroupType.privateGroup:
         showModalBottomSheet(

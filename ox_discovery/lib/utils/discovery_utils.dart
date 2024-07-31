@@ -56,7 +56,7 @@ class DiscoveryUtils {
   }
 
   static Future<String> getAvatar(String pubkey) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
     return user?.picture ?? '';
   }
 
@@ -70,7 +70,7 @@ class DiscoveryUtils {
   }
 
   // [fullName,dns]
-  static List<String> getUserMomentInfo(UserDB? user, String time) {
+  static List<String> getUserMomentInfo(UserDBISAR? user, String time) {
     if (user == null) return [time,''];
     String dns = '';
     String? dnsStr = user.dns;
@@ -119,11 +119,11 @@ class DiscoveryUtils {
     return results;
   }
 
-  static List<String>? getMentionReplyUserList(Map<String,UserDB> draftCueUserMap,String text){
+  static List<String>? getMentionReplyUserList(Map<String,UserDBISAR> draftCueUserMap,String text){
     List<String> replyUserList = [];
 
     if(draftCueUserMap.isEmpty) return null;
-    draftCueUserMap.values.map((UserDB user) {
+    draftCueUserMap.values.map((UserDBISAR user) {
       String name = user.name ?? user.pubKey;
       if(text.toLowerCase().contains(name.toLowerCase())){
         replyUserList.add(user.pubKey);
@@ -132,7 +132,7 @@ class DiscoveryUtils {
     return replyUserList.isEmpty ? null : replyUserList;
   }
 
-  static String changeAtUserToNpub(Map<String,UserDB> draftCueUserMap, String text) {
+  static String changeAtUserToNpub(Map<String,UserDBISAR> draftCueUserMap, String text) {
     String content = text;
     draftCueUserMap.forEach((tag, replacement) {
       content = content.replaceAll(tag, 'nostr:${replacement.encodedPubkey}');

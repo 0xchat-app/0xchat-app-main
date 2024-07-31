@@ -6,7 +6,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///Copyright: Copyright (c) 2021
 ///@author Michael
 ///CreateTime: 2023/7/27 17:30
-extension UserDBToUIEx on UserDB {
+extension UserDBToUIEx on UserDBISAR {
   String getUserShowName() {
     final nickName = (this.nickName ?? '').trim();
     final name = (this.name ?? '').trim();

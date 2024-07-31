@@ -17,11 +17,11 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_theme/ox_theme.dart';
 
 class SendP2PKOption {
-  List<UserDB> singer = [];
+  List<UserDBISAR> singer = [];
   P2PKSecretSigFlag? sigFlag;
   int? sigNum;
   DateTime? lockTime;
-  List<UserDB> refund = [];
+  List<UserDBISAR> refund = [];
 
   bool enable = false;
 }

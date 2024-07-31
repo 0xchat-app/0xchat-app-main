@@ -2,7 +2,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
-typedef EcashPackageSignee = (UserDB user, String flag);
+typedef EcashPackageSignee = (UserDBISAR user, String flag);
 class EcashPackage {
   EcashPackage({
     required this.messageId,
@@ -19,7 +19,7 @@ class EcashPackage {
   final List<EcashTokenInfo> tokenInfoList;
   final String memo;
   final String senderPubKey;
-  final List<UserDB> receiver;
+  final List<UserDBISAR> receiver;
   final List<EcashPackageSignee> signees;
   final String validityDate;
 

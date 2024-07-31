@@ -76,7 +76,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
     list.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
         List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
         avatars.removeWhere((element) => element.isEmpty);
         _groupMembersCache[groupId] = avatars;
@@ -254,7 +254,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
         _showChatList = _recentChatList;
       } else {
         List<ShareSearchGroup> searchResult = [];
-        List<UserDB>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
+        List<UserDBISAR>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
         if (tempFriendList != null && tempFriendList.length > 0) {
           List<ChatSessionModel> friendSessions = [];
           tempFriendList.forEach((element) {

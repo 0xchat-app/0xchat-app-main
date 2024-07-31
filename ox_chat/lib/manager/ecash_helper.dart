@@ -20,7 +20,7 @@ class EcashHelper {
     int totalAmount = 0;
     String memo = '';
     List<String> tokenList = [];
-    List<UserDB> receiver = [];
+    List<UserDBISAR> receiver = [];
     List<EcashPackageSignee> signees = [];
     String validityDate = '';
 
@@ -36,12 +36,12 @@ class EcashHelper {
         tokenList = EcashV2MessageEx(message).tokenList;
         receiver = EcashV2MessageEx(message).receiverPubkeys
             .map((pubkey) => Account.sharedInstance.getUserInfo(pubkey))
-            .where((user) => user is UserDB)
+            .where((user) => user is UserDBISAR)
             .toList()
-            .cast<UserDB>();
+            .cast<UserDBISAR>();
         signees = EcashV2MessageEx(message).signees
             .map((signee) => (Account.sharedInstance.getUserInfo(signee.$1), signee.$2))
-            .where((e) => e.$1 is UserDB)
+            .where((e) => e.$1 is UserDBISAR)
             .toList()
             .cast<EcashPackageSignee>();
         validityDate = EcashV2MessageEx(message).validityDate;

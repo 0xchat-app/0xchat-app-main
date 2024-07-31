@@ -43,7 +43,7 @@ class Reaction {
 }
 
 class ZapsInfo {
-  UserDB author;
+  UserDBISAR author;
   String amount;
   String unit;
   ZapsInfo({required this.author, required this.amount, required this.unit});

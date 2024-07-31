@@ -164,7 +164,7 @@ class _WalletSendEcashOverviewPageState extends State<WalletSendEcashOverviewPag
     return CommonCardItem(label: item.label,content: item.content);
   }
 
-  Widget _buildUserList(List<UserDB> userList) {
+  Widget _buildUserList(List<UserDBISAR> userList) {
     return Column(
       children: userList.map((user) {
         return SizedBox(

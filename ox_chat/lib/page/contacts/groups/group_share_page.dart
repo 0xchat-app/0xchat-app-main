@@ -35,7 +35,7 @@ class GroupSharePage extends StatefulWidget {
 
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
-  UserDB? inviterUserDB = null;
+  UserDBISAR? inviterUserDB = null;
   bool requestTag = true;
   String _practicalGroupId = '';
 
@@ -53,7 +53,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
   void _getInviterInfo() async {
     final pubKey = widget.inviterPubKey;
     if (pubKey != null && pubKey.isNotEmpty) {
-      UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
+      UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubKey);
       if (userDB != null) {
         inviterUserDB = userDB;
       }

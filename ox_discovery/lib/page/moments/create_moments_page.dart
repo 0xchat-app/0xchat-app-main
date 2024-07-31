@@ -55,7 +55,7 @@ class CreateMomentsPage extends StatefulWidget {
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
-  Map<String,UserDB> draftCueUserMap = {};
+  Map<String,UserDBISAR> draftCueUserMap = {};
 
   List<String> addImageList = [];
   List<String>? preImageList;
@@ -77,7 +77,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       : _selectedContacts?.length ?? 0;
 
   VisibleType _visibleType = VisibleType.everyone;
-  List<UserDB>? _selectedContacts;
+  List<UserDBISAR>? _selectedContacts;
 
   EMomentType? currentPageType;
 
@@ -446,9 +446,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           IntelligentInputBoxWidget(
               textController: _textController,
               hintText: Localized.text('ox_discovery.caption_hint_text'),
-              cueUserCallback: (List<UserDB> userList){
+              cueUserCallback: (List<UserDBISAR> userList){
                 if(userList.isEmpty) return;
-                for(UserDB db in userList){
+                for(UserDBISAR db in userList){
                   String? getName = db.name;
                   if(getName != null){
                     draftCueUserMap['@${getName}'] = db;

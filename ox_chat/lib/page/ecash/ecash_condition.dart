@@ -27,9 +27,9 @@ enum EcashValidDuration {
 
 class EcashCondition {
 
-  List<UserDB> receiver = [];
+  List<UserDBISAR> receiver = [];
   EcashValidDuration validDuration = EcashValidDuration.permanent;
-  List<UserDB> signees = [];
+  List<UserDBISAR> signees = [];
 
   List<String> get receiverPubkey =>
       receiver.map((user) => pubkeyWithUser(user)).toList();
@@ -46,5 +46,5 @@ class EcashCondition {
     return DateTime.now().add(duration).millisecondsSinceEpoch ~/ 1000;
   }
 
-  static String pubkeyWithUser(UserDB user) => '02${user.pubKey}';
+  static String pubkeyWithUser(UserDBISAR user) => '02${user.pubKey}';
 }

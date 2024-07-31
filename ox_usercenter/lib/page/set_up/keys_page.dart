@@ -35,7 +35,7 @@ class _KeysPageState extends State<KeysPage>{
   bool _privateKeyCopyied = false;
   bool _isShowPrivkey = false;
   String _localPasscode = '';
-  late UserDB userDB;
+  late UserDBISAR userDB;
   final TextEditingController _pubTextEditingController = TextEditingController();
   final TextEditingController _privTextEditingController = TextEditingController();
 

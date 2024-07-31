@@ -35,8 +35,8 @@ class RelayGroupAddAdminPage extends StatefulWidget {
 }
 
 class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
-  List<UserDB> _groupMembers = [];
-  List<UserDB> _filterGroupMembers = [];
+  List<UserDBISAR> _groupMembers = [];
+  List<UserDBISAR> _filterGroupMembers = [];
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
   List<GroupAdmin> _groupAdmins = [];
@@ -55,7 +55,7 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
   }
 
   void fetchUserList() async {
-    List<UserDB> localGroupMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.relayGroupDB.groupId);
+    List<UserDBISAR> localGroupMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.relayGroupDB.groupId);
     List<GroupAdmin>? loadAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.relayGroupDB.groupId);
     if (loadAdmins != null){
       Set<String> adminPubkeys = loadAdmins.map((admin) => admin.pubkey).toSet();
@@ -165,7 +165,7 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
   }
 
   Widget _buildListViewItem(BuildContext context, int index) {
-    UserDB userDB = _groupMembers.elementAt(index);
+    UserDBISAR userDB = _groupMembers.elementAt(index);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -209,7 +209,7 @@ class _RelayGroupAddAdminPageState extends State<RelayGroupAddAdminPage> {
     });
   }
 
-  void _gotoAdminRightsFn(UserDB userDB) {
+  void _gotoAdminRightsFn(UserDBISAR userDB) {
     OXNavigator.pushPage(context, (context) => RelayGroupSetAdminRightsPage(relayGroupDB: widget.relayGroupDB, userDB: userDB)).then((value) {
       OXNavigator.pop(context);
     });

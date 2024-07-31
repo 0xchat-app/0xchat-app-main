@@ -212,7 +212,7 @@ class ChatDataCache with OXChatObserver {
 
   Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
     // author
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB == null) {
       return ;
     }

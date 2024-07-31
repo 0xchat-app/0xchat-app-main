@@ -28,7 +28,7 @@ import 'package:nostr_core_dart/nostr.dart';
 ///@author Michael
 ///CreateTime: 2023/4/25 09:40
 class CreateAccountPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   CreateAccountPage({required this.userDB});
 

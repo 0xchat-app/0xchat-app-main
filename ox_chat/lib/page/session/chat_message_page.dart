@@ -44,7 +44,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
   late double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  UserDB? otherUser;
+  UserDBISAR? otherUser;
   String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.chatId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
@@ -80,7 +80,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   void setupUser() {
     // Mine
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,

@@ -111,7 +111,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   List<BadgeDB> _badgeDBList = [];
   bool _isMute = false;
   bool _isVerifiedDNS = false;
-  late UserDB userDB;
+  late UserDBISAR userDB;
   String myPubkey = '';
 
   // auto delete
@@ -191,7 +191,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _initData() async {
-    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDB(pubKey: widget.pubkey);
+    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDBISAR(pubKey: widget.pubkey);
     _isMute = userDB.mute ?? false;
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
@@ -1106,7 +1106,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   ///Determine if it's a friend
   bool isFriend(String pubkey) {
-    UserDB? user = Contacts.sharedInstance.allContacts[pubkey];
+    UserDBISAR? user = Contacts.sharedInstance.allContacts[pubkey];
     LogUtil.e("user?.aliasPubkey ${user?.aliasPubkey}");
     return user != null;
   }
@@ -1167,8 +1167,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
+  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB.badges ?? 'badges null'}');
     if (friendUserDB == null) {

@@ -28,7 +28,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
   late List<SecureModel> _secureModelList = [];
   List<String> _blockList = [];
 
-  List<UserDB> _blockBlockedUser = [];
+  List<UserDBISAR> _blockBlockedUser = [];
 
   @override
   void initState() {
@@ -185,7 +185,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
   }
 
   Future<void> _getBlockUserProfile(List<String> pubKeys) async {
-    Map<String, UserDB> result = await Account.sharedInstance.getUserInfos(pubKeys);
+    Map<String, UserDBISAR> result = await Account.sharedInstance.getUserInfos(pubKeys);
     _blockBlockedUser = result.values.toList();
   }
 

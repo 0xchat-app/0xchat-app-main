@@ -91,7 +91,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
   Widget build(BuildContext context) {
     if (!isShowReplyContactWidget) return const SizedBox();
     if(noteAuthor == null) return  _emptyNoteAuthorWidget();
-    return ValueListenableBuilder<UserDB>(
+    return ValueListenableBuilder<UserDBISAR>(
       valueListenable: Account.sharedInstance.getUserNotifier(noteAuthor!),
       builder: (context, value, child) {
         return RichText(

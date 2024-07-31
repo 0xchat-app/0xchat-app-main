@@ -83,7 +83,7 @@ class ChatGeneralHandler {
   }
 
   final types.User author;
-  UserDB? otherUser;
+  UserDBISAR? otherUser;
   final ChatSessionModel session;
   final types.EncryptionType fileEncryptionType;
 
@@ -103,14 +103,14 @@ class ChatGeneralHandler {
   final tempMessageSet = <types.Message>{};
 
   static types.User _defaultAuthor() {
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
   }
 
-  static UserDB? _defaultOtherUser(ChatSessionModel session) {
+  static UserDBISAR? _defaultOtherUser(ChatSessionModel session) {
     return Account.sharedInstance.userCache[session.chatId]?.value
         ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
@@ -118,7 +118,7 @@ class ChatGeneralHandler {
   void setupOtherUserIfNeeded() {
     if (otherUser == null) {
       final userFuture = Account.sharedInstance.getUserInfo(session.getOtherPubkey);
-      if (userFuture is Future<UserDB?>) {
+      if (userFuture is Future<UserDBISAR?>) {
         userFuture.then((value){
           otherUser = value;
         });
@@ -593,7 +593,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     _goToCamera(context);
   }
 
-  Future callPressHandler(BuildContext context, UserDB user) async {
+  Future callPressHandler(BuildContext context, UserDBISAR user) async {
     OXActionModel? oxActionModel = await OXActionDialog.show(
       context,
       data: [
@@ -612,7 +612,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future zapsPressHandler(BuildContext context, UserDB user) async {
+  Future zapsPressHandler(BuildContext context, UserDBISAR user) async {
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: true,

@@ -128,7 +128,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     LogUtil.e('Topic List didLoginStateChanged : $userInfo');
     setState(() {
       groups.clear();
@@ -145,7 +145,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     _onRefresh();
   }
 

@@ -38,7 +38,7 @@ class ReplyMomentsPage extends StatefulWidget {
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
-  Map<String, UserDB> draftCueUserMap = {};
+  Map<String, UserDBISAR> draftCueUserMap = {};
 
   final TextEditingController _textController = TextEditingController();
   final List<String> _showImageList = [];
@@ -122,9 +122,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   imageUrlList: _showImageList,
                   textController: _textController,
                   hintText: Localized.text('ox_discovery.post_reply'),
-                  cueUserCallback: (List<UserDB> userList){
+                  cueUserCallback: (List<UserDBISAR> userList){
                     if(userList.isEmpty) return;
-                    for(UserDB db in userList){
+                    for(UserDBISAR db in userList){
                       String? getName = db.name;
                       if(getName != null){
                         draftCueUserMap['@${getName}'] = db;
@@ -145,7 +145,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   Widget _momentReplyWidget() {
     String pubKey = widget.notedUIModel.value.noteDB.author;
     return IntrinsicHeight(
-      child: ValueListenableBuilder<UserDB>(
+      child: ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Row(
@@ -195,7 +195,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  Widget _momentUserInfoWidget(UserDB userDB) {
+  Widget _momentUserInfoWidget(UserDBISAR userDB) {
     double width = MediaQuery.of(context).size.width - 106;
     width = width - (getImagePicList.isEmpty ? 0 : 60);
     return Row(

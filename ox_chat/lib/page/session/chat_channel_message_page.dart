@@ -80,7 +80,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
 
   void setupUser() {
     // Mine
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,

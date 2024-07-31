@@ -260,7 +260,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ValueListenableBuilder<UserDB>(
+          ValueListenableBuilder<UserDBISAR>(
             valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
               return Row(
@@ -410,8 +410,8 @@ class _MomentWidgetState extends State<MomentWidget> {
         case EMomentMoreOptionType.shareNoted:
          final result =  await OXModuleService.pushPage(
               context, 'ox_chat', 'chatUserChoosePage',{});
-         if(result is List<UserDB>){
-           for(UserDB user in result)  {
+         if(result is List<UserDBISAR>){
+           for(UserDBISAR user in result)  {
              OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,noteDB.encodedNoteId]);
            }
          }

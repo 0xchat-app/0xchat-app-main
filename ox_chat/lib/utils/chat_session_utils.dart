@@ -90,7 +90,7 @@ class ChatSessionUtils {
         break;
       case ChatType.chatSingle:
       case ChatType.chatSecret:
-        UserDB? tempUserDB = Account.sharedInstance.userCache[model.chatId]?.value;
+      UserDBISAR? tempUserDB = Account.sharedInstance.userCache[model.chatId]?.value;
         if (tempUserDB != null) {
           isMute = tempUserDB.mute ?? false;
         }

@@ -98,7 +98,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     _badgeRequirementsHint = Localized.text('ox_chat.badge_no_requirement_tips');
     _isMute = widget.channelDB.mute ?? false;
     if (widget.channelDB.creator.isNotEmpty) {
-      final UserDB? userFromDB =
+      final UserDBISAR? userFromDB =
           await Account.sharedInstance.getUserInfo(widget.channelDB.creator);
       _showCreator = userFromDB != null ? userFromDB.name! : widget.channelDB.creator;
       if (mounted) setState(() {});

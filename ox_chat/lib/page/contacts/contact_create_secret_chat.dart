@@ -45,7 +45,7 @@ extension ESecretChatTimeToSecond on ESecretChatTime {
 }
 
 class ContactCreateSecret extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   ContactCreateSecret({Key? key, required this.userDB}) : super(key: key);
   @override

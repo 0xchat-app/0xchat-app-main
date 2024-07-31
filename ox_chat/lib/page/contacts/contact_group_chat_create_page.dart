@@ -20,7 +20,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
 class ContactGroupChatCreatePage extends StatefulWidget {
-  final List<UserDB> userList;
+  final List<UserDBISAR> userList;
   final GroupType groupType;
 
   const ContactGroupChatCreatePage({
@@ -37,7 +37,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
   TextEditingController _controller = TextEditingController();
 
-  List<UserDB> userList = [];
+  List<UserDBISAR> userList = [];
 
   String _chatRelay = 'wss://relay.0xchat.com';
 
@@ -300,7 +300,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
   }
 
   void _initUserList(){
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     userList = widget.userList;
     if(userDB != null && !userList.contains(userDB)) userList.add(userDB);
     setState(() {});

@@ -86,7 +86,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
       _groupDBInfo = groupDB;
       _groupNameController.text = _groupDBInfo?.name ?? '';
       _groupAboutController.text = _groupDBInfo?.about ?? '';
-      UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+      UserDBISAR? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
       if (myUserDB != null) {
         _hasEditMetadataPermission = RelayGroup.sharedInstance.hasPermissions(
             groupDB.admins ?? [], myUserDB.pubKey, [GroupActionKind.editMetadata]);

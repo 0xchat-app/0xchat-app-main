@@ -120,7 +120,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     ChatLogUtils.info(className: 'ChatSessionListPage', funcName: 'didLoginSuccess', message: '');
     updateStateView(CommonStateView.CommonStateView_None);
     if (this.mounted) {
@@ -138,7 +138,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     if (this.mounted) {
       setState(() {
         _msgDatas.clear();
@@ -935,7 +935,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
     final chatId = announceListItem.chatId ?? '';
-    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
+    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
     if (friendUserDB == null) {
       return null;
     }
@@ -980,7 +980,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         isMute = relayGroupDB?.mute ?? false;
         return isMute;
       default:
-        UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
+        UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
         isMute = tempUserDB?.mute ?? false;
         return isMute;
     }
@@ -990,7 +990,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     chatSessionModelList.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
         List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
         avatars.removeWhere((element) => element.isEmpty);
         _groupMembersCache[groupId] = avatars;
@@ -1009,7 +1009,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         }
       }
 
-      UserDB? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey]?.value;
+      UserDBISAR? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey]?.value;
       String userShowName = user?.getUserShowName() ?? '';
       String content = strangerSessionList.length > 1 ? '$userShowName... and other ${strangerSessionList.length} chats' : '$userShowName';
 

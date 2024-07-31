@@ -55,7 +55,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   late double keyboardHeight = 0;
   late ChatStatus chatStatus;
   SecretSessionDB? _secretSessionDB;
-  UserDB? otherUser;
+  UserDBISAR? otherUser;
 
   String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.getOtherPubkey;
 
@@ -144,7 +144,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   void setupUser() {
     // Mine
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     _user = types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,
@@ -324,7 +324,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   Widget customBottomWidget() {
-    UserDB? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
     String showUsername = otherDB?.getUserShowName() ?? '';
     String _hintText = '';
     String _leftBtnTxt = '';
@@ -462,7 +462,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 final OKEvent okEvent = await Contacts.sharedInstance.reject(_secretSessionDB!.sessionId);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
-                  UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
+                  UserDBISAR? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
                   await OXChatBinding.sharedInstance.deleteSession(
                     [widget.communityItem.chatId],
                     isStranger: toPubkeyUserDB == null,

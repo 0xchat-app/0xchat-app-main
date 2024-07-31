@@ -45,7 +45,7 @@ class DonatePage extends StatefulWidget {
 class _DonatePageState extends State<DonatePage> {
   List<DonateItem> donateItems = [];
 
-  UserDB? _mCurrentUserInfo;
+  UserDBISAR? _mCurrentUserInfo;
   String _invoice = '';
   int _selectIndex = 1;
   final TextEditingController _customStasTextController = TextEditingController();

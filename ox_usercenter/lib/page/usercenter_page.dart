@@ -660,7 +660,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
@@ -688,7 +688,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _verifiedDNS() async {
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if(userDB == null) return;
     var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (mounted) {

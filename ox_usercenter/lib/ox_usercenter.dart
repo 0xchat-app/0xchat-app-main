@@ -57,10 +57,10 @@ class OXUserCenter extends OXFlutterModule {
           (context) => const UserCenterPage(),
         );
       case 'UsercenterBadgeWallPage':
-        UserDB? userDB = params?['userDB'];
+        UserDBISAR? userDB = params?['userDB'];
         return OXNavigator.pushPage(context, (context) => UsercenterBadgeWallPage(userDB: userDB,));
       case 'AvatarPreviewPage':
-        UserDB? userDB = params?['userDB'];
+        UserDBISAR? userDB = params?['userDB'];
         return OXNavigator.pushPage(context, (context) => AvatarPreviewPage(userDB: userDB),);
       case 'ZapsInvoiceDialog':
         final invoice = params?['invoice'];

@@ -46,7 +46,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
   }
 
   void _loadData() {
-    UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (widget.admins.length > 0) {
       try {
         if (myUserDB != null) {
@@ -123,7 +123,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
     GlobalKey indexContenKey = GlobalKey();
     _moreGlobalKeyMap[index] = indexContenKey;
     GroupAdmin groupAdmin = widget.admins.elementAt(index);
-    UserDB? userDB = Account.sharedInstance.userCache[groupAdmin.pubkey]?.value;
+    UserDBISAR? userDB = Account.sharedInstance.userCache[groupAdmin.pubkey]?.value;
     return Container(
       height: 72.px,
       child: Row(
@@ -158,7 +158,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _editAdminPermissionFn(index, groupAdmin, userDB ?? UserDB(pubKey: groupAdmin.pubkey));
+                  _editAdminPermissionFn(index, groupAdmin, userDB ?? UserDBISAR(pubKey: groupAdmin.pubkey));
                 },
                 child: CommonImage(iconName: 'icon_admin_permission_more.png', size: 24.px, package: 'ox_chat'),
               ),
@@ -168,7 +168,7 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
     );
   }
 
-  void _editAdminPermissionFn(int index, GroupAdmin groupAdmin, UserDB userDB) async {
+  void _editAdminPermissionFn(int index, GroupAdmin groupAdmin, UserDBISAR userDB) async {
     GlobalKey? globalKey = _moreGlobalKeyMap[index];
     if (globalKey == null) return;
     BuildContext? keyBuildContext = globalKey.currentContext;

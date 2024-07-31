@@ -12,7 +12,7 @@ import 'package:ox_common/model/chat_session_model.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
-typedef UserListGetter = Future<List<UserDB>> Function();
+typedef UserListGetter = Future<List<UserDBISAR>> Function();
 
 extension ChatSessionModelMentionEx on ChatSessionModel {
 
@@ -29,14 +29,14 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
     }
   }
 
-  Future<List<UserDB>> _userListGetterByMessageList() async {
-    final completer = Completer<List<UserDB>>();
+  Future<List<UserDBISAR>> _userListGetterByMessageList() async {
+    final completer = Completer<List<UserDBISAR>>();
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     ChatDataCache.shared.getSessionMessage(this).then((messageList) {
-      final userList = Set<UserDB>();
+      final userList = Set<UserDBISAR>();
       messageList.forEach((msg) {
         final userDB = msg.author.sourceObject;
-        if (userDB is UserDB) {
+        if (userDB is UserDBISAR) {
           if (userDB.pubKey != myPubkey) {
             userList.add(userDB);
           }
@@ -47,8 +47,8 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
     return completer.future;
   }
 
-  Future<List<UserDB>> _userListGetterByGroupMember() async {
-    final completer = Completer<List<UserDB>>();
+  Future<List<UserDBISAR>> _userListGetterByGroupMember() async {
+    final completer = Completer<List<UserDBISAR>>();
     final members = Groups.sharedInstance.groups[groupId]?.members;
     if (members == null) {
       completer.complete([]);
@@ -66,7 +66,7 @@ class ProfileMentionWrapper {
   ProfileMentionWrapper(this.source, [this.user]) {
     if (user == null) {
       final userFuture = Account.sharedInstance.getUserInfo(source.pubkey);
-      if (userFuture is Future<UserDB?>) {
+      if (userFuture is Future<UserDBISAR?>) {
         userFuture.then((value){
           user = value;
         });
@@ -86,9 +86,9 @@ class ProfileMentionWrapper {
   }
 
   ProfileMention source;
-  UserDB? user;
+  UserDBISAR? user;
 
-  ProfileMentionWrapper copyWith({int? start, int? end, String? pubkey, List<String>? relays, UserDB? user}) {
+  ProfileMentionWrapper copyWith({int? start, int? end, String? pubkey, List<String>? relays, UserDBISAR? user}) {
     return ProfileMentionWrapper(
       ProfileMention(
         start ?? this.source.start,
@@ -115,9 +115,9 @@ class ChatMentionHandler {
 
   List<ProfileMentionWrapper> mentions = [];
 
-  List<UserDB> allUser = [];
+  List<UserDBISAR> allUser = [];
 
-  final userList = ValueNotifier<List<UserDB>>([]);
+  final userList = ValueNotifier<List<UserDBISAR>>([]);
 }
 
 extension ChatMentionMessageEx on ChatMentionHandler {
@@ -137,7 +137,7 @@ extension ChatMentionMessageEx on ChatMentionHandler {
     mentions.reversed.forEach((mention) {
       final user = Account.sharedInstance.getUserInfo(mention.pubkey);
       var userName = '';
-      if (user is UserDB) {
+      if (user is UserDBISAR) {
         userName = user.name ?? userName;
       }
       text = text.replaceRange(mention.start, mention.end, '$_mentionPrefix$userName');
@@ -155,7 +155,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
     _inputController.addListener(_inputFieldOnTextChanged);
   }
 
-  void addMentionText(UserDB user) {
+  void addMentionText(UserDBISAR user) {
 
     final userName = user.name ?? '';
     final mentionText = _mentionTextString(userName);
@@ -268,7 +268,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
 
 extension ChatMentionUserListEx on ChatMentionHandler {
 
-  void _updateUserListValue(List<UserDB> value) {
+  void _updateUserListValue(List<UserDBISAR> value) {
     userList.value = value;
   }
 
@@ -276,7 +276,7 @@ extension ChatMentionUserListEx on ChatMentionHandler {
     return MentionUserList(userList, mentionUserListOnPressed);
   }
 
-  void mentionUserListOnPressed(UserDB item) {
+  void mentionUserListOnPressed(UserDBISAR item) {
     final originText = inputController.text;
     final selection = inputController.selection;
     final cursorPosition = selection.start;

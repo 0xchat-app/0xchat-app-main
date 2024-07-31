@@ -19,7 +19,7 @@ import 'package:chatcore/chat-core.dart';
 ///@author Michael
 ///CreateTime: 2023/4/25 14:14
 class SaveAccountPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   SaveAccountPage({required this.userDB});
 
@@ -274,7 +274,7 @@ class _SaveAccountPageState extends State<SaveAccountPage>
   }
 
   void _clickKey(KeyType keyType) async {
-    UserDB db = widget.userDB;
+    UserDBISAR db = widget.userDB;
     String getKey =
         keyType == KeyType.PublicKey ? db.encodedPubkey : db.encodedPrivkey;
 

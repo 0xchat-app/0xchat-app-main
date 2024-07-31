@@ -40,7 +40,7 @@ class ChatPageConfig {
         decryptionKey: decryptionKey,
       );
 
-  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler, [UserDB? otherUser]) {
+  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler, [UserDBISAR? otherUser]) {
     final items = [
       InputMoreItemEx.album(handler),
       InputMoreItemEx.camera(handler),
@@ -106,7 +106,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static InputMoreItem call(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem call(ChatGeneralHandler handler, UserDBISAR? otherUser) =>
       InputMoreItem(
         id: 'call',
         title: () => Localized.text('ox_chat_ui.input_more_call'),
@@ -122,7 +122,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static InputMoreItem zaps(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem zaps(ChatGeneralHandler handler, UserDBISAR? otherUser) =>
       InputMoreItem(
         id: 'zaps',
         title: () => Localized.text('ox_chat_ui.input_more_zaps'),
