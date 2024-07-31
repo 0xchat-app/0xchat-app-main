@@ -16,7 +16,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'zaps_action_handler.dart';
 
 class ZapsAssistedPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   final ZapsActionHandler handler;
   final String lnurl;
   final String? eventId;

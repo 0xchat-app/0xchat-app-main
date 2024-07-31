@@ -83,7 +83,7 @@ class OXUserAvatar extends StatefulWidget {
   }) : this.size = size ?? Adapt.px(48);
 
   final bool isSecretChat;
-  final UserDB? user;
+  final UserDBISAR? user;
   final String? imageUrl;
   final String? chatId;
   final double size;
@@ -285,7 +285,7 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
   }
 
   void _getMembers() async {
-    List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
     _avatars = groupList.map((element) => element.picture ?? '').toList();
     _avatars.removeWhere((element) => element.isEmpty);
   }

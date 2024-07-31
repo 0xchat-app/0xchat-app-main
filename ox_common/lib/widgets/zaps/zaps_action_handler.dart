@@ -17,7 +17,7 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class ZapsActionHandler {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   final bool isAssistedProcess;
   final bool? privateZap;
   final ZapType? zapType;
@@ -47,7 +47,7 @@ class ZapsActionHandler {
   }) : isAssistedProcess = isAssistedProcess ?? false;
 
   static Future<ZapsActionHandler> create({
-    required UserDB userDB,
+    required UserDBISAR userDB,
     bool? privateZap,
     ZapType? zapType,
     String? receiver,

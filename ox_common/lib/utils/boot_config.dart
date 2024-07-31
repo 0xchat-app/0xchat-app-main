@@ -62,13 +62,13 @@ class BootConfig {
 
   Future<void> _syncBadgesToUserDB(Map<String, List<String>> userToBadges) async {
     userToBadges.forEach((userPubkey, badges) async {
-      UserDB? userDB = await Account.sharedInstance.getUserInfo(userPubkey);
+      UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(userPubkey);
       if (userDB != null) {
         userDB.badgesList = badges;
-        await DB.sharedInstance.update<UserDB>(userDB);
+        await Account.saveUserToDB(userDB);
       }else{
-        userDB = UserDB(pubKey: userPubkey,badgesList: badges);
-        await DB.sharedInstance.insertBatch<UserDB>(userDB);
+        userDB = UserDBISAR(pubKey: userPubkey,badgesList: badges);
+        await Account.saveUserToDB(userDB);
       }
     });
   }

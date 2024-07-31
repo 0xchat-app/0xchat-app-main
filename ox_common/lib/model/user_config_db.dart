@@ -52,7 +52,7 @@ extension UserConfigTool on UserConfigDB {
     if (userConfigDBList.isNotEmpty) {
       userConfigDB = userConfigDBList[0];
     } else {
-      UserDB? tempDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+      UserDBISAR? tempDB = OXUserInfoManager.sharedInstance.currentUserInfo;
       if (tempDB != null ){
         userConfigDB = UserConfigDB(pubKey: tempDB.pubKey);
         await UserConfigTool.updateUserConfigDB(userConfigDB);

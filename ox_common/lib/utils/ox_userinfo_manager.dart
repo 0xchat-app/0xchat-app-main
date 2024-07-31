@@ -18,9 +18,9 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 
 abstract mixin class OXUserInfoObserver {
-  void didLoginSuccess(UserDB? userInfo);
+  void didLoginSuccess(UserDBISAR? userInfo);
 
-  void didSwitchUser(UserDB? userInfo);
+  void didSwitchUser(UserDBISAR? userInfo);
 
   void didLogout();
 
@@ -50,7 +50,7 @@ class OXUserInfoManager {
 
   bool get isLogin => (currentUserInfo != null);
 
-  UserDB? currentUserInfo;
+  UserDBISAR? currentUserInfo;
 
   var _contactFinishFlags = {
     _ContactType.contacts: false,
@@ -96,14 +96,14 @@ class OXUserInfoManager {
     if (localPriv != null && localPriv.isNotEmpty) {
       OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
       OXCacheManager.defaultOXCacheManager.removeData('PrivKey');
-      String? privKey = UserDB.decodePrivkey(localPriv);
+      String? privKey = UserDBISAR.decodePrivkey(localPriv);
       if (privKey == null || privKey.isEmpty) {
         LogUtil.e('Oxchat : Auto-login failed, please log in again.');
         return;
       }
       String pubkey = Account.getPublicKey(privKey);
       await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
+      final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
       if (tempUserDB != null) {
         currentUserInfo = Account.sharedInstance.me;
         _initDatas();
@@ -117,10 +117,10 @@ class OXUserInfoManager {
           signatureVerifyFailed = true;
           return;
         }
-        String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+        String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
         if (decodeSignature == localPubKey) {
           await initDB(localPubKey);
-          UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+          UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
           if (tempUserDB != null) {
             currentUserInfo = tempUserDB;
             _initDatas();
@@ -132,7 +132,7 @@ class OXUserInfoManager {
       }
     } else if (localPubKey != null && localPubKey.isNotEmpty) {
       await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+      final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
       LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
       if (tempUserDB != null) {
         currentUserInfo = tempUserDB;
@@ -149,7 +149,7 @@ class OXUserInfoManager {
 
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
-  Future<void> loginSuccess(UserDB userDB) async {
+  Future<void> loginSuccess(UserDBISAR userDB) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
     UserConfigTool.updateUserConfigDB(UserConfigDB(pubKey: userDB.pubKey));
@@ -265,7 +265,7 @@ class OXUserInfoManager {
     };
   }
 
-  void updateUserInfo(UserDB userDB) {}
+  void updateUserInfo(UserDBISAR userDB) {}
 
   void updateSuccess() {
     for (OXUserInfoObserver observer in _observers) {
@@ -340,7 +340,7 @@ class OXUserInfoManager {
     return updateNotificatin;
   }
 
-  Future<bool> checkDNS({required UserDB userDB}) async {
+  Future<bool> checkDNS({required UserDBISAR userDB}) async {
     String pubKey = userDB.pubKey;
     String dnsStr = userDB.dns ?? '';
     if(dnsStr.isEmpty || dnsStr == 'null') {

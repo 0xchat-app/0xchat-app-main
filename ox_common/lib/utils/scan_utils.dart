@@ -117,7 +117,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       if (!await _tryHandleRelaysFromMap(data, context)) return true;
 
       final pubkey = data['pubkey'] as String? ?? '';
-      UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
       if (user == null) return failedHandle();
 
       OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {

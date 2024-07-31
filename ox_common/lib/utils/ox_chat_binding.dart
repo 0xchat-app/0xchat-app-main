@@ -211,7 +211,7 @@ class OXChatBinding {
     Map<String, String> tempMap = getChatIdAndOtherPubkey(messageDB);
     String chatId = tempMap['ChatId'] ?? '';
     String otherUserPubkey = tempMap['otherUserPubkey'] ?? '';
-    UserDB? userDB;
+    UserDBISAR? userDB;
     sessionModel.chatId = chatId;
     ChatSessionModel? tempModel = sessionMap[chatId];
     if (tempModel != null) {
@@ -314,7 +314,7 @@ class OXChatBinding {
     String chatId = sender == userdb.pubKey ? receiver : sender;
     ChatSessionModel? chatSessionModel = sessionMap[chatId];
     if (chatSessionModel == null) {
-      UserDB? userDB = Contacts.sharedInstance.allContacts[chatId];
+      UserDBISAR? userDB = Contacts.sharedInstance.allContacts[chatId];
       if (userDB == null) {
         userDB = await Account.sharedInstance.getUserInfo(chatId);
       }
@@ -338,7 +338,7 @@ class OXChatBinding {
     final myPubkey = ssDB.myPubkey;
     if (toPubkey == null || toPubkey.isEmpty) return null;
     if (myPubkey == null || myPubkey.isEmpty) return null;
-    UserDB? userDB = Contacts.sharedInstance.allContacts[toPubkey];
+    UserDBISAR? userDB = Contacts.sharedInstance.allContacts[toPubkey];
     if (userDB == null) {
       userDB = await Account.sharedInstance.getUserInfo(toPubkey);
     }
@@ -360,9 +360,9 @@ class OXChatBinding {
     final myPubkey = ssDB.myPubkey;
     if (toPubkey == null || toPubkey.isEmpty) return;
     if (myPubkey == null || myPubkey.isEmpty) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: ssDB.toPubkey!);
+      user = UserDBISAR(pubKey: ssDB.toPubkey!);
     }
     syncChatSessionTable(MessageDBISAR(
       decryptContent: Localized.text('ox_common.secret_chat_received_tips'),
@@ -376,9 +376,9 @@ class OXChatBinding {
   void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
     String toPubkey = ssDB.toPubkey ?? '';
     if (toPubkey.isEmpty) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: toPubkey);
+      user = UserDBISAR(pubKey: toPubkey);
     }
     await updateChatSession(ssDB.sessionId, content: 'secret_chat_accepted_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
@@ -389,9 +389,9 @@ class OXChatBinding {
   void secretChatRejectCallBack(SecretSessionDB ssDB) async {
     String toPubkey = ssDB.toPubkey ?? '';
     if (toPubkey.isEmpty) return;
-    UserDB? user = await Account.sharedInstance.getUserInfo(toPubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(toPubkey);
     if (user == null) {
-      user = UserDB(pubKey: toPubkey);
+      user = UserDBISAR(pubKey: toPubkey);
     }
     await updateChatSession(ssDB.sessionId, content: 'secret_chat_rejected_tips'.commonLocalized({r"${name}": user.name ?? ''}));
     for (OXChatObserver observer in _observers) {
@@ -540,14 +540,14 @@ class OXChatBinding {
       isChange = true;
       int? tempChatType = csModel.chatType;
       if (csModel.chatType == ChatType.chatSecretStranger) {
-        UserDB? senderUserDB = Contacts.sharedInstance.allContacts[csModel.sender];
-        UserDB? receiverUserDB = Contacts.sharedInstance.allContacts[csModel.receiver];
+        UserDBISAR? senderUserDB = Contacts.sharedInstance.allContacts[csModel.sender];
+        UserDBISAR? receiverUserDB = Contacts.sharedInstance.allContacts[csModel.receiver];
         if (senderUserDB != null || receiverUserDB != null) {
           tempChatType = ChatType.chatSecret;
           await updateChatSessionDB(csModel, tempChatType);
         }
       } else if (csModel.chatType == ChatType.chatStranger) {
-        UserDB? chatIdUserDB = Contacts.sharedInstance.allContacts[csModel.chatId];
+        UserDBISAR? chatIdUserDB = Contacts.sharedInstance.allContacts[csModel.chatId];
         if (chatIdUserDB != null) {
           tempChatType = ChatType.chatSingle;
           await updateChatSessionDB(csModel, tempChatType);

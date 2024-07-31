@@ -20,7 +20,7 @@ class CommonLongContentPage extends StatefulWidget {
   final String userPic;
   final String userName;
   final bool isShowOriginalText;
-  final UserDB? author;
+  final UserDBISAR? author;
 
   CommonLongContentPage({
     this.content,

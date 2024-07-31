@@ -72,7 +72,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
 
     for (var contact in _contactList) {
       String nameToConvert = '';
-      if(contact is UserDB){
+      if(contact is UserDBISAR){
         nameToConvert = contact.nickName != null && contact.nickName!.isNotEmpty ? contact.nickName! : (contact.name ?? '');
       }
       if(contact is GroupDB){
@@ -291,7 +291,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
       _groupedContactList.forEach(
         (key, value) {
           if (widget.contactType == ContactType.contact) {
-            List<UserDB> tempList = (value as List<UserDB>)
+            List<UserDBISAR> tempList = (value as List<UserDBISAR>)
                 .where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase()))
                 .toList();
             searchResult[key] = tempList.cast<T>();
