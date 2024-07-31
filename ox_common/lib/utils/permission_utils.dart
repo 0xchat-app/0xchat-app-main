@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -108,15 +110,27 @@ class PermissionUtils{
     }
   }
 
-  static Future<bool> getCallPermission(BuildContext context) async {
+  static Future<bool> getCallPermission(BuildContext context, {String? mediaType}) async {
     bool cmPermission = false;
-    Map<Permission, PermissionStatus> statuses = await [Permission.camera, Permission.microphone].request();
-    if (statuses[Permission.camera]!.isGranted && statuses[Permission.microphone]!.isGranted) {
+    List<Permission> requestList = [];
+    String permissionFailedContent = '';
+    if (mediaType == CallMessageType.audio.text) {
+      requestList = [Permission.microphone];
+      permissionFailedContent = Localized.text('ox_common.str_permission_audio_call_hint');
+    } else {
+      requestList = [Permission.camera, Permission.microphone];
+      permissionFailedContent = Localized.text('ox_common.str_permission_call_hint');
+    }
+    Map<Permission, PermissionStatus> statuses = await requestList.request();
+    LogUtil.e('Michael: --mediaType =${mediaType}-----');
+    LogUtil.e('Michael: --statuses[Permission.camera]?.isGranted =${statuses[Permission.camera]?.isGranted}-- statuses[Permission.microphone]?.isGranted = ${statuses[Permission.microphone]?.isGranted}');
+    if ((mediaType == CallMessageType.audio.text && statuses[Permission.microphone]!.isGranted)
+    || (mediaType == CallMessageType.video.text && statuses[Permission.camera]!.isGranted && statuses[Permission.microphone]!.isGranted)) {
       cmPermission = true;
     } else {
       OXCommonHintDialog.show(context,
           title: Localized.text('ox_common.tips'),
-          content: Localized.text('ox_common.str_permission_call_hint'),
+          content: permissionFailedContent,
           actionList: [
             OXCommonHintAction.cancel(onTap: () {
               OXNavigator.pop(context);
