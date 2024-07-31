@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 import 'package:chatcore/chat-core.dart' as ChatCore;
 import 'package:flutter/material.dart';
@@ -67,7 +68,9 @@ class CallManager {
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) async{
       LogUtil.e('core: onCallStateChange state=$state ; data =$data;');
       if (state == SignalingState.offer) {
-        bool cmPermission = await PermissionUtils.getCallPermission(OXNavigator.navigatorKey.currentContext!);
+        var dataMap = jsonDecode(data);
+        var media = dataMap['media'];
+        bool cmPermission = await PermissionUtils.getCallPermission(OXNavigator.navigatorKey.currentContext!, mediaType: media);
         if (cmPermission) _signaling?.onParseMessage(friend, state, data, offerId);
       } else {
         _signaling?.onParseMessage(friend, state, data, offerId);
