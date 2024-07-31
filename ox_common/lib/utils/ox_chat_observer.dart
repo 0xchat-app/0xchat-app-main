@@ -11,7 +11,7 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 abstract mixin class OXChatObserver {
   void didSecretChatRequestCallBack() {}
 
-  void didPrivateMessageCallBack(MessageDB message) {}
+  void didPrivateMessageCallBack(MessageDBISAR message) {}
 
   void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
 
@@ -27,15 +27,15 @@ abstract mixin class OXChatObserver {
 
   void didDeleteChannel(ChannelDB? channelDB) {}
 
-  void didChannalMessageCallBack(MessageDB message) {}
+  void didChannalMessageCallBack(MessageDBISAR message) {}
 
-  void didGroupMessageCallBack(MessageDB message) {}
+  void didGroupMessageCallBack(MessageDBISAR message) {}
 
   void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {}
 
   void didRelayGroupModerationCallBack(ModerationDB moderationDB) {}
 
-  void didMessageActionsCallBack(MessageDB message) {}
+  void didMessageActionsCallBack(MessageDBISAR message) {}
 
   void didChannelsUpdatedCallBack() {}
 
@@ -45,9 +45,9 @@ abstract mixin class OXChatObserver {
 
   void didSessionUpdate() {}
 
-  void didSecretChatMessageCallBack(MessageDB message) {}
+  void didSecretChatMessageCallBack(MessageDBISAR message) {}
 
-  void didPromptToneCallBack(MessageDB message, int type) {}
+  void didPromptToneCallBack(MessageDBISAR message, int type) {}
 
   void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
     final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';

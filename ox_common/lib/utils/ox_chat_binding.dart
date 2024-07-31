@@ -37,8 +37,8 @@ class OXChatBinding {
 
   final List<OXChatObserver> _observers = <OXChatObserver>[];
 
-  String? Function(MessageDB messageDB)? sessionMessageTextBuilder;
-  bool Function(MessageDB messageDB)? msgIsReaded;
+  String? Function(MessageDBISAR messageDB)? sessionMessageTextBuilder;
+  bool Function(MessageDBISAR messageDB)? msgIsReaded;
 
   Future<void> initLocalSession() async {
     final List<ChatSessionModel> sessionList = await DB.sharedInstance.objects<ChatSessionModel>(
@@ -74,7 +74,7 @@ class OXChatBinding {
     );
   }
 
-  String showContentByMsgType(MessageDB messageDB) {
+  String showContentByMsgType(MessageDBISAR messageDB) {
     return sessionMessageTextBuilder?.call(messageDB) ?? '';
   }
 
@@ -142,7 +142,7 @@ class OXChatBinding {
     return changeCount;
   }
 
-  ChatSessionModel? syncChatSessionTable(MessageDB messageDB, {int? chatType}) {
+  ChatSessionModel? syncChatSessionTable(MessageDBISAR messageDB, {int? chatType}) {
     final userdb = OXUserInfoManager.sharedInstance.currentUserInfo;
     if ( userdb == null || userdb.pubKey.isEmpty) {
       return null;
@@ -168,7 +168,7 @@ class OXChatBinding {
     return sessionModel;
   }
 
-  void _syncGroupChat(ChatSessionModel sessionModel, MessageDB messageDB) {
+  void _syncGroupChat(ChatSessionModel sessionModel, MessageDBISAR messageDB) {
     sessionModel.chatId = messageDB.groupId;
     if (messageDB.chatType == 4) {
       sessionModel.chatType = ChatType.chatRelayGroup;
@@ -207,7 +207,7 @@ class OXChatBinding {
     }
   }
 
-  void _syncSingleChat(ChatSessionModel sessionModel, MessageDB messageDB, {int? chatType}) {
+  void _syncSingleChat(ChatSessionModel sessionModel, MessageDBISAR messageDB, {int? chatType}) {
     Map<String, String> tempMap = getChatIdAndOtherPubkey(messageDB);
     String chatId = tempMap['ChatId'] ?? '';
     String otherUserPubkey = tempMap['otherUserPubkey'] ?? '';
@@ -257,7 +257,7 @@ class OXChatBinding {
     }
   }
 
-  Map<String, String> getChatIdAndOtherPubkey(MessageDB messageDB) {
+  Map<String, String> getChatIdAndOtherPubkey(MessageDBISAR messageDB) {
     String chatId = '';
     String otherUserPubkey = '';
     if (messageDB.sessionId.isEmpty) {
@@ -320,7 +320,7 @@ class OXChatBinding {
       }
       int tempCreateTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       chatSessionModel = syncChatSessionTable(
-        MessageDB(
+        MessageDBISAR(
           decryptContent: decryptContent,
           content: decryptContent,
           createTime: tempCreateTime,
@@ -343,7 +343,7 @@ class OXChatBinding {
       userDB = await Account.sharedInstance.getUserInfo(toPubkey);
     }
     final ChatSessionModel? chatSessionModel = syncChatSessionTable(
-      MessageDB(
+      MessageDBISAR(
         decryptContent: 'secret_chat_invited_tips'.commonLocalized({r"${name}": userDB?.name ?? ''}),
         createTime: ssDB.lastUpdateTime,
         sender: toPubkey,
@@ -364,7 +364,7 @@ class OXChatBinding {
     if (user == null) {
       user = UserDB(pubKey: ssDB.toPubkey!);
     }
-    syncChatSessionTable(MessageDB(
+    syncChatSessionTable(MessageDBISAR(
       decryptContent: Localized.text('ox_common.secret_chat_received_tips'),
       createTime: ssDB.lastUpdateTime,
       sender: toPubkey,
@@ -411,28 +411,28 @@ class OXChatBinding {
     }
   }
 
-  void privateChatMessageCallBack(MessageDB message) async {
+  void privateChatMessageCallBack(MessageDBISAR message) async {
     syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didPrivateMessageCallBack(message);
     }
   }
 
-  void secretChatMessageCallBack(MessageDB message) async {
+  void secretChatMessageCallBack(MessageDBISAR message) async {
     syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatMessageCallBack(message);
     }
   }
 
-  void channalMessageCallBack(MessageDB messageDB) async {
+  void channalMessageCallBack(MessageDBISAR messageDB) async {
     syncChatSessionTable(messageDB);
     for (OXChatObserver observer in _observers) {
       observer.didChannalMessageCallBack(messageDB);
     }
   }
 
-  void groupMessageCallBack(MessageDB messageDB) async {
+  void groupMessageCallBack(MessageDBISAR messageDB) async {
     syncChatSessionTable(messageDB);
     for (OXChatObserver observer in _observers) {
       observer.didGroupMessageCallBack(messageDB);
@@ -451,16 +451,16 @@ class OXChatBinding {
     }
   }
 
-  void messageActionsCallBack(MessageDB messageDB) async {
+  void messageActionsCallBack(MessageDBISAR messageDB) async {
     for (OXChatObserver observer in _observers) {
       observer.didMessageActionsCallBack(messageDB);
     }
   }
 
-  void updateMessageDB(MessageDB messageDB) async {
+  void updateMessageDB(MessageDBISAR messageDB) async {
     if (msgIsReaded != null && msgIsReaded!(messageDB) && !messageDB.read){
       messageDB.read = true;
-      Messages.updateMessageReadStatus(messageDB);
+      Messages.saveMessageToDB(messageDB);
     }
   }
 
@@ -590,7 +590,7 @@ class OXChatBinding {
     }
   }
 
-  void noticePromptToneCallBack(MessageDB message, int type) async {
+  void noticePromptToneCallBack(MessageDBISAR message, int type) async {
     print('noticePromptToneCallBack');
     for (OXChatObserver observer in _observers) {
       observer.didPromptToneCallBack(message, type);

@@ -73,13 +73,13 @@ class OXUserInfoManager {
     String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
     if(dbpw == null || dbpw.isEmpty){
       dbpw = generateStrongPassword(16);
-      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
+      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion, pubkey: pubkey);
       await DB.sharedInstance.cipherMigrate(pubkey + ".db2", CommonConstant.dbVersion, dbpw);
       await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
     }
     else{
       LogUtil.d('[DB init] dbpw: $dbpw');
-      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
+      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw, pubkey: pubkey);
     }
 
     {
@@ -180,23 +180,23 @@ class OXUserInfoManager {
       LogUtil.d("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDBISAR message) {
       LogUtil.d("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.secretChatMessageCallBack(message);
     };
-    Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.privateChatMessageCallBack = (MessageDBISAR message) {
       LogUtil.d("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
-    Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
+    Channels.sharedInstance.channelMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);
     };
-    Groups.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+    Groups.sharedInstance.groupMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  groupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-    RelayGroup.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+    RelayGroup.sharedInstance.groupMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
@@ -260,7 +260,7 @@ class OXUserInfoManager {
       OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
     };
 
-    Messages.sharedInstance.actionsCallBack = (MessageDB message) {
+    Messages.sharedInstance.actionsCallBack = (MessageDBISAR message) {
       OXChatBinding.sharedInstance.messageActionsCallBack(message);
     };
   }

@@ -47,7 +47,7 @@ class ErrorUtils{
 
   static Future<void> sendLogs(BuildContext context, File logFile) async {
     if (await logFile.exists()) {
-      String createEncryptKey = bytesToHex(MessageDB.getRandomSecret());
+      String createEncryptKey = bytesToHex(MessageDBISAR.getRandomSecret());
       String fileName = logFile.path.substring(logFile.path.lastIndexOf('/') + 1);
       try {
         UploadResult result = await UploadUtils.uploadFile(
