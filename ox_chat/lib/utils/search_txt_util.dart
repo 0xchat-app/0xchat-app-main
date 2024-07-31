@@ -68,20 +68,8 @@ class SearchTxtUtil{
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
-      if (chatId == null) {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          'groupId IS NOT NULL AND groupId != ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
-          whereArgs: ['', '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      } else {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          'groupId = ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
-          whereArgs: [chatId, '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      }
-      List<MessageDB> messages = tempMap['messages'];
+      tempMap = await Messages.searchGroupMessagesFromDB(chatId, '%{%}%', "%${orignalSearchTxt}%");
+      List<MessageDBISAR> messages = tempMap['messages'];
       LogUtil.e('Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
@@ -132,27 +120,8 @@ class SearchTxtUtil{
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
-      if (chatId == null) {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          "sender IS NOT NULL AND sender != ? AND receiver IS NOT NULL AND receiver != ? AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
-          whereArgs: ['', '', '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      } else {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          "(sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? ) AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
-          whereArgs: [
-            chatId,
-            OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-            OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-            chatId,
-            '%{%}%',
-            "%${orignalSearchTxt}%",
-          ],
-        );
-      }
-      List<MessageDB> messages = tempMap['messages'];
+      tempMap = await Messages.searchPrivateMessagesFromDB(chatId, orignalSearchTxt);
+      List<MessageDBISAR> messages = tempMap['messages'];
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
@@ -206,7 +175,7 @@ class SearchTxtUtil{
     return chatMessageList;
   }
 
-  static String _getName(MessageDB messageDB){
+  static String _getName(MessageDBISAR messageDB){
     String name = '';
     if (messageDB.chatType == ChatType.chatChannel) {
       ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
@@ -218,7 +187,7 @@ class SearchTxtUtil{
     return name;
   }
 
-  static String _getPicUrl(MessageDB messageDB){
+  static String _getPicUrl(MessageDBISAR messageDB){
     String picUrl = '';
     if (messageDB.chatType == ChatType.chatChannel) {
       ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];

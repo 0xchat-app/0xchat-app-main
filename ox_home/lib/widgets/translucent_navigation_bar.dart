@@ -342,7 +342,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didPromptToneCallBack(MessageDB message, int type) {
+  void didPromptToneCallBack(MessageDBISAR message, int type) {
     if (tabBarList.isEmpty) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;

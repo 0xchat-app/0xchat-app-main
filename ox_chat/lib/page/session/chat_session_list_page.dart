@@ -167,7 +167,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void didPromptToneCallBack(MessageDB message, int type) async {
+  void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = await _checkIsMute(message, type);
     if (!isMute && OXUserInfoManager.sharedInstance.canSound)
@@ -454,15 +454,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                   if (item.chatType == ChatType.chatSecret) {
                                     Contacts.sharedInstance.close(item.chatId);
                                   } else if (item.chatType == ChatType.chatSingle) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ',
-                                      whereArgs: [item.sender, item.receiver, item.receiver, item.sender],
-                                    );
+                                    Messages.deleteSingleChatMessagesFromDB(item.sender, item.receiver);
+                                    Messages.deleteSingleChatMessagesFromDB(item.receiver, item.sender);
                                   } else if (item.chatType == ChatType.chatChannel) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: ' groupId = ? ',
-                                      whereArgs: [item.groupId],
-                                    );
+                                    Messages.deleteGroupMessagesFromDB(item.groupId);
                                   }
                                   if (count > 0) {
                                     setState(() {
@@ -794,7 +789,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  String getLastMessageStr(MessageDB? messageDB) {
+  String getLastMessageStr(MessageDBISAR? messageDB) {
     if (messageDB == null) {
       return '';
     }
@@ -969,7 +964,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  Future<bool> _checkIsMute(MessageDB message, int type) async {
+  Future<bool> _checkIsMute(MessageDBISAR message, int type) async {
     bool isMute = false;
     switch (type) {
       case ChatType.chatChannel:

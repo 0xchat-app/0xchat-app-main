@@ -427,8 +427,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Future updateMessageToRedeemedState(String messageId) async {
-    final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [messageId]);
-    final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
+    final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
     if (messageDB != null) {
       final chatKey = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(messageDB);
       final uiMessage = await ChatDataCache.shared.getMessage(
@@ -439,7 +438,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       if (uiMessage is types.CustomMessage) {
         EcashMessageEx(uiMessage).isOpened = true;
         messageDB.decryptContent = jsonEncode(uiMessage.metadata);
-        await DB.sharedInstance.update(messageDB);
+        await Messages.saveMessageToDB(messageDB);
         await ChatDataCache.shared.updateMessage(chatKey: chatKey, message: uiMessage);
       }
     }

@@ -27,8 +27,8 @@ class OXValue<T> {
 
 class ChatMessageDBToUIHelper {
 
-  static String? sessionMessageTextBuilder(MessageDB message) {
-    final type = MessageDB.stringtoMessageType(message.type);
+  static String? sessionMessageTextBuilder(MessageDBISAR message) {
+    final type = MessageDBISAR.stringtoMessageType(message.type);
     final decryptContent = message.decryptContent;
     return getMessagePreviewText(decryptContent, type, message.sender);
   }
@@ -134,7 +134,7 @@ class ChatMessageDBToUIHelper {
   }
 }
 
-extension MessageDBToUIEx on MessageDB {
+extension MessageDBToUIEx on MessageDBISAR {
 
   String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
@@ -225,7 +225,7 @@ extension MessageDBToUIEx on MessageDB {
   MessageContentModel getContentModel() {
     final contentModel = MessageContentModel();
     contentModel.mid = messageId;
-    contentModel.contentType = MessageDB.stringtoMessageType(this.type);
+    contentModel.contentType = MessageDBISAR.stringtoMessageType(this.type);
     try {
       final decryptedContent = json.decode(decryptContent);
       if (decryptedContent is Map) {
@@ -363,10 +363,8 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
     if (replyId.isNotEmpty && loadRepliedMessage) {
-      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
-      final messageList = result['messages'];
-      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
-        final repliedMessageDB = messageList.first;
+      final repliedMessageDB = await Messages.sharedInstance.loadMessageDBFromDB(replyId);
+      if (repliedMessageDB != null) {
         return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
       }
     }
@@ -402,7 +400,7 @@ extension MessageDBToUIEx on MessageDB {
             logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
             if(nostrSchemeContent != null) {
               parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
-              await DB.sharedInstance.update(this);
+              await Messages.saveMessageToDB(this);
               final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
               final uiMessage = await this.toChatUIMessage();
               if(uiMessage != null){
@@ -424,7 +422,7 @@ extension MessageDBToUIEx on MessageDB {
             parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
             contentModel.content = this.decryptContent;
             logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-            await DB.sharedInstance.update(this);
+            await Messages.saveMessageToDB(this);
             return CustomMessageFactory();
           }
         } else if (Cashu.isCashuToken(initialText)) {
@@ -432,7 +430,7 @@ extension MessageDBToUIEx on MessageDB {
           parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
           contentModel.content = this.decryptContent;
           logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-          await DB.sharedInstance.update(this);
+          await Messages.saveMessageToDB(this);
           return CustomMessageFactory();
         }
 
@@ -472,7 +470,7 @@ extension MessageDBToUIEx on MessageDB {
     required MessageType type,
     required String decryptContent
   }) {
-    this.type = MessageDB.messageTypeToString(type);
+    this.type = MessageDBISAR.messageTypeToString(type);
     this.decryptContent = decryptContent;
   }
 }

@@ -64,11 +64,11 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didPrivateMessageCallBack(MessageDB message) {
+  void didPrivateMessageCallBack(MessageDBISAR message) {
     receivePrivateMessageHandler(message);
   }
 
-  void updateSessionExpiration(String sessionId, MessageDB message){
+  void updateSessionExpiration(String sessionId, MessageDBISAR message){
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if(message.receiver != myPubkey) return;
 
@@ -83,7 +83,7 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
-  Future receivePrivateMessageHandler(MessageDB message) async {
+  Future receivePrivateMessageHandler(MessageDBISAR message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'didFriendMessageCallBack',
@@ -106,7 +106,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didSecretChatMessageCallBack(MessageDB message) async {
+  void didSecretChatMessageCallBack(MessageDBISAR message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'didFriendMessageCallBack',
@@ -128,7 +128,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didGroupMessageCallBack(MessageDB message) async {
+  void didGroupMessageCallBack(MessageDBISAR message) async {
     final groupId = message.groupId;
     final key = message.chatType != null && message.chatType == 4
         ? RelayGroupKey(groupId)
@@ -152,7 +152,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didChannalMessageCallBack(MessageDB message) async {
+  void didChannalMessageCallBack(MessageDBISAR message) async {
     final channelId = message.groupId;
     ChannelKey key = ChannelKey(channelId);
 
@@ -191,7 +191,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didMessageActionsCallBack(MessageDB message) async {
+  void didMessageActionsCallBack(MessageDBISAR message) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: 'didMessageActionsCallBack',
@@ -394,7 +394,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     }
 
     if(message is types.TextMessage && message.previewData != null){
-        await MessageDB.savePreviewData(message.id, jsonEncode(message.previewData?.toJson()));
+        await MessageDBISAR.savePreviewData(message.id, jsonEncode(message.previewData?.toJson()));
     }
 
     await _updateChatMessages(chatKey, message, originMessage: originMessage);
@@ -477,11 +477,12 @@ extension ChatDataCacheSessionEx on ChatDataCache {
   Future setSessionAllMessageIsRead(ChatSessionModel session) async {
     final chatTypeKey = _getChatTypeKey(session);
     if (chatTypeKey == null) return ;
-    await Messages.updateMessagesReadStatus(
-      chatTypeKey.getSQLFilter(),
-      chatTypeKey.getSQLFilterArgs(),
-      true,
-    );
+    //TODO: updateMessagesReadStatus
+    // await Messages.updateMessagesReadStatus(
+    //   chatTypeKey.getSQLFilter(),
+    //   chatTypeKey.getSQLFilterArgs(),
+    //   true,
+    // );
   }
 }
 
@@ -489,10 +490,8 @@ extension ChatDataCacheEx on ChatDataCache {
 
   Future<void> _setupChatMessages() async {
 
-    final result = (await Messages.loadMessagesFromDB(
-      orderBy: "createTime desc",
-    ))['messages'];
-    if (result is! List<MessageDB>) {
+    final result = (await Messages.loadMessagesFromDB())['messages'];
+    if (result is! List<MessageDBISAR>) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
         funcName: '_setupChatMessages',
@@ -501,7 +500,7 @@ extension ChatDataCacheEx on ChatDataCache {
       return ;
     }
 
-    List<MessageDB> allMessage = result;
+    List<MessageDBISAR> allMessage = result;
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     int msgDeletePeriod = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME, defaultValue: 0);
     await Future.forEach(allMessage, (message) async {
@@ -519,7 +518,7 @@ extension ChatDataCacheEx on ChatDataCache {
     });
   }
 
-  Future _distributeMessageToChatKey(ChatTypeKey key, MessageDB message) async {
+  Future _distributeMessageToChatKey(ChatTypeKey key, MessageDBISAR message) async {
     try {
       var uiMsg = await message.toChatUIMessage();
       if (uiMsg == null) return ;
@@ -621,7 +620,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
   }
 
-  static ChatTypeKey? getChatTypeKeyWithMessage(MessageDB message) {
+  static ChatTypeKey? getChatTypeKeyWithMessage(MessageDBISAR message) {
 
     final type = message.chatType;
     if (type == 3 || message.sessionId.isNotEmpty) {
@@ -702,7 +701,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     return messageList.where((msg) => msg.id == messageId).firstOrNull;
   }
 
-  bool isContainMessage(ChatSessionModel session, MessageDB message) {
+  bool isContainMessage(ChatSessionModel session, MessageDBISAR message) {
     final sessionId = message.sessionId;
     final groupId = message.groupId;
     final senderId = message.sender;

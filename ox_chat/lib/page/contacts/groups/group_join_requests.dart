@@ -17,7 +17,7 @@ import '../../../utils/widget_tool.dart';
 enum ERequestsOption { accept, ignore }
 
 class UserRequestInfo {
-  final MessageDB messageDB;
+  final MessageDBISAR messageDB;
   final String createTime;
   final String userName;
   final String groupId;
@@ -60,7 +60,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   void _getRequestList() async {
-    List<MessageDB> requestJoinList =
+    List<MessageDBISAR> requestJoinList =
         await Groups.sharedInstance.getRequestList(groupId: widget.groupId);
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
@@ -366,7 +366,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     );
   }
 
-  void _requestJoinOption(MessageDB messageDB, ERequestsOption type) async {
+  void _requestJoinOption(MessageDBISAR messageDB, ERequestsOption type) async {
     if (ERequestsOption.accept == type) {
       await Groups.sharedInstance.acceptRequest(messageDB, '');
     }

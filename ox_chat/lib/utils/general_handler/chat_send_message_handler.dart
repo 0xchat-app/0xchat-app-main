@@ -382,7 +382,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
 extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
-  String createEncryptKey() => bytesToHex(MessageDB.getRandomSecret());
+  String createEncryptKey() => bytesToHex(MessageDBISAR.getRandomSecret());
 
   Future<UploadResult> uploadFile({
     required FileType fileType,

@@ -25,7 +25,7 @@ mixin MessagePromptToneMixin<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  bool isInCurrentSession(MessageDB msg) {
+  bool isInCurrentSession(MessageDBISAR msg) {
     return ChatDataCache.shared.isContainMessage(session, msg);
   }
 }
