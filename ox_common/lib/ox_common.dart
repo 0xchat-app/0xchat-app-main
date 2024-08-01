@@ -27,6 +27,7 @@ class OXCommon extends OXFlutterModule {
     BadgeAwardDB,
     BadgeDB,
     RelayDB,
+    ZapRecordsDB,
     ChatSessionModel,
     MessageDB,
     UserConfigDB,

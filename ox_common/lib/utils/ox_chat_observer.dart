@@ -49,7 +49,7 @@ abstract mixin class OXChatObserver {
 
   void didPromptToneCallBack(MessageDBISAR message, int type) {}
 
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
     OXChatBinding.sharedInstance.isZapBadge = true;

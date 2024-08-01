@@ -597,7 +597,7 @@ class OXChatBinding {
     }
   }
 
-  void zapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+  void zapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     for (OXChatObserver observer in _observers) {
       observer.didZapRecordsCallBack(zapRecordsDB);
     }

@@ -241,7 +241,7 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
-    Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
+    Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDBISAR zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
     Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
