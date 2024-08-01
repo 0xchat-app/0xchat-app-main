@@ -64,7 +64,7 @@ void main() async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
     FlutterError.onError = (FlutterErrorDetails details) async {
-      bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+      bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
       if (openDevLog) {
         FlutterError.presentError(details);
         ErrorUtils.logErrorToFile(details.toString());
@@ -76,7 +76,7 @@ void main() async {
     });
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) async {
-    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     if (openDevLog) {
       ErrorUtils.logErrorToFile(error.toString());
     }
@@ -250,7 +250,7 @@ class MainState extends State<MainApp>
   }
 
   void showPasswordDialog() async {
-    String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     if (localPasscode.isNotEmpty && OXNavigator.navigatorKey.currentContext != null)
       OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
   }
