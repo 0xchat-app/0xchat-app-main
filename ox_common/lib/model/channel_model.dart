@@ -64,8 +64,8 @@ class ChannelModel {
     };
   }
 
-  ChannelDB toChannelDB() {
-    return ChannelDB(
+  ChannelDBISAR toChannelDB() {
+    return ChannelDBISAR(
       channelId: channelId!,
       name: channelName,
       picture: picture,
@@ -75,7 +75,7 @@ class ChannelModel {
     );
   }
 
-  factory ChannelModel.fromChannelDB(ChannelDB channelDB){
+  factory ChannelModel.fromChannelDB(ChannelDBISAR channelDB){
     return ChannelModel(
         channelId: channelDB.channelId,
         channelName: channelDB.name,

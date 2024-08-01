@@ -142,7 +142,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       if (kind == 40 || kind == 41) {
         // Go to Channel
         await OXLoading.show();
-        ChannelDB? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
+        ChannelDBISAR? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
         await OXLoading.dismiss();
         if (channelDB != null) {
           if (context.mounted) {

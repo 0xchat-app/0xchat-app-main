@@ -140,7 +140,7 @@ class OXChannelAvatar extends StatefulWidget {
     this.onReturnFromNextPage,
   }) : this.size = size ?? Adapt.px(48);
 
-  final ChannelDB? channel;
+  final ChannelDBISAR? channel;
   final String? imageUrl;
   final double size;
   final bool isCircular;

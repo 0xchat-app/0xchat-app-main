@@ -186,7 +186,7 @@ class OXChatBinding {
       DB.sharedInstance.insertBatch<ChatSessionModel>(tempModel);
     } else {
       if (messageDB.chatType == null || messageDB.chatType == ChatType.chatChannel) {
-        ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
         sessionModel.avatar = channelDB?.picture ?? '';
         sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
       } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
@@ -288,13 +288,13 @@ class OXChatBinding {
 
   bool removeObserver(OXChatObserver observer) => _observers.remove(observer);
 
-  void createChannelSuccess(ChannelDB channelDB) {
+  void createChannelSuccess(ChannelDBISAR channelDB) {
     for (OXChatObserver observer in _observers) {
       observer.didCreateChannel(channelDB);
     }
   }
 
-  void deleteChannel(ChannelDB channelDB) {
+  void deleteChannel(ChannelDBISAR channelDB) {
     for (OXChatObserver observer in _observers) {
       observer.didDeleteChannel(channelDB);
     }

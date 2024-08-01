@@ -23,9 +23,9 @@ abstract mixin class OXChatObserver {
 
   void didContactUpdatedCallBack() {}
 
-  void didCreateChannel(ChannelDB? channelDB) {}
+  void didCreateChannel(ChannelDBISAR? channelDB) {}
 
-  void didDeleteChannel(ChannelDB? channelDB) {}
+  void didDeleteChannel(ChannelDBISAR? channelDB) {}
 
   void didChannalMessageCallBack(MessageDBISAR message) {}
 
