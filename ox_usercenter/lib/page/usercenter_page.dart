@@ -128,22 +128,22 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   //get user selected Badge Info from DB
-  Future<BadgeDB?> _getUserSelectedBadgeInfo() async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo() async {
     String badges =
         OXUserInfoManager.sharedInstance.currentUserInfo?.badges ?? '';
-    BadgeDB? badgeDB;
+    BadgeDBISAR? badgeDB;
     try {
       if (badges.isNotEmpty) {
         List<dynamic> badgeListDynamic = jsonDecode(badges);
         List<String> badgeList = badgeListDynamic.cast();
-        List<BadgeDB?> badgeDBList =
+        List<BadgeDBISAR?> badgeDBList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if (badgeDBList.isNotEmpty) {
           badgeDB = badgeDBList.first;
           return badgeDB;
         }
       } else {
-        List<BadgeDB?>? badgeDBList =
+        List<BadgeDBISAR?>? badgeDBList =
             await BadgesHelper.getAllProfileBadgesFromRelay(
                 OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
@@ -304,7 +304,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   );
                 },
               ),
-              FutureBuilder<BadgeDB?>(
+              FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
                       iconName: 'icon_settings_badges.png',

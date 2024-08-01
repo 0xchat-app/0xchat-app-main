@@ -64,7 +64,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   int _pageNum = 1; // Page number
   List<ChatSessionModel> _msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-  Map<String, BadgeDB> _badgeCache = {};
+  Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
@@ -571,7 +571,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ? Positioned(
                     bottom: 0,
                     right: 0,
-                    child: FutureBuilder<BadgeDB?>(
+                    child: FutureBuilder<BadgeDBISAR?>(
                       initialData: _badgeCache[item.chatId],
                       builder: (context, snapshot) {
                         return (snapshot.data != null)
@@ -933,7 +933,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
     final chatId = announceListItem.chatId ?? '';
     UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
     if (friendUserDB == null) {
@@ -943,9 +943,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");

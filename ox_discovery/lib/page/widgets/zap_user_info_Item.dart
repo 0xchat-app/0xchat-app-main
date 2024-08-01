@@ -53,7 +53,7 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
         Positioned(
           bottom: 0,
           right: 0,
-          child: FutureBuilder<BadgeDB?>(
+          child: FutureBuilder<BadgeDBISAR?>(
             builder: (context, snapshot) {
               return (snapshot.data != null)
                   ? OXCachedNetworkImage(
@@ -130,7 +130,7 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
     package: 'ox_common',
   );
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
     UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     if (friendUserDB == null) {
       return null;
@@ -139,9 +139,9 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList =
+        List<BadgeDBISAR?> badgeDBList =
         await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {

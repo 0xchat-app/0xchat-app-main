@@ -109,14 +109,14 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       if(badges.isNotEmpty){
         List<dynamic> badgeListDynamic = jsonDecode(badges);
         List<String> badgeList = badgeListDynamic.cast();
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if(badgeDBList.isNotEmpty){
           _selectedBadgeModel = BadgeModel.fromBadgeDB(badgeDBList.first!);
         }else{
           _selectedBadgeModel = null;
         }
       }else{
-        List<BadgeDB?>? badgeDBList = await BadgesHelper.getAllProfileBadgesFromRelay(userPubkey);
+        List<BadgeDBISAR?>? badgeDBList = await BadgesHelper.getAllProfileBadgesFromRelay(userPubkey);
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
           _selectedBadgeModel = BadgeModel.fromBadgeDB(badgeDBList.first!);
         } else {

@@ -449,7 +449,7 @@ class _ContractListItemState extends State<ContractListItem> {
                 Positioned(
                   bottom: 0,
                   right: 0,
-                  child: FutureBuilder<BadgeDB?>(
+                  child: FutureBuilder<BadgeDBISAR?>(
                     builder: (context, snapshot) {
                       return (snapshot.data !=null) ? OXCachedNetworkImage(
                         imageUrl: snapshot.data?.thumb ?? '',
@@ -481,7 +481,7 @@ class _ContractListItemState extends State<ContractListItem> {
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
     UserDBISAR? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
     if (friendUserDB == null) {
       return null;
@@ -490,9 +490,9 @@ class _ContractListItemState extends State<ContractListItem> {
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");

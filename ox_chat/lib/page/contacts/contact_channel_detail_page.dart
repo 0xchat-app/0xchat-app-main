@@ -66,7 +66,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
 }
 
 class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
-  late List<BadgeDB> _badgeDBList;
+  late List<BadgeDBISAR> _badgeDBList;
   final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 18)) / 3;
   bool _isMute = false;
   String? _showCreator;
@@ -110,7 +110,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       List<dynamic> badgeIds = jsonDecode(widget.channelDB.badges!) ?? [];
       List<String> badgeList = badgeIds.cast();
       if (badgeList.isNotEmpty) {
-        List<BadgeDB?> dbGetList =
+        List<BadgeDBISAR?> dbGetList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if (dbGetList.length > 0) {
           dbGetList.forEach((element) {
@@ -121,7 +121,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
           _badgeRequirementsHint = badgeRequirementsHint;
           if (mounted) setState(() {});
         } else {
-          List<BadgeDB> badgeDB =
+          List<BadgeDBISAR> badgeDB =
               await BadgesHelper.getBadgesInfoFromRelay(badgeList);
           if (badgeDB.length > 0) {
             _badgeDBList = badgeDB;
@@ -584,7 +584,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   Widget _benefitsBuilder(context, index) {
-    BadgeDB badgeModel = _badgeDBList[index];
+    BadgeDBISAR badgeModel = _badgeDBList[index];
     return Container(
       height: _imageWH,
       decoration: BoxDecoration(

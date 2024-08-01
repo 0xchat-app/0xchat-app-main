@@ -39,7 +39,7 @@ class RelayGroupRequestsPage extends StatefulWidget {
 
 class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with CommonStateViewMixin {
   Map<String, JoinRequestInfo> _requestMap = {};
-  Map<String, BadgeDB> _badgeCache = {};
+  Map<String, BadgeDBISAR> _badgeCache = {};
 
   @override
   void initState() {
@@ -281,7 +281,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
           Positioned(
             bottom: 0,
             right: 0,
-            child: FutureBuilder<BadgeDB?>(
+            child: FutureBuilder<BadgeDBISAR?>(
               initialData: _badgeCache[item.joinRequestDB.requestId],
               builder: (context, snapshot) {
                 return (snapshot.data != null)
@@ -301,15 +301,15 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDBISAR? otherDB) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDBISAR? otherDB) async {
     if (otherDB == null) return null;
     String badges = otherDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");

@@ -108,7 +108,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   bool _publicKeyCopied = false;
 
-  List<BadgeDB> _badgeDBList = [];
+  List<BadgeDBISAR> _badgeDBList = [];
   bool _isMute = false;
   bool _isVerifiedDNS = false;
   late UserDBISAR userDB;
@@ -196,7 +196,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
       List<String> badgeIds = badgeListDynamic.cast();
-      List<BadgeDB?> dbGetList =
+      List<BadgeDBISAR?> dbGetList =
           await BadgesHelper.getBadgeInfosFromDB(badgeIds);
       if (dbGetList.length > 0) {
         dbGetList.forEach((element) {
@@ -206,7 +206,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         });
         if (mounted) setState(() {});
       } else {
-        List<BadgeDB> badgeDB =
+        List<BadgeDBISAR> badgeDB =
             await BadgesHelper.getBadgesInfoFromRelay(badgeIds);
         if (badgeDB.length > 0) {
           _badgeDBList = badgeDB;
@@ -670,7 +670,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                                 scrollDirection: Axis.horizontal,
                                 separatorBuilder: (context, index) => Divider(height: 1),
                                 itemBuilder: (context, index) {
-                                  BadgeDB tempItem = _badgeDBList[index];
+                                  BadgeDBISAR tempItem = _badgeDBList[index];
                                   LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
                                   return OXCachedNetworkImage(
                                     imageUrl: tempItem.thumb ?? '',
@@ -760,7 +760,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             Positioned(
               bottom: 0,
               right: 0,
-              child: FutureBuilder<BadgeDB?>(
+              child: FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return (snapshot.data != null)
                       ? OXCachedNetworkImage(
@@ -1167,7 +1167,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
     UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB.badges ?? 'badges null'}');
@@ -1178,9 +1178,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList =
+        List<BadgeDBISAR?> badgeDBList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
