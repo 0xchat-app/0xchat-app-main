@@ -37,7 +37,7 @@ class GroupInfoPage extends StatefulWidget {
 class _GroupInfoPageState extends State<GroupInfoPage> {
   bool _isMute = false;
   List<UserDBISAR> groupMember = [];
-  GroupDB? groupDBInfo = null;
+  GroupDBISAR? groupDBInfo = null;
 
   bool requestTag = true;
   @override
@@ -735,7 +735,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _groupInfoInit() async {
     String groupId = widget.groupId;
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[groupId];
     List<UserDBISAR>? groupList =
         await Groups.sharedInstance.getAllGroupMembers(groupId);
 

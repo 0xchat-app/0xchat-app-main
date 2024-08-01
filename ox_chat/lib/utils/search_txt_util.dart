@@ -27,11 +27,11 @@ class SearchTxtUtil{
 
   static List<GroupUIModel>? loadChatGroupWithSymbol(String symbol) {
     List<GroupUIModel> groupUIModels = [];
-    final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
+    final List<GroupDBISAR>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
     final List<RelayGroupDB>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
     if(groupDBlist!=null && groupDBlist.length>0) {
       List<GroupUIModel> groupUIModelList = [];
-      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
+      List<GroupDBISAR> tempGroups = Groups.sharedInstance.myGroups.values.toList();
       tempGroups.forEach((element) {
         groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
       });
@@ -181,7 +181,7 @@ class SearchTxtUtil{
       ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       name = channelDB?.name ?? messageDB.groupId;
     } else {
-      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
       name = groupDBDB?.name ?? messageDB.groupId;
     }
     return name;
@@ -193,7 +193,7 @@ class SearchTxtUtil{
       ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       picUrl = channelDB?.picture ?? '';
     } else {
-      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
       picUrl = groupDBDB?.picture ?? '';
     }
     return picUrl;

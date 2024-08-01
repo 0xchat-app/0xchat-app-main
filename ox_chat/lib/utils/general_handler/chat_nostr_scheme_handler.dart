@@ -178,7 +178,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? groupDBToMessageContent(GroupDB? groupDB) {
+  static String? groupDBToMessageContent(GroupDBISAR? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'groupInfoPage',

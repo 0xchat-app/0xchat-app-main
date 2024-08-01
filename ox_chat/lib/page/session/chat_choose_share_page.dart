@@ -271,7 +271,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
           );
         }
 
-        List<GroupDB>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
+        List<GroupDBISAR>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
         if (tempGroupList != null && tempGroupList.length > 0) {
           List<ChatSessionModel> groupSessions = [];
           tempGroupList.forEach((element) {

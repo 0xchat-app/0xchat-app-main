@@ -96,7 +96,7 @@ class ChatSessionUtils {
         }
         break;
       case ChatType.chatGroup:
-        GroupDB? groupDB = Groups.sharedInstance.groups[model.chatId];
+        GroupDBISAR? groupDB = Groups.sharedInstance.groups[model.chatId];
         if (groupDB != null) {
           isMute = groupDB.mute;
         }

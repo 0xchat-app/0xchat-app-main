@@ -37,7 +37,7 @@ class GroupUIModel {
     this.chatType = ChatType.chatRelayGroup
   });
 
-  static GroupUIModel groupdbToUIModel(GroupDB groupDB){
+  static GroupUIModel groupdbToUIModel(GroupDBISAR groupDB){
     if(groupDB.name.isEmpty) groupDB.name = groupDB.shortGroupId;
     return GroupUIModel(
       name: groupDB.name,

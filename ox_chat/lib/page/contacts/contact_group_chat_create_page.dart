@@ -315,7 +315,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDB? groupDB = await Groups.sharedInstance
+    GroupDBISAR? groupDB = await Groups.sharedInstance
         .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
     await OXLoading.dismiss();
     if (groupDB != null) {

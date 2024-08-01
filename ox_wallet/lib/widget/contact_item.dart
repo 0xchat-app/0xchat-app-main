@@ -18,7 +18,7 @@ class ContactItem<T> extends StatelessWidget {
   }
 
   Widget _buildContactItem(T contact){
-    final picture = contact is UserDBISAR ? contact.picture ?? '' : (contact as GroupDB).picture ?? '';
+    final picture = contact is UserDBISAR ? contact.picture ?? '' : (contact as GroupDBISAR).picture ?? '';
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -96,7 +96,7 @@ class ContactItem<T> extends StatelessWidget {
       String? nickName = contact.nickName;
       return (nickName != null && nickName.isNotEmpty) ? nickName : contact.name ?? '';
     }
-    if(contact is GroupDB) return contact.name;
+    if(contact is GroupDBISAR) return contact.name;
     return '';
   }
 
@@ -110,6 +110,6 @@ class ContactItem<T> extends StatelessWidget {
   }
 
   String _getPicture(T contact){
-    return contact is UserDBISAR ? contact.picture ?? '' : (contact as GroupDB).picture ?? '';
+    return contact is UserDBISAR ? contact.picture ?? '' : (contact as GroupDBISAR).picture ?? '';
   }
 }

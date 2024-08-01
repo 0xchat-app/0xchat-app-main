@@ -45,7 +45,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  GroupDB? group;
+  GroupDBISAR? group;
   String get groupId => group?.groupId ?? widget.communityItem.groupId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
@@ -119,7 +119,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    GroupDB? group = Groups.sharedInstance.groups[widget.communityItem.groupId];
+    GroupDBISAR? group = Groups.sharedInstance.groups[widget.communityItem.groupId];
     String showName = group?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,

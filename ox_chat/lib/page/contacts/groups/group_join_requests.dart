@@ -65,7 +65,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
       await Future.forEach(requestJoinList, (msgDB) async {
-        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
+        GroupDBISAR? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
         UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
         String time = OXDateUtils.convertTimeFormatString2(

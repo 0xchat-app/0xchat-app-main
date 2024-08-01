@@ -136,8 +136,8 @@ mixin ShareItemInfoMixin {
     return channelList;
   }
 
-  List<GroupDB>? loadChatGroupWithSymbol(String symbol) {
-    final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
+  List<GroupDBISAR>? loadChatGroupWithSymbol(String symbol) {
+    final List<GroupDBISAR>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
     return groupDBlist;
   }
 }

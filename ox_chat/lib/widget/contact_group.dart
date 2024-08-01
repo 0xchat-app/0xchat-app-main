@@ -385,7 +385,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
     Widget iconAvatar = SizedBox();
     String showName = '';
     if (widget.item.chatType == ChatType.chatGroup) {
-      GroupDB? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+      GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
       iconAvatar = OXGroupAvatar(group: tempGroupDB);
       showName = tempGroupDB?.name ?? '';
       if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);

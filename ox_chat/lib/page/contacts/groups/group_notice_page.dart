@@ -20,7 +20,7 @@ class GroupNoticePage extends StatefulWidget {
 }
 
 class _GroupNoticePageState extends State<GroupNoticePage> {
-  GroupDB? groupDBInfo = null;
+  GroupDBISAR? groupDBInfo = null;
 
   String get _getGroupNotice {
     String groupNotice = groupDBInfo?.pinned?[0] ?? '';
@@ -39,7 +39,7 @@ class _GroupNoticePageState extends State<GroupNoticePage> {
   }
 
   void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
     if (groupDB == null) return;
     setState(() {
       groupDBInfo = groupDB;
