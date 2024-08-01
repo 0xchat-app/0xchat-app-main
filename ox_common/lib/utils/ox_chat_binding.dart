@@ -264,7 +264,7 @@ class OXChatBinding {
       chatId = otherUserPubkey = messageDB.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? messageDB.sender : messageDB.receiver;
     } else {
       chatId = messageDB.sessionId;
-      SecretSessionDB? ssDB = Contacts.sharedInstance.secretSessionMap[messageDB.sessionId];
+      SecretSessionDBISAR? ssDB = Contacts.sharedInstance.secretSessionMap[messageDB.sessionId];
       otherUserPubkey = ssDB?.toPubkey ?? '';
     }
     return {'ChatId': chatId, 'otherUserPubkey': otherUserPubkey};
@@ -333,7 +333,7 @@ class OXChatBinding {
     return chatSessionModel;
   }
 
-  Future<ChatSessionModel?> localCreateSecretChat(SecretSessionDB ssDB) async {
+  Future<ChatSessionModel?> localCreateSecretChat(SecretSessionDBISAR ssDB) async {
     final toPubkey = ssDB.toPubkey;
     final myPubkey = ssDB.myPubkey;
     if (toPubkey == null || toPubkey.isEmpty) return null;
@@ -355,7 +355,7 @@ class OXChatBinding {
     return chatSessionModel;
   }
 
-  void secretChatRequestCallBack(SecretSessionDB ssDB) async {
+  void secretChatRequestCallBack(SecretSessionDBISAR ssDB) async {
     final toPubkey = ssDB.toPubkey;
     final myPubkey = ssDB.myPubkey;
     if (toPubkey == null || toPubkey.isEmpty) return;
@@ -373,7 +373,7 @@ class OXChatBinding {
     ));
   }
 
-  void secretChatAcceptCallBack(SecretSessionDB ssDB) async {
+  void secretChatAcceptCallBack(SecretSessionDBISAR ssDB) async {
     String toPubkey = ssDB.toPubkey ?? '';
     if (toPubkey.isEmpty) return;
     UserDBISAR? user = await Account.sharedInstance.getUserInfo(toPubkey);
@@ -386,7 +386,7 @@ class OXChatBinding {
     }
   }
 
-  void secretChatRejectCallBack(SecretSessionDB ssDB) async {
+  void secretChatRejectCallBack(SecretSessionDBISAR ssDB) async {
     String toPubkey = ssDB.toPubkey ?? '';
     if (toPubkey.isEmpty) return;
     UserDBISAR? user = await Account.sharedInstance.getUserInfo(toPubkey);
@@ -399,13 +399,13 @@ class OXChatBinding {
     }
   }
 
-  void secretChatUpdateCallBack(SecretSessionDB ssDB) {
+  void secretChatUpdateCallBack(SecretSessionDBISAR ssDB) {
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatUpdateCallBack(ssDB);
     }
   }
 
-  void secretChatCloseCallBack(SecretSessionDB ssDB) {
+  void secretChatCloseCallBack(SecretSessionDBISAR ssDB) {
     for (OXChatObserver observer in _observers) {
       observer.didSecretChatCloseCallBack(ssDB);
     }

@@ -14,13 +14,13 @@ abstract mixin class OXChatObserver {
 
   void didPrivateMessageCallBack(MessageDBISAR message) {}
 
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) {}
 
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatRejectCallBack(SecretSessionDBISAR ssDB) {}
 
-  void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatCloseCallBack(SecretSessionDBISAR ssDB) {}
 
-  void didSecretChatUpdateCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatUpdateCallBack(SecretSessionDBISAR ssDB) {}
 
   void didContactUpdatedCallBack() {}
 
