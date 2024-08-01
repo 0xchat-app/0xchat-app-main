@@ -60,7 +60,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
@@ -132,9 +131,12 @@ class ChatGeneralHandler {
     final userListGetter = session.userListGetter;
     if (userListGetter == null) return ;
 
-    final mentionHandler = ChatMentionHandler();
+    final mentionHandler = ChatMentionHandler(
+      allUserGetter: userListGetter,
+      isUseAllUserCache: session.chatType == ChatType.chatChannel,
+    );
     userListGetter().then((userList) {
-      mentionHandler.allUser = userList;
+      mentionHandler.allUserCache = userList;
     });
     mentionHandler.inputController = inputController;
 

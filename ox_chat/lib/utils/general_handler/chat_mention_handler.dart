@@ -24,6 +24,8 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
         return _userListGetterByGroupMember;
       case ChatType.chatChannel:
         return _userListGetterByMessageList;
+      case ChatType.chatRelayGroup:
+        return _userListGetterByRelayGroupMember;
       default:
         return null;
     }
@@ -58,6 +60,12 @@ extension ChatSessionModelMentionEx on ChatSessionModel {
       });
     }
     return completer.future;
+  }
+
+  Future<List<UserDBISAR>> _userListGetterByRelayGroupMember() async {
+    final groupId = this.groupId;
+    if (groupId == null || groupId.isEmpty) return [];
+    return RelayGroup.sharedInstance.getGroupMembersFromLocal(groupId);
   }
 }
 
@@ -111,11 +119,19 @@ const _mentionSuffix = ' ';
 
 class ChatMentionHandler {
 
+  ChatMentionHandler({
+    required this.allUserGetter,
+    this.isUseAllUserCache = false,
+  });
+
   TextEditingController _inputController = TextEditingController();
 
   List<ProfileMentionWrapper> mentions = [];
 
-  List<UserDBISAR> allUser = [];
+  UserListGetter allUserGetter;
+  bool isUseAllUserCache;
+
+  List<UserDBISAR> allUserCache = [];
 
   final userList = ValueNotifier<List<UserDBISAR>>([]);
 }
@@ -210,7 +226,9 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
     mentions.addAll(newMentions);
   }
 
-  void _showUserListIfNeeded(String newText, TextSelection selection) {
+  void _showUserListIfNeeded(String newText, TextSelection selection) async {
+
+    final allUser = isUseAllUserCache ? allUserCache : await allUserGetter();
 
     final cursorPosition = selection.start;
     if (!selection.isCollapsed || cursorPosition <= 0) {
