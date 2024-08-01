@@ -34,7 +34,7 @@ class SwitchAccountPage extends StatefulWidget {
 class _SwitchAccountPageState extends State<SwitchAccountPage> {
   ThemeStyle? themeStyle;
   int _selectedIndex = 0;
-  UserDB? _currentUser;
+  UserDBISAR? _currentUser;
   Map<String, MultipleUserModel> _currentUserMap = {};
   List<MultipleUserModel> _userCacheList = [];
   bool _isManage = false;
