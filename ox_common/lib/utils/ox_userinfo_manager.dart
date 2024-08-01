@@ -91,7 +91,6 @@ class OXUserInfoManager {
   Future initLocalData() async {
     ///account auto-login
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
-
     if (localPubKey != null) {
       final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
       if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
@@ -115,18 +114,18 @@ class OXUserInfoManager {
             signatureVerifyFailed = true;
           }
         }
-      }
-    } else if (localPubKey != null && localPubKey.isNotEmpty) {
-      await initDB(localPubKey);
-      final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
-      LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
-      if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
-        _initDatas();
-        _initFeedback();
-      } else {
-        AppInitializationManager.shared.shouldShowInitializationLoading = false;
-        return;
+      } else if (localPubKey != null && localPubKey.isNotEmpty) {
+        await initDB(localPubKey);
+        final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+        LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
+        if (tempUserDB != null) {
+          currentUserInfo = tempUserDB;
+          _initDatas();
+          _initFeedback();
+        } else {
+          AppInitializationManager.shared.shouldShowInitializationLoading = false;
+          return;
+        }
       }
     } else {
       AppInitializationManager.shared.shouldShowInitializationLoading = false;
