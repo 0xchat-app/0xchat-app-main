@@ -22,12 +22,12 @@ import 'dart:io';
 class ErrorUtils{
   static Future<void> logErrorToFile(String error) async {
     final directory = await getApplicationDocumentsDirectory();
-    int lastTime = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_SAVE_LOG_TIME, defaultValue: 0);
+    int lastTime = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_SAVE_LOG_TIME.name, defaultValue: 0);
     int fileNameTime = DateTime.now().millisecondsSinceEpoch;
     if (lastTime + 24 * 3600 * 1000 > fileNameTime) {
       fileNameTime = lastTime;
     } else {
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_SAVE_LOG_TIME, fileNameTime);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_SAVE_LOG_TIME.name, fileNameTime);
     }
     final path = directory.path + '/'+'0xchat_log_${fileNameTime}.txt';
     final file = File(path);

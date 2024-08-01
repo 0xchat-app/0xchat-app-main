@@ -83,7 +83,7 @@ class ZapsActionHandler {
     if (pubkey == null) return {};
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
     String defaultZapDescription = await OXCacheManager.defaultOXCacheManager.getForeverData(
-      '${pubkey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',
+      '${pubkey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',
       defaultValue: Localized.text('ox_discovery.description_hint_text'),
     );
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;

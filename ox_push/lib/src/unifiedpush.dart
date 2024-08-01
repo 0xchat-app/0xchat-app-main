@@ -50,11 +50,11 @@ class UnifiedPush {
   static const noDistribAck = "noDistributorAck";
 
   static Future<void> initRegisterApp([String instance = defaultInstance, List<String>? features]) async {
-    var distributor = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME);
+    var distributor = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_DISTRIBUTOR_NAME.name);
     if (distributor == null){
       distributor = ppnOxchat;
       await saveDistributor(distributor);
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME, ppnOxchat);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_DISTRIBUTOR_NAME.name, ppnOxchat);
     }
     await registerApp(instance = distributor, features = features);
   }
@@ -74,7 +74,7 @@ class UnifiedPush {
       },
     );
     if (picked != null ) {
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_DISTRIBUTOR_NAME, picked);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_DISTRIBUTOR_NAME.name, picked);
       await saveDistributor(picked); //unable to store fake distributor —— noDistributorAck
       await registerApp(instance = picked, features = features);
     }

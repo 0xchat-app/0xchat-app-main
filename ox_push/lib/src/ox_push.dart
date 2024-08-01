@@ -60,7 +60,7 @@ class OXPush extends OXFlutterModule {
   //Set the push ID
   static Future<void> requestRegistrationID(String registrationID) async {
     if(Platform.isIOS) {
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUSH_TOKEN, '${CommonConstant.bundleId}$registrationID');
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, '${CommonConstant.bundleId}$registrationID');
       _setNotification();
     }
   }
