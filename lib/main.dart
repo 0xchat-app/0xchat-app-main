@@ -6,6 +6,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
@@ -236,6 +237,9 @@ class MainState extends State<MainApp>
         DB.sharedInstance.batchApply();
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
+        if (CallManager.instance.getInCallIng){
+          OXCommon.channelPreferences.invokeMethod('startVoiceCallService');
+        }
         break;
       default:
         break;
