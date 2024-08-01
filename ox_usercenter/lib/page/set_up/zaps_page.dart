@@ -70,7 +70,7 @@ class _ZapsPageState extends State<ZapsPage> {
     _defaultZapAmount = OXUserInfoManager.sharedInstance.defaultZapAmount;
     _defaultDescription =
         await OXCacheManager.defaultOXCacheManager.getForeverData(
-      '${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',
+      '${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',
       defaultValue: Localized.text('ox_discovery.description_hint_text'),
     );
     _zapsRecord = await getZapsRecord();
@@ -85,7 +85,7 @@ class _ZapsPageState extends State<ZapsPage> {
   _amountFocusNoteListener() {
     if(!_focusNode.hasFocus){
       int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultZapAmount);
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name}',defaultZapAmount);
       OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
       widget.onChanged?.call(true);
     }
@@ -95,7 +95,7 @@ class _ZapsPageState extends State<ZapsPage> {
     if(!_descriptionFocusNote.hasFocus){
       String defaultZapDescription = _zapDescriptionController.text;
       defaultZapDescription = defaultZapDescription.isNotEmpty ? defaultZapDescription : _defaultDescription;
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_DESCRIPTION}',defaultZapDescription);
+      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',defaultZapDescription);
       widget.onChanged?.call(true);
     }
   }

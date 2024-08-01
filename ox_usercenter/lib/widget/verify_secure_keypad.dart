@@ -41,8 +41,8 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
   }
 
   void loadData() async {
-    faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
-    fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FINGERPRINT, defaultValue: false);
+    faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
+    fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
     if (Platform.isAndroid && fingerprintSwitchValue) {
       _clickFingerprint();
     } else if (Platform.isIOS){

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
@@ -31,7 +31,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 class DatabaseHelper{
 
   static void exportDB(BuildContext context) async {
-    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
+    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_IS_CHANGE_DEFAULT_DB_PW.name, defaultValue: false);
     if (isChanged) {
       String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
       String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
@@ -46,7 +46,7 @@ class DatabaseHelper{
   }
 
   static void importDB(BuildContext context) async {
-    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
+    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_IS_CHANGE_DEFAULT_DB_PW.name, defaultValue: false);
     if (!isChanged) {
       confirmDialog(context, Localized.text('ox_common.tips'), 'str_change_default_pw_hint'.localized(), (){OXNavigator.pop(context);});
       return;
@@ -90,11 +90,6 @@ class DatabaseHelper{
       confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
       return;
     }
-    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (userConfigDB == null || pubKey != userConfigDB.pubKey){
-      confirmDialog(context, 'str_import_db_error_title'.localized(), 'str_import_db_error_hint'.localized(), (){OXNavigator.pop(context);});
-      return;
-    }
     await DB.sharedInstance.closDatabase();
 
     await ImportDataTools.importTableData(
@@ -107,7 +102,7 @@ class DatabaseHelper{
     OXUserInfoManager.sharedInstance.resetData();
     await OXUserInfoManager.sharedInstance.initLocalData();
 
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, true);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
   }
 

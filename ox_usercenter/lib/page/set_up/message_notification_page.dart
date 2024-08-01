@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -307,7 +307,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
               element.isSelected = value;
             }
           }
-          await saveObjectList(_allNoticeModel.values.toList());
+          await saveObjectList(_allNoticeModel);
           OXUserInfoManager.sharedInstance.setNotification();
           if(model.id == CommonConstant.NOTIFICATION_VIBRATE){
             OXUserInfoManager.sharedInstance.canVibrate = value;
@@ -325,25 +325,20 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     );
   }
 
-  Future<void> saveObjectList(List<NoticeModel> objectList) async {
-    List<String> jsonStringList = objectList.map((obj) => json.encode(obj.noticeModelToMap(obj))).toList();
-    final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
-    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (userConfigDB != null) {
-      userConfigDB.notificationSettings = json.encode(jsonStringList);
-      UserConfigTool.updateUserConfigDB(userConfigDB);
-    }
+  Future<void> saveObjectList(Map<int, NoticeModel> objectMap) async {
+    String jsonString = json.encode(
+      objectMap.map((key, value) => MapEntry(key.toString(), value.noticeModelToJson())),
+    );
+    final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, jsonString);
+    UserConfigTool.saveSettingToDB();
   }
 
   Future<Map<int, NoticeModel>> getObjectList() async {
-    List<dynamic> dynamicList = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
+    String jsonString = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
     Map<int, NoticeModel> resultMap = {};
-    if (dynamicList.isNotEmpty) {
-      List<String> jsonStringList = dynamicList.cast<String>();
-      for (var jsonString in jsonStringList) {
-        Map<String, dynamic> jsonMap = json.decode(jsonString);
-        resultMap[jsonMap['id'] ?? 0] = NoticeModel(id: jsonMap['id'] ?? 0, isSelected: jsonMap['isSelected'] ?? false);
-      }
+    if (jsonString.isNotEmpty){
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+      resultMap = jsonMap.map((key, value) => MapEntry(int.parse(key), NoticeModel.noticeModelFromJson(value)));
     }
     return resultMap;
   }

@@ -49,7 +49,7 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   void initData() async {
-    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
   }
 
   @override

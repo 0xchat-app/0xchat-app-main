@@ -30,6 +30,7 @@ import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
 import 'package:ox_usercenter/page/set_up/settings_page.dart';
+import 'package:ox_usercenter/page/set_up/switch_account_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:cashu_dart/cashu_dart.dart';
@@ -362,12 +363,31 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     }
           ),
         ),
-        SizedBox(height: Adapt.px(24),),
+        SizedBox(height: Adapt.px(24)),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _logout();
-          },
+          onTap: _switchAccount,
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.str_switch_account'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: Adapt.px(24)),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _logout,
           child: Container(
             width: double.infinity,
             height: Adapt.px(48),
@@ -385,9 +405,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
             ),
           ),
         ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
+        SizedBox(height: Adapt.px(24)),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -777,6 +795,10 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               }),
         ],
         isRowAction: true);
+  }
+
+  void _switchAccount() {
+    OXNavigator.pushPage(context, (context) => const SwitchAccountPage());
   }
 
   @override

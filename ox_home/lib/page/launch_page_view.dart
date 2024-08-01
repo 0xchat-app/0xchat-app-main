@@ -36,7 +36,7 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 
   void _loadData() async {
-    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     _loadRiveFile();
     _onLoaded();
   }

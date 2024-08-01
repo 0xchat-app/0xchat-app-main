@@ -68,7 +68,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
     fillH = Adapt.screenH() - 60.px - 52.px * _settingModelList.length;
-    _isOpenDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+    _isOpenDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     setState(() {});
   }
 
@@ -171,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           if (OXChatBinding.sharedInstance.isZapBadge) {
             MsgNotification(noticeNum: 0).dispatch(context);
             OXChatBinding.sharedInstance.isZapBadge = false;
-            OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', false).then((value) {
+            OXCacheManager.defaultOXCacheManager.saveData('$pubKey${StorageSettingKey.KEY_ZAP_BADGE.name}', false).then((value) {
               setState(() {
                 _isShowZapBadge = _getZapBadge();
               });
@@ -263,7 +263,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   Future<void> _changeOpenDevLogFn(bool value) async {
     _isOpenDevLog = value;
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, value);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, value);
     setState(() {});
   }
 

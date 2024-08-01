@@ -206,5 +206,12 @@
   "str_enter": "输入",
   "str_url_tips_text": "请输入有效的 URL",
   "str_bucket__name_tips_text": "Bucket 名称不存在！",
-  "str_nip96_tips_text": "文件服务器不支持 NIP-96"
+  "str_nip96_tips_text": "文件服务器不支持 NIP-96",
+  "str_switch_account": "切换账号",
+  "str_account_manage": "管理",
+  "str_add_account": "添加账号",
+  "str_account_manage_hint": "点击个人资料以切换账户",
+  "str_clear_account": "清除",
+  "str_clear_account_dialog_hint": "删除${name}的登录信息吗？",
+  "str_clear_account_dialog_remove": "移除"
 }
