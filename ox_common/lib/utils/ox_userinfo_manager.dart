@@ -148,23 +148,23 @@ class OXUserInfoManager {
   }
 
   void addChatCallBack() async {
-    Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDB ssDB) async {
+    Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatAcceptCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatAcceptCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatRejectCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRejectCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatUpdateCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatUpdateCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
