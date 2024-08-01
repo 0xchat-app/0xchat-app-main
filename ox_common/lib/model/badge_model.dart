@@ -89,7 +89,7 @@ class BadgeModel {
     );
   }
 
-  factory BadgeModel.fromBadgeDB(BadgeDB badgeDB) {
+  factory BadgeModel.fromBadgeDB(BadgeDBISAR badgeDB) {
     return BadgeModel(
         badgeId: badgeDB.id,
         badgeName: badgeDB.name,
