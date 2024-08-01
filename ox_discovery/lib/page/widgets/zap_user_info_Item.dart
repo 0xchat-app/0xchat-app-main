@@ -8,7 +8,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
 class ZapUserInfoItem extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBIASR userDB;
   const ZapUserInfoItem({Key? key, required this.userDB}) : super(key: key);
 
   @override
@@ -130,8 +130,8 @@ class _ZapUserInfoItemState extends State<ZapUserInfoItem> {
     package: 'ox_common',
   );
 
-  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBIASR friendDB) async {
+    UserDBIASR? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     if (friendUserDB == null) {
       return null;
     }

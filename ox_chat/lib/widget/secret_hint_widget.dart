@@ -28,7 +28,7 @@ class SecretHintWidget extends StatefulWidget {
 }
 
 class _SecretHintWidgetState extends State<SecretHintWidget> {
-  SecretSessionDB? _ssDB;
+  SecretSessionDBISAR? _ssDB;
   late String _relayName;
 
   @override

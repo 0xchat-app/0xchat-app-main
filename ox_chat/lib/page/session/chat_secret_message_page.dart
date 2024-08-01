@@ -54,7 +54,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   bool isShowContactMenu = true;
   late double keyboardHeight = 0;
   late ChatStatus chatStatus;
-  SecretSessionDB? _secretSessionDB;
+  SecretSessionDBISAR? _secretSessionDB;
   UserDBISAR? otherUser;
 
   String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.getOtherPubkey;
@@ -284,14 +284,14 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   @override
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {
+  void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) {
     setState(() {
       _secretSessionDB = ssDB;
     });
   }
 
   @override
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {
+  void didSecretChatRejectCallBack(SecretSessionDBISAR ssDB) {
     setState(() {
       _secretSessionDB = ssDB;
     });

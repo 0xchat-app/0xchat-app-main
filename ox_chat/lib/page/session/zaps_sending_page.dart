@@ -22,7 +22,7 @@ class ZapsSendingPage extends StatefulWidget {
 
   ZapsSendingPage(this.otherUser, this.zapsInfoCallback);
 
-  final UserDB otherUser;
+  final UserDBIASR otherUser;
   final Function(Map result) zapsInfoCallback;
 
   @override

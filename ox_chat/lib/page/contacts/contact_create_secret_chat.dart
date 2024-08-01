@@ -313,7 +313,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
     );
     await OXLoading.dismiss();
     if (okEvent.status) {
-      SecretSessionDB? db =
+      SecretSessionDBISAR? db =
           Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
       if (db != null) {
         ChatSessionModel? chatModel =

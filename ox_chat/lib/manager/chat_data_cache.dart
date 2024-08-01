@@ -174,7 +174,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) async {
+  void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) async {
     final toPubkey = ssDB.toPubkey ?? '';
     final sessionModel = OXChatBinding.sharedInstance.sessionMap[ssDB.sessionId];
     if (sessionModel == null || toPubkey.isEmpty) {
