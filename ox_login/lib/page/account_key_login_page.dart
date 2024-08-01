@@ -159,7 +159,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
-      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}; value =${value.toMap()}');
+      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
