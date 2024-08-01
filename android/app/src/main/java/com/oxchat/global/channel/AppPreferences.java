@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
 import com.oxchat.global.MultiEngineActivity;
+import com.oxchat.global.VoiceCallService;
 import com.oxchat.global.util.SharedPreUtils;
 
 import java.util.HashMap;
@@ -75,6 +76,14 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
             paramsMap = (HashMap) call.arguments;
         }
         switch (call.method) {
+            case "startVoiceCallService" -> {
+                Intent serviceIntent = new Intent(mContext, VoiceCallService.class);
+                mContext.startForegroundService(serviceIntent);
+            }
+            case "stopVoiceCallService" -> {
+                Intent serviceIntent = new Intent(mContext, VoiceCallService.class);
+                mContext.stopService(serviceIntent);
+            }
             case "getAppOpenURL" -> {
                 SharedPreferences preferences = mContext.getSharedPreferences(SharedPreUtils.SP_NAME, Context.MODE_PRIVATE);
                 String jumpInfo = preferences.getString(SharedPreUtils.PARAM_JUMP_INFO, "");
