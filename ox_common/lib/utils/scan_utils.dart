@@ -92,7 +92,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context);
-                await Account.sharedInstance.addGeneralRelay(newRelay);
+                await Connect.sharedInstance.connectRelays([newRelay], relayKind: RelayKind.temp);
                 completer.complete(true);
               }),
         ]);
