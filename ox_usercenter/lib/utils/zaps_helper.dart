@@ -66,7 +66,7 @@ class ZapsHelper {
       return result;
     }
 
-    if (zapsDB is! ZapsDB ) {
+    if (zapsDB is! ZapsDBISAR ) {
       result['message'] = 'error zaps info: $zapsDB';
       return result;
     }

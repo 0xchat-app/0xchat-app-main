@@ -545,7 +545,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
     }
     try {
-      ZapsDB? zapsDB = await Zaps.getZapsInfoFromLnurl(lnurl);
+      ZapsDBISAR? zapsDB = await Zaps.getZapsInfoFromLnurl(lnurl);
       if (zapsDB != null) {
         bool allowsNostr = zapsDB.allowsNostr ?? false;
         if (allowsNostr) {
