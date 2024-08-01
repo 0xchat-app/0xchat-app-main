@@ -90,7 +90,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB,{Function? onValue}) {
     super.didZapRecordsCallBack(zapRecordsDB);
     setState(() {
       _isShowZapBadge = _getZapBadge();

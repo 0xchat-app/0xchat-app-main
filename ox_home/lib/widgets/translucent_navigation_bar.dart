@@ -380,7 +380,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     super.didZapRecordsCallBack(zapRecordsDB);
     if (tabBarList.isEmpty || !mounted) return;
     setState(() {

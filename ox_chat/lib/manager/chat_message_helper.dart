@@ -354,7 +354,7 @@ extension MessageDBToUIEx on MessageDBISAR {
       UserDBISAR? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
       if(user == null) continue;
 
-      int amount = ZapRecordsDB.getZapAmount(zapDB.bolt11);
+      int amount = ZapRecordsDBISAR.getZapAmount(zapDB.bolt11);
       types.ZapsInfo info = types.ZapsInfo(author: user, amount: amount.toString(), unit: 'sats');
       zaps.add(info);
     }

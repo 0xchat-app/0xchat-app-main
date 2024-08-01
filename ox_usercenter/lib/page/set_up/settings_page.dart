@@ -221,7 +221,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB, {Function? onValue}) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB, {Function? onValue}) {
     super.didZapRecordsCallBack(zapRecordsDB);
     setState(() {
       _isShowZapBadge = _getZapBadge();

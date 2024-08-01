@@ -80,9 +80,9 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   List<NotedUIModel> _getUserList(List<dynamic> list) {
     return list.map((dynamic noteDB) {
       if (widget.type == ENotificationsMomentType.zaps) {
-        ZapRecordsDB zapRecordsDB = noteDB as ZapRecordsDB;
+        ZapRecordsDBISAR zapRecordsDB = noteDB as ZapRecordsDBISAR;
         String content =
-            '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDB.getZapAmount(zapRecordsDB.bolt11)}';
+            '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDBISAR.getZapAmount(zapRecordsDB.bolt11)}';
         return NotedUIModel(
           noteDB: NoteDB(
             noteId: zapRecordsDB.eventId,

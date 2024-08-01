@@ -747,11 +747,8 @@ class _ZapsPageState extends State<ZapsPage> {
     String pubKey =
         OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXLoading.show();
-    List<ZapRecordsDB?> zapRecordsDBList = await Zaps.loadZapRecordsFromDB(
-        where: "recipient = ?",
-        whereArgs: [pubKey],
-        orderBy: 'paidAt desc',
-        limit: 50);
+
+    List<ZapRecordsDBISAR?> zapRecordsDBList = await Zaps.searchZapRecordsFromDB(recipient: pubKey, limit: 50);
     await OXLoading.dismiss();
 
     List<ZapsRecordDetail> zapsRecordDetailList = [];
