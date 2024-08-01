@@ -339,7 +339,7 @@ class _ContractsPageState extends State<ContractsPage>
     if(RelayGroup.sharedInstance.myGroups.length>0) {
       List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
       await Future.forEach(tempGroups, (element) async {
-        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+        List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
         _addGroupRequestCount += requestJoinList.length;
       });
     }
@@ -374,7 +374,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {
+  void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {
     _getRequestAddGroupLength();
   }
 }

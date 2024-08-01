@@ -54,7 +54,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   }
 
   void _initData() async {
-    List<JoinRequestDB> allRequestJoinList = [];
+    List<JoinRequestDBISAR> allRequestJoinList = [];
     String? tempGroupId = widget.groupId;
     if (tempGroupId != null) {
       allRequestJoinList = await RelayGroup.sharedInstance.getRequestList(tempGroupId);
@@ -62,7 +62,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
       if(RelayGroup.sharedInstance.myGroups.length>0) {
         List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
         await Future.forEach(tempGroups, (element) async {
-          List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+          List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
           allRequestJoinList.addAll(requestJoinList);
         });
       }
@@ -148,8 +148,8 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
                         text: Localized.text('ox_common.confirm'),
                         onTap: () async {
                           OXNavigator.pop(context);
-                          final int count = await RelayGroup.sharedInstance.ignoreJoinRequest(item.joinRequestDB);
-                          if (count > 0) {
+                          final result = await RelayGroup.sharedInstance.ignoreJoinRequest(item.joinRequestDB);
+                          if (result) {
                             _initData();
                           }
                         }),
@@ -409,7 +409,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
     );
   }
 
-  void _requestJoinOption(JoinRequestDB joinRequestDB, RequestOption type) async {
+  void _requestJoinOption(JoinRequestDBISAR joinRequestDB, RequestOption type) async {
     if (RequestOption.accept == type) {
       await RelayGroup.sharedInstance..acceptJoinRequest(joinRequestDB);
     }
