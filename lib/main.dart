@@ -210,14 +210,14 @@ class MainState extends State<MainApp>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
   }
 
   @override
   void didLogout() {}
 
   @override
-  void didSwitchUser(UserDB? userInfo) {}
+  void didSwitchUser(UserDBISAR? userInfo) {}
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
