@@ -247,7 +247,7 @@ class OXGroupAvatar extends StatefulWidget {
   }) : this.size = size ?? Adapt.px(48);
 
   final String? groupId;
-  final GroupDB? group;
+  final GroupDBISAR? group;
   final String? imageUrl;
   final double size;
   final bool isCircular;

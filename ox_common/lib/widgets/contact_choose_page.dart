@@ -56,7 +56,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
       _contactList = Contacts.sharedInstance.allContacts.values.toList() as List<T>;
     }
     if(widget.contactType == ContactType.group){
-      _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDB).owner.isNotEmpty).toList();
+      _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDBISAR).owner.isNotEmpty).toList();
     }
     if(widget.selectedContactList != null && widget.selectedContactList!.isNotEmpty){
       _selectedContactList.addAll(widget.selectedContactList as List<T>);
@@ -75,7 +75,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
       if(contact is UserDBISAR){
         nameToConvert = contact.nickName != null && contact.nickName!.isNotEmpty ? contact.nickName! : (contact.name ?? '');
       }
-      if(contact is GroupDB){
+      if(contact is GroupDBISAR){
         nameToConvert = contact.name;
       }
 
@@ -297,7 +297,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
             searchResult[key] = tempList.cast<T>();
           }
           if (widget.contactType == ContactType.group) {
-            List<GroupDB> tempList = (value as List<GroupDB>)
+            List<GroupDBISAR> tempList = (value as List<GroupDBISAR>)
                 .where((item) => item.name.toLowerCase().contains(searchQuery.toLowerCase()))
                 .toList();
             searchResult[key] = tempList.cast<T>();
