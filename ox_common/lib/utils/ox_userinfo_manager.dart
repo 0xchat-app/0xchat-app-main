@@ -188,7 +188,7 @@ class OXUserInfoManager {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDB joinRequestDB) async {
+    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDBISAR joinRequestDB) async {
       LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
       OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
     };

@@ -439,7 +439,7 @@ class OXChatBinding {
     }
   }
 
-  void relayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) async {
+  void relayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) async {
     for (OXChatObserver observer in _observers) {
       observer.didRelayGroupJoinReqCallBack(joinRequestDB);
     }
