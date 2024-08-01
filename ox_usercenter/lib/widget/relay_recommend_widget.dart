@@ -14,15 +14,15 @@ import 'package:chatcore/chat-core.dart';
 ///CreateTime: 2023/7/20 09:55
 
 class RelayRecommendModule{
-  RelayDB relayDB;
+  RelayDBISAR relayDB;
   bool isAddedCommend;
   RelayRecommendModule(this.relayDB, this.isAddedCommend);
 }
 
 class RelayCommendWidget extends StatelessWidget {
-  List<RelayDB> relayList = [];
+  List<RelayDBISAR> relayList = [];
   List<RelayRecommendModule> commendRelayList = [];
-  Function(RelayDB) onTapCall;
+  Function(RelayDBISAR) onTapCall;
 
   RelayCommendWidget(this.relayList, this.onTapCall, {Key? key}) : super(key: key){
     for(var relay in relayList){

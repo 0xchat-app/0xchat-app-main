@@ -30,7 +30,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
 
   Future<Map<String, dynamic>?> _getRelayDetails(String relayUrl,{bool? refresh}) async {
     OXLoading.show();
-    RelayDB? relayDB  = await Relays.getRelayDetails(relayUrl,refresh: refresh);
+    RelayDBISAR? relayDB  = await Relays.getRelayDetails(relayUrl,refresh: refresh);
     OXLoading.dismiss();
     Map<String, dynamic>? relayAttributes = await relayDB?.relayAttributes;
     return relayAttributes;
@@ -210,7 +210,7 @@ class _RelayDetailPageState extends State<RelayDetailPage> {
   }
 }
 
-extension RelayAttributes on RelayDB {
+extension RelayAttributes on RelayDBISAR {
 
   Future<Map<String, dynamic>> get relayAttributes async {
 
