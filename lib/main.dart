@@ -71,6 +71,9 @@ void main() async {
       }
       print(details.toString());
     };
+    getApplicationDocumentsDirectory().then((value) {
+      LogUtil.d('[App start] Application Documents Path: $value');
+    });
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) async {
     bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
