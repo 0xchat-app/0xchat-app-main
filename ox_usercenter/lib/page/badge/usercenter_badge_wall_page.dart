@@ -64,7 +64,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   
   Future<void> _getUserBadges(String userPubkey) async {
     try{
-      List<BadgeAwardDB?> badgeAwardFromDB = await BadgesHelper.getUserBadgesFromDB(userPubkey) ?? [];
+      List<BadgeAwardDBISAR?> badgeAwardFromDB = await BadgesHelper.getUserBadgesFromDB(userPubkey) ?? [];
       LogUtil.d("current user badge award form DB: $badgeAwardFromDB");
       //user have badge
       if (badgeAwardFromDB.isNotEmpty) {
@@ -83,7 +83,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
     }
   }
 
-  _getCurrentUserBadgeModelList(List<BadgeAwardDB?> badgeAwardDBList){
+  _getCurrentUserBadgeModelList(List<BadgeAwardDBISAR?> badgeAwardDBList){
     _currentUserBadgeModelList.clear();
     if (badgeAwardDBList.isNotEmpty) {
       for (var badgeAwardDB in badgeAwardDBList) {
