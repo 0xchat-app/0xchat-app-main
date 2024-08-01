@@ -56,10 +56,10 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
-  static Future<ChannelDB> _loadChannelOnline(Channel channel) async {
-    ChannelDB? channelDB = await Channels.sharedInstance
+  static Future<ChannelDBISAR> _loadChannelOnline(Channel channel) async {
+    ChannelDBISAR? channelDB = await Channels.sharedInstance
         .updateChannelMetadataFromRelay(channel.owner, channel.channelId);
-    return channelDB ?? ChannelDB(channelId: channel.channelId);
+    return channelDB ?? ChannelDBISAR(channelId: channel.channelId);
   }
 
   static Future<String?> addressToMessageContent(
@@ -101,7 +101,7 @@ class ChatNostrSchemeHandle {
               Channels.sharedInstance.channels[eventId]);
         } else if (event != null) {
           Channel channel = Nip28.getChannelCreation(event);
-          ChannelDB channelDB =
+          ChannelDBISAR channelDB =
               Channels.sharedInstance.getChannelDBFromChannel(channel);
           return channelToMessageContent(channelDB);
         }
@@ -162,7 +162,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String channelToMessageContent(ChannelDB? channelDB) {
+  static String channelToMessageContent(ChannelDBISAR? channelDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactChanneDetailsPage',

@@ -285,7 +285,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
             ShareSearchGroup(title: 'str_title_groups'.localized(), type: ShareSearchType.groups, items: groupSessions),
           );
         }
-        List<ChannelDB>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
+        List<ChannelDBISAR>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
         if (tempChannelList != null && tempChannelList.length > 0) {
           List<ChatSessionModel> channelSessions = [];
           tempChannelList.forEach((element) {

@@ -501,7 +501,7 @@ class _ChannelPageState extends State<ChannelPage>
   Future<void> _getLatestChannelList() async {
     try {
       OXLoading.show(status: Localized.text('ox_common.loading'));
-      List<ChannelDB> channelDBList =
+      List<ChannelDBISAR> channelDBList =
       await Channels.sharedInstance.getChannelsFromRelay();
       OXLoading.dismiss();
       List<ChannelModel> channels = channelDBList

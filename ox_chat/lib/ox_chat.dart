@@ -191,13 +191,13 @@ class OXChat extends OXFlutterModule {
   }
 
   Future<void> _contactChanneDetailsPage(BuildContext? context,{required String channelId}) async {
-    ChannelDB? channelDB = Channels.sharedInstance.channels[channelId];
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[channelId];
     if(channelDB == null){
       await OXLoading.show();
       channelDB = await Channels.sharedInstance.searchChannel(channelId, null);
       await OXLoading.dismiss();
     }
-    OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDB(channelId: channelId)));
+    OXNavigator.pushPage(context!, (context) => ContactChanneDetailsPage(channelDB: channelDB ?? ChannelDBISAR(channelId: channelId)));
   }
 
   Future<void> _relayGroupInfoPage(BuildContext? context,{required String groupId}) async {

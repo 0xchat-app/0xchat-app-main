@@ -379,7 +379,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         isMute = tempUserDB.mute ?? false;
       }
     } else if (csModel.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[csModel.chatId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[csModel.chatId];
       if (channelDB != null) {
         isMute = channelDB.mute ?? false;
       }

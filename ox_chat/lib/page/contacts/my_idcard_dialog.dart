@@ -23,7 +23,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class MyIdCardDialog extends StatefulWidget {
   int type; // 0 Friend QRCode， 1 Channel QRCode
-  ChannelDB? channelDB;
+  ChannelDBISAR? channelDB;
 
   MyIdCardDialog({
     int? type,

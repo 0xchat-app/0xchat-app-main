@@ -45,7 +45,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  ChannelDB? channel;
+  ChannelDBISAR? channel;
   String get channelId => channel?.channelId ?? widget.communityItem.groupId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
@@ -128,7 +128,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    ChannelDB? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
+    ChannelDBISAR? channelDB = Channels.sharedInstance.channels[widget.communityItem.chatId];
     String showName = channelDB?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,

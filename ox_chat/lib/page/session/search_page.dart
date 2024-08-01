@@ -193,7 +193,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadChannelsData() async {
-    List<ChannelDB>? tempChannelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
+    List<ChannelDBISAR>? tempChannelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
     if (tempChannelList != null && tempChannelList.length > 0) {
       dataGroups.add(
         Group(
@@ -380,7 +380,7 @@ class SearchPageState extends State<SearchPage> {
                 );
               }).toList(),
             );
-          } else if (element.type == SearchItemType.channel && items is List<ChannelDB>) {
+          } else if (element.type == SearchItemType.channel && items is List<ChannelDBISAR>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -927,7 +927,7 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void gotoChatChannelSession(ChannelDB channelDB) {
+  void gotoChatChannelSession(ChannelDBISAR channelDB) {
     OXNavigator.pushPage(
         context,
         (context) => ChatChannelMessagePage(

@@ -131,8 +131,8 @@ mixin ShareItemInfoMixin {
   }
 
   //Queries the list of Channels to see if each Channel name contains a search character
-  List<ChannelDB>? loadChatChannelsWithSymbol(String symbol) {
-    final List<ChannelDB>? channelList = Channels.sharedInstance.fuzzySearch(symbol);
+  List<ChannelDBISAR>? loadChatChannelsWithSymbol(String symbol) {
+    final List<ChannelDBISAR>? channelList = Channels.sharedInstance.fuzzySearch(symbol);
     return channelList;
   }
 

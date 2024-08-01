@@ -28,7 +28,7 @@ import 'package:device_info/device_info.dart';
 enum ChannelCreateType { create, edit }
 
 class ChatChannelCreate extends StatefulWidget {
-  ChannelDB? channelDB;
+  ChannelDBISAR? channelDB;
   ChannelCreateType? channelCreateType;
 
   ChatChannelCreate(
@@ -382,7 +382,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
     }
 
     if (widget.channelCreateType == ChannelCreateType.create) {
-      final ChannelDB? channelDB = await Channels.sharedInstance.createChannel(
+      final ChannelDBISAR? channelDB = await Channels.sharedInstance.createChannel(
         _channelNameController.text,
         _descriptionController.text,
         _avatarAliyunUrl,

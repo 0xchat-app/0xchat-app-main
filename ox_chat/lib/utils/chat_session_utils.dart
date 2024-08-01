@@ -83,7 +83,7 @@ class ChatSessionUtils {
     bool isMute = false;
     switch (model.chatType) {
       case ChatType.chatChannel:
-        ChannelDB? channelDB = Channels.sharedInstance.channels[model.chatId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[model.chatId];
         if (channelDB != null) {
           isMute = channelDB.mute ?? false;
         }

@@ -19,8 +19,8 @@ class SearchTxtUtil{
   }
 
   //Queries the list of Channels to see if each Channel name contains a search character
-  static List<ChannelDB>? loadChatChannelsWithSymbol(String symbol) {
-    final List<ChannelDB>? channelList =
+  static List<ChannelDBISAR>? loadChatChannelsWithSymbol(String symbol) {
+    final List<ChannelDBISAR>? channelList =
     Channels.sharedInstance.fuzzySearch(symbol);
     return channelList;
   }
@@ -178,7 +178,7 @@ class SearchTxtUtil{
   static String _getName(MessageDBISAR messageDB){
     String name = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       name = channelDB?.name ?? messageDB.groupId;
     } else {
       GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
@@ -190,7 +190,7 @@ class SearchTxtUtil{
   static String _getPicUrl(MessageDBISAR messageDB){
     String picUrl = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       picUrl = channelDB?.picture ?? '';
     } else {
       GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];

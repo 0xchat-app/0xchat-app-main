@@ -40,9 +40,9 @@ extension SearchDiscoverUI on SearchPageState{
         if (kind == 40 || kind == 41) {
           String decodeNote = map['channelId'].toString();
           List<String> relays = List<String>.from(map['relays']);
-          ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
+          ChannelDBISAR? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
           if (c != null) {
-            List<ChannelDB> result = [c];
+            List<ChannelDBISAR> result = [c];
             dataGroups.add(
               Group(title: 'Online Channels', type: SearchItemType.channel, items: result),
             );
@@ -65,7 +65,7 @@ extension SearchDiscoverUI on SearchPageState{
       LogUtil.d('Search Result: ${channelModels.length} ${channelModels}');
       if (requestId == lastRequestId) {
         if (channelModels.length > 0) {
-          List<ChannelDB>? tempChannelList =
+          List<ChannelDBISAR>? tempChannelList =
           channelModels.map((element) => element!.toChannelDB()).toList();
           dataGroups.add(
             Group(
@@ -121,7 +121,7 @@ extension SearchDiscoverUI on SearchPageState{
       padding: EdgeInsets.zero,
       itemBuilder: (context, element) {
         final items = element.items;
-        if (element.type == SearchItemType.channel && items is List<ChannelDB>) {
+        if (element.type == SearchItemType.channel && items is List<ChannelDBISAR>) {
           return Column(
             children: items.map((item) {
               return ListTile(

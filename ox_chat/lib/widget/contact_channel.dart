@@ -21,7 +21,7 @@ double itemHeight = Adapt.px(68.0);
 typedef void CursorChannelsChanged(Widget cursor, int noteLength);
 
 class ChannelContact extends StatefulWidget {
-  final List<ChannelDB> data;
+  final List<ChannelDBISAR> data;
   final bool shrinkWrap;
   ScrollPhysics? physics;
   final Widget? topWidget;
@@ -42,7 +42,7 @@ class ChannelContact extends StatefulWidget {
 
 class Note {
   String tag;
-  List<ChannelDB> childList;
+  List<ChannelDBISAR> childList;
 
   Note(this.tag, this.childList);
 }
@@ -50,7 +50,7 @@ class Note {
 class ChannelContactState extends State<ChannelContact> {
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
-  late List<ChannelDB> channelList;
+  late List<ChannelDBISAR> channelList;
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -58,8 +58,8 @@ class ChannelContactState extends State<ChannelContact> {
   String _tagName = '';
   bool _isTouchTagBar = false;
 
-  List<ChannelDB> selectedList = [];
-  Map<String, List<ChannelDB>> mapData = Map();
+  List<ChannelDBISAR> selectedList = [];
+  Map<String, List<ChannelDBISAR>> mapData = Map();
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class ChannelContactState extends State<ChannelContact> {
     });
   }
 
-  void updateContactData(List<ChannelDB> data) {
+  void updateContactData(List<ChannelDBISAR> data) {
     channelList = data;
     _initIndexBarData();
   }
@@ -88,7 +88,7 @@ class ChannelContactState extends State<ChannelContact> {
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    Map<ChannelDB, String> pinyinMap = Map<ChannelDB, String>();
+    Map<ChannelDBISAR, String> pinyinMap = Map<ChannelDBISAR, String>();
     for (var channelDB in channelList) {
       if(channelDB.name == null || channelDB.name!.isEmpty) channelDB.name = channelDB.shortChannelId;
       String pinyin = PinyinHelper.getFirstWordPinyin(channelDB.name ?? '');
@@ -327,7 +327,7 @@ class GroupHeaderWidget extends StatelessWidget {
 }
 
 class GroupContactListItem extends StatefulWidget {
-  late ChannelDB item;
+  late ChannelDBISAR item;
   final onCheckChanged;
 
   GroupContactListItem({

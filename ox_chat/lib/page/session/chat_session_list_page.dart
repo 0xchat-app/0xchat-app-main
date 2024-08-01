@@ -968,7 +968,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     bool isMute = false;
     switch (type) {
       case ChatType.chatChannel:
-        ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
         isMute = channelDB?.mute ?? false;
         return isMute;
       case ChatType.chatGroup:

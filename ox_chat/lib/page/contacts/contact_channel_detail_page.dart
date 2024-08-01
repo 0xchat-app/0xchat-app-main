@@ -31,7 +31,7 @@ import '../session/chat_channel_message_page.dart';
 ///CreateTime: 2023/5/12 16:48
 
 class ContactChanneDetailsPage extends StatefulWidget {
-  ChannelDB channelDB;
+  ChannelDBISAR channelDB;
 
   ContactChanneDetailsPage({
     Key? key,
@@ -87,7 +87,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   void _syncChannelInfo() async {
-    ChannelDB? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
+    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
     if (channelDB != null){
       _initData();
     }
