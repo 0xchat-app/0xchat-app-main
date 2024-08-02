@@ -124,6 +124,19 @@ class UploadExceptionHandler {
     } else if (e is MinioError) {
       return UploadResult.error(e.message ?? errorMessage);
     } else if (e is DioException) {
+      if(e.type == DioExceptionType.badResponse) {
+        String errorMsg = '';
+        dynamic data = e.response?.data;
+        if(data != null){
+          if(data is Map) {
+            errorMsg = data['message'];
+          }
+          if(data is String) {
+            errorMsg = data;
+          }
+        }
+        return UploadResult.error(errorMsg);
+      }
       return UploadResult.error(parseError(e));
     } else if (e is UploadException) {
       return UploadResult.error(e.message);
