@@ -4,6 +4,7 @@ import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -76,7 +77,7 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                       children: [
                         Row(
                           children: [
-                            CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: OXChatInterface.moduleName),
+                            CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: tempItem != GroupType.channel ? OXChatInterface.moduleName : CommonModule, useTheme: tempItem != GroupType.channel ? false : true),
                             SizedBox(width: 8.px),
                             MyText(tempItem.text, 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
                           ],

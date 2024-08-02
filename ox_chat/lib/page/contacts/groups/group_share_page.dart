@@ -59,6 +59,8 @@ class _GroupSharePageState extends State<GroupSharePage> {
       }
     }
     switch (widget.groupType) {
+      case GroupType.channel:
+        break;
       case GroupType.privateGroup:
         _practicalGroupId = widget.groupId;
         break;

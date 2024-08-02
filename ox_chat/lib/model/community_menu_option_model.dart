@@ -45,13 +45,13 @@ class CommunityMenuOptionModel {
         optionModel: OptionModel.AddGroup,
       ),
     );
-    list.add(
-      CommunityMenuOptionModel(
-        content: Localized.text('ox_common.str_new_channel'),
-        iconName: 'icon_new_channel.png',
-        optionModel: OptionModel.NewChannel,
-      ),
-    );
+    // list.add(
+    //   CommunityMenuOptionModel(
+    //     content: Localized.text('ox_common.str_new_channel'),
+    //     iconName: 'icon_new_channel.png',
+    //     optionModel: OptionModel.NewChannel,
+    //   ),
+    // );
     list.add(
       CommunityMenuOptionModel(
         content: Localized.text('ox_common.str_scan'),
@@ -70,8 +70,8 @@ class CommunityMenuOptionModel {
     }
     if (optionModel == OptionModel.AddFriend) {
       gotoAddFriend(context);
-    } else if (optionModel == OptionModel.NewChannel) {
-      OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+    // } else if (optionModel == OptionModel.NewChannel) {
+    //   OXNavigator.pushPage(context, (context) => ChatChannelCreate());
     } else if (optionModel == OptionModel.ScanQCode) {
       _gotoScan(context);
     } else if (optionModel == OptionModel.RecommenderTools) {
@@ -103,6 +103,9 @@ class CommunityMenuOptionModel {
     final height = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     List<UserDBISAR> userList = Contacts.sharedInstance.allContacts.values.toList();
     switch(groupType){
+      case GroupType.channel:
+        OXNavigator.pushPage(context, (context) => ChatChannelCreate());
+        break;
       case GroupType.privateGroup:
         showModalBottomSheet(
           context: context,

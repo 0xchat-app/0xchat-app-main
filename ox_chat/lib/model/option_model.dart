@@ -1,3 +1,4 @@
+import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
@@ -46,6 +47,7 @@ enum GroupType{
   openGroup,
   closeGroup,
   privateGroup,
+  channel,
 }
 
 extension GroupTypeEx on GroupType{
@@ -57,6 +59,8 @@ extension GroupTypeEx on GroupType{
         return 'str_group_type_close'.localized();
       case GroupType.privateGroup:
         return 'str_group_type_private'.localized();
+      case GroupType.channel:
+        return Localized.text('ox_common.str_new_channel');
     }
   }
 
@@ -68,6 +72,8 @@ extension GroupTypeEx on GroupType{
         return 'icon_group_close.png';
       case GroupType.privateGroup:
         return 'icon_group_private.png';
+      case GroupType.channel:
+        return 'icon_new_channel.png';
     }
   }
 
@@ -79,6 +85,8 @@ extension GroupTypeEx on GroupType{
         return 'str_group_close_description'.localized();
       case GroupType.privateGroup:
         return 'str_group_private_description'.localized();
+      case GroupType.channel:
+        return 'Channel description';
     }
   }
 }
