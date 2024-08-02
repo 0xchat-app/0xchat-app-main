@@ -60,8 +60,6 @@ class UserConfigTool{
   }
 
   static Future<void> saveUser(UserDBISAR userDB) async {
-    LogUtil.e('Michael:---saveUser--userDB =${userDB.toString()}');
-    LogUtil.e('Michael:---saveUser------${StackTrace.current}');
     Map<String, MultipleUserModel> currentUserMap = await getAllUser();
     currentUserMap[userDB.pubKey] = MultipleUserModel(
       pubKey: userDB.pubKey,
@@ -80,6 +78,13 @@ class UserConfigTool{
     LogUtil.e('Michael:---saveUser--userMapJson =${userMapJson}');
     bool insertResult = await OXCacheManager.defaultOXCacheManager.saveData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
     LogUtil.e('Michael:---saveUser--insertResult =${insertResult}');
+  }
+
+  static Future<void> compatibleOld(UserDBISAR userDB) async {
+    String? jsonString = await OXCacheManager.defaultOXCacheManager.getData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
+    if (jsonString == null || jsonString.isEmpty) {
+      saveUser(userDB);
+    }
   }
 }
 

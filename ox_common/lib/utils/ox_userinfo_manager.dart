@@ -106,6 +106,7 @@ class OXUserInfoManager {
             await initDB(localPubKey);
             UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
             if (tempUserDB != null) {
+              UserConfigTool.compatibleOld(tempUserDB);
               currentUserInfo = tempUserDB;
               _initDatas();
               _initFeedback();
@@ -119,6 +120,7 @@ class OXUserInfoManager {
         final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
         LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
         if (tempUserDB != null) {
+          UserConfigTool.compatibleOld(tempUserDB);
           currentUserInfo = tempUserDB;
           _initDatas();
           _initFeedback();
