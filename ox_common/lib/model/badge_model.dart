@@ -91,7 +91,7 @@ class BadgeModel {
 
   factory BadgeModel.fromBadgeDB(BadgeDBISAR badgeDB) {
     return BadgeModel(
-        badgeId: badgeDB.id,
+        badgeId: badgeDB.badgeID,
         badgeName: badgeDB.name,
         badgeImageUrl: badgeDB.image,
         identifies: badgeDB.d,
