@@ -6,6 +6,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
@@ -16,6 +17,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:cashu_dart/business/wallet/cashu_manager.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 abstract mixin class OXUserInfoObserver {
   void didLoginSuccess(UserDBISAR? userInfo);
@@ -69,19 +71,19 @@ class OXUserInfoManager {
   Future initDB(String pubkey) async {
     await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
-    DB.sharedInstance.deleteDBIfNeedMirgration = false;
-    String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
-    if(dbpw == null || dbpw.isEmpty){
-      dbpw = generateStrongPassword(16);
-      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion, pubkey: pubkey);
-      await DB.sharedInstance.cipherMigrate(pubkey + ".db2", CommonConstant.dbVersion, dbpw);
-      await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
+    String dbpath = pubkey + ".db2";
+    bool exists = await databaseExists(dbpath);
+    if (exists) {
+      String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
+      await DB.sharedInstance.open(dbpath, version: CommonConstant.dbVersion, password: dbpw);
+      await DBISAR.sharedInstance.open(pubkey);
+      await DB.sharedInstance.migrateToISAR();
+      debugPrint("delete Table");
+      await deleteDatabase(dbpath);
     }
     else{
-      LogUtil.d('[DB init] dbpw: $dbpw');
-      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw, pubkey: pubkey);
+      await DBISAR.sharedInstance.open(pubkey);
     }
-
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
       await CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
@@ -415,7 +417,6 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     if (isLogin) {
-      DB.sharedInstance.startHeartBeat();
       Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();

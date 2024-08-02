@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'dart:async';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:isar/isar.dart';
 
 
 typedef OXObserverCallback = void Function(dynamic);
@@ -42,6 +44,8 @@ abstract class OXFlutterModule {
     await ThemeManager.registerTheme(moduleName, assetPath);
     await Localized.registerLocale(moduleName, assetPath);
     DB.sharedInstance.schemes.addAll(dbSchemes);
+    DBISAR.sharedInstance.schemas.addAll(isarDBSchemes);
+    DB.sharedInstance.migrationFunctions.addAll(migrateFunctions);
   }
 
   @protected
@@ -70,6 +74,10 @@ abstract class OXFlutterModule {
 
   /// External interface methods
   List<Type> get dbSchemes => [];
+
+  List<Function> get migrateFunctions => [];
+  /// isar schemes
+  List<CollectionSchema<dynamic>> get isarDBSchemes => [];
 
   /// Module listener, <eventName : List<observerHandle>>
   Map<String, List<OXObserverCallback>> observerMap = {};
