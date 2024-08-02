@@ -5,9 +5,9 @@ abstract mixin class OXMomentObserver {
 
   didGroupsNoteCallBack(NoteDBISAR notes) {}
 
-  didMyZapNotificationCallBack(List<NotificationDB> notifications) {}
+  didMyZapNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
-  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
 }
 
@@ -22,11 +22,11 @@ class OXMomentManager {
 
   List<NoteDBISAR> _notes = [];
   List<NoteDBISAR> _relayGroupNotes = [];
-  List<NotificationDB> _notifications = [];
+  List<NotificationDBISAR> _notifications = [];
 
   List<NoteDBISAR> get notes => _notes;
   List<NoteDBISAR> get relayGroupNotes => _relayGroupNotes;
-  List<NotificationDB> get notifications => _notifications;
+  List<NotificationDBISAR> get notifications => _notifications;
 
   final List<OXMomentObserver> _observers = <OXMomentObserver>[];
 
@@ -65,14 +65,14 @@ class OXMomentManager {
     }
   }
 
-  void newNotificationCallBack(List<NotificationDB> notifications) {
+  void newNotificationCallBack(List<NotificationDBISAR> notifications) {
     _notifications = notifications;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotificationCallBack(notifications);
     }
   }
 
-  void myZapNotificationCallBack(List<NotificationDB> notifications) {
+  void myZapNotificationCallBack(List<NotificationDBISAR> notifications) {
     for (OXMomentObserver observer in _observers) {
       observer.didMyZapNotificationCallBack(notifications);
     }

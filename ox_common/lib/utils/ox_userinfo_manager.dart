@@ -238,11 +238,11 @@ class OXUserInfoManager {
       OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
     };
 
-    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDB> notifications) {
+    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDBISAR> notifications) {
       OXMomentManager.sharedInstance.newNotificationCallBack(notifications);
     };
 
-    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
+    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDBISAR> notifications) {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
 
