@@ -98,7 +98,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                         uri,
                         headers: widget.imageHeaders,
                         cacheManager: encrypted
-                            ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
+                            ? DecryptedCacheManager(decryptKey ?? '')
                             : null,
                       ),
                       minScale: widget.options.minScale,
@@ -385,7 +385,6 @@ class ImageGalleryOptions {
   const ImageGalleryOptions({
     this.maxScale,
     this.minScale,
-    this.decryptionKey = '',
   });
 
   /// See [PhotoViewGalleryPageOptions.maxScale].
@@ -393,7 +392,4 @@ class ImageGalleryOptions {
 
   /// See [PhotoViewGalleryPageOptions.minScale].
   final dynamic minScale;
-
-  /// See [PhotoViewGalleryPageOptions.minScale].
-  final String decryptionKey;
 }

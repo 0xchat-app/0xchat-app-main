@@ -75,8 +75,7 @@ class ChatGeneralHandler {
     types.User? author,
     this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
-  }) : author = author ?? _defaultAuthor(),
-        otherUser = _defaultOtherUser(session) {
+  }) : author = author ?? _defaultAuthor() {
     setupOtherUserIfNeeded();
     setupMentionHandlerIfNeeded();
   }
@@ -94,8 +93,6 @@ class ChatGeneralHandler {
   TextEditingController inputController = TextEditingController();
 
   Function(List<types.Message>?)? refreshMessageUI;
-
-  ValueChanged<types.Message>? messageDeleteHandler;
 
   Set<String> reactionsListenMsgId = {};
 
@@ -115,6 +112,10 @@ class ChatGeneralHandler {
   }
 
   void setupOtherUserIfNeeded() {
+    if (session.hasMultipleUsers) return ;
+
+    otherUser = _defaultOtherUser(session);
+
     if (otherUser == null) {
       final userFuture = Account.sharedInstance.getUserInfo(session.getOtherPubkey);
       if (userFuture is Future<UserDBISAR?>) {
@@ -460,10 +461,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         OXLoading.dismiss();
         if (event.status) {
           OXNavigator.pop(context);
-          final messageDeleteHandler = this.messageDeleteHandler;
-          if (messageDeleteHandler != null) {
-            messageDeleteHandler(message);
-          }
+          messageDeleteHandler(message);
         } else {
           CommonToast.instance.show(context, event.message);
         }
@@ -484,7 +482,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
 
     final reportSuccess = await ReportDialog.show(context, target: MessageReportTarget(message));
     final messageDeleteHandler = this.messageDeleteHandler;
-    if (reportSuccess == true && messageDeleteHandler != null) {
+    if (reportSuccess == true) {
       messageDeleteHandler(message);
     }
   }
@@ -506,6 +504,10 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       groupId: session.hasMultipleUsers ? session.groupId : null,
     );
     await handler.handleZap(context: context, eventId: eventId);
+  }
+
+  void messageDeleteHandler(types.Message message) {
+    ChatDataCache.shared.deleteMessage(session, message);
   }
 
   /// Handles the press event for the "Reaction emoji" in a menu item.

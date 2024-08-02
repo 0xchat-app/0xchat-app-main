@@ -33,14 +33,13 @@ class ChatPageConfig {
     );
   }
 
-  ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
+  ImageGalleryOptions get imageGalleryOptions =>
       ImageGalleryOptions(
         maxScale: PhotoViewComputedScale.covered,
         minScale: PhotoViewComputedScale.contained,
-        decryptionKey: decryptionKey,
       );
 
-  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler, [UserDBISAR? otherUser]) {
+  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler) {
     final items = [
       InputMoreItemEx.album(handler),
       InputMoreItemEx.camera(handler),
@@ -48,7 +47,8 @@ class ChatPageConfig {
       InputMoreItemEx.ecash(handler),
     ];
 
-    if (handler.session.chatType == ChatType.chatSingle) {
+    final otherUser = handler.otherUser;
+    if (handler.session.chatType == ChatType.chatSingle && otherUser != null) {
       items.add(InputMoreItemEx.zaps(handler, otherUser));
       items.add(InputMoreItemEx.call(handler, otherUser));
     }
