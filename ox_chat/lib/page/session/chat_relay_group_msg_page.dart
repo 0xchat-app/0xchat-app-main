@@ -285,7 +285,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   }
 
   @override
-  void didRelayGroupModerationCallBack(ModerationDB moderationDB) {
+  void didRelayGroupModerationCallBack(ModerationDBISAR moderationDB) {
     setState(() {
       _updateChatStatus();
     });
