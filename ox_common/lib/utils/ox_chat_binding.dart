@@ -190,11 +190,11 @@ class OXChatBinding {
         sessionModel.avatar = channelDB?.picture ?? '';
         sessionModel.chatName = channelDB?.name ?? messageDB.groupId;
       } else if (messageDB.chatType == null || messageDB.chatType == ChatType.chatRelayGroup) {
-        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[messageDB.groupId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[messageDB.groupId];
         sessionModel.avatar = relayGroupDB?.picture ?? '';
         sessionModel.chatName = relayGroupDB?.name ?? messageDB.groupId;
       } else {
-        GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+        GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
         sessionModel.avatar = groupDBDB?.picture ?? '';
         sessionModel.chatName = groupDBDB?.name ?? messageDB.groupId;
       }
@@ -439,13 +439,13 @@ class OXChatBinding {
     }
   }
 
-  void relayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) async {
+  void relayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) async {
     for (OXChatObserver observer in _observers) {
       observer.didRelayGroupJoinReqCallBack(joinRequestDB);
     }
   }
 
-  void relayGroupModerationCallBack(ModerationDB moderationDB) async {
+  void relayGroupModerationCallBack(ModerationDBISAR moderationDB) async {
     for (OXChatObserver observer in _observers) {
       observer.didRelayGroupModerationCallBack(moderationDB);
     }

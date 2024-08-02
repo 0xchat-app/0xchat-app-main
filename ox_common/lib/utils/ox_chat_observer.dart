@@ -32,9 +32,9 @@ abstract mixin class OXChatObserver {
 
   void didGroupMessageCallBack(MessageDBISAR message) {}
 
-  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {}
+  void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {}
 
-  void didRelayGroupModerationCallBack(ModerationDB moderationDB) {}
+  void didRelayGroupModerationCallBack(ModerationDBISAR moderationDB) {}
 
   void didMessageActionsCallBack(MessageDBISAR message) {}
 

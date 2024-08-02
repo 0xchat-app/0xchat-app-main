@@ -193,7 +193,7 @@ class OXRelayGroupAvatar extends StatefulWidget {
     this.onReturnFromNextPage,
   }) : this.size = size ?? Adapt.px(48);
 
-  final RelayGroupDB? relayGroup;
+  final RelayGroupDBISAR? relayGroup;
   final String? imageUrl;
   final double size;
   final bool isCircular;
@@ -247,7 +247,7 @@ class OXGroupAvatar extends StatefulWidget {
   }) : this.size = size ?? Adapt.px(48);
 
   final String? groupId;
-  final GroupDB? group;
+  final GroupDBISAR? group;
   final String? imageUrl;
   final double size;
   final bool isCircular;

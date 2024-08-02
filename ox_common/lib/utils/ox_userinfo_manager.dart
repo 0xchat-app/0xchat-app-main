@@ -190,7 +190,7 @@ class OXUserInfoManager {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDB joinRequestDB) async {
+    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDBISAR joinRequestDB) async {
       LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
       OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
     };
@@ -215,7 +215,7 @@ class OXUserInfoManager {
       _fetchFinishHandler(_ContactType.relayGroups);
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
-    RelayGroup.sharedInstance.moderationCallBack = (ModerationDB moderationDB) async {
+    RelayGroup.sharedInstance.moderationCallBack = (ModerationDBISAR moderationDB) async {
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
@@ -234,7 +234,7 @@ class OXUserInfoManager {
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDBISAR zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
-    Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
+    Moment.sharedInstance.newNotesCallBack = (List<NoteDBISAR> notes) {
       OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
     };
 
@@ -246,7 +246,7 @@ class OXUserInfoManager {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
 
-    RelayGroup.sharedInstance.noteCallBack = (NoteDB notes) {
+    RelayGroup.sharedInstance.noteCallBack = (NoteDBISAR notes) {
       OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
     };
 
