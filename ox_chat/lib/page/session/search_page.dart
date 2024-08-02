@@ -949,8 +949,12 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _clearRecentSearches() async {
-    DBISAR.sharedInstance.isar.searchHistoryModelISARs.clear();
-    DBISAR.sharedInstance.isar.recentSearchUserISARs.clear();
+    final isar = DBISAR.sharedInstance.isar;
+    await isar.writeTxn(() async {
+      await isar.searchHistoryModelISARs.clear();
+      await isar.recentSearchUserISARs.clear();
+    });
+
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
     searchQuery = '';
