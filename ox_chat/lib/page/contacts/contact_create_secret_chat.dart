@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_relay_page.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -316,7 +316,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
       SecretSessionDBISAR? db =
           Contacts.sharedInstance.secretSessionMap[okEvent.eventId];
       if (db != null) {
-        ChatSessionModel? chatModel =
+        ChatSessionModelISAR? chatModel =
             await OXChatBinding.sharedInstance.localCreateSecretChat(db);
         if (chatModel != null) {
           OXNavigator.pop(context);

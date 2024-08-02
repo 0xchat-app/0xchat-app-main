@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/model/recent_search_user.dart';
+import 'package:ox_chat/model/recent_search_user_isar.dart';
+import 'package:ox_chat/model/search_history_model.dart';
+import 'package:ox_chat/model/search_history_model_isar.dart';
 import 'package:ox_chat/page/contacts/contact_channel_detail_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_choose_page.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
@@ -15,6 +19,10 @@ import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/contacts/user_list_page.dart';
+import 'package:ox_chat/page/ecash/ecash_info.dart';
+import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
+import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
+import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
@@ -26,7 +34,7 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/network/network_general.dart';
@@ -43,6 +51,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_network/network_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:isar/isar.dart';
 
 class OXChat extends OXFlutterModule {
   @override
@@ -80,13 +89,19 @@ class OXChat extends OXFlutterModule {
   String get moduleName => OXChatInterface.moduleName;
 
   @override
+  List<CollectionSchema> get isarDBSchemes => [RecentSearchUserISARSchema, SearchHistoryModelISARSchema, EcashReceiptHistoryISARSchema, EcashSignatureRecordISARSchema];
+
+  @override
+  List<Function> get migrateFunctions => [RecentSearchUser.migrateToISAR, SearchHistoryModel.migrateToISAR, EcashReceiptHistory.migrateToISAR, EcashSignatureRecord.migrateToISAR];
+
+  @override
   Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
           context,
               (context) => ChatChannelMessagePage(
-            communityItem: ChatSessionModel(
+            communityItem: ChatSessionModelISAR(
               chatId: params?['chatId'] ?? '',
               chatName: params?['chatName'] ?? '',
               chatType: params?['chatType'] ?? 0,
@@ -229,7 +244,7 @@ class OXChat extends OXFlutterModule {
   void _sendSystemMsg(BuildContext context,{required String chatId,required String content, required String localTextKey}){
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
 
-    ChatSessionModel? sessionModel = OXChatBinding.sharedInstance.sessionMap[chatId];
+    ChatSessionModelISAR? sessionModel = OXChatBinding.sharedInstance.sessionMap[chatId];
     if(sessionModel == null) return;
 
     ChatGeneralHandler chatGeneralHandler = ChatGeneralHandler(

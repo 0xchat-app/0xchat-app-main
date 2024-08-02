@@ -16,7 +16,7 @@ import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -26,7 +26,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class ChatMessagePage extends StatefulWidget {
 
-  final ChatSessionModel communityItem;
+  final ChatSessionModelISAR communityItem;
   final String? anchorMsgId;
 
   const ChatMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
@@ -52,7 +52,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
   bool isShowContactMenu = true;
 
   @override
-  ChatSessionModel get session => widget.communityItem;
+  ChatSessionModelISAR get session => widget.communityItem;
   
   @override
   void initState() {

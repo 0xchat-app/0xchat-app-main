@@ -13,7 +13,7 @@ import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -85,8 +85,8 @@ extension OtherInfoItemStr on OtherInfoItemType {
 
 class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
-  ChatSessionModel? get _chatSessionModel {
-    ChatSessionModel? model =
+  ChatSessionModelISAR? get _chatSessionModel {
+    ChatSessionModelISAR? model =
     OXChatBinding.sharedInstance.sessionMap[widget.chatId];
     return model;
   }
@@ -874,7 +874,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     OXNavigator.pushReplacement(
       context,
       ChatMessagePage(
-        communityItem: ChatSessionModel(
+        communityItem: ChatSessionModelISAR(
           chatId: userDB.pubKey,
           chatName: userDB.name,
           sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,

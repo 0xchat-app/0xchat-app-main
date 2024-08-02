@@ -15,7 +15,7 @@ import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -28,7 +28,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 
 class ChatChannelMessagePage extends StatefulWidget {
 
-  final ChatSessionModel communityItem;
+  final ChatSessionModelISAR communityItem;
   final String? anchorMsgId;
 
   ChatChannelMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
@@ -52,7 +52,7 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
   final pageConfig = ChatPageConfig();
 
   @override
-  ChatSessionModel get session => widget.communityItem;
+  ChatSessionModelISAR get session => widget.communityItem;
 
   @override
   void initState() {

@@ -4,7 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -119,7 +119,7 @@ class InputState extends State<Input>{
   bool safeAreaBottomInsetsInit = false;
   double safeAreaBottomInsets = 0.0;
 
-  ChatSessionModel? get _chatSessionModel {
+  ChatSessionModelISAR? get _chatSessionModel {
     if(widget.chatId == null) return null;
     final model = OXChatBinding.sharedInstance.sessionMap[widget.chatId];
     return model;

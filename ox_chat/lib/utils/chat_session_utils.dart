@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -12,7 +12,7 @@ import 'package:ox_common/widgets/common_image.dart';
 ///@author Michael
 ///CreateTime: 2024/4/1 07:58
 class ChatSessionUtils {
-  static String getChatName(ChatSessionModel model) {
+  static String getChatName(ChatSessionModelISAR model) {
     String showName = '';
     switch (model.chatType) {
       case ChatType.chatChannel:
@@ -38,7 +38,7 @@ class ChatSessionUtils {
     return showName;
   }
 
-  static String getChatIcon(ChatSessionModel model) {
+  static String getChatIcon(ChatSessionModelISAR model) {
     String showPicUrl = '';
     switch (model.chatType) {
       case ChatType.chatChannel:
@@ -58,7 +58,7 @@ class ChatSessionUtils {
     return showPicUrl;
   }
 
-  static String getChatDefaultIcon(ChatSessionModel model) {
+  static String getChatDefaultIcon(ChatSessionModelISAR model) {
     String localAvatarPath = '';
     switch (model.chatType) {
       case ChatType.chatChannel:
@@ -79,7 +79,7 @@ class ChatSessionUtils {
     return localAvatarPath;
   }
 
-  static bool getChatMute(ChatSessionModel model) {
+  static bool getChatMute(ChatSessionModelISAR model) {
     bool isMute = false;
     switch (model.chatType) {
       case ChatType.chatChannel:

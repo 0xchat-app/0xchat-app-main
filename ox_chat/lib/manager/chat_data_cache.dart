@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +13,7 @@ import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -50,7 +51,7 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
-  Future<List<types.Message>> getSessionMessage(ChatSessionModel session) async {
+  Future<List<types.Message>> getSessionMessage(ChatSessionModelISAR session) async {
     final key = _getChatTypeKey(session);
     if (key == null) {
       ChatLogUtils.error(
@@ -72,7 +73,7 @@ class ChatDataCache with OXChatObserver {
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if(message.receiver != myPubkey) return;
 
-    ChatSessionModel? sessionModel = OXChatBinding.sharedInstance.sessionMap[sessionId];
+    ChatSessionModelISAR? sessionModel = OXChatBinding.sharedInstance.sessionMap[sessionId];
 
     if(sessionModel != null && message.createTime >= sessionModel.createTime){
       int expiration = 0;
@@ -210,7 +211,7 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
-  Future addSystemMessage(String text, ChatSessionModel session, { bool isSendToRemote = true}) async {
+  Future addSystemMessage(String text, ChatSessionModelISAR session, { bool isSendToRemote = true}) async {
     // author
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB == null) {
@@ -237,7 +238,7 @@ class ChatDataCache with OXChatObserver {
     sendSystemMessage(session, message, !isSendToRemote);
   }
 
-  Future sendSystemMessage(ChatSessionModel session, types.SystemMessage message, bool isLocal) async {
+  Future sendSystemMessage(ChatSessionModelISAR session, types.SystemMessage message, bool isLocal) async {
 
     final sessionId = session.chatId;
     final receiverPubkey = session.getOtherPubkey;
@@ -333,7 +334,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
   Future<types.Message?> getMessage(
       ChatTypeKey? chatKey,
-      ChatSessionModel? session,
+      ChatSessionModelISAR? session,
       String messageId) async {
     if (session != null) {
       chatKey ??= _getChatTypeKey(session);
@@ -347,7 +348,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
   Future<void> addNewMessage({
       ChatTypeKey? key,
-      ChatSessionModel? session,
+      ChatSessionModelISAR? session,
       required types.Message message,
   }) async {
     if (session != null) {
@@ -361,7 +362,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     await _addChatMessages(key, message);
   }
 
-  Future<void> deleteMessage(ChatSessionModel session, types.Message message) async {
+  Future<void> deleteMessage(ChatSessionModelISAR session, types.Message message) async {
     final key = _getChatTypeKey(session);
     if (key == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'ChatTypeKey is null');
@@ -381,7 +382,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
 
   Future<void> updateMessage({
     ChatTypeKey? chatKey,
-    ChatSessionModel? session,
+    ChatSessionModelISAR? session,
     required types.Message message,
     types.Message? originMessage,
   }) async {
@@ -403,7 +404,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
 }
 
 extension ChatDataCacheObserverEx on ChatDataCache {
-  void addObserver(ChatSessionModel session, ValueChanged<List<types.Message>> valueChangedCallback) {
+  void addObserver(ChatSessionModelISAR session, ValueChanged<List<types.Message>> valueChangedCallback) {
     final key = _getChatTypeKey(session);
     if (key != null) {
       _valueChangedCallback[key] = valueChangedCallback;
@@ -412,7 +413,7 @@ extension ChatDataCacheObserverEx on ChatDataCache {
     }
   }
 
-  void removeObserver(ChatSessionModel session) {
+  void removeObserver(ChatSessionModelISAR session) {
     final key = _getChatTypeKey(session);
     if (key != null) {
       _valueChangedCallback.remove(key);
@@ -439,11 +440,11 @@ extension ChatDataCacheObserverEx on ChatDataCache {
 
 extension ChatDataCacheSessionEx on ChatDataCache {
 
-  ChatTypeKey? _convertSessionToPrivateChatKey(ChatSessionModel session) {
+  ChatTypeKey? _convertSessionToPrivateChatKey(ChatSessionModelISAR session) {
     return PrivateChatKey(session.sender, session.receiver);
   }
 
-  GroupKey? _convertSessionToGroupKey(ChatSessionModel session) {
+  GroupKey? _convertSessionToGroupKey(ChatSessionModelISAR session) {
     final groupId = session.groupId;
     if (groupId == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToGroupKey', message: 'groupId is null');
@@ -452,7 +453,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return GroupKey(groupId);
   }
 
-  ChannelKey? _convertSessionToChannelKey(ChatSessionModel session) {
+  ChannelKey? _convertSessionToChannelKey(ChatSessionModelISAR session) {
     final channelId = session.groupId;
     if (channelId == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToChannelKey', message: 'channelId is null');
@@ -461,11 +462,11 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return ChannelKey(channelId);
   }
 
-  ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModel session) {
+  ChatTypeKey? _convertSessionToSecretChatKey(ChatSessionModelISAR session) {
     return SecretChatKey(session.chatId);
   }
 
-  RelayGroupKey? _convertSessionToRelayGroupKey(ChatSessionModel session) {
+  RelayGroupKey? _convertSessionToRelayGroupKey(ChatSessionModelISAR session) {
     final groupId = session.groupId;
     if (groupId == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: '_convertSessionToRelayGroupKey', message: 'groupId is null');
@@ -474,7 +475,7 @@ extension ChatDataCacheSessionEx on ChatDataCache {
     return RelayGroupKey(groupId);
   }
 
-  Future setSessionAllMessageIsRead(ChatSessionModel session) async {
+  Future setSessionAllMessageIsRead(ChatSessionModelISAR session) async {
     final chatTypeKey = _getChatTypeKey(session);
     if (chatTypeKey == null) return ;
     //TODO: updateMessagesReadStatus
@@ -599,7 +600,7 @@ extension ChatDataCacheEx on ChatDataCache {
 
 extension ChatDataCacheGeneralMethodEx on ChatDataCache {
 
-  ChatTypeKey? _getChatTypeKey(ChatSessionModel session) {
+  ChatTypeKey? _getChatTypeKey(ChatSessionModelISAR session) {
     final chatType = session.chatType;
     switch (chatType) {
       case ChatType.chatSingle:
@@ -701,7 +702,7 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     return messageList.where((msg) => msg.id == messageId).firstOrNull;
   }
 
-  bool isContainMessage(ChatSessionModel session, MessageDBISAR message) {
+  bool isContainMessage(ChatSessionModelISAR session, MessageDBISAR message) {
     final sessionId = message.sessionId;
     final groupId = message.groupId;
     final senderId = message.sender;

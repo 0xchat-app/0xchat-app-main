@@ -8,13 +8,13 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/widget/mention_user_list.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 typedef UserListGetter = Future<List<UserDBISAR>> Function();
 
-extension ChatSessionModelMentionEx on ChatSessionModel {
+extension ChatSessionModelMentionEx on ChatSessionModelISAR {
 
   bool get isSupportMention => userListGetter != null;
 

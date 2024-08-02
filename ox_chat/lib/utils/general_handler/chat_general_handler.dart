@@ -46,7 +46,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_calling/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -83,7 +83,7 @@ class ChatGeneralHandler {
 
   final types.User author;
   UserDBISAR? otherUser;
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
   final types.EncryptionType fileEncryptionType;
 
   bool hasMoreMessage = false;
@@ -109,7 +109,7 @@ class ChatGeneralHandler {
     );
   }
 
-  static UserDBISAR? _defaultOtherUser(ChatSessionModel session) {
+  static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
     return Account.sharedInstance.userCache[session.chatId]?.value
         ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
@@ -754,7 +754,7 @@ extension StringChatEx on String {
 mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
 
   @protected
-  ChatSessionModel get session;
+  ChatSessionModelISAR get session;
 
   @protected
   ChatGeneralHandler get chatGeneralHandler;
@@ -777,7 +777,7 @@ mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
   }
 }
 
-extension ChatZapsEx on ChatSessionModel {
+extension ChatZapsEx on ChatSessionModelISAR {
   ZapType? get asZapType {
     switch (chatType) {
       case ChatType.chatSingle:

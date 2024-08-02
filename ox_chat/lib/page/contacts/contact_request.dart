@@ -8,7 +8,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -33,7 +33,7 @@ class ContactRequest extends StatefulWidget {
 }
 
 class _ContactRequestState extends State<ContactRequest> with CommonStateViewMixin, OXChatObserver {
-  late List<ChatSessionModel> _strangerSessionModelList;
+  late List<ChatSessionModelISAR> _strangerSessionModelList;
 
   @override
   void initState() {
@@ -130,7 +130,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
                     if (_strangerSessionModelList.length < 1) {
                       return Container();
                     }
-                    ChatSessionModel item = _strangerSessionModelList[index];
+                    ChatSessionModelISAR item = _strangerSessionModelList[index];
                     return _buildItemView(item, index);
                   }, childCount: _strangerSessionModelList.length),
                   itemExtent: Adapt.px(106)),
@@ -141,7 +141,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Widget _buildItemView(ChatSessionModel item, int index) {
+  Widget _buildItemView(ChatSessionModelISAR item, int index) {
     return Slidable(
       key: ValueKey("$index"),
       endActionPane: ActionPane(
@@ -273,7 +273,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Widget _buildItemName(ChatSessionModel item) {
+  Widget _buildItemName(ChatSessionModelISAR item) {
     UserDBISAR? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showName = otherDB?.getUserShowName() ?? '';
     return item.chatType == ChatType.chatSecret || item.chatType == ChatType.chatSecretStranger
@@ -321,7 +321,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
   }
 
   //Unadded status
-  Widget _buildNotAddStatus(ChatSessionModel item) {
+  Widget _buildNotAddStatus(ChatSessionModelISAR item) {
     return Row(
       children: [
         Expanded(
@@ -357,7 +357,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Widget _buildAvatar(ChatSessionModel item) {
+  Widget _buildAvatar(ChatSessionModelISAR item) {
     UserDBISAR? otherDB = Account.sharedInstance.userCache[item.getOtherPubkey]?.value;
     String showPicUrl = otherDB?.picture ?? '';
     return OXUserAvatar(
@@ -371,7 +371,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  Future<bool> _getChatSessionMute(ChatSessionModel csModel) async {
+  Future<bool> _getChatSessionMute(ChatSessionModelISAR csModel) async {
     bool isMute = false;
     if (csModel.chatType == ChatType.chatStranger || csModel.chatType == ChatType.chatSecretStranger) {
       UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(csModel.chatId);
@@ -387,7 +387,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     return isMute;
   }
 
-  Widget _buildReadWidget(ChatSessionModel announceItem, bool isMute) {
+  Widget _buildReadWidget(ChatSessionModelISAR announceItem, bool isMute) {
     int read = announceItem.unreadCount;
     if (isMute) {
       if (read > 0) {
@@ -469,14 +469,14 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
     );
   }
 
-  void _setAllRead(ChatSessionModel item) {
+  void _setAllRead(ChatSessionModelISAR item) {
     setState(() {
       item.unreadCount = 0;
     });
     OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
   }
 
-  void _confirmOnTap(ChatSessionModel item) async {
+  void _confirmOnTap(ChatSessionModelISAR item) async {
     OXCommonHintDialog.show(context,
         content: 'Add to private contacts?',
         actionList: [
@@ -504,7 +504,7 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         isRowAction: true);
   }
 
-  void _blockOnTap(ChatSessionModel item) async {
+  void _blockOnTap(ChatSessionModelISAR item) async {
     OXCommonHintDialog.show(context,
         content: 'Block this user?\nAfter blocking, you will no longer receive messages from them.',
         actionList: [

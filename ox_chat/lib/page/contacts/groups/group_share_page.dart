@@ -3,7 +3,7 @@ import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -386,7 +386,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.groupId,
             groupId: widget.groupId,
             chatType: ChatType.chatRelayGroup,
@@ -418,7 +418,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.groupId,
             groupId: widget.groupId,
             chatType: ChatType.chatRelayGroup,
@@ -433,10 +433,10 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   Future<void> _gotoGroupChat() async {
-    ChatSessionModel? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
+    ChatSessionModelISAR? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     if(session == null){
-      session = ChatSessionModel(
+      session = ChatSessionModelISAR(
         groupId: widget.groupId,
         chatType: ChatType.chatGroup,
         chatName: widget.groupName,
@@ -455,7 +455,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: _practicalGroupId,
             groupId: _practicalGroupId,
             chatType: ChatType.chatRelayGroup,

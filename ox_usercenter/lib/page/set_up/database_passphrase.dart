@@ -254,7 +254,7 @@ class DatabasePassphraseState extends State<DatabasePassphrase> {
   Future<void> changeDatabasePassword(String currentPassword, String newPassword) async {
     await DB.sharedInstance.execute("PRAGMA rekey = '$newPassword'");
     await DB.sharedInstance.closDatabase();
-    await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: newPassword, pubkey: pubkey);
+    // await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: newPassword, pubkey: pubkey);
   }
 
 }

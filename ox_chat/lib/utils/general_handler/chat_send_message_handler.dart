@@ -7,7 +7,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       String text, {
         int chatType = ChatType.chatSingle,
         BuildContext? context,
-        ChatSessionModel? session,
+        ChatSessionModelISAR? session,
         String secretSessionId = '',
       }) async {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
@@ -31,7 +31,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String link = '',
     int chatType = ChatType.chatSingle,
     String secretSessionId = '',
-    ChatSessionModel? session,
+    ChatSessionModelISAR? session,
   }) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (sender.isEmpty) return ;
@@ -51,14 +51,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  static ChatSessionModel? _getSessionModel(String receiverPubkey, int type, [String secretSessionId = '']) {
+  static ChatSessionModelISAR? _getSessionModel(String receiverPubkey, int type, [String secretSessionId = '']) {
     final sender = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     if (sender.isEmpty) return null;
 
     final session = OXChatBinding.sharedInstance.sessionMap[receiverPubkey];
     if (session != null) return session;
 
-    return ChatSessionModel.getDefaultSession(
+    return ChatSessionModelISAR.getDefaultSession(
       type,
       receiverPubkey,
       sender,

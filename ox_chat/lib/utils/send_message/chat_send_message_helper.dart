@@ -9,7 +9,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
@@ -20,7 +20,7 @@ typedef MessageContentCreator = FutureOr<String?> Function(
 
 class ChatSendMessageHelper {
   static Future<String?> sendMessage({
-    required ChatSessionModel session,
+    required ChatSessionModelISAR session,
     required types.Message message,
     ChatSendingType sendingType = ChatSendingType.remote,
     MessageContentCreator? contentEncoder,
@@ -126,7 +126,7 @@ class ChatSendMessageHelper {
   }
 
   static types.Message? tryTransferMessageFromText(
-    ChatSessionModel session,
+    ChatSessionModelISAR session,
     types.Message sendMsg,
     String sourceKey,
   ) {
@@ -192,7 +192,7 @@ class ChatSendMessageHelper {
   }
 
   static void updateMessageStatus(
-      ChatSessionModel session, types.Message message, types.Status status) {
+      ChatSessionModelISAR session, types.Message message, types.Status status) {
     final updatedMessage = message.copyWith(
       status: status,
     );
@@ -200,7 +200,7 @@ class ChatSendMessageHelper {
         .updateMessage(session: session, message: updatedMessage);
   }
 
-  static void _setMessageSendingStatusIfNeeded(ChatSessionModel session,
+  static void _setMessageSendingStatusIfNeeded(ChatSessionModelISAR session,
       OXValue<bool> sendFinish, types.Message message) {
     Future.delayed(const Duration(milliseconds: 500), () async {
       if (!sendFinish.value) {

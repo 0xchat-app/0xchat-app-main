@@ -16,7 +16,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
-import 'ecash_info.dart';
+import 'ecash_info_isar.dart';
 
 class EcashDetailPage extends StatefulWidget {
 

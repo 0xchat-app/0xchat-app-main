@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -17,7 +18,7 @@ import 'package:nostr_core_dart/nostr.dart';
 ///@author Michael
 ///CreateTime: 2023/8/23 14:42
 class NotContactTopWidget extends StatefulWidget {
-  final ChatSessionModel chatSessionModel;
+  final ChatSessionModelISAR chatSessionModel;
   final GestureTapCallback? onTap;
 
   const NotContactTopWidget({Key? key, required this.chatSessionModel, required this.onTap}) : super(key: key);
@@ -62,7 +63,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     );
   }
 
-  Widget _buildNotAddStatus(ChatSessionModel item) {
+  Widget _buildNotAddStatus(ChatSessionModelISAR item) {
     return Row(
       children: [
         Expanded(
@@ -119,7 +120,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     );
   }
 
-  void _confirmOnTap(ChatSessionModel item) async {
+  void _confirmOnTap(ChatSessionModelISAR item) async {
     await OXLoading.show();
     final OKEvent okEvent = await Contacts.sharedInstance.addToContact([item.getOtherPubkey]);
     await OXLoading.dismiss();
@@ -134,7 +135,7 @@ class _NotContactTopWidgetState extends State<NotContactTopWidget> {
     }
   }
 
-  void _blockOnTap(ChatSessionModel item) async {
+  void _blockOnTap(ChatSessionModelISAR item) async {
     await OXLoading.show();
     final OKEvent okEvent = await Contacts.sharedInstance.addToBlockList(item.chatId);
     await OXLoading.dismiss();

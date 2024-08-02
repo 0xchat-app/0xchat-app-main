@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -673,7 +673,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       OXNavigator.pushPage(
         context,
             (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.channelDB.channelId,
             groupId: widget.channelDB.channelId,
             chatType: ChatType.chatChannel,

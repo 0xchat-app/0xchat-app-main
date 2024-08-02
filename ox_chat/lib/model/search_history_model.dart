@@ -1,5 +1,6 @@
 
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/model/search_history_model_isar.dart';
 
 ///Title: search_history_model
 ///Description: TODO(Fill in by oneself)
@@ -27,6 +28,16 @@ class SearchHistoryModel extends DBObject {
 
   static SearchHistoryModel fromMap(Map<String, Object?> map) {
     return _searchHistoryModelFromMap(map);
+  }
+
+  static Future<void> migrateToISAR() async {
+    List<SearchHistoryModel> searchHistoryModels = await DB.sharedInstance.objects<SearchHistoryModel>();
+    await Future.forEach(searchHistoryModels, (searchHistoryModel) async {
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
+            .put(SearchHistoryModelISAR.fromMap(searchHistoryModel.toMap()));
+      });
+    });
   }
 }
 

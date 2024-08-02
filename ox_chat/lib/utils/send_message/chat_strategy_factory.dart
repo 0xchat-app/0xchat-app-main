@@ -3,13 +3,13 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 
 class ChatStrategyFactory {
-  static ChatStrategy getStrategy(ChatSessionModel session) {
+  static ChatStrategy getStrategy(ChatSessionModelISAR session) {
     var s = OXChatBinding.sharedInstance.sessionMap[session.chatId];
     if(s != null) session = s;
     switch (session.chatType) {
@@ -37,7 +37,7 @@ class ChatStrategyFactory {
 }
 
 abstract class ChatStrategy {
-  ChatSessionModel get session;
+  ChatSessionModelISAR get session;
 
   String get receiverId => session.chatId;
 
@@ -62,7 +62,7 @@ abstract class ChatStrategy {
 }
 
 class ChannelChatStrategy extends ChatStrategy {
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
 
   ChannelChatStrategy(this.session);
 
@@ -109,7 +109,7 @@ class ChannelChatStrategy extends ChatStrategy {
 }
 
 class GroupChatStrategy extends ChatStrategy {
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
 
   GroupChatStrategy(this.session);
 
@@ -156,7 +156,7 @@ class GroupChatStrategy extends ChatStrategy {
 }
 
 class PrivateChatStrategy extends ChatStrategy {
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
 
   PrivateChatStrategy(this.session);
 
@@ -204,7 +204,7 @@ class PrivateChatStrategy extends ChatStrategy {
 }
 
 class SecretChatStrategy extends ChatStrategy {
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
 
   SecretChatStrategy(this.session);
 
@@ -251,7 +251,7 @@ class SecretChatStrategy extends ChatStrategy {
 }
 
 class RelayGroupChatStrategy extends ChatStrategy {
-  final ChatSessionModel session;
+  final ChatSessionModelISAR session;
 
   RelayGroupChatStrategy(this.session);
 

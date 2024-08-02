@@ -19,7 +19,7 @@ import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -62,7 +62,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   RefreshController _refreshController = new RefreshController();
   int _pageNum = 1; // Page number
-  List<ChatSessionModel> _msgDatas = []; // Message List
+  List<ChatSessionModelISAR> _msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
@@ -397,7 +397,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _updateReadStatus() {
     int readCount = 0;
-    for (ChatSessionModel i in _msgDatas) {
+    for (ChatSessionModelISAR i in _msgDatas) {
       if (i.unreadCount > 0) {
         readCount += i.unreadCount;
       }
@@ -409,7 +409,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Widget _buildListViewItem(context, int index) {
     if(index >= _msgDatas.length) return SizedBox();
-    ChatSessionModel item = _msgDatas[index];
+    ChatSessionModelISAR item = _msgDatas[index];
     GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
     // ChatLogUtils.info(
     //     className: 'ChatSessionListPage',
@@ -541,7 +541,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _getMsgIcon(ChatSessionModel item) {
+  Widget _getMsgIcon(ChatSessionModelISAR item) {
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
@@ -598,7 +598,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  Widget _buildItemName(ChatSessionModel item) {
+  Widget _buildItemName(ChatSessionModelISAR item) {
     String showName = ChatSessionUtils.getChatName(item);
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
@@ -640,7 +640,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _buildBusinessInfo(ChatSessionModel item) {
+  Widget _buildBusinessInfo(ChatSessionModelISAR item) {
     return MaterialButton(
         padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
         minWidth: 30.0,
@@ -749,7 +749,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         });
   }
 
-  Widget _buildItemSubtitle(ChatSessionModel announceItem) {
+  Widget _buildItemSubtitle(ChatSessionModelISAR announceItem) {
     final isMentioned = announceItem.isMentioned;
     if (isMentioned) {
       return RichText(
@@ -805,7 +805,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _setAllRead(ChatSessionModel item) {
+  void _setAllRead(ChatSessionModelISAR item) {
     setState(() {
       item.unreadCount = 0;
       _updateReadStatus();
@@ -817,7 +817,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     CommonToast.instance.show(context, Localized.text('ox_chat.services'));
   }
 
-  bool _getChatSessionMute(ChatSessionModel item) {
+  bool _getChatSessionMute(ChatSessionModelISAR item) {
     bool isMute = ChatSessionUtils.getChatMute(item);
     if (isMute != _muteCache[item.chatId]) {
       _muteCache[item.chatId] = isMute;
@@ -825,7 +825,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     return isMute;
   }
 
-  Widget _buildReadWidget(ChatSessionModel item) {
+  Widget _buildReadWidget(ChatSessionModelISAR item) {
     int read = item.unreadCount;
     bool isMute = _getChatSessionMute(item);
     if (isMute) {
@@ -933,7 +933,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(ChatSessionModelISAR announceListItem) async {
     final chatId = announceListItem.chatId ?? '';
     UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
     if (friendUserDB == null) {
@@ -986,7 +986,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _getGroupMembers(List<ChatSessionModel> chatSessionModelList) async {
+  void _getGroupMembers(List<ChatSessionModelISAR> chatSessionModelList) async {
     chatSessionModelList.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
@@ -999,9 +999,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _getMergeStrangerSession() {
-    List<ChatSessionModel> strangerSessionList = OXChatBinding.sharedInstance.strangerSessionList;
+    List<ChatSessionModelISAR> strangerSessionList = OXChatBinding.sharedInstance.strangerSessionList;
     if (strangerSessionList.isNotEmpty) {
-      ChatSessionModel mergeStrangerSession = ChatSessionModel();
+      ChatSessionModelISAR mergeStrangerSession = ChatSessionModelISAR();
       int latestCreateTime = 0;
       for (var session in strangerSessionList) {
         if (session.createTime > latestCreateTime) {

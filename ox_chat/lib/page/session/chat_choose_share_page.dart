@@ -6,7 +6,7 @@ import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/widget/share_item_info.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -58,7 +58,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
   }
 
   Future<void> _fetchListAsync() async {
-    List<ChatSessionModel> sessions = OXChatBinding.sharedInstance.sessionList;
+    List<ChatSessionModelISAR> sessions = OXChatBinding.sharedInstance.sessionList;
     sessions.sort((session1, session2) {
       var session2CreatedTime = session2.createTime;
       var session1CreatedTime = session1.createTime;
@@ -72,7 +72,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
     if (this.mounted) setState(() {});
   }
 
-  void _getGroupMembers(List<ChatSessionModel> list) async {
+  void _getGroupMembers(List<ChatSessionModelISAR> list) async {
     list.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
@@ -237,8 +237,8 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
         ));
   }
 
-  List<ChatSessionModel> showingItems(ShareSearchGroup group) {
-    List<ChatSessionModel> temp = [];
+  List<ChatSessionModelISAR> showingItems(ShareSearchGroup group) {
+    List<ChatSessionModelISAR> temp = [];
     if (_showItemAll[group.type] ?? false) {
       return group.items;
     }
@@ -256,10 +256,10 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
         List<ShareSearchGroup> searchResult = [];
         List<UserDBISAR>? tempFriendList = loadChatFriendsWithSymbol(searchQuery);
         if (tempFriendList != null && tempFriendList.length > 0) {
-          List<ChatSessionModel> friendSessions = [];
+          List<ChatSessionModelISAR> friendSessions = [];
           tempFriendList.forEach((element) {
             LogUtil.e('Michael: -----element =${element.name}');
-            friendSessions.add(ChatSessionModel(
+            friendSessions.add(ChatSessionModelISAR(
               chatId: element.pubKey,
               chatType: ChatType.chatSingle,
               sender: element.pubKey,
@@ -273,9 +273,9 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
 
         List<GroupDBISAR>? tempGroupList = loadChatGroupWithSymbol(searchQuery);
         if (tempGroupList != null && tempGroupList.length > 0) {
-          List<ChatSessionModel> groupSessions = [];
+          List<ChatSessionModelISAR> groupSessions = [];
           tempGroupList.forEach((element) {
-            groupSessions.add(ChatSessionModel(
+            groupSessions.add(ChatSessionModelISAR(
               chatId: element.groupId,
               chatType: ChatType.chatGroup,
             ));
@@ -287,9 +287,9 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
         }
         List<ChannelDBISAR>? tempChannelList = loadChatChannelsWithSymbol(searchQuery);
         if (tempChannelList != null && tempChannelList.length > 0) {
-          List<ChatSessionModel> channelSessions = [];
+          List<ChatSessionModelISAR> channelSessions = [];
           tempChannelList.forEach((element) {
-            channelSessions.add(ChatSessionModel(
+            channelSessions.add(ChatSessionModelISAR(
               chatId: element.channelId,
               chatType: ChatType.chatChannel,
             ));
@@ -305,7 +305,7 @@ class _ChatChooseSharePageState extends State<ChatChooseSharePage> with ShareIte
     });
   }
 
-  buildSendPressed(ChatSessionModel sessionModel) {
+  buildSendPressed(ChatSessionModelISAR sessionModel) {
     _ShareToName = ChatSessionUtils.getChatName(sessionModel);
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),

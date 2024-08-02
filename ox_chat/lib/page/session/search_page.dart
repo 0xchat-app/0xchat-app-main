@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
-import 'package:ox_chat/model/recent_search_user.dart';
+import 'package:ox_chat/model/recent_search_user_isar.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/model/search_history_model.dart';
+import 'package:ox_chat/model/search_history_model_isar.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
@@ -17,7 +18,7 @@ import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/fade_page_route.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -30,6 +31,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:isar/isar.dart';
 
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 
@@ -162,8 +164,8 @@ class SearchPageState extends State<SearchPage> {
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
     // _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
-
-    final userList = await DB.sharedInstance.objects<RecentSearchUser>();
+    final isar = DBISAR.sharedInstance.isar;
+    final userList = await isar.recentSearchUserISARs.where().findAll();
     await Future.forEach(userList, (e) async {
       final user = await Account.sharedInstance.getUserInfo(e.pubKey);
       if (user != null) {
@@ -749,16 +751,20 @@ class SearchPageState extends State<SearchPage> {
   Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
-      await DB.sharedInstance.insertBatch<RecentSearchUser>(RecentSearchUser(
-        pubKey: userPubkey,
-      ));
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.recentSearchUserISARs
+            .put(RecentSearchUserISAR(pubKey: userPubkey));
+      });
     } else {
-      await DB.sharedInstance.insertBatch<SearchHistoryModel>(SearchHistoryModel(
-        searchTxt: searchQuery,
-        pubKey: userDB?.pubKey ?? null,
-        name: userDB?.name ?? null,
-        picture: userDB?.picture ?? null,
-      ));
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
+            .put(SearchHistoryModelISAR(
+                  searchTxt: searchQuery,
+                  pubKey: userDB?.pubKey ?? null,
+                  name: userDB?.name ?? null,
+                  picture: userDB?.picture ?? null,
+            ));
+      });
       LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }
@@ -776,7 +782,7 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  void _getGroupMembers(List<ChatSessionModel> list) async {
+  void _getGroupMembers(List<ChatSessionModelISAR> list) async {
     list.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
@@ -793,7 +799,7 @@ class SearchPageState extends State<SearchPage> {
     OXNavigator.pushPage(
         context,
         (context) => ChatMessagePage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: userDB.pubKey,
                 chatName: userDB.name,
                 sender:
@@ -904,7 +910,7 @@ class SearchPageState extends State<SearchPage> {
       OXNavigator.pushPage(
           context,
           (context) => ChatGroupMessagePage(
-                communityItem: ChatSessionModel(
+                communityItem: ChatSessionModelISAR(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
                   chatType: groupUIModel.chatType,
@@ -916,7 +922,7 @@ class SearchPageState extends State<SearchPage> {
       OXNavigator.pushPage(
           context,
           (context) => ChatRelayGroupMsgPage(
-                communityItem: ChatSessionModel(
+                communityItem: ChatSessionModelISAR(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
                   chatType: groupUIModel.chatType,
@@ -931,7 +937,7 @@ class SearchPageState extends State<SearchPage> {
     OXNavigator.pushPage(
         context,
         (context) => ChatChannelMessagePage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: channelDB.channelId,
                 chatName: channelDB.name,
                 chatType: ChatType.chatChannel,
@@ -943,8 +949,8 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _clearRecentSearches() async {
-    DB.sharedInstance.delete<SearchHistoryModel>();
-    DB.sharedInstance.delete<RecentSearchUser>();
+    DBISAR.sharedInstance.isar.searchHistoryModelISARs.clear();
+    DBISAR.sharedInstance.isar.recentSearchUserISARs.clear();
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
     searchQuery = '';
