@@ -12,6 +12,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/theme_color.dart';
 import 'common_loading.dart';
 import 'common_toast.dart';
@@ -447,6 +448,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
 
   Future _widgetShotAndSave() async {
     if (widget.imageList.isEmpty) return;
+
     OXLoading.show();
     final pageIndex = _pageController.page?.round() ?? 0;
     final imageUri = widget.imageList[pageIndex];
@@ -458,16 +460,20 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
         String fileName = imageUri.split('/').last.split('?').first;
         if (fileName.contains('.gif')) {
           final appDocDir = await getTemporaryDirectory();
-          final savePath = appDocDir.path +
-              "/image_${DateTime.now().millisecondsSinceEpoch}.gif";
-          final response = await Dio().download(imageUri, savePath,
-              options: Options(responseType: ResponseType.bytes));
+          final savePath = appDocDir.path + "/image_${DateTime.now().millisecondsSinceEpoch}.gif";
+          final response = await Dio().download(imageUri, savePath, options: Options(responseType: ResponseType.bytes));
           result = await ImageGallerySaver.saveFile(savePath);
         } else {
-          var response = await Dio().get(imageUri,
-              options: Options(responseType: ResponseType.bytes));
-          result = await ImageGallerySaver.saveImage(
-              Uint8List.fromList(response.data));
+            File? file = await getCachedImageFile(imageUri);
+            Uint8List savePath;
+
+            if(file == null){
+              final response =  await Dio().get(imageUri, options: Options(responseType: ResponseType.bytes));
+              savePath = Uint8List.fromList(response.data);
+            }else{
+              savePath = Uint8List.fromList(await file.readAsBytes());
+            }
+          result = await ImageGallerySaver.saveImage(Uint8List.fromList(savePath));
         }
       } catch (e) {
         unawaited(CommonToast.instance.show(context, e.toString()));
@@ -478,12 +484,10 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
       result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
     }
 
-    if (result != null) {
-      unawaited(CommonToast.instance
-          .show(context, Localized.text('ox_chat.str_saved_to_album')));
+    if (result != null && result['isSuccess']) {
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
     } else {
-      unawaited(CommonToast.instance
-          .show(context, Localized.text('ox_chat.str_save_failed')));
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
     }
     OXLoading.dismiss();
   }
