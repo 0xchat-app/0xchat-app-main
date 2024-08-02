@@ -369,7 +369,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {}
 
   @override
-  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
   @override
   didGroupsNoteCallBack(NoteDBISAR notes) {

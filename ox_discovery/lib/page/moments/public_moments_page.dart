@@ -73,7 +73,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   List<NoteDBISAR> _notificationNotes = [];
   List<String> _notificationAvatarList = [];
 
-  List<NotificationDB> _notifications = [];
+  List<NotificationDBISAR> _notifications = [];
   List<String> _avatarList = [];
 
   List<NoteDBISAR> _notificationGroupNotes = [];
@@ -548,7 +548,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     tipContainerHeight.value = height;
   }
 
-  void _updateNotifications(List<NotificationDB> notifications) async {
+  void _updateNotifications(List<NotificationDBISAR> notifications) async {
     if (notifications.isEmpty) return;
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
@@ -588,7 +588,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   @override
-  didNewNotificationCallBack(List<NotificationDB> notifications) {
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {
     _updateNotifications(notifications);
     tipContainerHeight.value = tipsHeight;
   }

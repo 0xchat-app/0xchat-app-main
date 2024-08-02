@@ -36,7 +36,7 @@ extension ENoteDBEx on NoteDBISAR {
   }
 }
 
-extension ENotificationDBEX on NotificationDB {
+extension ENotificationDBEX on NotificationDBISAR {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
 }
 

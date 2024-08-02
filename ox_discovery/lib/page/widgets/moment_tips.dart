@@ -75,7 +75,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips>
 
 class MomentNotificationTips extends StatefulWidget {
   final double? tipsHeight;
-  final ValueSetter<List<NotificationDB>>? onTap;
+  final ValueSetter<List<NotificationDBISAR>>? onTap;
   const MomentNotificationTips({super.key, this.onTap, this.tipsHeight});
 
   @override
@@ -84,7 +84,7 @@ class MomentNotificationTips extends StatefulWidget {
 
 class _MomentNotificationTipsState extends State<MomentNotificationTips>
     with OXMomentObserver {
-  List<NotificationDB> _notifications = [];
+  List<NotificationDBISAR> _notifications = [];
   List<String> _avatarList = [];
 
   @override
@@ -115,7 +115,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips>
         : Container();
   }
 
-  _updateNotifications(List<NotificationDB> notifications) async {
+  _updateNotifications(List<NotificationDBISAR> notifications) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
@@ -126,7 +126,7 @@ class _MomentNotificationTipsState extends State<MomentNotificationTips>
   }
 
   @override
-  didNewNotificationCallBack(List<NotificationDB> notifications) async {
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) async {
     await _updateNotifications(notifications);
   }
 

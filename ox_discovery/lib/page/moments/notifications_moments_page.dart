@@ -369,7 +369,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   _loadNotificationData() async {
-    List<NotificationDB> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
+    List<NotificationDBISAR> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
 
     List<AggregatedNotification> aggregatedNotifications = _getAggregatedNotifications(notificationList);
     _aggregatedNotifications.addAll(aggregatedNotifications);
@@ -396,9 +396,9 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     }
   }
 
-  List<AggregatedNotification> _getAggregatedNotifications(List<NotificationDB> notifications) {
-    List<NotificationDB> likeTypeNotification = [];
-    List<NotificationDB> otherTypeNotification = [];
+  List<AggregatedNotification> _getAggregatedNotifications(List<NotificationDBISAR> notifications) {
+    List<NotificationDBISAR> likeTypeNotification = [];
+    List<NotificationDBISAR> otherTypeNotification = [];
     Set<String> groupedItems = {};
 
     for (var notification in notifications) {
@@ -410,7 +410,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       }
     }
 
-    Map<String, List<NotificationDB>> grouped = {};
+    Map<String, List<NotificationDBISAR>> grouped = {};
     for (var groupedItem in groupedItems) {
       grouped[groupedItem] = likeTypeNotification.where((notification) => notification.associatedNoteId == groupedItem).toList();
     }

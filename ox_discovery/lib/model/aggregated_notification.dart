@@ -21,7 +21,7 @@ class AggregatedNotification {
     this.likeCount = 0,
   });
 
-  factory AggregatedNotification.fromNotificationDB(NotificationDB notificationDB) {
+  factory AggregatedNotification.fromNotificationDB(NotificationDBISAR notificationDB) {
     return AggregatedNotification(
       notificationId: notificationDB.notificationId,
       kind: notificationDB.kind,
