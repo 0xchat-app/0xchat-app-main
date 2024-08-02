@@ -277,12 +277,13 @@ class OXChatBinding {
     }
     int changeCount = 0;
     final isar = DBISAR.sharedInstance.isar;
-
-    final bool count = await isar.chatSessionModelISARs.deleteByChatId(chatIds.first);
-    if (count) {
-      changeCount = 1;
-      OXChatBinding.sharedInstance.sessionUpdate();
-    }
+    await isar.writeTxn(() async {
+      final bool count = await isar.chatSessionModelISARs.deleteByChatId(chatIds.first);
+      if (count) {
+        changeCount = 1;
+        OXChatBinding.sharedInstance.sessionUpdate();
+      }
+    });
     return changeCount;
   }
 

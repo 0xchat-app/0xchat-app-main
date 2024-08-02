@@ -69,6 +69,7 @@ class OXUserInfoManager {
   bool signatureVerifyFailed = false;
 
   Future initDB(String pubkey) async {
+    if(pubkey.isEmpty) return;
     await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     String dbpath = pubkey + ".db2";
