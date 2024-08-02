@@ -232,7 +232,7 @@ class OXUserInfoManager {
     Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDBISAR zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
-    Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
+    Moment.sharedInstance.newNotesCallBack = (List<NoteDBISAR> notes) {
       OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
     };
 
@@ -244,7 +244,7 @@ class OXUserInfoManager {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
 
-    RelayGroup.sharedInstance.noteCallBack = (NoteDB notes) {
+    RelayGroup.sharedInstance.noteCallBack = (NoteDBISAR notes) {
       OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
     };
 
