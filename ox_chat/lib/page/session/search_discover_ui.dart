@@ -50,7 +50,7 @@ extension SearchDiscoverUI on SearchPageState{
         } else if (kind == 39000) {
           final groupId = map['channelId'];
           final relays = map['relays'];
-          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId, relay: relays[0]);
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId, relay: relays[0]);
           if (relayGroupDB != null) {
             List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
             dataGroups.add(

@@ -337,7 +337,7 @@ class _ContractsPageState extends State<ContractsPage>
 
   void _getRequestAddGroupLength() async {
     if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
       await Future.forEach(tempGroups, (element) async {
         List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
         _addGroupRequestCount += requestJoinList.length;

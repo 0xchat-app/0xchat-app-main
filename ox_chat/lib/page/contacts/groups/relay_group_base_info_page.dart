@@ -51,7 +51,7 @@ class RelayGroupBaseInfoPage extends StatefulWidget {
 }
 
 class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
-  late RelayGroupDB? _groupDBInfo;
+  late RelayGroupDBISAR? _groupDBInfo;
   bool _hasEditMetadataPermission = false;
   String _avatarAliyunUrl = '';
 
@@ -295,7 +295,7 @@ class RelayGroupBaseInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    RelayGroupDB? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDBISAR? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
     return Container(
       width: double.infinity,
       height: 80.px,

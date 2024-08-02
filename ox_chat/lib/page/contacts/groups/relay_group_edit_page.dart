@@ -66,7 +66,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   bool _isShowDelete = false;
   bool _hasEditMetadataPermission = false;
 
-  RelayGroupDB? _groupDBInfo = null;
+  RelayGroupDBISAR? _groupDBInfo = null;
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   }
 
   void _groupInfoInit() {
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
 
     if (groupDB != null) {
       _groupDBInfo = groupDB;

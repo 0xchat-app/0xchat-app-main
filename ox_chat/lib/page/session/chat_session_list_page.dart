@@ -976,7 +976,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         isMute = groupDB?.mute ?? false;
         return isMute;
       case ChatType.chatRelayGroup:
-        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
         isMute = relayGroupDB?.mute ?? false;
         return isMute;
       default:

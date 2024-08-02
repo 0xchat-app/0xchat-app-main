@@ -24,7 +24,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 ///@author Michael
 ///CreateTime: 2024/7/4 07:38
 class RelayGroupSetAdminRightsPage extends StatefulWidget {
-  final RelayGroupDB relayGroupDB;
+  final RelayGroupDBISAR relayGroupDB;
   final UserDBISAR userDB;
   final GroupAdmin? groupAdmin;
 

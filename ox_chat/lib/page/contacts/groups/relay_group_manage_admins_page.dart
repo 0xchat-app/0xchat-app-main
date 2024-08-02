@@ -23,7 +23,7 @@ import 'package:ox_common/widgets/common_menu_dialog.dart';
 ///@author Michael
 ///CreateTime: 2024/6/25 15:10
 class RelayGroupManageAdminsPage extends StatefulWidget {
-  final RelayGroupDB relayGroupDB;
+  final RelayGroupDBISAR relayGroupDB;
   List<GroupAdmin> admins;
 
   RelayGroupManageAdminsPage({super.key, required this.relayGroupDB, required this.admins});

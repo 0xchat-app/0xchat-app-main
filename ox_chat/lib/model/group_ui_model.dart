@@ -55,7 +55,7 @@ class GroupUIModel {
     );
   }
 
-  static GroupUIModel relayGroupdbToUIModel(RelayGroupDB groupDB){
+  static GroupUIModel relayGroupdbToUIModel(RelayGroupDBISAR groupDB){
     if(groupDB.name.isEmpty) groupDB.name = groupDB.shortGroupId;
     return GroupUIModel(
       name: groupDB.name,

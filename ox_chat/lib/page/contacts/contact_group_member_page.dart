@@ -56,7 +56,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
       GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId];
       if (groupDB != null) owner = groupDB.owner;
     } else {
-      RelayGroupDB? groupDB = RelayGroup.sharedInstance.groups[groupId];
+      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
       if (groupDB != null) owner = groupDB.author;
     }
     switch (widget.groupListAction) {

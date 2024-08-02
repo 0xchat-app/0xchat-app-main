@@ -60,7 +60,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
       allRequestJoinList = await RelayGroup.sharedInstance.getRequestList(tempGroupId);
     } else {
       if(RelayGroup.sharedInstance.myGroups.length>0) {
-        List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+        List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
         await Future.forEach(tempGroups, (element) async {
           List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
           allRequestJoinList.addAll(requestJoinList);

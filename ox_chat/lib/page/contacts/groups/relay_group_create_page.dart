@@ -365,7 +365,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
       // var uri = Uri.parse(_chatRelay);
       // var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
+      RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
         _chatRelay,
         name: name,
         picture: _avatarAliyunUrl,

@@ -47,7 +47,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   double keyboardHeight = 0;
   late ChatStatus chatStatus;
 
-  RelayGroupDB? relayGroup;
+  RelayGroupDBISAR? relayGroup;
   String get groupId => relayGroup?.groupId ?? widget.communityItem.groupId ?? '';
 
   late ChatGeneralHandler chatGeneralHandler;
@@ -131,7 +131,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   @override
   Widget build(BuildContext context) {
     bool showUserNames = true;
-    RelayGroupDB? tempDb = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
+    RelayGroupDBISAR? tempDb = RelayGroup.sharedInstance.groups[widget.communityItem.groupId];
     String showName = tempDb?.name ?? '';
     return Scaffold(
       backgroundColor: ThemeColor.color200,

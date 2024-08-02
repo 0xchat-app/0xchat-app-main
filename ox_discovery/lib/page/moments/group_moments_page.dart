@@ -328,7 +328,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   void _getGroupInfo() {
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
     if(groupDB == null) return;
     _groupName = groupDB.name;
     if(mounted){

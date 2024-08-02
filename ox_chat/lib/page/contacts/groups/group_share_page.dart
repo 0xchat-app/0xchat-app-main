@@ -66,7 +66,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       case GroupType.closeGroup:
         SimpleGroups simpleGroups = RelayGroup.sharedInstance.getHostAndGroupId(widget.groupId);
         _practicalGroupId = simpleGroups.groupId;
-        RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
+        RelayGroupDBISAR? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
         if (tempRelayGroupDB != null) {
           widget.groupName = tempRelayGroupDB.name;
           widget.groupPic = tempRelayGroupDB.picture;

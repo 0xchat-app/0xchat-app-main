@@ -102,7 +102,7 @@ class ChatSessionUtils {
         }
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[model.chatId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[model.chatId];
         if (relayGroupDB != null) {
           isMute = relayGroupDB.mute;
         }
@@ -121,7 +121,7 @@ class ChatSessionUtils {
         iconName = 'icon_type_private_group.png';
         break;
       case ChatType.chatRelayGroup:
-        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.groups[chatId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.groups[chatId];
         if (relayGroupDB != null){
           if (relayGroupDB.closed){
             iconName = 'icon_type_close_group.png';

@@ -381,7 +381,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
         setState(() {});
       }
     } else {
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
+      RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
       if (relayGroupDB != null) {
         groupName = relayGroupDB.name;
         _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);

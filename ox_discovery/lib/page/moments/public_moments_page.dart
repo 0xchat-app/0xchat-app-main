@@ -285,7 +285,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: _notificationGroupNotes.map((NoteDB item) {
-            RelayGroupDB? groupDB =
+            RelayGroupDBISAR? groupDB =
                 RelayGroup.sharedInstance.myGroups[item.groupId];
             return _groupNotificationItem(groupDB);
           }).toList(),
@@ -294,7 +294,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Widget _groupNotificationItem(RelayGroupDB? groupDB) {
+  Widget _groupNotificationItem(RelayGroupDBISAR? groupDB) {
     return GestureDetector(
       onTap: () async {
         if (groupDB == null) return;

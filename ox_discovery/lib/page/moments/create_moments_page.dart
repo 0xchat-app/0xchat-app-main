@@ -471,7 +471,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     bool isGroup = EOptionMomentsType.group == widget.sendMomentsType;
     String content = _visibleType.name;
     if(isGroup){
-      RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
       content = 'Groups - ${groupDB?.name ?? ''}';
     }
     return Container(

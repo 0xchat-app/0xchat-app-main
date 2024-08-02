@@ -120,11 +120,11 @@ class ChatNostrSchemeHandle {
         break;
       case 39000:
         if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
-          RelayGroupDB? relayGroupDB =
+          RelayGroupDBISAR? relayGroupDB =
               RelayGroup.sharedInstance.groups[eventId];
           return relayGroupDBToMessageContent(relayGroupDB);
         } else if (relays != null && relays.isNotEmpty) {
-          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance
               .getGroupMetadataFromRelay(eventId, relay: relays.first);
           if (relayGroupDB != null)
             return relayGroupDBToMessageContent(relayGroupDB);
@@ -195,7 +195,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? relayGroupDBToMessageContent(RelayGroupDB? groupDB) {
+  static String? relayGroupDBToMessageContent(RelayGroupDBISAR? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
       module: 'ox_chat',
       action: 'groupSharePage',
