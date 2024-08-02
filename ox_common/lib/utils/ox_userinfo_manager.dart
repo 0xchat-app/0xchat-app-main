@@ -213,7 +213,7 @@ class OXUserInfoManager {
       _fetchFinishHandler(_ContactType.relayGroups);
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
-    RelayGroup.sharedInstance.moderationCallBack = (ModerationDB moderationDB) async {
+    RelayGroup.sharedInstance.moderationCallBack = (ModerationDBISAR moderationDB) async {
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
