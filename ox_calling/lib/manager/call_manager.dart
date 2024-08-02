@@ -12,6 +12,7 @@ import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -45,6 +46,7 @@ class CallManager {
   CallMessageType? callType;
   String? callInitiator;
   String? callReceiver;
+  String? otherName;
   Timer? _timer;
   int counter = 0;
   OverlayEntry? overlayEntry;
@@ -58,6 +60,10 @@ class CallManager {
 
   bool get getWaitAccept{
     return _waitAccept;
+  }
+
+  bool get isAudioVoice{
+    return callType == CallMessageType.audio;
   }
 
   void initRTC({String? tHost}) async {
@@ -144,6 +150,7 @@ class CallManager {
               }
               initiativeHangUp = false;
               callInitiator = userDB.pubKey;
+              otherName = userDB.name;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               CallManager.instance.connectServer();
               _context ??= OXNavigator.navigatorKey.currentContext!;
@@ -261,6 +268,7 @@ class CallManager {
   void resetStatus(bool isReceiverReject, {bool? isTomeOut}){
     // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    OXCommon.channelPreferences.invokeMethod('stopVoiceCallService');
     callType = null;
     if (_waitAccept) {
       print('peer reject');

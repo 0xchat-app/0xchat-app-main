@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "Invites you to a call...",
   "str_invite_you_to_a_video_call": "Invites you to a video call...",
   "str_call_connecting": "Connecting...",
-  "str_call_busy": "Line busy"
+  "str_call_busy": "Line busy",
+  "str_voice_call_in_use": "Voice call in use"
 }

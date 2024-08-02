@@ -100,6 +100,7 @@ class CallPageState extends State<CallPage> {
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.initiativeHangUp = false;
+        CallManager.instance.otherName = widget.userDB.name;
         await CallManager.instance.invitePeer(widget.userDB.pubKey, useScreen: _isVideoOn);
       }
     }
