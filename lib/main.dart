@@ -241,7 +241,7 @@ class MainState extends State<MainApp>
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         if (CallManager.instance.getInCallIng){
-          OXCommon.channelPreferences.invokeMethod('startVoiceCallService');
+          OXCommon.channelPreferences.invokeMethod('startVoiceCallService', {'notice_voice_title': CallManager.instance.otherName, 'notice_voice_content': Localized.text('ox_calling.str_voice_call_in_use')});
         }
         break;
       default:

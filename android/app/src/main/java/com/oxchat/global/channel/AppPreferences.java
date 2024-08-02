@@ -77,7 +77,17 @@ public class AppPreferences implements MethodChannel.MethodCallHandler, FlutterP
         }
         switch (call.method) {
             case "startVoiceCallService" -> {
+                String title = "";
+                String content = "";
+                if (paramsMap != null && paramsMap.containsKey(VoiceCallService.VOICE_TITLE_STR)) {
+                    title = (String) paramsMap.get(VoiceCallService.VOICE_TITLE_STR);
+                }
+                if (paramsMap != null && paramsMap.containsKey(VoiceCallService.VOICE_CONTENT_STR)) {
+                    content = (String) paramsMap.get(VoiceCallService.VOICE_CONTENT_STR);
+                }
                 Intent serviceIntent = new Intent(mContext, VoiceCallService.class);
+                serviceIntent.putExtra(VoiceCallService.VOICE_TITLE_STR, title);
+                serviceIntent.putExtra(VoiceCallService.VOICE_CONTENT_STR, content);
                 mContext.startForegroundService(serviceIntent);
             }
             case "stopVoiceCallService" -> {
