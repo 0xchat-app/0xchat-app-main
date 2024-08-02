@@ -8,7 +8,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class MomentRepostedTips extends StatefulWidget {
-  final NoteDB noteDB;
+  final NoteDBISAR noteDB;
   const MomentRepostedTips({
     super.key,
     required this.noteDB,

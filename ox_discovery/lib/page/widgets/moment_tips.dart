@@ -11,7 +11,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class MomentNewPostTips extends StatefulWidget {
   final double? tipsHeight;
-  final ValueSetter<List<NoteDB>>? onTap;
+  final ValueSetter<List<NoteDBISAR>>? onTap;
   const MomentNewPostTips({super.key, this.onTap, this.tipsHeight});
 
   @override
@@ -20,7 +20,7 @@ class MomentNewPostTips extends StatefulWidget {
 
 class _MomentNewPostTipsState extends State<MomentNewPostTips>
     with OXMomentObserver {
-  List<NoteDB> _notes = [];
+  List<NoteDBISAR> _notes = [];
   List<String> _avatarList = [];
 
   @override
@@ -51,7 +51,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips>
         : Container();
   }
 
-  _updateNotes(List<NoteDB> notes) async {
+  _updateNotes(List<NoteDBISAR> notes) async {
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notes.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
@@ -62,7 +62,7 @@ class _MomentNewPostTipsState extends State<MomentNewPostTips>
   }
 
   @override
-  didNewNotesCallBackCallBack(List<NoteDB> notes) async {
+  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) async {
     await _updateNotes(notes);
   }
 

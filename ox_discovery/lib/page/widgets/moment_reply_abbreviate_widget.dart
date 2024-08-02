@@ -64,7 +64,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
     }
     final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
     if(notedUIModelCache[replyId] == null){
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
       if(note == null) {
         if(mounted){
           setState(() {});

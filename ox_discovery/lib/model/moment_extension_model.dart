@@ -7,7 +7,7 @@ import '../enum/moment_enum.dart';
 import '../enum/visible_type.dart';
 import 'moment_ui_model.dart';
 
-extension ENoteDBEx on NoteDB {
+extension ENoteDBEx on NoteDBISAR {
   bool get isRepost => getNoteKind() == ENotificationsMomentType.repost.kind;
 
   bool get isReaction => getNoteKind() == ENotificationsMomentType.like.kind;

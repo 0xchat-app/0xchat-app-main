@@ -70,7 +70,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
 
   void _updateNoted() async {
     if (notedUIModel == null) return;
-    NoteDB? note = await Moment.sharedInstance
+    NoteDBISAR? note = await Moment.sharedInstance
         .loadNoteWithNoteId(notedUIModel!.value.noteDB.noteId);
     if (note == null) return;
     int newReplyNum = note.replyEventIds?.length ?? 0;
@@ -88,7 +88,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
       replyList = [noteModelDraft];
       String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
       if (getReplyId != null) {
-        NoteDB? note =
+        NoteDBISAR? note =
             await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
         if (note == null) {
           notedUIModel = null;
@@ -125,9 +125,9 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft) async {
     await Moment.sharedInstance.loadNoteActions(
         notedUIModelDraft.value.noteDB.noteId, actionsCallBack: (result) async {
-      NoteDB? note = await Moment.sharedInstance
+      NoteDBISAR? note = await Moment.sharedInstance
           .loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
-      NoteDB? updateNote = await Moment.sharedInstance
+      NoteDBISAR? updateNote = await Moment.sharedInstance
           .loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
       if (note == null) return;
       ValueNotifier<NotedUIModel> newNotedUIModel =
@@ -149,7 +149,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
 
     List<ValueNotifier<NotedUIModel>> result = [];
     for (String noteId in replyEventIds) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if (note != null) result.add(ValueNotifier(NotedUIModel(noteDB: note)));
     }
     List<ValueNotifier<NotedUIModel>> noteList =
@@ -373,7 +373,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
       ValueNotifier<NotedUIModel> notedUIModelDraft, int index) async {
     await Moment.sharedInstance.loadNoteActions(
         notedUIModelDraft.value.noteDB.noteId, actionsCallBack: (result) async {
-      NoteDB? note = await Moment.sharedInstance
+      NoteDBISAR? note = await Moment.sharedInstance
           .loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
 
       if (note == null) return;
@@ -394,7 +394,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
 
     List<ValueNotifier<NotedUIModel>> result = [];
     for (String noteId in replyEventIds) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if (note != null) result.add(ValueNotifier(NotedUIModel(noteDB: note)));
     }
 

@@ -76,7 +76,7 @@ class OXDiscovery extends OXFlutterModule {
 
     NotedUIModel? notedUIModel = notedUIModelCache[noteId];
     if (notedUIModel == null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if (note == null)
         return CommonToast.instance.show(context, 'Note not found !');
       notedUIModelCache[noteId] = NotedUIModel(noteDB: note);

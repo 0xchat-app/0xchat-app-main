@@ -339,7 +339,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Future<NoteDB?> _getNote(AggregatedNotification notificationDB) async {
+  Future<NoteDBISAR?> _getNote(AggregatedNotification notificationDB) async {
     return await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
   }
 
@@ -430,7 +430,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   void _jumpMomentsPage(ENotificationsMomentType type,AggregatedNotification notification)async {
-    NoteDB? note;
+    NoteDBISAR? note;
     if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
       note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
     } else {

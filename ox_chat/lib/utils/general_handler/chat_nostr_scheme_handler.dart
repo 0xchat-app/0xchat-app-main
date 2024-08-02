@@ -107,7 +107,7 @@ class ChatNostrSchemeHandle {
         }
         break;
       case 1:
-        NoteDB? noteDB = await Moment.sharedInstance
+        NoteDBISAR? noteDB = await Moment.sharedInstance
             .loadNoteWithNoteId(eventId, relays: relays);
         if (noteDB != null) return await noteToMessageContent(noteDB);
         break;
@@ -221,7 +221,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> noteToMessageContent(NoteDB? noteDB) async {
+  static Future<String?> noteToMessageContent(NoteDBISAR? noteDB) async {
     if (noteDB == null) return null;
     UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
     if (userDB?.lastUpdatedTime == 0) {

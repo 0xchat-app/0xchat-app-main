@@ -51,7 +51,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   void _init() async {
-    NoteDB noteDB = widget.notedUIModel.value.noteDB;
+    NoteDBISAR noteDB = widget.notedUIModel.value.noteDB;
     List<dynamic> list = [];
       switch (widget.type) {
         case ENotificationsMomentType.zaps:
@@ -84,14 +84,14 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
         String content =
             '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDBISAR.getZapAmount(zapRecordsDB.bolt11)}';
         return NotedUIModel(
-          noteDB: NoteDB(
+          noteDB: NoteDBISAR(
             noteId: zapRecordsDB.eventId,
             author: zapRecordsDB.sender,
             content: content,
           ),
         );
       }
-      return NotedUIModel(noteDB: noteDB as NoteDB);
+      return NotedUIModel(noteDB: noteDB as NoteDBISAR);
     }).toList();
   }
 
@@ -208,7 +208,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _initReposted() async {
-    NoteDB? note = await Moment.sharedInstance
+    NoteDBISAR? note = await Moment.sharedInstance
         .loadNoteWithNoteId(widget.notedUIModel.noteDB.repostId!);
     if (note != null) {
       NotedUIModel newNoted = NotedUIModel(noteDB: note);
@@ -353,7 +353,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _getNoteToMomentPage(String noteId) async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
+    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
     if (note == null) return;
     OXNavigator.pushPage(
       context,

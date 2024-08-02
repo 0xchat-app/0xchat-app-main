@@ -70,13 +70,13 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   ValueNotifier<double> tipContainerHeight = ValueNotifier(0);
 
-  List<NoteDB> _notificationNotes = [];
+  List<NoteDBISAR> _notificationNotes = [];
   List<String> _notificationAvatarList = [];
 
   List<NotificationDB> _notifications = [];
   List<String> _avatarList = [];
 
-  List<NoteDB> _notificationGroupNotes = [];
+  List<NoteDBISAR> _notificationGroupNotes = [];
 
   @override
   void initState() {
@@ -284,7 +284,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: _notificationGroupNotes.map((NoteDB item) {
+          children: _notificationGroupNotes.map((NoteDBISAR item) {
             RelayGroupDBISAR? groupDB =
                 RelayGroup.sharedInstance.myGroups[item.groupId];
             return _groupNotificationItem(groupDB);
@@ -299,7 +299,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       onTap: () async {
         if (groupDB == null) return;
         _notificationGroupNotes
-            .removeWhere((NoteDB db) => db.groupId == groupDB.groupId);
+            .removeWhere((NoteDBISAR db) => db.groupId == groupDB.groupId);
         tipContainerHeight.value = _getNotificationHeight;
         await OXNavigator.pushPage(
             context, (context) => GroupMomentsPage(groupId: groupDB.groupId));
@@ -399,7 +399,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       });
     }
     try {
-      List<NoteDB> list = await _getNoteTypeToDB(isInit);
+      List<NoteDBISAR> list = await _getNoteTypeToDB(isInit);
       if (list.isEmpty) {
         isInit
             ? _refreshController.refreshCompleted()
@@ -408,7 +408,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         return;
       }
 
-      List<NoteDB> showList = _filterNotes(list);
+      List<NoteDBISAR> showList = _filterNotes(list);
       _updateUI(showList, isInit, list.length);
 
       if (list.length < _limit) {
@@ -422,7 +422,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
-  Future<List<NoteDB>> _getNoteTypeToDB(bool isInit) async {
+  Future<List<NoteDBISAR>> _getNoteTypeToDB(bool isInit) async {
     switch (widget.publicMomentsPageType) {
       case EPublicMomentsPageType.all:
         return await Moment.sharedInstance.loadAllNotesFromDB(
@@ -453,7 +453,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
-  Future<List<NoteDB>> _getNoteTypeToRelay() async {
+  Future<List<NoteDBISAR>> _getNoteTypeToRelay() async {
     switch (widget.publicMomentsPageType) {
       case EPublicMomentsPageType.all:
         return await Moment.sharedInstance.loadAllNewNotesFromRelay(
@@ -476,14 +476,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<void> _getNotesFromRelay() async {
     try {
-      List<NoteDB> list = await _getNoteTypeToRelay();
+      List<NoteDBISAR> list = await _getNoteTypeToRelay();
 
       if (list.isEmpty) {
         _refreshController.loadNoData();
         return;
       }
 
-      List<NoteDB> showList = _filterNotes(list);
+      List<NoteDBISAR> showList = _filterNotes(list);
       _updateUI(showList, false, list.length);
     } catch (e) {
       print('Error loading notes from relay: $e');
@@ -491,14 +491,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     }
   }
 
-  List<NoteDB> _filterNotes(List<NoteDB> list) {
+  List<NoteDBISAR> _filterNotes(List<NoteDBISAR> list) {
     return list
         .where(
-            (NoteDB note) => !note.isReaction && note.getReplyLevel(null) < 2)
+            (NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2)
         .toList();
   }
 
-  void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {
+  void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
     List<ValueNotifier<NotedUIModel>> list = showList
         .map((note) => ValueNotifier(NotedUIModel(noteDB: note)))
         .toList();
@@ -520,12 +520,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     setState(() {});
   }
 
-  void _notificationUpdateNotes(List<NoteDB> notes) async {
+  void _notificationUpdateNotes(List<NoteDBISAR> notes) async {
     if (notes.isEmpty) return;
-    List<NoteDB> personalNoteList = [];
-    List<NoteDB> groupNoteList = [];
+    List<NoteDBISAR> personalNoteList = [];
+    List<NoteDBISAR> groupNoteList = [];
 
-    for (NoteDB noteDB in notes) {
+    for (NoteDBISAR noteDB in notes) {
       bool isGroupNoted = noteDB.groupId.isNotEmpty;
       isGroupNoted ? groupNoteList.add(noteDB) : personalNoteList.add(noteDB);
     }
@@ -583,7 +583,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   @override
-  didNewNotesCallBackCallBack(List<NoteDB> notes) {
+  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {
     _notificationUpdateNotes(notes);
   }
 

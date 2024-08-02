@@ -598,7 +598,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     OKEvent? event;
 
-    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
@@ -664,7 +664,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String? groupId = widget.groupId;
     if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
     List<String> previous = Nip29.getPrevious([[groupId]]);
-    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value.noteDB;
     OKEvent result;
     OXLoading.show();
     if(currentPageType == EMomentType.quote && noteDB != null){

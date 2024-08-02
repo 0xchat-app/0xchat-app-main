@@ -328,7 +328,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
 
   int _getClickNum(EMomentOptionType type,NotedUIModel model){
-    NoteDB noteDB = model.noteDB;
+    NoteDBISAR noteDB = model.noteDB;
     switch(type){
       case EMomentOptionType.repost:
        return (noteDB.repostCount) + (noteDB.quoteRepostCount);
@@ -342,7 +342,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   bool _isClickByMe(EMomentOptionType type,NotedUIModel model){
-    NoteDB noteDB = model.noteDB;
+    NoteDBISAR noteDB = model.noteDB;
     switch(type){
       case EMomentOptionType.repost:
         return noteDB.repostCountByMe > 0;
@@ -363,7 +363,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
 
   void _updateNoteDB() async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
+    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
     if(note == null) return;
     if(mounted){
       setState(() {
@@ -408,7 +408,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   _updateZapsUIWithUnreal(int amount) {
-    NoteDB newNote = widget.notedUIModel.value.noteDB;
+    NoteDBISAR newNote = widget.notedUIModel.value.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
     newNote.zapAmountByMe = amount;
 

@@ -274,7 +274,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
 
   Future<void> updateNotesList(bool isInit) async {
     try {
-      List<NoteDB> list = await RelayGroup.sharedInstance.loadGroupNotesFromDB(
+      List<NoteDBISAR> list = await RelayGroup.sharedInstance.loadGroupNotesFromDB(
               widget.groupId,
               until: isInit ? null : _allNotesFromDBLastTimestamp,
               limit: _limit) ??
@@ -286,7 +286,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         return;
       }
 
-      List<NoteDB> showList = _filterNotes(list);
+      List<NoteDBISAR> showList = _filterNotes(list);
       _updateUI(showList, isInit, list.length);
 
       if (list.length < _limit) {
@@ -336,14 +336,14 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
     }
   }
 
-  List<NoteDB> _filterNotes(List<NoteDB> list) {
+  List<NoteDBISAR> _filterNotes(List<NoteDBISAR> list) {
     return list
         .where(
-            (NoteDB note) => !note.isReaction && note.getReplyLevel(null) < 2)
+            (NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2)
         .toList();
   }
 
-  void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {
+  void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
     List<ValueNotifier<NotedUIModel>> list = showList
         .map((note) => ValueNotifier(NotedUIModel(noteDB: note)))
         .toList();
@@ -366,13 +366,13 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   @override
-  didNewNotesCallBackCallBack(List<NoteDB> notes) {}
+  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {}
 
   @override
   didNewNotificationCallBack(List<NotificationDB> notifications) {}
 
   @override
-  didGroupsNoteCallBack(NoteDB notes) {
+  didGroupsNoteCallBack(NoteDBISAR notes) {
     if(notes.groupId == widget.groupId){
       notesList = [...[ValueNotifier(NotedUIModel(noteDB: notes))],...notesList];
       setState(() {});

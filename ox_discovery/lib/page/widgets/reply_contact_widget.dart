@@ -62,7 +62,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
     final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
 
     if (notedUIModelCache[getReplyId] == null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
       if (note == null) {
         if(mounted){
           setState(() {});

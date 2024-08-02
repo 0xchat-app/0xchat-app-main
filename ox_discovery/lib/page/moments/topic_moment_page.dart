@@ -135,10 +135,10 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
   Future<void> _updateNotesList(bool isInit)async {
     if(isInit) OXLoading.show();
 
-    List<NoteDB> list = await Moment.sharedInstance.loadHashTagsFromRelay([widget.title.substring(1)], limit: _limit, until:_lastTimestamp) ?? [];
+    List<NoteDBISAR> list = await Moment.sharedInstance.loadHashTagsFromRelay([widget.title.substring(1)], limit: _limit, until:_lastTimestamp) ?? [];
     if(isInit) OXLoading.dismiss();
 
-    list = list.where((NoteDB note) => !note.isReaction).toList();
+    list = list.where((NoteDBISAR note) => !note.isReaction).toList();
 
     (notesList ??= []).addAll(list.map((note) => ValueNotifier(NotedUIModel(noteDB: note))).toList());
     _lastTimestamp = list.isEmpty ? null : list.last.createAt;

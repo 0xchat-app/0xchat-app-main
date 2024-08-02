@@ -158,7 +158,7 @@ class _MomentWidgetState extends State<MomentWidget> {
           if(content.contains('nostr:nevent')){
             neventId = content;
           }else{
-            final noteInfo = NoteDB.decodeNote(content);
+            final noteInfo = NoteDBISAR.decodeNote(content);
             noteId = noteInfo?['channelId'];
 
           }
@@ -394,7 +394,7 @@ class _MomentWidgetState extends State<MomentWidget> {
         }).toList()
       ],
     ).then((value)async {
-      NoteDB? noteDB = notedUIModel?.value.noteDB;
+      NoteDBISAR? noteDB = notedUIModel?.value.noteDB;
       if (noteDB == null) {
         CommonToast.instance.show(context, 'Option fail');
         return;
@@ -428,7 +428,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     ValueNotifier<NotedUIModel> model = widget.notedUIModel;
     if (!widget.isShowInteractionData) return const SizedBox();
 
-    NoteDB noteDB = model.value.noteDB;
+    NoteDBISAR noteDB = model.value.noteDB;
 
     List<String> repostEventIds = noteDB.repostEventIds ?? [];
     List<String> quoteRepostEventIds = noteDB.quoteRepostEventIds ?? [];
@@ -597,7 +597,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   void _getRepostId(String repostId) async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
+    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(repostId);
     final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
     if (note == null) {
       notedUIModelCache[repostId] = null;

@@ -68,7 +68,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
       if(notedUIModelCache[notedId] != null){
         notedUIModel = notedUIModelCache[notedId];
       }else{
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
+        NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
         if (note == null) return;
         notedUIModel = NotedUIModel(noteDB:note);
         notedUIModelCache[notedId] = notedUIModel;
@@ -84,7 +84,7 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     if(notedId != null){
 
       if (notedUIModelCache[notedId] == null) {
-        NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId,relays: widget.relays);
+        NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId,relays: widget.relays);
         if (note == null) return;
         notedUIModelCache[notedId] = NotedUIModel(noteDB: note);
       }
