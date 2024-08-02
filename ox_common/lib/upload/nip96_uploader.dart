@@ -10,6 +10,7 @@ import 'base64.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:chatcore/chat-core.dart';
 import 'nip96_info_loader.dart';
+import 'package:http_parser/http_parser.dart';
 
 class NIP96Uploader {
   static var dio = Dio();
@@ -51,25 +52,17 @@ class NIP96Uploader {
     // log("file size is ${bytes.length}");
 
     payload = HashUtil.sha256Bytes(bytes);
+    final mimeType = lookupMimeType(filePath) ?? 'application/octet-stream';
     multipartFile = MultipartFile.fromBytes(
       bytes,
       filename: fileName,
+      contentType: MediaType.parse(mimeType)
     );
 
     Map<String, String>? headers = {};
-    if (StringUtil.isNotBlank(fileName)) {
-      var mt = lookupMimeType(fileName!);
-      if (StringUtil.isNotBlank(mt)) {
-        headers["Content-Type"] = mt!;
-      }
-    }
     if (StringUtil.isBlank(headers["Content-Type"])) {
-      if (multipartFile.contentType != null) {
-        headers["Content-Type"] = multipartFile.contentType!.mimeType;
-      } else {
         headers["Content-Type"] = "multipart/form-data";
       }
-    }
 
     if (isNip98Required) {
       List<List<String>> tags = [];
