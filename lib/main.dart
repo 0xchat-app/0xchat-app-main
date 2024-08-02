@@ -240,7 +240,7 @@ class MainState extends State<MainApp>
         DB.sharedInstance.batchApply();
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
-        if (CallManager.instance.getInCallIng){
+        if (CallManager.instance.getInCallIng && CallManager.instance.isAudioVoice){
           OXCommon.channelPreferences.invokeMethod('startVoiceCallService', {'notice_voice_title': CallManager.instance.otherName, 'notice_voice_content': Localized.text('ox_calling.str_voice_call_in_use')});
         }
         break;
