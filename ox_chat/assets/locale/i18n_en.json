@@ -177,7 +177,7 @@
   "scan_qr_code_join_group": "Scan the QR code to join the group",
   "group_share": "Group share",
   "group_invited_item": "${name} invited you to join the Group",
-  "request_group_chat_button": "Request Group Chat",
+  "request_group_chat_button": "Request to Join Group",
   "join_group_chat_button": "Join Group Chat",
   "jump_group_chat_button": "Jump Group Chat",
   "confirm_join_dialog_content": "The group owner has required 'invitation Approval'. you can add an join reason to give the group owner and admin.",
