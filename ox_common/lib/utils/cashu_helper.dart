@@ -25,7 +25,7 @@ class CashuHelper {
       } else {
         pwd = generateStrongPassword(16);
       }
-      await _saveDBPassword(pubkey, oldPwd);
+      await _saveDBPassword(pubkey, pwd);
     }
 
     LogUtil.d('[CashuDB init] dbpw: $pwd');
