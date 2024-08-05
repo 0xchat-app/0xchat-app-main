@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/model/ice_server_model.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 
 abstract mixin class OXServerObserver {
   void didAddICEServer(List<Map<String,String>> serverConfigList) {}
@@ -43,6 +44,8 @@ class OXServerManager {
 
   List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
   int get selectedFileStorageIndex  => _selectedFileStorageIndex;
+  bool _openP2p = false;
+  bool get openP2pValue => _openP2p;
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
@@ -60,6 +63,7 @@ class OXServerManager {
     }
     _selectedFileStorageIndex = await getSelectedFileStorageServer();
     selectedFileStorageServer = fileStorageServers[_selectedFileStorageIndex];
+    _openP2p = await getOpenP2p();
   }
 
   Future<void> addServer(ICEServerModel iceServerModel) async {
@@ -109,6 +113,17 @@ class OXServerManager {
   Future<void> saveFileStorageServers(List<FileStorageServer> fileStorageServers) async {
     final jsonString = jsonEncode(fileStorageServers.map((fileStorageServer) => fileStorageServer.toJson(fileStorageServer)).toList());
     await OXCacheManager.defaultOXCacheManager.saveForeverData(fileStorageServer, jsonString);
+  }
+
+  Future<bool> getOpenP2p() async {
+    bool openP2p = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_P2P.name, defaultValue: false);
+    return openP2p;
+  }
+
+  Future<bool> saveOpenP2p(bool value) async {
+    _openP2p = value;
+    bool openP2p = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_P2P.name, value);
+    return openP2p;
   }
 
   Future<List<FileStorageServer>> getFileStorageServers() async{
