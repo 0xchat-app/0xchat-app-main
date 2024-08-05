@@ -366,6 +366,7 @@ class OXUserInfoManager {
     initDataActions.forEach((fn) {
       fn();
     });
+    await EventCache.sharedInstance.loadAllEventsFromDB();
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
