@@ -176,6 +176,13 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   void _tabClick(int value,int currentSelect) {
     if(value == 2 && currentSelect == 2){
       discoveryGlobalKey.currentState?.updateClickNum(1);
+
+    }
+
+    if(value == 2){
+      Moment.sharedInstance.updateSubscriptions();
+    } else{
+      Moment.sharedInstance.closeSubscriptions();
     }
 
     _pageController.animateToPage(
