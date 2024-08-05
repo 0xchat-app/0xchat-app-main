@@ -1,3 +1,4 @@
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:chatcore/chat-core.dart';
 
@@ -71,6 +72,24 @@ class GroupUIModel {
       closed: groupDB.closed,
       private: groupDB.private,
       chatType: ChatType.chatRelayGroup,
+    );
+  }
+
+  static GroupUIModel channeldbToUIModel(ChannelDBISAR channelDB){
+    String? channelName = channelDB.name;
+    if(channelName == null || channelName.isEmpty) channelName = channelDB.shortChannelId;
+    return GroupUIModel(
+      name: channelName,
+      groupId: channelDB.channelId,
+      about: channelDB.about,
+      mute: channelDB.mute ?? false,
+      owner: channelDB.creator,
+      picture: channelDB.picture,
+      relay: channelDB.relayURL,
+      updateTime: channelDB.createTime,
+      closed: false,
+      private: false,
+      chatType: ChatType.chatChannel,
     );
   }
 }
