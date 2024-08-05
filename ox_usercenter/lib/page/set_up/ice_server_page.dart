@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/ice_server_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -31,11 +33,13 @@ class _ICEServerPageState extends State<ICEServerPage> {
   bool _isEditing = false;
   bool _isShowDelete = false;
   bool _isShowAdd = false;
+  bool _isOpenP2P = false;
 
   @override
   void initState() {
     super.initState();
     _recommendICEServerList.addAll(ICEServerModel.defaultICEServers);
+    _isOpenP2P = OXServerManager.sharedInstance.openP2pValue;
     _initData();
   }
 
@@ -97,6 +101,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildItem(Localized.text('ox_usercenter.connect_ice_server'), _buildICEServerTextField()),
+            _buildP2pStatusWidget(),
             SizedBox(
               height: Adapt.px(12),
             ),
@@ -105,6 +110,33 @@ class _ICEServerPageState extends State<ICEServerPage> {
             _recommendICEServerList.isNotEmpty ? _buildItem(Localized.text('ox_usercenter.recommend_ice_server'), _buildICEServerList(_recommendICEServerList,type: ICEServerType.recommend)) : Container(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildP2pStatusWidget() {
+    return Container(
+      width: double.infinity,
+      height: Adapt.px(52),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.px),
+        color: ThemeColor.color180,
+      ),
+      margin: EdgeInsets.only(top: 12.px),
+      padding: EdgeInsets.only(left: 16.px),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'P2P',
+            style: TextStyle(
+              color: ThemeColor.color0,
+              fontSize: Adapt.px(16),
+            ),
+          ),
+          _p2pSwitchWidget(),
+        ],
       ),
     );
   }
@@ -401,5 +433,23 @@ class _ICEServerPageState extends State<ICEServerPage> {
   void dispose() {
     super.dispose();
     _iceServerTextFieldController.dispose();
+  }
+
+  Widget _p2pSwitchWidget() {
+    return Switch(
+      value: _isOpenP2P,
+      activeColor: Colors.white,
+      activeTrackColor: ThemeColor.gradientMainStart,
+      inactiveThumbColor: Colors.white,
+      inactiveTrackColor: ThemeColor.color160,
+      onChanged: (value) => _changeP2PFn(value),
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+    );
+  }
+
+  Future<void> _changeP2PFn(bool value) async {
+    _isOpenP2P = value;
+    await OXServerManager.sharedInstance.saveOpenP2p(value);
+    setState(() {});
   }
 }
