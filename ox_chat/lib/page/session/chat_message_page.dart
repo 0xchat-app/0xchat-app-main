@@ -150,7 +150,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     else{
       // connect to other uer dm relays
       Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId).then((result){
-         if(!result){
+         if(!result && mounted){
            chatGeneralHandler.sendSystemMessage(
              context,
              Localized.text('ox_chat.user_dmrelay_not_connect_hint_message'),
