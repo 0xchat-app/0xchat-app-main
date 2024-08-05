@@ -322,5 +322,6 @@
   "hours": "hours",
   "minutes": "minutes",
   "and": "and",
-  "str_group_admin_permission_success_toast": "Permission changed successfully."
+  "str_group_admin_permission_success_toast": "Permission changed successfully.",
+  "str_dm_auto_delete_hint": "Messages auto-deleted after ${time}"
 }

@@ -65,6 +65,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
+    _handleAutoDelete();
     _handelDMRelay();
   }
 
@@ -136,6 +137,25 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
 
   Future<void> _loadMoreMessages() async {
     await chatGeneralHandler.loadMoreMessage(_messages);
+  }
+
+  void _handleAutoDelete() {
+    int? time = session.expiration;
+    String timeStr = '';
+    if(time != null && time > 0){
+      if(time >= 24 * 3600){
+        timeStr = (time ~/ (24*3600)).toString() + ' ' + Localized.text('ox_chat.day');
+      } else if (time >= 3600){
+        timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
+      } else {
+        timeStr = (time ~/ 60).toString() + ' ' + Localized.text('ox_chat.minutes');
+      }
+      chatGeneralHandler.sendSystemMessage(
+        context,
+        Localized.text('ox_chat.str_dm_auto_delete_hint').replaceAll(r'${time}', timeStr),
+        sendingType: ChatSendingType.memory,
+      );
+    }
   }
 
   Future<void> _handelDMRelay() async {

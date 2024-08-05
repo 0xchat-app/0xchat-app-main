@@ -447,7 +447,7 @@ class InputState extends State<Input>{
 
           String timeStr;
           if(time >= 24 * 3600){
-            timeStr = (time ~/ (24*3600)).toString() + Localized.text('ox_chat.day');
+            timeStr = (time ~/ (24*3600)).toString() + ' ' + Localized.text('ox_chat.day');
           } else if (time >= 3600){
             timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
           } else {

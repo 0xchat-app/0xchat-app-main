@@ -991,7 +991,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             String username = Account.sharedInstance.me?.name ?? '';
             String timeStr;
             if(time >= 24 * 3600){
-              timeStr = (time ~/ (24*3600)).toString() + Localized.text('ox_chat.day');
+              timeStr = (time ~/ (24*3600)).toString() + ' ' + Localized.text('ox_chat.day');
             } else if (time >= 3600){
               timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
             } else {
