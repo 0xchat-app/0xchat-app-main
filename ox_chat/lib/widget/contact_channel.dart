@@ -351,9 +351,9 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
           chatId: widget.item.channelId,
           groupId: widget.item.channelId,
           chatType: ChatType.chatChannel,
-          chatName: widget.item.name!,
+          chatName: widget.item.name ?? '',
           createTime: widget.item.createTime,
-          avatar: widget.item.picture!,
+          avatar: widget.item.picture ?? '',
         ),
       ),
     );

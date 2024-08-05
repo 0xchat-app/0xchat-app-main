@@ -55,7 +55,7 @@ class _ContractsPageState extends State<ContractsPage>
     tabItems = [
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
-      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
+      // CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
     ];
   }
 
@@ -147,11 +147,11 @@ class _ContractsPageState extends State<ContractsPage>
             shrinkWrap: false,
             topWidget: _topSearch(),
           ),
-          ContactViewChannels(
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: false,
-            topWidget: _topSearch(),
-          ),
+          // ContactViewChannels(
+          //   physics: BouncingScrollPhysics(),
+          //   shrinkWrap: false,
+          //   topWidget: _topSearch(),
+          // ),
         ],
       ),
     );
@@ -294,7 +294,7 @@ class _ContractsPageState extends State<ContractsPage>
         if (_isShowTools)
           Container(
             alignment: Alignment.centerLeft,
-            height: _selectedType != ContactsItemType.channel ? 68.px : 24.px,
+            height: 68.px,
             color: ThemeColor.color200,
             child: ListView.builder(
                 padding: EdgeInsets.only(left: Adapt.px(24)),
@@ -392,7 +392,7 @@ class _Style {
 enum ContactsItemType{
   contact,
   group,
-  channel,
+  // channel,
 }
 
 class GroupCreateModel{
