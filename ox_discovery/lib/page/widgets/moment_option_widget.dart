@@ -188,7 +188,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     GestureTapCallback? onTap,
     int? clickNum,
   }) {
-    final content = clickNum == null || clickNum == 0 ? type.text : clickNum.toString();
+    final content = clickNum == null || clickNum == 0 ? '' : clickNum.toString();
     Color textColors = isSelect ? ThemeColor.gradientMainStart : ThemeColor.color80;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,

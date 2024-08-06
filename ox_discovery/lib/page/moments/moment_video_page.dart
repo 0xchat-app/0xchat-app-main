@@ -311,10 +311,17 @@ class _CustomControlsState extends State<CustomControls> {
                   onTap: () async {
                     await OXLoading.show();
                     if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
-                      var appDocDir = await getTemporaryDirectory();
-                      String savePath = appDocDir.path + "/temp.mp4";
-                      await Dio().download(widget.videoUrl, savePath);
-                      final result = await ImageGallerySaver.saveFile(savePath);
+                      var result;
+                      final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+                      if(fileInfo != null){
+                        result = await ImageGallerySaver.saveFile(fileInfo.file.path);
+                      }else{
+                        var appDocDir = await getTemporaryDirectory();
+                        String savePath = appDocDir.path + "/temp.mp4";
+                        await Dio().download(widget.videoUrl, savePath);
+                        result = await ImageGallerySaver.saveFile(savePath);
+                      }
+
                       if (result['isSuccess'] == true) {
                         await OXLoading.dismiss();
                         CommonToast.instance.show(context, 'Save successful');

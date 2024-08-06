@@ -99,18 +99,18 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
         }
         notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(Duration.zero);
+
+        final RenderBox renderBox =
+        _contentContainerKey.currentContext?.findRenderObject() as RenderBox;
+        final size = renderBox.size;
+        _scrollToPosition(size.height - 60);
+
+        setState(() {});
+      });
     }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(Duration.zero);
-
-      final RenderBox renderBox =
-          _contentContainerKey.currentContext?.findRenderObject() as RenderBox;
-      final size = renderBox.size;
-      _scrollToPosition(size.height - 60);
-
-      setState(() {});
-    });
 
     if (mounted) {
       setState(() {});
@@ -209,13 +209,15 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   }
 
   Widget _placeholderRollWidget() {
+    if(widget.notedUIModel.value.noteDB.noteId == notedUIModel?.value.noteDB.noteId) return const SizedBox();
     final renderBox = _contentContainerKey.currentContext?.findRenderObject();
     final replyListRenderBox =
         _replyListContainerKey.currentContext?.findRenderObject();
     final screenHeight = MediaQuery.of(context).size.height;
 
-    if (renderBox == null || replyListRenderBox == null)
+    if (renderBox == null || replyListRenderBox == null){
       return const SizedBox();
+    }
 
     final size = (renderBox as RenderBox).size;
     final replySize = (replyListRenderBox as RenderBox).size;
@@ -354,7 +356,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   ValueNotifier<NotedUIModel>? secondReplyNoted;
   ValueNotifier<NotedUIModel>? thirdReplyNoted;
 
-  bool isShowReplies = false;
+  bool isShowReplies = true;
 
   @override
   void initState() {
@@ -408,6 +410,8 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
     if (index == 1) {
       secondReplyNoted = result.isNotEmpty ? result[0] : null;
       if (secondReplyNoted != null) {
+        isShowReplies = false;
+        setState(() {});
         _getReplyList(secondReplyNoted!, 2);
       }
     }
@@ -424,17 +428,20 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Column(
-      children: [
-        MomentReplyWidget(
-          notedUIModel: widget.notedUIModel,
-          isShowLink: firstReplyNoted != null,
-        ),
-        _showRepliesWidget(),
-        _firstReplyWidget(),
-        _secondReplyWidget(),
-        _thirdReplyWidget(),
-      ],
+    return Container(
+
+      child: Column(
+        children: [
+          MomentReplyWidget(
+            notedUIModel: widget.notedUIModel,
+            isShowLink: firstReplyNoted != null,
+          ),
+          _firstReplyWidget(),
+          _secondReplyWidget(),
+          _thirdReplyWidget(),
+          _showRepliesWidget(),
+        ],
+      ),
     );
   }
 
@@ -595,10 +602,10 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                 ),
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.all(8.px),
                     padding: EdgeInsets.only(
                       bottom: 16.px,
                     ),
+                    margin: EdgeInsets.all(8.px),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
