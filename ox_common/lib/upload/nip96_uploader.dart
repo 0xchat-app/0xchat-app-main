@@ -15,8 +15,10 @@ import 'package:http_parser/http_parser.dart';
 class NIP96Uploader {
   static var dio = Dio();
 
-  static Future<String?> upload(String serverUrl, String filePath,
-      {String? fileName}) async {
+  static Future<String?> upload(String serverUrl, String filePath, {
+    String? fileName,
+    Function(double progress)? onProgress,
+  }) async {
     var sa = await NIP96InfoLoader.getInstance().getServerAdaptation(serverUrl);
     if (sa == null || StringUtil.isBlank(sa.apiUrl)) {
       return null;
@@ -86,10 +88,14 @@ class NIP96Uploader {
     var formData = FormData.fromMap({"file": multipartFile});
     try {
       var response = await dio.post(sa.apiUrl!,
-          data: formData,
-          options: Options(
-            headers: headers,
-          ));
+        data: formData,
+        options: Options(
+          headers: headers,
+        ),
+        onSendProgress: (count, total) {
+          onProgress?.call(count / total);
+        },
+      );
       var body = response.data;
       // log(jsonEncode(response.data));
       if (body is Map<String, dynamic> &&

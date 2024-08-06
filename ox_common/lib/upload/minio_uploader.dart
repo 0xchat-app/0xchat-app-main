@@ -43,12 +43,26 @@ class MinioUploader {
     return _instance!;
   }
 
-  Future<String> uploadFile({required File file, required String filename, required FileType fileType}) async {
+  Future<String> uploadFile({
+    required File file,
+    required String filename,
+    required FileType fileType,
+    Function(double progress)? onProgress,
+  }) async {
+    const presignedProgressRatio = 0.1;
     final fileFolder = getFileFolders(fileType);
     final objectName = '$fileFolder$filename';
-    await _minio.fPutObject(bucketName, objectName, file.path);
+    await _minio.fPutObject(
+      bucketName,
+      objectName,
+      file.path,
+      null,
+      (progress) => onProgress?.call(progress * (1 - presignedProgressRatio)),
+    );
     int expires = 7 * 24 * 60 * 60;
-    return await _minio.presignedGetObject(bucketName, objectName, expires: expires);
+    final url = await _minio.presignedGetObject(bucketName, objectName, expires: expires);
+    onProgress?.call(1.0);
+    return url;
   }
 
   Future<bool> bucketExists() async {

@@ -15,8 +15,10 @@ import 'package:chatcore/chat-core.dart';
 class BolssomUploader {
   static var dio = Dio();
 
-  static Future<String?> upload(String endPoint, String filePath,
-      {String? fileName}) async {
+  static Future<String?> upload(String endPoint, String filePath, {
+    String? fileName,
+    Function(double progress)? onProgress,
+  }) async {
     var uri = Uri.tryParse(endPoint);
     if (uri == null) {
       return null;
@@ -98,6 +100,9 @@ class BolssomUploader {
             return true;
           },
         ),
+        onSendProgress: (count, total) {
+          onProgress?.call(count / total);
+        },
       );
       var body = response.data;
       log(jsonEncode(response.data));

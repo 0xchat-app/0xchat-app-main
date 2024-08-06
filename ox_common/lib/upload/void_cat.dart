@@ -16,7 +16,10 @@ import 'nostr_build_uploader.dart';
 class VoidCatUploader {
   static final String UPLOAD_ACTION = "https://void.cat/upload?cli=true";
 
-  static Future<String?> upload(String filePath, {String? fileName}) async {
+  static Future<String?> upload(String filePath, {
+    String? fileName,
+    Function(double progress)? onProgress,
+  }) async {
     var extName = "";
 
     Uint8List? bytes;
@@ -55,6 +58,9 @@ class VoidCatUploader {
         options: Options(
           headers: headers,
         ),
+        onSendProgress: (count, total) {
+          onProgress?.call(count / total);
+        },
       );
       var body = response.data;
 

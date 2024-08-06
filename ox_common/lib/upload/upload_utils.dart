@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:minio/minio.dart';
@@ -26,6 +27,7 @@ class UploadUtils {
     required String filename,
     required FileType fileType,
     bool showLoading = true,
+    Function(double progress)? onProgress,
   }) async {
     File? encryptedFile;
     if(encryptedKey != null) {
@@ -49,32 +51,46 @@ class UploadUtils {
     String url = '';
     if(_showLoading) OXLoading.show();
     try {
-      if (fileStorageServer.protocol == FileStorageProtocol.nip96 || fileStorageServer.protocol == FileStorageProtocol.blossom) {
-        final imageServices = fileStorageServer.name;
-        url = await Uploader.upload(file.path, imageServices, fileName: filename,imageServiceAddr: fileStorageServer.url) ?? '';
-      }
-
-      if(fileStorageServer.protocol == FileStorageProtocol.minio) {
-        MinioServer minioServer = fileStorageServer as MinioServer;
-        MinioUploader.init(
-          url: minioServer.url,
-          accessKey: minioServer.accessKey,
-          secretKey: minioServer.secretKey,
-          bucketName: minioServer.bucketName,
-          useSSL: minioServer.useSSL,
-          port: minioServer.port,
-        );
-        url = await MinioUploader.instance.uploadFile(file: file, filename: filename, fileType: fileType);
-      }
-
-      if (fileStorageServer.protocol == FileStorageProtocol.oss) {
-        url = await UplodAliyun.uploadFileToAliyun(
-          context: context,
-          file: file,
-          filename: filename,
-          fileType: convertFileTypeToUploadAliyunType(fileType),
-          showLoading: showLoading,
-        );
+      final protocol = fileStorageServer.protocol;
+      switch (protocol) {
+        case  FileStorageProtocol.nip96:
+        case  FileStorageProtocol.blossom:
+          final imageServices = fileStorageServer.name;
+          url = await Uploader.upload(
+              file.path,
+              imageServices,
+              fileName: filename,
+              imageServiceAddr: fileStorageServer.url,
+              onProgress: onProgress,
+          ) ?? '';
+          break;
+        case FileStorageProtocol.minio:
+          MinioServer minioServer = fileStorageServer as MinioServer;
+          MinioUploader.init(
+            url: minioServer.url,
+            accessKey: minioServer.accessKey,
+            secretKey: minioServer.secretKey,
+            bucketName: minioServer.bucketName,
+            useSSL: minioServer.useSSL,
+            port: minioServer.port,
+          );
+          url = await MinioUploader.instance.uploadFile(
+            file: file,
+            filename: filename,
+            fileType: fileType,
+            onProgress: onProgress,
+          );
+          break;
+        case FileStorageProtocol.oss:
+          url = await UplodAliyun.uploadFileToAliyun(
+            context: context,
+            file: file,
+            filename: filename,
+            fileType: convertFileTypeToUploadAliyunType(fileType),
+            showLoading: showLoading,
+            onProgress: onProgress,
+          );
+          break;
       }
       if(_showLoading) OXLoading.dismiss();
     } catch (e,s) {
@@ -111,6 +127,11 @@ class UploadResult {
 
   factory UploadResult.error(String errorMsg) {
     return UploadResult(isSuccess: false, url: '', errorMsg: errorMsg);
+  }
+
+  @override
+  String toString() {
+    return '${super.toString()}, url: $url, isSuccess: $isSuccess, errorMsg: $errorMsg';
   }
 }
 
@@ -156,5 +177,49 @@ class UploadExceptionHandler {
       errorMsg = httpException.message;
     }
     return errorMsg;
+  }
+}
+
+class UploadManager {
+  static final UploadManager shared = UploadManager._internal();
+  UploadManager._internal() { }
+
+  Map<String, StreamController<double>> uploadStreamMap = {};
+
+  Future<void> uploadImage({
+    required FileType fileType,
+    required String filePath,
+    required String messageId,
+    required uploadId,
+    String? encryptedKey,
+  }) async {
+    if (uploadStreamMap.containsKey(uploadId)) return ;
+    
+    final streamController = StreamController<double>();
+    uploadStreamMap[uploadId] = streamController;
+
+    final file = File(filePath);
+    
+    UploadUtils.uploadFile(
+      file: file,
+      filename: 'test.heic',
+      fileType: FileType.image,
+      onProgress: (progress) {
+        streamController.add(progress);
+      }
+    ).then((result) {
+      streamController.close();
+      if (!result.isSuccess) {
+        uploadStreamMap.remove(uploadId);
+      }
+    });
+  }
+
+  Stream<double> getUploadProgress(String uploadId) {
+    final controller = uploadStreamMap[uploadId];
+    if (controller == null) {
+      return Stream.value(0.0);
+    }
+    return controller.stream;
   }
 }
