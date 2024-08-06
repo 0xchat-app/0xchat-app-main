@@ -282,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginWithAmber() async {
-    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+    bool isInstalled = await CoreMethodChannel.isInstalledAmber();
     if (mounted && !isInstalled) {
       CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
       return;
@@ -297,6 +297,7 @@ class _LoginPageState extends State<LoginPage> {
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
     UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
     if (userDB == null) {
+      await OXLoading.dismiss();
       CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
       return;
     }
@@ -304,8 +305,7 @@ class _LoginPageState extends State<LoginPage> {
       UserConfigTool.saveUser(value);
       UserConfigTool.updateSettingFromDB(value.settings);
     });
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
-    OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', true);
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
     AppInitializationManager.shared.showInitializationLoading();

@@ -1,8 +1,9 @@
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -11,11 +12,9 @@ import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -33,7 +32,6 @@ import 'package:ox_usercenter/page/set_up/settings_page.dart';
 import 'package:ox_usercenter/page/set_up/switch_account_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:cashu_dart/cashu_dart.dart';
 
 class UserCenterPage extends StatefulWidget {
   const UserCenterPage({Key? key}) : super(key: key);
@@ -42,7 +40,7 @@ class UserCenterPage extends StatefulWidget {
   State<UserCenterPage> createState() => _UserCenterPageState();
 }
 
-class _UserCenterPageState extends BasePageState<UserCenterPage>
+class _UserCenterPageState extends State<UserCenterPage>
     with
         TickerProviderStateMixin,
         OXUserInfoObserver,
@@ -174,35 +172,34 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         centerTitle: false,
         canBack: false,
         actions: <Widget>[
-          isLogin
-              ? Container(
-                  margin: EdgeInsets.only(right: Adapt.px(5)),
-                  color: Colors.transparent,
-                  child: OXButton(
-                    highlightColor: Colors.transparent,
-                    color: Colors.transparent,
-                    minWidth: Adapt.px(44),
-                    height: Adapt.px(44),
-                    child: Text(
-                      Localized.text('ox_common.edit'),
-                      style: TextStyle(
-                        fontSize: Adapt.px(16),
-                        fontWeight: FontWeight.w600,
-                        color: ThemeColor.color0,
-                      ),
-                    ),
-                    onPressed: () {
-                      OXNavigator.push(
-                              context,
-                              SlideBottomToTopRoute(
-                                  page: const ProfileSetUpPage()))
-                          .then((value) {
-                        setState(() {});
-                      });
-                    },
+          if (isLogin)
+            Container(
+              margin: EdgeInsets.only(right: Adapt.px(5)),
+              color: Colors.transparent,
+              child: OXButton(
+                highlightColor: Colors.transparent,
+                color: Colors.transparent,
+                minWidth: Adapt.px(44),
+                height: Adapt.px(44),
+                child: Text(
+                  Localized.text('ox_common.edit'),
+                  style: TextStyle(
+                    fontSize: Adapt.px(16),
+                    fontWeight: FontWeight.w600,
+                    color: ThemeColor.color0,
                   ),
-                )
-              : Container(),
+                ),
+                onPressed: () {
+                  OXNavigator.push(
+                      context,
+                      SlideBottomToTopRoute(
+                          page: const ProfileSetUpPage()))
+                      .then((value) {
+                    setState(() {});
+                  });
+                },
+              ),
+            ),
         ],
       ),
       body: commonStateViewWidget(
@@ -479,7 +476,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     badgeImgUrl == null
-                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() : Container())
+                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() :const SizedBox())
                         : OXCachedNetworkImage(
                       imageUrl: badgeImgUrl,
                       placeholder: (context, url) => placeholderImage,
@@ -802,5 +799,11 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  void didSwitchUser(UserDBISAR? userInfo) {
+    if (mounted) {
+      if (OXUserInfoManager.sharedInstance.isLogin) updateStateView(CommonStateView.CommonStateView_None);
+      _verifiedDNS();
+    }
+  }
+
 }

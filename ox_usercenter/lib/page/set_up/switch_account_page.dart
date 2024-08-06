@@ -1,14 +1,19 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_tool.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -123,22 +128,17 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
   }
 
   Widget _buildAccountList() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Adapt.px(16)),
-        color: ThemeColor.color180,
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 0),
+      shrinkWrap: true,
+      itemBuilder: (BuildContext context, int index) {
+        return _buildItem(index);
+      },
+      separatorBuilder: (BuildContext context, int index) => Divider(
+        height: 16.px,
+        color: ThemeColor.color200,
       ),
-      child: ListView.separated(
-        padding: const EdgeInsets.only(bottom: 0),
-        shrinkWrap: true,
-        itemBuilder: (BuildContext context, int index) {
-          return _buildItem(index);
-        },
-        separatorBuilder: (BuildContext context, int index) => Divider(
-          height: 16.px,
-        ),
-        itemCount: _userCacheList.length,
-      ),
+      itemCount: _userCacheList.length,
     );
   }
 
@@ -153,16 +153,18 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
         if (isAdd) {
           OXModuleService.pushPage(context, 'ox_login', 'LoginPage', {});
         } else {
-          String pubkey = multipleUserModel?.pubKey ?? '';
-          if (pubkey.isEmpty) {
+          String pubKey = multipleUserModel?.pubKey ?? '';
+          if (pubKey.isEmpty) {
             CommonToast.instance.show(context, 'PubKey is empty, try other.');
             return;
           }
-          _selectedIndex == index;
-          setState(() {});
-          await OXLoading.show();
-          await OXUserInfoManager.sharedInstance.switchAccount(pubkey);
-          await OXLoading.dismiss();
+          if (await _checkAccount(pubKey)) {
+            await OXLoading.show();
+            await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
+            await OXLoading.dismiss();
+            _selectedIndex = index;
+            setState(() {});
+          }
         }
       },
       child: Container(
@@ -187,6 +189,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
               fontWeight: FontWeight.w500,
             ) : Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 abbrText(
                   multipleUserModel?.name ?? '',
@@ -251,5 +254,50 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
       await UserConfigTool.deleteUser(_currentUserMap, pubkey);
       if (mounted) setState(() {});
     }
+  }
+
+  Future<bool> _checkAccount(String pubKey) async {
+    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
+    if (localIsLoginAmber != null && localIsLoginAmber) {
+      bool isInstalled = await CoreMethodChannel.isInstalledAmber();
+      bool signatureVerifyFailed = false;
+      if (isInstalled) {
+        String? signature = await ExternalSignerTool.getPubKey();
+        if (signature != null) {
+          String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+          if (decodeSignature == pubKey) {
+            signatureVerifyFailed = false;
+            return true;
+          } else {
+            signatureVerifyFailed = true;
+          }
+        }
+      }
+      if (mounted && (!isInstalled || signatureVerifyFailed)){
+        String showTitle = '';
+        String showContent = '';
+        if (!isInstalled) {
+          showTitle = 'ox_common.open_singer_app_error_title';
+          showContent = 'ox_common.open_singer_app_error_content';
+        } else if (signatureVerifyFailed){
+          showTitle = 'ox_common.tips';
+          showContent = 'ox_common.str_singer_app_verify_failed_hint';
+        }
+        OXCommonHintDialog.show(
+          context, title: Localized.text(showTitle), content: Localized.text(showContent),
+          actionList: [
+            OXCommonHintAction.sure(
+                text: Localized.text('ox_common.confirm'),
+                onTap: () {
+                  OXNavigator.pop(context);
+                }),
+          ],
+        );
+      }
+      //verify failed
+      return false;
+    }
+    //nesc
+    return true;
   }
 }
