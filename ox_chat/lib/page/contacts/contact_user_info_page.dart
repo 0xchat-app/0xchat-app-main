@@ -218,8 +218,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((user) {
       userDB.updateWith(user);
       if(mounted) setState(() {});
-      UserConfigTool.saveUser(user);
-      UserConfigTool.updateSettingFromDB(user.settings);
     });
     OXChatBinding.sharedInstance.updateChatSession(userDB.pubKey,
         chatName: userDB.name, pic: userDB.picture);
