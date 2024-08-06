@@ -76,7 +76,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         }
         break;
     }
-    setState(() {});
+    if(mounted) setState(() {});
   }
 
   @override

@@ -141,12 +141,6 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         setState(() {
           _selectedBadgeModel = badgeModel;
         });
-        String badges = '["${badgeModel.badgeId}"]';
-        _mUserInfo?.badges = badges;
-        UserDBISAR? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
-        if(tempUserDB == null){
-          CommonToast.instance.show(context, 'Fail to update profile badge ');
-        }
       }
     }catch(error){
       LogUtil.e('User set profile badge failed: $error');
