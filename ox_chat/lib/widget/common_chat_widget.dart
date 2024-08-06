@@ -94,6 +94,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       customCenterWidget: widget.customCenterWidget,
       customBottomWidget: widget.customBottomWidget,
       customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
+      imageMessageBuilder: ChatMessageBuilder.buildImageMessage,
       inputOptions: widget.handler.inputOptions,
       inputBottomView: widget.handler.replyHandler.buildReplyMessageWidget(),
       bottomHintParam: widget.bottomHintParam,
@@ -107,6 +108,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       ),
       onInsertedContent: (KeyboardInsertedContent insertedContent) =>
           widget.handler.sendInsertedContentMessage(context, insertedContent),
+      galleryCallback: (gallery) => widget.handler.gallery = gallery,
     );
   }
 

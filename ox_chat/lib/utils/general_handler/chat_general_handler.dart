@@ -98,6 +98,8 @@ class ChatGeneralHandler {
 
   final tempMessageSet = <types.Message>{};
 
+  List<PreviewImage> gallery = [];
+
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
@@ -255,6 +257,8 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
   Future messagePressHandler(BuildContext context, types.Message message) async {
     if (message is types.VideoMessage) {
       OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: message.metadata!["videoUrl"] ?? ''));
+    } else if (message is types.ImageMessage) {
+      imageMessagePressHandler(context, message);
     } else if (message is types.CustomMessage) {
       switch(message.customType) {
         case CustomMessageType.zaps:
@@ -285,6 +289,22 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
             timeStamp: message.createdAt,
           ));
     }
+  }
+
+  Future imageMessagePressHandler(BuildContext context, types.ImageMessage message) async {
+    final initialPage = gallery.indexWhere(
+      (element) => element.id == message.id && element.uri == message.uri,
+    );
+    final galleryPageController = PageController(initialPage: initialPage);
+    OXNavigator.presentPage(context, (_) => ImageGallery(
+      images: gallery,
+      pageController: galleryPageController,
+      onClosePressed: () {
+        OXNavigator.pop(context);
+        galleryPageController.dispose();
+      },
+      options: ChatPageConfig().imageGalleryOptions,
+    ));
   }
 
   Future zapsMessagePressHandler(BuildContext context, types.CustomMessage message) async {
