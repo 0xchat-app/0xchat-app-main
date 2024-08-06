@@ -168,10 +168,12 @@ class ChatNostrSchemeHandle {
         action: 'contactChanneDetailsPage',
         params: {'channelId': channelDB?.channelId ?? ''});
     Map<String, dynamic> map = {};
+    String? name = channelDB?.name?.isEmpty == true ? channelDB?.shortChannelId : channelDB?.name;
+    String? about = channelDB?.about?.isEmpty == true ? channelDB?.shortChannelId : channelDB?.about;
     map['type'] = '3';
     map['content'] = {
-      'title': '${channelDB?.name}',
-      'content': '${channelDB?.about}',
+      'title': '${name ?? channelDB?.shortChannelId}',
+      'content': '${about ?? channelDB?.shortChannelId}',
       'icon': '${channelDB?.picture}',
       'link': link
     };
@@ -183,12 +185,13 @@ class ChatNostrSchemeHandle {
         module: 'ox_chat',
         action: 'groupInfoPage',
         params: {'groupId': groupDB?.groupId ?? ''});
-
+    String? name = groupDB?.name.isEmpty == true ? groupDB?.shortGroupId : groupDB?.name;
+    String? about = groupDB?.about?.isEmpty == true ? groupDB?.shortGroupId : groupDB?.about;
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${groupDB?.name}',
-      'content': '${groupDB?.about}',
+      'title': '${name ?? groupDB?.shortGroupId}',
+      'content': '${about ?? groupDB?.shortGroupId}',
       'icon': '${groupDB?.picture}',
       'link': link
     };
