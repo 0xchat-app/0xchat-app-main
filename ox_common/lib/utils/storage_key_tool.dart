@@ -4,27 +4,9 @@
 ///@author George
 ///CreateTime: 2021/4/21 2:02 PM
 class StorageKeyTool {
-  // static const String KEY_NOTIFICATION_SWITCH = "KEY_NOTIFICATION_SWITCH"; //save message notification value
-  // static const String KEY_PUSH_TOKEN = "KEY_PUSH_TOKEN"; //save push token value
   static const String KEY_PUBKEY = "pubKey";
   static const String KEY_PUBKEY_LIST = "KEY_PUBKEY_LIST";
   static const String KEY_IS_LOGIN_AMBER = "KEY_IS_LOGIN_AMBER";
-
-  // static const String KEY_PASSCODE = "KEY_PASSCODE";//verify code
-  // static const String KEY_FACEID = "KEY_FACEID";
-  // static const String KEY_FINGERPRINT = "KEY_FINGERPRINT";
-  // static const String KEY_CHAT_RUN_STATUS = "KEY_CHAT_RUN_STATUS";
-  // static const String KEY_CHAT_MSG_DELETE_TIME_TYPE = "KEY_CHAT_MSG_DELETE_TIME_TYPE";
-  // static const String KEY_CHAT_MSG_DELETE_TIME = "KEY_CHAT_MSG_DELETE_TIME";
-  // static const String KEY_IS_ORIGINAL_PASSPHRASE = "KEY_IS_ORIGINAL_PASSPHRASE";
-
-  // static const String KEY_CHAT_IMPORT_DB = "KEY_CHAT_IMPORT_DB";
-  // static const String KEY_IS_CHANGE_DEFAULT_DB_PW = "KEY_IS_CHANGE_DEFAULT_DB_PW";
-  // static const String KEY_IS_AGREE_USE_GIPHY = "KEY_IS_AGREE_USE_GIPHY";
-  // static const String KEY_DISTRIBUTOR_NAME  = "KEY_DISTRIBUTOR_NAME"; // current Distributor
-  // static const String KEY_SAVE_LOG_TIME  = "KEY_SAVE_LOG_TIME";
-  // static const String KEY_DEFAULT_ZAP_AMOUNT = 'defaultZapAmount';
-  // static const String KEY_OPEN_DEV_LOG = 'KEY_OPEN_DEV_LOG';
 
 
   static const String APP_DOMAIN_NAME = "APP_DOMAIN_NAME"; //当前domain
