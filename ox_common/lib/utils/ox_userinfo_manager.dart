@@ -1,22 +1,19 @@
 import 'dart:convert';
 
+import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 abstract mixin class OXUserInfoObserver {
@@ -97,7 +94,7 @@ class OXUserInfoManager {
     if (localPubKey != null) {
       final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
       if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
-        bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+        bool isInstalled = await CoreMethodChannel.isInstalledAmber();
         if (isInstalled) {
           String? signature = await ExternalSignerTool.getPubKey();
           if (signature == null) {
@@ -113,37 +110,37 @@ class OXUserInfoManager {
               currentUserInfo = tempUserDB;
               _initDatas();
               _initFeedback();
+              return;
             }
           } else {
             signatureVerifyFailed = true;
+            return;
           }
         }
-      } else if (localPubKey != null && localPubKey.isNotEmpty) {
+      } else if (localPubKey.isNotEmpty) {
         await initDB(localPubKey);
         final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
-        LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
+        LogUtil.e('initLocalData: userDB =${tempUserDB?.pubKey ?? 'userDB is null'}');
         if (tempUserDB != null) {
           UserConfigTool.compatibleOld(tempUserDB);
           currentUserInfo = tempUserDB;
           _initDatas();
           _initFeedback();
-        } else {
-          AppInitializationManager.shared.shouldShowInitializationLoading = false;
           return;
         }
       }
-    } else {
-      AppInitializationManager.shared.shouldShowInitializationLoading = false;
     }
+    AppInitializationManager.shared.shouldShowInitializationLoading = false;
   }
 
   void addObserver(OXUserInfoObserver observer) => _observers.add(observer);
 
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
-  Future<void> loginSuccess(UserDBISAR userDB) async {
+  Future<void> loginSuccess(UserDBISAR userDB, {bool isAmber = false}) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
+    OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
     UserConfigTool.saveUser(userDB);
     UserConfigTool.updateSettingFromDB(userDB.settings);
     _initDatas();
@@ -267,7 +264,7 @@ class OXUserInfoManager {
   }
 
   Future<void> switchAccount(String selectedPubKey) async {
-    logout();
+    await logout();
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
     await OXUserInfoManager.sharedInstance.initLocalData();
     for (OXUserInfoObserver observer in _observers) {
@@ -286,9 +283,6 @@ class OXUserInfoManager {
   Future<void> resetData() async {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
-    OXCacheManager.defaultOXCacheManager.saveForeverData('${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey??''}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', false);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PASSCODE.name, '');
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, false);
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,
@@ -314,7 +308,7 @@ class OXUserInfoManager {
     List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: []);
     List<String> jsonStringList = dynamicList.cast<String>();
 
-    ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
+    ///4、 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735 zap, 9、10 relay group
     List<int> kinds = [4, 44, 1059, 42, 9735];
     for (String jsonString in jsonStringList) {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
