@@ -553,10 +553,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
-    setState(() {
-      _notifications = notifications;
-      _avatarList = avatars;
-    });
+    if(mounted){
+      setState(() {
+        _notifications = notifications;
+        _avatarList = avatars;
+      });
+    }
   }
 
   void _clearData() {
