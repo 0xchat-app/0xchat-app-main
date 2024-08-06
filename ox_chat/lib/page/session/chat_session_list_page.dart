@@ -15,6 +15,7 @@ import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/relay_info_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
@@ -61,7 +62,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
-  int _pageNum = 1; // Page number
   List<ChatSessionModelISAR> _msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
   Map<String, BadgeDBISAR> _badgeCache = {};
@@ -69,6 +69,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
+  final GlobalKey<RelayInfoWidgetState> _relayInfoKey = GlobalKey<RelayInfoWidgetState>();
+  double _nameMaxW = Adapt.screenW() - (48 + 60 + 36 + 50).px;
+  double _subTitleMaxW = Adapt.screenW() - (48 + 60 + 36 + 30).px;
 
   final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
 
@@ -76,7 +79,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void initState() {
     super.initState();
     Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
-      if(mounted) setState(() {});
+      if(mounted) _relayInfoKey.currentState?.refresh();
     });
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
@@ -205,35 +208,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
               )),
           actions: <Widget>[
-            _isLogin ? SizedBox(
-              height: Adapt.px(24),
-              child: GestureDetector(
-                onTap: () {
-                  OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CommonImage(
-                      iconName: 'icon_relay_connected_amount.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      fit: BoxFit.fill,
-                    ),
-                    SizedBox(
-                      width: Adapt.px(4),
-                    ),
-                    Text(
-                      '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
-                      style: TextStyle(
-                        fontSize: Adapt.px(14),
-                        color: ThemeColor.color100,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ) : SizedBox(),
+            if (_isLogin)
+              RelayInfoWidget(key: _relayInfoKey),
             SizedBox(
               width: Adapt.px(24),
             ),
@@ -635,7 +611,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ],
             )
           : MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600),
-      constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
+      constraints: BoxConstraints(maxWidth: _nameMaxW),
       // width: Adapt.px(135),
     );
   }
@@ -666,20 +642,19 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                           Row(
                             children: <Widget>[
                               _buildItemName(item),
-                              _getChatSessionMute(item)
-                                  ? CommonImage(
-                                iconName: 'icon_session_mute.png',
-                                width: Adapt.px(16),
-                                height: Adapt.px(16),
-                                package: 'ox_chat',
-                              )
-                                  : Container(),
+                              if (_getChatSessionMute(item))
+                                CommonImage(
+                                  iconName: 'icon_session_mute.png',
+                                  width: Adapt.px(16),
+                                  height: Adapt.px(16),
+                                  package: 'ox_chat',
+                                ),
                             ],
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: Adapt.px(5)),
                             child: Container(
-                              constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 30)),
+                              constraints: BoxConstraints(maxWidth: _subTitleMaxW),
                               child: _buildItemSubtitle(item),
                             ),
                           ),
@@ -700,52 +675,15 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 0),
-                  child: Text(item.createTime == null ? '' : OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
+                  child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
                       textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
                 ),
               ],
             ),
           ],
         ),
-        onPressed: () async {
-          _setAllRead(item);
-          if (item.chatType == 9999) {
-            _routeCustomService();
-          } else if (item.chatType == ChatType.chatRelayGroup) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatRelayGroupMsgPage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatGroup) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatGroupMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatChannel) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatChannelMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatSecret) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatSecretMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatNotice) {
-            OXNavigator.pushPage(context, (context) => ContactRequest());
-          } else {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatMessagePage(
-                      communityItem: item,
-                    )).then((value) {
-              _merge();
-            });
-          }
+        onPressed: () {
+          _itemFn(item);
         });
   }
 
@@ -811,10 +749,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       _updateReadStatus();
     });
     OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
-  }
-
-  void _routeCustomService() async {
-    CommonToast.instance.show(context, Localized.text('ox_chat.services'));
   }
 
   bool _getChatSessionMute(ChatSessionModelISAR item) {
@@ -1034,6 +968,32 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       Contacts.sharedInstance.close(id);
     });
     return count;
+  }
+
+  void _itemFn(ChatSessionModelISAR item) async {
+    _setAllRead(item);
+    switch(item.chatType){
+      case ChatType.chatRelayGroup:
+        OXNavigator.pushPage(context, (context) => ChatRelayGroupMsgPage(communityItem: item));
+        break;
+      case ChatType.chatGroup:
+        OXNavigator.pushPage(context, (context) => ChatGroupMessagePage(communityItem: item));
+        break;
+      case ChatType.chatChannel:
+        OXNavigator.pushPage(context, (context) => ChatChannelMessagePage(communityItem: item));
+        break;
+      case ChatType.chatSecret:
+        OXNavigator.pushPage(context, (context) => ChatSecretMessagePage(communityItem: item));
+        break;
+      case ChatType.chatNotice:
+        OXNavigator.pushPage(context, (context) => ContactRequest());
+        break;
+      default:
+        OXNavigator.pushPage(context, (context) => ChatMessagePage(communityItem: item)).then((value) {
+          _merge();
+        });
+        break;
+    }
   }
 }
 
