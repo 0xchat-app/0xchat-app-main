@@ -543,14 +543,19 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     Widget reactionWidget,
   ) {
     final path = ImageSendingMessageEx(message).path;
+    final url = ImageSendingMessageEx(message).url;
+    final fileId = ImageSendingMessageEx(message).fileId;
     final width = ImageSendingMessageEx(message).width;
     final height = ImageSendingMessageEx(message).height;
+    final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
+    final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
     return ImagePreviewWidget(
-      uri: path,
+      uri: url.isNotEmpty ? url : path,
       imageWidth: width,
       imageHeight: height,
       maxWidth: messageWidth,
-      progressStream: UploadManager.shared.getUploadProgress(message.id)
+      progressStream: stream,
+      decryptKey: encryptedKey,
     );
   }
 }

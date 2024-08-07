@@ -52,7 +52,7 @@ abstract class ImageMessage extends Message {
     Message? repliedMessage,
     String? roomId,
     bool? showStatus,
-    required num size,
+    num? size,
     Status? status,
     MessageType? type,
     int? updatedAt,
@@ -113,7 +113,7 @@ abstract class ImageMessage extends Message {
   final String name;
 
   /// Size of the image in bytes.
-  final num size;
+  final num? size;
 
   /// The image source (either a remote URL or a local resource).
   final String uri;
@@ -193,7 +193,7 @@ class _ImageMessage extends ImageMessage {
     super.repliedMessage,
     super.roomId,
     super.showStatus,
-    required super.size,
+    super.size,
     super.status,
     super.type,
     super.updatedAt,

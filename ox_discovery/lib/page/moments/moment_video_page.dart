@@ -12,6 +12,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
@@ -119,7 +120,7 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
     try {
       if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
 
-        final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+        final fileInfo = await OXFileCacheManager.get().getFileFromCache(widget.videoUrl);
         if (fileInfo != null) {
           _videoPlayerController = VideoPlayerController.file(fileInfo.file);
         } else {
@@ -145,7 +146,7 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
   Future<void> cacheVideo() async {
     try {
       print('Starting cache process...');
-      await DefaultCacheManager().downloadFile(widget.videoUrl);
+      await OXFileCacheManager.get().downloadFile(widget.videoUrl);
       print('Video cached successfully');
     } catch (e) {
       print('Error caching video: $e');
@@ -312,7 +313,7 @@ class _CustomControlsState extends State<CustomControls> {
                     await OXLoading.show();
                     if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
                       var result;
-                      final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+                      final fileInfo = await OXFileCacheManager.get().getFileFromCache(widget.videoUrl);
                       if(fileInfo != null){
                         result = await ImageGallerySaver.saveFile(fileInfo.file.path);
                       }else{

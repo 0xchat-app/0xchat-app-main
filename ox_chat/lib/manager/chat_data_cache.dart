@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:uuid/uuid.dart';
@@ -13,7 +12,6 @@ import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -67,6 +65,10 @@ class ChatDataCache with OXChatObserver {
   @override
   void didPrivateMessageCallBack(MessageDBISAR message) {
     receivePrivateMessageHandler(message);
+  }
+
+  @override
+  void didPrivateChatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) async {
   }
 
   void updateSessionExpiration(String sessionId, MessageDBISAR message){
@@ -385,6 +387,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     ChatSessionModelISAR? session,
     required types.Message message,
     types.Message? originMessage,
+    String? originMessageId,
   }) async {
     if (session != null) {
       chatKey ??= _getChatTypeKey(session);
@@ -398,7 +401,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
         await MessageDBISAR.savePreviewData(message.id, jsonEncode(message.previewData?.toJson()));
     }
 
-    await _updateChatMessages(chatKey, message, originMessage: originMessage);
+    await _updateChatMessages(chatKey, message, originMessage: originMessage, originMessageId: originMessageId,);
     await notifyChatObserverValueChanged(chatKey);
   }
 }
@@ -582,14 +585,17 @@ extension ChatDataCacheEx on ChatDataCache {
     _removeMessageFromList(messageList, message);
   }
 
-  Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {types.Message? originMessage}) async {
+  Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {
+    types.Message? originMessage,
+    String? originMessageId,
+  }) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: '_updateChatMessages',
       message: 'key: $key, message: $message',
     );
     final messageList = await _getSessionMessage(key);
-    _updateMessageToList(messageList, message, originMessage: originMessage);
+    _updateMessageToList(messageList, message, originMessage: originMessage, originMessageId: originMessageId);
   }
 
   Future<types.Message?> _getChatMessages(ChatTypeKey key, String messageId) async {
@@ -683,10 +689,14 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     }
   }
 
-  bool _updateMessageToList(List<types.Message> messageList, types.Message newMessage, {types.Message? originMessage}) {
+  bool _updateMessageToList(List<types.Message> messageList, types.Message newMessage, {
+    types.Message? originMessage,
+    String? originMessageId,
+  }) {
+    originMessageId ??= originMessage?.id;
     final index = messageList.indexWhere((msg) {
-      if (originMessage != null) {
-        return msg.id == originMessage.id;
+      if (originMessageId != null) {
+        return msg.id == originMessageId;
       } else {
         return msg.id == newMessage.id;
       }

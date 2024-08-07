@@ -520,6 +520,29 @@ class CustomMessageFactory implements MessageFactory {
           return null;
         }
 
+      case CustomMessageType.imageSending:
+        final path = content[ImageSendingMessageEx.metaPathKey];
+        final url = content[ImageSendingMessageEx.metaURLKey];
+        final width = content[ImageSendingMessageEx.metaWidthKey];
+        final height = content[ImageSendingMessageEx.metaHeightKey];
+        final encryptedKey = content[ImageSendingMessageEx.metaEncryptedKey];
+        return createImageSendingMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          expiration: expiration,
+          reactions: reactions,
+          zapsInfoList: zapsInfoList,
+          path: path,
+          url: url,
+          width: width,
+          height: height,
+          encryptedKey: encryptedKey,
+        );
+
       default:
         return null;
     }
@@ -689,8 +712,9 @@ class CustomMessageFactory implements MessageFactory {
     List<types.ZapsInfo> zapsInfoList = const [],
     required String path,
     required String url,
-    required int height,
-    required int width,
+    required int? width,
+    required int? height,
+    required String? encryptedKey,
   }) {
     return types.CustomMessage(
       author: author,
@@ -702,10 +726,12 @@ class CustomMessageFactory implements MessageFactory {
       metadata: CustomMessageEx.imageSendingMetaData(
         path: path,
         url: url,
-        height: height,
         width: width,
+        height: height,
+        encryptedKey: encryptedKey,
       ),
       type: types.MessageType.custom,
+      decryptKey: encryptedKey,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,

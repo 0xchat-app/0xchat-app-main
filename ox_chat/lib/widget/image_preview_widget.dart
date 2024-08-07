@@ -8,7 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class ImagePreviewWidget extends StatefulWidget {
   ImagePreviewWidget({
@@ -62,7 +62,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
       // Network url
       imageProvider = CachedNetworkImageProvider(
         uri,
-        cacheManager: decryptKey != null ? DecryptedCacheManager(decryptKey) : null,
+        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),
       );
     } else {
       // File path
@@ -133,7 +133,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
           child: CircularProgressIndicator(
             value: progress,
             strokeWidth: 5,
-            backgroundColor: Colors.grey.withOpacity(0.9),
+            backgroundColor: Colors.white.withOpacity(0.5),
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             strokeCap: StrokeCap.round,
           ),

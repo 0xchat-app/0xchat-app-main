@@ -41,7 +41,7 @@ class PartialImage {
   final Message? repliedMessage;
 
   /// Size of the image in bytes.
-  final num size;
+  final num? size;
 
   /// The image source (either a remote URL or a local resource).
   final String uri;

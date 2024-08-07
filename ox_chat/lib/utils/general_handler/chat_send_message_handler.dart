@@ -66,12 +66,13 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  Future _sendMessageHandler(
-      types.Message message, {
-        BuildContext? context,
-        bool isResend = false,
-        ChatSendingType sendingType = ChatSendingType.remote,
-      }) async {
+  Future _sendMessageHandler(types.Message message, {
+    BuildContext? context,
+    bool isResend = false,
+    ChatSendingType sendingType = ChatSendingType.remote,
+    String? replaceMessageId,
+    Function(types.Message)? successCallback,
+  }) async {
     if (!isResend) {
       final sendMsg = await tryPrepareSendFileMessage(context, message);
       if (sendMsg == null) return ;
@@ -109,7 +110,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           }
         }
         return null;
-      }
+      },
+      replaceMessageId: replaceMessageId,
+      successCallback: successCallback,
     );
     if (errorMsg != null && errorMsg.isNotEmpty) {
       CommonToast.instance.show(context, errorMsg);
@@ -175,33 +178,92 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   }
 
   Future sendImageMessage(BuildContext context, List<File> images) async {
-    for (final result in images) {
-      OXLoading.show();
-      final bytes = await result.readAsBytes();
+    for (final imageFile in images) {
+      final bytes = await imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
       String message_id = const Uuid().v4();
-      String fileName = Path.basename(result.path);
+      String fileName = Path.basename(imageFile.path);
       fileName = fileName.substring(13);
       int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+      final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
 
-      final message = types.ImageMessage(
+      final message = CustomMessageFactory().createImageSendingMessage(
         author: author,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
+        timestamp: tempCreateTime,
         id: message_id,
         roomId: session.chatId,
-        name: fileName,
-        size: bytes.length,
-        uri: result.path.toString(),
-        width: image.width.toDouble(),
-        fileEncryptionType: fileEncryptionType,
-        decryptKey: fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null,
+        path: imageFile.path,
+        url: '',
+        width: image.width,
+        height: image.height,
+        encryptedKey: encryptedKey,
       );
 
-      await _sendMessageHandler(message, context: context);
-
-      OXLoading.dismiss();
+      await _sendMessageHandler(
+        message,
+        context: context,
+        sendingType: ChatSendingType.store,
+        successCallback: (sendMessage) {
+          UploadManager.shared.uploadImage(
+            fileType: FileType.image,
+            filePath: imageFile.path,
+            uploadId: ImageSendingMessageEx(message).fileId,
+            encryptedKey: encryptedKey,
+            completeCallback: (uploadResult) async {
+              final imageURL = uploadResult.url;
+              if (uploadResult.isSuccess && imageURL.isNotEmpty) {
+                sendImageMessageWithURL(
+                  imageURL: imageURL,
+                  imageWidth: image.width,
+                  imageHeight: image.height,
+                  encryptedKey: encryptedKey,
+                  replaceMessageId: sendMessage.id,
+                );
+              }
+            },
+          );
+        },
+      );
     }
+  }
+
+  void sendImageMessageWithURL({
+    required String imageURL,
+    int? imageWidth,
+    int? imageHeight,
+    String? encryptedKey,
+    String? replaceMessageId,
+  }) {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    final message = types.ImageMessage(
+      author: author,
+      createdAt: tempCreateTime,
+      width: imageWidth?.toDouble(),
+      height: imageHeight?.toDouble(),
+      id: message_id,
+      roomId: session.chatId,
+      name: imageURL.getFileName() ?? '',
+      uri: imageURL,
+      fileEncryptionType: fileEncryptionType,
+      decryptKey: encryptedKey,
+    );
+    // final message = CustomMessageFactory().createImageSendingMessage(
+    //   author: author,
+    //   timestamp: tempCreateTime,
+    //   id: message_id,
+    //   roomId: session.chatId,
+    //   path: '',
+    //   url: imageURL,
+    //   width: imageWidth,
+    //   height: imageHeight,
+    //   encryptedKey: encryptedKey,
+    // );
+
+    _sendMessageHandler(
+      message,
+      replaceMessageId: replaceMessageId,
+    );
   }
 
   void sendGifImageMessage(BuildContext context, GiphyImage image) {
@@ -398,12 +460,7 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
   Future<types.Message?> tryPrepareSendFileMessage(BuildContext? context, types.Message message) async {
     types.Message? updatedMessage;
-    if (message is types.ImageMessage) {
-      updatedMessage = await prepareSendImageMessage(
-        message: message,
-        context: context,
-      );
-    } else if (message is types.AudioMessage) {
+    if (message is types.AudioMessage) {
       updatedMessage = await prepareSendAudioMessage(
         message: message,
         context: context,

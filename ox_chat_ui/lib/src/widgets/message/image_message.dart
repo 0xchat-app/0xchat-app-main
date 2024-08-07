@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 import '../../util.dart';
 import '../state/inherited_chat_theme.dart';
@@ -66,12 +66,10 @@ class _ImageMessageState extends State<ImageMessage> {
         );
       }
     } else {
-      final chatId = widget.message.roomId;
       final decryptKey = widget.message.decryptKey;
-      final needDecrypt = widget.message.fileEncryptionType == types.EncryptionType.encrypted;
       _image = CachedNetworkImageProvider(
         widget.message.uri,
-        cacheManager: needDecrypt ? DecryptedCacheManager(decryptKey ?? chatId ?? '') : null,
+        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey ?? ''),
       );
     }
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
@@ -164,7 +162,7 @@ class _ImageMessageState extends State<ImageMessage> {
                         top: 4,
                       ),
                       child: Text(
-                        formatBytes(widget.message.size.truncate()),
+                        '',// formatBytes(widget.message.size.truncate()),
                         style: user.id == widget.message.author.id
                             ? InheritedChatTheme.of(context)
                             .theme

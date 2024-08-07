@@ -25,6 +25,8 @@ class ChatSendMessageHelper {
     ChatSendingType sendingType = ChatSendingType.remote,
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
+    String? replaceMessageId,
+    Function(types.Message)? successCallback,
   }) async {
     // prepare data
     var sendFinish = OXValue(false);
@@ -36,7 +38,7 @@ class ChatSendMessageHelper {
 
     types.Message sendMsg = message;
 
-    if (sendingType == ChatSendingType.remote) {
+    if (sendingType == ChatSendingType.remote || sendingType == ChatSendingType.store) {
       // create chat sender strategy
       final senderStrategy = ChatStrategyFactory.getStrategy(session);
       // for test
@@ -90,16 +92,15 @@ class ChatSendMessageHelper {
             'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
       );
 
-      senderStrategy
-          .doSendMessageAction(
+      senderStrategy.doSendMessageAction(
         messageType: type,
         contentString: contentString,
         replayId: replayId,
         decryptSecret: message.decryptKey,
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
-      )
-          .then((event) async {
+        replaceMessageId: replaceMessageId,
+      ).then((event) async {
         sendFinish.value = true;
 
         final message =
@@ -115,7 +116,20 @@ class ChatSendMessageHelper {
       });
     }
 
-    ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
+    if (replaceMessageId != null && replaceMessageId.isNotEmpty) {
+      ChatDataCache.shared.updateMessage(
+        session: session,
+        message: sendMsg,
+        originMessageId: replaceMessageId,
+      );
+    } else {
+      ChatDataCache.shared.addNewMessage(
+        session: session,
+        message: sendMsg,
+      );
+    }
+
+    successCallback?.call(sendMsg);
 
     if (sendingType == ChatSendingType.remote) {
       // If the message is not sent within a short period of time, change the status to the sending state

@@ -3,11 +3,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
@@ -15,7 +13,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -90,16 +88,13 @@ class _ImageGalleryState extends State<ImageGallery> {
                 child: PhotoViewGallery.builder(
                   builder: (BuildContext context, int index) {
                     final uri = widget.images[index].uri;
-                    final encrypted = widget.images[index].encrypted;
                     final decryptKey = widget.images[index].decryptSecret;
                     return PhotoViewGalleryPageOptions(
                       imageProvider: OXCachedNetworkImageProviderEx.create(
                         context,
                         uri,
                         headers: widget.imageHeaders,
-                        cacheManager: encrypted
-                            ? DecryptedCacheManager(decryptKey ?? '')
-                            : null,
+                        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),
                       ),
                       minScale: widget.options.minScale,
                       maxScale: widget.options.maxScale,
@@ -335,12 +330,7 @@ class _ImageGalleryState extends State<ImageGallery> {
 
     var result;
     if (imageUri.isRemoteURL) {
-      CacheManager imageManager;
-      if (encrypted) {
-        imageManager = DecryptedCacheManager(decryptKey ?? '');
-      } else {
-        imageManager = DefaultCacheManager();
-      }
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
       try {
         final imageFile = await imageManager.getSingleFile(imageUri)
             .timeout(const Duration(seconds: 30), onTimeout: () {

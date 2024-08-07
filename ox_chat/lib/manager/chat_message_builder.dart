@@ -71,6 +71,8 @@ class ChatMessageBuilder {
   }) {
     return ImagePreviewWidget(
       uri: message.uri,
+      imageWidth: message.width?.toInt(),
+      imageHeight: message.height?.toInt(),
       maxWidth: messageWidth,
       decryptKey: message.decryptKey,
     );

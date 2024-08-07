@@ -14,6 +14,7 @@ import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
@@ -197,7 +198,7 @@ class DatabaseHelper{
               OXNavigator.pop(context, true);
               try {
                 await OXLoading.show();
-                await DefaultCacheManager().emptyCache();//clearCachedImages
+                await OXFileCacheManager.emptyCache();
                 await clearCache();
                 CommonToast.instance.show(context, 'str_file_delected'.localized());
               } catch (e) {

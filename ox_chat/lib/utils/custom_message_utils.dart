@@ -4,6 +4,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/utils/string_utils.dart';
 
 extension CustomMessageEx on types.CustomMessage {
 
@@ -104,16 +105,20 @@ extension CustomMessageEx on types.CustomMessage {
   }
 
   static Map<String, dynamic> imageSendingMetaData({
-    required String path,
+    String path = '',
     String url = '',
-    required int height,
-    required int width,
+    int? width,
+    int? height,
+    String? encryptedKey,
   }) {
     return _metaData(CustomMessageType.imageSending, {
       ImageSendingMessageEx.metaPathKey: path,
       ImageSendingMessageEx.metaURLKey: url,
-      ImageSendingMessageEx.metaHeightKey: height,
-      ImageSendingMessageEx.metaWidthKey: width,
+      if (width != null)
+        ImageSendingMessageEx.metaWidthKey: width,
+      if (height != null)
+        ImageSendingMessageEx.metaHeightKey: height,
+      ImageSendingMessageEx.metaEncryptedKey: encryptedKey,
     });
   }
 
@@ -387,11 +392,15 @@ extension EcashV2MessageEx on types.CustomMessage {
 extension ImageSendingMessageEx on types.CustomMessage {
   static const metaPathKey = 'path';
   static const metaURLKey = 'url';
-  static const metaHeightKey = 'height';
   static const metaWidthKey = 'width';
+  static const metaHeightKey = 'height';
+  static const metaEncryptedKey = 'encrypted';
 
   String get path => metadata?[CustomMessageEx.metaContentKey]?[metaPathKey] ?? '';
   String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
-  int get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey] ?? '';
-  int get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey] ?? '';
+  int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
+  int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
+  String get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey] ?? '';
+
+  String get fileId => path.getFileName(withExtension: false) ?? '';
 }

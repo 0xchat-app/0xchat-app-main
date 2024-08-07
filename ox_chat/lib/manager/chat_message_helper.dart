@@ -116,6 +116,8 @@ class ChatMessageDBToUIHelper {
                     memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
                   } catch (_) { }
                   return '[Cashu Ecash] $memo';
+                case CustomMessageType.imageSending:
+                  return Localized.text('ox_common.message_type_image');
                 default:
                   break ;
               }
@@ -437,6 +439,13 @@ extension MessageDBToUIEx on MessageDBISAR {
         return TextMessageFactory();
       case MessageType.image:
       case MessageType.encryptedImage:
+        final meta = CustomMessageEx.imageSendingMetaData(
+          url: contentModel.content ?? '',
+          encryptedKey: decryptSecret,
+        );
+        try {
+          contentModel.content = jsonEncode(meta);
+          return CustomMessageFactory();
         return ImageMessageFactory();
       case MessageType.video:
       case MessageType.encryptedVideo:

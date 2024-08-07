@@ -58,6 +58,7 @@ abstract class ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   });
 }
 
@@ -95,6 +96,7 @@ class ChannelChatStrategy extends ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   }) async {
     return Channels.sharedInstance.sendChannelMessage(
       receiverId,
@@ -104,6 +106,7 @@ class ChannelChatStrategy extends ChatStrategy {
       event: event,
       local: isLocal,
       decryptSecret: decryptSecret,
+      replaceMessageId: replaceMessageId,
     );
   }
 }
@@ -142,6 +145,7 @@ class GroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   }) async {
     return Groups.sharedInstance.sendPrivateGroupMessage(
       receiverId,
@@ -151,6 +155,7 @@ class GroupChatStrategy extends ChatStrategy {
       event: event,
       local: isLocal,
       decryptSecret: decryptSecret,
+      replaceMessageId: replaceMessageId,
     );
   }
 }
@@ -188,6 +193,7 @@ class PrivateChatStrategy extends ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   }) async {
     return await Contacts.sharedInstance.sendPrivateMessage(
       receiverId,
@@ -199,6 +205,7 @@ class PrivateChatStrategy extends ChatStrategy {
       expiration: session.expiration,
       local: isLocal,
       decryptSecret: decryptSecret,
+      replaceMessageId: replaceMessageId,
     );
   }
 }
@@ -236,6 +243,7 @@ class SecretChatStrategy extends ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   }) async {
     return Contacts.sharedInstance.sendSecretMessage(
       receiverId,
@@ -246,6 +254,7 @@ class SecretChatStrategy extends ChatStrategy {
       event: event,
       local: isLocal,
       decryptSecret: decryptSecret,
+      replaceMessageId: replaceMessageId,
     );
   }
 }
@@ -296,6 +305,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
     String? decryptSecret,
     bool isLocal = false,
     Event? event,
+    String? replaceMessageId,
   }) async {
     List<String> previous = [];
     final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
@@ -316,6 +326,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       event: event,
       local: isLocal,
       decryptSecret: decryptSecret,
+      replaceMessageId: replaceMessageId,
     );
   }
 }
