@@ -4,6 +4,7 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/model/group_model.dart';
 import 'package:ox_theme/ox_theme.dart';
@@ -492,9 +493,11 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Future<void> _getRelayGroupList() async {
+    OXLoading.show(status: Localized.text('ox_common.loading'));
     try {
       List<RelayGroupDBISAR> relayGroups = await RelayGroup.sharedInstance
-          .searchGroupsFromDB(Relays.sharedInstance.recommendGroupRelays);
+          .searchGroupsFromRelays(Relays.sharedInstance.recommendGroupRelays);
+      OXLoading.dismiss();
       List<GroupModel> groups = relayGroups
           .map((relayGroupDB) => GroupModel.fromRelayGroupDB(relayGroupDB))
           .toList();
@@ -509,6 +512,7 @@ class _GroupsPageState extends State<GroupsPage>
         });
       }
     } catch (e, s) {
+      OXLoading.dismiss();
       LogUtil.e("get Channel Failed: $e\r\n$s");
     }
   }
