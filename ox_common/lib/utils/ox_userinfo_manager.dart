@@ -102,7 +102,7 @@ class OXUserInfoManager {
             return;
           }
           String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-          if (decodeSignature == localPubKey) {
+          if (decodeSignature.isNotEmpty) {
             await initDB(localPubKey);
             UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
             if (tempUserDB != null) {
