@@ -268,9 +268,11 @@ class _LoginPageState extends State<LoginPage> {
 
     await OXLoading.show();
     Keychain keychain = Account.generateNewKeychain();
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(keychain.public);
     UserDBISAR? userDB = await Account.newAccount(user: keychain);
     userDB = await Account.sharedInstance.loginWithPriKey(keychain.private);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     LogUtil.e('Michael: pubKey =${userDB?.pubKey}');
     await OXLoading.dismiss();
     if(userDB != null)
@@ -294,8 +296,10 @@ class _LoginPageState extends State<LoginPage> {
     }
     await OXLoading.show();
     String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
     UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       await OXLoading.dismiss();
       CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));

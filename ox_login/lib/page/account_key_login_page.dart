@@ -152,8 +152,10 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   void _login() async {
     await OXLoading.show();
     String pubkey = Account.getPublicKey(_accountKeyInput);
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
     UserDBISAR? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
       return;

@@ -1,19 +1,14 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/user_config_tool.dart';
-import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
-import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -39,7 +34,6 @@ class SwitchAccountPage extends StatefulWidget {
 class _SwitchAccountPageState extends State<SwitchAccountPage> {
   ThemeStyle? themeStyle;
   int _selectedIndex = 0;
-  UserDBISAR? _currentUser;
   Map<String, MultipleUserModel> _currentUserMap = {};
   List<MultipleUserModel> _userCacheList = [];
   bool _isManage = false;
@@ -51,7 +45,11 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
   }
 
   void _loadLocalInfo() async {
-    _currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? _currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (_currentUser !=null ){
+      //update user list
+      await UserConfigTool.saveUser(_currentUser);
+    }
     _currentUserMap = await UserConfigTool.getAllUser();
     _userCacheList = _currentUserMap.values.toList();
     LogUtil.e('Michael:---_loadLocalInfo---_userCacheList =${_userCacheList}');
@@ -69,28 +67,29 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
         centerTitle: true,
         backgroundColor: ThemeColor.color200,
         actions: [
-          Container(
-            margin: EdgeInsets.only(
-              right: Adapt.px(14),
-            ),
-            color: Colors.transparent,
-            child: OXButton(
-              highlightColor: Colors.transparent,
-              color: Colors.transparent,
-              minWidth: Adapt.px(44),
-              height: Adapt.px(44),
-              child: abbrText(
-              _isManage ? Localized.text('ox_common.cancel') : 'str_account_manage'.localized(),
-                16.px,
-                ThemeColor.color0,
-                fontWeight: FontWeight.w600,
+          if (_userCacheList.length > 1)
+            Container(
+              margin: EdgeInsets.only(
+                right: Adapt.px(14),
               ),
-              onPressed: () {
-                _isManage = !_isManage;
-                setState(() {});
-              },
-            ),
-          )
+              color: Colors.transparent,
+              child: OXButton(
+                highlightColor: Colors.transparent,
+                color: Colors.transparent,
+                minWidth: Adapt.px(44),
+                height: Adapt.px(44),
+                child: abbrText(
+                _isManage ? Localized.text('ox_common.cancel') : 'str_account_manage'.localized(),
+                  16.px,
+                  ThemeColor.color0,
+                  fontWeight: FontWeight.w600,
+                ),
+                onPressed: () {
+                  _isManage = !_isManage;
+                  setState(() {});
+                },
+              ),
+            )
         ],
       ),
       body: _buildBody().setPadding(EdgeInsets.symmetric(
@@ -147,6 +146,10 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
     if (_userCacheList.isNotEmpty && index > -1){
       multipleUserModel = _userCacheList[index];
     }
+
+    String showName = multipleUserModel?.name ?? '';
+    String showPicture = multipleUserModel?.picture ?? '';
+    String showDns = multipleUserModel?.dns ?? '';
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
@@ -158,13 +161,11 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
             CommonToast.instance.show(context, 'PubKey is empty, try other.');
             return;
           }
-          if (await _checkAccount(pubKey)) {
-            await OXLoading.show();
-            await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
-            await OXLoading.dismiss();
-            _selectedIndex = index;
-            setState(() {});
-          }
+          await OXLoading.show();
+          await OXUserInfoManager.sharedInstance.switchAccount(pubKey);
+          await OXLoading.dismiss();
+          _selectedIndex = index;
+          setState(() {});
         }
       },
       child: Container(
@@ -180,7 +181,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             isAdd ? CommonImage(iconName: 'add_circle_icon.png', size: 54.px, package: 'ox_common', useTheme: true,)
-            : OXUserAvatar(),
+            : OXUserAvatar(imageUrl: showPicture),
             SizedBox(width: 12.px),
             isAdd ? abbrText(
               'Add Account',
@@ -192,14 +193,14 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 abbrText(
-                  multipleUserModel?.name ?? '',
+                  showName,
                   16.px,
                   ThemeColor.color0,
                   fontWeight: FontWeight.w500,
                 ),
                 SizedBox(height: 4.px),
                 abbrText(
-                  multipleUserModel?.dns ?? '',
+                  showDns,
                   12.px,
                   ThemeColor.color100,
                 ),
@@ -211,7 +212,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  _clearTap(multipleUserModel?.pubKey ?? '');
+                  _clearTap(multipleUserModel?.pubKey ?? '', showName);
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 18.5.px, vertical: 5.px),
@@ -241,63 +242,22 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
     );
   }
 
-  void _clearTap(String? pubkey) async {
+  void _clearTap(String? pubkey, String showName) async {
     if (pubkey == null || pubkey.isEmpty) return;
     var result = await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return const ClearAccountSelectorDialog();
+        return ClearAccountSelectorDialog(name: showName);
       },
     );
     if (result != null && result is bool && result) {
       await UserConfigTool.deleteUser(_currentUserMap, pubkey);
+      _userCacheList = _currentUserMap.values.toList();
+      if (_userCacheList.isEmpty){
+        OXUserInfoManager.sharedInstance.logout();
+      }
       if (mounted) setState(() {});
     }
-  }
-
-  Future<bool> _checkAccount(String pubKey) async {
-    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
-    if (localIsLoginAmber != null && localIsLoginAmber) {
-      bool isInstalled = await CoreMethodChannel.isInstalledAmber();
-      bool signatureVerifyFailed = false;
-      if (isInstalled) {
-        String? signature = await ExternalSignerTool.getPubKey();
-        if (signature != null) {
-          String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-          if (decodeSignature == pubKey) {
-            signatureVerifyFailed = false;
-            return true;
-          } else {
-            signatureVerifyFailed = true;
-          }
-        }
-      }
-      if (mounted && (!isInstalled || signatureVerifyFailed)){
-        String showTitle = '';
-        String showContent = '';
-        if (!isInstalled) {
-          showTitle = 'ox_common.open_singer_app_error_title';
-          showContent = 'ox_common.open_singer_app_error_content';
-        } else if (signatureVerifyFailed){
-          showTitle = 'ox_common.tips';
-          showContent = 'ox_common.str_singer_app_verify_failed_hint';
-        }
-        OXCommonHintDialog.show(
-          context, title: Localized.text(showTitle), content: Localized.text(showContent),
-          actionList: [
-            OXCommonHintAction.sure(
-                text: Localized.text('ox_common.confirm'),
-                onTap: () {
-                  OXNavigator.pop(context);
-                }),
-          ],
-        );
-      }
-      //verify failed
-      return false;
-    }
-    //nesc
-    return true;
   }
 }

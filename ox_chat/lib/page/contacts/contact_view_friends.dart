@@ -130,7 +130,10 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
     LogUtil.e('Michael: contact_view_friends didAccountChanged');
-    _onRefresh();
+    setState(() {
+      userList.clear();
+      _onRefresh();
+    });
   }
 
   @override

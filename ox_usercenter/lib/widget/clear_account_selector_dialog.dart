@@ -11,7 +11,8 @@ import 'package:ox_usercenter/utils/widget_tool.dart';
 ///@author Michael
 ///CreateTime: 2024/7/25 19:39
 class ClearAccountSelectorDialog extends StatefulWidget {
-  const ClearAccountSelectorDialog({Key? key}): super(key: key);
+  String name;
+  ClearAccountSelectorDialog({Key? key, required this.name}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -40,7 +41,7 @@ class _ClearAccountSelectorDialogState extends State<ClearAccountSelectorDialog>
             height: 36.px,
             alignment: Alignment.center,
             child: Text(
-              'str_clear_account_dialog_hint'.localized(),
+              'str_clear_account_dialog_hint'.localized({r'${name}': widget.name}),
               style: TextStyle(
                 fontSize: 16.px,
                 fontWeight: FontWeight.w400,
