@@ -391,7 +391,7 @@ class _GroupsPageState extends State<GroupsPage>
               width: Adapt.px(8),
             ),
             Text(
-              Localized.text('ox_chat.search'),
+              Localized.text('ox_chat.search_discovery'),
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: Adapt.px(15),

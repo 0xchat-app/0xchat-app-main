@@ -472,7 +472,10 @@ class SearchPageState extends State<SearchPage> {
     final hasHistory =
         _selectedHistoryList.length > 0 || _txtHistoryList.length > 0;
     if (!hasHistory) {
-      String hintStr = Localized.text('ox_chat.search_tips_prefix') +
+      String hintStr = '';
+      if(widget.searchPageType == SearchPageType.discover) hintStr = Localized.text('ox_chat.search_tips_discovery');
+      else
+        hintStr = Localized.text('ox_chat.search_tips_prefix') +
           '${widget.searchPageType == SearchPageType.all ? Localized.text('ox_chat.search_tips_suffix_all') : ''}' +
           '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleFriend ? Localized.text('ox_chat.search_tips_suffix_friend') : ''}' +
           '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleChannel ? Localized.text('ox_chat.search_tips_suffix_channel') : ''}';
@@ -670,6 +673,7 @@ class SearchPageState extends State<SearchPage> {
     final searchPageType = widget.searchPageType;
     if (searchPageType == SearchPageType.friendSeeMore ||
         searchPageType == SearchPageType.channelSeeMore ||
+        searchPageType == SearchPageType.groupSeeMore ||
         searchPageType == SearchPageType.messagesSeeMore) {
       return items;
     }
