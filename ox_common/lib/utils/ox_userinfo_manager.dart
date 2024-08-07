@@ -67,6 +67,7 @@ class OXUserInfoManager {
 
   Future initDB(String pubkey) async {
     if(pubkey.isEmpty) return;
+    await logout();
     await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
     String dbpath = pubkey + ".db2";
@@ -142,7 +143,6 @@ class OXUserInfoManager {
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
     UserConfigTool.saveUser(userDB);
-    UserConfigTool.updateSettingFromDB(userDB.settings);
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -272,6 +272,15 @@ class OXUserInfoManager {
     }
   }
 
+  Future<UserDBISAR?> handleSwitchFailures(UserDBISAR? userDB, String currentUserPubKey) async {
+    if (currentUserPubKey.isNotEmpty) {
+      //In the case of failing to add a new account while already logged in, implement the logic to re-login to the current account.
+      await OXUserInfoManager.sharedInstance.initDB(currentUserPubKey);
+      userDB = await Account.sharedInstance.loginWithPubKeyAndPassword(currentUserPubKey);
+    }
+    return userDB;
+  }
+
   Future logout() async {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
@@ -355,6 +364,7 @@ class OXUserInfoManager {
   }
 
   void _initDatas() async {
+    UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     addChatCallBack();
     initDataActions.forEach((fn) {
