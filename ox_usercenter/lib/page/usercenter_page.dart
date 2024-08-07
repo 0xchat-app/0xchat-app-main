@@ -402,29 +402,6 @@ class _UserCenterPageState extends State<UserCenterPage>
             ),
           ),
         ),
-        SizedBox(height: Adapt.px(24)),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _deleteAccountHandler();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.delete_account'),
-              style: TextStyle(
-                color: ThemeColor.red1,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
         SizedBox(
           height: Adapt.px(130),
         ),
