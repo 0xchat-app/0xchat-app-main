@@ -31,7 +31,6 @@ class UserConfigTool{
   }
 
   static Future<void> updateSettingFromDB(String? settings) async {
-    LogUtil.e('Michael:---settings---updateSettingFromDB--settins =${settings}');
     if (settings == null) return;
     List<StorageSettingKey> settingKeyList = StorageSettingKey.values;
     UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -39,7 +38,6 @@ class UserConfigTool{
       String? settings = currentUser.settings;
       if (settings != null && settings.isNotEmpty){
         Map<String, dynamic> loadedSettings = json.decode(settings);
-        LogUtil.e('Michael:---settings---updateSettingFromDB--loadedSettings =${loadedSettings}');
         await Future.forEach(settingKeyList, (e) async {
           await OXCacheManager.defaultOXCacheManager.saveForeverData(e.name, loadedSettings[e.name]);
         });
@@ -61,11 +59,18 @@ class UserConfigTool{
 
   static Future<void> saveUser(UserDBISAR userDB) async {
     Map<String, MultipleUserModel> currentUserMap = await getAllUser();
+    MultipleUserModel? userModel = currentUserMap[userDB.pubKey];
+    String tempName = userDB.name ?? '';
+    String saveName = tempName.isEmpty ? (userModel == null || userModel.name.isEmpty ? userDB.shortEncodedPubkey : userModel.name) : tempName;
+    String tempDns = userDB.dns ?? '';
+    String saveDns = tempDns.isEmpty ? (userModel == null || userModel.dns.isEmpty ? '' : userModel.dns) : tempDns;
+    String? tempPic = userDB.picture ?? '';
+    String savePic = tempPic.isEmpty ? (userModel == null || userModel.picture.isEmpty ? '' : userModel.picture) : tempPic;
     currentUserMap[userDB.pubKey] = MultipleUserModel(
       pubKey: userDB.pubKey,
-      name: userDB.name,
-      dns: userDB.dns,
-      picture: userDB.picture,
+      name: saveName,
+      dns: saveDns,
+      picture: savePic,
     );
     String userMapJson = json.encode(currentUserMap);
     bool insertResult = await OXCacheManager.defaultOXCacheManager.saveData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
@@ -75,9 +80,7 @@ class UserConfigTool{
   static Future<void> deleteUser(Map<String, MultipleUserModel> currentUserMap, String pubkey) async {
     currentUserMap.remove(pubkey);
     String userMapJson = json.encode(currentUserMap);
-    LogUtil.e('Michael:---saveUser--userMapJson =${userMapJson}');
     bool insertResult = await OXCacheManager.defaultOXCacheManager.saveData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
-    LogUtil.e('Michael:---saveUser--insertResult =${insertResult}');
   }
 
   static Future<void> compatibleOld(UserDBISAR userDB) async {
@@ -89,12 +92,12 @@ class UserConfigTool{
 }
 
 class MultipleUserModel{
-  String? pubKey;
-  String? name;
-  String? picture;
-  String? dns;
+  String pubKey;
+  String name;
+  String picture;
+  String dns;
 
-  MultipleUserModel({this.pubKey, this.name, this.picture, this.dns});
+  MultipleUserModel({this.pubKey = '', this.name = '', this.picture = '', this.dns = ''});
 
   factory MultipleUserModel.fromJson(Map<String, dynamic> json) {
     return MultipleUserModel(
