@@ -130,9 +130,12 @@ class SearchPageState extends State<SearchPage> {
         break;
       case SearchPageType.discover:
         loadOnlineChannelsDataAndClear();
+        _loadChannelsData();
+        _loadGroupsData();
         break;
       case SearchPageType.friendSeeMore:
       case SearchPageType.channelSeeMore:
+      case SearchPageType.groupSeeMore:
       case SearchPageType.messagesSeeMore:
         final defaultGroup = widget.defaultGroup;
         if (defaultGroup != null) {
@@ -291,7 +294,8 @@ class SearchPageState extends State<SearchPage> {
   String _showTitle() {
     if (widget.searchPageType == SearchPageType.friendSeeMore ||
         widget.searchPageType == SearchPageType.channelSeeMore ||
-        widget.searchPageType == SearchPageType.messagesSeeMore) {
+        widget.searchPageType == SearchPageType.messagesSeeMore ||
+        widget.searchPageType == SearchPageType.groupSeeMore) {
       return '\"${widget.searchText ?? ''}\"';
     } else if (widget.searchPageType == SearchPageType.singleSessionRelated) {
       return widget.chatMessage!.name;
@@ -899,6 +903,16 @@ class SearchPageState extends State<SearchPage> {
         (context) => SearchPage(
           searchText: searchQuery,
           searchPageType: SearchPageType.messagesSeeMore,
+          defaultGroup: group,
+        ),
+      );
+    }
+    else if (type == SearchItemType.groups) {
+      OXNavigator.pushPage(
+        context,
+            (context) => SearchPage(
+          searchText: searchQuery,
+          searchPageType: SearchPageType.groupSeeMore,
           defaultGroup: group,
         ),
       );

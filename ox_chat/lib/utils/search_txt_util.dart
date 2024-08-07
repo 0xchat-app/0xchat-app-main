@@ -31,16 +31,14 @@ class SearchTxtUtil{
     final List<RelayGroupDBISAR>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
     if(groupDBlist!=null && groupDBlist.length>0) {
       List<GroupUIModel> groupUIModelList = [];
-      List<GroupDBISAR> tempGroups = Groups.sharedInstance.myGroups.values.toList();
-      tempGroups.forEach((element) {
+      groupDBlist.forEach((element) {
         groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
       });
       groupUIModels.addAll(groupUIModelList);
     }
     if(relayGroupDBlist!=null && relayGroupDBlist.length>0) {
       List<GroupUIModel> relayGroupUIModelList = [];
-      List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
-      tempGroups.forEach((element) {
+      relayGroupDBlist.forEach((element) {
         relayGroupUIModelList.add(GroupUIModel.relayGroupdbToUIModel(element));
       });
       groupUIModels.addAll(relayGroupUIModelList);
