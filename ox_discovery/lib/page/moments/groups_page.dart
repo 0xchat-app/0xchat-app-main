@@ -38,7 +38,7 @@ class _GroupsPageState extends State<GroupsPage>
   final RefreshController _refreshController = RefreshController();
   late Image _placeholderImage;
 
-  List<GroupModel?> _groupList = [];
+  Map<String, GroupModel> _groupList = {};
 
   @override
   void initState() {
@@ -140,7 +140,7 @@ class _GroupsPageState extends State<GroupsPage>
 
   List<Widget> _buildHotGroupCard() {
     double width = MediaQuery.of(context).size.width;
-    return _groupList.map((item) {
+    return _groupList.values.map((item) {
       return Container(
           margin: EdgeInsets.only(top: Adapt.px(16.0)),
           child: GestureDetector(
@@ -484,7 +484,9 @@ class _GroupsPageState extends State<GroupsPage>
       } else {
         setState(() {
           updateStateView(CommonStateView.CommonStateView_None);
-          _groupList = channels;
+          for(var group in channels){
+            _groupList[group.groupId!] = group;
+          }
         });
       }
     } catch (e,s) {
@@ -493,28 +495,19 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Future<void> _getRelayGroupList() async {
-    OXLoading.show(status: Localized.text('ox_common.loading'));
-    try {
-      List<RelayGroupDBISAR> relayGroups = await RelayGroup.sharedInstance
-          .searchGroupsFromRelays(Relays.sharedInstance.recommendGroupRelays);
-      OXLoading.dismiss();
-      List<GroupModel> groups = relayGroups
-          .map((relayGroupDB) => GroupModel.fromRelayGroupDB(relayGroupDB))
-          .toList();
-      if (groups.isEmpty) {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_NoData);
-        });
-      } else {
-        setState(() {
-          updateStateView(CommonStateView.CommonStateView_None);
-          _groupList = groups;
-        });
-      }
-    } catch (e, s) {
-      OXLoading.dismiss();
-      LogUtil.e("get Channel Failed: $e\r\n$s");
-    }
+    await RelayGroup.sharedInstance
+        .searchAllGroupsFromRelays((group){
+          _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
+          if (_groupList.isEmpty) {
+            setState(() {
+              updateStateView(CommonStateView.CommonStateView_NoData);
+            });
+          } else {
+            setState(() {
+              updateStateView(CommonStateView.CommonStateView_None);
+            });
+          }
+    });
   }
 
   @override
