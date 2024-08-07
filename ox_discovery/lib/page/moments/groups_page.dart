@@ -6,6 +6,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_common/log_util.dart';
@@ -21,9 +22,9 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class GroupsPage extends StatefulWidget {
-  final int currentIndex;
+  final GroupType groupType;
 
-  const GroupsPage({Key? key,required this.currentIndex}): super(key: key);
+  const GroupsPage({Key? key,required this.groupType}): super(key: key);
 
   @override
   State<GroupsPage> createState() => _GroupsPageState();
@@ -55,27 +56,19 @@ class _GroupsPageState extends State<GroupsPage>
       height: Adapt.px(76),
       package: 'ox_common',
     );
-    // _getChannelList();
     _getRelayGroupList();
   }
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // if (widget.currentIndex != oldWidget.currentIndex) {
-    //   if(widget.currentIndex == 2){
-    //     _getChannelList();
-    //   }else{
-    //     _getHotChannels(type: widget.currentIndex + 1,context: context);
-    //   }
-    // }
-  }
-
-  @override
-  void dispose() {
-    OXUserInfoManager.sharedInstance.removeObserver(this);
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+    if (widget.groupType == GroupType.openGroup) {
+      _groupList.clear();
+      _getRelayGroupList();
+    } else {
+      _groupList.clear();
+      _getChannelList();
+    }
   }
 
   @override
@@ -115,7 +108,10 @@ class _GroupsPageState extends State<GroupsPage>
   Widget bodyWidget() {
     return ListView.builder(
       padding: EdgeInsets.only(
-          left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(120)),
+        left: 24.px,
+        right: 24.px,
+        bottom: 120.px,
+      ),
       primary: false,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -130,10 +126,12 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   void _onRefresh() async {
-    if (widget.currentIndex == 2) {
-      _getChannelList();
+    if (widget.groupType == GroupType.openGroup) {
+      _groupList.clear();
+      _getRelayGroupList();
     } else {
-      // _getHotChannels(type: widget.currentIndex + 1);
+      _groupList.clear();
+      _getChannelList();
     }
     _refreshController.refreshCompleted();
   }
@@ -142,166 +140,45 @@ class _GroupsPageState extends State<GroupsPage>
     double width = MediaQuery.of(context).size.width;
     return _groupList.values.map((item) {
       return Container(
-          margin: EdgeInsets.only(top: Adapt.px(16.0)),
+          margin: EdgeInsets.only(top: 16.px),
           child: GestureDetector(
             child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                borderRadius: BorderRadius.circular(16.px),
                 child: Container(
                   width: Adapt.px(width - 24 * 2),
                   color: Colors.transparent,
                   child: Container(
                       decoration: BoxDecoration(
                         color: ThemeColor.color190,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(Adapt.px(16))),
+                        borderRadius:BorderRadius.circular(16.px)
                       ),
                       child: Column(
                         children: [
-                          Stack(
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRect(
-                                    child: Transform.scale(
-                                      alignment: Alignment.center,
-                                      scale: 1.2,
-                                      child: OXCachedNetworkImage(
-                                        height: Adapt.px(100),
-                                        imageUrl: item?.picture ?? '',
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        errorWidget: (context, url, error) =>
-                                        _placeholderImage,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: ClipRect(
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(
-                                            sigmaX: 6, sigmaY: 6),
-                                        child: Container(
-                                          color: Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(
-                                    left: Adapt.px(20), top: Adapt.px(53)),
-                                padding: EdgeInsets.all(Adapt.px(1)),
-                                decoration: BoxDecoration(
-                                  color: ThemeColor.color190,
-                                  border: Border.all(
-                                      color: ThemeColor.color180,
-                                      width: Adapt.px(3)),
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(Adapt.px(8))),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(Adapt.px(4))),
-                                  child: OXCachedNetworkImage(
-                                    imageUrl: item?.picture ?? '',
-                                    height: Adapt.px(60),
-                                    width: Adapt.px(60),
-                                    fit: BoxFit.cover,
-                                    errorWidget: (context, url, error) =>
-                                    _placeholderImage,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: Adapt.px(10),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(
-                                left: Adapt.px(16), right: Adapt.px(16)),
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              item?.name ?? '',
-                              maxLines: 1,
-                              style: TextStyle(
-                                  color: ThemeColor.color0,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Container(
-                            height: Adapt.px(20),
-                            margin: EdgeInsets.only(
-                                left: Adapt.px(16), right: Adapt.px(16)),
-                            alignment: Alignment.bottomLeft,
-                            child: FutureBuilder(
-                                future: _getCreator(item?.owner ?? ''),
-                                builder: (context, snapshot) {
-                                  return Text(
-                                    '${Localized.text('ox_common.by')} ${snapshot.data}',
-                                    style: TextStyle(
-                                      color: ThemeColor.color100,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    maxLines: 1,
-                                  );
-                                }),
-                          ),
-                          SizedBox(
-                            height: Adapt.px(12),
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: Adapt.px(16),
-                              ),
-                              FutureBuilder(
-                                initialData: const [].cast<String>(),
-                                future: _getMembersAvatars(
-                                    item?.members ?? []),
-                                builder: (context, snapshot) {
-                                  List<String> avatars = snapshot.data ?? [];
-                                  return avatars.isEmpty
-                                      ? const SizedBox()
-                                      : _buildAvatarStack(avatars);
-                                },
-                              ),
-                              item?.msgCount != null
-                                  ? Expanded(
-                                child: Text(
-                                  '${item?.msgCount} ${Localized.text('ox_discovery.msg_count')}',
-                                  style: TextStyle(
-                                    fontSize: Adapt.px(13),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              )
-                                  : Container(),
-                            ],
-                          ).setPadding(EdgeInsets.only(
-                              bottom: Adapt.px(item?.msgCount != null ||
-                                  item?.members != null
-                                  ? 20
-                                  : 0))),
+                          _buildCardBackgroundWidget(item.picture ?? ''),
+                          _buildGroupInfoWidget(item),
+                          _buildCreatorWidget(item.creator ?? ''),
+                          _buildMembersInfoWidget(item.members ?? []),
                         ],
-                      )),
-                )),
+                  ),
+                ),
+              ),
+            ),
             onTap: () async {
               bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
               if (isLogin) {
-                LogUtil.e("groupId : ${item?.groupId}");
-                OXModuleService.pushPage(
-                    context, 'ox_chat', 'ChatGroupMessagePage', {
-                  'chatId': item?.groupId,
-                  'chatName': item?.name,
-                  'chatType': ChatType.chatChannel,
-                  'time': item?.createTimeMs,
-                  'avatar': item?.picture,
-                  'groupId': item?.groupId,
-                });
+                if(item.type == GroupType.openGroup) {
+
+                } else if(item.type == GroupType.channel) {
+                  OXModuleService.pushPage(
+                      context, 'ox_chat', 'ChatGroupMessagePage', {
+                    'chatId': item.groupId,
+                    'chatName': item.name,
+                    'chatType': ChatType.chatChannel,
+                    'time': item.createTimeMs,
+                    'avatar': item.picture,
+                    'groupId': item.groupId,
+                  });
+                }
               } else {
                 await OXModuleService.pushPage(
                     context, "ox_login", "LoginPage", {});
@@ -309,6 +186,112 @@ class _GroupsPageState extends State<GroupsPage>
             },
           ));
     }).toList();
+  }
+
+  Widget _buildCardBackgroundWidget(String picture) {
+    return Stack(
+      children: [
+        Stack(
+          children: [
+            ClipRect(
+              child: Transform.scale(
+                alignment: Alignment.center,
+                scale: 1.2,
+                child: OXCachedNetworkImage(
+                  height: 100.px,
+                  imageUrl: picture,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorWidget: (context, url, error) => _placeholderImage,
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Container(
+          margin: EdgeInsets.only(left: 20.px, top: 53.px),
+          padding: EdgeInsets.all(1.px),
+          decoration: BoxDecoration(
+            color: ThemeColor.color190,
+            border: Border.all(
+              color: ThemeColor.color180,
+              width: 3.px,
+            ),
+            borderRadius: BorderRadius.circular(8.px),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4.px),
+            child: OXCachedNetworkImage(
+              imageUrl: picture,
+              height: 60.px,
+              width: 60.px,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => _placeholderImage,
+            ),
+          ),
+        )
+      ],
+    ).setPaddingOnly(bottom: 10.px);
+  }
+
+  Widget _buildGroupInfoWidget(GroupModel group) {
+    return Container(
+      margin: EdgeInsets.only(left: 16.px, right: 16.px,bottom: 8.px),
+      alignment: Alignment.bottomLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CommonImage(
+            iconName: group.type.typeIcon,
+            size: 28.px,
+            package: 'ox_chat',
+          ).setPaddingOnly(right: 10.px),
+          Expanded(
+            child: Text(
+              group.name,
+              maxLines: 1,
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: 24.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreatorWidget(String pubkey) {
+    if (pubkey.isEmpty) return const SizedBox();
+    return Container(
+      height: Adapt.px(20),
+      margin: EdgeInsets.only(left: 16.px, right: 16.px),
+      alignment: Alignment.bottomLeft,
+      child: FutureBuilder(
+          future: _getCreator(pubkey),
+          builder: (context, snapshot) {
+            return Text(
+              '${Localized.text('ox_common.by')} ${snapshot.data}',
+              style: TextStyle(
+                color: ThemeColor.color100,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.normal,
+              ),
+              maxLines: 1,
+            );
+          }),
+    ).setPaddingOnly(bottom: 12.px);
   }
 
   Widget _buildAvatarStack(List<String> avatarURLs) {
@@ -321,37 +304,56 @@ class _GroupsPageState extends State<GroupsPage>
     }
 
     return Container(
-      margin: EdgeInsets.only(
-        right: Adapt.px(10),
-      ),
+      margin: EdgeInsets.only(right: 10.px,),
       constraints: BoxConstraints(
         maxWidth: maxWidth,
-        minWidth: Adapt.px(32),
+        minWidth: 32.px,
       ),
       child: AvatarStack(
         settings: RestrictedPositions(
           // maxCoverage: 0.1,
           // minCoverage: 0.2,
-            align: StackAlign.left,
-            laying: StackLaying.first),
+          align: StackAlign.left,
+          laying: StackLaying.first,
+        ),
         borderColor: ThemeColor.color180,
-        height: Adapt.px(32),
+        height: 32.px,
         avatars: avatarURLs
             .map((url) {
-          if (url.isEmpty) {
-            return const AssetImage('assets/images/user_image.png',
-                package: 'ox_common');
-          } else {
-            return OXCachedNetworkImageProviderEx.create(
-              context,
-              url,
-              height: Adapt.px(26),
-            );
-          }
-        })
+              if (url.isEmpty) {
+                return const AssetImage(
+                  'assets/images/user_image.png',
+                  package: 'ox_common',
+                );
+              } else {
+                return OXCachedNetworkImageProviderEx.create(
+                  context,
+                  url,
+                  height: 26.px,
+                );
+              }
+            })
             .toList()
             .cast<ImageProvider>(),
       ),
+    );
+  }
+
+  Widget _buildMembersInfoWidget(List<String> avatars) {
+    if (avatars.isEmpty) return const SizedBox();
+    return Row(
+      children: [
+        FutureBuilder(
+          initialData: const [].cast<String>(),
+          future: _getMembersAvatars(avatars),
+          builder: (context, snapshot) {
+            List<String> avatars = snapshot.data ?? [];
+            return avatars.isEmpty
+                ? const SizedBox()
+                : _buildAvatarStack(avatars);
+          },
+        ).setPaddingOnly(left: 16.px, bottom: 20.px),
+      ],
     );
   }
 
@@ -365,13 +367,13 @@ class _GroupsPageState extends State<GroupsPage>
       child: Container(
         width: width,
         margin: EdgeInsets.symmetric(
-          horizontal: Adapt.px(24),
-          vertical: Adapt.px(6),
+          horizontal: 24.px,
+          vertical: 6.px,
         ),
-        height: Adapt.px(48),
+        height: 48.px,
         decoration: BoxDecoration(
           color: ThemeColor.color190,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
+          borderRadius: BorderRadius.circular(16.px),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -379,69 +381,27 @@ class _GroupsPageState extends State<GroupsPage>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              margin: EdgeInsets.only(left: Adapt.px(18)),
+              margin: EdgeInsets.only(left: 18.px),
               child: CommonImage(
                   iconName: 'icon_chat_search.png',
-                  width: Adapt.px(24),
-                  height: Adapt.px(24),
+                  width: 24.px,
+                  height: 24.px,
                   fit: BoxFit.cover,
                   package: 'ox_chat'),
             ),
             SizedBox(
-              width: Adapt.px(8),
+              width: 8.px,
             ),
             Text(
               Localized.text('ox_chat.search_discovery'),
               style: TextStyle(
                 fontWeight: FontWeight.w400,
-                fontSize: Adapt.px(15),
+                fontSize: 15.sp,
                 color: ThemeColor.color150,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  static Size boundingTextSize(String text, TextStyle style,
-      {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
-    if (text.isEmpty) {
-      return Size.zero;
-    }
-    final TextPainter textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style),
-        maxLines: maxLines)
-      ..layout(maxWidth: maxWidth);
-    return textPainter.size;
-  }
-
-  Widget headerViewForIndex(String leftTitle, int index) {
-    return SizedBox(
-      height: Adapt.px(45),
-      child: Row(
-        children: [
-          SizedBox(
-            width: Adapt.px(24),
-          ),
-          Text(
-            leftTitle,
-            style: TextStyle(
-                color: ThemeColor.titleColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
-          ),
-          const Spacer(),
-          // CommonImage(
-          //   iconName: "more_icon_z.png",
-          //   width: Adapt.px(39),
-          //   height: Adapt.px(8),
-          // ),
-          SizedBox(
-            width: Adapt.px(16),
-          ),
-        ],
       ),
     );
   }
@@ -471,43 +431,47 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Future<void> _getChannelList() async {
-    try {
-      List<ChannelDBISAR> channelDBList =
-      await Channels.sharedInstance.getChannelsFromRelay();
-      List<GroupModel> channels = channelDBList
-          .map((channelDB) => GroupModel.fromChannelDB(channelDB))
-          .toList();
-      if (channels.isEmpty) {
+    OXLoading.show(status: Localized.text('ox_common.loading'));
+    List<ChannelDBISAR> channelDBList = await Channels.sharedInstance.getChannelsFromRelay();
+    OXLoading.dismiss();
+    List<GroupModel> channels = channelDBList
+        .map((channelDB) => GroupModel.fromChannelDB(channelDB))
+        .toList();
+    if (channels.isEmpty) {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_NoData);
+      });
+    } else {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+        for(var group in channels){
+          _groupList[group.groupId!] = group;
+        }
+      });
+    }
+  }
+
+  Future<void> _getRelayGroupList() async {
+    await RelayGroup.sharedInstance
+        .searchAllGroupsFromRelays((group) {
+      _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
+      if (_groupList.isEmpty) {
         setState(() {
           updateStateView(CommonStateView.CommonStateView_NoData);
         });
       } else {
         setState(() {
           updateStateView(CommonStateView.CommonStateView_None);
-          for(var group in channels){
-            _groupList[group.groupId!] = group;
-          }
         });
       }
-    } catch (e,s) {
-      LogUtil.e("get Channel Failed: $e\r\n$s");
-    }
+    });
   }
 
-  Future<void> _getRelayGroupList() async {
-    await RelayGroup.sharedInstance
-        .searchAllGroupsFromRelays((group){
-          _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
-          if (_groupList.isEmpty) {
-            setState(() {
-              updateStateView(CommonStateView.CommonStateView_NoData);
-            });
-          } else {
-            setState(() {
-              updateStateView(CommonStateView.CommonStateView_None);
-            });
-          }
-    });
+  @override
+  void dispose() {
+    OXUserInfoManager.sharedInstance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -531,11 +495,6 @@ class _GroupsPageState extends State<GroupsPage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  @override
-  void didRelayStatusChange(String relay, int status) {
-    setState(() {});
-  }
 
   onThemeStyleChange() {
     if (mounted) setState(() {});

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -48,6 +49,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
         CommonStateViewMixin {
 
   int _channelCurrentIndex = 0;
+
+  GroupType _groupType = GroupType.openGroup;
 
 
   EDiscoveryPageType pageType = EDiscoveryPageType.moment;
@@ -248,8 +251,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             context: context,
             backgroundColor: Colors.transparent,
             builder: (BuildContext context) {
-              return const GroupSelectorDialog(
+              return GroupSelectorDialog(
                 title: 'Groups',
+                onChanged: (type) => _updateGroupType(type),
               );
             },
           );
@@ -292,7 +296,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   Widget _body(){
     if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
-    return GroupsPage(currentIndex: _channelCurrentIndex);
+    return GroupsPage(
+      groupType: _groupType,
+    );
   }
 
   static Size boundingTextSize(String text, TextStyle style,
@@ -528,6 +534,11 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     OXNavigator.pop(context);
   }
 
+  void _updateGroupType(GroupType groupType) {
+    setState(() {
+      _groupType = groupType;
+    });
+  }
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {

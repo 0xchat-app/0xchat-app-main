@@ -21,11 +21,11 @@ extension GroupTypeEx on GroupType{
   String get typeIcon {
     switch (this) {
       case GroupType.openGroup:
-        return 'icon_type_open_group.png';
+        return 'icon_group_open.png';
       case GroupType.privateGroup:
-        return 'icon_type_private_group.png';
+        return 'icon_group_private.png';
       case GroupType.channel:
-        return 'icon_type_channel.png';
+        return 'icon_group_channel.png';
     }
   }
 

@@ -25,6 +25,7 @@ import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
@@ -97,6 +98,21 @@ class OXChat extends OXFlutterModule {
   @override
   Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
+      case 'ChatRelayGroupMsgPage':
+        return OXNavigator.pushPage(
+          context,
+              (context) => ChatRelayGroupMsgPage(
+            communityItem: ChatSessionModelISAR(
+              chatId: params?['chatId'] ?? '',
+              chatName: params?['chatName'] ?? '',
+              chatType: params?['chatType'] ?? 0,
+              createTime: params?['time'] ?? '',
+              avatar: params?['avatar'] ?? '',
+              groupId: params?['groupId'] ?? '',
+            ),
+            anchorMsgId: params?['msgId'],
+          ),
+        );
       case 'ChatGroupMessagePage':
         return OXNavigator.pushPage(
           context,
