@@ -373,13 +373,13 @@ extension MessageDBToUIEx on MessageDBISAR {
     return null;
   }
 
-  Future<MessageFactory> getMessageFactory(
+  MessageFactory getMessageFactory(
     MessageContentModel contentModel,
     [
       VoidCallback? isMentionMessageCallback = null,
       MessageCheckLogger? logger,
     ]
-  ) async {
+  ) {
     final messageType = contentModel.contentType;
     switch (messageType) {
       case MessageType.text:
@@ -424,7 +424,7 @@ extension MessageDBToUIEx on MessageDBISAR {
             parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
             contentModel.content = this.decryptContent;
             logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-            await Messages.saveMessageToDB(this);
+            Messages.saveMessageToDB(this);
             return CustomMessageFactory();
           }
         } else if (Cashu.isCashuToken(initialText)) {
@@ -432,7 +432,7 @@ extension MessageDBToUIEx on MessageDBISAR {
           parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
           contentModel.content = this.decryptContent;
           logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-          await Messages.saveMessageToDB(this);
+          Messages.saveMessageToDB(this);
           return CustomMessageFactory();
         }
 
@@ -446,6 +446,7 @@ extension MessageDBToUIEx on MessageDBISAR {
         try {
           contentModel.content = jsonEncode(meta);
           return CustomMessageFactory();
+        } catch (_) { }
         return ImageMessageFactory();
       case MessageType.video:
       case MessageType.encryptedVideo:
@@ -498,6 +499,10 @@ extension MessageUIToDBEx on types.Message {
       case types.MessageType.file:
         return MessageType.file;
       case types.MessageType.custom:
+        final msg = this;
+        if (msg is types.CustomMessage && msg.customType == CustomMessageType.imageSending) {
+          return encrypt ? MessageType.encryptedImage : MessageType.image;
+        }
         return MessageType.template;
       case types.MessageType.system:
         return MessageType.system;
@@ -520,6 +525,9 @@ extension MessageUIToDBEx on types.Message {
     ) {
       return content;
     } else if (msg is types.CustomMessage) {
+      if (msg.customType == CustomMessageType.imageSending) {
+        return ImageSendingMessageEx(msg).url;
+      }
       return msg.customContentString;
     }
     return jsonEncode(map);
@@ -551,5 +559,26 @@ extension UIMessageEx on types.Message {
       this.author.id,
     );
     return '$authorName: $previewText';
+  }
+}
+
+extension UIImageMessageEx on types.ImageMessage {
+  types.Message asCustomImageMessage() {
+    return CustomMessageFactory().createImageSendingMessage(
+      author: author,
+      timestamp: this.createdAt,
+      roomId: roomId ?? '',
+      id: id,
+      path: '',
+      url: uri,
+      width: width?.toInt(),
+      height: height?.toInt(),
+      encryptedKey: decryptKey,
+      remoteId: remoteId,
+      sourceKey: sourceKey,
+      expiration: expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
+    );
   }
 }
