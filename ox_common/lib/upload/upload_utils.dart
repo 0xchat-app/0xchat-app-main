@@ -228,10 +228,10 @@ class UploadManager {
     });
   }
 
-  Stream<double> getUploadProgress(String uploadId) {
+  Stream<double>? getUploadProgress(String uploadId) {
     final controller = uploadStreamMap[uploadId];
     if (controller == null) {
-      return Stream.value(0.0);
+      return null;
     }
     return controller.stream;
   }
