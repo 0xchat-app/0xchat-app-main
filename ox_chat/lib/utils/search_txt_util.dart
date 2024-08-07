@@ -25,10 +25,10 @@ class SearchTxtUtil{
     return channelList;
   }
 
-  static List<GroupUIModel>? loadChatGroupWithSymbol(String symbol) {
+  static Future<List<GroupUIModel>?> loadChatGroupWithSymbol(String symbol) async {
     List<GroupUIModel> groupUIModels = [];
     final List<GroupDBISAR>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
-    final List<RelayGroupDBISAR>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
+    final List<RelayGroupDBISAR>? relayGroupDBlist = await RelayGroup.sharedInstance.fuzzySearch(symbol);
     if(groupDBlist!=null && groupDBlist.length>0) {
       List<GroupUIModel> groupUIModelList = [];
       groupDBlist.forEach((element) {

@@ -183,7 +183,7 @@ class SearchPageState extends State<SearchPage> {
 
 
   void _loadGroupsData() async {
-    List<GroupUIModel>? tempGroupList = SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
+    List<GroupUIModel>? tempGroupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
     if (tempGroupList != null && tempGroupList.length > 0) {
       dataGroups.add(
         Group(
