@@ -144,7 +144,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void didSwitchUser(UserDBISAR? userInfo) {
     if (this.mounted) {
       setState(() {
-        _msgDatas.clear();
         _merge();
       });
     }
