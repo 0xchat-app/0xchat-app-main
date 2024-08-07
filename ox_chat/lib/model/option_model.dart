@@ -73,7 +73,7 @@ extension GroupTypeEx on GroupType{
       case GroupType.privateGroup:
         return 'icon_group_private.png';
       case GroupType.channel:
-        return 'icon_new_channel.png';
+        return 'icon_group_channel.png';
     }
   }
 

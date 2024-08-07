@@ -77,7 +77,7 @@ class _GroupCreateSelectorDialogState extends State<GroupCreateSelectorDialog> {
                       children: [
                         Row(
                           children: [
-                            CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: tempItem != GroupType.channel ? OXChatInterface.moduleName : CommonModule, useTheme: tempItem != GroupType.channel ? false : true),
+                            CommonImage(iconName: tempItem.typeIcon, size: 24.px, package: OXChatInterface.moduleName),
                             SizedBox(width: 8.px),
                             MyText(tempItem.text, 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
                           ],
