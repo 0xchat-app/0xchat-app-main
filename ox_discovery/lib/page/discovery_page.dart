@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_discovery/page/moments/groups_page.dart';
+import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -240,8 +242,17 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           height: Adapt.px(24),
           color: ThemeColor.color100,
         ),
-        onTap: () {
-          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
+        onTap: () async {
+          // showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
+          await showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext context) {
+              return const GroupSelectorDialog(
+                title: 'Groups',
+              );
+            },
+          );
         },
       ),
       _isLogin ? SizedBox(
@@ -281,7 +292,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   Widget _body(){
     if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
-    return ChannelPage(currentIndex: _channelCurrentIndex);
+    return GroupsPage(currentIndex: _channelCurrentIndex);
   }
 
   static Size boundingTextSize(String text, TextStyle style,
