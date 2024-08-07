@@ -276,7 +276,7 @@ class OXUserInfoManager {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    Account.sharedInstance.logout();
+    await Account.sharedInstance.logout();
     resetData();
   }
 
