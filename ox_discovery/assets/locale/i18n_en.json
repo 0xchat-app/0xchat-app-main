@@ -7,7 +7,6 @@
   "channel_search_hint_text": "Search channel",
   "moment": "Moment",
   "channel": "Channel",
-  "group": "Groups",
   "private": "private",
   "all": "All",
   "public": "Public",
@@ -77,6 +76,7 @@
   "loading_note": "Loading...",
   "hour_age_tips": "hours ago",
   "minute_age_tips": "minutes ago",
-  "just_now": "just now"
+  "just_now": "just now",
+  "group": "Groups"
 }
 

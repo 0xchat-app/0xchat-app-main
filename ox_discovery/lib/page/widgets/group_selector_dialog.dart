@@ -88,7 +88,7 @@ class _GroupSelectorDialogState extends State<GroupSelectorDialog> {
                               style: TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 16.sp,
-                                color: ThemeColor.color100,
+                                color: ThemeColor.color0,
                               ),
                             ),
                           ],

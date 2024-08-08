@@ -62,13 +62,7 @@ class _GroupsPageState extends State<GroupsPage>
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.groupType == GroupType.openGroup) {
-      _groupList.clear();
-      _getRelayGroupList();
-    } else {
-      _groupList.clear();
-      _getChannelList();
-    }
+    _updateGroupList();
   }
 
   @override
@@ -85,6 +79,21 @@ class _GroupsPageState extends State<GroupsPage>
     }
   }
 
+  void _updateGroupList() {
+    if (widget.groupType == GroupType.openGroup) {
+      _groupList.clear();
+      _getRelayGroupList();
+    } else {
+      _groupList.clear();
+      _getChannelList();
+    }
+  }
+
+  void _onRefresh() async {
+    _updateGroupList();
+    _refreshController.refreshCompleted();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -98,14 +107,14 @@ class _GroupsPageState extends State<GroupsPage>
         child: Column(
           children: [
             _topSearch(),
-            commonStateViewWidget(context, bodyWidget()),
+            commonStateViewWidget(context, _buildBodyWidget()),
           ],
         ),
       ),
     );
   }
 
-  Widget bodyWidget() {
+  Widget _buildBodyWidget() {
     return ListView.builder(
       padding: EdgeInsets.only(
         left: 24.px,
@@ -123,17 +132,6 @@ class _GroupsPageState extends State<GroupsPage>
         );
       },
     );
-  }
-
-  void _onRefresh() async {
-    if (widget.groupType == GroupType.openGroup) {
-      _groupList.clear();
-      _getRelayGroupList();
-    } else {
-      _groupList.clear();
-      _getChannelList();
-    }
-    _refreshController.refreshCompleted();
   }
 
   List<Widget> _buildHotGroupCard() {
@@ -163,28 +161,9 @@ class _GroupsPageState extends State<GroupsPage>
                 ),
               ),
             ),
-            onTap: () async {
-              bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
-              if (isLogin) {
-                if(item.type == GroupType.openGroup) {
-
-                } else if(item.type == GroupType.channel) {
-                  OXModuleService.pushPage(
-                      context, 'ox_chat', 'ChatGroupMessagePage', {
-                    'chatId': item.groupId,
-                    'chatName': item.name,
-                    'chatType': ChatType.chatChannel,
-                    'time': item.createTimeMs,
-                    'avatar': item.picture,
-                    'groupId': item.groupId,
-                  });
-                }
-              } else {
-                await OXModuleService.pushPage(
-                    context, "ox_login", "LoginPage", {});
-              }
-            },
-          ));
+          onTap: () => _hotGroupCardOnTap(item),
+        ),
+      );
     }).toList();
   }
 
@@ -465,6 +444,43 @@ class _GroupsPageState extends State<GroupsPage>
         });
       }
     });
+  }
+
+  void _hotGroupCardOnTap(GroupModel group) async {
+    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    if (isLogin) {
+      if (group.type == GroupType.openGroup) {
+        OXModuleService.pushPage(
+          context,
+          'ox_chat',
+          'ChatRelayGroupMsgPage',
+          {
+            'chatId': group.groupId,
+            'chatName': group.name,
+            'chatType': ChatType.chatRelayGroup,
+            'time': group.createTimeMs,
+            'avatar': group.picture,
+            'groupId': group.groupId,
+          },
+        );
+      } else if (group.type == GroupType.channel) {
+        OXModuleService.pushPage(
+          context,
+          'ox_chat',
+          'ChatGroupMessagePage',
+          {
+            'chatId': group.groupId,
+            'chatName': group.name,
+            'chatType': ChatType.chatChannel,
+            'time': group.createTimeMs,
+            'avatar': group.picture,
+            'groupId': group.groupId,
+          },
+        );
+      }
+    } else {
+      await OXModuleService.pushPage(context, "ox_login", "LoginPage", {});
+    }
   }
 
   @override
