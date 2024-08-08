@@ -31,8 +31,8 @@ class MomentsPage extends StatefulWidget {
 }
 
 class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
-  final GlobalKey _contentContainerKey = GlobalKey();
   final GlobalKey _replyListContainerKey = GlobalKey();
+  final GlobalKey _containerKey = GlobalKey();
 
   final ScrollController _scrollController = ScrollController();
 
@@ -81,45 +81,14 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   }
 
   Future _getReplyList() async {
-    ValueNotifier<NotedUIModel> noteModelDraft = widget.notedUIModel;
     notedUIModel = widget.notedUIModel;
-
-    if (noteModelDraft.value.noteDB.isReply && widget.isShowReply) {
-      replyList = [noteModelDraft];
-      String? getReplyId = noteModelDraft.value.noteDB.getReplyId;
-      if (getReplyId != null) {
-        NoteDBISAR? note =
-            await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-        if (note == null) {
-          notedUIModel = null;
-          if (mounted) {
-            setState(() {});
-          }
-          return;
-        }
-        notedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
-      }
-
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await Future.delayed(Duration.zero);
-
-        final RenderBox renderBox =
-        _contentContainerKey.currentContext?.findRenderObject() as RenderBox;
-        final size = renderBox.size;
-        _scrollToPosition(size.height - 60);
-
-        setState(() {});
-      });
-    }
 
     if (mounted) {
       setState(() {});
     }
 
-    ValueNotifier<NotedUIModel>? note = notedUIModel;
-    if (note == null) return;
-    _getReplyFromDB(note);
-    _getReplyFromRelay(note);
+    _getReplyFromDB(widget.notedUIModel);
+    _getReplyFromRelay(widget.notedUIModel);
   }
 
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft) async {
@@ -152,11 +121,8 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
       NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
       if (note != null) result.add(ValueNotifier(NotedUIModel(noteDB: note)));
     }
-    List<ValueNotifier<NotedUIModel>> noteList =
-        widget.notedUIModel.value.noteDB.isReply && widget.isShowReply
-            ? [widget.notedUIModel]
-            : [];
-    replyList = [...noteList, ...result];
+
+    replyList = result;
 
     if (mounted) {
       setState(() {});
@@ -191,10 +157,37 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _showContentWidget(),
+                      NotificationListener<SizeChangedLayoutNotification>(
+                        onNotification: (notification) {
+                          final RenderBox renderBox = _containerKey.currentContext?.findRenderObject() as RenderBox;
+                          final size = renderBox.size;
+                          _scrollToPosition(size.height - 10);
+                          return true;
+                        },
+                        child: SizeChangedLayoutNotifier(
+                          child: Container(
+                            key: _containerKey,
+                            child: MomentRootNotedWidget(
+                              notedUIModel: notedUIModel,
+                              isShowReply: widget.isShowReply,
+                              callback: (double height, lastHeight) => {},
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      MomentWidget(
+                        isShowAllContent: true,
+                        isShowInteractionData: true,
+                        isShowReply: false,
+                        notedUIModel: notedUIModel ?? widget.notedUIModel,
+                      ),
+                      // _showContentWidget(),
                       _showReplyList(),
                       _noDataWidget(),
-                      _placeholderRollWidget(),
+                      SizedBox(
+                        height: 500.px,
+                      ),
                     ],
                   ),
                 ),
@@ -204,49 +197,6 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _placeholderRollWidget() {
-    if(widget.notedUIModel.value.noteDB.noteId == notedUIModel?.value.noteDB.noteId) return const SizedBox();
-    final renderBox = _contentContainerKey.currentContext?.findRenderObject();
-    final replyListRenderBox =
-        _replyListContainerKey.currentContext?.findRenderObject();
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    if (renderBox == null || replyListRenderBox == null){
-      return const SizedBox();
-    }
-
-    final size = (renderBox as RenderBox).size;
-    final replySize = (replyListRenderBox as RenderBox).size;
-    double height = screenHeight - replySize.height - size.height;
-
-    return SizedBox(
-      height: height > 0 ? height : 0,
-    );
-  }
-
-  Widget _showContentWidget() {
-    ValueNotifier<NotedUIModel>? model = notedUIModel;
-    if (model == null) {
-      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
-    }
-    return Container(
-      key: _contentContainerKey,
-      child: MomentWidget(
-        isShowAllContent: true,
-        isShowInteractionData: true,
-        isShowReply: widget.isShowReply,
-        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
-          if (notedUIModel.value.noteDB.isReply && widget.isShowReply) {
-            await OXNavigator.pushPage(
-                context, (context) => MomentsPage(notedUIModel: notedUIModel));
-            setState(() {});
-          }
-        },
-        notedUIModel: model,
       ),
     );
   }
@@ -309,9 +259,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   Widget _noDataWidget() {
     if (replyList.isNotEmpty) return const SizedBox();
     return Padding(
-      padding: EdgeInsets.only(
-        top: 50.px,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 50.px),
       child: Center(
         child: Column(
           children: [
@@ -337,6 +285,111 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   }
 }
 
+class MomentRootNotedWidget extends StatefulWidget {
+  final ValueNotifier<NotedUIModel>? notedUIModel;
+  final bool isShowReply;
+  final Function callback;
+  const MomentRootNotedWidget({
+    super.key,
+    required this.notedUIModel,
+    required this.isShowReply,
+    required this.callback,
+  });
+
+  @override
+  State<MomentRootNotedWidget> createState() => MomentRootNotedWidgetState();
+}
+
+class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
+  final GlobalKey _contentWrapContainerKey = GlobalKey();
+  final GlobalKey _contentLastContainerKey = GlobalKey();
+
+  List<ValueNotifier<NotedUIModel>>? notedReplyList;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _dealWithNoted();
+  }
+
+  void _dealWithNoted() async {
+    if (widget.notedUIModel == null) return;
+    notedReplyList = [];
+    await _getReplyNoted(widget.notedUIModel!);
+    setState(() {});
+  }
+
+  Future _getReplyNoted(ValueNotifier<NotedUIModel> model) async {
+    String replyId = model.value.noteDB.getReplyId ?? '';
+    String? rootId = model.value.noteDB.root;
+    if (replyId.isNotEmpty) {
+      NoteDBISAR? noted =
+          await Moment.sharedInstance.loadNoteWithNoteId(replyId);
+      if (noted != null) {
+        final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: noted));
+        notedReplyList = [
+          ...[newNotedUIModel],
+          ...notedReplyList!
+        ];
+        _getReplyNoted(newNotedUIModel);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return _showContentWidget();
+  }
+
+  Widget _showContentWidget() {
+    if (notedReplyList == null) {
+      return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
+    }
+
+    return Container(
+      key: _contentWrapContainerKey,
+      child: Column(
+        children: notedReplyList!.map((model) {
+          int findIndex = notedReplyList!.indexOf(model);
+          bool isLastNoted = findIndex == notedReplyList!.length - 1;
+          return Container(
+            key: isLastNoted ? _contentLastContainerKey : null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MomentWidget(
+                  isShowAllContent: true,
+                  isShowInteractionData: true,
+                  isShowReply: false,
+                  clickMomentCallback:
+                      (ValueNotifier<NotedUIModel> notedUIModel) async {
+                    if (isLastNoted) return;
+                    if (notedUIModel.value.noteDB.isReply &&
+                        widget.isShowReply) {
+                      await OXNavigator.pushPage(context,
+                          (context) => MomentsPage(notedUIModel: notedUIModel));
+                      setState(() {});
+                    }
+                  },
+                  notedUIModel: model,
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 20.px),
+                  width: 1.px,
+                  height: 20.px,
+                  color: ThemeColor.color80,
+                )
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
 class MomentReplyWrapWidget extends StatefulWidget {
   final ValueNotifier<NotedUIModel> notedUIModel;
   final int index;
@@ -356,7 +409,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   ValueNotifier<NotedUIModel>? secondReplyNoted;
   ValueNotifier<NotedUIModel>? thirdReplyNoted;
 
-  bool isShowReplies = true;
+  bool isShowRepliesWidget = false;
 
   @override
   void initState() {
@@ -410,7 +463,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
     if (index == 1) {
       secondReplyNoted = result.isNotEmpty ? result[0] : null;
       if (secondReplyNoted != null) {
-        isShowReplies = false;
+        isShowRepliesWidget = true;
         setState(() {});
         _getReplyList(secondReplyNoted!, 2);
       }
@@ -418,6 +471,9 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
 
     if (index == 2) {
       thirdReplyNoted = result.isNotEmpty ? result[0] : null;
+      if (thirdReplyNoted != null) {
+        _getReplyList(thirdReplyNoted!, 3);
+      }
     }
 
     if (mounted) {
@@ -429,7 +485,6 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-
       child: Column(
         children: [
           MomentReplyWidget(
@@ -446,7 +501,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   }
 
   Widget _firstReplyWidget() {
-    if (firstReplyNoted == null || !isShowReplies) return const SizedBox();
+    if (firstReplyNoted == null) return const SizedBox();
     return MomentReplyWidget(
       notedUIModel: firstReplyNoted!,
       isShowLink: secondReplyNoted != null,
@@ -454,7 +509,8 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   }
 
   Widget _secondReplyWidget() {
-    if (secondReplyNoted == null || !isShowReplies) return const SizedBox();
+    if (secondReplyNoted == null || isShowRepliesWidget)
+      return const SizedBox();
     return MomentReplyWidget(
       notedUIModel: secondReplyNoted!,
       isShowLink: thirdReplyNoted != null,
@@ -462,15 +518,15 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   }
 
   Widget _thirdReplyWidget() {
-    if (thirdReplyNoted == null || !isShowReplies) return const SizedBox();
+    if (thirdReplyNoted == null || isShowRepliesWidget) return const SizedBox();
     return MomentReplyWidget(notedUIModel: thirdReplyNoted!);
   }
 
   Widget _showRepliesWidget() {
-    if (firstReplyNoted == null || isShowReplies) return const SizedBox();
+    if (!isShowRepliesWidget) return const SizedBox();
     return GestureDetector(
       onTap: () {
-        isShowReplies = true;
+        isShowRepliesWidget = false;
         setState(() {});
       },
       child: Container(
