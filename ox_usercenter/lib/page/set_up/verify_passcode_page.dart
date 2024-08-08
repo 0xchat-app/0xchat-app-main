@@ -4,6 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -41,7 +42,7 @@ class _VerifyPasscodePageState extends State<VerifyPasscodePage> {
   }
 
   void _loadData() async {
-    localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
+    localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
   }
 
   @override

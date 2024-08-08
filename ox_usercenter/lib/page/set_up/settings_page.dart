@@ -10,6 +10,7 @@ import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -68,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
     fillH = Adapt.screenH() - 60.px - 52.px * _settingModelList.length;
-    _isOpenDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
+    _isOpenDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     setState(() {});
   }
 
@@ -168,10 +169,9 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
         } else if (_settingModel.settingItemType == SettingItemType.keys) {
           OXNavigator.pushPage(context, (context) => const KeysPage());
         } else if (_settingModel.settingItemType == SettingItemType.zaps) {
-          if (OXChatBinding.sharedInstance.isZapBadge) {
+          if (_getZapBadge()) {
             MsgNotification(noticeNum: 0).dispatch(context);
-            OXChatBinding.sharedInstance.isZapBadge = false;
-            OXCacheManager.defaultOXCacheManager.saveData('$pubKey${StorageSettingKey.KEY_ZAP_BADGE.name}', false).then((value) {
+            UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, false).then((value) {
               setState(() {
                 _isShowZapBadge = _getZapBadge();
               });
@@ -235,7 +235,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   }
 
   bool _getZapBadge() {
-    return OXChatBinding.sharedInstance.isZapBadge;
+    return UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false);
   }
 
   Widget _buildZapBadgeWidget(){
@@ -263,7 +263,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
 
   Future<void> _changeOpenDevLogFn(bool value) async {
     _isOpenDevLog = value;
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, value);
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, value);
     setState(() {});
   }
 

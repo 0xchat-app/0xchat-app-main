@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -213,7 +214,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               OXCommonHintAction(
                   text: () => 'Remove Passcode',
                   onTap: () {
-                    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PASSCODE.name, '');
+                    UserConfigTool.saveSetting(StorageSettingKey.KEY_PASSCODE.name, '');
                     model.switchValue = false;
                     for(SecureModel model in _secureModelList){
                       model.switchValue = false;
@@ -229,7 +230,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
           );
         } else {
           OXNavigator.pushPage(context, (context) => PasscodePage()).then((value) async {
-            String tempPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
+            String tempPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
             if (tempPasscode.isNotEmpty) {
               model.switchValue = true;
               _initData();
@@ -239,7 +240,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         break;
       case SecureItemType.secureWithFaceID:
         if (model.switchValue){
-          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_FACEID.name, false);
+          UserConfigTool.saveSetting(StorageSettingKey.KEY_FACEID.name, false);
           model.switchValue = false;
           setState(() {});
         } else {
@@ -250,7 +251,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             if (!mounted) return;
             if (authResult) {
               CommonToast.instance.show(context, 'Authorized');
-              await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_FACEID.name, true);
+              UserConfigTool.saveSetting(StorageSettingKey.KEY_FACEID.name, true);
               model.switchValue = true;
               setState(() {});
             } else {
@@ -263,7 +264,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         break;
       case SecureItemType.secureWithFingerprint:
         if (model.switchValue){
-          await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_FINGERPRINT.name, false);
+          UserConfigTool.saveSetting(StorageSettingKey.KEY_FINGERPRINT.name, false);
           model.switchValue = false;
           setState(() {});
         } else {
@@ -275,7 +276,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             if (authResult) {
               CommonToast.instance.show(context, 'Authorized');
               model.switchValue = true;
-              await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_FINGERPRINT.name, true);
+              UserConfigTool.saveSetting(StorageSettingKey.KEY_FINGERPRINT.name, true);
               setState(() {});
             } else {
               CommonToast.instance.show(context, 'Not Authorized, try again.');

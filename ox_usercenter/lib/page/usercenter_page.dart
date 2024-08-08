@@ -13,8 +13,10 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -123,7 +125,7 @@ class _UserCenterPageState extends State<UserCenterPage>
   }
 
   bool _getZapBadge() {
-    return OXChatBinding.sharedInstance.isZapBadge;
+    return UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false);
   }
 
   //get user selected Badge Info from DB

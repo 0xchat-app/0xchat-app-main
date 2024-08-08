@@ -8,6 +8,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -67,10 +68,9 @@ class _ZapsPageState extends State<ZapsPage> {
     _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager
             .getForeverData('$pubKey.isShowWalletSelector') ??
         true;
-    _defaultZapAmount = OXUserInfoManager.sharedInstance.defaultZapAmount;
-    _defaultDescription =
-        await OXCacheManager.defaultOXCacheManager.getForeverData(
-      '${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',
+    _defaultZapAmount = UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, defaultValue: 21);
+    _defaultDescription = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name,
       defaultValue: Localized.text('ox_discovery.description_hint_text'),
     );
     _zapsRecord = await getZapsRecord();
@@ -84,9 +84,8 @@ class _ZapsPageState extends State<ZapsPage> {
 
   _amountFocusNoteListener() {
     if(!_focusNode.hasFocus){
-      int defaultZapAmount = int.parse(_zapAmountTextEditingController.text);
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name}',defaultZapAmount);
-      OXUserInfoManager.sharedInstance.defaultZapAmount = defaultZapAmount;
+      int zapAmount = int.parse(_zapAmountTextEditingController.text);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, zapAmount);
       widget.onChanged?.call(true);
     }
   }
@@ -95,7 +94,7 @@ class _ZapsPageState extends State<ZapsPage> {
     if(!_descriptionFocusNote.hasFocus){
       String defaultZapDescription = _zapDescriptionController.text;
       defaultZapDescription = defaultZapDescription.isNotEmpty ? defaultZapDescription : _defaultDescription;
-      OXCacheManager.defaultOXCacheManager.saveForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',defaultZapDescription);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name, defaultZapDescription);
       widget.onChanged?.call(true);
     }
   }

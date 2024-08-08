@@ -8,6 +8,8 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:rive/rive.dart' as river;
@@ -419,7 +421,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             title: () => Localized.text('ox_home.${riveFileNames[3]}'),
             artboard: riveArtboards[3],
             animationController: riveControllers[3],
-            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
+            unreadMsgCount: UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false) ? 1 : 0),
       ];
       if (OXUserInfoManager.sharedInstance.isLogin) {
         fetchUnreadCount();

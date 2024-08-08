@@ -1,28 +1,25 @@
 import 'dart:io';
+
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pick_or_save/pick_or_save.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 ///Title:
 ///Description: TODO(自填)
@@ -103,7 +100,7 @@ class DatabaseHelper{
     OXUserInfoManager.sharedInstance.resetData();
     await OXUserInfoManager.sharedInstance.initLocalData();
 
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
   }
 

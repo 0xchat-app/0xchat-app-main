@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -506,7 +507,7 @@ extension ChatDataCacheEx on ChatDataCache {
 
     List<MessageDBISAR> allMessage = result;
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    int msgDeletePeriod = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME.name, defaultValue: 0);
+    int msgDeletePeriod = UserConfigTool.getSetting(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME.name, defaultValue: 0);
     await Future.forEach(allMessage, (message) async {
       if(msgDeletePeriod > 0 && message.createTime + msgDeletePeriod < currentTime){
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);

@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:rive/rive.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_home/page/home_tabbar.dart';
 
 class LaunchPageView extends StatefulWidget {
@@ -36,7 +36,7 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 
   void _loadData() async {
-    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
+    _localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     _loadRiveFile();
     _onLoaded();
   }

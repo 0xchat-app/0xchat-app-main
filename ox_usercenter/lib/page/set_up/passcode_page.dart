@@ -4,6 +4,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
@@ -127,7 +128,7 @@ class _PasscodePageState extends State<PasscodePage> {
         });
       } else if (widget.type == 1) {
         if (_inputPwd == widget.passcode) {
-          OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PASSCODE.name, _inputPwd);
+          UserConfigTool.saveSetting(StorageSettingKey.KEY_PASSCODE.name, _inputPwd);
           OXNavigator.popToPage(context, pageType: 'PrivacyPage');
         } else {
           inputError();

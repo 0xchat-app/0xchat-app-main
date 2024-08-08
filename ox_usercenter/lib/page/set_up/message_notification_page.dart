@@ -5,11 +5,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -329,12 +329,11 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     String jsonString = json.encode(
       objectMap.map((key, value) => MapEntry(key.toString(), value.noticeModelToJson())),
     );
-    final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, jsonString);
-    UserConfigTool.saveSettingToDB();
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, jsonString);
   }
 
   Future<Map<int, NoticeModel>> getObjectList() async {
-    String jsonString = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
     Map<int, NoticeModel> resultMap = {};
     if (jsonString.isNotEmpty){
       final Map<String, dynamic> jsonMap = json.decode(jsonString);

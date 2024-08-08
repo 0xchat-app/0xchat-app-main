@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_tool.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -68,7 +68,7 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
   }
 
   void _getSelectIndex ()async{
-    final cacheStyle = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_THEME_INDEX.name, defaultValue: ThemeSettingType.dark.index);
+    final cacheStyle = UserConfigTool.getSetting(StorageSettingKey.KEY_THEME_INDEX.name, defaultValue: ThemeSettingType.dark.index);
     LogUtil.e('Michael:---settings---cacheStyle =${cacheStyle}');
     _selectedIndex = cacheStyle;
     setState(() {});
@@ -140,10 +140,9 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
       onTap: () async {
         final selectedIndex = index ?? 0;
         ThemeManager.changeTheme(ThemeSettingType.values[selectedIndex].themeStyle);
-        final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_THEME_INDEX.name, selectedIndex);
+        UserConfigTool.saveSetting(StorageSettingKey.KEY_THEME_INDEX.name, selectedIndex);
         _selectedIndex = selectedIndex;
         if (mounted) setState(() { });
-        UserConfigTool.saveSettingToDB();
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
