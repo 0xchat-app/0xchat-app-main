@@ -63,4 +63,5 @@ abstract mixin class OXChatObserver {
   void didOfflinePrivateMessageFinishCallBack() {}
   void didOfflineSecretMessageFinishCallBack() {}
   void didOfflineChannelMessageFinishCallBack() {}
+  void didOfflineGroupMessageFinishCallBack() {}
 }

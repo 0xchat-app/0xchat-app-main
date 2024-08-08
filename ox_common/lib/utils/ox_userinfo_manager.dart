@@ -202,6 +202,10 @@ class OXUserInfoManager {
       LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
       OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
     };
+    RelayGroup.sharedInstance.offlineGroupMessageFinishCallBack = () async {
+      LogUtil.d('Michael: init  offlineGroupMessageFinishCallBack');
+      OXChatBinding.sharedInstance.offlineGroupMessageFinishCallBack();
+    };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.d("Michael: init contactUpdatedCallBack");
       _fetchFinishHandler(_ContactType.contacts);

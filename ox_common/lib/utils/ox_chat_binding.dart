@@ -650,4 +650,10 @@ class OXChatBinding {
       observer.didOfflineChannelMessageFinishCallBack();
     }
   }
+
+  void offlineGroupMessageFinishCallBack() {
+    for (OXChatObserver observer in _observers) {
+      observer.didOfflineGroupMessageFinishCallBack();
+    }
+  }
 }
