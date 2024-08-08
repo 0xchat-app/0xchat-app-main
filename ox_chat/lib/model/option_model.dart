@@ -60,7 +60,7 @@ extension GroupTypeEx on GroupType{
       case GroupType.privateGroup:
         return 'str_group_type_private'.localized();
       case GroupType.channel:
-        return Localized.text('ox_common.str_new_channel');
+        return 'create_channel'.localized();
     }
   }
 
@@ -86,7 +86,7 @@ extension GroupTypeEx on GroupType{
       case GroupType.privateGroup:
         return 'str_group_private_description'.localized();
       case GroupType.channel:
-        return 'Channel description';
+        return 'str_public_channel_description'.localized();
     }
   }
 }

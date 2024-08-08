@@ -32,11 +32,11 @@ extension GroupTypeEx on GroupType{
   String get groupDesc {
     switch (this) {
       case GroupType.openGroup:
-        return Localized.text('ox_chat.str_group_open_description');
+        return Localized.text('ox_discovery.group_search_text');
       case GroupType.privateGroup:
-        return Localized.text('ox_chat.str_group_private_description');
+        return Localized.text('ox_discovery.group_search_text');
       case GroupType.channel:
-        return 'Channel description';
+        return Localized.text('ox_discovery.channel_search_text');
     }
   }
 }

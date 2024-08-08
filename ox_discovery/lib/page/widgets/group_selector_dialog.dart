@@ -37,23 +37,23 @@ class _GroupSelectorDialogState extends State<GroupSelectorDialog> {
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
-      height: (78.5 * (_itemModelList.length + 1) + 41 + 8).px,
+      height: (78.5 * (_itemModelList.length + 1) + 8).px,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          SizedBox(
-            height: 41.px,
-            child: Center(
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18.sp,
-                  color: ThemeColor.color100,
-                ),
-              ),
-            ),
-          ),
+          // SizedBox(
+          //   height: 41.px,
+          //   child: Center(
+          //     child: Text(
+          //       widget.title,
+          //       style: TextStyle(
+          //         fontWeight: FontWeight.w600,
+          //         fontSize: 18.sp,
+          //         color: ThemeColor.color100,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           for (var tempItem in _itemModelList)
             Column(
               mainAxisSize: MainAxisSize.min,

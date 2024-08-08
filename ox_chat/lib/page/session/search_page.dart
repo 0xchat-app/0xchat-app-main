@@ -262,6 +262,7 @@ class SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    return normalPage();
     return widget.searchPageType == SearchPageType.discover
         ? discoverPage()
         : normalPage();
