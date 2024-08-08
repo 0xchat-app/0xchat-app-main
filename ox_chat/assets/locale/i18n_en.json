@@ -10,7 +10,7 @@
   "send_message": "Message",
   "delete": "Delete",
   "search": "Search",
-  "search_discovery": "Search channels & groups",
+  "search_discovery": "Search groups & channels",
   "search_tips_prefix": "Try searching for",
   "search_tips_suffix_all": " chats, friends, groups, channels",
   "search_tips_suffix_friend": " friends",
