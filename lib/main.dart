@@ -11,6 +11,7 @@ import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/error_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +65,7 @@ void main() async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
     FlutterError.onError = (FlutterErrorDetails details) async {
-      bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
+      bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
       if (openDevLog) {
         FlutterError.presentError(details);
         ErrorUtils.logErrorToFile(details.toString());
@@ -76,7 +77,7 @@ void main() async {
     });
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) async {
-    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
+    bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     if (openDevLog) {
       ErrorUtils.logErrorToFile(error.toString());
     }
@@ -250,7 +251,7 @@ class MainState extends State<MainApp>
   }
 
   void showPasswordDialog() async {
-    String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
+    String localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     if (localPasscode.isNotEmpty && OXNavigator.navigatorKey.currentContext != null)
       OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
   }
