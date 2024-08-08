@@ -3,8 +3,10 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
@@ -22,12 +24,12 @@ import 'dart:io';
 class ErrorUtils{
   static Future<void> logErrorToFile(String error) async {
     final directory = await getApplicationDocumentsDirectory();
-    int lastTime = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_SAVE_LOG_TIME.name, defaultValue: 0);
+    int lastTime = UserConfigTool.getSetting(StorageSettingKey.KEY_SAVE_LOG_TIME.name, defaultValue: 0) as int;
     int fileNameTime = DateTime.now().millisecondsSinceEpoch;
     if (lastTime + 24 * 3600 * 1000 > fileNameTime) {
       fileNameTime = lastTime;
     } else {
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_SAVE_LOG_TIME.name, fileNameTime);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_SAVE_LOG_TIME.name, fileNameTime);
     }
     final path = directory.path + '/'+'0xchat_log_${fileNameTime}.txt';
     final file = File(path);

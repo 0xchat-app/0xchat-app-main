@@ -7,7 +7,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
@@ -64,7 +64,6 @@ class OXUserInfoManager {
 
   bool canVibrate = true;
   bool canSound = true;
-  int defaultZapAmount = 0;
   bool signatureVerifyFailed = false;
 
   Future initDB(String pubkey) async {
@@ -320,27 +319,29 @@ class OXUserInfoManager {
     bool updateNotificatin = false;
     if (!isLogin) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: []);
-    List<String> jsonStringList = dynamicList.cast<String>();
-
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    if (jsonString.isEmpty) return updateNotificatin;
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
     ///4、 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735 zap, 9、10 relay group
     List<int> kinds = [4, 44, 1059, 42, 9735];
-    for (String jsonString in jsonStringList) {
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      if (jsonMap['id'] == 0 && !jsonMap['isSelected']) {
-        kinds = [];
-        break;
-      }
-      if (jsonMap['id'] == 1 && !jsonMap['isSelected']) {
-        kinds.remove(4);
-        kinds.remove(44);
-        kinds.remove(1059);
-      }
-      if (jsonMap['id'] == 2 && !jsonMap['isSelected']) {
-        kinds.remove(42);
-      }
-      if (jsonMap['id'] == 3 && !jsonMap['isSelected']) {
-        kinds.remove(9735);
+    for (var entry in jsonMap.entries) {
+      var value = entry.value;
+      if (value is Map<String, dynamic>) {
+        if (value['id'] == 0 && !value['isSelected']){
+          kinds = [];
+          break;
+        }
+        if (value['id'] == 1 && !value['isSelected']) {
+          kinds.remove(4);
+          kinds.remove(44);
+          kinds.remove(1059);
+        }
+        if (value['id'] == 2 && !value['isSelected']) {
+          kinds.remove(42);
+        }
+        if (value['id'] == 3 && !value['isSelected']) {
+          kinds.remove(9735);
+        }
       }
     }
     List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
@@ -389,8 +390,6 @@ class OXUserInfoManager {
     });
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
-    OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${StorageSettingKey.KEY_ZAP_BADGE.name}',defaultValue: false);
-    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name}',defaultValue: 21);
   }
 
   void _initMessage() {
@@ -414,11 +413,12 @@ class OXUserInfoManager {
   }
 
   Future<bool> _fetchFeedback(int feedback) async {
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: []);
-    if (dynamicList.isNotEmpty) {
-      List<String> jsonStringList = dynamicList.cast<String>();
-      for (var jsonString in jsonStringList) {
-        Map<String, dynamic> jsonMap = json.decode(jsonString);
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    if (jsonString.isEmpty) return true;
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    for (var entry in jsonMap.entries) {
+      var value = entry.value;
+      if (value is Map<String, dynamic>) {
         if(jsonMap['id'] == feedback){
           return jsonMap['isSelected'];
         }

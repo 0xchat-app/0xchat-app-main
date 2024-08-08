@@ -4,6 +4,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/model/ice_server_model.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 
 abstract mixin class OXServerObserver {
   void didAddICEServer(List<Map<String,String>> serverConfigList) {}
@@ -116,14 +117,13 @@ class OXServerManager {
   }
 
   Future<bool> getOpenP2p() async {
-    bool openP2p = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_OPEN_P2P.name, defaultValue: false);
+    bool openP2p = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_P2P.name, defaultValue: false);
     return openP2p;
   }
 
-  Future<bool> saveOpenP2p(bool value) async {
+  Future<void> saveOpenP2p(bool value) async {
     _openP2p = value;
-    bool openP2p = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_OPEN_P2P.name, value);
-    return openP2p;
+    await UserConfigTool.saveSetting(StorageSettingKey.KEY_OPEN_P2P.name, value);
   }
 
   Future<List<FileStorageServer>> getFileStorageServers() async{

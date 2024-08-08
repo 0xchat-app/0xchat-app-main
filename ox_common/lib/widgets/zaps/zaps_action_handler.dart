@@ -9,6 +9,7 @@ import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/zaps/zaps_assisted_page.dart';
@@ -82,8 +83,8 @@ class ZapsActionHandler {
     String? pubkey = Account.sharedInstance.me?.pubKey;
     if (pubkey == null) return {};
     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
-    String defaultZapDescription = await OXCacheManager.defaultOXCacheManager.getForeverData(
-      '${pubkey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}',
+    String defaultZapDescription = UserConfigTool.getSetting(
+      StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name,
       defaultValue: Localized.text('ox_discovery.description_hint_text'),
     );
     final ecashWalletName = WalletModel.walletsWithEcash.first.title;
@@ -183,10 +184,10 @@ class ZapsActionHandler {
     bool showLoading = false,
   }) async {
     final recipient = userDB.pubKey;
-    zapAmount = zapAmount ?? OXUserInfoManager.sharedInstance.defaultZapAmount;
+    zapAmount = zapAmount ?? UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, defaultValue: 21);
     if (isDefaultEcashWallet) {
       mint = mint ?? OXWalletInterface.getDefaultMint();
-      String errorMsg = preprocessHandleZapWithEcash(mint, zapAmount);
+      String errorMsg = preprocessHandleZapWithEcash(mint, zapAmount!);
       if(errorMsg.isNotEmpty){
         await CommonToast.instance.show(context,errorMsg);
         return;
@@ -218,7 +219,7 @@ class ZapsActionHandler {
       preprocessCallback?.call();
       if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
-          sats: zapAmount,
+          sats: zapAmount!,
           recipient: recipient,
           lnurl: lnurl,
           eventId: eventId,
@@ -240,7 +241,7 @@ class ZapsActionHandler {
       }
       if(showLoading) OXLoading.show();
       Map<String, dynamic> zapsInfo = await getInvoice(
-          sats: zapAmount,
+          sats: zapAmount!,
           recipient: recipient,
           lnurl: lnurl,
           eventId: eventId,

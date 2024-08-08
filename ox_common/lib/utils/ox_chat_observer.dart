@@ -3,6 +3,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 
 ///Title: ox_chat_observer
 ///Description: TODO(Fill in by oneself)
@@ -54,8 +55,7 @@ abstract mixin class OXChatObserver {
 
   void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey${StorageSettingKey.KEY_ZAP_BADGE.name}', true);
-    OXChatBinding.sharedInstance.isZapBadge = true;
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, true);
   }
 
   void didOfflinePrivateMessageFinishCallBack() {}

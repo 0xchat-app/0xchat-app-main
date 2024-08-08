@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
@@ -70,7 +72,7 @@ class _ZapsAssistedPageState extends State<ZapsAssistedPage> {
     setState(() {
       _isDefaultEcashWallet = isDefaultEcashWallet;
       _defaultWalletName = defaultWalletName;
-      _defaultSatsValue = OXUserInfoManager.sharedInstance.defaultZapAmount.toString();
+      _defaultSatsValue = UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, defaultValue: 21).toString();
       _amountController.text = _defaultSatsValue;
       _defaultZapDescription = defaultWalletInfo['defaultZapDescription'];
     });

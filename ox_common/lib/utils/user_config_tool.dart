@@ -12,14 +12,13 @@ import 'package:ox_common/utils/storage_key_tool.dart';
 ///@author Michael
 ///CreateTime: 2023/12/18 19:11
 class UserConfigTool{
+  static dynamic getSetting(String key, {dynamic defaultValue}) {
+    return OXUserInfoManager.sharedInstance.settingsMap[key] ?? defaultValue;
+  }
 
-  static Future<void> saveSettingToDB() async {
-    List<StorageSettingKey> settingKeyList = StorageSettingKey.values;
-    Map<String, dynamic> settingsMap = {};
-    await Future.forEach(settingKeyList, (e) async {
-      final eValue = await OXCacheManager.defaultOXCacheManager.getForeverData(e.name);
-      settingsMap[e.name] = eValue;
-    });
+  static Future<void> saveSetting(String key, dynamic value) async {
+    OXUserInfoManager.sharedInstance.settingsMap[key] = value;
+    Map<String, dynamic> settingsMap = Map.from(OXUserInfoManager.sharedInstance.settingsMap);
     if (settingsMap.isNotEmpty) {
       UserDBISAR? currentUser = Account.sharedInstance.me;
       if (currentUser != null) {
@@ -31,16 +30,34 @@ class UserConfigTool{
   }
 
   static Future<void> updateSettingFromDB(String? settings) async {
-    if (settings == null) return;
+    if (settings != null && settings.isNotEmpty){
+      Map<String, dynamic> loadedSettings = json.decode(settings);
+      if (loadedSettings.isNotEmpty) {
+        OXUserInfoManager.sharedInstance.settingsMap = loadedSettings;
+      }
+    }
+  }
+
+  static Future<void> compatibleOldSettings(UserDBISAR userDB) async {
     List<StorageSettingKey> settingKeyList = StorageSettingKey.values;
     UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (currentUser != null){
       String? settings = currentUser.settings;
-      if (settings != null && settings.isNotEmpty){
-        Map<String, dynamic> loadedSettings = json.decode(settings);
+      if (settings == null){
+        Map<String, dynamic> settingsMap = {};
         await Future.forEach(settingKeyList, (e) async {
-          await OXCacheManager.defaultOXCacheManager.saveForeverData(e.name, loadedSettings[e.name]);
+          final eValue = await OXCacheManager.defaultOXCacheManager.getForeverData(e.name);
+          settingsMap[e.name] = eValue;
         });
+        if (settingsMap.isNotEmpty) {
+          OXUserInfoManager.sharedInstance.settingsMap = settingsMap;
+          UserDBISAR? currentUser = Account.sharedInstance.me;
+          if (currentUser != null) {
+            String jsonString = json.encode(settingsMap);
+            currentUser.settings = jsonString;
+            Account.sharedInstance.syncMe();
+          }
+        }
       }
     }
   }
