@@ -66,7 +66,7 @@ class SearchTxtUtil{
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
-      tempMap = await Messages.searchGroupMessagesFromDB(chatId, '%{%}%', "%${orignalSearchTxt}%");
+      tempMap = await Messages.searchGroupMessagesFromDB(chatId, orignalSearchTxt);
       List<MessageDBISAR> messages = tempMap['messages'];
       LogUtil.e('Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
       if (messages.length != 0) {
