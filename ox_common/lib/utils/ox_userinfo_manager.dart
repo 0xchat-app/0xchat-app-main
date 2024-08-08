@@ -51,6 +51,8 @@ class OXUserInfoManager {
 
   UserDBISAR? currentUserInfo;
 
+  Map<String, dynamic> settingsMap = {};
+
   var _contactFinishFlags = {
     _ContactType.contacts: false,
     _ContactType.channels: false,
