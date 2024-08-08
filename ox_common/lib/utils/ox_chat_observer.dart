@@ -14,6 +14,8 @@ abstract mixin class OXChatObserver {
 
   void didPrivateMessageCallBack(MessageDBISAR message) {}
 
+  void didPrivateChatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) {}
+
   void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) {}
 
   void didSecretChatRejectCallBack(SecretSessionDBISAR ssDB) {}

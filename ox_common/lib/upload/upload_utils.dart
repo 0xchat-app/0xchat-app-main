@@ -11,11 +11,14 @@ import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
 import 'package:dio/dio.dart';
+import 'package:path/path.dart' as Path;
 
 class UploadUtils {
 
@@ -29,6 +32,7 @@ class UploadUtils {
     bool showLoading = true,
     Function(double progress)? onProgress,
   }) async {
+    File uploadFile = file;
     File? encryptedFile;
     if(encryptedKey != null) {
       String directoryPath = '';
@@ -44,7 +48,7 @@ class UploadUtils {
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
       AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
-      file = encryptedFile;
+      uploadFile = encryptedFile;
     }
     final _showLoading = showLoading && (context != null);
     FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
@@ -57,7 +61,7 @@ class UploadUtils {
         case  FileStorageProtocol.blossom:
           final imageServices = fileStorageServer.name;
           url = await Uploader.upload(
-              file.path,
+            uploadFile.path,
               imageServices,
               fileName: filename,
               imageServiceAddr: fileStorageServer.url,
@@ -75,7 +79,7 @@ class UploadUtils {
             port: minioServer.port,
           );
           url = await MinioUploader.instance.uploadFile(
-            file: file,
+            file: uploadFile,
             filename: filename,
             fileType: fileType,
             onProgress: onProgress,
@@ -84,7 +88,7 @@ class UploadUtils {
         case FileStorageProtocol.oss:
           url = await UplodAliyun.uploadFileToAliyun(
             context: context,
-            file: file,
+            file: uploadFile,
             filename: filename,
             fileType: convertFileTypeToUploadAliyunType(fileType),
             showLoading: showLoading,
@@ -97,6 +101,12 @@ class UploadUtils {
       if (_showLoading) OXLoading.dismiss();
       return UploadExceptionHandler.handleException(e,s);
     }
+
+    await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+      url,
+      file.readAsBytesSync(),
+    );
+
     return UploadResult.success(url);
   }
 
@@ -189,36 +199,39 @@ class UploadManager {
   Future<void> uploadImage({
     required FileType fileType,
     required String filePath,
-    required String messageId,
     required uploadId,
     String? encryptedKey,
+    Function(UploadResult)? completeCallback,
   }) async {
     if (uploadStreamMap.containsKey(uploadId)) return ;
     
-    final streamController = StreamController<double>();
+    final streamController = StreamController<double>.broadcast();
     uploadStreamMap[uploadId] = streamController;
 
     final file = File(filePath);
-    
+    final fileName = filePath.getFileName() ?? '${DateTime.now().millisecondsSinceEpoch}.${Path.extension(filePath)}';
+
     UploadUtils.uploadFile(
       file: file,
-      filename: 'test.heic',
+      filename: fileName,
       fileType: FileType.image,
+      encryptedKey: encryptedKey,
       onProgress: (progress) {
         streamController.add(progress);
-      }
+      },
     ).then((result) {
       streamController.close();
       if (!result.isSuccess) {
         uploadStreamMap.remove(uploadId);
       }
+      completeCallback?.call(result);
     });
   }
 
-  Stream<double> getUploadProgress(String uploadId) {
+  Stream<double>? getUploadProgress(String uploadId) {
     final controller = uploadStreamMap[uploadId];
     if (controller == null) {
-      return Stream.value(0.0);
+      return null;
     }
     return controller.stream;
   }

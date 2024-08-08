@@ -180,6 +180,10 @@ class OXUserInfoManager {
       LogUtil.d("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
+    Contacts.sharedInstance.privateChatMessageUpdateCallBack = (MessageDBISAR message, String replacedMessageId) {
+      LogUtil.d("Michael: init privateChatMessageUpdateCallBack message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.privateChatMessageUpdateCallBack(message, replacedMessageId);
+    };
     Channels.sharedInstance.channelMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);

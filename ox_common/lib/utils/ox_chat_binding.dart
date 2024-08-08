@@ -421,6 +421,12 @@ class OXChatBinding {
     }
   }
 
+  void privateChatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) async {
+    for (OXChatObserver observer in _observers) {
+      observer.didPrivateChatMessageUpdateCallBack(message, replacedMessageId);
+    }
+  }
+
   void secretChatMessageCallBack(MessageDBISAR message) async {
     syncChatSessionTable(message);
     for (OXChatObserver observer in _observers) {

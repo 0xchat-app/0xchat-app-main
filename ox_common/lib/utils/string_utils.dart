@@ -184,6 +184,20 @@ extension StringUtil on String {
     return this[0].toUpperCase() + this.substring(1);
   }
 
+  String? getFileName({bool withExtension = true}) {
+    try {
+      Uri uri = Uri.parse(this);
+      final path = uri.path;
+      final fileName = path.split('/').last;
+      if (!withExtension && fileName.contains('.')) {
+        return fileName.substring(0, fileName.lastIndexOf('.'));
+      }
+      return fileName;
+    } catch (_) {
+      return null;
+    }
+  }
+
   bool get isRemoteURL => RegExp(r'https?:\/\/').hasMatch(this);
   bool get isFileURL => RegExp(r'file:\/\/').hasMatch(this.toLowerCase());
 }
