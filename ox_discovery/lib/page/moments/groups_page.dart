@@ -318,22 +318,33 @@ class _GroupsPageState extends State<GroupsPage>
     );
   }
 
-  Widget _buildMembersInfoWidget(List<String> avatars) {
-    if (avatars.isEmpty) return const SizedBox();
+  Widget _buildMembersInfoWidget(List<String> members) {
+    if (members.isEmpty) return const SizedBox();
     return Row(
       children: [
         FutureBuilder(
           initialData: const [].cast<String>(),
-          future: _getMembersAvatars(avatars),
+          future: _getMembersAvatars(members),
           builder: (context, snapshot) {
             List<String> avatars = snapshot.data ?? [];
             return avatars.isEmpty
                 ? const SizedBox()
                 : _buildAvatarStack(avatars);
           },
-        ).setPaddingOnly(left: 16.px, bottom: 20.px),
+        ),
+        SizedBox(width: 5.px,),
+        Expanded(
+          child: Text(
+            '${members.length} Members',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: ThemeColor.color0,
+            ),
+          ),
+        ),
       ],
-    );
+    ).setPaddingOnly(left: 16.px, bottom: 20.px);
   }
 
   Widget _topSearch() {
