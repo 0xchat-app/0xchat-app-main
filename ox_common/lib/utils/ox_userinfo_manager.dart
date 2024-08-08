@@ -319,28 +319,39 @@ class OXUserInfoManager {
     bool updateNotificatin = false;
     if (!isLogin) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
-    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
     if (jsonString.isEmpty) return updateNotificatin;
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
-    ///4、 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735 zap, 9、10 relay group
-    List<int> kinds = [4, 44, 1059, 42, 9735];
+    ///4、 44 private chat;  1059 secret chat & audio video call; 42  channel message; 9735 zap; 9、10 relay group; 1、6 reply&repost; 7 like
+    List<int> kinds = [4, 44, 1059, 42, 9735, 9, 10, 1, 6, 7];
     for (var entry in jsonMap.entries) {
       var value = entry.value;
       if (value is Map<String, dynamic>) {
-        if (value['id'] == 0 && !value['isSelected']){
+        if (value['id'] == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS && !value['isSelected']){
           kinds = [];
           break;
         }
-        if (value['id'] == 1 && !value['isSelected']) {
+        if (value['id'] == CommonConstant.NOTIFICATION_PRIVATE_MESSAGES && !value['isSelected']) {
           kinds.remove(4);
           kinds.remove(44);
           kinds.remove(1059);
         }
-        if (value['id'] == 2 && !value['isSelected']) {
+        if (value['id'] == CommonConstant.NOTIFICATION_CHANNELS && !value['isSelected']) {
           kinds.remove(42);
         }
-        if (value['id'] == 3 && !value['isSelected']) {
+        if (value['id'] == CommonConstant.NOTIFICATION_ZAPS && !value['isSelected']) {
           kinds.remove(9735);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_LIKE && !value['isSelected']) {
+          kinds.remove(7);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_REPLY && !value['isSelected']) {
+          kinds.remove(1);
+          kinds.remove(6);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_GROUPS && !value['isSelected']) {
+          kinds.remove(9);
+          kinds.remove(10);
         }
       }
     }
@@ -413,7 +424,7 @@ class OXUserInfoManager {
   }
 
   Future<bool> _fetchFeedback(int feedback) async {
-    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
     if (jsonString.isEmpty) return true;
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     for (var entry in jsonMap.entries) {

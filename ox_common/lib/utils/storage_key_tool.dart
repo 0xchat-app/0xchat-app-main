@@ -15,7 +15,7 @@ class StorageKeyTool {
 }
 
 enum StorageSettingKey {
-  KEY_NOTIFICATION_SWITCH(1000, 'KEY_NOTIFICATION_SWITCH'), //save message notification value
+  KEY_NOTIFICATION_LIST(1000, 'KEY_NOTIFICATION_LIST'), //save message notification value
   KEY_PUSH_TOKEN(1001, 'KEY_PUSH_TOKEN'),//save push token value
   KEY_PASSCODE(1002, 'KEY_PASSCODE'),//verify code
   KEY_FACEID(1003, 'KEY_FACEID'),
