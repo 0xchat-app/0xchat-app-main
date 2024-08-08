@@ -97,6 +97,27 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         isSelected: true,
       );
     }
+    bool containsLike = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_LIKE);
+    if (!containsLike) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_LIKE] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_LIKE,
+        isSelected: true,
+      );
+    }
+    bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLY);
+    if (!containsReply) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_REPLY] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_REPLY,
+        isSelected: true,
+      );
+    }
+    bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS);
+    if (!containsLike) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_GROUPS] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_GROUPS,
+        isSelected: true,
+      );
+    }
     _allNoticeModel.forEach((key, element) {
       if (element.id == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS) {
         _messageNoticeModel = element;
@@ -144,6 +165,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
           _buildCardItem(_feedbackList),
           SizedBox(height: Adapt.px(12)),
           _buildCardItem(_noticeModelList),
+          SizedBox(height: Adapt.px(44)),
         ],
       ),
     );
@@ -329,11 +351,11 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     String jsonString = json.encode(
       objectMap.map((key, value) => MapEntry(key.toString(), value.noticeModelToJson())),
     );
-    UserConfigTool.saveSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, jsonString);
+    await UserConfigTool.saveSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, jsonString);
   }
 
   Future<Map<int, NoticeModel>> getObjectList() async {
-    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_SWITCH.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
     Map<int, NoticeModel> resultMap = {};
     if (jsonString.isNotEmpty){
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
@@ -366,6 +388,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.sound_feedback');
     } else if (id == CommonConstant.NOTIFICATION_VIBRATE) {
       return Localized.text('ox_usercenter.vibrate_feedback');
+    } else if (id == CommonConstant.NOTIFICATION_LIKE) {
+      return Localized.text('ox_usercenter.str_notification_like');
+    } else if (id == CommonConstant.NOTIFICATION_REPLY) {
+      return Localized.text('ox_usercenter.str_notification_reply');
+    } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
+      return Localized.text('ox_usercenter.str_notification_groups');
     }
     return '';
   }
@@ -379,6 +407,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.channels_notifications_tips');
     } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
       return Localized.text('ox_usercenter.zaps_notifications_tips');
+    } else if (id == CommonConstant.NOTIFICATION_LIKE) {
+      return Localized.text('ox_usercenter.str_notification_like_tips');
+    } else if (id == CommonConstant.NOTIFICATION_REPLY) {
+      return Localized.text('ox_usercenter.str_notification_reply_tips');
+    } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
+      return Localized.text('ox_usercenter.str_notification_groups_tips');
     }
     return '';
   }
