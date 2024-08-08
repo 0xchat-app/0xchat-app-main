@@ -50,9 +50,11 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   @override
-  void didUpdateWidget(oldWidget) {
+  void didUpdateWidget(covariant GroupsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _updateGroupList();
+    if(widget.groupType != oldWidget.groupType) {
+      _updateGroupList();
+    }
   }
 
   @override
