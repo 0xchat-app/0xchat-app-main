@@ -24,7 +24,7 @@ class GroupShareUtils{
         context: context,
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
-          return GroupShareMenuDialog(titleTxT: 'str_group_share_menu_title'.localized());
+          return GroupShareMenuDialog(titleTxT: '');
         },
       );
       if (result != null && result is GroupMenuType) {

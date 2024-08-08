@@ -40,15 +40,15 @@ class _GroupShareMenuDialogState extends State<GroupShareMenuDialog> {
         borderRadius: BorderRadius.circular(12.px),
         color: ThemeColor.color180,
       ),
-      height: (60.5 * (_itemModelList.length + 1) + 41 + 8).px,
+      height: (60.5 * (_itemModelList.length + 1) + 8).px,
       child: ListView(
         children: [
-          SizedBox(
-            height: 41.px,
-            child: Center(
-              child: MyText(widget.titleTxT, 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
-            ),
-          ),
+          // SizedBox(
+          //   height: 41.px,
+          //   child: Center(
+          //     child: MyText(widget.titleTxT, 18.sp, ThemeColor.color100, fontWeight: FontWeight.w600),
+          //   ),
+          // ),
           for (var tempItem in _itemModelList)
             Column(
               mainAxisSize: MainAxisSize.min,
