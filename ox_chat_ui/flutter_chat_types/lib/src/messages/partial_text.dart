@@ -19,6 +19,7 @@ class PartialText {
     this.metadata,
     this.previewData,
     this.repliedMessage,
+    this.repliedMessageId,
     required this.text,
   });
 
@@ -34,6 +35,7 @@ class PartialText {
 
   /// Message that is being replied to with the current message.
   final Message? repliedMessage;
+  final String? repliedMessageId;
 
   /// User's message.
   final String text;

@@ -20,6 +20,7 @@ class PartialAudio {
     this.mimeType,
     required this.name,
     this.repliedMessage,
+    this.repliedMessageId,
     required this.size,
     required this.uri,
     this.waveForm,
@@ -43,6 +44,7 @@ class PartialAudio {
 
   /// Message that is being replied to with the current message.
   final Message? repliedMessage;
+  final String? repliedMessageId;
 
   /// Size of the audio in bytes.
   final num size;

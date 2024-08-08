@@ -212,6 +212,7 @@ extension MessageDBToUIEx on MessageDBISAR {
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
       repliedMessage: repliedMessage,
+      repliedMessageId: this.replyId,
       previewData: this.previewData,
       decryptKey: this.decryptSecret,
       expiration: this.expiration,

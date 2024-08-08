@@ -23,6 +23,7 @@ abstract class FileMessage extends Message {
     required this.name,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     required this.size,
@@ -45,6 +46,7 @@ abstract class FileMessage extends Message {
     required String name,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     required num size,
@@ -148,6 +150,7 @@ abstract class FileMessage extends Message {
     String? name,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     num? size,
@@ -179,6 +182,7 @@ class _FileMessage extends FileMessage {
     required super.name,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     required super.size,
@@ -204,6 +208,7 @@ class _FileMessage extends FileMessage {
     String? name,
     dynamic remoteId = _Unset,
     dynamic repliedMessage = _Unset,
+    String? repliedMessageId,
     dynamic roomId,
     dynamic showStatus = _Unset,
     num? size,
@@ -232,6 +237,7 @@ class _FileMessage extends FileMessage {
         repliedMessage: repliedMessage == _Unset
             ? this.repliedMessage
             : repliedMessage as Message?,
+        repliedMessageId: repliedMessageId ?? this.repliedMessageId,
         roomId: roomId == _Unset ? this.roomId : roomId as String?,
         showStatus:
             showStatus == _Unset ? this.showStatus : showStatus as bool?,

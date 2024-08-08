@@ -19,6 +19,7 @@ class PartialImage {
     this.metadata,
     required this.name,
     this.repliedMessage,
+    this.repliedMessageId,
     required this.size,
     required this.uri,
     this.width,
@@ -39,6 +40,7 @@ class PartialImage {
 
   /// Message that is being replied to with the current message.
   final Message? repliedMessage;
+  final String? repliedMessageId;
 
   /// Size of the image in bytes.
   final num? size;
