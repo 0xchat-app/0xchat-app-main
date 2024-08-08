@@ -36,7 +36,6 @@ class _GroupsPageState extends State<GroupsPage>
         WidgetsBindingObserver,
         CommonStateViewMixin {
   final RefreshController _refreshController = RefreshController();
-  late Image _placeholderImage;
 
   Map<String, GroupModel> _groupList = {};
 
@@ -47,14 +46,6 @@ class _GroupsPageState extends State<GroupsPage>
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
-    String localAvatarPath = 'assets/images/icon_group_default.png';
-    _placeholderImage = Image.asset(
-      localAvatarPath,
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_common',
-    );
     _getRelayGroupList();
   }
 
@@ -166,6 +157,17 @@ class _GroupsPageState extends State<GroupsPage>
     }).toList();
   }
 
+  Widget _placeholderImage({double? width, double? height}) {
+    String localAvatarPath = 'assets/images/icon_group_default.png';
+    return Image.asset(
+      localAvatarPath,
+      fit: BoxFit.cover,
+      width: width,
+      height: height,
+      package: 'ox_common',
+    );
+  }
+
   Widget _buildCardBackgroundWidget(String picture) {
     return Stack(
       children: [
@@ -175,13 +177,15 @@ class _GroupsPageState extends State<GroupsPage>
               child: Transform.scale(
                 alignment: Alignment.center,
                 scale: 1.2,
-                child: OXCachedNetworkImage(
-                  height: 100.px,
-                  imageUrl: picture,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorWidget: (context, url, error) => _placeholderImage,
-                ),
+                child: picture.isNotEmpty
+                    ? OXCachedNetworkImage(
+                        height: 100.px,
+                        imageUrl: picture,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorWidget: (context, url, error) => _placeholderImage(),
+                      )
+                    : _placeholderImage(height: 100.px, width: double.infinity),
               ),
             ),
             Positioned.fill(
@@ -209,13 +213,15 @@ class _GroupsPageState extends State<GroupsPage>
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4.px),
-            child: OXCachedNetworkImage(
-              imageUrl: picture,
-              height: 60.px,
-              width: 60.px,
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) => _placeholderImage,
-            ),
+            child: picture.isNotEmpty
+                ? OXCachedNetworkImage(
+                    imageUrl: picture,
+                    height: 60.px,
+                    width: 60.px,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => _placeholderImage(),
+                  )
+                : _placeholderImage(height: 60.px, width: 60.px),
           ),
         )
       ],
@@ -335,7 +341,7 @@ class _GroupsPageState extends State<GroupsPage>
         SizedBox(width: 5.px,),
         Expanded(
           child: Text(
-            count > 1 ? '$count ${Localized.text('ox_discovery.members')}' : '$count ${Localized.text('ox_discovery.members')}',
+            count > 1 ? '$count ${Localized.text('ox_discovery.members')}' : '$count ${Localized.text('ox_discovery.member')}',
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,
