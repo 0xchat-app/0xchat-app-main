@@ -6,7 +6,6 @@
   "latest_item": "最新的频道",
   "channel_search_hint_text": "搜索频道",
   "moment": "朋友圈",
-  "channel": "频道",
   "private": "私人",
   "all": "全部",
   "public": "公开",
@@ -77,5 +76,10 @@
   "hour_age_tips": "小时之前",
   "minute_age_tips": "分钟之前",
   "just_now": "刚刚",
-  "group": "群聊"
+  "group": "群聊",
+  "channel": "频道",
+  "group_search_text": "搜索开放和封闭群聊",
+  "channel_search_text": "搜索公共频道",
+  "member": "个成员",
+  "members": "个成员"
 }

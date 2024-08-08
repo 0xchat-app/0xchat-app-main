@@ -6,7 +6,6 @@
   "latest_item": "Seneste",
   "channel_search_hint_text": "Søg kanal",
   "moment": "Øjeblik",
-  "channel": "Kanal",
   "private": "privat",
   "all": "Alle",
   "public": "Offentlig",
@@ -76,5 +75,11 @@
   "loading_note": "Indlæser note...",
   "hour_age_tips": "timer siden",
   "minute_age_tips": "minutter siden",
-  "just_now": "lige nu"
+  "just_now": "lige nu",
+  "group": "Grupper",
+  "channel": "Kanaler",
+  "group_search_text": "Søg Åbne og Lukkede Grupper",
+  "channel_search_text": "Søg Offentlige Kanaler",
+  "member": "Medlem",
+  "members": "Medlemmer"
 }

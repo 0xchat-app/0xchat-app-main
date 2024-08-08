@@ -6,7 +6,6 @@
   "latest_item": "En Son",
   "channel_search_hint_text": "Kanal ara",
   "moment": "An",
-  "channel": "Kanal",
   "private": "özel",
   "all": "Hepsi",
   "public": "Genel",
@@ -76,5 +75,11 @@
   "loading_note": "Not yükleniyor...",
   "hour_age_tips": "saat önce",
   "minute_age_tips": "dakika önce",
-  "just_now": "şimdi"
+  "just_now": "şimdi",
+  "group": "Gruplar",
+  "channel": "Kanallar",
+  "group_search_text": "Açık ve Kapalı Grupları Ara",
+  "channel_search_text": "Genel Kanalları Ara",
+  "member": "Üye",
+  "members": "Üyeler"
 }

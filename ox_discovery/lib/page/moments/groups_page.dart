@@ -4,7 +4,6 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
@@ -274,7 +273,7 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Widget _buildAvatarStack(List<String> avatarURLs) {
-    final avatarCount = min(avatarURLs.length, 4);
+    final avatarCount = min(avatarURLs.length, 5);
     avatarURLs = avatarURLs.sublist(0, avatarCount);
 
     double maxWidth = Adapt.px(32);
@@ -320,6 +319,7 @@ class _GroupsPageState extends State<GroupsPage>
 
   Widget _buildMembersInfoWidget(List<String> members) {
     if (members.isEmpty) return const SizedBox();
+    final count = members.length;
     return Row(
       children: [
         FutureBuilder(
@@ -335,7 +335,7 @@ class _GroupsPageState extends State<GroupsPage>
         SizedBox(width: 5.px,),
         Expanded(
           child: Text(
-            '${members.length} Members',
+            count > 1 ? '$count ${Localized.text('ox_discovery.members')}' : '$count ${Localized.text('ox_discovery.members')}',
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,

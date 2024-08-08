@@ -6,7 +6,6 @@
   "latest_item": "Последно",
   "channel_search_hint_text": "Търсене на канал",
   "moment": "Момент",
-  "channel": "Канал",
   "private": "частен",
   "all": "Всички",
   "public": "Публичен",
@@ -76,5 +75,11 @@
   "loading_note": "Зареждане на бележката...",
   "hour_age_tips": "преди часове",
   "minute_age_tips": "преди минути",
-  "just_now": "точно сега"
+  "just_now": "точно сега",
+  "group": "Групи",
+  "channel": "Канали",
+  "group_search_text": "Търсене на отворени и затворени групи",
+  "channel_search_text": "Търсене на публични канали",
+  "member": "Член",
+  "members": "Членове"
 }

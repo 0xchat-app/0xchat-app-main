@@ -6,7 +6,6 @@
   "latest_item": "最新",
   "channel_search_hint_text": "チャンネル検索",
   "moment": "瞬間",
-  "channel": "チャンネル",
   "private": "非公開",
   "all": "すべて",
   "public": "公開",
@@ -76,5 +75,11 @@
   "loading_note": "メモを読み込み中...",
   "hour_age_tips": "時間前",
   "minute_age_tips": "分前",
-  "just_now": "たった今"
+  "just_now": "たった今",
+  "group": "グループ",
+  "channel": "チャンネル",
+  "group_search_text": "オープン＆クローズドグループを検索",
+  "channel_search_text": "公開チャンネルを検索",
+  "member": "メンバー",
+  "members": "メンバー"
 }

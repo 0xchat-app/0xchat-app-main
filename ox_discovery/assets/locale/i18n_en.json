@@ -6,7 +6,6 @@
   "latest_item": "Latest",
   "channel_search_hint_text": "Search channel",
   "moment": "Moment",
-  "channel": "Channels",
   "private": "private",
   "all": "All",
   "public": "Public",
@@ -77,8 +76,11 @@
   "hour_age_tips": "hours ago",
   "minute_age_tips": "minutes ago",
   "just_now": "just now",
+  "channel": "Channels",
   "group": "Groups",
   "group_search_text": "Search Open & Closed Groups",
-  "channel_search_text": "Search Public Channels"
+  "channel_search_text": "Search Public Channels",
+  "member": "Member",
+  "members": "Members"
 }
 

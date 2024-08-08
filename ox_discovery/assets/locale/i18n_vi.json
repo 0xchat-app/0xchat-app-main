@@ -6,7 +6,6 @@
   "latest_item": "Mới nhất",
   "channel_search_hint_text": "Tìm kênh",
   "moment": "Khoảnh khắc",
-  "channel": "Kênh",
   "private": "Riêng tư",
   "all": "Tất cả",
   "public": "Công khai",
@@ -76,5 +75,11 @@
   "loading_note": "Đang tải ghi chú...",
   "hour_age_tips": "giờ trước",
   "minute_age_tips": "phút trước",
-  "just_now": "vừa mới"
+  "just_now": "vừa mới",
+  "group": "Nhóm",
+  "channel": "Kênh",
+  "group_search_text": "Tìm kiếm Nhóm Mở & Đóng",
+  "channel_search_text": "Tìm kiếm Kênh Công khai",
+  "member": "Thành viên",
+  "members": "Thành viên"
 }

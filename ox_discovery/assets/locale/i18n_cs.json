@@ -6,7 +6,6 @@
   "latest_item": "Nejnovější",
   "channel_search_hint_text": "Hledat kanál",
   "moment": "Okamžik",
-  "channel": "Kanál",
   "private": "soukromý",
   "all": "Všichni",
   "public": "Veřejný",
@@ -76,5 +75,11 @@
   "loading_note": "Načítání poznámky...",
   "hour_age_tips": "před hodinami",
   "minute_age_tips": "před minutami",
-  "just_now": "právě teď"
+  "just_now": "právě teď",
+  "group": "Skupiny",
+  "channel": "Kanály",
+  "group_search_text": "Hledat Otevřené a Uzavřené Skupiny",
+  "channel_search_text": "Hledat Veřejné Kanály",
+  "member": "Člen",
+  "members": "Členové"
 }

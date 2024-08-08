@@ -6,7 +6,6 @@
   "latest_item": "Legújabb",
   "channel_search_hint_text": "Kanal keresése",
   "moment": "Pillanat",
-  "channel": "Csatorna",
   "private": "magán",
   "all": "Mindenki",
   "public": "Nyilvános",
@@ -76,5 +75,11 @@
   "loading_note": "Jegyzet betöltése...",
   "hour_age_tips": "órával ezelőtt",
   "minute_age_tips": "perccel ezelőtt",
-  "just_now": "épp most"
+  "just_now": "épp most",
+  "group": "Csoportok",
+  "channel": "Csatornák",
+  "group_search_text": "Nyitott és Zárt Csoportok Keresése",
+  "channel_search_text": "Nyilvános Csatornák Keresése",
+  "member": "Tag",
+  "members": "Tagok"
 }

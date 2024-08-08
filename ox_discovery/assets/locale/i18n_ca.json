@@ -6,7 +6,6 @@
   "latest_item": "Darrer",
   "channel_search_hint_text": "Cerca el canal",
   "moment": "Moment",
-  "channel": "Canal",
   "private": "privat",
   "all": "Tot",
   "public": "Públic",
@@ -76,5 +75,11 @@
   "loading_note": "Carregant nota...",
   "hour_age_tips": "fa hores",
   "minute_age_tips": "fa minuts",
-  "just_now": "ara mateix"
+  "just_now": "ara mateix",
+  "group": "Grups",
+  "channel": "Canals",
+  "group_search_text": "Cerca Grups Oberts i Tancats",
+  "channel_search_text": "Cerca Canals Públics",
+  "member": "Membre",
+  "members": "Membres"
 }
