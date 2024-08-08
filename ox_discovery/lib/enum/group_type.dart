@@ -10,11 +10,11 @@ extension GroupTypeEx on GroupType{
   String get text {
     switch (this) {
       case GroupType.openGroup:
-        return Localized.text('ox_chat.str_group_type_open');
+        return Localized.text('ox_discovery.group');
       case GroupType.privateGroup:
         return Localized.text('ox_chat.str_group_type_private');
       case GroupType.channel:
-        return Localized.text('ox_common.str_new_channel');
+        return Localized.text('ox_discovery.channel');
     }
   }
 

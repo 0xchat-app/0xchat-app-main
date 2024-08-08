@@ -252,7 +252,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             backgroundColor: Colors.transparent,
             builder: (BuildContext context) {
               return GroupSelectorDialog(
-                title: 'Groups',
+                title: Localized.text('ox_discovery.group'),
                 onChanged: (type) => _updateGroupType(type),
               );
             },

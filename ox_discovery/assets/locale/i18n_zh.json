@@ -76,5 +76,6 @@
   "loading_note": "加载中...",
   "hour_age_tips": "小时之前",
   "minute_age_tips": "分钟之前",
-  "just_now": "刚刚"
+  "just_now": "刚刚",
+  "group": "群聊"
 }
