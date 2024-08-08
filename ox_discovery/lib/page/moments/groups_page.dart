@@ -430,7 +430,7 @@ class _GroupsPageState extends State<GroupsPage>
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
         var sortedEntries = _groupList.entries.toList()
-          ..sort((a, b) => b.value.members?.length ?? 0.compareTo(a.value.members?.length ?? 0));
+          ..sort((a, b) => (b.value.members?.length ?? 0).compareTo(a.value.members?.length ?? 0));
         _groupList = Map<String, GroupModel>.fromEntries(sortedEntries);
       });
     });
