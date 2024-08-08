@@ -59,7 +59,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   late List<UserDBISAR> _data;
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
-  List<UserDBISAR>? userList;
+  List<UserDBISAR> userList = [];
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -97,32 +97,32 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   }
 
   void _initIndexBarData() {
+    userList.clear();
     userList = _data;
     indexTagList.clear();
     mapData.clear();
     noteList.clear();
-    if (null == userList || userList?.length == 0) return;
 
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    Map<UserDBISAR, String> pinyinMap = Map<UserDBISAR, String>();
-    for (var user in userList!) {
+    Map<String, String> pinyinMap = Map<String, String>();
+    for (var user in userList) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
-      pinyinMap[user] = pinyin;
+      pinyinMap[user.pubKey] = pinyin;
     }
-    userList!.sort((v1, v2) {
-      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
+    userList.sort((v1, v2) {
+      return pinyinMap[v1.pubKey]!.compareTo(pinyinMap[v2.pubKey]!);
     });
-    userList!.forEach((item) {
-      if (item.pubKey == '') return;
-      if (item.name!.isEmpty) item.name = 'unknown';
+    userList.forEach((item) {
       // if (item.userType == systemUserType) {
       //   mapData["☆"]?.insert(0, item);
       //   return;
       // }
-      var cTag = pinyinMap[item]![0].toUpperCase();
+      String? pingyin = pinyinMap[item.pubKey] ;
+      pingyin = pingyin == null || pingyin.isEmpty ? '' : pingyin[0];
+      var cTag = pingyin.toUpperCase();
       // if (EnumTypeUtils.checkShiftOperation(item.userType!, 0)) {
       //   cTag = "☆";
       // } else if (!ALPHAS_INDEX.contains(cTag)){ cTag = '#';}
