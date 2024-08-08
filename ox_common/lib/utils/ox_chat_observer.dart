@@ -35,6 +35,8 @@ abstract mixin class OXChatObserver {
 
   void didGroupMessageCallBack(MessageDBISAR message) {}
 
+  void didMessageDeleteCallBack(List<MessageDBISAR> delMessages) {}
+
   void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {}
 
   void didRelayGroupModerationCallBack(ModerationDBISAR moderationDB) {}

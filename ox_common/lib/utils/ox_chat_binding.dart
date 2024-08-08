@@ -257,6 +257,21 @@ class OXChatBinding {
     }
   }
 
+  void deleteMessageHandler(MessageDBISAR delMessage, String newSessionSubtitle) {
+    Map<String, String> tempMap = getChatIdAndOtherPubkey(delMessage);
+    String chatId = tempMap['ChatId'] ?? '';
+    if (chatId.isEmpty) return ;
+    _updateSessionSubtitle(chatId, newSessionSubtitle);
+  }
+
+  void _updateSessionSubtitle(String chatId, String subtitle) {
+    final session = sessionMap[chatId];
+    if (session == null) return ;
+
+    session.content = subtitle;
+    ChatSessionModelISAR.saveChatSessionModelToDB(session);
+  }
+
   Map<String, String> getChatIdAndOtherPubkey(MessageDBISAR messageDB) {
     String chatId = '';
     String otherUserPubkey = '';
@@ -445,6 +460,12 @@ class OXChatBinding {
     syncChatSessionTable(messageDB);
     for (OXChatObserver observer in _observers) {
       observer.didGroupMessageCallBack(messageDB);
+    }
+  }
+
+  void messageDeleteCallback(List<MessageDBISAR> delMessages) {
+    for (OXChatObserver observer in _observers) {
+      observer.didMessageDeleteCallBack(delMessages);
     }
   }
 

@@ -191,6 +191,9 @@ class OXUserInfoManager {
       LogUtil.d('Michael: init  groupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
+    Messages.sharedInstance.deleteCallBack = (List<MessageDBISAR> delMessages) {
+      OXChatBinding.sharedInstance.messageDeleteCallback(delMessages);
+    };
     RelayGroup.sharedInstance.groupMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
