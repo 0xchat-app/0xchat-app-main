@@ -439,7 +439,7 @@ class _GroupsPageState extends State<GroupsPage>
   void _hotGroupCardOnTap(GroupModel group) async {
     bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
     if (isLogin) {
-      if (group.type == GroupType.openGroup) {
+      if (group.type == GroupType.openGroup || group.type == GroupType.closeGroup) {
         OXModuleService.pushPage(
           context,
           'ox_chat',

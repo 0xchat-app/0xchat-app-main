@@ -52,8 +52,8 @@ class GroupModel {
 
   factory GroupModel.fromRelayGroupDB(RelayGroupDBISAR relayGroupDB) {
     GroupType type = GroupType.openGroup;
-    if (relayGroupDB.private) {
-      type = GroupType.privateGroup;
+    if (relayGroupDB.closed) {
+      type = GroupType.closeGroup;
     }
 
     return GroupModel(

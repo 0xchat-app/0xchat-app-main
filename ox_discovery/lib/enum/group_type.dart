@@ -3,6 +3,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 enum GroupType{
   channel,
   openGroup,
+  closeGroup,
   privateGroup,
 }
 
@@ -13,6 +14,8 @@ extension GroupTypeEx on GroupType{
         return Localized.text('ox_discovery.group');
       case GroupType.privateGroup:
         return Localized.text('ox_chat.str_group_type_private');
+      case GroupType.closeGroup:
+        return Localized.text('ox_discovery.group');
       case GroupType.channel:
         return Localized.text('ox_discovery.channel');
     }
@@ -26,6 +29,8 @@ extension GroupTypeEx on GroupType{
         return 'icon_group_private.png';
       case GroupType.channel:
         return 'icon_group_channel.png';
+      case GroupType.closeGroup:
+        return 'icon_group_close.png';
     }
   }
 
@@ -35,6 +40,8 @@ extension GroupTypeEx on GroupType{
         return Localized.text('ox_discovery.group_search_text');
       case GroupType.privateGroup:
         return Localized.text('ox_discovery.group_search_text');
+      case GroupType.closeGroup:
+        return Localized.text('ox_chat.str_group_private_description');
       case GroupType.channel:
         return Localized.text('ox_discovery.channel_search_text');
     }
