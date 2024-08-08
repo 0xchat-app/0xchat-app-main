@@ -341,7 +341,7 @@ class _GroupsPageState extends State<GroupsPage>
     return InkWell(
       autofocus: true,
       onTap: () {
-        OXModuleService.pushPage(context, 'ox_chat', 'SearchPage', {});
+        OXModuleService.pushPage(context, 'ox_chat', 'SearchPage', {'searchPageType': 6});
       },
       child: Container(
         width: width,
