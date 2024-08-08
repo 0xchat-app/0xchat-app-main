@@ -25,7 +25,7 @@ class OXValue<T> {
   T value;
 }
 
-class ChatMessageDBToUIHelper {
+class ChatMessageHelper {
 
   static String? sessionMessageTextBuilder(MessageDBISAR message) {
     final type = MessageDBISAR.stringtoMessageType(message.type);
@@ -246,7 +246,7 @@ extension MessageDBToUIEx on MessageDBISAR {
   }
 
   Future<types.User?> getAuthor() async {
-    final author = await ChatMessageDBToUIHelper.getUser(sender);
+    final author = await ChatMessageHelper.getUser(sender);
     if (author == null) {
       ChatLogUtils.error(
         className: 'MessageDBToUIEx',
@@ -483,6 +483,11 @@ extension MessageDBToUIEx on MessageDBISAR {
     this.type = MessageDBISAR.messageTypeToString(type);
     this.decryptContent = decryptContent;
   }
+
+  String get messagePreviewText {
+    final type = MessageDBISAR.stringtoMessageType(this.type);
+    return ChatMessageHelper.getMessagePreviewText(decryptContent, type, sender);
+  }
 }
 
 extension MessageUIToDBEx on types.Message {
@@ -553,12 +558,15 @@ extension UIMessageEx on types.Message {
       return '';
     }
     final authorName = author.getUserShowName();
-    final previewText = ChatMessageDBToUIHelper.getMessagePreviewText(
+    return '$authorName: $messagePreviewText';
+  }
+
+  String get messagePreviewText {
+    return ChatMessageHelper.getMessagePreviewText(
       this.content,
       this.dbMessageType(),
       this.author.id,
     );
-    return '$authorName: $previewText';
   }
 }
 

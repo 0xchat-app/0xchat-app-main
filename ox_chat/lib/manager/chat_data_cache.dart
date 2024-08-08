@@ -16,7 +16,6 @@ import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 
 class ChatDataCache with OXChatObserver {
@@ -214,6 +213,29 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
+  @override
+  void didMessageDeleteCallBack(List<MessageDBISAR> delMessages) async {
+    for (var message in delMessages) {
+      final chatType = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+      if (chatType == null) {
+        ChatLogUtils.error(
+          className: 'ChatDataCache',
+          funcName: 'didMessageDeleteCallBack',
+          message: 'chatType is null',
+        );
+        continue;
+      }
+
+      await _removeChatMessages(chatType, messageId: message.messageId);
+      types.Message? lastMessage;
+      try {
+        lastMessage = (await _getSessionMessage(chatType))
+            .firstWhere((element) => element.type != types.MessageType.system);
+      } catch (_) {}
+      OXChatBinding.sharedInstance.deleteMessageHandler(message, lastMessage?.messagePreviewText ?? '');
+    }
+  }
+
   Future addSystemMessage(String text, ChatSessionModelISAR session, { bool isSendToRemote = true}) async {
     // author
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -327,8 +349,7 @@ extension ChatDataCacheExpiration on ChatDataCache {
       return;
     }
     Timer(duration, () async {
-      await _removeChatMessages(key, message);
-      await notifyChatObserverValueChanged(key);
+      await _removeChatMessages(key, message: message);
     });
   }
 }
@@ -373,14 +394,12 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     }
 
     ChatLogUtils.info(className: 'ChatDataCache', funcName: 'deleteMessage', message: 'session: ${session.chatId}, key: $key');
-    await _removeChatMessages(key, message);
-    await notifyChatObserverValueChanged(key);
+    await _removeChatMessages(key, message: message);
   }
 
   Future<void> resendMessage(ChatTypeKey key, types.Message message) async {
-    await _removeChatMessages(key, message);
+    await _removeChatMessages(key, message: message);
     await _addChatMessages(key, message);
-    await notifyChatObserverValueChanged(key);
   }
 
   Future<void> updateMessage({
@@ -576,14 +595,19 @@ extension ChatDataCacheEx on ChatDataCache {
     await notifyChatObserverValueChanged(key);
   }
 
-  Future _removeChatMessages(ChatTypeKey key, types.Message message) async {
+  Future _removeChatMessages(
+    ChatTypeKey key, {
+    types.Message? message,
+    String? messageId,
+  }) async {
     ChatLogUtils.info(
       className: 'ChatDataCache',
       funcName: '_removeChatMessages',
-      message: 'key: $key, message: $message',
+      message: 'key: $key, message: $message, messageId: $messageId',
     );
     final messageList = await _getSessionMessage(key);
-    _removeMessageFromList(messageList, message);
+    _removeMessageFromList(messageList, message: message, messageId: messageId);
+    await notifyChatObserverValueChanged(key);
   }
 
   Future<void> _updateChatMessages(ChatTypeKey key, types.Message message, {
@@ -681,10 +705,17 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     });
   }
 
-  void _removeMessageFromList(List<types.Message> messageList, types.Message message) {
-    messageIdCache.remove(message.id);
+  void _removeMessageFromList(
+    List<types.Message> messageList, {
+    types.Message? message,
+    String? messageId,
+  }) {
+    messageId ??= message?.id;
+    if (messageId == null) return ;
 
-    final index = messageList.indexWhere((msg) => msg.id == message.id);
+    messageIdCache.remove(messageId);
+
+    final index = messageList.indexWhere((msg) => msg.id == messageId);
     if (index >= 0 && index < messageList.length) {
       messageList.removeAt(index);
     }

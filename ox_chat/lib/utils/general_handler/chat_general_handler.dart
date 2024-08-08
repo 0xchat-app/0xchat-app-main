@@ -480,7 +480,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
         OKEvent event = await Messages.deleteMessageFromRelay(messageId, '');
         OXLoading.dismiss();
         if (event.status) {
-          OXNavigator.pop(context);
+          OXNavigator.pop(null);
           messageDeleteHandler(message);
         } else {
           CommonToast.instance.show(context, event.message);

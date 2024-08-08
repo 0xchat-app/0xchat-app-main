@@ -62,7 +62,7 @@ class OXChat extends OXFlutterModule {
       await OXChatBinding.sharedInstance.initLocalSession();
       await ChatDataCache.shared.setup();
     });
-    OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageDBToUIHelper.sessionMessageTextBuilder;
+    OXChatBinding.sharedInstance.sessionMessageTextBuilder = ChatMessageHelper.sessionMessageTextBuilder;
     SchemeHelper.register('shareLinkWithScheme', shareLinkWithScheme);
   }
 
