@@ -502,7 +502,7 @@ class _ChannelPageState extends State<ChannelPage>
     try {
       OXLoading.show(status: Localized.text('ox_common.loading'));
       List<ChannelDBISAR> channelDBList =
-      await Channels.sharedInstance.getChannelsFromRelay();
+      await Channels.sharedInstance.searchChannelsFromRelay();
       OXLoading.dismiss();
       List<ChannelModel> channels = channelDBList
           .map((channelDB) => ChannelModel.fromChannelDB(channelDB))

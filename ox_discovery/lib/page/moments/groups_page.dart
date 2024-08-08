@@ -410,24 +410,17 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Future<void> _getChannelList() async {
-    OXLoading.show(status: Localized.text('ox_common.loading'));
-    List<ChannelDBISAR> channelDBList = await Channels.sharedInstance.getChannelsFromRelay();
-    OXLoading.dismiss();
-    List<GroupModel> channels = channelDBList
-        .map((channelDB) => GroupModel.fromChannelDB(channelDB))
-        .toList();
-    if (channels.isEmpty) {
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_NoData);
-      });
-    } else {
+    await Channels.sharedInstance.searchChannelsFromRelay(searchCallBack: (channels){
+      for(var channel in channels){
+        _groupList[channel.channelId] = GroupModel.fromChannelDB(channel);
+      }
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
-        for(var group in channels){
-          _groupList[group.groupId!] = group;
-        }
+        var sortedEntries = _groupList.entries.toList()
+          ..sort((a, b) => b.value.createTime.compareTo(a.value.createTime));
+        _groupList = Map<String, GroupModel>.fromEntries(sortedEntries);
       });
-    }
+    });
   }
 
   Future<void> _getRelayGroupList() async {
