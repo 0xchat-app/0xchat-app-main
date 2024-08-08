@@ -714,6 +714,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_no_member_toast'));
       return;
     }
+    await OXLoading.show();
     if (value) {
       await RelayGroup.sharedInstance.muteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
@@ -721,9 +722,16 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await RelayGroup.sharedInstance.unMuteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     }
-    setState(() {
-      _isMute = value;
-    });
+    final bool result = await OXUserInfoManager.sharedInstance.setNotification();
+    await OXLoading.dismiss();
+    if (result) {
+      if (mounted)
+        setState(() {
+          _isMute = value;
+        });
+    } else {
+      CommonToast.instance.show(context, 'mute_fail_toast'.localized());
+    }
   }
 
   void _groupMemberOptionFn(GroupListAction action) async {

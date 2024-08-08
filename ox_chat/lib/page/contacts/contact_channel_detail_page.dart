@@ -3,6 +3,7 @@ import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -659,8 +660,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
           widget.channelDB.mute = value;
         });
     } else {
-      CommonToast.instance
-          .show(context, 'Mute(Unmute) failed, please try again later.');
+      CommonToast.instance.show(context, 'mute_fail_toast'.localized());
     }
   }
 
