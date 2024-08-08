@@ -309,7 +309,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             isShowMoreIcon: false,
             isShowDivider: _hasAddPermission,
           ),
-          GroupItemBuild(
+          if (_hasAddPermission)
+            GroupItemBuild(
             title: Localized.text('ox_chat.join_request'),
             onTap: _groupRequestFn,
             isShowMoreIcon: true,
@@ -591,7 +592,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -614,7 +615,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -753,7 +754,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _groupInfoInit() {
     String groupId = widget.groupId;
-    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
     if (groupDB != null) {
       groupDBInfo = groupDB;
       _isMute = groupDB.mute;

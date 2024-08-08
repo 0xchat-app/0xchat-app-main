@@ -62,7 +62,7 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   }
 
   void _loadData(){
-    _groupDBInfo = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    _groupDBInfo = RelayGroup.sharedInstance.groups[widget.groupId];
     _avatarAliyunUrl = _groupDBInfo?.picture ?? '';
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins != null && _groupDBInfo!.admins!.length > 0) {
@@ -295,7 +295,7 @@ class RelayGroupBaseInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    RelayGroupDBISAR? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDBISAR? relayGroup = RelayGroup.sharedInstance.groups[groupId];
     return Container(
       width: double.infinity,
       height: 80.px,
