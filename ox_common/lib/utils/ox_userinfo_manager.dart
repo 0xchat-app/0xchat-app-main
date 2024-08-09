@@ -285,7 +285,7 @@ class OXUserInfoManager {
   }
 
   Future<UserDBISAR?> handleSwitchFailures(UserDBISAR? userDB, String currentUserPubKey) async {
-    if (currentUserPubKey.isNotEmpty) {
+    if (userDB == null && currentUserPubKey.isNotEmpty) {
       //In the case of failing to add a new account while already logged in, implement the logic to re-login to the current account.
       await OXUserInfoManager.sharedInstance.initDB(currentUserPubKey);
       userDB = await Account.sharedInstance.loginWithPubKeyAndPassword(currentUserPubKey);

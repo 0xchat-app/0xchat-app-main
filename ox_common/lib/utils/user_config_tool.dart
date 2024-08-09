@@ -63,7 +63,7 @@ class UserConfigTool{
   }
 
   static Future<Map<String, MultipleUserModel>> getAllUser() async {
-    String? jsonString = await OXCacheManager.defaultOXCacheManager.getData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
+    String? jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
 
     if (jsonString == null || jsonString.isEmpty) {
       return {};
@@ -90,18 +90,19 @@ class UserConfigTool{
       picture: savePic,
     );
     String userMapJson = json.encode(currentUserMap);
-    bool insertResult = await OXCacheManager.defaultOXCacheManager.saveData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
+    LogUtil.e('saveUser: userMapJson =${userMapJson}');
+    bool insertResult = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
 
   }
 
   static Future<void> deleteUser(Map<String, MultipleUserModel> currentUserMap, String pubkey) async {
     currentUserMap.remove(pubkey);
     String userMapJson = json.encode(currentUserMap);
-    bool insertResult = await OXCacheManager.defaultOXCacheManager.saveData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
+    bool insertResult = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY_LIST, userMapJson);
   }
 
   static Future<void> compatibleOld(UserDBISAR userDB) async {
-    String? jsonString = await OXCacheManager.defaultOXCacheManager.getData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
+    String? jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
     if (jsonString == null || jsonString.isEmpty) {
       saveUser(userDB);
     }
