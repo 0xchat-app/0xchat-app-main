@@ -19,6 +19,10 @@ enum UplodAliyunType {
 }
 
 class UplodAliyun {
+
+  static bool isAliOSSUrl(String url) =>
+      url.startsWith('https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}');
+
   static Future<String> uploadFileToAliyun({
     BuildContext? context,
     params,
