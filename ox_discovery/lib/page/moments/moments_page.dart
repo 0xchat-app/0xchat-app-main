@@ -310,11 +310,11 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
     if (widget.notedUIModel == null) return;
     notedReplyList = [];
     await _getReplyNoted(widget.notedUIModel!);
-    setState(() {});
   }
 
   Future _getReplyNoted(ValueNotifier<NotedUIModel> model) async {
     String replyId = model.value.noteDB.getReplyId ?? '';
+
     if (replyId.isNotEmpty) {
 
       NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
@@ -327,7 +327,26 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
         ];
         _getReplyNoted(newNotedUIModel);
       }
+    }else{
+      _updateReply(notedReplyList ?? []);
+      setState(() {});
     }
+  }
+
+  void _updateReply(List<ValueNotifier<NotedUIModel>> notedReplyList)async{
+    if(notedReplyList.isEmpty) return;
+    List<ValueNotifier<NotedUIModel>> relayNotedReplyList = [];
+    for(ValueNotifier<NotedUIModel> noted in notedReplyList){
+      String notedId = noted.value.noteDB.noteId;
+      await Moment.sharedInstance.loadNoteActions(notedId, actionsCallBack: (result) async {});
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
+      if(note == null) return;
+      noted.value = NotedUIModel(noteDB: note);
+      relayNotedReplyList.add(noted);
+    }
+    notedReplyList = relayNotedReplyList;
+    setState(() {});
+
   }
 
   @override
