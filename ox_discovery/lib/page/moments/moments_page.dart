@@ -333,20 +333,15 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
     }
   }
 
-  void _updateReply(List<ValueNotifier<NotedUIModel>> notedReplyList)async{
+  void _updateReply(List<ValueNotifier<NotedUIModel>> notedReplyList) async {
     if(notedReplyList.isEmpty) return;
-    List<ValueNotifier<NotedUIModel>> relayNotedReplyList = [];
     for(ValueNotifier<NotedUIModel> noted in notedReplyList){
       String notedId = noted.value.noteDB.noteId;
       await Moment.sharedInstance.loadNoteActions(notedId, actionsCallBack: (result) async {});
       NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
       if(note == null) return;
       noted.value = NotedUIModel(noteDB: note);
-      relayNotedReplyList.add(noted);
     }
-    notedReplyList = relayNotedReplyList;
-    setState(() {});
-
   }
 
   @override
@@ -368,18 +363,23 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MomentWidget(
-                  isShowAllContent: true,
-                  isShowInteractionData: true,
-                  isShowReply: false,
-                  clickMomentCallback:
-                      (ValueNotifier<NotedUIModel> notedUIModel) async {
-                    if (findIndex == 0) return;
-                    await OXNavigator.pushPage(context,
-                        (context) => MomentsPage(notedUIModel: notedUIModel));
-                    setState(() {});
+                ValueListenableBuilder<NotedUIModel>(
+                  valueListenable: model,
+                  builder: (context, value, child) {
+                    return MomentWidget(
+                      isShowAllContent: true,
+                      isShowInteractionData: true,
+                      isShowReply: false,
+                      clickMomentCallback:
+                          (ValueNotifier<NotedUIModel> notedUIModel) async {
+                        if (findIndex == 0) return;
+                        await OXNavigator.pushPage(context,
+                                (context) => MomentsPage(notedUIModel: notedUIModel));
+                        setState(() {});
+                      },
+                      notedUIModel: model,
+                    );
                   },
-                  notedUIModel: model,
                 ),
                 Container(
                   margin: EdgeInsets.only(left: 20.px),
