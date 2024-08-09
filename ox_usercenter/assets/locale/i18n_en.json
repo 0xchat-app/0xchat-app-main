@@ -166,7 +166,7 @@
   "str_delete_login_dialog_title": "Chat database deleted",
   "str_delete_login_dialog_hint": "Log in again.",
   "str_update_pw_success": "Database password updated successfully.",
-  "str_change_default_pw_hint": "Please change the original database password first.",
+  "str_change_default_pw_hint": "Please set the database password first.",
   "str_authentication_failed_title": "Authentication Failed",
   "str_authentication_failed_hint": "This 0xchat is secured. The entered passcode is invalid.",
   "str_mismatch_title": "Failed",
