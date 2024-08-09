@@ -126,7 +126,9 @@ abstract class VideoMessage extends Message {
   final double? width;
 
   @override
-  String get content => metadata?['videoUrl'] as String ?? '';
+  String get content => videoURL;
+
+  String get videoURL => metadata?['videoUrl'] ?? '';
 
   /// Equatable props.
   @override

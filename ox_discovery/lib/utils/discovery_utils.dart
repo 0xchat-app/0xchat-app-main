@@ -141,12 +141,13 @@ class DiscoveryUtils {
   }
 
   static String truncateTextAndProcessUsers(String text,{int limit = 300}) {
-    if (!text.contains('nostr:')) {
-      '${text.substring(0, Math.min(limit,text.length))} show more';
+    String draft = text;
+    if (!draft.contains('nostr:')) {
+      draft = '${draft.substring(0, Math.min(limit,draft.length))} show more';
     }
     int charactersNum = 0;
     String showContent = '';
-    List<String> splitText = text.split(' ');
+    List<String> splitText = draft.split(' ');
 
     for (String content in splitText) {
       if(charactersNum >= limit){
@@ -164,6 +165,7 @@ class DiscoveryUtils {
       charactersNum += content.length;
       showContent = '$showContent $content';
     }
+
     return showContent;
   }
 
