@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/file_storage_server_model.dart';
 import 'package:ox_common/model/ice_server_model.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -21,9 +20,9 @@ abstract mixin class OXServerObserver {
 class OXServerManager {
   static final OXServerManager sharedInstance = OXServerManager._internal();
 
-  static final String iceServerKey = 'KEY_ICE_SERVER';
-  static final String fileStorageServer = 'KEY_FILE_STORAGE_SERVER';
-  static final String selectedFileStorageServerIndex = 'KEY_FILE_STORAGE_SERVER_INDEX';
+  static final String iceServerKey = StorageSettingKey.KEY_ICE_SERVER.name;
+  static final String fileStorageServer = StorageSettingKey.KEY_FILE_STORAGE_SERVER.name;
+  static final String selectedFileStorageServerIndex = StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name;
 
   OXServerManager._internal();
 
@@ -87,11 +86,11 @@ class OXServerManager {
 
   Future<void> saveICEServerList(List<ICEServerModel> iceServerList) async {
     final jsonString = jsonEncode(iceServerList.map((iceServerModel) => iceServerModel.toJson(iceServerModel)).toList());
-    await OXCacheManager.defaultOXCacheManager.saveData(iceServerKey, jsonString);
+    await UserConfigTool.saveSetting(iceServerKey, jsonString);
   }
 
-  Future<List<ICEServerModel>> getICEServerList() async{
-    final String jsonString = await OXCacheManager.defaultOXCacheManager.getData(iceServerKey);
+  List<ICEServerModel> getICEServerList() {
+    final String jsonString = UserConfigTool.getSetting(iceServerKey, defaultValue: '');
 
     if(jsonString.isEmpty){
       return [];
@@ -113,7 +112,7 @@ class OXServerManager {
 
   Future<void> saveFileStorageServers(List<FileStorageServer> fileStorageServers) async {
     final jsonString = jsonEncode(fileStorageServers.map((fileStorageServer) => fileStorageServer.toJson(fileStorageServer)).toList());
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(fileStorageServer, jsonString);
+    await UserConfigTool.saveSetting(fileStorageServer, jsonString);
   }
 
   Future<bool> getOpenP2p() async {
@@ -126,8 +125,8 @@ class OXServerManager {
     await UserConfigTool.saveSetting(StorageSettingKey.KEY_OPEN_P2P.name, value);
   }
 
-  Future<List<FileStorageServer>> getFileStorageServers() async{
-    final jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(fileStorageServer,defaultValue: '');
+  List<FileStorageServer> getFileStorageServers() {
+    final jsonString = UserConfigTool.getSetting(fileStorageServer, defaultValue: '');
 
     if (jsonString.isEmpty) {
       return [];
@@ -141,12 +140,12 @@ class OXServerManager {
     return fileStorageList;
   }
 
-  Future<bool> saveSelectedFileStorageServer() async {
-    return await OXCacheManager.defaultOXCacheManager.saveForeverData(selectedFileStorageServerIndex, _selectedFileStorageIndex);
+  Future<void> saveSelectedFileStorageServer() async {
+    return await UserConfigTool.saveSetting(selectedFileStorageServerIndex, _selectedFileStorageIndex);
   }
   
-  Future<int> getSelectedFileStorageServer() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData(selectedFileStorageServerIndex,defaultValue: 0);
+  int getSelectedFileStorageServer() {
+    return UserConfigTool.getSetting(selectedFileStorageServerIndex,defaultValue: 0);
   }
 
   updateSelectedFileStorageServer(int selectedIndex) async {

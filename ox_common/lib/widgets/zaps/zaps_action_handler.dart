@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/launch/launch_third_party_app.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_loading.dart';
@@ -82,7 +80,7 @@ class ZapsActionHandler {
   Future<Map<String, dynamic>> getDefaultWalletInfo() async {
     String? pubkey = Account.sharedInstance.me?.pubKey;
     if (pubkey == null) return {};
-    String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
+    String defaultWalletName = UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_WALLET.name, defaultValue: '');
     String defaultZapDescription = UserConfigTool.getSetting(
       StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name,
       defaultValue: Localized.text('ox_discovery.description_hint_text'),
