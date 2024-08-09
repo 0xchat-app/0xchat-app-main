@@ -256,7 +256,8 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   Future messagePressHandler(BuildContext context, types.Message message) async {
     if (message is types.VideoMessage) {
-      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: message.metadata!["videoUrl"] ?? ''));
+      OXNavigator.pushPage(context, (context) =>
+          ChatVideoPlayPage(videoUrl: message.videoURL));
     } else if (message is types.ImageMessage) {
       imageMessagePressHandler(
         messageId: message.id,
