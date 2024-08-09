@@ -4,7 +4,6 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
@@ -37,7 +36,6 @@ class _GroupsPageState extends State<GroupsPage>
         WidgetsBindingObserver,
         CommonStateViewMixin {
   final RefreshController _refreshController = RefreshController();
-  late Image _placeholderImage;
 
   Map<String, GroupModel> _groupList = {};
 
@@ -48,21 +46,15 @@ class _GroupsPageState extends State<GroupsPage>
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
-    String localAvatarPath = 'assets/images/icon_group_default.png';
-    _placeholderImage = Image.asset(
-      localAvatarPath,
-      fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
-      package: 'ox_common',
-    );
     _getRelayGroupList();
   }
 
   @override
-  void didUpdateWidget(oldWidget) {
+  void didUpdateWidget(covariant GroupsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _updateGroupList();
+    if(widget.groupType != oldWidget.groupType) {
+      _updateGroupList();
+    }
   }
 
   @override
@@ -167,6 +159,17 @@ class _GroupsPageState extends State<GroupsPage>
     }).toList();
   }
 
+  Widget _placeholderImage({double? width, double? height}) {
+    String localAvatarPath = 'assets/images/icon_group_default.png';
+    return Image.asset(
+      localAvatarPath,
+      fit: BoxFit.cover,
+      width: width,
+      height: height,
+      package: 'ox_common',
+    );
+  }
+
   Widget _buildCardBackgroundWidget(String picture) {
     return Stack(
       children: [
@@ -176,13 +179,15 @@ class _GroupsPageState extends State<GroupsPage>
               child: Transform.scale(
                 alignment: Alignment.center,
                 scale: 1.2,
-                child: OXCachedNetworkImage(
-                  height: 100.px,
-                  imageUrl: picture,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorWidget: (context, url, error) => _placeholderImage,
-                ),
+                child: picture.isNotEmpty
+                    ? OXCachedNetworkImage(
+                        height: 100.px,
+                        imageUrl: picture,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorWidget: (context, url, error) => _placeholderImage(),
+                      )
+                    : _placeholderImage(height: 100.px, width: double.infinity),
               ),
             ),
             Positioned.fill(
@@ -210,13 +215,15 @@ class _GroupsPageState extends State<GroupsPage>
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4.px),
-            child: OXCachedNetworkImage(
-              imageUrl: picture,
-              height: 60.px,
-              width: 60.px,
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) => _placeholderImage,
-            ),
+            child: picture.isNotEmpty
+                ? OXCachedNetworkImage(
+                    imageUrl: picture,
+                    height: 60.px,
+                    width: 60.px,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => _placeholderImage(),
+                  )
+                : _placeholderImage(height: 60.px, width: 60.px),
           ),
         )
       ],
@@ -274,7 +281,7 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Widget _buildAvatarStack(List<String> avatarURLs) {
-    final avatarCount = min(avatarURLs.length, 4);
+    final avatarCount = min(avatarURLs.length, 5);
     avatarURLs = avatarURLs.sublist(0, avatarCount);
 
     double maxWidth = Adapt.px(32);
@@ -320,6 +327,7 @@ class _GroupsPageState extends State<GroupsPage>
 
   Widget _buildMembersInfoWidget(List<String> members) {
     if (members.isEmpty) return const SizedBox();
+    final count = members.length;
     return Row(
       children: [
         FutureBuilder(
@@ -335,7 +343,7 @@ class _GroupsPageState extends State<GroupsPage>
         SizedBox(width: 5.px,),
         Expanded(
           child: Text(
-            '${members.length} Members',
+            count > 1 ? '$count ${Localized.text('ox_discovery.members')}' : '$count ${Localized.text('ox_discovery.member')}',
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,

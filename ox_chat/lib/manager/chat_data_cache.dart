@@ -27,6 +27,7 @@ class ChatDataCache with OXChatObserver {
   }
 
   Map<ChatTypeKey, List<types.Message>> _chatMessageMap = Map();
+  List<types.Message> get allMessage => _chatMessageMap.values.expand((list) => list).toList();
 
   Map<ChatTypeKey, ValueChanged<List<types.Message>>> _valueChangedCallback = {};
 
@@ -34,19 +35,33 @@ class ChatDataCache with OXChatObserver {
 
   Completer setupCompleter = Completer();
 
+  Completer offlinePrivateMessageFlag = Completer();
+  Completer offlineSecretMessageFlag = Completer();
+  Completer offlineChannelMessageFlag = Completer();
+  Completer offlineGroupMessageFlag = Completer();
+
   setup() async {
-    if (setupCompleter.isCompleted) {
-      setupCompleter = Completer();
-    }
+
+    final setupCompleter = Completer();
+    this.setupCompleter = setupCompleter;
+    setupAllCompleter();
 
     messageIdCache.clear();
     _chatMessageMap = Map();
 
     await _setupChatMessages();
+    offlineMessageFinishHandler();
 
     if (!setupCompleter.isCompleted) {
       setupCompleter.complete();
     }
+  }
+
+  void setupAllCompleter() {
+    offlinePrivateMessageFlag = Completer();
+    offlineSecretMessageFlag = Completer();
+    offlineChannelMessageFlag = Completer();
+    offlineGroupMessageFlag = Completer();
   }
 
   Future<List<types.Message>> getSessionMessage(ChatSessionModelISAR session) async {
@@ -236,6 +251,38 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
+  @override
+  void didOfflinePrivateMessageFinishCallBack() {
+    if (!offlinePrivateMessageFlag.isCompleted) {
+      offlinePrivateMessageFlag.complete();
+    }
+  }
+
+  @override
+  void didOfflineSecretMessageFinishCallBack() {
+    if (!offlineSecretMessageFlag.isCompleted) {
+      offlineSecretMessageFlag.complete();
+    }
+  }
+
+  @override
+  void didOfflineChannelMessageFinishCallBack() {
+    if (!offlineChannelMessageFlag.isCompleted) {
+      offlineChannelMessageFlag.complete();
+    }
+  }
+
+  @override
+  void didOfflineGroupMessageFinishCallBack() {
+    if (!offlineGroupMessageFlag.isCompleted) {
+      offlineGroupMessageFlag.complete();
+    }
+  }
+
+  didOfflineMessageFinishCallBack() {
+    updateMessageReplyInfo();
+  }
+
   Future addSystemMessage(String text, ChatSessionModelISAR session, { bool isSendToRemote = true}) async {
     // author
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -412,6 +459,7 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     if (session != null) {
       chatKey ??= _getChatTypeKey(session);
     }
+
     if (chatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
       return ;
@@ -568,7 +616,7 @@ extension ChatDataCacheEx on ChatDataCache {
 
   FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key, { bool waitSetup = true }) async {
     if (waitSetup) {
-      await setupCompleter;
+      await setupCompleter.future;
     }
     final msgList = _chatMessageMap[key];
     if (msgList == null) {
@@ -626,6 +674,38 @@ extension ChatDataCacheEx on ChatDataCache {
   Future<types.Message?> _getChatMessages(ChatTypeKey key, String messageId) async {
     final messageList = await _getSessionMessage(key);
     return _getMessageFromList(messageList, messageId);
+  }
+}
+
+extension MessageExtensionInfoEx on ChatDataCache {
+
+  void offlineMessageFinishHandler() async {
+    await Future.wait([
+      offlinePrivateMessageFlag.future,
+      offlineSecretMessageFlag.future,
+      offlineChannelMessageFlag.future,
+      offlineGroupMessageFlag.future,
+    ]);
+    await setupCompleter.future;
+    updateMessageReplyInfo();
+  }
+
+  Future updateMessageReplyInfo() async {
+    final chatKeys = _chatMessageMap.keys;
+    for (var chatKey in chatKeys) {
+      final sessionMessage = _chatMessageMap[chatKey] ?? [];
+      for (var message in sessionMessage) {
+        final repliedMessageId = message.repliedMessageId;
+        if (repliedMessageId == null || message.repliedMessage != null) continue ;
+
+        final repliedMessage = await (await Messages.sharedInstance.loadMessageDBFromDB(repliedMessageId))?.toChatUIMessage();
+        if (repliedMessage == null) continue ;
+
+        print('zhw============>');
+        final newMsg = message.copyWith(repliedMessage: repliedMessage);
+        updateMessage(chatKey: chatKey, message: newMsg);
+      }
+    }
   }
 }
 

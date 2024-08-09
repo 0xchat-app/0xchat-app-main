@@ -23,6 +23,7 @@ abstract class CustomMessage extends Message {
     super.metadata,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     super.status,
@@ -43,6 +44,7 @@ abstract class CustomMessage extends Message {
     Map<String, dynamic>? metadata,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     Status? status,
@@ -129,6 +131,7 @@ abstract class CustomMessage extends Message {
     Map<String, dynamic>? metadata,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     Status? status,
@@ -156,6 +159,7 @@ class _CustomMessage extends CustomMessage {
     super.metadata,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     super.status,
@@ -177,6 +181,7 @@ class _CustomMessage extends CustomMessage {
     dynamic metadata = _Unset,
     dynamic remoteId = _Unset,
     dynamic repliedMessage = _Unset,
+    String? repliedMessageId,
     dynamic roomId,
     dynamic showStatus = _Unset,
     dynamic status = _Unset,
@@ -200,6 +205,7 @@ class _CustomMessage extends CustomMessage {
         repliedMessage: repliedMessage == _Unset
             ? this.repliedMessage
             : repliedMessage as Message?,
+        repliedMessageId: repliedMessageId ?? this.repliedMessageId,
         roomId: roomId == _Unset ? this.roomId : roomId as String?,
         showStatus:
             showStatus == _Unset ? this.showStatus : showStatus as bool?,

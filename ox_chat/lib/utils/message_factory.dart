@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -26,6 +25,7 @@ abstract class MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -45,6 +45,7 @@ class TextMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -63,6 +64,7 @@ class TextMessageFactory implements MessageFactory {
       text: text,
       status: status,
       repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       previewData: previewData != null
           ? PreviewData.fromJson(jsonDecode(previewData))
           : null,
@@ -84,6 +86,7 @@ class ImageMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -105,6 +108,8 @@ class ImageMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -125,6 +130,7 @@ class AudioMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -147,6 +153,8 @@ class AudioMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -167,6 +175,7 @@ class VideoMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -193,6 +202,8 @@ class VideoMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -213,6 +224,7 @@ class CallMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -249,6 +261,8 @@ class CallMessageFactory implements MessageFactory {
       sourceKey: sourceKey,
       remoteId: remoteId,
       roomId: roomId,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       metadata: CustomMessageEx.callMetaData(
         text: state.messageText(isMe, durationText),
         type: media,
@@ -312,6 +326,7 @@ class SystemMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -336,6 +351,8 @@ class SystemMessageFactory implements MessageFactory {
       createdAt: timestamp,
       id: remoteId,
       roomId: roomId,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       text: text,
       expiration: expiration,
       reactions: reactions,
@@ -372,6 +389,7 @@ class CustomMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,

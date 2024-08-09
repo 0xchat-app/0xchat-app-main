@@ -6,7 +6,6 @@
   "latest_item": "Neueste",
   "channel_search_hint_text": "Kanal suchen",
   "moment": "Moment",
-  "channel": "Kanal",
   "private": "privat",
   "all": "Alle",
   "public": "Öffentlich",
@@ -76,5 +75,11 @@
   "loading_note": "Notiz wird geladen...",
   "hour_age_tips": "vor Stunden",
   "minute_age_tips": "vor Minuten",
-  "just_now": "gerade eben"
+  "just_now": "gerade eben",
+  "group": "Gruppen",
+  "channel": "Kanäle",
+  "group_search_text": "Suche Offene und Geschlossene Gruppen",
+  "channel_search_text": "Suche Öffentliche Kanäle",
+  "member": "Mitglied",
+  "members": "Mitglieder"
 }

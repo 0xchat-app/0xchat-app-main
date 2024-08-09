@@ -170,7 +170,6 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
                             child: MomentRootNotedWidget(
                               notedUIModel: notedUIModel,
                               isShowReply: widget.isShowReply,
-                              callback: (double height, lastHeight) => {},
                             ),
                           ),
                         ),
@@ -288,12 +287,10 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
 class MomentRootNotedWidget extends StatefulWidget {
   final ValueNotifier<NotedUIModel>? notedUIModel;
   final bool isShowReply;
-  final Function callback;
   const MomentRootNotedWidget({
     super.key,
     required this.notedUIModel,
     required this.isShowReply,
-    required this.callback,
   });
 
   @override
@@ -301,8 +298,6 @@ class MomentRootNotedWidget extends StatefulWidget {
 }
 
 class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
-  final GlobalKey _contentWrapContainerKey = GlobalKey();
-  final GlobalKey _contentLastContainerKey = GlobalKey();
 
   List<ValueNotifier<NotedUIModel>>? notedReplyList;
 
@@ -349,13 +344,10 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
     }
 
     return Container(
-      key: _contentWrapContainerKey,
       child: Column(
         children: notedReplyList!.map((model) {
           int findIndex = notedReplyList!.indexOf(model);
-          bool isLastNoted = findIndex == notedReplyList!.length - 1;
           return Container(
-            key: isLastNoted ? _contentLastContainerKey : null,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -365,13 +357,10 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
                   isShowReply: false,
                   clickMomentCallback:
                       (ValueNotifier<NotedUIModel> notedUIModel) async {
-                    if (isLastNoted) return;
-                    if (notedUIModel.value.noteDB.isReply &&
-                        widget.isShowReply) {
-                      await OXNavigator.pushPage(context,
-                          (context) => MomentsPage(notedUIModel: notedUIModel));
+                     if(findIndex == 0) return;
+                      await OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: notedUIModel));
                       setState(() {});
-                    }
+
                   },
                   notedUIModel: model,
                 ),

@@ -6,7 +6,6 @@
   "latest_item": "Jaunākais",
   "channel_search_hint_text": "Meklēt kanālu",
   "moment": "Mirklis",
-  "channel": "Kanāls",
   "private": "privāts",
   "all": "Visi",
   "public": "Publisks",
@@ -76,5 +75,11 @@
   "loading_note": "Ielādē piezīmi...",
   "hour_age_tips": "pirms stundām",
   "minute_age_tips": "pirms minūtēm",
-  "just_now": "tikko"
+  "just_now": "tikko",
+  "group": "Grupas",
+  "channel": "Kanāli",
+  "group_search_text": "Meklēt Atvērtās un Slēgtās Grupas",
+  "channel_search_text": "Meklēt Publiskos Kanālus",
+  "member": "Dalībnieks",
+  "members": "Dalībnieki"
 }

@@ -6,7 +6,6 @@
   "latest_item": "최신",
   "channel_search_hint_text": "채널 검색",
   "moment": "순간",
-  "channel": "채널",
   "private": "비공개",
   "all": "모두",
   "public": "공개",
@@ -76,5 +75,11 @@
   "loading_note": "노트 로딩 중...",
   "hour_age_tips": "시간 전",
   "minute_age_tips": "분 전",
-  "just_now": "방금"
+  "just_now": "방금",
+  "group": "그룹",
+  "channel": "채널",
+  "group_search_text": "공개 및 비공개 그룹 검색",
+  "channel_search_text": "공개 채널 검색",
+  "member": "멤버",
+  "members": "멤버들"
 }
