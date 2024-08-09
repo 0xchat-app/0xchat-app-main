@@ -258,7 +258,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     if (message is types.VideoMessage) {
       OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: message.metadata!["videoUrl"] ?? ''));
     } else if (message is types.ImageMessage) {
-      imageMessagePressHandler(context, message);
+      imageMessagePressHandler(
+        messageId: message.id,
+        imageUri: message.uri,
+      );
     } else if (message is types.CustomMessage) {
       switch(message.customType) {
         case CustomMessageType.zaps:
@@ -277,6 +280,11 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.ecashV2:
           ecashMessagePressHandler(context, message);
           break;
+        case CustomMessageType.imageSending:
+          imageMessagePressHandler(
+            messageId: message.id,
+            imageUri: ImageSendingMessageEx(message).url,
+          );
         default:
           break;
       }
@@ -291,16 +299,28 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future imageMessagePressHandler(BuildContext context, types.ImageMessage message) async {
+  Future imageMessagePressHandler({
+    required String messageId,
+    required String imageUri,
+  }) async {
     final initialPage = gallery.indexWhere(
-      (element) => element.id == message.id && element.uri == message.uri,
+      (element) => element.id == messageId && element.uri == imageUri,
     );
+    if (initialPage < 0) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: 'imageMessagePressHandler',
+        message: 'image not found',
+      );
+      return ;
+    }
+
     final galleryPageController = PageController(initialPage: initialPage);
-    OXNavigator.presentPage(context, (_) => ImageGallery(
+    OXNavigator.presentPage(null, (_) => ImageGallery(
       images: gallery,
       pageController: galleryPageController,
       onClosePressed: () {
-        OXNavigator.pop(context);
+        OXNavigator.pop(null);
         galleryPageController.dispose();
       },
       options: ChatPageConfig().imageGalleryOptions,
@@ -486,7 +506,11 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
           CommonToast.instance.show(context, event.message);
         }
       } else {
-        ChatLogUtils.error(className: 'ChatGeneralHandler', funcName: '_deleteMenuItemPressHandler', message: 'messageId: $messageId');
+        ChatLogUtils.error(
+          className: 'ChatGeneralHandler',
+          funcName: '_deleteMenuItemPressHandler',
+          message: 'messageId: $messageId',
+        );
       }
     }
   }

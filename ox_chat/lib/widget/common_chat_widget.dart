@@ -5,9 +5,11 @@ import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
+import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
@@ -46,6 +48,48 @@ class CommonChatWidget extends StatefulWidget {
 class CommonChatWidgetState extends State<CommonChatWidget> {
 
   final pageConfig = ChatPageConfig();
+
+  @override
+  void initState() {
+    super.initState();
+    updateImageGallery();
+  }
+
+  void updateImageGallery() {
+    final gallery = <PreviewImage>[];
+    for (var message in widget.messages) {
+      final encrypted = message.fileEncryptionType != types.EncryptionType.none;
+      if (message is types.ImageMessage) {
+        gallery.add(
+          PreviewImage(
+            id: message.id,
+            uri: message.uri,
+            encrypted: encrypted,
+            decryptSecret: message.decryptKey,
+          ),
+        );
+      } else if (message is types.CustomMessage
+          && message.customType == CustomMessageType.imageSending) {
+        gallery.add(
+          PreviewImage(
+            id: message.id,
+            uri: ImageSendingMessageEx(message).url,
+            encrypted: encrypted,
+            decryptSecret: message.decryptKey,
+          ),
+        );
+      }
+    }
+    widget.handler.gallery = gallery;
+  }
+
+  @override
+  void didUpdateWidget(covariant CommonChatWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.messages != widget.messages) {
+      updateImageGallery();
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -108,7 +152,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       ),
       onInsertedContent: (KeyboardInsertedContent insertedContent) =>
           widget.handler.sendInsertedContentMessage(context, insertedContent),
-      galleryCallback: (gallery) => widget.handler.gallery = gallery,
     );
   }
 

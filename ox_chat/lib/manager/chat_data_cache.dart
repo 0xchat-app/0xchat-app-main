@@ -701,7 +701,6 @@ extension MessageExtensionInfoEx on ChatDataCache {
         final repliedMessage = await (await Messages.sharedInstance.loadMessageDBFromDB(repliedMessageId))?.toChatUIMessage();
         if (repliedMessage == null) continue ;
 
-        print('zhw============>');
         final newMsg = message.copyWith(repliedMessage: repliedMessage);
         updateMessage(chatKey: chatKey, message: newMsg);
       }

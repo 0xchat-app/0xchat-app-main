@@ -123,7 +123,6 @@ class Chat extends StatefulWidget {
     this.mentionUserListWidget,
     this.onFocusNodeInitialized,
     this.onInsertedContent,
-    this.galleryCallback,
     this.bottomHintParam,
   });
 
@@ -392,8 +391,6 @@ class Chat extends StatefulWidget {
 
   final ValueChanged<FocusNode>? onFocusNodeInitialized;
 
-  final Function(List<PreviewImage> gallery)? galleryCallback;
-
   @override
   State<Chat> createState() => ChatState();
 }
@@ -446,7 +443,6 @@ class ChatState extends State<Chat> {
 
       _refreshAutoScrollMapping();
       _maybeScrollToFirstUnread();
-      widget.galleryCallback?.call(_gallery);
     }
   }
 

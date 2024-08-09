@@ -159,15 +159,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
           if (notedUIModel.value.noteDB.reactionCountByMe > 0 || _reactionTag) return;
           bool isSuccess = false;
           if (notedUIModel.value.noteDB.groupId.isEmpty) {
-            OKEvent event = await Moment.sharedInstance
-                .sendReaction(notedUIModel.value.noteDB.noteId);
+            OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.value.noteDB.noteId);
             isSuccess = event.status;
           }else{
-            OKEvent event = await RelayGroup.sharedInstance
-                .sendGroupNoteReaction(notedUIModel.value.noteDB.noteId);
+            OKEvent event = await RelayGroup.sharedInstance.sendGroupNoteReaction(notedUIModel.value.noteDB.noteId);
             isSuccess = event.status;
           }
-
 
           if (isSuccess) {
             _updateNoteDB();

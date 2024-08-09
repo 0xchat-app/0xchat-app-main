@@ -368,7 +368,7 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
                   margin: EdgeInsets.only(left: 20.px),
                   width: 1.px,
                   height: 20.px,
-                  color: ThemeColor.color80,
+                  color: ThemeColor.color160,
                 )
               ],
             ),

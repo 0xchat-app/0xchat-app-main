@@ -125,11 +125,12 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
           updateNotesList(true);
           return;
         }
-        OXNavigator.presentPage(context, (context) => CreateMomentsPage(
+       await OXNavigator.presentPage(context, (context) => CreateMomentsPage(
           type: null,
           groupId: widget.groupId,
           sendMomentsType: EOptionMomentsType.group,
         ));
+        updateNotesList(true);
       },
     );
   }
