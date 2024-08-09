@@ -174,7 +174,6 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
                           ),
                         ),
                       ),
-
                       MomentWidget(
                         isShowAllContent: true,
                         isShowInteractionData: true,
@@ -298,7 +297,6 @@ class MomentRootNotedWidget extends StatefulWidget {
 }
 
 class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
-
   List<ValueNotifier<NotedUIModel>>? notedReplyList;
 
   @override
@@ -317,12 +315,12 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
 
   Future _getReplyNoted(ValueNotifier<NotedUIModel> model) async {
     String replyId = model.value.noteDB.getReplyId ?? '';
-    String? rootId = model.value.noteDB.root;
     if (replyId.isNotEmpty) {
-      NoteDBISAR? noted =
-          await Moment.sharedInstance.loadNoteWithNoteId(replyId);
-      if (noted != null) {
-        final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: noted));
+
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
+
+      if (note != null) {
+        final newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
         notedReplyList = [
           ...[newNotedUIModel],
           ...notedReplyList!
@@ -357,10 +355,10 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
                   isShowReply: false,
                   clickMomentCallback:
                       (ValueNotifier<NotedUIModel> notedUIModel) async {
-                     if(findIndex == 0) return;
-                      await OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: notedUIModel));
-                      setState(() {});
-
+                    if (findIndex == 0) return;
+                    await OXNavigator.pushPage(context,
+                        (context) => MomentsPage(notedUIModel: notedUIModel));
+                    setState(() {});
                   },
                   notedUIModel: model,
                 ),
