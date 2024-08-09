@@ -8,6 +8,7 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -409,6 +410,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     } else {
       event = await RelayGroup.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
     }
+    OXUserInfoManager.sharedInstance.setNotification();
     OXLoading.dismiss();
     if (!event.status) {
       CommonToast.instance.show(context, event.message);

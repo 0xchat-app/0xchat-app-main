@@ -667,6 +667,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   void _joinChannel() async {
     await OXLoading.show();
     final OKEvent okEvent = await Channels.sharedInstance.joinChannel(widget.channelDB.channelId);
+    OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
@@ -702,6 +703,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                 await OXLoading.show();
                 final OKEvent okEvent = await Channels.sharedInstance
                     .leaveChannel(widget.channelDB.channelId);
+                OXUserInfoManager.sharedInstance.setNotification();
                 await OXLoading.dismiss();
                 if (okEvent.status) {
                   OXChatBinding.sharedInstance.channelsUpdatedCallBack();

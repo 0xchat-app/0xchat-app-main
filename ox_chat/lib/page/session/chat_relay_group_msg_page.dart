@@ -180,6 +180,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   void _onJoinGroupTap() async {
     OXLoading.show();
     OKEvent event = await RelayGroup.sharedInstance.joinGroup(groupId, '${chatGeneralHandler.author.firstName} join the group');
+    OXUserInfoManager.sharedInstance.setNotification();
     OXLoading.dismiss();
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
@@ -191,8 +192,8 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
 
   void _onRequestGroupTap() async {
     await OXLoading.show();
-    final OKEvent okEvent =
-        await RelayGroup.sharedInstance.sendJoinRequest(groupId, '${chatGeneralHandler.author.firstName} join the group');
+    final OKEvent okEvent = await RelayGroup.sharedInstance.sendJoinRequest(groupId, '${chatGeneralHandler.author.firstName} join the group');
+    OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
     if (!okEvent.status) {
       CommonToast.instance.show(context, okEvent.message);
