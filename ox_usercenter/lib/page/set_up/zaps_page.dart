@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/cashu_helper.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -62,12 +60,10 @@ class _ZapsPageState extends State<ZapsPage> {
 
   Future<void> _initData() async {
     pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    _selectedWalletName = await OXCacheManager.defaultOXCacheManager
-            .getForeverData('$pubKey.defaultWallet') ??
-        Localized.text('ox_usercenter.not_set_wallet_status');
-    _walletSwitchSelected = await OXCacheManager.defaultOXCacheManager
-            .getForeverData('$pubKey.isShowWalletSelector') ??
-        true;
+    _selectedWalletName = UserConfigTool.getSetting(
+        StorageSettingKey.KEY_DEFAULT_WALLET.name,
+        defaultValue: Localized.text('ox_usercenter.not_set_wallet_status'));
+    _walletSwitchSelected = UserConfigTool.getSetting(StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name, defaultValue: true);
     _defaultZapAmount = UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, defaultValue: 21);
     _defaultDescription = UserConfigTool.getSetting(
       StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name,
@@ -569,8 +565,9 @@ class _ZapsPageState extends State<ZapsPage> {
                       onTap: () {
                         OXNavigator.pop(context);
                         setState(() async {
-                          _selectedWalletName = await OXCacheManager.defaultOXCacheManager
-                              .getForeverData('$pubKey.defaultWallet');
+                          _selectedWalletName = UserConfigTool.getSetting(
+                            StorageSettingKey.KEY_DEFAULT_WALLET.name,
+                          );
                         });
                       },
                       child: Container(
@@ -612,8 +609,7 @@ class _ZapsPageState extends State<ZapsPage> {
           }
         }
         if (walletName != _selectedWalletName) {
-          await OXCacheManager.defaultOXCacheManager
-              .saveForeverData('$pubKey.defaultWallet', walletName);
+          UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_WALLET.name, walletName);
         }
         setState(() {
           _selectedWalletName = walletName;
@@ -683,8 +679,7 @@ class _ZapsPageState extends State<ZapsPage> {
           setState(() {
             _walletSwitchSelected = value;
           });
-          await OXCacheManager.defaultOXCacheManager
-              .saveForeverData('$pubKey.isShowWalletSelector', value);
+          UserConfigTool.saveSetting(StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name, value);
           widget.onChanged?.call(value);
         },
         materialTapTargetSize: MaterialTapTargetSize.padded,

@@ -6,6 +6,8 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/model/wallet_model.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_module_service/ox_module_service.dart';
@@ -83,9 +85,8 @@ class OXUserCenter extends OXFlutterModule {
   }
 
    _showZapDialog(context, invoice, walletOnPress, Function()? nwcCompleted, [bool isCalledFromEcashWallet = false]) async {
-    String? pubkey = Account.sharedInstance.me?.pubKey;
-     bool isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
-     String defaultWalletName = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.defaultWallet') ?? '';
+     bool isShowWalletSelector = UserConfigTool.getSetting(StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name, defaultValue: true);
+     String defaultWalletName = UserConfigTool.getSetting(StorageSettingKey.KEY_DEFAULT_WALLET.name,defaultValue: '');
      final ecashWalletName = WalletModel.walletsWithEcash.first.title;
      if(isShowWalletSelector || defaultWalletName == ecashWalletName){
        return OXNavigator.presentPage(
