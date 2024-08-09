@@ -60,8 +60,8 @@ void main() async {
     await ThemeManager.init();
     await Localized.init();
     await setupModules();
-    OXServerManager.sharedInstance.loadConnectICEServer();
     await OXUserInfoManager.sharedInstance.initLocalData();
+    OXServerManager.sharedInstance.loadConnectICEServer();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
     FlutterError.onError = (FlutterErrorDetails details) async {
