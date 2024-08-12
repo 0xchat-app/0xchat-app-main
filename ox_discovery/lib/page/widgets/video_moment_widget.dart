@@ -7,11 +7,6 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_module_service/ox_module_service.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-
-import 'package:path/path.dart' as Path;
 import '../../utils/moment_widgets_utils.dart';
 import '../moments/moment_video_page.dart';
 

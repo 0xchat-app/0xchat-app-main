@@ -92,15 +92,12 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   }
 
   void _getReplyFromRelay(ValueNotifier<NotedUIModel> notedUIModelDraft) async {
-    await Moment.sharedInstance.loadNoteActions(
-        notedUIModelDraft.value.noteDB.noteId, actionsCallBack: (result) async {
-      NoteDBISAR? note = await Moment.sharedInstance
-          .loadNoteWithNoteId(notedUIModelDraft.value.noteDB.noteId);
-      NoteDBISAR? updateNote = await Moment.sharedInstance
-          .loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
+    String notedId = notedUIModelDraft.value.noteDB.noteId;
+    await Moment.sharedInstance.loadNoteActions(notedId, actionsCallBack: (result) async {
+      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(notedId);
+      NoteDBISAR? updateNote = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
       if (note == null) return;
-      ValueNotifier<NotedUIModel> newNotedUIModel =
-          ValueNotifier(NotedUIModel(noteDB: note));
+      ValueNotifier<NotedUIModel> newNotedUIModel = ValueNotifier(NotedUIModel(noteDB: note));
       notedUIModel = newNotedUIModel;
       if (updateNote != null) {
         widget.notedUIModel.value = NotedUIModel(noteDB: updateNote);

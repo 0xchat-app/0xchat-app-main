@@ -527,7 +527,14 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
     for (NoteDBISAR noteDB in notes) {
       bool isGroupNoted = noteDB.groupId.isNotEmpty;
-      isGroupNoted ? groupNoteList.add(noteDB) : personalNoteList.add(noteDB);
+      if(isGroupNoted){
+        int findIndex = groupNoteList.indexWhere((NoteDBISAR noted) => noted.noteId == noteDB.noteId);
+        if(findIndex == -1){
+          groupNoteList.add(noteDB);
+        }
+      }else{
+        personalNoteList.add(noteDB);
+      }
     }
 
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
