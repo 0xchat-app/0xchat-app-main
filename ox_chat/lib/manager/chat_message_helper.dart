@@ -179,7 +179,7 @@ extension MessageDBToUIEx on MessageDBISAR {
     logger?.print('step4 - contentType: ${contentModel.contentType}');
 
     // Message UI Model Creator
-    MessageFactory messageFactory = await getMessageFactory(
+    MessageFactory messageFactory = getMessageFactory(
       contentModel,
       isMentionMessageCallback,
       logger,

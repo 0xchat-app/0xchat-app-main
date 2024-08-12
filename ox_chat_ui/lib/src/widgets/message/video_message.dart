@@ -44,6 +44,7 @@ class _VideoMessageState extends State<VideoMessage> {
   void initState() {
     super.initState();
     OXVideoUtils.getVideoThumbnailImage(videoURL: widget.message.videoURL).then((snapshotImageFile) {
+      if (!mounted) return ;
       if (snapshotImageFile != null) {
         _image = Image.file(snapshotImageFile).image;
         addImageSizeListener();

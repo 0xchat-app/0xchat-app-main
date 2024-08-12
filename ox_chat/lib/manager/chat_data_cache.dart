@@ -42,6 +42,12 @@ class ChatDataCache with OXChatObserver {
 
   setup() async {
 
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'setup',
+      message: 'start',
+    );
+
     final setupCompleter = Completer();
     this.setupCompleter = setupCompleter;
     setupAllCompleter();
@@ -52,6 +58,11 @@ class ChatDataCache with OXChatObserver {
     await _setupChatMessages();
     offlineMessageFinishHandler();
 
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'setup',
+      message: 'finish',
+    );
     if (!setupCompleter.isCompleted) {
       setupCompleter.complete();
     }
@@ -500,10 +511,10 @@ extension ChatDataCacheObserverEx on ChatDataCache {
     });
   }
 
-  Future<void> notifyChatObserverValueChanged(ChatTypeKey key) async {
+  Future<void> notifyChatObserverValueChanged(ChatTypeKey key, { bool waitSetup = true }) async {
     final callback = _valueChangedCallback[key];
     if (callback != null) {
-      final msgList = await _getSessionMessage(key);
+      final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
       callback(msgList);
     }
   }
@@ -586,7 +597,14 @@ extension ChatDataCacheEx on ChatDataCache {
       }
       final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
       if (key == null) return ;
-      await _distributeMessageToChatKey(key, message);
+      await _distributeMessageToChatKey(key, message)
+          .timeout(Duration(seconds: 1), onTimeout: () {
+        ChatLogUtils.error(
+          className: 'ChatDataCache',
+          funcName: '_distributeMessageToChatKey',
+          message: 'method time out',
+        );
+      });
     });
   }
 
@@ -640,7 +658,7 @@ extension ChatDataCacheEx on ChatDataCache {
 
     _addMessageToList(msgList, message);
     scheduleExpirationTask(key, message);
-    await notifyChatObserverValueChanged(key);
+    await notifyChatObserverValueChanged(key, waitSetup: waitSetup);
   }
 
   Future _removeChatMessages(

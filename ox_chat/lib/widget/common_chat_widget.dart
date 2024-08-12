@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
+import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_message_builder.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/chat_voice_helper.dart';
@@ -47,12 +48,23 @@ class CommonChatWidget extends StatefulWidget {
 
 class CommonChatWidgetState extends State<CommonChatWidget> {
 
+  ChatSessionModelISAR get session => widget.handler.session;
   final pageConfig = ChatPageConfig();
 
   @override
   void initState() {
+    tryInitDraft();
     super.initState();
     updateImageGallery();
+    addListener();
+  }
+
+  void tryInitDraft() {
+    final draft = session.draft ?? '';
+    if (draft.isNotEmpty) {
+      widget.handler.inputController.text = draft;
+      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
+    }
   }
 
   void updateImageGallery() {
@@ -83,12 +95,27 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     widget.handler.gallery = gallery;
   }
 
+  void addListener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ChatDataCache.shared.addObserver(session, (value) {
+        widget.handler.refreshMessage(widget.messages, value);
+      });
+    });
+  }
+
   @override
   void didUpdateWidget(covariant CommonChatWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.messages != widget.messages) {
       updateImageGallery();
     }
+  }
+
+  @override
+  void dispose() {
+    ChatDraftManager.shared.updateSession();
+    widget.handler.dispose();
+    super.dispose();
   }
   
   @override

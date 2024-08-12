@@ -28,7 +28,7 @@ class ChatMessagePage extends StatefulWidget {
   State<ChatMessagePage> createState() => _ChatMessagePageState();
 }
 
-class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
+class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptToneMixin {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];
@@ -46,7 +46,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     super.initState();
 
     prepareData();
-    addListener();
   }
 
   void setupChatGeneralHandler() {
@@ -67,12 +66,6 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
     _handleAutoDelete();
     _handelDMRelay();
-  }
-
-  void addListener() {
-    ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      chatGeneralHandler.refreshMessage(_messages, value);
-    });
   }
 
   @override

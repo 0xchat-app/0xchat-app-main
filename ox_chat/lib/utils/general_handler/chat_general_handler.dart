@@ -798,32 +798,6 @@ extension StringChatEx on String {
   }
 }
 
-mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
-
-  @protected
-  ChatSessionModelISAR get session;
-
-  @protected
-  ChatGeneralHandler get chatGeneralHandler;
-
-  @override
-  void initState() {
-    final draft = session.draft ?? '';
-    if (draft.isNotEmpty) {
-      chatGeneralHandler.inputController.text = draft;
-      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
-    }
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    ChatDraftManager.shared.updateSession();
-    chatGeneralHandler.dispose();
-    super.dispose();
-  }
-}
-
 extension ChatZapsEx on ChatSessionModelISAR {
   ZapType? get asZapType {
     switch (chatType) {

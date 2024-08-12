@@ -34,7 +34,7 @@ class ChatGroupMessagePage extends StatefulWidget {
   State<ChatGroupMessagePage> createState() => _ChatGroupMessagePageState();
 }
 
-class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with MessagePromptToneMixin, ChatGeneralHandlerMixin {
+class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with MessagePromptToneMixin {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];
@@ -54,7 +54,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     super.initState();
 
     prepareData();
-    addListener();
   }
 
   void setupChatGeneralHandler() {
@@ -83,12 +82,6 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
     if (widget.communityItem.isMentioned) {
       OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: false);
     }
-  }
-
-  void addListener() {
-    ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      chatGeneralHandler.refreshMessage(_messages, value);
-    });
   }
 
   @override

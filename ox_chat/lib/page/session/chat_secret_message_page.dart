@@ -41,7 +41,7 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin, ChatGeneralHandlerMixin {
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin {
 
   late ChatGeneralHandler chatGeneralHandler;
   List<types.Message> _messages = [];
@@ -67,7 +67,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     protectScreen();
     initSecretData();
     prepareData();
-    addListener();
   }
 
   @override
@@ -134,12 +133,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
-  }
-
-  void addListener() {
-    ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      chatGeneralHandler.refreshMessage(_messages, value);
-    });
   }
 
   @override
