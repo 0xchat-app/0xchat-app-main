@@ -11,6 +11,7 @@ import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/theme_color.dart';
@@ -197,8 +198,8 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                 },
                 itemBuilder: (BuildContext context, int index) {
                   return HeroWidget(
-                    child: ExtendedImage.network(
-                      widget.imageList[index],
+                    child: ExtendedImage(
+                      image: OXCachedNetworkImageProviderEx.create(context, widget.imageList[index]),
                       loadStateChanged: (ExtendedImageState state) {
                         switch (state.extendedImageLoadState) {
                           case LoadState.loading:
