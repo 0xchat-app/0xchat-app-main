@@ -5,6 +5,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 ///Title: user_config_tool
 ///Description: TODO(about multiple user)
@@ -105,6 +106,36 @@ class UserConfigTool{
     String? jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
     if (jsonString == null || jsonString.isEmpty) {
       saveUser(userDB);
+    }
+  }
+
+  static migrateSharedPreferencesData() async {
+    bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData('migration_completed') ?? false;
+    if(!migrationCompleted) {
+      String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+      if (pubKey == null) return;
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector', defaultValue: true);
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_WALLET.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet');
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_defaultZapAmount');
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}');
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_ICE_SERVER.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_ICE_SERVER.name);
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name);
+
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name] =
+      await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name);
+
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('migration_completed', true);
     }
   }
 }
