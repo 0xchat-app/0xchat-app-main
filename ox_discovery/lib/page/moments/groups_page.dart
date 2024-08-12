@@ -444,14 +444,16 @@ class _GroupsPageState extends State<GroupsPage>
 
   Future<void> _getRelayGroupList() async {
     await RelayGroup.sharedInstance
-        .searchAllGroupsFromRelays((group) {
-      _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
-      setState(() {
-        updateStateView(CommonStateView.CommonStateView_None);
-        var sortedEntries = _groupList.entries.toList()
-          ..sort((a, b) => (b.value.members?.length ?? 0).compareTo(a.value.members?.length ?? 0));
-        _groupList = Map<String, GroupModel>.fromEntries(sortedEntries);
-      });
+        .searchAllGroupsFromRelays((groups) {
+          for(var group in groups){
+            _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
+          }
+          setState(() {
+            updateStateView(CommonStateView.CommonStateView_None);
+            var sortedEntries = _groupList.entries.toList()
+              ..sort((a, b) => (b.value.members?.length ?? 0).compareTo(a.value.members?.length ?? 0));
+            _groupList = Map<String, GroupModel>.fromEntries(sortedEntries);
+          });
     });
   }
 
