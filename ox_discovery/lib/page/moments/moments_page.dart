@@ -358,7 +358,6 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
     return Container(
       child: Column(
         children: notedReplyList!.map((model) {
-          int findIndex = notedReplyList!.indexOf(model);
           return Container(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,7 +371,6 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
                       isShowReply: false,
                       clickMomentCallback:
                           (ValueNotifier<NotedUIModel> notedUIModel) async {
-                        if (findIndex == 0) return;
                         await OXNavigator.pushPage(context,
                                 (context) => MomentsPage(notedUIModel: notedUIModel));
                         setState(() {});

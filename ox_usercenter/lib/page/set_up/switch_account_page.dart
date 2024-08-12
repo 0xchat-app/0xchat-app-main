@@ -1,6 +1,7 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -166,6 +167,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
           await OXLoading.dismiss();
           _selectedIndex = index;
           setState(() {});
+          OXNavigator.pop(context);
         }
       },
       child: Container(
