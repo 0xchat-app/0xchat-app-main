@@ -140,29 +140,33 @@ class _MyIdCardDialogState extends BasePageState<MyIdCardDialog> {
                           ),
                         ),
                       ),
-                      Column(
-                        mainAxisAlignment: widget.type == CommonConstant.qrCodeUser ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widget.type == CommonConstant.qrCodeUser
-                              ? Container()
-                              : Container(
-                                  margin: EdgeInsets.only(left: Adapt.px(16), top: Adapt.px(2)),
-                                  child: MyText(
-                                    'Channel',
-                                    16,
-                                    ThemeColor.color10,
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: widget.type == CommonConstant.qrCodeUser ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            widget.type == CommonConstant.qrCodeUser
+                                ? Container()
+                                : Container(
+                                    margin: EdgeInsets.only(left: Adapt.px(16), top: Adapt.px(2)),
+                                    child: MyText(
+                                      'Channel',
+                                      16,
+                                      ThemeColor.color10,
+                                    ),
                                   ),
-                                ),
-                          Container(
-                            margin: EdgeInsets.only(left: Adapt.px(16), top: Adapt.px(2)),
-                            child: MyText(
-                              _showName,
-                              16,
-                              ThemeColor.color10,
+                            Container(
+                              margin: EdgeInsets.only(left: Adapt.px(16), top: Adapt.px(2), right: 24.px),
+                              child: MyText(
+                                _showName,
+                                16,
+                                ThemeColor.color10,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
