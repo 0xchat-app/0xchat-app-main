@@ -57,12 +57,14 @@ class ChatMessageBuilder {
     );
   }
 
-  static Widget buildReactionsView(types.Message message,{
+  static Widget buildReactionsView(types.Message message, {
     required int messageWidth,
+    Function(types.Reaction reaction)? itemOnTap,
   }) {
     return ChatMessageBuilderReactionEx.buildReactionsView(
       message,
       messageWidth: messageWidth,
+      itemOnTap: itemOnTap,
     );
   }
 

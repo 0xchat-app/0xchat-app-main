@@ -566,6 +566,8 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       funcName: 'reactionPressHandler',
       message: 'id: ${message.id}, content: ${message.content}',
     );
+
+    final completer = Completer<bool>();
     final messageId = message.remoteId;
     if (messageId == null || messageId.isEmpty) {
       ChatLogUtils.error(
@@ -576,31 +578,44 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       return false;
     }
 
-    final event = await Messages.sharedInstance.sendMessageReaction(
+    // Check if already sent it
+    final reactions = [...message.reactions];
+    for (var reaction in reactions) {
+      if (reaction.content != content) continue ;
+      final authors = [...reaction.authors];
+      final haveSent = authors.any((authorPubkey) =>
+          OXUserInfoManager.sharedInstance.isCurrentUser(authorPubkey));
+      if (haveSent) {
+        return false;
+      }
+    }
+
+    Messages.sharedInstance.sendMessageReaction(
       messageId,
       content,
       groupId: session.groupId
-    );
-    if (event.status) {
-      final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-      if (author != null && author.isNotEmpty) {
-        final reactions = [...message.reactions];
-        var isAdded = false;
-        for (final reaction in reactions) {
-          if (reaction.content != content) continue;
-          if (reaction.authors.any((e) => e == author)) continue;
-
-          reaction.authors.add(author);
-          isAdded = true;
-          break;
-        }
-        if (!isAdded) {
-          message.reactions.add(types.Reaction(content: content, authors: [author]));
-        }
-        refreshMessageUI?.call(null);
+    ).then((event) {
+      if (!completer.isCompleted) {
+        completer.complete(event.status);
       }
+    });
+
+    final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (author != null && author.isNotEmpty) {
+      final reactions = [...message.reactions];
+      for (var reaction in reactions) {
+        if (reaction.content != content) continue ;
+        reaction.authors.add(author);
+      }
+      ChatDataCache.shared.updateMessage(
+        session: session,
+        message: message.copyWith(
+          reactions: reactions,
+        ),
+      );
     }
-    return event.status;
+
+    return completer.future;
   }
 }
 

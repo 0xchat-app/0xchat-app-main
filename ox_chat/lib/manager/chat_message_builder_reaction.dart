@@ -3,8 +3,10 @@ part of 'chat_message_builder.dart';
 
 extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
 
-  static Widget buildReactionsView(types.Message message,
-      {required int messageWidth}) {
+  static Widget buildReactionsView(types.Message message, {
+    required int messageWidth,
+    Function(types.Reaction reaction)? itemOnTap,
+  }) {
     if (!message.hasReactions) return SizedBox();
 
     final reactions = message.reactions;
@@ -20,7 +22,7 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
             Wrap(
               spacing: 8.px,
               runSpacing: runSpacing,
-              children: reactions.map((reaction) => _buildReactionItem(reaction)).toList(),
+              children: reactions.map((reaction) => _buildReactionItem(reaction, itemOnTap)).toList(),
             ).setPaddingOnly(bottom: runSpacing),
           if (zapsInfoList.isNotEmpty)
             Column(
@@ -34,7 +36,7 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
     );
   }
 
-  static Widget _buildReactionItem(types.Reaction reaction) {
+  static Widget _buildReactionItem(types.Reaction reaction, Function(types.Reaction reaction)? onTap) {
     const maxAuthorCount = 3;
     var reactionNames = <String>[];
     var reactionNamesLength = 0;
@@ -62,32 +64,35 @@ extension ChatMessageBuilderReactionEx on ChatMessageBuilder {
       reactionNamesSuffix = ', ...... $authorsCount People';
     }
 
-    return Container(
-      height: 18.px,
-      padding: EdgeInsets.symmetric(horizontal: 6.px),
-      decoration: BoxDecoration(
-        color: ThemeColor.darkColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(9.px),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            reaction.content,
-            style: TextStyle(
-              fontSize: 14.sp,
-              height: 1.4,
+    return GestureDetector(
+      onTap: () => onTap?.call(reaction),
+      child: Container(
+        height: 18.px,
+        padding: EdgeInsets.symmetric(horizontal: 6.px),
+        decoration: BoxDecoration(
+          color: ThemeColor.darkColor.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(9.px),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              reaction.content,
+              style: TextStyle(
+                fontSize: 14.sp,
+                height: 1.4,
+              ),
             ),
-          ),
-          SizedBox(width: 4.px,),
-          Text(
-            reactionNames.join(', ') + reactionNamesSuffix,
-            style: TextStyle(
-                fontSize: 10.sp,
-                color: ThemeColor.white
+            SizedBox(width: 4.px,),
+            Text(
+              reactionNames.join(', ') + reactionNamesSuffix,
+              style: TextStyle(
+                  fontSize: 10.sp,
+                  color: ThemeColor.white
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

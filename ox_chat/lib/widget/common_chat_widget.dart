@@ -171,7 +171,12 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
       bottomHintParam: widget.bottomHintParam,
       onFocusNodeInitialized: widget.handler.replyHandler.focusNodeSetter,
       repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
-      reactionViewBuilder: ChatMessageBuilder.buildReactionsView,
+      reactionViewBuilder: (types.Message message, {required int messageWidth}) =>
+          ChatMessageBuilder.buildReactionsView(
+            message,
+            messageWidth: messageWidth,
+            itemOnTap: (reaction) => widget.handler.reactionPressHandler(context, message, reaction.content),
+          ),
       mentionUserListWidget: widget.handler.mentionHandler?.buildMentionUserList(),
       onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(
         session: widget.handler.session,
