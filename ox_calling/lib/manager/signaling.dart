@@ -333,7 +333,7 @@ class SignalingManager {
           // {'url': 'stun:rtc.0xchat.com:5349'},
           // {'urls': 'turn:rtc.0xchat.com:5349', 'username': '0xchat', 'credential': 'Prettyvs511'},
         // ];
-        bool openP2p = OXServerManager.sharedInstance.openP2pValue;
+        bool openP2p = OXServerManager.sharedInstance.openP2PAndRelay;
         String iceTransportPolicyStr = openP2p ? 'all' : 'relay';
         _iceServers = {
           'iceServers': serverList,

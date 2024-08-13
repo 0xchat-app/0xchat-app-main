@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -612,7 +614,7 @@ extension ChatDataCacheEx on ChatDataCache {
     try {
       var uiMsg = await message.toChatUIMessage();
       if (uiMsg == null) return ;
-      if (uiMsg.status == types.Status.sending) {
+      if (_isErrorStatusMessage(uiMsg)) {
         uiMsg = uiMsg.copyWith(
           status: types.Status.error,
         );
@@ -630,6 +632,12 @@ extension ChatDataCacheEx on ChatDataCache {
         message: 'MessageDB to cache error: $e, messageId: ${message.messageId}, messageType: ${message.type}',
       );
     }
+  }
+
+  bool _isErrorStatusMessage(types.Message message) {
+    if (message.status == types.Status.sending) return true;
+    if (message.isImageSendingMessage) return true;
+    return false;
   }
 
   FutureOr<List<types.Message>> _getSessionMessage(ChatTypeKey key, { bool waitSetup = true }) async {

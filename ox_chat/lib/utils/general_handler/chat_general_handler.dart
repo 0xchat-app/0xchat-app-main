@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
@@ -305,7 +306,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     required String imageUri,
   }) async {
     final initialPage = gallery.indexWhere(
-      (element) => element.id == messageId && element.uri == imageUri,
+      (element) => element.id == messageId || element.uri == imageUri,
     );
     if (initialPage < 0) {
       ChatLogUtils.error(

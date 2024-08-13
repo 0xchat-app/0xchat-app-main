@@ -5,12 +5,12 @@ import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
+import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
-import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
 import 'package:isar/isar.dart';
 
@@ -74,6 +74,31 @@ class EcashHelper {
       receiver: receiver,
       signees: signees,
       validityDate: validityDate,
+    );
+  }
+
+
+  static Future<EcashPackage> createPackageFromCashuToken(String cashuToken) async {
+    final info = Cashu.infoOfToken(cashuToken);
+    if (info == null) throw Exception('invalid cashuToken');
+
+    List<String> tokenList = [cashuToken];
+    List<UserDBISAR> receiver = (await Account.sharedInstance.getUserInfos(info.p2pkInfo?.receivePubKeys ?? []))
+        .values.toList();
+
+    final historyMap = await getHistoryForTokenList(tokenList);
+    final tokenMD5 = EncryptUtils.generateMd5(cashuToken);
+    final tokenInfo = EcashTokenInfo(
+      token: cashuToken,
+      amount: info.amount,
+      redeemHistory: historyMap[tokenMD5],
+    );
+
+    return EcashPackage(
+      totalAmount: tokenInfo.amount,
+      tokenInfoList: [tokenInfo],
+      memo: info.memo,
+      receiver: receiver,
     );
   }
 

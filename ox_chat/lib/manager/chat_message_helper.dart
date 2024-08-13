@@ -506,7 +506,7 @@ extension MessageUIToDBEx on types.Message {
         return MessageType.file;
       case types.MessageType.custom:
         final msg = this;
-        if (msg is types.CustomMessage && msg.customType == CustomMessageType.imageSending) {
+        if (msg.isImageMessage) {
           return encrypt ? MessageType.encryptedImage : MessageType.image;
         }
         return MessageType.template;
@@ -531,7 +531,7 @@ extension MessageUIToDBEx on types.Message {
     ) {
       return content;
     } else if (msg is types.CustomMessage) {
-      if (msg.customType == CustomMessageType.imageSending) {
+      if (msg.isImageMessage) {
         return ImageSendingMessageEx(msg).url;
       }
       return msg.customContentString;
@@ -568,6 +568,20 @@ extension UIMessageEx on types.Message {
       this.dbMessageType(),
       this.author.id,
     );
+  }
+
+  bool get isImageSendingMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.imageSending
+        && ImageSendingMessageEx(msg).url.isEmpty;
+  }
+
+  bool get isImageMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.imageSending
+        && ImageSendingMessageEx(msg).url.isNotEmpty;
   }
 }
 

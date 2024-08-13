@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:intl/intl.dart';
+import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
@@ -15,8 +16,6 @@ import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-
-import 'ecash_info_isar.dart';
 
 class EcashDetailPage extends StatefulWidget {
 
@@ -33,7 +32,7 @@ class EcashDetailPage extends StatefulWidget {
 
 class EcashDetailPageState extends State<EcashDetailPage> {
 
-  String ownerName = '';
+  String? ownerName;
 
   IHistoryEntry? recordDetail;
 
@@ -48,11 +47,14 @@ class EcashDetailPageState extends State<EcashDetailPage> {
   void initState() {
     super.initState();
 
-    Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
-      setState(() {
-        ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
+    final senderPubKey = widget.package.senderPubKey;
+    if (senderPubKey != null && senderPubKey.isNotEmpty) {
+      Account.sharedInstance.getUserInfo(senderPubKey).handle((user) {
+        setState(() {
+          ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
+        });
       });
-    });
+    }
 
     historyList = widget.package.tokenInfoList
         .where((info) => info.redeemHistory != null).toList()
@@ -123,7 +125,7 @@ class EcashDetailPageState extends State<EcashDetailPage> {
       children: <Widget>[
         SizedBox(height: 12.px),
         Text(
-          'Sent by ${ownerName}',
+          ownerName != null ? 'Sent by ${ownerName}' : '',
           style: TextStyle(
             color: ThemeColor.white,
             fontSize: 18.sp,

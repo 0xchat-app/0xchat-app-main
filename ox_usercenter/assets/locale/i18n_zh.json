@@ -214,10 +214,10 @@
   "str_clear_account": "清除",
   "str_clear_account_dialog_hint": "删除${name}的登录信息吗？",
   "str_clear_account_dialog_remove": "移除",
-  "str_notification_like": "点赞",
-  "str_notification_reply": "回复",
+  "str_notification_reactions": "点赞",
+  "str_notification_replies": "回复",
   "str_notification_groups": "群聊",
-  "str_notification_like_tips": "like description",
+  "str_notification_reactions_tips": "like description",
   "str_notification_reply_tips": "reply description",
   "str_notification_groups_tips": "groups description"
 }

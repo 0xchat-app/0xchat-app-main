@@ -82,10 +82,16 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
         );
       } else if (message is types.CustomMessage
           && message.customType == CustomMessageType.imageSending) {
+        String uri = ImageSendingMessageEx(message).url;
+        if (uri.isEmpty) {
+          uri = ImageSendingMessageEx(message).path;
+        }
+        if (uri.isEmpty) continue ;
+
         gallery.add(
           PreviewImage(
             id: message.id,
-            uri: ImageSendingMessageEx(message).url,
+            uri: uri,
             encrypted: encrypted,
             decryptSecret: message.decryptKey,
           ),
