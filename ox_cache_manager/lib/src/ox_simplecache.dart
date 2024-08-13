@@ -11,14 +11,14 @@ class OXSimpleCache extends OXBaseCache {
   Future<bool> saveData(String key, dynamic data,
       {int timeOut = 60 * 60 * 24 * 7 * 10000}) async {
     final prefs = await SharedPreferences.getInstance();
+    int time = DateTime
+        .now()
+        .millisecondsSinceEpoch;
+    time += timeOut; // The default storage is 7 days
     if (data == null) {
-      prefs.remove(key);
+      prefs.setString(simplePath + '$key', '#$time#');
     } else {
         String value = convert.jsonEncode(data);
-      int time = DateTime
-          .now()
-          .millisecondsSinceEpoch;
-      time += timeOut; // The default storage is 7 days
       prefs.setString(simplePath + '$key', '#$time#$value');
     }
     return true;
@@ -41,7 +41,7 @@ class OXSimpleCache extends OXBaseCache {
   Future<bool> saveForeverData(String key, dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
     if (data == null) {
-      prefs.remove(key);
+      prefs.setString('$foreverPath$key', '');
     } else {
       String value = convert.jsonEncode(data);
       prefs.setString('$foreverPath$key', value);
