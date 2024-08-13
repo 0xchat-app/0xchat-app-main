@@ -97,10 +97,10 @@
   "zap_time": "Time",
   "zap_content": "Content",
   "zap_no_content": "No Content",
-  "ice_server_title": "ICE Server",
+  "ice_server_title": "WebRTC ICE Server",
   "connect_ice_server": "CONNECT TO ICE Server",
-  "connected_ice_server": "CONNECTED To ICE Server",
-  "recommend_ice_server": "Recommend ICE Server",
+  "connected_ice_server": "CONNECTED ICE Servers",
+  "recommend_ice_server": "DEFAULT ICE Servers",
   "enter_ice_server_hint": "Please enter the ICE server address",
   "add_ice_server_exist_tips": "This ICE Server already exists",
   "delete_server_tips": "Are you sure you want to delete it?",
@@ -219,5 +219,7 @@
   "str_notification_groups": "Groups",
   "str_notification_like_tips": "like description",
   "str_notification_reply_tips": "reply description",
-  "str_notification_groups_tips": "groups description"
+  "str_notification_groups_tips": "groups description",
+  "str_p2p_title": "Voice and video call data only pass through a relay, which can protect your IP address.",
+  "str_p2p_tips": "Always use relay"
 }

@@ -33,13 +33,13 @@ class _ICEServerPageState extends State<ICEServerPage> {
   bool _isEditing = false;
   bool _isShowDelete = false;
   bool _isShowAdd = false;
-  bool _isOpenP2P = false;
+  bool _isOpenP2PAndRelay = false;
 
   @override
   void initState() {
     super.initState();
     _recommendICEServerList.addAll(ICEServerModel.defaultICEServers);
-    _isOpenP2P = OXServerManager.sharedInstance.openP2pValue;
+    _isOpenP2PAndRelay = OXServerManager.sharedInstance.openP2PAndRelay;
     _initData();
   }
 
@@ -100,8 +100,8 @@ class _ICEServerPageState extends State<ICEServerPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _buildItem(Localized.text('ox_usercenter.connect_ice_server'), _buildICEServerTextField()),
             _buildP2pStatusWidget(),
+            _buildItem(Localized.text('ox_usercenter.connect_ice_server'), _buildICEServerTextField()),
             SizedBox(
               height: Adapt.px(12),
             ),
@@ -115,7 +115,10 @@ class _ICEServerPageState extends State<ICEServerPage> {
   }
 
   Widget _buildP2pStatusWidget() {
-    return Container(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+      Container(
       width: double.infinity,
       height: Adapt.px(52),
       alignment: Alignment.center,
@@ -129,7 +132,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'P2P',
+            Localized.text('ox_usercenter.str_p2p_tips'),
             style: TextStyle(
               color: ThemeColor.color0,
               fontSize: Adapt.px(16),
@@ -138,6 +141,19 @@ class _ICEServerPageState extends State<ICEServerPage> {
           _p2pSwitchWidget(),
         ],
       ),
+    ), Container(
+          width: double.infinity,
+          height: Adapt.px(46),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            Localized.text('ox_usercenter.str_p2p_title'),
+            style: TextStyle(
+              color: ThemeColor.color100,
+              fontSize: Adapt.px(12),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -437,7 +453,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
 
   Widget _p2pSwitchWidget() {
     return Switch(
-      value: _isOpenP2P,
+      value: !_isOpenP2PAndRelay,
       activeColor: Colors.white,
       activeTrackColor: ThemeColor.gradientMainStart,
       inactiveThumbColor: Colors.white,
@@ -448,8 +464,8 @@ class _ICEServerPageState extends State<ICEServerPage> {
   }
 
   Future<void> _changeP2PFn(bool value) async {
-    _isOpenP2P = value;
-    await OXServerManager.sharedInstance.saveOpenP2p(value);
+    _isOpenP2PAndRelay = !value;
+    await OXServerManager.sharedInstance.saveOpenP2PAndRelay(_isOpenP2PAndRelay);
     setState(() {});
   }
 }
