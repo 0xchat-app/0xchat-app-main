@@ -139,6 +139,15 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       status: types.Status.sending,
     );
     ChatDataCache.shared.deleteMessage(session, resendMsg);
+
+    if (resendMsg.isImageSendingMessage) {
+      sendImageMessageWithMessage(
+        context: context,
+        message: resendMsg as types.CustomMessage,
+      );
+      return ;
+    }
+
     _sendMessageHandler(resendMsg, context: context, isResend: true);
   }
 
@@ -198,33 +207,47 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         height: image.height,
         encryptedKey: encryptedKey,
       );
-
-      await _sendMessageHandler(
-        message,
+      await sendImageMessageWithMessage(
         context: context,
-        sendingType: ChatSendingType.store,
-        successCallback: (sendMessage) {
-          UploadManager.shared.uploadImage(
-            fileType: FileType.image,
-            filePath: imageFile.path,
-            uploadId: ImageSendingMessageEx(message).fileId,
-            encryptedKey: encryptedKey,
-            completeCallback: (uploadResult) async {
-              final imageURL = uploadResult.url;
-              if (uploadResult.isSuccess && imageURL.isNotEmpty) {
-                sendImageMessageWithURL(
-                  imageURL: imageURL,
-                  imageWidth: image.width,
-                  imageHeight: image.height,
-                  encryptedKey: encryptedKey,
-                  replaceMessageId: sendMessage.id,
-                );
-              }
-            },
-          );
-        },
+        message: message,
       );
     }
+  }
+
+  Future sendImageMessageWithMessage({
+    BuildContext? context,
+    required types.CustomMessage message,
+  }) async {
+    final filePath = ImageSendingMessageEx(message).path;
+    final imageWidth = ImageSendingMessageEx(message).width;
+    final imageHeight = ImageSendingMessageEx(message).height;
+    final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
+
+    await _sendMessageHandler(
+      message,
+      context: context,
+      sendingType: ChatSendingType.store,
+      successCallback: (sendMessage) {
+        UploadManager.shared.uploadImage(
+          fileType: FileType.image,
+          filePath: filePath,
+          uploadId: ImageSendingMessageEx(message).fileId,
+          encryptedKey: encryptedKey,
+          completeCallback: (uploadResult) async {
+            final imageURL = uploadResult.url;
+            if (uploadResult.isSuccess && imageURL.isNotEmpty) {
+              sendImageMessageWithURL(
+                imageURL: imageURL,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+                encryptedKey: encryptedKey,
+                replaceMessageId: sendMessage.id,
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   void sendImageMessageWithURL({
@@ -248,17 +271,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       fileEncryptionType: fileEncryptionType,
       decryptKey: encryptedKey,
     );
-    // final message = CustomMessageFactory().createImageSendingMessage(
-    //   author: author,
-    //   timestamp: tempCreateTime,
-    //   id: message_id,
-    //   roomId: session.chatId,
-    //   path: '',
-    //   url: imageURL,
-    //   width: imageWidth,
-    //   height: imageHeight,
-    //   encryptedKey: encryptedKey,
-    // );
 
     _sendMessageHandler(
       message,
