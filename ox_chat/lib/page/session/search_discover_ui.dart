@@ -32,6 +32,7 @@ extension SearchDiscoverUI on SearchPageState{
   void loadOnlineChannelsData() async {
     final requestId = ++lastRequestId;
     if (searchQuery.startsWith('nevent') ||
+        searchQuery.startsWith('naddr') ||
         searchQuery.startsWith('nostr:') ||
         searchQuery.startsWith('note')) {
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
@@ -50,7 +51,7 @@ extension SearchDiscoverUI on SearchPageState{
         } else if (kind == 39000) {
           final groupId = map['channelId'];
           final relays = map['relays'];
-          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId, relay: relays[0]);
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.searchGroupsMetadataWithGroupID(groupId, relays[0]);
           if (relayGroupDB != null) {
             List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
             dataGroups.add(
