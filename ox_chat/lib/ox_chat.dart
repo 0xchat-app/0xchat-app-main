@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/recent_search_user.dart';
 import 'package:ox_chat/model/recent_search_user_isar.dart';
@@ -19,6 +20,7 @@ import 'package:ox_chat/page/contacts/groups/group_share_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_info_page.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
 import 'package:ox_chat/page/contacts/user_list_page.dart';
+import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
@@ -86,6 +88,7 @@ class OXChat extends OXFlutterModule {
     'openWebviewForEncryptedFile': openWebviewForEncryptedFile,
     'getTryDecodeNostrScheme': getTryDecodeNostrScheme,
     'showRelayInfoWidget': _showRelayInfoWidget,
+    'showCashuOpenDialog': showCashuOpenDialog,
   };
 
   @override
@@ -370,8 +373,13 @@ class OXChat extends OXFlutterModule {
     ));
   }
 
-  Future<String?> getTryDecodeNostrScheme(String content)async {
+  Future<String?> getTryDecodeNostrScheme(String content) async {
     String? result = await ChatNostrSchemeHandle.tryDecodeNostrScheme(content);
     return result;
+  }
+
+  Future<bool?> showCashuOpenDialog(String cashuToken) async {
+    final package = await EcashHelper.createPackageFromCashuToken(cashuToken);
+    return EcashOpenDialog.show(package: package, approveOnTap: () { });
   }
 }
