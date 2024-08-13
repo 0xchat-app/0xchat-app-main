@@ -195,6 +195,7 @@ class UploadManager {
   UploadManager._internal() { }
 
   Map<String, StreamController<double>> uploadStreamMap = {};
+  Map<String, UploadResult> uploadResultMap = {};
 
   Future<void> uploadImage({
     required FileType fileType,
@@ -203,10 +204,9 @@ class UploadManager {
     String? encryptedKey,
     Function(UploadResult)? completeCallback,
   }) async {
-    if (uploadStreamMap.containsKey(uploadId)) return ;
-    
     final streamController = StreamController<double>.broadcast();
     uploadStreamMap[uploadId] = streamController;
+    uploadResultMap.remove(uploadId);
 
     final file = File(filePath);
     final fileName = filePath.getFileName() ?? '${DateTime.now().millisecondsSinceEpoch}.${Path.extension(filePath)}';
@@ -220,11 +220,9 @@ class UploadManager {
         streamController.add(progress);
       },
     ).then((result) {
-      streamController.close();
-      if (!result.isSuccess) {
-        uploadStreamMap.remove(uploadId);
-      }
+      uploadResultMap[uploadId] = result;
       completeCallback?.call(result);
+      streamController.close();
     });
   }
 
@@ -235,4 +233,7 @@ class UploadManager {
     }
     return controller.stream;
   }
+
+  bool? getUploadResult(String uploadId) =>
+      uploadResultMap[uploadId]?.isSuccess;
 }
