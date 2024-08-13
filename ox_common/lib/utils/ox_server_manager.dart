@@ -44,8 +44,8 @@ class OXServerManager {
 
   List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
   int get selectedFileStorageIndex  => _selectedFileStorageIndex;
-  bool _openP2p = false;
-  bool get openP2pValue => _openP2p;
+  bool _openP2PAndRelay = false;
+  bool get openP2PAndRelay => _openP2PAndRelay;
 
   void loadConnectICEServer() async {
     List<ICEServerModel> connectICEServerList = await getICEServerList();
@@ -63,7 +63,7 @@ class OXServerManager {
     }
     _selectedFileStorageIndex = await getSelectedFileStorageServer();
     selectedFileStorageServer = fileStorageServers[_selectedFileStorageIndex];
-    _openP2p = await getOpenP2p();
+    _openP2PAndRelay = await getOpenP2PAndRelay();
   }
 
   Future<void> addServer(ICEServerModel iceServerModel) async {
@@ -115,14 +115,14 @@ class OXServerManager {
     await UserConfigTool.saveSetting(fileStorageServer, jsonString);
   }
 
-  Future<bool> getOpenP2p() async {
-    bool openP2p = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_P2P.name, defaultValue: false);
+  Future<bool> getOpenP2PAndRelay() async {
+    bool openP2p = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_P2P_AND_RELAY.name, defaultValue: false);
     return openP2p;
   }
 
-  Future<void> saveOpenP2p(bool value) async {
-    _openP2p = value;
-    await UserConfigTool.saveSetting(StorageSettingKey.KEY_OPEN_P2P.name, value);
+  Future<void> saveOpenP2PAndRelay(bool value) async {
+    _openP2PAndRelay = value;
+    await UserConfigTool.saveSetting(StorageSettingKey.KEY_OPEN_P2P_AND_RELAY.name, value);
   }
 
   List<FileStorageServer> getFileStorageServers() {

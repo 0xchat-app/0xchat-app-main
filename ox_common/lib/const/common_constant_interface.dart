@@ -44,9 +44,9 @@ abstract class ConstantInterface {
   /// Vibrate
   int get NOTIFICATION_VIBRATE => 5;
   ///like
-  int get NOTIFICATION_LIKE => 6;
+  int get NOTIFICATION_REACTIONS => 6;
   ///reply&repos
-  int get NOTIFICATION_REPLY => 7;
+  int get NOTIFICATION_REPLIES => 7;
   ///groups
   int get NOTIFICATION_GROUPS => 8;
 

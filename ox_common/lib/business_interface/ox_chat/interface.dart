@@ -91,4 +91,12 @@ class OXChatInterface {
       },
     );
   }
+
+  static Future<bool?> showCashuOpenDialog(String cashuToken) async {
+    return OXModuleService.invoke<Future<bool?>>(
+      moduleName,
+      'showCashuOpenDialog',
+      [cashuToken],
+    );
+  }
 }
