@@ -97,24 +97,24 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
         isSelected: true,
       );
     }
-    bool containsLike = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_LIKE);
-    if (!containsLike) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_LIKE] = NoticeModel(
-        id: CommonConstant.NOTIFICATION_LIKE,
-        isSelected: true,
-      );
-    }
-    bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLY);
-    if (!containsReply) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_REPLY] = NoticeModel(
-        id: CommonConstant.NOTIFICATION_REPLY,
-        isSelected: true,
-      );
-    }
     bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS);
-    if (!containsLike) {
+    if (!containsGroups) {
       _allNoticeModel[CommonConstant.NOTIFICATION_GROUPS] = NoticeModel(
         id: CommonConstant.NOTIFICATION_GROUPS,
+        isSelected: true,
+      );
+    }
+    bool containsReactions = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REACTIONS);
+    if (!containsReactions) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_REACTIONS] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_REACTIONS,
+        isSelected: true,
+      );
+    }
+    bool containsReplies = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES);
+    if (!containsReplies) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_REPLIES] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_REPLIES,
         isSelected: true,
       );
     }
@@ -388,10 +388,10 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.sound_feedback');
     } else if (id == CommonConstant.NOTIFICATION_VIBRATE) {
       return Localized.text('ox_usercenter.vibrate_feedback');
-    } else if (id == CommonConstant.NOTIFICATION_LIKE) {
-      return Localized.text('ox_usercenter.str_notification_like');
-    } else if (id == CommonConstant.NOTIFICATION_REPLY) {
-      return Localized.text('ox_usercenter.str_notification_reply');
+    } else if (id == CommonConstant.NOTIFICATION_REACTIONS) {
+      return Localized.text('ox_usercenter.str_notification_reactions');
+    } else if (id == CommonConstant.NOTIFICATION_REPLIES) {
+      return Localized.text('ox_usercenter.str_notification_replies');
     } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
       return Localized.text('ox_usercenter.str_notification_groups');
     }
@@ -407,9 +407,9 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.channels_notifications_tips');
     } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
       return Localized.text('ox_usercenter.zaps_notifications_tips');
-    } else if (id == CommonConstant.NOTIFICATION_LIKE) {
-      return Localized.text('ox_usercenter.str_notification_like_tips');
-    } else if (id == CommonConstant.NOTIFICATION_REPLY) {
+    } else if (id == CommonConstant.NOTIFICATION_REACTIONS) {
+      return Localized.text('ox_usercenter.str_notification_reactions_tips');
+    } else if (id == CommonConstant.NOTIFICATION_REPLIES) {
       return Localized.text('ox_usercenter.str_notification_reply_tips');
     } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
       return Localized.text('ox_usercenter.str_notification_groups_tips');

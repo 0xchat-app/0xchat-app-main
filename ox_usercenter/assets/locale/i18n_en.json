@@ -214,12 +214,12 @@
   "str_clear_account": "Clear",
   "str_clear_account_dialog_hint": "Remove ${name}’s Login info?",
   "str_clear_account_dialog_remove": "Remove",
-  "str_notification_like": "Like",
-  "str_notification_reply": "Reply",
+  "str_notification_reactions": "Reactions",
+  "str_notification_replies": "Replies",
   "str_notification_groups": "Groups",
-  "str_notification_like_tips": "like description",
-  "str_notification_reply_tips": "reply description",
-  "str_notification_groups_tips": "groups description",
+  "str_notification_reactions_tips": "Reactions to Moments & Messages will receive push notifications",
+  "str_notification_reply_tips": "Replies to Moments & Messages will receive push notifications",
+  "str_notification_groups_tips": "Messages in groups will receive push notifications",
   "str_p2p_title": "Voice and video call data only pass through a relay, which can protect your IP address.",
   "str_p2p_tips": "Always use relay"
 }
