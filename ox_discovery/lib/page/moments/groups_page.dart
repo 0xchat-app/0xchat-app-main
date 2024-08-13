@@ -1,7 +1,4 @@
-import 'dart:math';
 import 'dart:ui';
-import 'package:avatar_stack/avatar_stack.dart';
-import 'package:avatar_stack/positions.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -19,6 +16,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
+import 'package:ox_common/widgets/custom_avatar_stack.dart';
 
 class GroupsPage extends StatefulWidget {
   final GroupType groupType;
@@ -136,8 +134,9 @@ class _GroupsPageState extends State<GroupsPage>
             color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
-                  color: ThemeColor.color190,
-                  borderRadius: BorderRadius.circular(16.px)),
+                color: ThemeColor.color190,
+                borderRadius: BorderRadius.circular(16.px),
+              ),
               child: Column(
                 children: [
                   _buildCardBackgroundWidget(group.picture ?? ''),
@@ -276,47 +275,12 @@ class _GroupsPageState extends State<GroupsPage>
   }
 
   Widget _buildAvatarStack(List<String> avatarURLs) {
-    final avatarCount = min(avatarURLs.length, 5);
-    avatarURLs = avatarURLs.sublist(0, avatarCount);
-
-    double maxWidth = Adapt.px(32);
-    if (avatarURLs.length > 1) {
-      maxWidth = Adapt.px(avatarURLs.length * 26);
-    }
-
-    return Container(
-      margin: EdgeInsets.only(right: 10.px,),
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        minWidth: 32.px,
-      ),
-      child: AvatarStack(
-        settings: RestrictedPositions(
-          // maxCoverage: 0.1,
-          // minCoverage: 0.2,
-          align: StackAlign.left,
-          laying: StackLaying.first,
-        ),
-        borderColor: ThemeColor.color180,
-        height: 32.px,
-        avatars: avatarURLs
-            .map((url) {
-              if (url.isEmpty) {
-                return const AssetImage(
-                  'assets/images/user_image.png',
-                  package: 'ox_common',
-                );
-              } else {
-                return OXCachedNetworkImageProviderEx.create(
-                  context,
-                  url,
-                  height: 26.px,
-                );
-              }
-            })
-            .toList()
-            .cast<ImageProvider>(),
-      ),
+    return CustomAvatarStack(
+      maxAvatars: 5,
+      imageUrls: avatarURLs,
+      avatarSize: 32.px,
+      spacing: 8.px,
+      borderColor: ThemeColor.color180,
     );
   }
 
@@ -326,13 +290,12 @@ class _GroupsPageState extends State<GroupsPage>
     return Row(
       children: [
         FutureBuilder(
-          initialData: const [].cast<String>(),
           future: _getMembersAvatars(members),
           builder: (context, snapshot) {
-            List<String> avatars = snapshot.data ?? [];
-            return avatars.isEmpty
-                ? const SizedBox()
-                : _buildAvatarStack(avatars);
+            if(snapshot.hasData) {
+              return _buildAvatarStack(snapshot.data ?? []);
+            }
+            return const SizedBox();
           },
         ),
         SizedBox(width: 5.px,),
@@ -401,20 +364,23 @@ class _GroupsPageState extends State<GroupsPage>
 
   Future<List<UserDBISAR>> _getMembers(List<String> pubKeys) async {
     List<UserDBISAR> users = [];
-    for (var element in pubKeys) {
-      UserDBISAR? user = await Account.sharedInstance.getUserInfo(element);
-      if (user != null) {
-        users.add(user);
-      }
-    }
+    await Future.forEach(
+      pubKeys,
+      (element) async {
+        UserDBISAR? user = await Account.sharedInstance.getUserInfo(element);
+        if (user != null) {
+          users.add(user);
+        }
+      },
+    );
     return users;
   }
 
   Future<List<String>> _getMembersAvatars(List<String> pubKeys) async {
-    List<String?> avatars = [];
+    List<String> avatars = [];
     List<UserDBISAR> users = await _getMembers(pubKeys);
-    avatars.addAll(users.map((e) => e.picture).toList());
-    return avatars.where((e) => e != null).toList().cast<String>();
+    avatars.addAll(users.map((e) => e.picture ?? '').toList());
+    return avatars;
   }
 
   Future<String> _getCreator(String pubKey) async {
