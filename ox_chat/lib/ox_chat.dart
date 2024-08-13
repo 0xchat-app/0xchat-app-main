@@ -31,6 +31,7 @@ import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
+import 'package:ox_chat/widget/relay_info_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -83,7 +84,8 @@ class OXChat extends OXFlutterModule {
     'sendTextMsg': _sendTextMsg,
     'sendTemplateMessage': _sendTemplateMessage,
     'openWebviewForEncryptedFile': openWebviewForEncryptedFile,
-    'getTryDecodeNostrScheme': getTryDecodeNostrScheme
+    'getTryDecodeNostrScheme': getTryDecodeNostrScheme,
+    'showRelayInfoWidget': _showRelayInfoWidget,
   };
 
   @override
@@ -185,6 +187,10 @@ class OXChat extends OXFlutterModule {
         ),);
     }
     return null;
+  }
+
+  Widget _showRelayInfoWidget(BuildContext context) {
+    return RelayInfoWidget();
   }
 
   void _showMyIdCardDialog(BuildContext context) {
