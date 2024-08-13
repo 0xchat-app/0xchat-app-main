@@ -7,6 +7,7 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
@@ -389,6 +390,7 @@ class OXUserInfoManager {
   void _initDatas() async {
     UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
+    OXServerManager.sharedInstance.loadConnectICEServer();
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
