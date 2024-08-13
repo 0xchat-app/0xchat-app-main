@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
+import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
@@ -41,25 +42,40 @@ class UserConfigTool{
 
   static Future<void> compatibleOldSettings(UserDBISAR userDB) async {
     List<StorageSettingKey> settingKeyList = StorageSettingKey.values;
-    UserDBISAR? currentUser = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if (currentUser != null){
-      String? settings = currentUser.settings;
-      if (settings == null){
-        Map<String, dynamic> settingsMap = {};
-        await Future.forEach(settingKeyList, (e) async {
-          final eValue = await OXCacheManager.defaultOXCacheManager.getForeverData(e.name);
-          settingsMap[e.name] = eValue;
-        });
-        if (settingsMap.isNotEmpty) {
-          OXUserInfoManager.sharedInstance.settingsMap = settingsMap;
-          UserDBISAR? currentUser = Account.sharedInstance.me;
-          if (currentUser != null) {
-            String jsonString = json.encode(settingsMap);
-            currentUser.settings = jsonString;
-            Account.sharedInstance.syncMe();
-          }
+    String? settings = userDB.settings;
+    if (settings == null){
+      Map<String, dynamic> settingsMap = {};
+      await Future.forEach(settingKeyList, (e) async {
+        final eValue = await OXCacheManager.defaultOXCacheManager.getForeverData(e.name);
+        settingsMap[e.name] = eValue;
+      });
+      if (settingsMap.isNotEmpty) {
+        OXUserInfoManager.sharedInstance.settingsMap = settingsMap;
+        defaultNotificationValue();
+        UserDBISAR? currentUser = Account.sharedInstance.me;
+        if (currentUser != null) {
+          String jsonString = json.encode(settingsMap);
+          currentUser.settings = jsonString;
+          Account.sharedInstance.syncMe();
         }
       }
+    }
+  }
+
+  static void defaultNotificationValue() async {
+    String? jsonString = OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_NOTIFICATION_LIST.name];
+    if (jsonString == null || jsonString.isEmpty){
+      Map<String, Map<String, dynamic>> notificationMap = {};
+      notificationMap[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString()] = { 'id': CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString()] = { 'id': CommonConstant.NOTIFICATION_PRIVATE_MESSAGES, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_CHANNELS.toString()] = { 'id': CommonConstant.NOTIFICATION_CHANNELS, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_ZAPS.toString()] = { 'id': CommonConstant.NOTIFICATION_ZAPS, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_SOUND.toString()] = { 'id': CommonConstant.NOTIFICATION_SOUND, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_VIBRATE.toString()] = { 'id': CommonConstant.NOTIFICATION_VIBRATE, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_LIKE.toString()] = { 'id': CommonConstant.NOTIFICATION_LIKE, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_REPLY.toString()] = { 'id': CommonConstant.NOTIFICATION_REPLY, 'isSelected': true};
+      notificationMap[CommonConstant.NOTIFICATION_GROUPS.toString()] = { 'id': CommonConstant.NOTIFICATION_GROUPS, 'isSelected': true};
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_NOTIFICATION_LIST.name] = json.encode(notificationMap);
     }
   }
 
@@ -106,6 +122,7 @@ class UserConfigTool{
     String? jsonString = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY_LIST, defaultValue: '');
     if (jsonString == null || jsonString.isEmpty) {
       saveUser(userDB);
+      compatibleOldSettings(userDB);
     }
   }
 

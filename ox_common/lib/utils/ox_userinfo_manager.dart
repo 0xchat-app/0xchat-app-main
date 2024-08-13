@@ -29,7 +29,7 @@ abstract mixin class OXUserInfoObserver {
 enum _ContactType {
   contacts,
   channels,
-  groups,
+  // groups
   relayGroups,
 }
 
@@ -56,7 +56,6 @@ class OXUserInfoManager {
   var _contactFinishFlags = {
     _ContactType.contacts: false,
     _ContactType.channels: false,
-    _ContactType.groups: false,
     _ContactType.relayGroups: false,
   };
 
@@ -144,6 +143,7 @@ class OXUserInfoManager {
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
     UserConfigTool.saveUser(userDB);
+    UserConfigTool.defaultNotificationValue();
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -219,7 +219,6 @@ class OXUserInfoManager {
     };
     Groups.sharedInstance.myGroupsUpdatedCallBack = () async {
       LogUtil.d('Michael: init  myGroupsUpdatedCallBack');
-      _fetchFinishHandler(_ContactType.groups);
       OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
     RelayGroup.sharedInstance.myGroupsUpdatedCallBack = () async {
@@ -308,7 +307,7 @@ class OXUserInfoManager {
     _contactFinishFlags = {
       _ContactType.contacts: false,
       _ContactType.channels: false,
-      _ContactType.groups: false,
+      // _ContactType.groups: false,
       _ContactType.relayGroups: false,
     };
     OXChatBinding.sharedInstance.clearSession();
@@ -327,7 +326,6 @@ class OXUserInfoManager {
     if (!isLogin) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
     String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
-    if (jsonString.isEmpty) return updateNotificatin;
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     ///4、 44 private chat;  1059 secret chat & audio video call; 42  channel message; 9735 zap; 9、10 relay group; 1、6 reply&repost; 7 like
     List<int> kinds = [4, 44, 1059, 42, 9735, 9, 10, 1, 6, 7];
@@ -421,8 +419,9 @@ class OXUserInfoManager {
   }
 
   void _fetchFinishHandler(_ContactType type) {
+    if (_contactFinishFlags[type] ?? false) return;
     _contactFinishFlags[type] = true;
-    setNotification();
+    if (isFetchContactFinish) setNotification();
   }
 
   Future<void> _initFeedback() async {
