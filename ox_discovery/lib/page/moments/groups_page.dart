@@ -46,7 +46,7 @@ class _GroupsPageState extends State<GroupsPage>
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
-    _getRelayGroupList();
+    widget.groupType == GroupType.openGroup ? _getRelayGroupList() : _getChannelList();
   }
 
   @override
@@ -71,13 +71,13 @@ class _GroupsPageState extends State<GroupsPage>
     }
   }
 
-  void _updateGroupList() {
+  Future<void> _updateGroupList() async {
     if (widget.groupType == GroupType.openGroup) {
       _groupList.clear();
-      _getRelayGroupList();
+      await _getRelayGroupList();
     } else {
       _groupList.clear();
-      _getChannelList();
+      await _getChannelList();
     }
   }
 
@@ -116,47 +116,42 @@ class _GroupsPageState extends State<GroupsPage>
       primary: false,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: 1,
+      itemCount: _groupList.values.length,
       itemBuilder: (context, index) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: _buildHotGroupCard(),
-        );
+        final group = _groupList.values.elementAt(index);
+        return _buildHotGroupCard(group);
       },
     );
   }
 
-  List<Widget> _buildHotGroupCard() {
+  Widget _buildHotGroupCard(GroupModel group) {
     double width = MediaQuery.of(context).size.width;
-    return _groupList.values.map((item) {
-      return Container(
-          margin: EdgeInsets.only(top: 16.px),
-          child: GestureDetector(
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.px),
-                child: Container(
-                  width: Adapt.px(width - 24 * 2),
-                  color: Colors.transparent,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: ThemeColor.color190,
-                        borderRadius:BorderRadius.circular(16.px)
-                      ),
-                      child: Column(
-                        children: [
-                          _buildCardBackgroundWidget(item.picture ?? ''),
-                          _buildGroupInfoWidget(item),
-                          _buildCreatorWidget(item.creator ?? ''),
-                          _buildMembersInfoWidget(item.members ?? []),
-                        ],
-                  ),
-                ),
+    return Container(
+      margin: EdgeInsets.only(top: 16.px),
+      child: GestureDetector(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.px),
+          child: Container(
+            width: Adapt.px(width - 24 * 2),
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: ThemeColor.color190,
+                  borderRadius: BorderRadius.circular(16.px)),
+              child: Column(
+                children: [
+                  _buildCardBackgroundWidget(group.picture ?? ''),
+                  _buildGroupInfoWidget(group),
+                  _buildCreatorWidget(group.creator ?? ''),
+                  _buildMembersInfoWidget(group.members ?? []),
+                ],
               ),
             ),
-          onTap: () => _hotGroupCardOnTap(item),
+          ),
         ),
-      );
-    }).toList();
+        onTap: () => _hotGroupCardOnTap(group),
+      ),
+    );
   }
 
   Widget _placeholderImage({double? width, double? height}) {
@@ -445,6 +440,7 @@ class _GroupsPageState extends State<GroupsPage>
   Future<void> _getRelayGroupList() async {
     await RelayGroup.sharedInstance
         .searchAllGroupsFromRelays((groups) {
+          if(widget.groupType == GroupType.channel) return;
           for(var group in groups){
             _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
           }
