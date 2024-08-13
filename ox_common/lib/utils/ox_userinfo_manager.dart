@@ -349,10 +349,10 @@ class OXUserInfoManager {
         if (value['id'] == CommonConstant.NOTIFICATION_ZAPS && !value['isSelected']) {
           kinds.remove(9735);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_LIKE && !value['isSelected']) {
+        if (value['id'] == CommonConstant.NOTIFICATION_REACTIONS && !value['isSelected']) {
           kinds.remove(7);
         }
-        if (value['id'] == CommonConstant.NOTIFICATION_REPLY && !value['isSelected']) {
+        if (value['id'] == CommonConstant.NOTIFICATION_REPLIES && !value['isSelected']) {
           kinds.remove(1);
           kinds.remove(6);
         }
