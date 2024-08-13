@@ -749,6 +749,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _leaveGroupFn() async {
     OXLoading.show();
     OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId);
+    OXUserInfoManager.sharedInstance.setNotification();
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
       OXLoading.dismiss();
