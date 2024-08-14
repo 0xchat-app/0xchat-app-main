@@ -17,6 +17,7 @@ import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_discovery/page/widgets/send_progress_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_extension_model.dart';
@@ -37,7 +38,7 @@ class CreateMomentsPage extends StatefulWidget {
   final List<String>? imageList;
   final String? videoPath;
   final String? videoImagePath;
-  final ValueNotifier<NotedUIModel>? notedUIModel;
+  final ValueNotifier<NotedUIModel?>? notedUIModel;
   const CreateMomentsPage(
       {Key? key,
       required this.type,
@@ -418,9 +419,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _quoteWidget() {
-    ValueNotifier<NotedUIModel>? notedUIModel = widget.notedUIModel;
-    if (currentPageType != EMomentType.quote || notedUIModel == null) return const SizedBox();
-    return MomentQuoteWidget(notedId: widget.notedUIModel!.value.noteDB.noteId);
+    ValueNotifier<NotedUIModel?>? notedUIModel = widget.notedUIModel;
+    if (currentPageType != EMomentType.quote || notedUIModel == null || notedUIModel.value == null) return const SizedBox();
+    return MomentQuoteWidget(notedId: widget.notedUIModel!.value!.noteDB.noteId);
   }
 
   Widget _captionWidget() {
@@ -598,7 +599,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     OKEvent? event;
 
-    NoteDBISAR? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value?.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
@@ -664,7 +665,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String? groupId = widget.groupId;
     if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
     List<String> previous = Nip29.getPrevious([[groupId]]);
-    NoteDBISAR? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value?.noteDB;
     OKEvent result;
     OXLoading.show();
     if(currentPageType == EMomentType.quote && noteDB != null){

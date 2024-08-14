@@ -8,9 +8,10 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../model/moment_ui_model.dart';
+import '../../utils/discovery_utils.dart';
 
 class ReplyContactWidget extends StatefulWidget {
-  final ValueNotifier<NotedUIModel>? notedUIModel;
+  final ValueNotifier<NotedUIModel?>? notedUIModel;
   const ReplyContactWidget({super.key, required this.notedUIModel});
 
   @override
@@ -35,7 +36,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       _getMomentUser();
     }
 
-    if(widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.value.noteDB.isReply){
+    if(widget.notedUIModel?.value != null && widget.notedUIModel != null && isShowReplyContactWidget && widget.notedUIModel!.value!.noteDB.isReply){
       _getMomentUser();
     }
   }
@@ -59,21 +60,22 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    ValueNotifier<NotedUIModel?> replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      getReplyId,
+      isUpdateCache: true,
+      notedUIModel: model,
+    );
 
-    if (notedUIModelCache[getReplyId] == null) {
-      NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(getReplyId);
-      if (note == null) {
-        if(mounted){
-          setState(() {});
-        }
-        return;
+    if(replyNotifier.value == null){
+      if(mounted){
+        setState(() {});
       }
-      notedUIModelCache[getReplyId] = NotedUIModel(noteDB: note);
+      return;
     }
 
-    noteAuthor = notedUIModelCache[getReplyId]!.noteDB.author;
-    _getMomentUserInfo(notedUIModelCache[getReplyId]!);
+    noteAuthor = (replyNotifier.value as NotedUIModel).noteDB.author;
+
+    _getMomentUserInfo(replyNotifier.value as NotedUIModel);
     if (mounted) {
       setState(() {});
     }

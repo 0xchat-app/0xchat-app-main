@@ -340,7 +340,13 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Future<NoteDBISAR?> _getNote(AggregatedNotification notificationDB) async {
-    return await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      notificationDB.associatedNoteId,
+      isUpdateCache: true,
+    );
+    if(noteNotifier.value == null) return null;
+
+    return noteNotifier.value!.noteDB;
   }
 
   void _clearNotifications(){
@@ -430,14 +436,20 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   void _jumpMomentsPage(ENotificationsMomentType type,AggregatedNotification notification)async {
-    NoteDBISAR? note;
+    String noteId;
     if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
-      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
+      noteId = notification.notificationId;
     } else {
-      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
+      noteId = notification.associatedNoteId;
     }
-    if(note != null){
-      OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: ValueNotifier(NotedUIModel(noteDB: note!))));
+
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      noteId,
+      isUpdateCache: true,
+    );
+
+    if(noteNotifier.value != null){
+      OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: noteNotifier));
     }
   }
 }

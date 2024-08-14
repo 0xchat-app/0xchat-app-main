@@ -70,7 +70,7 @@ class OXMomentCacheManager {
 
   Map<String,Map<String,dynamic>?> naddrAnalysisCache = {};
 
-  Map<String,NotedUIModel?> notedUIModelCache = {};
+  Map<String,ValueNotifier<NotedUIModel?>> notedUIModelCache = {};
 
   Map<String,PreviewData?> urlPreviewDataCache = {};
 

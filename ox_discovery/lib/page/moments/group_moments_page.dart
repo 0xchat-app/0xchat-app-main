@@ -148,7 +148,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         return MomentWidget(
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
-          clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+          clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(
                 notedUIModel: notedUIModel,

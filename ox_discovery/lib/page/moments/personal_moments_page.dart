@@ -231,7 +231,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       child: MomentWidget(
         isShowReplyWidget: true,
         notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
-        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+        clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
           await OXNavigator.pushPage(
               context, (context) => MomentsPage(notedUIModel: notedUIModel));
         },

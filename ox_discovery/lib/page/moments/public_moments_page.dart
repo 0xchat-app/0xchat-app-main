@@ -163,7 +163,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                       isShowReplyWidget: true,
                       notedUIModel: notedUIModel,
                       clickMomentCallback:
-                          (ValueNotifier<NotedUIModel> notedUIModel) async {
+                          (ValueNotifier<NotedUIModel?> notedUIModel) async {
                         await OXNavigator.pushPage(
                             context,
                             (context) =>
@@ -181,7 +181,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
           clickMomentCallback:
-              (ValueNotifier<NotedUIModel> notedUIModel) async {
+              (ValueNotifier<NotedUIModel?> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel));
           },

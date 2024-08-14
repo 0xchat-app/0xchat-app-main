@@ -1,4 +1,5 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
@@ -25,7 +26,7 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class MomentOptionUserPage extends StatefulWidget {
-  final ValueNotifier<NotedUIModel> notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final ENotificationsMomentType type;
 
   const MomentOptionUserPage(
@@ -51,7 +52,9 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   void _init() async {
-    NoteDBISAR noteDB = widget.notedUIModel.value.noteDB;
+
+    NoteDBISAR? noteDB = widget.notedUIModel.value?.noteDB;
+    if(noteDB == null) return;
     List<dynamic> list = [];
       switch (widget.type) {
         case ENotificationsMomentType.zaps:
@@ -169,7 +172,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
 }
 
 class MomentUserItemWidget extends StatefulWidget {
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final ENotificationsMomentType type;
   const MomentUserItemWidget(
       {super.key, required this.notedUIModel, required this.type});
@@ -180,7 +183,7 @@ class MomentUserItemWidget extends StatefulWidget {
 
 class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   UserDBISAR? user;
-  NotedUIModel? notedUIModel;
+  ValueNotifier<NotedUIModel?>? notedUIModel;
   @override
   void initState() {
     super.initState();
@@ -198,27 +201,33 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
 
     if (widget.type == ENotificationsMomentType.quote) {
       notedUIModel = widget.notedUIModel;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
     }
 
     if (widget.type == ENotificationsMomentType.zaps) {
       notedUIModel = widget.notedUIModel;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
     }
   }
 
   void _initReposted() async {
-    NoteDBISAR? note = await Moment.sharedInstance
-        .loadNoteWithNoteId(widget.notedUIModel.noteDB.repostId!);
-    if (note != null) {
-      NotedUIModel newNoted = NotedUIModel(noteDB: note);
-      notedUIModel = newNoted;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+    ValueNotifier<NotedUIModel?>? modelNotifier = widget.notedUIModel;
+    if(modelNotifier == null || modelNotifier.value == null) return;
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      modelNotifier.value!.noteDB.repostId!,
+      isUpdateCache: true,
+      notedUIModel: modelNotifier.value,
+    );
+
+    if(noteNotifier.value != null){
+      notedUIModel = noteNotifier as ValueNotifier<NotedUIModel>;
+      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
     }
   }
 
   void _initLike() async {
-    _getUserDB(widget.notedUIModel.noteDB.author);
+
+    _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
   }
 
   void _getUserDB(String pubKey) async {
@@ -232,8 +241,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   String get _getContent {
-    if(widget.type == ENotificationsMomentType.repost) return '';
-    return notedUIModel?.getMomentShowContent ?? '';
+    if(widget.type == ENotificationsMomentType.repost || notedUIModel == null || notedUIModel?.value == null) return '';
+    return notedUIModel?.value!.getMomentShowContent ?? '';
   }
 
   @override
@@ -242,7 +251,9 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   Widget _userItemWidget() {
-    String pubKey = widget.notedUIModel.noteDB.author;
+    ValueNotifier<NotedUIModel?>? modelNotifier = widget.notedUIModel;
+    if(modelNotifier == null || modelNotifier.value == null) return const SizedBox();
+    String pubKey = widget.notedUIModel.value!.noteDB.author;
     return ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
@@ -342,23 +353,26 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _clickMoment() async {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
 
-    if (model == null) return;
+    if (modelNotifier == null || modelNotifier.value == null) return;
 
     if (widget.type == ENotificationsMomentType.zaps || widget.type == ENotificationsMomentType.quote) {
-      _getNoteToMomentPage(model.noteDB.noteId);
+      _getNoteToMomentPage(modelNotifier.value!.noteDB.noteId);
     }
 
   }
 
   void _getNoteToMomentPage(String noteId) async {
-    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
-    if (note == null) return;
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      noteId,
+    );
+
+    if (noteNotifier.value == null) return;
     OXNavigator.pushPage(
       context,
       (context) => MomentsPage(
-        notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
+        notedUIModel: noteNotifier,
       ),
     );
   }

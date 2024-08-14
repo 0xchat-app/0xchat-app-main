@@ -16,6 +16,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_ui_model.dart';
+import '../../utils/discovery_utils.dart';
 import '../moments/create_moments_page.dart';
 import '../moments/reply_moments_page.dart';
 
@@ -25,7 +26,7 @@ import 'package:nostr_core_dart/nostr.dart';
 
 
 class MomentOptionWidget extends StatefulWidget {
-  final ValueNotifier<NotedUIModel> notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final bool isShowMomentOptionWidget;
   const MomentOptionWidget({super.key,required this.notedUIModel,this.isShowMomentOptionWidget = true});
 
@@ -36,7 +37,7 @@ class MomentOptionWidget extends StatefulWidget {
 class _MomentOptionWidgetState extends State<MomentOptionWidget>
     with SingleTickerProviderStateMixin {
 
-  late ValueNotifier<NotedUIModel> notedUIModel;
+  late ValueNotifier<NotedUIModel?> notedUIModel;
   late final AnimationController _shakeController;
   bool _isDefaultEcashWallet = false;
   bool _isDefaultNWCWallet = false;
@@ -64,7 +65,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel != oldWidget.notedUIModel) {
+    if (widget.notedUIModel.value != oldWidget.notedUIModel.value) {
       _init();
     }
   }
@@ -77,7 +78,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   void _getMomentUserInfo()async {
-    String pubKey = widget.notedUIModel.value.noteDB.author;
+    if(widget.notedUIModel.value == null) return;
+    String pubKey = widget.notedUIModel.value!.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
@@ -112,7 +114,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: momentOptionTypeList.map((EMomentOptionType type) {
-            return ValueListenableBuilder<NotedUIModel>(
+            return ValueListenableBuilder<NotedUIModel?>(
               valueListenable: widget.notedUIModel,
               builder: (context, model, child) => _showItemWidget(type,model),
             );
@@ -122,7 +124,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     );
   }
 
-  Widget _showItemWidget(EMomentOptionType type,NotedUIModel model){
+  Widget _showItemWidget(EMomentOptionType type,NotedUIModel? model){
+    if(model == null) return const SizedBox();
     bool isZap = type == EMomentOptionType.zaps;
     Widget iconTextWidget = _iconTextWidget(
       type: type,
@@ -142,6 +145,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   GestureTapCallback _onTapCallback(EMomentOptionType type) {
+    NoteDBISAR? noteDB = notedUIModel.value?.noteDB;
+    if(noteDB == null) return () => {};
     switch (type) {
       case EMomentOptionType.reply:
         return () async{
@@ -156,13 +161,13 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
       case EMomentOptionType.like:
         return () async {
-          if (notedUIModel.value.noteDB.reactionCountByMe > 0 || _reactionTag) return;
+          if (noteDB.reactionCountByMe > 0 || _reactionTag) return;
           bool isSuccess = false;
-          if (notedUIModel.value.noteDB.groupId.isEmpty) {
-            OKEvent event = await Moment.sharedInstance.sendReaction(notedUIModel.value.noteDB.noteId);
+          if (noteDB.groupId.isEmpty) {
+            OKEvent event = await Moment.sharedInstance.sendReaction(noteDB.noteId);
             isSuccess = event.status;
           }else{
-            OKEvent event = await RelayGroup.sharedInstance.sendGroupNoteReaction(notedUIModel.value.noteDB.noteId);
+            OKEvent event = await RelayGroup.sharedInstance.sendGroupNoteReaction(noteDB.noteId);
             isSuccess = event.status;
           }
 
@@ -218,6 +223,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   Widget _buildBottomDialog() {
+    NotedUIModel? draftNotedUIModel = notedUIModel.value;
+    if(draftNotedUIModel == null) return const SizedBox();
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Adapt.px(12)),
@@ -231,13 +238,13 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
             index: 0,
             onTap: () async {
               OXNavigator.pop(context);
-              String groupId = notedUIModel.value.noteDB.groupId;
+              String groupId = draftNotedUIModel.noteDB.groupId;
               bool success = false;
               if(groupId.isEmpty){
-                OKEvent event = await Moment.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
+                OKEvent event = await Moment.sharedInstance.sendRepost(draftNotedUIModel.noteDB.noteId, null);
                 success = event.status;
               }else{
-                OKEvent event = await RelayGroup.sharedInstance.sendRepost(notedUIModel.value.noteDB.noteId, null);
+                OKEvent event = await RelayGroup.sharedInstance.sendRepost(draftNotedUIModel.noteDB.noteId, null);
                 success = event.status;
               }
               if (success) {
@@ -360,18 +367,27 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
 
   void _updateNoteDB() async {
-    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(widget.notedUIModel.value.noteDB.noteId);
-    if(note == null) return;
+    if(widget.notedUIModel.value == null)  return;
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      widget.notedUIModel.value!.noteDB.noteId,
+      isUpdateCache: true,
+      notedUIModel: widget.notedUIModel.value!,
+    );
+
+    if(noteNotifier.value == null) return;
     if(mounted){
       setState(() {
-        notedUIModel.value = NotedUIModel(noteDB: note);
+        notedUIModel.value = noteNotifier.value;
       });
     }
 
   }
 
   _handleZap() async {
-    UserDBISAR? user = await Account.sharedInstance.getUserInfo(notedUIModel.value.noteDB.author);
+    NotedUIModel? draftNotedUIModel = notedUIModel.value;
+    if(draftNotedUIModel == null) return;
+
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(draftNotedUIModel.noteDB.author);
     String? pubkey = Account.sharedInstance.me?.pubKey;
     //Special product requirement
     final isAssistedProcess = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubkey.isShowWalletSelector') ?? true;
@@ -396,7 +412,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
       });
     _isDefaultEcashWallet = handler.isDefaultEcashWallet;
     _isDefaultNWCWallet = handler.isDefaultNWCWallet;
-    await handler.handleZap(context: context,eventId: notedUIModel.value.noteDB.noteId,);
+    await handler.handleZap(context: context,eventId: draftNotedUIModel.noteDB.noteId,);
     if (isAssistedProcess) {
       _isZapProcessing = false;
     } else {
@@ -405,7 +421,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   _updateZapsUIWithUnreal(int amount) {
-    NoteDBISAR newNote = widget.notedUIModel.value.noteDB;
+    if(widget.notedUIModel.value == null) return;
+    NoteDBISAR newNote = widget.notedUIModel.value!.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
     newNote.zapAmountByMe = amount;
 

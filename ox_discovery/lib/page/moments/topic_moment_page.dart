@@ -94,7 +94,7 @@ class _TopicMomentPageState extends State<TopicMomentPage> {
         ValueNotifier<NotedUIModel> notedUIModel = modelList[index];
         return MomentWidget(
           notedUIModel: notedUIModel,
-          clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+          clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(notedUIModel: notedUIModel ));
           },
