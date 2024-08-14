@@ -56,7 +56,6 @@ class Note {
 }
 
 class ContactWidgetState<T extends ContactWidget> extends State<T> {
-  late List<UserDBISAR> _data;
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
   List<UserDBISAR> userList = [];
@@ -74,7 +73,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-    _data = widget.data;
+    userList = widget.data;
     _initIndexBarData();
     initFromCache();
     _scrollController.addListener(() {
@@ -92,13 +91,11 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   }
 
   void updateContactData(List<UserDBISAR> data) {
-    _data = List.from(data);
+    userList = data;
     _initIndexBarData();
   }
 
   void _initIndexBarData() {
-    userList.clear();
-    userList = _data;
     indexTagList.clear();
     mapData.clear();
     noteList.clear();
