@@ -98,15 +98,10 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
           (element) => element.id == index.toString() && element.uri == imgPath,
         );
         _galleryPageController = PageController(initialPage: initialPage);
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            opaque: false, // Background transparency
-            pageBuilder: (context, animation, secondaryAnimation) => CommonImageGallery(
-              imageList: imageList,
-              tag: tag,
-                initialPage:index,
-            ),
-          ),
+        CommonImageGallery.show(
+          context: context,
+          imageList: imageList.map((url) => ImageEntry(id: url + tag, url: url,)).toList(),
+          initialPage:index,
         );
         _photoOption(false);
       },
