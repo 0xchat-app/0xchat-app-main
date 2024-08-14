@@ -31,6 +31,7 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_long_content_page.dart';
+import 'package:ox_common/widgets/common_video_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -258,8 +259,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   Future messagePressHandler(BuildContext context, types.Message message) async {
     if (message is types.VideoMessage) {
-      OXNavigator.pushPage(context, (context) =>
-          ChatVideoPlayPage(videoUrl: message.videoURL));
+      CommonVideoPage.show(message.videoURL);
     } else if (message is types.ImageMessage) {
       imageMessagePressHandler(
         messageId: message.id,
@@ -320,7 +320,7 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
     CommonImageGallery.show(
       imageList: gallery.map((e) => ImageEntry(
-        id: messageId,
+        id: e.id,
         url: e.uri,
         decryptedKey: e.decryptSecret,
       )).toList(),

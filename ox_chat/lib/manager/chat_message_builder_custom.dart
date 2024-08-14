@@ -549,13 +549,16 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     final height = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
     final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
-    return ImagePreviewWidget(
-      uri: url.isNotEmpty ? url : path,
-      imageWidth: width,
-      imageHeight: height,
-      maxWidth: messageWidth,
-      progressStream: stream,
-      decryptKey: encryptedKey,
+    return Hero(
+      tag: message.id,
+      child: ImagePreviewWidget(
+        uri: url.isNotEmpty ? url : path,
+        imageWidth: width,
+        imageHeight: height,
+        maxWidth: messageWidth,
+        progressStream: stream,
+        decryptKey: encryptedKey,
+      ),
     );
   }
 }
