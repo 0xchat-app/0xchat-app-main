@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_theme/ox_theme.dart';
 
-class CustomAvatarStack extends StatelessWidget {
+class CustomAvatarStack extends StatefulWidget {
   final List<String> imageUrls;
   final double avatarSize;
   final double spacing;
@@ -20,11 +21,29 @@ class CustomAvatarStack extends StatelessWidget {
   });
 
   @override
+  State<CustomAvatarStack> createState() => _CustomAvatarStackState();
+
+}
+
+class _CustomAvatarStackState extends State<CustomAvatarStack> {
+
+  ThemeStyle _themeStyle = ThemeManager.getCurrentThemeStyle();
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final int actualAvatars = min(imageUrls.length, maxAvatars);
+    final int actualAvatars = min(widget.imageUrls.length, widget.maxAvatars);
+    final avatarSize = widget.avatarSize;
+    final spacing = widget.spacing;
     List<Widget> avatars = [];
 
     for (int i = 0; i < actualAvatars; i++) {
+      final imageUrl = widget.imageUrls[i];
       avatars.insert(
         0,
         Positioned(
@@ -34,23 +53,26 @@ class CustomAvatarStack extends StatelessWidget {
             height: avatarSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black,
+              color: _themeStyle == ThemeStyle.dark ? Colors.black : Colors.white,
               border: Border.all(
-                color: borderColor,
-                width: borderWidth,
+                color: widget.borderColor,
+                width: widget.borderWidth,
               ),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(avatarSize / 2),
-              child: imageUrls[i].isEmpty
-                  ? _placeholderImage(width: avatarSize, height: avatarSize)
-                  : OXCachedNetworkImage(
-                      imageUrl: imageUrls[i],
-                      fit: BoxFit.cover,
-                      width: avatarSize,
-                      height: avatarSize,
-                      errorWidget: (context, url, error) => _placeholderImage(),
-                    ),
+            child: RepaintBoundary(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(avatarSize / 2),
+                child: imageUrl.isEmpty
+                    ? _placeholderImage(width: avatarSize, height: avatarSize)
+                    : OXCachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  width: avatarSize,
+                  height: avatarSize,
+                  errorWidget: (context, url, error) => _placeholderImage(),
+                  placeholder: (context, url) => _placeholderImage(),
+                ),
+              ),
             ),
           ),
         ),
@@ -75,5 +97,17 @@ class CustomAvatarStack extends StatelessWidget {
       height: height,
       package: 'ox_common',
     );
+  }
+
+  onThemeStyleChange() {
+    if (mounted) setState(() {
+      _themeStyle = ThemeManager.getCurrentThemeStyle();
+    });
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.removeOnThemeChangedCallback(onThemeStyleChange);
+    super.dispose();
   }
 }
