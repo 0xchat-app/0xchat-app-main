@@ -326,5 +326,7 @@
   "minutes": "dəqiqə",
   "and": "və",
   "str_group_admin_permission_success_toast": "İcazə uğurla dəyişdirildi.",
-  "str_dm_auto_delete_hint": "Mesajlar ${time} sonra avtomatik olaraq silinir"
+  "str_dm_auto_delete_hint": "Mesajlar ${time} sonra avtomatik olaraq silinir",
+  "delete_message_me_action_mode": "Mənim üçün sil",
+  "delete_message_everyone_action_mode": "Hər kəs üçün sil"
 }

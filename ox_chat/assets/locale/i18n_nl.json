@@ -326,5 +326,7 @@
   "minutes": "minuten",
   "and": "en",
   "str_group_admin_permission_success_toast": "Permissie succesvol gewijzigd.",
-  "str_dm_auto_delete_hint": "Berichten worden automatisch verwijderd na ${time}"
+  "str_dm_auto_delete_hint": "Berichten worden automatisch verwijderd na ${time}",
+  "delete_message_me_action_mode": "Verwijderen voor mij",
+  "delete_message_everyone_action_mode": "Verwijderen voor iedereen"
 }

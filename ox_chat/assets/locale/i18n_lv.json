@@ -326,5 +326,7 @@
   "minutes": "minūtes",
   "and": "un",
   "str_group_admin_permission_success_toast": "Atļauja veiksmīgi mainīta.",
-  "str_dm_auto_delete_hint": "Ziņas tiek automātiski dzēstas pēc ${time}"
+  "str_dm_auto_delete_hint": "Ziņas tiek automātiski dzēstas pēc ${time}",
+  "delete_message_me_action_mode": "Dzēst man",
+  "delete_message_everyone_action_mode": "Dzēst visiem"
 }

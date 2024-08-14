@@ -326,5 +326,7 @@
   "minutes": "분",
   "and": "그리고",
   "str_group_admin_permission_success_toast": "권한이 성공적으로 변경되었습니다.",
-  "str_dm_auto_delete_hint": "메시지는 ${time} 후에 자동으로 삭제됩니다"
+  "str_dm_auto_delete_hint": "메시지는 ${time} 후에 자동으로 삭제됩니다",
+  "delete_message_me_action_mode": "내 메시지 삭제",
+  "delete_message_everyone_action_mode": "모두 삭제"
 }

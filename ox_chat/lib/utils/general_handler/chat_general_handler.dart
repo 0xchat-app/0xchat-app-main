@@ -482,43 +482,131 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   /// Handles the press event for the "Copy" button in a menu item.
-  _copyMenuItemPressHandler(types.Message message) {
+  void _copyMenuItemPressHandler(types.Message message) {
     if (message is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: message.text));
     }
   }
 
   /// Handles the press event for the "Delete" button in a menu item.
-  _deleteMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _deleteMenuItemPressHandler(BuildContext context, types.Message message) async {
+    final messageId = message.remoteId;
+    if (messageId == null || messageId.isEmpty) {
+      messageDeleteHandler(message);
+      return;
+    }
+
+    // Relay group && has delete permission
+    if (session.chatType == ChatType.chatRelayGroup) {
+      if (shouldShowDeleteMode()) {
+        _showDeleteMode(context, message);
+      } else {
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromLocal(messageId);
+          },
+        );
+      }
+      return ;
+    }
+
+    // General
+    _performDeleteAction(
+      context: context,
+      message: message,
+      deleteAction: () => Messages.deleteMessageFromRelay(messageId, ''),
+    );
+  }
+
+  bool shouldShowDeleteMode() {
+    final groupId = session.groupId;
+    return session.chatType == ChatType.chatRelayGroup
+        && groupId != null
+        && groupId.isNotEmpty
+        && RelayGroup.sharedInstance.hasDeletePermission(groupId);
+  }
+
+  void _showDeleteMode(BuildContext context, types.Message message) async {
+    final messageId = message.remoteId;
+    final groupId = session.groupId;
+    if (groupId == null || groupId.isEmpty) return ;
+    if (messageId == null || messageId.isEmpty) {
+      messageDeleteHandler(message);
+      return;
+    }
+
+    const forMeActionType = 0;
+    const forAllActionType = 1;
+    final result = await OXActionDialog.show(
+      context,
+      data: [
+        OXActionModel(
+          identify: forMeActionType,
+          text: 'delete_message_me_action_mode'.localized(),
+        ),
+        OXActionModel(
+          identify: forAllActionType,
+          text: 'delete_message_everyone_action_mode'.localized(),
+        ),
+      ],
+    );
+
+    if (result == null) return ;
+
+    final identify = result.identify;
+    switch (identify) {
+      case forMeActionType:
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromLocal(messageId);
+          },
+        );
+        break;
+      case forAllActionType:
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromRelay(
+              groupId,
+              messageId,
+              '',
+            );
+          },
+        );
+        break;
+    }
+  }
+
+  void _performDeleteAction({
+    required BuildContext context,
+    required types.Message message,
+    required Future<OKEvent> Function() deleteAction,
+  }) async {
     final result = await OXCommonHintDialog.showConfirmDialog(
       context,
       content: Localized.text('ox_chat.message_delete_hint'),
     );
 
     if (result) {
-      final messageId = message.remoteId;
-      if (messageId != null) {
-        OXLoading.show();
-        OKEvent event = await Messages.deleteMessageFromRelay(messageId, '');
-        OXLoading.dismiss();
-        if (event.status) {
-          OXNavigator.pop(null);
-          messageDeleteHandler(message);
-        } else {
-          CommonToast.instance.show(context, event.message);
-        }
+      OXLoading.show();
+      OKEvent event = await deleteAction(); //await Messages.deleteMessageFromRelay(messageId, '');
+      OXLoading.dismiss();
+      if (event.status) {
+        OXNavigator.pop(null);
+        messageDeleteHandler(message);
       } else {
-        ChatLogUtils.error(
-          className: 'ChatGeneralHandler',
-          funcName: '_deleteMenuItemPressHandler',
-          message: 'messageId: $messageId',
-        );
+        CommonToast.instance.show(context, event.message);
       }
     }
   }
 
   /// Handles the press event for the "Report" button in a menu item.
-  _reportMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _reportMenuItemPressHandler(BuildContext context, types.Message message) async {
 
     ChatLogUtils.info(
       className: 'ChatMessagePage',
@@ -533,7 +621,7 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     }
   }
 
-  _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
     final user = await Account.sharedInstance.getUserInfo(message.author.id);
     final eventId = message.remoteId;
     if (user == null || eventId == null || eventId.isEmpty) {

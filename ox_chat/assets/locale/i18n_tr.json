@@ -326,5 +326,7 @@
   "minutes": "dakika",
   "and": "ve",
   "str_group_admin_permission_success_toast": "İzin başarıyla değiştirildi.",
-  "str_dm_auto_delete_hint": "Mesajlar ${time} sonra otomatik olarak silinir"
+  "str_dm_auto_delete_hint": "Mesajlar ${time} sonra otomatik olarak silinir",
+  "delete_message_me_action_mode": "Benim için sil",
+  "delete_message_everyone_action_mode": "Herkes için sil"
 }

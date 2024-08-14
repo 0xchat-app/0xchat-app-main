@@ -326,5 +326,7 @@
   "minutes": "минути",
   "and": "и",
   "str_group_admin_permission_success_toast": "Разрешението е успешно променено.",
-  "str_dm_auto_delete_hint": "Съобщенията се изтриват автоматично след ${time}"
+  "str_dm_auto_delete_hint": "Съобщенията се изтриват автоматично след ${time}",
+  "delete_message_me_action_mode": "Изтрий за мен",
+  "delete_message_everyone_action_mode": "Изтрий за всички"
 }

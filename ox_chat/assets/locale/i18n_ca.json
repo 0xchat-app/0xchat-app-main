@@ -326,5 +326,7 @@
   "minutes": "minuts",
   "and": "i",
   "str_group_admin_permission_success_toast": "Permís canviat amb èxit.",
-  "str_dm_auto_delete_hint": "Els missatges s'eliminen automàticament després de ${time}"
+  "str_dm_auto_delete_hint": "Els missatges s'eliminen automàticament després de ${time}",
+  "delete_message_me_action_mode": "Suprimeix per a mi",
+  "delete_message_everyone_action_mode": "Suprimeix per a tothom"
 }

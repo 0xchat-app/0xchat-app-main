@@ -326,5 +326,7 @@
   "minutes": "минуты",
   "and": "и",
   "str_group_admin_permission_success_toast": "Разрешение успешно изменено.",
-  "str_dm_auto_delete_hint": "Сообщения автоматически удаляются через ${time}"
+  "str_dm_auto_delete_hint": "Сообщения автоматически удаляются через ${time}",
+  "delete_message_me_action_mode": "Удалить для меня",
+  "delete_message_everyone_action_mode": "Удалить для всех"
 }
