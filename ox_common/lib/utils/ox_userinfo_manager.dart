@@ -326,7 +326,7 @@ class OXUserInfoManager {
     bool updateNotificatin = false;
     if (!isLogin) return updateNotificatin;
     String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
-    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '{}');
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     ///4、 44 private chat;  1059 secret chat & audio video call; 42  channel message; 9735 zap; 9、10 relay group; 1、6 reply&repost; 7 like
     List<int> kinds = [4, 44, 1059, 42, 9735, 9, 10, 1, 6, 7];
