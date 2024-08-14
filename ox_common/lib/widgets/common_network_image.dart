@@ -67,6 +67,7 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
     double? height,
     Map<String, String>? headers,
     BaseCacheManager? cacheManager,
+    String? decryptedKey,
   }) {
     final ratio = MediaQuery.of(context).devicePixelRatio;
 
@@ -90,7 +91,7 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
       CachedNetworkImageProvider(
         url,
         headers: headers,
-        cacheManager: cacheManager ?? OXFileCacheManager.get(),
+        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey),
       ),
     );
   }
