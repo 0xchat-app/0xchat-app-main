@@ -34,7 +34,7 @@ class UploadUtils {
   }) async {
     File uploadFile = file;
     File? encryptedFile;
-    if(encryptedKey != null) {
+    if(encryptedKey != null && encryptedKey.isNotEmpty) {
       String directoryPath = '';
       if (Platform.isAndroid) {
         Directory? externalStorageDirectory = await getExternalStorageDirectory();
