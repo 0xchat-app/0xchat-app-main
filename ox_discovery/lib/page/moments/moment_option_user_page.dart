@@ -1,12 +1,9 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -15,11 +12,11 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import '../../enum/moment_enum.dart';
 import '../../utils/discovery_utils.dart';
@@ -37,11 +34,11 @@ class MomentOptionUserPage extends StatefulWidget {
 }
 
 class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
-  List<NotedUIModel> showUserDBList = [];
+  List<ValueNotifier<NotedUIModel?>> showUserDBList = [];
 
-  Map<String,NotedUIModel> get showUserDBListMap {
-    Map<String,NotedUIModel> map = {};
-    showUserDBList.map((NotedUIModel notedUIModel) => map[notedUIModel.noteDB.author] = notedUIModel).toList();
+  Map<String,ValueNotifier<NotedUIModel?>> get showUserDBListMap {
+    Map<String,ValueNotifier<NotedUIModel?>> map = {};
+    showUserDBList.map((ValueNotifier<NotedUIModel?> notedUIModel) => map[notedUIModel.value?.noteDB.author ?? ''] = notedUIModel).toList();
     return map;
   }
 
@@ -80,21 +77,22 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
       }
   }
 
-  List<NotedUIModel> _getUserList(List<dynamic> list) {
+  List<ValueNotifier<NotedUIModel?>> _getUserList(List<dynamic> list) {
     return list.map((dynamic noteDB) {
       if (widget.type == ENotificationsMomentType.zaps) {
         ZapRecordsDBISAR zapRecordsDB = noteDB as ZapRecordsDBISAR;
         String content =
             '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDBISAR.getZapAmount(zapRecordsDB.bolt11)}';
-        return NotedUIModel(
+        return ValueNotifier(NotedUIModel(
           noteDB: NoteDBISAR(
             noteId: zapRecordsDB.eventId,
             author: zapRecordsDB.sender,
             content: content,
           ),
-        );
+        ));
       }
-      return NotedUIModel(noteDB: noteDB as NoteDBISAR);
+      List<ValueNotifier<NotedUIModel?>> newNoted = OXMomentCacheManager.sharedInstance.saveValueNotifierNote([noteDB]);
+      return newNoted[0];
     }).toList();
   }
 
@@ -211,8 +209,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _initReposted() async {
-    ValueNotifier<NotedUIModel?>? modelNotifier = widget.notedUIModel;
-    if(modelNotifier == null || modelNotifier.value == null) return;
+    ValueNotifier<NotedUIModel?> modelNotifier = widget.notedUIModel;
+    if(modelNotifier.value == null) return;
     ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
       modelNotifier.value!.noteDB.repostId!,
       isUpdateCache: true,
@@ -220,8 +218,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
     );
 
     if(noteNotifier.value != null){
-      notedUIModel = noteNotifier as ValueNotifier<NotedUIModel>;
-      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
+      notedUIModel = noteNotifier;
+      _getUserDB(modelNotifier.value!.noteDB.author);
     }
   }
 
@@ -241,7 +239,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   String get _getContent {
-    if(widget.type == ENotificationsMomentType.repost || notedUIModel == null || notedUIModel?.value == null) return '';
+    if(widget.type == ENotificationsMomentType.repost || notedUIModel?.value == null) return '';
     return notedUIModel?.value!.getMomentShowContent ?? '';
   }
 
@@ -251,8 +249,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   Widget _userItemWidget() {
-    ValueNotifier<NotedUIModel?>? modelNotifier = widget.notedUIModel;
-    if(modelNotifier == null || modelNotifier.value == null) return const SizedBox();
+    ValueNotifier<NotedUIModel?> modelNotifier = widget.notedUIModel;
+    if(modelNotifier.value == null) return const SizedBox();
     String pubKey = widget.notedUIModel.value!.noteDB.author;
     return ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
@@ -270,7 +268,6 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                         context, 'ox_chat', 'ContactUserInfoPage', {
                       'pubkey': pubKey,
                     });
-                    setState(() {});
                   },
                   child: MomentWidgetsUtils.clipImage(
                     borderRadius: 60.px,

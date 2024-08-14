@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
-import 'package:ox_common/utils/stopwatch.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -22,7 +21,6 @@ import '../moments/reply_moments_page.dart';
 
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
-
 
 
 class MomentOptionWidget extends StatefulWidget {
@@ -77,15 +75,6 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
     super.dispose();
   }
 
-  void _getMomentUserInfo()async {
-    if(widget.notedUIModel.value == null) return;
-    String pubKey = widget.notedUIModel.value!.noteDB.author;
-    await Account.sharedInstance.getUserInfo(pubKey);
-    if(mounted){
-      setState(() {});
-    }
-  }
-
   void _resetAnimation() {
     if(_shakeController.isCompleted) {
       _shakeController.reset();
@@ -115,7 +104,7 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: momentOptionTypeList.map((EMomentOptionType type) {
             return ValueListenableBuilder<NotedUIModel?>(
-              valueListenable: widget.notedUIModel,
+              valueListenable: notedUIModel,
               builder: (context, model, child) => _showItemWidget(type,model),
             );
           }).toList(),
@@ -172,11 +161,10 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
           }
 
           if (isSuccess) {
+            _reactionTag = true;
             _updateNoteDB();
             CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
-            setState(() {
-              _reactionTag = true;
-            });
+
           }
         };
       case EMomentOptionType.zaps:
@@ -361,24 +349,21 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
   void _init(){
     notedUIModel = widget.notedUIModel;
-    _getMomentUserInfo();
     setState(() {});
   }
 
 
   void _updateNoteDB() async {
-    if(widget.notedUIModel.value == null)  return;
+    if(notedUIModel.value == null)  return;
     ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
-      widget.notedUIModel.value!.noteDB.noteId,
+      notedUIModel.value!.noteDB.noteId,
       isUpdateCache: true,
-      notedUIModel: widget.notedUIModel.value!,
+      notedUIModel: notedUIModel.value!,
     );
 
     if(noteNotifier.value == null) return;
     if(mounted){
-      setState(() {
-        notedUIModel.value = noteNotifier.value;
-      });
+      notedUIModel.value = noteNotifier.value;
     }
 
   }
@@ -421,15 +406,12 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
   }
 
   _updateZapsUIWithUnreal(int amount) {
-    if(widget.notedUIModel.value == null) return;
-    NoteDBISAR newNote = widget.notedUIModel.value!.noteDB;
+    if(notedUIModel.value == null) return;
+    NoteDBISAR newNote = notedUIModel.value!.noteDB;
     newNote.zapAmount = newNote.zapAmount + amount;
     newNote.zapAmountByMe = amount;
 
-    if (mounted) {
-      setState(() {
-        notedUIModel = ValueNotifier(NotedUIModel(noteDB: newNote));
-      });
-    }
+    notedUIModel.value = NotedUIModel(noteDB: newNote);
+
   }
 }

@@ -100,10 +100,7 @@ class _MomentWidgetState extends State<MomentWidget> {
     if (model == null || model.value == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () async {
-       await widget.clickMomentCallback?.call(model);
-        setState(() {});
-      },
+      onTap: () => widget.clickMomentCallback?.call(model),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -178,14 +175,9 @@ class _MomentWidgetState extends State<MomentWidget> {
         } else {
           return MomentRichTextWidget(
             isShowAllContent: widget.isShowAllContent,
-            clickBlankCallback: () async{
-             await widget.clickMomentCallback?.call(model);
-              setState(() {});
-            },
+            clickBlankCallback: () => widget.clickMomentCallback?.call(model),
             showMoreCallback: () async {
-             await OXNavigator.pushPage(
-                  context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
-              setState(() {});
+             await OXNavigator.pushPage(context, (context) => MomentsPage(notedUIModel: model,isShowReply: widget.isShowReply));
             },
             text: content,
           ).setPadding(EdgeInsets.only(bottom: 12.px));
@@ -273,7 +265,6 @@ class _MomentWidgetState extends State<MomentWidget> {
                           context, 'ox_chat', 'ContactUserInfoPage', {
                         'pubkey': pubKey,
                       });
-                      setState(() {});
                     },
                     child: MomentWidgetsUtils.clipImage(
                       borderRadius: 40.px,
@@ -444,7 +435,6 @@ class _MomentWidgetState extends State<MomentWidget> {
               context,
               (context) =>
                   MomentOptionUserPage(notedUIModel: model, type: type));
-          setState(() {});
         },
         child: RichText(
           textAlign: TextAlign.left,
@@ -581,16 +571,12 @@ class _MomentWidgetState extends State<MomentWidget> {
           ],
           isRowAction: true);
     }
-    setState(() {});
   }
 
 
   void _getMomentUserInfo(NotedUIModel model) async {
     String pubKey = model.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   int _calculateColumnsForPictures(int picSize) {
@@ -601,7 +587,7 @@ class _MomentWidgetState extends State<MomentWidget> {
 
   void _getRepostId(String repostId) async {
     ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(repostId);
-    if (noteNotifier == null || noteNotifier.value == null) {
+    if (noteNotifier.value == null) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       if(mounted){
@@ -610,7 +596,7 @@ class _MomentWidgetState extends State<MomentWidget> {
       return;
     }
     notedUIModel = noteNotifier;
-    _getMomentUserInfo(notedUIModel!.value!);
+    _getMomentUserInfo(noteNotifier.value!);
   }
 
   static Size boundingTextSize(String text, TextStyle style,

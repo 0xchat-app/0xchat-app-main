@@ -8,7 +8,7 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import '../../utils/moment_widgets_utils.dart';
-import '../moments/moment_video_page.dart';
+import '../moments/common_video_page.dart';
 
 class VideoMomentWidget extends StatefulWidget {
   final String videoUrl;
@@ -63,11 +63,7 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       ),
       child: GestureDetector(
         onTap: () {
-          OXNavigator.presentPage(
-              context,
-                  (context) => MomentVideoPage(videoUrl: widget.videoUrl),
-              fullscreenDialog:true,
-          );
+          CommonVideoPage.show(widget.videoUrl);
         },
         child: Stack(
             alignment: Alignment.center,

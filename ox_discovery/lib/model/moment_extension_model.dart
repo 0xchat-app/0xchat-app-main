@@ -79,4 +79,20 @@ class OXMomentCacheManager {
 
   CreateMomentDraft? createGroupMomentMediaDraft;
   CreateMomentDraft? createGroupMomentContentDraft;
+
+  List<ValueNotifier<NotedUIModel?>> saveValueNotifierNote(List<NoteDBISAR> noteList){
+    List<ValueNotifier<NotedUIModel?>> list = noteList.map((note) {
+
+      ValueNotifier<NotedUIModel?>? noteNotifier = notedUIModelCache[note.noteId];
+
+      if(noteNotifier == null){
+        notedUIModelCache[note.noteId] = ValueNotifier(NotedUIModel(noteDB: note));
+      }
+
+      notedUIModelCache[note.noteId]!.value = NotedUIModel(noteDB: note);
+
+     return notedUIModelCache[note.noteId]!;
+    }).toList();
+    return list;
+  }
 }

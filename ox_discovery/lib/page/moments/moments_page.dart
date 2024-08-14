@@ -95,7 +95,6 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
           isUpdateCache: true,
           notedUIModel: widget.notedUIModel.value,
       );
-
       if(noteNotifier.value == null) return;
       _getReplyFromDB();
     });
@@ -316,9 +315,7 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
   void _dealWithNoted() async {
     if (widget.notedUIModel == null || widget.notedUIModel?.value == null) return;
     await Future.delayed(Duration.zero);
-    setState(() {
-
-    });
+    setState(() { });
 
     notedReplyList = [];
     await _getReplyNoted(widget.notedUIModel!);
@@ -408,7 +405,6 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
                           (ValueNotifier<NotedUIModel?> notedUIModel) async {
                         await OXNavigator.pushPage(context,
                                 (context) => MomentsPage(notedUIModel: notedUIModel));
-                        setState(() {});
                       },
                       notedUIModel: model,
                     );
@@ -643,9 +639,6 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     if( widget.notedUIModel.value == null) return;
     String pubKey = widget.notedUIModel.value!.noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   Widget _momentItemWidget() {
@@ -658,7 +651,6 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
             context,
             (context) => MomentsPage(
                 notedUIModel: widget.notedUIModel, isShowReply: false));
-        setState(() {});
       },
       child: IntrinsicHeight(
         child: ValueListenableBuilder<UserDBISAR>(
@@ -727,7 +719,6 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
                                   notedUIModel: widget.notedUIModel,
                                   isShowReply: false),
                             );
-                            setState(() {});
                           },
                         ),
                       ],
