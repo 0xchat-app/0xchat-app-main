@@ -74,6 +74,7 @@ dependencies:
   share_plus: 7.2.2
   animated_text_kit: ^4.2.2
   video_thumbnail: ^0.5.3
+  chewie: ^1.4.0  #Player
   minio:
     path: ./minio
 
