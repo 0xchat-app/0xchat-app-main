@@ -326,5 +326,7 @@
   "minutes": "хвилини",
   "and": "і",
   "str_group_admin_permission_success_toast": "Дозвіл успішно змінено.",
-  "str_dm_auto_delete_hint": "Повідомлення автоматично видаляються після ${time}"
+  "str_dm_auto_delete_hint": "Повідомлення автоматично видаляються після ${time}",
+  "delete_message_me_action_mode": "Видалити для мене",
+  "delete_message_everyone_action_mode": "Видалити для всіх"
 }

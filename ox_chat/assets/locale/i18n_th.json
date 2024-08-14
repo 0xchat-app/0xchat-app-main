@@ -326,5 +326,7 @@
   "minutes": "นาที",
   "and": "และ",
   "str_group_admin_permission_success_toast": "การอนุญาตเปลี่ยนแปลงสำเร็จ.",
-  "str_dm_auto_delete_hint": "ข้อความจะถูกลบอัตโนมัติหลังจาก ${time}"
+  "str_dm_auto_delete_hint": "ข้อความจะถูกลบอัตโนมัติหลังจาก ${time}",
+  "delete_message_me_action_mode": "ลบสำหรับฉัน",
+  "delete_message_everyone_action_mode": "ลบสำหรับทุกคน"
 }

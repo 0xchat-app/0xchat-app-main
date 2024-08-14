@@ -326,5 +326,7 @@
   "minutes": "menit",
   "and": "dan",
   "str_group_admin_permission_success_toast": "Izin berhasil diubah.",
-  "str_dm_auto_delete_hint": "Pesan akan dihapus otomatis setelah ${time}"
+  "str_dm_auto_delete_hint": "Pesan akan dihapus otomatis setelah ${time}",
+  "delete_message_me_action_mode": "Hapus untuk saya",
+  "delete_message_everyone_action_mode": "Hapus untuk semua orang"
 }

@@ -326,5 +326,7 @@
   "minutes": "मिनट",
   "and": "और",
   "str_group_admin_permission_success_toast": "अनुमति सफलतापूर्वक बदली गई।",
-  "str_dm_auto_delete_hint": "संदेश ${time} के बाद स्वचालित रूप से हटा दिए जाते हैं"
+  "str_dm_auto_delete_hint": "संदेश ${time} के बाद स्वचालित रूप से हटा दिए जाते हैं",
+  "delete_message_me_action_mode": "मेरे लिए हटाएँ",
+  "delete_message_everyone_action_mode": "सभी के लिए हटाएँ"
 }

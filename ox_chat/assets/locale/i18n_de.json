@@ -326,5 +326,7 @@
   "minutes": "Minuten",
   "and": "und",
   "str_group_admin_permission_success_toast": "Berechtigung erfolgreich geändert.",
-  "str_dm_auto_delete_hint": "Nachrichten werden nach ${time} automatisch gelöscht"
+  "str_dm_auto_delete_hint": "Nachrichten werden nach ${time} automatisch gelöscht",
+  "delete_message_me_action_mode": "Für mich löschen",
+  "delete_message_everyone_action_mode": "Für alle löschen"
 }

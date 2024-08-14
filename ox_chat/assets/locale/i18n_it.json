@@ -326,5 +326,7 @@
   "minutes": "minuti",
   "and": "e",
   "str_group_admin_permission_success_toast": "Permesso modificato con successo.",
-  "str_dm_auto_delete_hint": "Messaggi eliminati automaticamente dopo ${time}"
+  "str_dm_auto_delete_hint": "Messaggi eliminati automaticamente dopo ${time}",
+  "delete_message_me_action_mode": "Elimina per me",
+  "delete_message_everyone_action_mode": "Elimina per tutti"
 }

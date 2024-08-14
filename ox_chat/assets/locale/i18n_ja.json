@@ -326,5 +326,7 @@
   "minutes": "分",
   "and": "と",
   "str_group_admin_permission_success_toast": "権限が正常に変更されました。",
-  "str_dm_auto_delete_hint": "メッセージは ${time} 後に自動的に削除されます"
+  "str_dm_auto_delete_hint": "メッセージは ${time} 後に自動的に削除されます",
+  "delete_message_me_action_mode": "自分用に削除",
+  "delete_message_everyone_action_mode": "全員に削除"
 }

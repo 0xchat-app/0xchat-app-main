@@ -326,5 +326,7 @@
   "minutes": "minutter",
   "and": "og",
   "str_group_admin_permission_success_toast": "Tilladelsen blev ændret med succes.",
-  "str_dm_auto_delete_hint": "Beskeder slettes automatisk efter ${time}"
+  "str_dm_auto_delete_hint": "Beskeder slettes automatisk efter ${time}",
+  "delete_message_me_action_mode": "Slet for mig",
+  "delete_message_everyone_action_mode": "Slet for alle"
 }

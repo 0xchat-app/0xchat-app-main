@@ -326,5 +326,7 @@
   "minutes": "分鐘",
   "and": "和",
   "str_group_admin_permission_success_toast": "權限修改成功。",
-  "str_dm_auto_delete_hint": "消息將在 ${time} 後自動刪除"
+  "str_dm_auto_delete_hint": "消息將在 ${time} 後自動刪除",
+  "delete_message_me_action_mode": "删除我的消息",
+  "delete_message_everyone_action_mode": "删除所有人的消息"
 }

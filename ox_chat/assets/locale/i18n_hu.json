@@ -326,5 +326,7 @@
   "minutes": "percek",
   "and": "és",
   "str_group_admin_permission_success_toast": "Engedély sikeresen módosítva.",
-  "str_dm_auto_delete_hint": "Az üzenetek ${time} után automatikusan törlődnek"
+  "str_dm_auto_delete_hint": "Az üzenetek ${time} után automatikusan törlődnek",
+  "delete_message_me_action_mode": "Törlés nekem",
+  "delete_message_everyone_action_mode": "Törlés mindenkinek"
 }

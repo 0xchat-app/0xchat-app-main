@@ -326,5 +326,7 @@
   "minutes": "minuty",
   "and": "a",
   "str_group_admin_permission_success_toast": "Oprávnění úspěšně změněno.",
-  "str_dm_auto_delete_hint": "Zprávy se automaticky smažou po ${time}"
+  "str_dm_auto_delete_hint": "Zprávy se automaticky smažou po ${time}",
+  "delete_message_me_action_mode": "Smazat pro mě",
+  "delete_message_everyone_action_mode": "Smazat pro všechny"
 }

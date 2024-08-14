@@ -326,5 +326,7 @@
   "minutes": "دقائق",
   "and": "و",
   "str_group_admin_permission_success_toast": "تم تغيير الإذن بنجاح.",
-  "str_dm_auto_delete_hint": "الرسائل تحذف تلقائيًا بعد ${time}"
+  "str_dm_auto_delete_hint": "الرسائل تحذف تلقائيًا بعد ${time}",
+  "delete_message_me_action_mode": "احذف لي",
+  "delete_message_everyone_action_mode": "احذف للجميع"
 }

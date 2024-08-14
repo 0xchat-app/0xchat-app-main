@@ -326,5 +326,7 @@
   "minutes": "minuter",
   "and": "och",
   "str_group_admin_permission_success_toast": "Tillståndet ändrades framgångsrikt.",
-  "str_dm_auto_delete_hint": "Meddelanden raderas automatiskt efter ${time}"
+  "str_dm_auto_delete_hint": "Meddelanden raderas automatiskt efter ${time}",
+  "delete_message_me_action_mode": "Radera för mig",
+  "delete_message_everyone_action_mode": "Radera för alla"
 }

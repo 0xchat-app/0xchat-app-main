@@ -326,5 +326,7 @@
   "minutes": "minuty",
   "and": "i",
   "str_group_admin_permission_success_toast": "Uprawnienie zmienione pomyślnie.",
-  "str_dm_auto_delete_hint": "Wiadomości zostaną automatycznie usunięte po ${time}"
+  "str_dm_auto_delete_hint": "Wiadomości zostaną automatycznie usunięte po ${time}",
+  "delete_message_me_action_mode": "Usuń dla mnie",
+  "delete_message_everyone_action_mode": "Usuń dla wszystkich"
 }
