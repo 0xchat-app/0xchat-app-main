@@ -400,7 +400,7 @@ extension ImageSendingMessageEx on types.CustomMessage {
   String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
-  String get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey] ?? '';
+  String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
 
   String get fileId => path.getFileName(withExtension: false) ?? '';
 }
