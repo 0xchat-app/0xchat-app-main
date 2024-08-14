@@ -25,6 +25,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/custom_avatar_stack.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../contact_group_list_page.dart';
@@ -199,37 +200,20 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     int groupMemberNum = groupMember.length;
     if (groupMemberNum == 0) return Container();
     int renderCount = groupMemberNum > 8 ? 8 : groupMemberNum;
-    return Container(
-      margin: EdgeInsets.only(
-        right: Adapt.px(0),
-      ),
-      constraints: BoxConstraints(
-          maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
-      child: AvatarStack(
-        settings: RestrictedPositions(
-            align: StackAlign.left,
-            laying: StackLaying.first),
-        borderColor: ThemeColor.color180,
-        height: Adapt.px(48),
-        avatars: _showMemberAvatarWidget(renderCount),
-      ),
+    return CustomAvatarStack(
+      maxAvatars: groupMemberNum,
+      imageUrls: _getMemberAvatars(renderCount),
+      avatarSize: 48.px,
+      spacing: 24.px,
+      borderColor: ThemeColor.color180,
     );
   }
 
-  List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
-    List<ImageProvider<Object>> avatarList = [];
+  List<String> _getMemberAvatars(int renderCount) {
+    List<String> avatarList = [];
     for (var n = 0; n < renderCount; n++) {
-      String? groupPic = groupMember[n].picture;
-      if (groupPic != null && groupPic.isNotEmpty) {
-        avatarList.add(OXCachedNetworkImageProviderEx.create(
-          context,
-          groupPic,
-        ));
-      } else {
-        avatarList.add(
-            AssetImage('assets/images/user_image.png', package: 'ox_common'));
-      }
-      // CachedNetworkImageProvider()
+      String groupPic = groupMember[n].picture ?? '';
+      avatarList.add(groupPic);
     }
     return avatarList;
   }
