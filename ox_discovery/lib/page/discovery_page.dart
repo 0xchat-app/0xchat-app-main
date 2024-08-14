@@ -65,6 +65,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void initState() {
     super.initState();
+    OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
   }
 
@@ -178,6 +179,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   }
 
   List<Widget> _actionWidget(){
+    if(!_isLogin) return [];
+
     if(pageType == EDiscoveryPageType.moment) {
       return [
         GestureDetector(
@@ -259,7 +262,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           );
         },
       ),
-      _isLogin ? SizedBox(
+      SizedBox(
         height: Adapt.px(24),
         child: GestureDetector(
           onTap: () {
@@ -287,7 +290,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             ],
           ),
         ),
-      ).setPaddingOnly(left: 20.px) : const SizedBox(),
+      ).setPaddingOnly(left: 20.px),
       SizedBox(
         width: Adapt.px(24),
       ),
@@ -543,6 +546,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
+    _isLogin = true;
     setState(() {});
   }
 
@@ -550,6 +554,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   void didLogout() {
     // TODO: implement didLogout
     LogUtil.e("find.didLogout()");
+    _isLogin = false;
     setState(() {});
   }
 

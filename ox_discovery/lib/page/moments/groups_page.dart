@@ -5,7 +5,6 @@ import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/model/group_model.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -44,7 +43,18 @@ class _GroupsPageState extends State<GroupsPage>
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
     WidgetsBinding.instance.addObserver(this);
-    widget.groupType == GroupType.openGroup ? _getRelayGroupList() : _getChannelList();
+    _initData();
+  }
+
+  _initData() {
+    bool isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    if(isLogin) {
+      widget.groupType == GroupType.openGroup ? _getRelayGroupList() : _getChannelList();
+    } else {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_NotLogin);
+      });
+    }
   }
 
   @override
@@ -465,15 +475,21 @@ class _GroupsPageState extends State<GroupsPage>
 
   @override
   void didLoginSuccess(UserDBISAR? userInfo) {
-    // TODO: implement didLoginSuccess
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+        _initData();
+      });
+    }
   }
 
   @override
   void didLogout() {
-    // TODO: implement didLogout
-    LogUtil.e("find.didLogout()");
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_NotLogin);
+      });
+    }
   }
 
   @override
