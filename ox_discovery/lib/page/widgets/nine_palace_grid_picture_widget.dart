@@ -100,7 +100,7 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         _galleryPageController = PageController(initialPage: initialPage);
         CommonImageGallery.show(
           context: context,
-          imageList: imageList.map((url) => ImageEntry(id: url + tag, url: url,)).toList(),
+          imageList: imageList.map((url) => ImageEntry(id: url + tag, url: url)).toList(),
           initialPage:index,
         );
         _photoOption(false);
@@ -109,8 +109,11 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         tag: imgPath + tag,
         child: MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
-          child: ExtendedImage.network(
-            imgPath,
+          child: ExtendedImage(
+            image:OXCachedNetworkImageProviderEx.create(
+              context,
+              imgPath,
+            ),
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,

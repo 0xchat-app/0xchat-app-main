@@ -84,11 +84,9 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel.value?.noteDB.noteId !=
-        oldWidget.notedUIModel.value?.noteDB.noteId) {
+    if (widget.notedUIModel.value?.noteDB.noteId != oldWidget.notedUIModel.value?.noteDB.noteId) {
       _dataInit();
     }
-
 
     if(widget.notedUIModel.value != null && widget.notedUIModel.value!.noteDB.isRepost && notedUIModel == null){
       _dataInit();

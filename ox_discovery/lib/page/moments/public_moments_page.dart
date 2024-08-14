@@ -217,21 +217,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                   ),
                 )
               : Container(),
-
-          // MomentNewPostTips(
-          //   tipsHeight: tipsHeight,
-          //   onTap: (List<NoteDB> list) {
-          //     updateNotesList(true);
-          //     momentScrollController.animateTo(
-          //       0.0,
-          //       duration: const Duration(milliseconds: 500),
-          //       curve: Curves.easeInOut,
-          //     );
-          //     newNotesCallBackCallBackList.value = [];
-          //     tipContainerHeight.value =
-          //         newNotificationCallBackList.value.isNotEmpty ? tipsHeight : 0;
-          //   },
-          // ),
           SizedBox(
             width: 20.px,
           ),
@@ -256,19 +241,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                   ),
                 )
               : Container(),
-
-          // MomentNotificationTips(
-          //   tipsHeight: tipsHeight,
-          //   onTap: (List<NotificationDB>? notificationDBList) async {
-          //     await OXNavigator.pushPage(
-          //         context, (context) => const NotificationsMomentsPage());
-          //     newNotificationCallBackList.value = [];
-          //     tipContainerHeight.value =
-          //         newNotesCallBackCallBackList.value.isNotEmpty
-          //             ? tipsHeight
-          //             : 0;
-          //   },
-          // ),
         ],
       ),
     );
@@ -381,8 +353,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> updateNotesList(bool isInit,
-      {bool isWrapRefresh = false}) async {
+  Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
     if (isInit) {
       _clearNotedNotification();
     }
@@ -468,10 +439,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   }
 
   List<NoteDBISAR> _filterNotes(List<NoteDBISAR> list) {
-    return list
-        .where(
-            (NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2)
-        .toList();
+    return list.where((NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2).toList();
   }
 
   void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
