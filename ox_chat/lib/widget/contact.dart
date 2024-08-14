@@ -92,7 +92,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   }
 
   void updateContactData(List<UserDBISAR> data) {
-    _data = data;
+    _data = List.from(data);
     _initIndexBarData();
   }
 
