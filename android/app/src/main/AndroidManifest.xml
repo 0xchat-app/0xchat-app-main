@@ -6,6 +6,7 @@
 <!--    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,7 +19,6 @@
 <!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
 
@@ -30,6 +30,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
 
     <queries>
         <intent>
@@ -47,6 +50,7 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/LaunchTheme_night"
         android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
         tools:replace="android:label, android:allowBackup, android:theme">
         <meta-data
             android:name="io.flutter.network-policy"
@@ -57,7 +61,6 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:exported="true"
@@ -139,8 +142,8 @@
                 android:resource="@xml/external_storage_root" />
         </provider>
 
-
-
+        <service android:name=".VoiceCallService"
+            android:foregroundServiceType="mediaPlayback"/>
 
     </application>
  
