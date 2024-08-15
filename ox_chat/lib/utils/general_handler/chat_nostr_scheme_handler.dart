@@ -28,18 +28,12 @@ class ChatNostrSchemeHandle {
     } else if (nostrScheme.startsWith('nostr:note') ||
         nostrScheme.startsWith('nostr:nevent') ||
         nostrScheme.startsWith('nevent') ||
+        nostrScheme.startsWith('nostr:naddr') ||
+        nostrScheme.startsWith('naddr') ||
         nostrScheme.startsWith('note')) {
       final tempMap = Channels.decodeChannel(content);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme,
           tempMap?['relays'].cast<String>(), tempMap?['kind']);
-    } else if (nostrScheme.startsWith('nostr:naddr') ||
-        nostrScheme.startsWith('naddr')) {
-      if (nostrScheme.startsWith('nostr:')) {
-        nostrScheme = Nip21.decode(nostrScheme)!;
-      }
-      Map result = Nip19.decodeShareableEntity(nostrScheme);
-      return await addressToMessageContent(
-          result['special'], result['author'], nostrScheme);
     }
     return null;
   }
@@ -130,7 +124,7 @@ class ChatNostrSchemeHandle {
             return relayGroupDBToMessageContent(relayGroupDB);
         }
         break;
-    }
+      }
     return null;
   }
 
