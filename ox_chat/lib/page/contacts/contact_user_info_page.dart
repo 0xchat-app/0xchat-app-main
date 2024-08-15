@@ -937,10 +937,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                       content:
                       Localized.text('ox_chat.option_auto_delete').replaceAll(r'${option}', '${_autoDelExTime > 0 ? Localized.text('ox_chat.set') : Localized.text('ox_chat.enable')}'),
                       onTap: _updateAutoDel),
-                  Divider(
-                    height: Adapt.px(0.5),
-                    color: ThemeColor.color160,
-                  ),
+                  // Divider(
+                  //   height: Adapt.px(0.5),
+                  //   color: ThemeColor.color160,
+                  // ),
                   Container(
                     height: Adapt.px(8),
                     color: ThemeColor.color190,
@@ -955,7 +955,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                         top: Adapt.px(17),
                       ),
                       width: double.infinity,
-                      height: Adapt.px(80),
+                      height: Adapt.px(68),
                       color: ThemeColor.color180,
                       child: Text(
                         Localized.text('ox_common.cancel'),
