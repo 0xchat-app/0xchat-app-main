@@ -24,7 +24,7 @@ import 'package:ox_common/widgets/common_toast.dart';
 ///@author Michael
 ///CreateTime: 2023/7/27 16:36
 class CallPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   final String mediaType; // audio;  video.
 
   const CallPage(this.userDB, this.mediaType, {super.key});
@@ -100,7 +100,8 @@ class CallPageState extends State<CallPage> {
       PromptToneManager.sharedInstance.playCalling();
       if (CallManager.instance.callState == CallState.CallStateInvite) {
         CallManager.instance.initiativeHangUp = false;
-        await CallManager.instance.invitePeer(widget.userDB.pubKey);
+        CallManager.instance.otherName = widget.userDB.name;
+        await CallManager.instance.invitePeer(widget.userDB.pubKey, useScreen: _isVideoOn);
       }
     }
     if (mounted) setState(() {});

@@ -6,7 +6,6 @@
   "latest_item": "Ən son",
   "channel_search_hint_text": "Kanal axtarışı",
   "moment": "An",
-  "channel": "Kanal",
   "private": "özəl",
   "all": "Hamısı",
   "public": "İctimai",
@@ -76,5 +75,11 @@
   "loading_note": "Qeydi yükləyir...",
   "hour_age_tips": "saat əvvəl",
   "minute_age_tips": "dəqiqə əvvəl",
-  "just_now": "indi"
+  "just_now": "indi",
+  "group": "Qruplar",
+  "channel": "Kanallar",
+  "group_search_text": "Açıq və Qapalı Qrupları Axtar",
+  "channel_search_text": "İctimai Kanalları Axtar",
+  "member": "Üzv",
+  "members": "Üzvlər"
 }

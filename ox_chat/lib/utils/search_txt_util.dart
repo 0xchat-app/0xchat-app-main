@@ -13,34 +13,32 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 ///CreateTime: 2024/2/27 17:02
 class SearchTxtUtil{
   //Queries the list of Friends to see if each Friend name contains a search character
-  static List<UserDB>? loadChatFriendsWithSymbol(String symbol) {
-    List<UserDB>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
+  static List<UserDBISAR>? loadChatFriendsWithSymbol(String symbol) {
+    List<UserDBISAR>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
     return friendList;
   }
 
   //Queries the list of Channels to see if each Channel name contains a search character
-  static List<ChannelDB>? loadChatChannelsWithSymbol(String symbol) {
-    final List<ChannelDB>? channelList =
+  static List<ChannelDBISAR>? loadChatChannelsWithSymbol(String symbol) {
+    final List<ChannelDBISAR>? channelList =
     Channels.sharedInstance.fuzzySearch(symbol);
     return channelList;
   }
 
-  static List<GroupUIModel>? loadChatGroupWithSymbol(String symbol) {
+  static Future<List<GroupUIModel>?> loadChatGroupWithSymbol(String symbol) async {
     List<GroupUIModel> groupUIModels = [];
-    final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
-    final List<RelayGroupDB>? relayGroupDBlist = RelayGroup.sharedInstance.fuzzySearch(symbol);
+    final List<GroupDBISAR>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
+    final List<RelayGroupDBISAR>? relayGroupDBlist = await RelayGroup.sharedInstance.fuzzySearch(symbol);
     if(groupDBlist!=null && groupDBlist.length>0) {
       List<GroupUIModel> groupUIModelList = [];
-      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
-      tempGroups.forEach((element) {
+      groupDBlist.forEach((element) {
         groupUIModelList.add(GroupUIModel.groupdbToUIModel(element));
       });
       groupUIModels.addAll(groupUIModelList);
     }
     if(relayGroupDBlist!=null && relayGroupDBlist.length>0) {
       List<GroupUIModel> relayGroupUIModelList = [];
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
-      tempGroups.forEach((element) {
+      relayGroupDBlist.forEach((element) {
         relayGroupUIModelList.add(GroupUIModel.relayGroupdbToUIModel(element));
       });
       groupUIModels.addAll(relayGroupUIModelList);
@@ -68,20 +66,8 @@ class SearchTxtUtil{
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
-      if (chatId == null) {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          'groupId IS NOT NULL AND groupId != ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
-          whereArgs: ['', '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      } else {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          'groupId = ? AND content COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?',
-          whereArgs: [chatId, '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      }
-      List<MessageDB> messages = tempMap['messages'];
+      tempMap = await Messages.searchGroupMessagesFromDB(chatId, orignalSearchTxt);
+      List<MessageDBISAR> messages = tempMap['messages'];
       LogUtil.e('Michael:loadChannelMsgWithSearchTxt  messages.length =${messages.length}');
       if (messages.length != 0) {
         if (chatId == null) {
@@ -132,27 +118,8 @@ class SearchTxtUtil{
     List<ChatMessage> chatMessageList = [];
     try {
       Map<dynamic, dynamic> tempMap = {};
-      if (chatId == null) {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          "sender IS NOT NULL AND sender != ? AND receiver IS NOT NULL AND receiver != ? AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
-          whereArgs: ['', '', '%{%}%', "%${orignalSearchTxt}%"],
-        );
-      } else {
-        tempMap = await Messages.loadMessagesFromDB(
-          where:
-          "(sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? ) AND decryptContent COLLATE NOCASE NOT LIKE ? AND decryptContent COLLATE NOCASE LIKE ?",
-          whereArgs: [
-            chatId,
-            OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-            OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-            chatId,
-            '%{%}%',
-            "%${orignalSearchTxt}%",
-          ],
-        );
-      }
-      List<MessageDB> messages = tempMap['messages'];
+      tempMap = await Messages.searchPrivateMessagesFromDB(chatId, orignalSearchTxt);
+      List<MessageDBISAR> messages = tempMap['messages'];
       if (messages.length != 0) {
         if (chatId == null) {
           Map<String, ChatMessage> messageInduceMap = {};
@@ -206,25 +173,25 @@ class SearchTxtUtil{
     return chatMessageList;
   }
 
-  static String _getName(MessageDB messageDB){
+  static String _getName(MessageDBISAR messageDB){
     String name = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       name = channelDB?.name ?? messageDB.groupId;
     } else {
-      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
       name = groupDBDB?.name ?? messageDB.groupId;
     }
     return name;
   }
 
-  static String _getPicUrl(MessageDB messageDB){
+  static String _getPicUrl(MessageDBISAR messageDB){
     String picUrl = '';
     if (messageDB.chatType == ChatType.chatChannel) {
-      ChannelDB? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
+      ChannelDBISAR? channelDB = Channels.sharedInstance.channels[messageDB.groupId];
       picUrl = channelDB?.picture ?? '';
     } else {
-      GroupDB? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
+      GroupDBISAR? groupDBDB = Groups.sharedInstance.groups[messageDB.groupId];
       picUrl = groupDBDB?.picture ?? '';
     }
     return picUrl;

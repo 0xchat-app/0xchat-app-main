@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 import 'package:chatcore/chat-core.dart' as ChatCore;
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:ox_calling/page/call_page.dart';
 import 'package:ox_calling/utils/widget_util.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/chat_prompt_tone.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -44,6 +46,7 @@ class CallManager {
   CallMessageType? callType;
   String? callInitiator;
   String? callReceiver;
+  String? otherName;
   Timer? _timer;
   int counter = 0;
   OverlayEntry? overlayEntry;
@@ -59,6 +62,10 @@ class CallManager {
     return _waitAccept;
   }
 
+  bool get isAudioVoice{
+    return callType == CallMessageType.audio;
+  }
+
   void initRTC({String? tHost}) async {
     if (tHost != null) {
       host = tHost;
@@ -67,7 +74,9 @@ class CallManager {
     ChatCore.Contacts.sharedInstance.onCallStateChange = (String friend, SignalingState state, String data, String? offerId) async{
       LogUtil.e('core: onCallStateChange state=$state ; data =$data;');
       if (state == SignalingState.offer) {
-        bool cmPermission = await PermissionUtils.getCallPermission(OXNavigator.navigatorKey.currentContext!);
+        var dataMap = jsonDecode(data);
+        var media = dataMap['media'];
+        bool cmPermission = await PermissionUtils.getCallPermission(OXNavigator.navigatorKey.currentContext!, mediaType: media);
         if (cmPermission) _signaling?.onParseMessage(friend, state, data, offerId);
       } else {
         _signaling?.onParseMessage(friend, state, data, offerId);
@@ -129,7 +138,7 @@ class CallManager {
           _signaling?.isDisconnected(false);
           _signaling?.isStreamConnected(false);
           ///lack of speech type
-          ChatCore.UserDB? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
+          ChatCore.UserDBISAR? userDB = await ChatCore.Account.sharedInstance.getUserInfo(session.pid);
           if (userDB == null) {
             break;
           } else {
@@ -141,6 +150,7 @@ class CallManager {
               }
               initiativeHangUp = false;
               callInitiator = userDB.pubKey;
+              otherName = userDB.name;
               callReceiver = OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey;
               CallManager.instance.connectServer();
               _context ??= OXNavigator.navigatorKey.currentContext!;
@@ -258,6 +268,7 @@ class CallManager {
   void resetStatus(bool isReceiverReject, {bool? isTomeOut}){
     // String content = _getCallHint(isReceiverReject, isTomeOut: isTomeOut);
     // CallManager.instance.sendLocalMessage(callInitiator, callReceiver, content);
+    OXCommon.channelPreferences.invokeMethod('stopVoiceCallService');
     callType = null;
     if (_waitAccept) {
       print('peer reject');
@@ -329,7 +340,7 @@ class CallManager {
     });
   }
 
-  void toggleFloatingWindow(ChatCore.UserDB userDB) {
+  void toggleFloatingWindow(ChatCore.UserDBISAR userDB) {
     overlayEntry ??= OverlayEntry(
         builder: (context) => CallFloatingDraggableOverlay(userDB: userDB),
       );

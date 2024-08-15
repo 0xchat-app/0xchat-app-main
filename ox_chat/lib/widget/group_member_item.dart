@@ -7,7 +7,7 @@ import 'package:ox_common/widgets/common_network_image.dart';
 
 class GroupMemberItem extends StatelessWidget {
 
-  final UserDB user;
+  final UserDBISAR user;
   final Widget? action;
   final Color? titleColor;
   final GestureTapCallback? onTap;
@@ -26,7 +26,7 @@ class GroupMemberItem extends StatelessWidget {
   }
 
 
-  Widget _buildUserItem(UserDB user){
+  Widget _buildUserItem(UserDBISAR user){
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -70,7 +70,7 @@ class GroupMemberItem extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfo(UserDB user) {
+  Widget _buildUserInfo(UserDBISAR user) {
     String? nickName = user.nickName;
     String name = (nickName != null && nickName.isNotEmpty) ? nickName : user.name ?? '';
     String encodedPubKey = user.encodedPubkey;

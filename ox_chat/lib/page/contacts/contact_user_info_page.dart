@@ -4,7 +4,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_core_dart/nostr.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/page/contacts/contact_friend_remark_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -12,7 +11,7 @@ import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/widgets/common_time_dialog.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -84,8 +83,8 @@ extension OtherInfoItemStr on OtherInfoItemType {
 
 class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
-  ChatSessionModel? get _chatSessionModel {
-    ChatSessionModel? model =
+  ChatSessionModelISAR? get _chatSessionModel {
+    ChatSessionModelISAR? model =
     OXChatBinding.sharedInstance.sessionMap[widget.chatId];
     return model;
   }
@@ -108,10 +107,10 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   bool _publicKeyCopied = false;
 
-  List<BadgeDB> _badgeDBList = [];
+  List<BadgeDBISAR> _badgeDBList = [];
   bool _isMute = false;
   bool _isVerifiedDNS = false;
-  late UserDB userDB;
+  late UserDBISAR userDB;
   String myPubkey = '';
 
   // auto delete
@@ -191,12 +190,12 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _initData() async {
-    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDB(pubKey: widget.pubkey);
+    userDB = Account.sharedInstance.userCache[widget.pubkey]?.value ?? UserDBISAR(pubKey: widget.pubkey);
     _isMute = userDB.mute ?? false;
     if (userDB.badges != null && userDB.badges!.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(userDB.badges!);
       List<String> badgeIds = badgeListDynamic.cast();
-      List<BadgeDB?> dbGetList =
+      List<BadgeDBISAR?> dbGetList =
           await BadgesHelper.getBadgeInfosFromDB(badgeIds);
       if (dbGetList.length > 0) {
         dbGetList.forEach((element) {
@@ -206,7 +205,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
         });
         if (mounted) setState(() {});
       } else {
-        List<BadgeDB> badgeDB =
+        List<BadgeDBISAR> badgeDB =
             await BadgesHelper.getBadgesInfoFromRelay(badgeIds);
         if (badgeDB.length > 0) {
           _badgeDBList = badgeDB;
@@ -670,7 +669,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
                                 scrollDirection: Axis.horizontal,
                                 separatorBuilder: (context, index) => Divider(height: 1),
                                 itemBuilder: (context, index) {
-                                  BadgeDB tempItem = _badgeDBList[index];
+                                  BadgeDBISAR tempItem = _badgeDBList[index];
                                   LogUtil.e('Michael: _badgeDBList.length =${_badgeDBList.length}');
                                   return OXCachedNetworkImage(
                                     imageUrl: tempItem.thumb ?? '',
@@ -760,7 +759,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             Positioned(
               bottom: 0,
               right: 0,
-              child: FutureBuilder<BadgeDB?>(
+              child: FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return (snapshot.data != null)
                       ? OXCachedNetworkImage(
@@ -871,7 +870,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     OXNavigator.pushReplacement(
       context,
       ChatMessagePage(
-        communityItem: ChatSessionModel(
+        communityItem: ChatSessionModelISAR(
           chatId: userDB.pubKey,
           chatName: userDB.name,
           sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
@@ -988,7 +987,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
             String username = Account.sharedInstance.me?.name ?? '';
             String timeStr;
             if(time >= 24 * 3600){
-              timeStr = (time ~/ (24*3600)).toString() + Localized.text('ox_chat.day');
+              timeStr = (time ~/ (24*3600)).toString() + ' ' + Localized.text('ox_chat.day');
             } else if (time >= 3600){
               timeStr = '${(time ~/ 3600).toString()} ${Localized.text('ox_chat.hours')} ${Localized.text('ox_chat.and')} ${((time % 3600) ~/ 60).toString()} ${Localized.text('ox_chat.minutes')}';
             } else {
@@ -1106,7 +1105,7 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
 
   ///Determine if it's a friend
   bool isFriend(String pubkey) {
-    UserDB? user = Contacts.sharedInstance.allContacts[pubkey];
+    UserDBISAR? user = Contacts.sharedInstance.allContacts[pubkey];
     LogUtil.e("user?.aliasPubkey ${user?.aliasPubkey}");
     return user != null;
   }
@@ -1167,8 +1166,8 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     }
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(friendDB.pubKey);
     LogUtil.e(
         'Michael: friend_user_info_page  _getUserSelectedBadgeInfo : ${friendUserDB!.name ?? ''}; badges =${friendUserDB.badges ?? 'badges null'}');
     if (friendUserDB == null) {
@@ -1178,9 +1177,9 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList =
+        List<BadgeDBISAR?> badgeDBList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {

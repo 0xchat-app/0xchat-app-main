@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 // ox_common
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
@@ -267,9 +268,11 @@ class _LoginPageState extends State<LoginPage> {
 
     await OXLoading.show();
     Keychain keychain = Account.generateNewKeychain();
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(keychain.public);
-    UserDB? userDB = await Account.newAccount(user: keychain);
+    UserDBISAR? userDB = await Account.newAccount(user: keychain);
     userDB = await Account.sharedInstance.loginWithPriKey(keychain.private);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     LogUtil.e('Michael: pubKey =${userDB?.pubKey}');
     await OXLoading.dismiss();
     if(userDB != null)
@@ -281,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginWithAmber() async {
-    bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+    bool isInstalled = await CoreMethodChannel.isInstalledAmber();
     if (mounted && !isInstalled) {
       CommonToast.instance.show(context, Localized.text('ox_login.str_not_installed_amber'));
       return;
@@ -292,16 +295,21 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     await OXLoading.show();
-    String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+    String decodeSignature = UserDBISAR.decodePubkey(signature) ?? '';
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(decodeSignature);
-    UserDB? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPubKey(decodeSignature);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
+      await OXLoading.dismiss();
       CommonToast.instance.show(context, Localized.text('ox_common.pub_key_regular_failed'));
       return;
     }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
-    OXUserInfoManager.sharedInstance.loginSuccess(userDB);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, true);
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
+    OXUserInfoManager.sharedInstance.loginSuccess(userDB, isAmber: true);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);
     AppInitializationManager.shared.showInitializationLoading();

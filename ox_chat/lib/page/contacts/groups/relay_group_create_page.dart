@@ -6,7 +6,7 @@ import 'package:ox_chat/page/contacts/contact_relay_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
@@ -365,7 +365,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
     if (widget.groupType == GroupType.openGroup || widget.groupType == GroupType.closeGroup) {
       // var uri = Uri.parse(_chatRelay);
       // var hostWithPort = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
+      RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.createGroup(
         _chatRelay,
         name: name,
         picture: _avatarAliyunUrl,
@@ -377,7 +377,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
         OXNavigator.pushReplacement(
           context,
           ChatRelayGroupMsgPage(
-            communityItem: ChatSessionModel(
+            communityItem: ChatSessionModelISAR(
               chatId: relayGroupDB.groupId,
               groupId: relayGroupDB.groupId,
               chatType: ChatType.chatRelayGroup,

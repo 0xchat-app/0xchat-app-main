@@ -22,7 +22,7 @@ enum GroupListAction {
 }
 
 class ContactGroupListPage extends StatefulWidget {
-  final List<UserDB>? userList;
+  final List<UserDBISAR>? userList;
   final GroupListAction? groupListAction;
   final String? title;
   final String? searchBarHintText;
@@ -43,14 +43,14 @@ class ContactGroupListPage extends StatefulWidget {
 
 class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T> {
 
-  List<UserDB> userList = [];
-  List<UserDB> _selectedUserList = [];
+  List<UserDBISAR> userList = [];
+  List<UserDBISAR> _selectedUserList = [];
   ValueNotifier<bool> _isClear = ValueNotifier(false);
   TextEditingController _controller = TextEditingController();
-  Map<String, List<UserDB>> _groupedUserList = {};
-  Map<String, List<UserDB>> _filteredUserList = {};
+  Map<String, List<UserDBISAR>> _groupedUserList = {};
+  Map<String, List<UserDBISAR>> _filteredUserList = {};
 
-  List<UserDB> get selectedUserList=> _selectedUserList;
+  List<UserDBISAR> get selectedUserList=> _selectedUserList;
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
-    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    Map<UserDBISAR, String> pinyinMap = Map<UserDBISAR, String>();
     for (var user in userList) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
@@ -305,7 +305,7 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
         ));
   }
 
-  Widget _buildUserItem(UserDB user){
+  Widget _buildUserItem(UserDBISAR user){
     bool isSelected = _selectedUserList.contains(user);
 
     return GroupMemberItem(
@@ -334,9 +334,9 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
 
   void _handlingSearch(String searchQuery){
     setState(() {
-      Map<String, List<UserDB>> searchResult = {};
+      Map<String, List<UserDBISAR>> searchResult = {};
       _groupedUserList.forEach((key, value) {
-        List<UserDB> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+        List<UserDBISAR> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
         searchResult[key] = tempList;
       });
       searchResult.removeWhere((key, value) => value.isEmpty);

@@ -17,6 +17,7 @@ import 'package:ox_discovery/page/moments/visibility_selection_page.dart';
 import 'package:ox_discovery/page/widgets/send_progress_widget.dart';
 import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_module_service/ox_module_service.dart';
 
 import '../../enum/moment_enum.dart';
 import '../../model/moment_extension_model.dart';
@@ -37,7 +38,7 @@ class CreateMomentsPage extends StatefulWidget {
   final List<String>? imageList;
   final String? videoPath;
   final String? videoImagePath;
-  final ValueNotifier<NotedUIModel>? notedUIModel;
+  final ValueNotifier<NotedUIModel?>? notedUIModel;
   const CreateMomentsPage(
       {Key? key,
       required this.type,
@@ -55,7 +56,7 @@ class CreateMomentsPage extends StatefulWidget {
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
 
-  Map<String,UserDB> draftCueUserMap = {};
+  Map<String,UserDBISAR> draftCueUserMap = {};
 
   List<String> addImageList = [];
   List<String>? preImageList;
@@ -77,7 +78,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
       : _selectedContacts?.length ?? 0;
 
   VisibleType _visibleType = VisibleType.everyone;
-  List<UserDB>? _selectedContacts;
+  List<UserDBISAR>? _selectedContacts;
 
   EMomentType? currentPageType;
 
@@ -418,9 +419,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
   }
 
   Widget _quoteWidget() {
-    ValueNotifier<NotedUIModel>? notedUIModel = widget.notedUIModel;
-    if (currentPageType != EMomentType.quote || notedUIModel == null) return const SizedBox();
-    return MomentQuoteWidget(notedId: widget.notedUIModel!.value.noteDB.noteId);
+    ValueNotifier<NotedUIModel?>? notedUIModel = widget.notedUIModel;
+    if (currentPageType != EMomentType.quote || notedUIModel == null || notedUIModel.value == null) return const SizedBox();
+    return MomentQuoteWidget(notedId: widget.notedUIModel!.value!.noteDB.noteId);
   }
 
   Widget _captionWidget() {
@@ -446,9 +447,9 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
           IntelligentInputBoxWidget(
               textController: _textController,
               hintText: Localized.text('ox_discovery.caption_hint_text'),
-              cueUserCallback: (List<UserDB> userList){
+              cueUserCallback: (List<UserDBISAR> userList){
                 if(userList.isEmpty) return;
-                for(UserDB db in userList){
+                for(UserDBISAR db in userList){
                   String? getName = db.name;
                   if(getName != null){
                     draftCueUserMap['@${getName}'] = db;
@@ -471,7 +472,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     bool isGroup = EOptionMomentsType.group == widget.sendMomentsType;
     String content = _visibleType.name;
     if(isGroup){
-      RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
       content = 'Groups - ${groupDB?.name ?? ''}';
     }
     return Container(
@@ -598,7 +599,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     OKEvent? event;
 
-    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value?.noteDB;
 
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
     List<String>? getHashTags = hashTags.isEmpty ? null : hashTags;
@@ -664,7 +665,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     String? groupId = widget.groupId;
     if(groupId == null) return CommonToast.instance.show(context, 'groupId is empty !');
     List<String> previous = Nip29.getPrevious([[groupId]]);
-    NoteDB? noteDB = widget.notedUIModel?.value.noteDB;
+    NoteDBISAR? noteDB = widget.notedUIModel?.value?.noteDB;
     OKEvent result;
     OXLoading.show();
     if(currentPageType == EMomentType.quote && noteDB != null){

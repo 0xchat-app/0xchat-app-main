@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
@@ -26,6 +25,7 @@ abstract class MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -45,6 +45,7 @@ class TextMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -63,6 +64,7 @@ class TextMessageFactory implements MessageFactory {
       text: text,
       status: status,
       repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       previewData: previewData != null
           ? PreviewData.fromJson(jsonDecode(previewData))
           : null,
@@ -84,6 +86,7 @@ class ImageMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -105,6 +108,8 @@ class ImageMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -125,6 +130,7 @@ class AudioMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -147,6 +153,8 @@ class AudioMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -167,6 +175,7 @@ class VideoMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -193,6 +202,8 @@ class VideoMessageFactory implements MessageFactory {
       roomId: roomId,
       remoteId: remoteId,
       status: status,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       fileEncryptionType: fileEncryptionType,
       decryptKey: decryptKey,
       expiration: expiration,
@@ -213,6 +224,7 @@ class CallMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -249,6 +261,8 @@ class CallMessageFactory implements MessageFactory {
       sourceKey: sourceKey,
       remoteId: remoteId,
       roomId: roomId,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       metadata: CustomMessageEx.callMetaData(
         text: state.messageText(isMe, durationText),
         type: media,
@@ -312,6 +326,7 @@ class SystemMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -336,6 +351,8 @@ class SystemMessageFactory implements MessageFactory {
       createdAt: timestamp,
       id: remoteId,
       roomId: roomId,
+      repliedMessage: repliedMessage,
+      repliedMessageId: repliedMessageId,
       text: text,
       expiration: expiration,
       reactions: reactions,
@@ -372,6 +389,7 @@ class CustomMessageFactory implements MessageFactory {
     required UIMessage.Status status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
+    String? repliedMessageId,
     String? previewData,
     String? decryptKey,
     int? expiration,
@@ -520,6 +538,29 @@ class CustomMessageFactory implements MessageFactory {
           return null;
         }
 
+      case CustomMessageType.imageSending:
+        final path = content[ImageSendingMessageEx.metaPathKey];
+        final url = content[ImageSendingMessageEx.metaURLKey];
+        final width = content[ImageSendingMessageEx.metaWidthKey];
+        final height = content[ImageSendingMessageEx.metaHeightKey];
+        final encryptedKey = content[ImageSendingMessageEx.metaEncryptedKey];
+        return createImageSendingMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          expiration: expiration,
+          reactions: reactions,
+          zapsInfoList: zapsInfoList,
+          path: path,
+          url: url,
+          width: width,
+          height: height,
+          encryptedKey: encryptedKey,
+        );
+
       default:
         return null;
     }
@@ -532,13 +573,13 @@ class CustomMessageFactory implements MessageFactory {
     required String id,
     String? remoteId,
     dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
     required String zapper,
     required String invoice,
     required String amount,
     required String description,
-    int? expiration,
-    List<types.Reaction> reactions = const [],
-    List<types.ZapsInfo> zapsInfoList = const [],
   }) {
     return types.CustomMessage(
       author: author,
@@ -568,13 +609,13 @@ class CustomMessageFactory implements MessageFactory {
     required String id,
     String? remoteId,
     dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
     required String title,
     required String content,
     required String icon,
     required String link,
-    int? expiration,
-    List<types.Reaction> reactions = const [],
-    List<types.ZapsInfo> zapsInfoList = const [],
   }) {
     return types.CustomMessage(
       author: author,
@@ -604,6 +645,9 @@ class CustomMessageFactory implements MessageFactory {
     required String id,
     String? remoteId,
     dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
     required String authorIcon,
     required String authorName,
     required String authorDNS,
@@ -611,9 +655,6 @@ class CustomMessageFactory implements MessageFactory {
     required String note,
     required String image,
     required String link,
-    int? expiration,
-    List<types.Reaction> reactions = const [],
-    List<types.ZapsInfo> zapsInfoList = const [],
   }) {
     return types.CustomMessage(
       author: author,
@@ -646,14 +687,14 @@ class CustomMessageFactory implements MessageFactory {
     required String id,
     String? remoteId,
     dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
     required List<String> tokenList,
     List<String> receiverPubkeys = const [],
     List<EcashSignee> signees = const [],
     String validityDate = '',
     String isOpened = '',
-    int? expiration,
-    List<types.Reaction> reactions = const [],
-    List<types.ZapsInfo> zapsInfoList = const [],
   }) {
     return types.CustomMessage(
       author: author,
@@ -670,6 +711,45 @@ class CustomMessageFactory implements MessageFactory {
         isOpened: isOpened,
       ),
       type: types.MessageType.custom,
+      expiration: expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
+      viewWithoutBubble: true,
+    );
+  }
+
+  types.CustomMessage createImageSendingMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
+    required String path,
+    required String url,
+    required int? width,
+    required int? height,
+    required String? encryptedKey,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.imageSendingMetaData(
+        path: path,
+        url: url,
+        width: width,
+        height: height,
+        encryptedKey: encryptedKey,
+      ),
+      type: types.MessageType.custom,
+      decryptKey: encryptedKey,
       expiration: expiration,
       reactions: reactions,
       zapsInfoList: zapsInfoList,

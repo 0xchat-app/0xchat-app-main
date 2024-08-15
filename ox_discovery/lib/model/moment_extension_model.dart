@@ -7,7 +7,7 @@ import '../enum/moment_enum.dart';
 import '../enum/visible_type.dart';
 import 'moment_ui_model.dart';
 
-extension ENoteDBEx on NoteDB {
+extension ENoteDBEx on NoteDBISAR {
   bool get isRepost => getNoteKind() == ENotificationsMomentType.repost.kind;
 
   bool get isReaction => getNoteKind() == ENotificationsMomentType.like.kind;
@@ -36,7 +36,7 @@ extension ENoteDBEx on NoteDB {
   }
 }
 
-extension ENotificationDBEX on NotificationDB {
+extension ENotificationDBEX on NotificationDBISAR {
   bool get isLike => kind == ENotificationsMomentType.like.kind;
 }
 
@@ -46,10 +46,10 @@ class CreateMomentDraft{
   String? videoImagePath;
   String content;
   EMomentType type;
-  Map<String,UserDB>? draftCueUserMap;
+  Map<String,UserDBISAR>? draftCueUserMap;
 
   VisibleType visibleType;
-  List<UserDB>? selectedContacts;
+  List<UserDBISAR>? selectedContacts;
 
   CreateMomentDraft({
     required this.type,
@@ -70,7 +70,7 @@ class OXMomentCacheManager {
 
   Map<String,Map<String,dynamic>?> naddrAnalysisCache = {};
 
-  Map<String,NotedUIModel?> notedUIModelCache = {};
+  Map<String,ValueNotifier<NotedUIModel?>> notedUIModelCache = {};
 
   Map<String,PreviewData?> urlPreviewDataCache = {};
 
@@ -79,4 +79,20 @@ class OXMomentCacheManager {
 
   CreateMomentDraft? createGroupMomentMediaDraft;
   CreateMomentDraft? createGroupMomentContentDraft;
+
+  List<ValueNotifier<NotedUIModel?>> saveValueNotifierNote(List<NoteDBISAR> noteList){
+    List<ValueNotifier<NotedUIModel?>> list = noteList.map((note) {
+
+      ValueNotifier<NotedUIModel?>? noteNotifier = notedUIModelCache[note.noteId];
+
+      if(noteNotifier == null){
+        notedUIModelCache[note.noteId] = ValueNotifier(NotedUIModel(noteDB: note));
+      }
+
+      notedUIModelCache[note.noteId]!.value = NotedUIModel(noteDB: note);
+
+     return notedUIModelCache[note.noteId]!;
+    }).toList();
+    return list;
+  }
 }

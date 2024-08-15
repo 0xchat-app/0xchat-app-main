@@ -12,9 +12,9 @@ class MentionUserList extends StatelessWidget {
 
   MentionUserList(this.userList, this.itemOnPressed,);
 
-  final ValueNotifier<List<UserDB>> userList;
+  final ValueNotifier<List<UserDBISAR>> userList;
 
-  final Function(UserDB item) itemOnPressed;
+  final Function(UserDBISAR item) itemOnPressed;
 
   final double itemHeight = Adapt.px(44);
   final double dividerHeight = 1;
@@ -50,7 +50,7 @@ class MentionUserList extends StatelessWidget {
     );
   }
 
-  Widget _buildUserItem(UserDB user) {
+  Widget _buildUserItem(UserDBISAR user) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => itemOnPressed(user),

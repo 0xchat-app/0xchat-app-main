@@ -14,12 +14,12 @@ import 'package:lpinyin/lpinyin.dart';
 
 class UserSelectionPage extends StatefulWidget {
   final String title;
-  final List<UserDB>? userList;
-  final List<UserDB> defaultSelected;
-  final List<UserDB> additionalUserList;
+  final List<UserDBISAR>? userList;
+  final List<UserDBISAR> defaultSelected;
+  final List<UserDBISAR> additionalUserList;
   final bool isMultiSelect;
   final bool allowFetchUserFromRelay;
-  final bool Function(List<UserDB> userList)? shouldPop;
+  final bool Function(List<UserDBISAR> userList)? shouldPop;
 
   const UserSelectionPage({
     super.key,
@@ -35,12 +35,12 @@ class UserSelectionPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => UserSelectionPageState();
 
-  static Future<List<UserDB>?> showWithGroupMember({
+  static Future<List<UserDBISAR>?> showWithGroupMember({
     String? title,
     required String groupId,
     bool excludeSelf = false,
   }) async {
-    List<UserDB> groupMembers = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    List<UserDBISAR> groupMembers = await Groups.sharedInstance.getAllGroupMembers(groupId);
     if (excludeSelf) {
       groupMembers = groupMembers.where((user) => user != OXUserInfoManager.sharedInstance.currentUserInfo).toList();
     }
@@ -54,12 +54,12 @@ class UserSelectionPage extends StatefulWidget {
 
 class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
 
-  List<UserDB> allUser = [];
-  List<UserDB> userList = [];
-  List<UserDB> selectedUserList = [];
+  List<UserDBISAR> allUser = [];
+  List<UserDBISAR> userList = [];
+  List<UserDBISAR> selectedUserList = [];
 
-  UserDB? userFromRemote;
-  Map<String, List<UserDB>> _groupedUserList = {};
+  UserDBISAR? userFromRemote;
+  Map<String, List<UserDBISAR>> _groupedUserList = {};
 
   TextEditingController _searchController = TextEditingController();
 
@@ -87,7 +87,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
-    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
+    Map<UserDBISAR, String> pinyinMap = Map<UserDBISAR, String>();
     for (var user in userList) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
@@ -123,7 +123,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
   }
 
   Widget _buildBody() {
-    final data = <UserDB>[
+    final data = <UserDBISAR>[
       if (userFromRemote != null) userFromRemote!,
       ...userList,
     ];
@@ -245,7 +245,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
     );
   }
 
-  Widget _buildUserItem(UserDB user){
+  Widget _buildUserItem(UserDBISAR user){
     bool isSelected = selectedUserList.contains(user);
     return GroupMemberItem(
       user: user,
@@ -271,7 +271,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
     );
   }
 
-  void popAction(List<UserDB> selectedUserList) {
+  void popAction(List<UserDBISAR> selectedUserList) {
     if (widget.shouldPop?.call(selectedUserList) ?? true) {
       OXNavigator.pop(context, selectedUserList);
     }
@@ -310,7 +310,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
     final text = _searchController.text;
     var pubkey = '';
     if (isValidNPubString(text)) {
-      pubkey = UserDB.decodePubkey(text) ?? '';
+      pubkey = UserDBISAR.decodePubkey(text) ?? '';
     } else if (isNIP05AddressString(text)) {
       final name = text.substring(0, text.indexOf('@'));
       final domain = text.substring(text.indexOf('@') + 1);
@@ -319,7 +319,7 @@ class UserSelectionPageState<T extends UserSelectionPage> extends State<T> {
 
     if (pubkey.isEmpty) return ;
 
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
     if (user != null) {
       setState(() {
         userFromRemote = user;

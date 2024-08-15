@@ -6,7 +6,6 @@
   "latest_item": "أحدث",
   "channel_search_hint_text": "بحث قناة",
   "moment": "لحظة",
-  "channel": "قناة",
   "private": "خاص",
   "all": "الكل",
   "public": "عام",
@@ -76,5 +75,11 @@
   "loading_note": "جارٍ تحميل الملاحظة...",
   "hour_age_tips": "قبل ساعات",
   "minute_age_tips": "قبل دقائق",
-  "just_now": "الآن"
+  "just_now": "الآن",
+  "group": "مجموعات",
+  "channel": "قنوات",
+  "group_search_text": "ابحث عن المجموعات المفتوحة والمغلقة",
+  "channel_search_text": "ابحث عن القنوات العامة",
+  "member": "عضو",
+  "members": "أعضاء"
 }

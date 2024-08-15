@@ -1,8 +1,9 @@
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_wallet/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -11,11 +12,11 @@ import 'package:ox_common/navigator/slide_bottom_to_top_route.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
-import 'package:ox_common/widgets/base_page_state.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -30,9 +31,9 @@ import 'package:ox_usercenter/page/badge/usercenter_badge_wall_page.dart';
 import 'package:ox_usercenter/page/set_up/donate_page.dart';
 import 'package:ox_usercenter/page/set_up/profile_set_up_page.dart';
 import 'package:ox_usercenter/page/set_up/settings_page.dart';
+import 'package:ox_usercenter/page/set_up/switch_account_page.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:cashu_dart/cashu_dart.dart';
 
 class UserCenterPage extends StatefulWidget {
   const UserCenterPage({Key? key}) : super(key: key);
@@ -41,7 +42,7 @@ class UserCenterPage extends StatefulWidget {
   State<UserCenterPage> createState() => _UserCenterPageState();
 }
 
-class _UserCenterPageState extends BasePageState<UserCenterPage>
+class _UserCenterPageState extends State<UserCenterPage>
     with
         TickerProviderStateMixin,
         OXUserInfoObserver,
@@ -90,7 +91,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB,{Function? onValue}) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB,{Function? onValue}) {
     super.didZapRecordsCallBack(zapRecordsDB);
     setState(() {
       _isShowZapBadge = _getZapBadge();
@@ -124,26 +125,26 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   bool _getZapBadge() {
-    return OXChatBinding.sharedInstance.isZapBadge;
+    return UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false);
   }
 
   //get user selected Badge Info from DB
-  Future<BadgeDB?> _getUserSelectedBadgeInfo() async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo() async {
     String badges =
         OXUserInfoManager.sharedInstance.currentUserInfo?.badges ?? '';
-    BadgeDB? badgeDB;
+    BadgeDBISAR? badgeDB;
     try {
       if (badges.isNotEmpty) {
         List<dynamic> badgeListDynamic = jsonDecode(badges);
         List<String> badgeList = badgeListDynamic.cast();
-        List<BadgeDB?> badgeDBList =
+        List<BadgeDBISAR?> badgeDBList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if (badgeDBList.isNotEmpty) {
           badgeDB = badgeDBList.first;
           return badgeDB;
         }
       } else {
-        List<BadgeDB?>? badgeDBList =
+        List<BadgeDBISAR?>? badgeDBList =
             await BadgesHelper.getAllProfileBadgesFromRelay(
                 OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '');
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
@@ -173,35 +174,34 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         centerTitle: false,
         canBack: false,
         actions: <Widget>[
-          isLogin
-              ? Container(
-                  margin: EdgeInsets.only(right: Adapt.px(5)),
-                  color: Colors.transparent,
-                  child: OXButton(
-                    highlightColor: Colors.transparent,
-                    color: Colors.transparent,
-                    minWidth: Adapt.px(44),
-                    height: Adapt.px(44),
-                    child: Text(
-                      Localized.text('ox_common.edit'),
-                      style: TextStyle(
-                        fontSize: Adapt.px(16),
-                        fontWeight: FontWeight.w600,
-                        color: ThemeColor.color0,
-                      ),
-                    ),
-                    onPressed: () {
-                      OXNavigator.push(
-                              context,
-                              SlideBottomToTopRoute(
-                                  page: const ProfileSetUpPage()))
-                          .then((value) {
-                        setState(() {});
-                      });
-                    },
+          if (isLogin)
+            Container(
+              margin: EdgeInsets.only(right: Adapt.px(5)),
+              color: Colors.transparent,
+              child: OXButton(
+                highlightColor: Colors.transparent,
+                color: Colors.transparent,
+                minWidth: Adapt.px(44),
+                height: Adapt.px(44),
+                child: Text(
+                  Localized.text('ox_common.edit'),
+                  style: TextStyle(
+                    fontSize: Adapt.px(16),
+                    fontWeight: FontWeight.w600,
+                    color: ThemeColor.color0,
                   ),
-                )
-              : Container(),
+                ),
+                onPressed: () {
+                  OXNavigator.push(
+                      context,
+                      SlideBottomToTopRoute(
+                          page: const ProfileSetUpPage()))
+                      .then((value) {
+                    setState(() {});
+                  });
+                },
+              ),
+            ),
         ],
       ),
       body: commonStateViewWidget(
@@ -304,7 +304,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   );
                 },
               ),
-              FutureBuilder<BadgeDB?>(
+              FutureBuilder<BadgeDBISAR?>(
                 builder: (context, snapshot) {
                   return _topItemBuild(
                       iconName: 'icon_settings_badges.png',
@@ -362,12 +362,31 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
     }
           ),
         ),
-        SizedBox(height: Adapt.px(24),),
+        SizedBox(height: Adapt.px(24)),
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _logout();
-          },
+          onTap: _switchAccount,
+          child: Container(
+            width: double.infinity,
+            height: Adapt.px(48),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: ThemeColor.color180,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              Localized.text('ox_usercenter.str_switch_account'),
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: Adapt.px(15),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: Adapt.px(24)),
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _logout,
           child: Container(
             width: double.infinity,
             height: Adapt.px(48),
@@ -380,31 +399,6 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
               Localized.text('ox_usercenter.sign_out'),
               style: TextStyle(
                 color: ThemeColor.color0,
-                fontSize: Adapt.px(15),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: Adapt.px(24),
-        ),
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _deleteAccountHandler();
-          },
-          child: Container(
-            width: double.infinity,
-            height: Adapt.px(48),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: ThemeColor.color180,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              Localized.text('ox_usercenter.delete_account'),
-              style: TextStyle(
-                color: ThemeColor.red1,
                 fontSize: Adapt.px(15),
               ),
             ),
@@ -461,7 +455,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     badgeImgUrl == null
-                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() : Container())
+                        ? (_isShowZapBadge && iconName == 'icon_settings.png' ? _buildZapBadgeWidget() :const SizedBox())
                         : OXCachedNetworkImage(
                       imageUrl: badgeImgUrl,
                       placeholder: (context, url) => placeholderImage,
@@ -660,7 +654,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     if (mounted) {
       setState(() {
         updateStateView(CommonStateView.CommonStateView_None);
@@ -688,7 +682,7 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
   }
 
   void _verifiedDNS() async {
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if(userDB == null) return;
     var isVerifiedDNS = await OXUserInfoManager.sharedInstance.checkDNS(userDB: userDB);
     if (mounted) {
@@ -779,6 +773,16 @@ class _UserCenterPageState extends BasePageState<UserCenterPage>
         isRowAction: true);
   }
 
+  void _switchAccount() {
+    OXNavigator.pushPage(context, (context) => const SwitchAccountPage());
+  }
+
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  void didSwitchUser(UserDBISAR? userInfo) {
+    if (mounted) {
+      if (OXUserInfoManager.sharedInstance.isLogin) updateStateView(CommonStateView.CommonStateView_None);
+      _verifiedDNS();
+    }
+  }
+
 }

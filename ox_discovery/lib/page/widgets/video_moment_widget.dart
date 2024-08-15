@@ -5,14 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
-import 'package:ox_module_service/ox_module_service.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-
-import 'package:path/path.dart' as Path;
 import '../../utils/moment_widgets_utils.dart';
-import '../moments/moment_video_page.dart';
+import '../moments/common_video_page.dart';
 
 class VideoMomentWidget extends StatefulWidget {
   final String videoUrl;
@@ -33,28 +29,7 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
   }
 
   Future<void> _initializeThumbnail() async {
-    final Directory tempDir = await getTemporaryDirectory();
-    String thumbnailPath = '${tempDir.path}/${Path.basenameWithoutExtension(widget.videoUrl)}.jpg';
-    final thumbnailFile = File(thumbnailPath);
-    if (await thumbnailFile.exists()) {
-      if (mounted) {
-        setState(() {
-          _thumbnailFile = thumbnailFile;
-        });
-      }
-    } else {
-      await _generateThumbnail(thumbnailPath);
-    }
-  }
-
-  Future<void> _generateThumbnail(String thumbnailPath) async {
-    final String? thumbPath = await VideoThumbnail.thumbnailFile(
-      video: widget.videoUrl,
-      thumbnailPath: thumbnailPath,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: 218,
-      quality: 75,
-    );
+    final String? thumbPath = (await OXVideoUtils.getVideoThumbnailImage(videoURL: widget.videoUrl))?.path;
     if (mounted) {
       setState(() {
         if (thumbPath != null) {
@@ -88,11 +63,7 @@ class _VideoMomentWidgetState extends State<VideoMomentWidget> {
       ),
       child: GestureDetector(
         onTap: () {
-          OXNavigator.presentPage(
-              context,
-                  (context) => MomentVideoPage(videoUrl: widget.videoUrl),
-              fullscreenDialog:true,
-          );
+          CommonVideoPage.show(widget.videoUrl);
         },
         child: Stack(
             alignment: Alignment.center,

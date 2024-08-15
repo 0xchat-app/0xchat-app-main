@@ -6,7 +6,6 @@
   "latest_item": "Последнее",
   "channel_search_hint_text": "Поиск канала",
   "moment": "Момент",
-  "channel": "Канал",
   "private": "Частный",
   "all": "Все",
   "public": "Публичный",
@@ -76,5 +75,11 @@
   "loading_note": "Загрузка заметки...",
   "hour_age_tips": "часов назад",
   "minute_age_tips": "минут назад",
-  "just_now": "только что"
+  "just_now": "только что",
+  "group": "Группы",
+  "channel": "Каналы",
+  "group_search_text": "Поиск Открытых и Закрытых Групп",
+  "channel_search_text": "Поиск Публичных Каналов",
+  "member": "Член",
+  "members": "Члены"
 }

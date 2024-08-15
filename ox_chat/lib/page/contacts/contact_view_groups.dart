@@ -72,17 +72,27 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
 
   void _loadData() {
     groups.clear();
-    if(Groups.sharedInstance.myGroups.length>0) {
-      List<GroupDB> tempGroups = Groups.sharedInstance.myGroups.values.toList();
+    Map<String, GroupDBISAR> privateGroupMap = Groups.sharedInstance.myGroups;
+    if(privateGroupMap.length>0) {
+      List<GroupDBISAR> tempGroups = privateGroupMap.values.toList();
       tempGroups.forEach((element) {
         GroupUIModel tempUIModel= GroupUIModel.groupdbToUIModel(element);
         groups.add(tempUIModel);
       });
     }
-    if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDB> tempRelayGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+    Map<String, RelayGroupDBISAR> relayGroupMap = RelayGroup.sharedInstance.myGroups;
+    if(relayGroupMap.length>0) {
+      List<RelayGroupDBISAR> tempRelayGroups = relayGroupMap.values.toList();
       tempRelayGroups.forEach((element) {
         GroupUIModel uIModel= GroupUIModel.relayGroupdbToUIModel(element);
+        groups.add(uIModel);
+      });
+    }
+    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
+    if (channelsMap.length > 0) {
+      List<ChannelDBISAR> channels = channelsMap.values.toList();
+      channels.forEach((element) {
+        GroupUIModel uIModel= GroupUIModel.channeldbToUIModel(element);
         groups.add(uIModel);
       });
     }
@@ -128,7 +138,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     LogUtil.e('Topic List didLoginStateChanged : $userInfo');
     setState(() {
       groups.clear();
@@ -145,7 +155,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     _onRefresh();
   }
 
@@ -158,6 +168,21 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
   @override
   void didRelayGroupsUpdatedCallBack() {
     LogUtil.e('Michael: ----didRelayGroupsUpdatedCallBack----------');
+    _loadData();
+  }
+
+  @override
+  void didChannelsUpdatedCallBack() {
+    _loadData();
+  }
+
+  @override
+  void didCreateChannel(ChannelDBISAR? channelDB) {
+    _loadData();
+  }
+
+  @override
+  void didDeleteChannel(ChannelDBISAR? channelDB) {
     _loadData();
   }
 }

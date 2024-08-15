@@ -17,7 +17,7 @@ import '../../../utils/widget_tool.dart';
 enum ERequestsOption { accept, ignore }
 
 class UserRequestInfo {
-  final MessageDB messageDB;
+  final MessageDBISAR messageDB;
   final String createTime;
   final String userName;
   final String groupId;
@@ -60,13 +60,13 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   void _getRequestList() async {
-    List<MessageDB> requestJoinList =
+    List<MessageDBISAR> requestJoinList =
         await Groups.sharedInstance.getRequestList(groupId: widget.groupId);
     List<UserRequestInfo> requestList = [];
     if (requestJoinList.length > 0) {
       await Future.forEach(requestJoinList, (msgDB) async {
-        GroupDB? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
-        UserDB? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
+        GroupDBISAR? groupDB = Groups.sharedInstance.groups[msgDB.groupId];
+        UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(msgDB.sender);
 
         String time = OXDateUtils.convertTimeFormatString2(
             msgDB.createTime * 1000,
@@ -116,7 +116,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
   }
 
   Widget _buildAvatar(UserRequestInfo userInfo) {
-    UserDB? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[userInfo.messageDB.sender]?.value;
     return OXUserAvatar(
       user: otherDB,
       imageUrl: userInfo.userPic,
@@ -366,7 +366,7 @@ class _GroupJoinRequestsState extends State<GroupJoinRequests> {
     );
   }
 
-  void _requestJoinOption(MessageDB messageDB, ERequestsOption type) async {
+  void _requestJoinOption(MessageDBISAR messageDB, ERequestsOption type) async {
     if (ERequestsOption.accept == type) {
       await Groups.sharedInstance.acceptRequest(messageDB, '');
     }

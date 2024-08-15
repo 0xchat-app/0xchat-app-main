@@ -191,9 +191,9 @@ class ZapsRecordPage extends StatelessWidget {
     if (value is! String) return value;
     const halfMaxLength = 15;
     if (value.startsWith('npub')) {
-      String? pubkey = UserDB.decodePubkey(value);
+      String? pubkey = UserDBISAR.decodePubkey(value);
       if (pubkey != null) {
-        UserDB? userDB = Account.sharedInstance.userCache[pubkey]?.value;
+        UserDBISAR? userDB = Account.sharedInstance.userCache[pubkey]?.value;
         if (userDB != null) {
           value = '${userDB.name}(${userDB.shortEncodedPubkey})';
         }

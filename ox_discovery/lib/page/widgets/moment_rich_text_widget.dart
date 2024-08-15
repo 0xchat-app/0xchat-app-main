@@ -39,7 +39,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
     with WidgetsBindingObserver {
   final GlobalKey _containerKey = GlobalKey();
 
-  Map<String, UserDB?> userDBList = {};
+  Map<String, UserDBISAR?> userDBList = {};
 
   bool isOnSelectText = false;
 
@@ -179,7 +179,7 @@ class _MomentRichTextWidgetState extends State<MomentRichTextWidget>
         text.startsWith('npub') ||
         text.startsWith('nostr:nprofile')) {
       if (userDBList[text] != null) {
-        UserDB userDB = userDBList[text]!;
+        UserDBISAR userDB = userDBList[text]!;
         return ['@${userDB.name}', '@${userDB.pubKey}'];
       }
 

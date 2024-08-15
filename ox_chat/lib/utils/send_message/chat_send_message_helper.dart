@@ -9,7 +9,7 @@ import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/utils/message_factory.dart';
@@ -20,11 +20,13 @@ typedef MessageContentCreator = FutureOr<String?> Function(
 
 class ChatSendMessageHelper {
   static Future<String?> sendMessage({
-    required ChatSessionModel session,
+    required ChatSessionModelISAR session,
     required types.Message message,
     ChatSendingType sendingType = ChatSendingType.remote,
     MessageContentCreator? contentEncoder,
     MessageContentCreator? sourceCreator,
+    String? replaceMessageId,
+    Function(types.Message)? successCallback,
   }) async {
     // prepare data
     var sendFinish = OXValue(false);
@@ -36,7 +38,7 @@ class ChatSendMessageHelper {
 
     types.Message sendMsg = message;
 
-    if (sendingType == ChatSendingType.remote) {
+    if (sendingType == ChatSendingType.remote || sendingType == ChatSendingType.store) {
       // create chat sender strategy
       final senderStrategy = ChatStrategyFactory.getStrategy(session);
       // for test
@@ -90,16 +92,15 @@ class ChatSendMessageHelper {
             'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
       );
 
-      senderStrategy
-          .doSendMessageAction(
+      senderStrategy.doSendMessageAction(
         messageType: type,
         contentString: contentString,
         replayId: replayId,
         decryptSecret: message.decryptKey,
         event: event,
         isLocal: sendingType != ChatSendingType.remote,
-      )
-          .then((event) async {
+        replaceMessageId: replaceMessageId,
+      ).then((event) async {
         sendFinish.value = true;
 
         final message =
@@ -115,7 +116,20 @@ class ChatSendMessageHelper {
       });
     }
 
-    ChatDataCache.shared.addNewMessage(session: session, message: sendMsg);
+    if (replaceMessageId != null && replaceMessageId.isNotEmpty) {
+      ChatDataCache.shared.updateMessage(
+        session: session,
+        message: sendMsg,
+        originMessageId: replaceMessageId,
+      );
+    } else {
+      ChatDataCache.shared.addNewMessage(
+        session: session,
+        message: sendMsg,
+      );
+    }
+
+    successCallback?.call(sendMsg);
 
     if (sendingType == ChatSendingType.remote) {
       // If the message is not sent within a short period of time, change the status to the sending state
@@ -126,7 +140,7 @@ class ChatSendMessageHelper {
   }
 
   static types.Message? tryTransferMessageFromText(
-    ChatSessionModel session,
+    ChatSessionModelISAR session,
     types.Message sendMsg,
     String sourceKey,
   ) {
@@ -192,7 +206,7 @@ class ChatSendMessageHelper {
   }
 
   static void updateMessageStatus(
-      ChatSessionModel session, types.Message message, types.Status status) {
+      ChatSessionModelISAR session, types.Message message, types.Status status) {
     final updatedMessage = message.copyWith(
       status: status,
     );
@@ -200,7 +214,7 @@ class ChatSendMessageHelper {
         .updateMessage(session: session, message: updatedMessage);
   }
 
-  static void _setMessageSendingStatusIfNeeded(ChatSessionModel session,
+  static void _setMessageSendingStatusIfNeeded(ChatSessionModelISAR session,
       OXValue<bool> sendFinish, types.Message message) {
     Future.delayed(const Duration(milliseconds: 500), () async {
       if (!sendFinish.value) {

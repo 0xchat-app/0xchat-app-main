@@ -16,7 +16,7 @@ import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 class ContactFriendRemarkPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   ContactFriendRemarkPage({Key? key, required this.userDB}) : super(key: key);
 

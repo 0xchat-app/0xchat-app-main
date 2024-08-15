@@ -23,7 +23,7 @@ enum FollowsFriendStatus {
 
 class DiyUserDB {
   bool isSelect;
-  UserDB db;
+  UserDBISAR db;
   DiyUserDB(this.isSelect, this.db);
 }
 
@@ -67,7 +67,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   void _getFollowList() async {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if(userInfo == null) return;
     await OXLoading.show();
     String pubKey = userInfo.pubKey;
@@ -220,7 +220,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   Widget _followsUserPicWidget(DiyUserDB userInfo) {
-    UserDB userDB = userInfo.db;
+    UserDBISAR userDB = userInfo.db;
     Widget picWidget;
     if ((userDB.picture != null && userDB.picture!.isNotEmpty)) {
       picWidget = OXCachedNetworkImage(
@@ -264,7 +264,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   );
 
   Widget _followsUserInfoWidget(DiyUserDB userInfo) {
-    UserDB userDB = userInfo.db;
+    UserDBISAR userDB = userInfo.db;
     String? nickName = userDB.nickName;
     String name = (nickName != null && nickName.isNotEmpty)
         ? nickName
@@ -443,7 +443,7 @@ class _ContactAddFollowsState extends State<ContactAddFollows> {
   }
 
   bool _isContacts(String pubKey) {
-    Map<String, UserDB> allContacts = Contacts.sharedInstance.allContacts;
+    Map<String, UserDBISAR> allContacts = Contacts.sharedInstance.allContacts;
     bool isContacts = allContacts[pubKey] != null;
     return isContacts;
   }

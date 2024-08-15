@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
-import 'package:ox_chat/model/recent_search_user.dart';
+import 'package:ox_chat/model/recent_search_user_isar.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/model/search_history_model.dart';
+import 'package:ox_chat/model/search_history_model_isar.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
@@ -17,7 +18,7 @@ import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/fade_page_route.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -30,6 +31,7 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:isar/isar.dart';
 
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 
@@ -77,7 +79,7 @@ enum SearchPageType {
 class SearchPageState extends State<SearchPage> {
   String searchQuery = '';
   List<Group> dataGroups = [];
-  List<UserDB> _selectedHistoryList = [];
+  List<UserDBISAR> _selectedHistoryList = [];
   List<SearchHistoryModel> _txtHistoryList = [];
   bool isSubpage = false;
   TextEditingController editingController = TextEditingController();
@@ -128,9 +130,12 @@ class SearchPageState extends State<SearchPage> {
         break;
       case SearchPageType.discover:
         loadOnlineChannelsDataAndClear();
+        _loadChannelsData();
+        _loadGroupsData();
         break;
       case SearchPageType.friendSeeMore:
       case SearchPageType.channelSeeMore:
+      case SearchPageType.groupSeeMore:
       case SearchPageType.messagesSeeMore:
         final defaultGroup = widget.defaultGroup;
         if (defaultGroup != null) {
@@ -162,8 +167,8 @@ class SearchPageState extends State<SearchPage> {
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
     // _txtHistoryList = await DB.sharedInstance.objects<SearchHistoryModel>();
-
-    final userList = await DB.sharedInstance.objects<RecentSearchUser>();
+    final isar = DBISAR.sharedInstance.isar;
+    final userList = await isar.recentSearchUserISARs.where().findAll();
     await Future.forEach(userList, (e) async {
       final user = await Account.sharedInstance.getUserInfo(e.pubKey);
       if (user != null) {
@@ -178,7 +183,7 @@ class SearchPageState extends State<SearchPage> {
 
 
   void _loadGroupsData() async {
-    List<GroupUIModel>? tempGroupList = SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
+    List<GroupUIModel>? tempGroupList = await SearchTxtUtil.loadChatGroupWithSymbol(searchQuery);
     if (tempGroupList != null && tempGroupList.length > 0) {
       dataGroups.add(
         Group(
@@ -193,7 +198,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadChannelsData() async {
-    List<ChannelDB>? tempChannelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
+    List<ChannelDBISAR>? tempChannelList = SearchTxtUtil.loadChatChannelsWithSymbol(searchQuery);
     if (tempChannelList != null && tempChannelList.length > 0) {
       dataGroups.add(
         Group(
@@ -208,7 +213,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _loadFriendsData() async {
-    List<UserDB>? tempFriendList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
+    List<UserDBISAR>? tempFriendList = SearchTxtUtil.loadChatFriendsWithSymbol(searchQuery);
     if (tempFriendList != null && tempFriendList.length > 0) {
       dataGroups.add(
         Group(
@@ -224,14 +229,14 @@ class SearchPageState extends State<SearchPage> {
 
   void _loadUsersData() async {
     if (searchQuery.startsWith('npub')) {
-      String? pubkey = UserDB.decodePubkey(searchQuery);
+      String? pubkey = UserDBISAR.decodePubkey(searchQuery);
       if (pubkey != null) {
-        UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+        UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
         dataGroups.add(
           Group(
               title: 'str_title_top_hins_contacts'.localized(),
               type: SearchItemType.friend,
-              items: List<UserDB>.from([user])),
+              items: List<UserDBISAR>.from([user])),
         );
       }
     }
@@ -257,6 +262,7 @@ class SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    return normalPage();
     return widget.searchPageType == SearchPageType.discover
         ? discoverPage()
         : normalPage();
@@ -289,7 +295,8 @@ class SearchPageState extends State<SearchPage> {
   String _showTitle() {
     if (widget.searchPageType == SearchPageType.friendSeeMore ||
         widget.searchPageType == SearchPageType.channelSeeMore ||
-        widget.searchPageType == SearchPageType.messagesSeeMore) {
+        widget.searchPageType == SearchPageType.messagesSeeMore ||
+        widget.searchPageType == SearchPageType.groupSeeMore) {
       return '\"${widget.searchText ?? ''}\"';
     } else if (widget.searchPageType == SearchPageType.singleSessionRelated) {
       return widget.chatMessage!.name;
@@ -356,7 +363,7 @@ class SearchPageState extends State<SearchPage> {
         },
         itemBuilder: (context, element) {
           final items = showingItems(element.items);
-          if (element.type == SearchItemType.friend && items is List<UserDB>) {
+          if (element.type == SearchItemType.friend && items is List<UserDBISAR>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -380,7 +387,7 @@ class SearchPageState extends State<SearchPage> {
                 );
               }).toList(),
             );
-          } else if (element.type == SearchItemType.channel && items is List<ChannelDB>) {
+          } else if (element.type == SearchItemType.channel && items is List<ChannelDBISAR>) {
             return Column(
               children: items.map((item) {
                 return _buildResultItemView(
@@ -466,7 +473,10 @@ class SearchPageState extends State<SearchPage> {
     final hasHistory =
         _selectedHistoryList.length > 0 || _txtHistoryList.length > 0;
     if (!hasHistory) {
-      String hintStr = Localized.text('ox_chat.search_tips_prefix') +
+      String hintStr = '';
+      if(widget.searchPageType == SearchPageType.discover) hintStr = Localized.text('ox_chat.search_tips_discovery');
+      else
+        hintStr = Localized.text('ox_chat.search_tips_prefix') +
           '${widget.searchPageType == SearchPageType.all ? Localized.text('ox_chat.search_tips_suffix_all') : ''}' +
           '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleFriend ? Localized.text('ox_chat.search_tips_suffix_friend') : ''}' +
           '${widget.searchPageType != SearchPageType.all && widget.searchPageType == SearchPageType.singleChannel ? Localized.text('ox_chat.search_tips_suffix_channel') : ''}';
@@ -530,7 +540,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildHistoryUserView() {
-    List<UserDB?> userList = []..addAll(_selectedHistoryList);
+    List<UserDBISAR?> userList = []..addAll(_selectedHistoryList);
     if (userList.length < 1) return SizedBox();
 
     if (userList.length > 4) {
@@ -664,6 +674,7 @@ class SearchPageState extends State<SearchPage> {
     final searchPageType = widget.searchPageType;
     if (searchPageType == SearchPageType.friendSeeMore ||
         searchPageType == SearchPageType.channelSeeMore ||
+        searchPageType == SearchPageType.groupSeeMore ||
         searchPageType == SearchPageType.messagesSeeMore) {
       return items;
     }
@@ -746,19 +757,23 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  Future<void> _updateSearchHistory(UserDB? userDB) async {
+  Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
-      await DB.sharedInstance.insertBatch<RecentSearchUser>(RecentSearchUser(
-        pubKey: userPubkey,
-      ));
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.recentSearchUserISARs
+            .put(RecentSearchUserISAR(pubKey: userPubkey));
+      });
     } else {
-      await DB.sharedInstance.insertBatch<SearchHistoryModel>(SearchHistoryModel(
-        searchTxt: searchQuery,
-        pubKey: userDB?.pubKey ?? null,
-        name: userDB?.name ?? null,
-        picture: userDB?.picture ?? null,
-      ));
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
+            .put(SearchHistoryModelISAR(
+                  searchTxt: searchQuery,
+                  pubKey: userDB?.pubKey ?? null,
+                  name: userDB?.name ?? null,
+                  picture: userDB?.picture ?? null,
+            ));
+      });
       LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }
@@ -776,11 +791,11 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  void _getGroupMembers(List<ChatSessionModel> list) async {
+  void _getGroupMembers(List<ChatSessionModelISAR> list) async {
     list.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
         List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
         avatars.removeWhere((element) => element.isEmpty);
         _groupMembersCache[groupId] = avatars;
@@ -788,12 +803,12 @@ class SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _gotoFriendSession(UserDB userDB) {
+  void _gotoFriendSession(UserDBISAR userDB) {
     _updateSearchHistory(userDB);
     OXNavigator.pushPage(
         context,
         (context) => ChatMessagePage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: userDB.pubKey,
                 chatName: userDB.name,
                 sender:
@@ -897,6 +912,16 @@ class SearchPageState extends State<SearchPage> {
         ),
       );
     }
+    else if (type == SearchItemType.groups) {
+      OXNavigator.pushPage(
+        context,
+            (context) => SearchPage(
+          searchText: searchQuery,
+          searchPageType: SearchPageType.groupSeeMore,
+          defaultGroup: group,
+        ),
+      );
+    }
   }
 
   void gotoChatGroupSession(GroupUIModel groupUIModel) {
@@ -904,7 +929,7 @@ class SearchPageState extends State<SearchPage> {
       OXNavigator.pushPage(
           context,
           (context) => ChatGroupMessagePage(
-                communityItem: ChatSessionModel(
+                communityItem: ChatSessionModelISAR(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
                   chatType: groupUIModel.chatType,
@@ -916,7 +941,7 @@ class SearchPageState extends State<SearchPage> {
       OXNavigator.pushPage(
           context,
           (context) => ChatRelayGroupMsgPage(
-                communityItem: ChatSessionModel(
+                communityItem: ChatSessionModelISAR(
                   chatId: groupUIModel.groupId,
                   chatName: groupUIModel.name,
                   chatType: groupUIModel.chatType,
@@ -927,11 +952,11 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void gotoChatChannelSession(ChannelDB channelDB) {
+  void gotoChatChannelSession(ChannelDBISAR channelDB) {
     OXNavigator.pushPage(
         context,
         (context) => ChatChannelMessagePage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: channelDB.channelId,
                 chatName: channelDB.name,
                 chatType: ChatType.chatChannel,
@@ -943,8 +968,12 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void _clearRecentSearches() async {
-    DB.sharedInstance.delete<SearchHistoryModel>();
-    DB.sharedInstance.delete<RecentSearchUser>();
+    final isar = DBISAR.sharedInstance.isar;
+    await isar.writeTxn(() async {
+      await isar.searchHistoryModelISARs.clear();
+      await isar.recentSearchUserISARs.clear();
+    });
+
     _selectedHistoryList.clear();
     _txtHistoryList.clear();
     searchQuery = '';

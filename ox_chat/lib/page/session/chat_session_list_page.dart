@@ -15,11 +15,12 @@ import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
+import 'package:ox_chat/widget/relay_info_widget.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/model/msg_notification_model.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -61,14 +62,16 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
-  int _pageNum = 1; // Page number
-  List<ChatSessionModel> _msgDatas = []; // Message List
+  List<ChatSessionModelISAR> _msgDatas = []; // Message List
   List<CommunityMenuOptionModel> _menuOptionModelList = [];
-  Map<String, BadgeDB> _badgeCache = {};
+  Map<String, BadgeDBISAR> _badgeCache = {};
   Map<String, bool> _muteCache = {};
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
+  final GlobalKey<RelayInfoWidgetState> _relayInfoKey = GlobalKey<RelayInfoWidgetState>();
+  double _nameMaxW = Adapt.screenW() - (48 + 60 + 36 + 50).px;
+  double _subTitleMaxW = Adapt.screenW() - (48 + 60 + 36 + 30).px;
 
   final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
 
@@ -76,7 +79,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   void initState() {
     super.initState();
     Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
-      if(mounted) setState(() {});
+      if(mounted) _relayInfoKey.currentState?.refresh();
     });
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
@@ -120,7 +123,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     ChatLogUtils.info(className: 'ChatSessionListPage', funcName: 'didLoginSuccess', message: '');
     updateStateView(CommonStateView.CommonStateView_None);
     if (this.mounted) {
@@ -138,10 +141,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     if (this.mounted) {
       setState(() {
-        _msgDatas.clear();
         _merge();
       });
     }
@@ -167,7 +169,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (mounted) setState(() {});
   }
 
-  void didPromptToneCallBack(MessageDB message, int type) async {
+  void didPromptToneCallBack(MessageDBISAR message, int type) async {
     if (PromptToneManager.sharedInstance.isCurrencyChatPage != null && PromptToneManager.sharedInstance.isCurrencyChatPage!(message)) return;
     bool isMute = await _checkIsMute(message, type);
     if (!isMute && OXUserInfoManager.sharedInstance.canSound)
@@ -205,35 +207,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
               )),
           actions: <Widget>[
-            _isLogin ? SizedBox(
-              height: Adapt.px(24),
-              child: GestureDetector(
-                onTap: () {
-                  OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CommonImage(
-                      iconName: 'icon_relay_connected_amount.png',
-                      width: Adapt.px(24),
-                      height: Adapt.px(24),
-                      fit: BoxFit.fill,
-                    ),
-                    SizedBox(
-                      width: Adapt.px(4),
-                    ),
-                    Text(
-                      '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
-                      style: TextStyle(
-                        fontSize: Adapt.px(14),
-                        color: ThemeColor.color100,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ) : SizedBox(),
+            if (_isLogin)
+              RelayInfoWidget(key: _relayInfoKey),
             SizedBox(
               width: Adapt.px(24),
             ),
@@ -397,7 +372,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   void _updateReadStatus() {
     int readCount = 0;
-    for (ChatSessionModel i in _msgDatas) {
+    for (ChatSessionModelISAR i in _msgDatas) {
       if (i.unreadCount > 0) {
         readCount += i.unreadCount;
       }
@@ -409,7 +384,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
 
   Widget _buildListViewItem(context, int index) {
     if(index >= _msgDatas.length) return SizedBox();
-    ChatSessionModel item = _msgDatas[index];
+    ChatSessionModelISAR item = _msgDatas[index];
     GlobalKey tempKey = GlobalKey(debugLabel: index.toString());
     // ChatLogUtils.info(
     //     className: 'ChatSessionListPage',
@@ -454,15 +429,10 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                                   if (item.chatType == ChatType.chatSecret) {
                                     Contacts.sharedInstance.close(item.chatId);
                                   } else if (item.chatType == ChatType.chatSingle) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: '(sessionId IS NULL OR sessionId = "") AND ((sender = ? AND receiver = ? ) OR (sender = ? AND receiver = ? )) ',
-                                      whereArgs: [item.sender, item.receiver, item.receiver, item.sender],
-                                    );
+                                    Messages.deleteSingleChatMessagesFromDB(item.sender, item.receiver);
+                                    Messages.deleteSingleChatMessagesFromDB(item.receiver, item.sender);
                                   } else if (item.chatType == ChatType.chatChannel) {
-                                    Messages.deleteMessagesFromDB(
-                                      where: ' groupId = ? ',
-                                      whereArgs: [item.groupId],
-                                    );
+                                    Messages.deleteGroupMessagesFromDB(item.groupId);
                                   }
                                   if (count > 0) {
                                     setState(() {
@@ -546,7 +516,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Widget _getMsgIcon(ChatSessionModel item) {
+  Widget _getMsgIcon(ChatSessionModelISAR item) {
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
@@ -576,7 +546,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ? Positioned(
                     bottom: 0,
                     right: 0,
-                    child: FutureBuilder<BadgeDB?>(
+                    child: FutureBuilder<BadgeDBISAR?>(
                       initialData: _badgeCache[item.chatId],
                       builder: (context, snapshot) {
                         return (snapshot.data != null)
@@ -603,7 +573,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  Widget _buildItemName(ChatSessionModel item) {
+  Widget _buildItemName(ChatSessionModelISAR item) {
     String showName = ChatSessionUtils.getChatName(item);
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),
@@ -640,12 +610,12 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               ],
             )
           : MyText(showName, 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600),
-      constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
+      constraints: BoxConstraints(maxWidth: _nameMaxW),
       // width: Adapt.px(135),
     );
   }
 
-  Widget _buildBusinessInfo(ChatSessionModel item) {
+  Widget _buildBusinessInfo(ChatSessionModelISAR item) {
     return MaterialButton(
         padding: EdgeInsets.only(top: Adapt.px(12), left: Adapt.px(16), bottom: Adapt.px(12), right: Adapt.px(16)),
         minWidth: 30.0,
@@ -671,20 +641,19 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                           Row(
                             children: <Widget>[
                               _buildItemName(item),
-                              _getChatSessionMute(item)
-                                  ? CommonImage(
-                                iconName: 'icon_session_mute.png',
-                                width: Adapt.px(16),
-                                height: Adapt.px(16),
-                                package: 'ox_chat',
-                              )
-                                  : Container(),
+                              if (_getChatSessionMute(item))
+                                CommonImage(
+                                  iconName: 'icon_session_mute.png',
+                                  width: Adapt.px(16),
+                                  height: Adapt.px(16),
+                                  package: 'ox_chat',
+                                ),
                             ],
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: Adapt.px(5)),
                             child: Container(
-                              constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 30)),
+                              constraints: BoxConstraints(maxWidth: _subTitleMaxW),
                               child: _buildItemSubtitle(item),
                             ),
                           ),
@@ -705,56 +674,19 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: 0),
-                  child: Text(item.createTime == null ? '' : OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
+                  child: Text(OXDateUtils.convertTimeFormatString2(item.createTime* 1000, pattern: 'MM-dd'),
                       textAlign: TextAlign.left, maxLines: 1, style: _Style.newsContentSub()),
                 ),
               ],
             ),
           ],
         ),
-        onPressed: () async {
-          _setAllRead(item);
-          if (item.chatType == 9999) {
-            _routeCustomService();
-          } else if (item.chatType == ChatType.chatRelayGroup) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatRelayGroupMsgPage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatGroup) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatGroupMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatChannel) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatChannelMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatSecret) {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatSecretMessagePage(
-                      communityItem: item,
-                    ));
-          } else if (item.chatType == ChatType.chatNotice) {
-            OXNavigator.pushPage(context, (context) => ContactRequest());
-          } else {
-            OXNavigator.pushPage(
-                context,
-                (context) => ChatMessagePage(
-                      communityItem: item,
-                    )).then((value) {
-              _merge();
-            });
-          }
+        onPressed: () {
+          _itemFn(item);
         });
   }
 
-  Widget _buildItemSubtitle(ChatSessionModel announceItem) {
+  Widget _buildItemSubtitle(ChatSessionModelISAR announceItem) {
     final isMentioned = announceItem.isMentioned;
     if (isMentioned) {
       return RichText(
@@ -794,7 +726,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  String getLastMessageStr(MessageDB? messageDB) {
+  String getLastMessageStr(MessageDBISAR? messageDB) {
     if (messageDB == null) {
       return '';
     }
@@ -810,7 +742,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  void _setAllRead(ChatSessionModel item) {
+  void _setAllRead(ChatSessionModelISAR item) {
     setState(() {
       item.unreadCount = 0;
       _updateReadStatus();
@@ -818,11 +750,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     OXChatBinding.sharedInstance.updateChatSession(item.chatId ?? '', unreadCount: 0);
   }
 
-  void _routeCustomService() async {
-    CommonToast.instance.show(context, Localized.text('ox_chat.services'));
-  }
-
-  bool _getChatSessionMute(ChatSessionModel item) {
+  bool _getChatSessionMute(ChatSessionModelISAR item) {
     bool isMute = ChatSessionUtils.getChatMute(item);
     if (isMute != _muteCache[item.chatId]) {
       _muteCache[item.chatId] = isMute;
@@ -830,7 +758,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     return isMute;
   }
 
-  Widget _buildReadWidget(ChatSessionModel item) {
+  Widget _buildReadWidget(ChatSessionModelISAR item) {
     int read = item.unreadCount;
     bool isMute = _getChatSessionMute(item);
     if (isMute) {
@@ -938,9 +866,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(ChatSessionModel announceListItem) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(ChatSessionModelISAR announceListItem) async {
     final chatId = announceListItem.chatId ?? '';
-    UserDB? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
+    UserDBISAR? friendUserDB = await Account.sharedInstance.getUserInfo(chatId);
     if (friendUserDB == null) {
       return null;
     }
@@ -948,9 +876,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
@@ -969,33 +897,33 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     }
   }
 
-  Future<bool> _checkIsMute(MessageDB message, int type) async {
+  Future<bool> _checkIsMute(MessageDBISAR message, int type) async {
     bool isMute = false;
     switch (type) {
       case ChatType.chatChannel:
-        ChannelDB? channelDB = Channels.sharedInstance.channels[message.groupId];
+        ChannelDBISAR? channelDB = Channels.sharedInstance.channels[message.groupId];
         isMute = channelDB?.mute ?? false;
         return isMute;
       case ChatType.chatGroup:
-        GroupDB? groupDB = Groups.sharedInstance.myGroups[message.groupId];
+        GroupDBISAR? groupDB = Groups.sharedInstance.myGroups[message.groupId];
         isMute = groupDB?.mute ?? false;
         return isMute;
       case ChatType.chatRelayGroup:
-        RelayGroupDB? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
+        RelayGroupDBISAR? relayGroupDB = RelayGroup.sharedInstance.myGroups[message.groupId];
         isMute = relayGroupDB?.mute ?? false;
         return isMute;
       default:
-        UserDB? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
+        UserDBISAR? tempUserDB = await Account.sharedInstance.getUserInfo(message.sender);
         isMute = tempUserDB?.mute ?? false;
         return isMute;
     }
   }
 
-  void _getGroupMembers(List<ChatSessionModel> chatSessionModelList) async {
+  void _getGroupMembers(List<ChatSessionModelISAR> chatSessionModelList) async {
     chatSessionModelList.forEach((element) async {
       if (element.chatType == ChatType.chatGroup) {
         final groupId = element.groupId ?? '';
-        List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+        List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
         List<String> avatars = groupList.map((element) => element.picture ?? '').toList();
         avatars.removeWhere((element) => element.isEmpty);
         _groupMembersCache[groupId] = avatars;
@@ -1004,9 +932,9 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   void _getMergeStrangerSession() {
-    List<ChatSessionModel> strangerSessionList = OXChatBinding.sharedInstance.strangerSessionList;
+    List<ChatSessionModelISAR> strangerSessionList = OXChatBinding.sharedInstance.strangerSessionList;
     if (strangerSessionList.isNotEmpty) {
-      ChatSessionModel mergeStrangerSession = ChatSessionModel();
+      ChatSessionModelISAR mergeStrangerSession = ChatSessionModelISAR();
       int latestCreateTime = 0;
       for (var session in strangerSessionList) {
         if (session.createTime > latestCreateTime) {
@@ -1014,7 +942,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         }
       }
 
-      UserDB? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey]?.value;
+      UserDBISAR? user = Account.sharedInstance.userCache[strangerSessionList.first.getOtherPubkey]?.value;
       String userShowName = user?.getUserShowName() ?? '';
       String content = strangerSessionList.length > 1 ? '$userShowName... and other ${strangerSessionList.length} chats' : '$userShowName';
 
@@ -1039,6 +967,32 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       Contacts.sharedInstance.close(id);
     });
     return count;
+  }
+
+  void _itemFn(ChatSessionModelISAR item) async {
+    _setAllRead(item);
+    switch(item.chatType){
+      case ChatType.chatRelayGroup:
+        OXNavigator.pushPage(context, (context) => ChatRelayGroupMsgPage(communityItem: item));
+        break;
+      case ChatType.chatGroup:
+        OXNavigator.pushPage(context, (context) => ChatGroupMessagePage(communityItem: item));
+        break;
+      case ChatType.chatChannel:
+        OXNavigator.pushPage(context, (context) => ChatChannelMessagePage(communityItem: item));
+        break;
+      case ChatType.chatSecret:
+        OXNavigator.pushPage(context, (context) => ChatSecretMessagePage(communityItem: item));
+        break;
+      case ChatType.chatNotice:
+        OXNavigator.pushPage(context, (context) => ContactRequest());
+        break;
+      default:
+        OXNavigator.pushPage(context, (context) => ChatMessagePage(communityItem: item)).then((value) {
+          _merge();
+        });
+        break;
+    }
   }
 }
 

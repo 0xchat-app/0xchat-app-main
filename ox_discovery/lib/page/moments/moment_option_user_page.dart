@@ -1,11 +1,9 @@
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ox_common/model/chat_session_model.dart';
-import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -14,18 +12,18 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_discovery/model/moment_extension_model.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import '../../enum/moment_enum.dart';
 import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 
 class MomentOptionUserPage extends StatefulWidget {
-  final ValueNotifier<NotedUIModel> notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final ENotificationsMomentType type;
 
   const MomentOptionUserPage(
@@ -36,11 +34,11 @@ class MomentOptionUserPage extends StatefulWidget {
 }
 
 class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
-  List<NotedUIModel> showUserDBList = [];
+  List<ValueNotifier<NotedUIModel?>> showUserDBList = [];
 
-  Map<String,NotedUIModel> get showUserDBListMap {
-    Map<String,NotedUIModel> map = {};
-    showUserDBList.map((NotedUIModel notedUIModel) => map[notedUIModel.noteDB.author] = notedUIModel).toList();
+  Map<String,ValueNotifier<NotedUIModel?>> get showUserDBListMap {
+    Map<String,ValueNotifier<NotedUIModel?>> map = {};
+    showUserDBList.map((ValueNotifier<NotedUIModel?> notedUIModel) => map[notedUIModel.value?.noteDB.author ?? ''] = notedUIModel).toList();
     return map;
   }
 
@@ -51,7 +49,9 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
   }
 
   void _init() async {
-    NoteDB noteDB = widget.notedUIModel.value.noteDB;
+
+    NoteDBISAR? noteDB = widget.notedUIModel.value?.noteDB;
+    if(noteDB == null) return;
     List<dynamic> list = [];
       switch (widget.type) {
         case ENotificationsMomentType.zaps:
@@ -77,21 +77,22 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
       }
   }
 
-  List<NotedUIModel> _getUserList(List<dynamic> list) {
+  List<ValueNotifier<NotedUIModel?>> _getUserList(List<dynamic> list) {
     return list.map((dynamic noteDB) {
       if (widget.type == ENotificationsMomentType.zaps) {
-        ZapRecordsDB zapRecordsDB = noteDB as ZapRecordsDB;
+        ZapRecordsDBISAR zapRecordsDB = noteDB as ZapRecordsDBISAR;
         String content =
-            '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDB.getZapAmount(zapRecordsDB.bolt11)}';
-        return NotedUIModel(
-          noteDB: NoteDB(
+            '${Localized.text('ox_discovery.zaps')} +${ZapRecordsDBISAR.getZapAmount(zapRecordsDB.bolt11)}';
+        return ValueNotifier(NotedUIModel(
+          noteDB: NoteDBISAR(
             noteId: zapRecordsDB.eventId,
             author: zapRecordsDB.sender,
             content: content,
           ),
-        );
+        ));
       }
-      return NotedUIModel(noteDB: noteDB as NoteDB);
+      List<ValueNotifier<NotedUIModel?>> newNoted = OXMomentCacheManager.sharedInstance.saveValueNotifierNote([noteDB]);
+      return newNoted[0];
     }).toList();
   }
 
@@ -169,7 +170,7 @@ class _MomentOptionUserPageState extends State<MomentOptionUserPage> {
 }
 
 class MomentUserItemWidget extends StatefulWidget {
-  final NotedUIModel notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final ENotificationsMomentType type;
   const MomentUserItemWidget(
       {super.key, required this.notedUIModel, required this.type});
@@ -179,8 +180,8 @@ class MomentUserItemWidget extends StatefulWidget {
 }
 
 class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
-  UserDB? user;
-  NotedUIModel? notedUIModel;
+  UserDBISAR? user;
+  ValueNotifier<NotedUIModel?>? notedUIModel;
   @override
   void initState() {
     super.initState();
@@ -198,31 +199,37 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
 
     if (widget.type == ENotificationsMomentType.quote) {
       notedUIModel = widget.notedUIModel;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
     }
 
     if (widget.type == ENotificationsMomentType.zaps) {
       notedUIModel = widget.notedUIModel;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+      _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
     }
   }
 
   void _initReposted() async {
-    NoteDB? note = await Moment.sharedInstance
-        .loadNoteWithNoteId(widget.notedUIModel.noteDB.repostId!);
-    if (note != null) {
-      NotedUIModel newNoted = NotedUIModel(noteDB: note);
-      notedUIModel = newNoted;
-      _getUserDB(widget.notedUIModel.noteDB.author);
+    ValueNotifier<NotedUIModel?> modelNotifier = widget.notedUIModel;
+    if(modelNotifier.value == null) return;
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      modelNotifier.value!.noteDB.repostId!,
+      isUpdateCache: true,
+      notedUIModel: modelNotifier.value,
+    );
+
+    if(noteNotifier.value != null){
+      notedUIModel = noteNotifier;
+      _getUserDB(modelNotifier.value!.noteDB.author);
     }
   }
 
   void _initLike() async {
-    _getUserDB(widget.notedUIModel.noteDB.author);
+
+    _getUserDB(widget.notedUIModel.value?.noteDB.author ?? '');
   }
 
   void _getUserDB(String pubKey) async {
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubKey);
     if (userDB != null) {
       user = userDB;
       if(mounted){
@@ -232,8 +239,8 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   String get _getContent {
-    if(widget.type == ENotificationsMomentType.repost) return '';
-    return notedUIModel?.getMomentShowContent ?? '';
+    if(widget.type == ENotificationsMomentType.repost || notedUIModel?.value == null) return '';
+    return notedUIModel?.value!.getMomentShowContent ?? '';
   }
 
   @override
@@ -242,8 +249,10 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   Widget _userItemWidget() {
-    String pubKey = widget.notedUIModel.noteDB.author;
-    return ValueListenableBuilder<UserDB>(
+    ValueNotifier<NotedUIModel?> modelNotifier = widget.notedUIModel;
+    if(modelNotifier.value == null) return const SizedBox();
+    String pubKey = widget.notedUIModel.value!.noteDB.author;
+    return ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Container(
@@ -259,7 +268,6 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
                         context, 'ox_chat', 'ContactUserInfoPage', {
                       'pubkey': pubKey,
                     });
-                    setState(() {});
                   },
                   child: MomentWidgetsUtils.clipImage(
                     borderRadius: 60.px,
@@ -342,28 +350,31 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _clickMoment() async {
-    NotedUIModel? model = notedUIModel;
+    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
 
-    if (model == null) return;
+    if (modelNotifier == null || modelNotifier.value == null) return;
 
     if (widget.type == ENotificationsMomentType.zaps || widget.type == ENotificationsMomentType.quote) {
-      _getNoteToMomentPage(model.noteDB.noteId);
+      _getNoteToMomentPage(modelNotifier.value!.noteDB.noteId);
     }
 
   }
 
   void _getNoteToMomentPage(String noteId) async {
-    NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
-    if (note == null) return;
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      noteId,
+    );
+
+    if (noteNotifier.value == null) return;
     OXNavigator.pushPage(
       context,
       (context) => MomentsPage(
-        notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
+        notedUIModel: noteNotifier,
       ),
     );
   }
 
-  Widget _addFriendWidget(UserDB userDB) {
+  Widget _addFriendWidget(UserDBISAR userDB) {
     if (isFriend(userDB.pubKey)) return const SizedBox();
 
     return GestureDetector(
@@ -401,7 +412,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _addFriends() async {
-    UserDB? userDB = user;
+    UserDBISAR? userDB = user;
     if (userDB == null) return;
 
     if (isFriend(userDB.pubKey) == false) {
@@ -435,7 +446,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   bool isFriend(String pubKey) {
-    UserDB? user = Contacts.sharedInstance.allContacts[pubKey];
+    UserDBISAR? user = Contacts.sharedInstance.allContacts[pubKey];
     return user != null;
   }
 }

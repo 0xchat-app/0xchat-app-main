@@ -1,27 +1,26 @@
 import 'dart:io';
+
+import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/date_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
+import 'package:ox_common/utils/aes_encrypt_utils.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_usercenter/utils/import_data_tools.dart';
 import 'package:ox_usercenter/utils/widget_tool.dart';
-import 'package:chatcore/chat-core.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pick_or_save/pick_or_save.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 ///Title:
 ///Description: TODO(自填)
@@ -31,12 +30,24 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 class DatabaseHelper{
 
   static void exportDB(BuildContext context) async {
-    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
-    if (isChanged) {
-      String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-      String dbFilePath = await DB.sharedInstance.getDatabaseFilePath(pubkey + '.db2');
+    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    String dbpwisar = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpwisar+$pubkey', defaultValue: '');
+    if (dbpwisar.isNotEmpty) {
+
+      Directory directory = Platform.isAndroid
+          ? await getApplicationDocumentsDirectory()
+          : await getLibraryDirectory();
+      String dbFilePath = directory.path + '/' + pubkey + '.isar';
       final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
-      FileUtils.exportFile(dbFilePath, fileName);
+
+      File dbEncryptedFile = FileUtils.createFolderAndFile(directory.path, pubkey + '_encrypt.isar');
+      String dbEncryptPath = dbEncryptedFile.path;
+      AesEncryptUtils.encryptFileGeneral(File(dbFilePath), dbEncryptedFile, dbpwisar);
+      await FileUtils.exportFile(dbEncryptPath, fileName);
+      if (await dbEncryptedFile.exists()) {
+        await dbEncryptedFile.delete();
+        print('File deleted: ${dbEncryptedFile.path}');
+      }
       if (Platform.isAndroid) {
         CommonToast.instance.show(context, 'str_export_success'.localized());
       }
@@ -46,8 +57,9 @@ class DatabaseHelper{
   }
 
   static void importDB(BuildContext context) async {
-    bool isChanged = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_CHANGE_DEFAULT_DB_PW, defaultValue: false);
-    if (!isChanged) {
+    String pubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
+    String dppw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpwisar+$pubkey', defaultValue: '');
+    if (dppw.isEmpty) {
       confirmDialog(context, Localized.text('ox_common.tips'), 'str_change_default_pw_hint'.localized(), (){OXNavigator.pop(context);});
       return;
     }
@@ -79,26 +91,23 @@ class DatabaseHelper{
 
   static Future<void> importDatabase(BuildContext context, String path) async {
     String pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    String currentDBPW = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubKey', defaultValue: '');
-    String dbNewPath = await DB.sharedInstance.getDatabaseFilePath('imported_database.db');
-    String dbOldPath = await DB.sharedInstance.getDatabaseFilePath(pubKey + '.db2');
-    await File(path).copy(dbNewPath);
+    String currentDBPW = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpwisar+$pubKey', defaultValue: '');
+
+    Directory directory = Platform.isAndroid
+        ? await getApplicationDocumentsDirectory()
+        : await getLibraryDirectory();
+    File dbDecryptedFile = FileUtils.createFolderAndFile(directory.path, pubKey + '_decrypt.isar');
+    String dbOldPath = directory.path + '/' + pubKey + '.isar';
     try {
-      await DB.sharedInstance.closDatabase();
-      await DB.sharedInstance.open('imported_database.db', version: CommonConstant.dbVersion, password: currentDBPW);
+      AesEncryptUtils.decryptFileGeneral(File(path), dbDecryptedFile, currentDBPW);
     } catch (e) {
       confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
-      return;
-    }
-    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (userConfigDB == null || pubKey != userConfigDB.pubKey){
-      confirmDialog(context, 'str_import_db_error_title'.localized(), 'str_import_db_error_hint'.localized(), (){OXNavigator.pop(context);});
       return;
     }
     await DB.sharedInstance.closDatabase();
 
     await ImportDataTools.importTableData(
-      sourceDBPath: dbNewPath,
+      sourceDBPath: dbDecryptedFile.path,
       sourceDBPwd: currentDBPW,
       targetDBPath: dbOldPath,
       targetDBPwd: currentDBPW,
@@ -107,7 +116,7 @@ class DatabaseHelper{
     OXUserInfoManager.sharedInstance.resetData();
     await OXUserInfoManager.sharedInstance.initLocalData();
 
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, true);
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
   }
 
@@ -202,7 +211,7 @@ class DatabaseHelper{
               OXNavigator.pop(context, true);
               try {
                 await OXLoading.show();
-                await DefaultCacheManager().emptyCache();//clearCachedImages
+                await OXFileCacheManager.emptyCache();
                 await clearCache();
                 CommonToast.instance.show(context, 'str_file_delected'.localized());
               } catch (e) {

@@ -8,6 +8,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -53,9 +54,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
 
   void _loadData() async {
     _databaseModelList = DatabaseSetModel.getUIListData();
-    _selectedTimeCode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, defaultValue: TimeType.never.code);
+    _selectedTimeCode = UserConfigTool.getSetting(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME_TYPE.name, defaultValue: TimeType.never.code);
     _selectedTimeType = getType(_selectedTimeCode);
-    _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, defaultValue: true);
+    _chatRunStatus = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, defaultValue: true);
     setState(() {});
   }
 
@@ -279,9 +280,9 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
       );
     } else {
       await _onChangedChatRunStatus(value);
-      bool isImportDB = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, defaultValue: false);
+      bool isImportDB = UserConfigTool.getSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, defaultValue: false);
       if (isImportDB) {
-        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_IMPORT_DB, false);
+        UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, false);
         OXNavigator.pop(context);
       }
     }
@@ -296,7 +297,7 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
       } else {
         Account.sharedInstance.closeAllRelays();
       }
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, _chatRunStatus);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, _chatRunStatus);
     }
     await OXLoading.dismiss();
     setState(() {});
@@ -326,8 +327,8 @@ class DatabaseSettingPageState extends State<DatabaseSettingPage> {
     );
     if (result != null && result is TimeType) {
       _selectedTimeType = result;
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME_TYPE, _selectedTimeType.code);
-      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_MSG_DELETE_TIME, _selectedTimeType.value);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME_TYPE.name, _selectedTimeType.code);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME.name, _selectedTimeType.value);
       CommonToast.instance.show(context, 'str_set_success'.localized());
       setState(() {});
     }

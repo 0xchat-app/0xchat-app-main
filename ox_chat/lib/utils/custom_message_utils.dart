@@ -4,6 +4,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
+import 'package:ox_common/utils/string_utils.dart';
 
 extension CustomMessageEx on types.CustomMessage {
 
@@ -19,28 +20,22 @@ extension CustomMessageEx on types.CustomMessage {
     required String amount,
     required String description,
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.zaps.value,
-      CustomMessageEx.metaContentKey: {
-        'zapper': zapper,
-        'invoice': invoice,
-        'amount': amount,
-        'description': description,
-      },
-    };
+    return _metaData(CustomMessageType.zaps, {
+      'zapper': zapper,
+      'invoice': invoice,
+      'amount': amount,
+      'description': description,
+    });
   }
 
   static Map<String, dynamic> callMetaData({
     required String text,
     required CallMessageType type,
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.call.value,
-      CustomMessageEx.metaContentKey: {
-        'text': text,
-        'type': type.value,
-      },
-    };
+    return _metaData(CustomMessageType.call, {
+      'text': text,
+      'type': type.value,
+    });
   }
 
   static Map<String, dynamic> templateMetaData({
@@ -49,15 +44,12 @@ extension CustomMessageEx on types.CustomMessage {
     required String icon,
     required String link,
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.template.value,
-      CustomMessageEx.metaContentKey: {
-        'title': title,
-        'content': content,
-        'icon': icon,
-        'link': link,
-      },
-    };
+    return _metaData(CustomMessageType.template, {
+      'title': title,
+      'content': content,
+      'icon': icon,
+      'link': link,
+    });
   }
 
   static Map<String, dynamic> noteMetaData({
@@ -69,31 +61,25 @@ extension CustomMessageEx on types.CustomMessage {
     required String image,
     required String link,
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.note.value,
-      CustomMessageEx.metaContentKey: {
-        'authorIcon': authorIcon,
-        'authorName': authorName,
-        'authorDNS': authorDNS,
-        'createTime': createTime,
-        'note': note,
-        'image': image,
-        'link': link,
-      },
-    };
+    return _metaData(CustomMessageType.note, {
+      'authorIcon': authorIcon,
+      'authorName': authorName,
+      'authorDNS': authorDNS,
+      'createTime': createTime,
+      'note': note,
+      'image': image,
+      'link': link,
+    });
   }
 
   static Map<String, dynamic> ecashMetaData({
     required List<String> tokenList,
     String isOpened = '',
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.ecash.value,
-      CustomMessageEx.metaContentKey: {
-        EcashMessageEx.metaTokenListKey: tokenList,
-        EcashMessageEx.metaIsOpenedKey: isOpened,
-      },
-    };
+    return _metaData(CustomMessageType.ecash, {
+      EcashMessageEx.metaTokenListKey: tokenList,
+      EcashMessageEx.metaIsOpenedKey: isOpened,
+    });
   }
 
   static Map<String, dynamic> ecashV2MetaData({
@@ -103,25 +89,48 @@ extension CustomMessageEx on types.CustomMessage {
     String validityDate = '',
     String isOpened = '',
   }) {
-    return {
-      CustomMessageEx.metaTypeKey: CustomMessageType.ecashV2.value,
-      CustomMessageEx.metaContentKey: {
-        EcashV2MessageEx.metaTokenListKey: tokenList,
-        EcashV2MessageEx.metaIsOpenedKey: isOpened,
-        if (receiverPubkeys.isNotEmpty)
-          EcashV2MessageEx.metaReceiverPubkeysKey: receiverPubkeys,
-        if (signees.isNotEmpty)
-          EcashV2MessageEx.metaSigneesKey: signees.map((e) => {
-            EcashV2MessageEx.metaSigneesPubkeyKey: e.$1,
-            EcashV2MessageEx.metaSigneesSignatureKey: e.$2,
-          }).toList(),
-        if (validityDate.isNotEmpty)
-          EcashV2MessageEx.metaValidityDateKey: validityDate,
-      },
-    };
+    return _metaData(CustomMessageType.ecashV2, {
+      EcashV2MessageEx.metaTokenListKey: tokenList,
+      EcashV2MessageEx.metaIsOpenedKey: isOpened,
+      if (receiverPubkeys.isNotEmpty)
+        EcashV2MessageEx.metaReceiverPubkeysKey: receiverPubkeys,
+      if (signees.isNotEmpty)
+        EcashV2MessageEx.metaSigneesKey: signees.map((e) => {
+          EcashV2MessageEx.metaSigneesPubkeyKey: e.$1,
+          EcashV2MessageEx.metaSigneesSignatureKey: e.$2,
+        }).toList(),
+      if (validityDate.isNotEmpty)
+        EcashV2MessageEx.metaValidityDateKey: validityDate,
+    });
   }
 
+  static Map<String, dynamic> imageSendingMetaData({
+    String path = '',
+    String url = '',
+    int? width,
+    int? height,
+    String? encryptedKey,
+  }) {
+    return _metaData(CustomMessageType.imageSending, {
+      ImageSendingMessageEx.metaPathKey: path,
+      ImageSendingMessageEx.metaURLKey: url,
+      if (width != null)
+        ImageSendingMessageEx.metaWidthKey: width,
+      if (height != null)
+        ImageSendingMessageEx.metaHeightKey: height,
+      ImageSendingMessageEx.metaEncryptedKey: encryptedKey,
+    });
+  }
 
+  static Map<String, dynamic> _metaData(
+    CustomMessageType type,
+    Map<String, dynamic> content,
+  ) {
+    return {
+      CustomMessageEx.metaTypeKey: type.value,
+      CustomMessageEx.metaContentKey: content,
+    };
+  }
 
   String get customContentString {
     try {
@@ -377,4 +386,21 @@ extension EcashV2MessageEx on types.CustomMessage {
   void set isOpened(bool value) {
     metadata?[CustomMessageEx.metaContentKey]?[EcashV2MessageEx.metaIsOpenedKey] = value.toString();
   }
+}
+
+
+extension ImageSendingMessageEx on types.CustomMessage {
+  static const metaPathKey = 'path';
+  static const metaURLKey = 'url';
+  static const metaWidthKey = 'width';
+  static const metaHeightKey = 'height';
+  static const metaEncryptedKey = 'encrypted';
+
+  String get path => metadata?[CustomMessageEx.metaContentKey]?[metaPathKey] ?? '';
+  String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
+  int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
+  int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
+  String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
+
+  String get fileId => path.getFileName(withExtension: false) ?? '';
 }

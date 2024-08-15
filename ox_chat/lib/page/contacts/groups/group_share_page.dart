@@ -3,11 +3,12 @@ import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
@@ -35,7 +36,7 @@ class GroupSharePage extends StatefulWidget {
 
 class _GroupSharePageState extends State<GroupSharePage> {
   TextEditingController _groupJoinInfoText = TextEditingController();
-  UserDB? inviterUserDB = null;
+  UserDBISAR? inviterUserDB = null;
   bool requestTag = true;
   String _practicalGroupId = '';
 
@@ -53,12 +54,14 @@ class _GroupSharePageState extends State<GroupSharePage> {
   void _getInviterInfo() async {
     final pubKey = widget.inviterPubKey;
     if (pubKey != null && pubKey.isNotEmpty) {
-      UserDB? userDB = await Account.sharedInstance.getUserInfo(pubKey);
+      UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubKey);
       if (userDB != null) {
         inviterUserDB = userDB;
       }
     }
     switch (widget.groupType) {
+      case GroupType.channel:
+        break;
       case GroupType.privateGroup:
         _practicalGroupId = widget.groupId;
         break;
@@ -66,7 +69,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       case GroupType.closeGroup:
         SimpleGroups simpleGroups = RelayGroup.sharedInstance.getHostAndGroupId(widget.groupId);
         _practicalGroupId = simpleGroups.groupId;
-        RelayGroupDB? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
+        RelayGroupDBISAR? tempRelayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(widget.groupId);
         if (tempRelayGroupDB != null) {
           widget.groupName = tempRelayGroupDB.name;
           widget.groupPic = tempRelayGroupDB.picture;
@@ -74,7 +77,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
         }
         break;
     }
-    setState(() {});
+    if(mounted) setState(() {});
   }
 
   @override
@@ -384,7 +387,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.groupId,
             groupId: widget.groupId,
             chatType: ChatType.chatRelayGroup,
@@ -407,6 +410,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     } else {
       event = await RelayGroup.sharedInstance.joinGroup(widget.groupId, '${Account.sharedInstance.me?.name} join the group');
     }
+    OXUserInfoManager.sharedInstance.setNotification();
     OXLoading.dismiss();
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
@@ -416,7 +420,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.groupId,
             groupId: widget.groupId,
             chatType: ChatType.chatRelayGroup,
@@ -431,10 +435,10 @@ class _GroupSharePageState extends State<GroupSharePage> {
   }
 
   Future<void> _gotoGroupChat() async {
-    ChatSessionModel? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
+    ChatSessionModelISAR? session = OXChatBinding.sharedInstance.sessionMap[widget.groupId];
     int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
     if(session == null){
-      session = ChatSessionModel(
+      session = ChatSessionModelISAR(
         groupId: widget.groupId,
         chatType: ChatType.chatGroup,
         chatName: widget.groupName,
@@ -453,7 +457,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
       OXNavigator.pushReplacement(
         context,
         ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: _practicalGroupId,
             groupId: _practicalGroupId,
             chatType: ChatType.chatRelayGroup,

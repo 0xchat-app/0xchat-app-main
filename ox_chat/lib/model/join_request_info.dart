@@ -12,7 +12,7 @@ class JoinRequestInfo {
   final String groupName;
   final String userPic;
   bool isShowMore;
-  final JoinRequestDB joinRequestDB;
+  final JoinRequestDBISAR joinRequestDB;
 
   JoinRequestInfo({
     required this.userName,
@@ -23,10 +23,10 @@ class JoinRequestInfo {
     this.isShowMore = false,
   });
 
-  static Future<JoinRequestInfo> toUserRequestInfo(JoinRequestDB joinRequest) async {
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.groups[joinRequest.groupId];
+  static Future<JoinRequestInfo> toUserRequestInfo(JoinRequestDBISAR joinRequest) async {
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[joinRequest.groupId];
     String time = OXDateUtils.convertTimeFormatString2(joinRequest.createdAt * 1000, pattern: 'MM-dd');
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(joinRequest.author);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(joinRequest.author);
     return JoinRequestInfo(
       userName: userDB?.name ?? '--',
       createTime: time,

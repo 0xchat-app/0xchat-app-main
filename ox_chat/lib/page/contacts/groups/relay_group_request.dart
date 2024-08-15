@@ -25,9 +25,10 @@ import 'package:ox_localizable/ox_localizable.dart';
 ///@author Michael
 ///CreateTime: 2024/6/24 16:24
 class RelayGroupRequestsPage extends StatefulWidget {
-
+  final String? groupId;
   RelayGroupRequestsPage({
     super.key,
+    this.groupId,
   });
 
   @override
@@ -38,7 +39,7 @@ class RelayGroupRequestsPage extends StatefulWidget {
 
 class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with CommonStateViewMixin {
   Map<String, JoinRequestInfo> _requestMap = {};
-  Map<String, BadgeDB> _badgeCache = {};
+  Map<String, BadgeDBISAR> _badgeCache = {};
 
   @override
   void initState() {
@@ -53,13 +54,18 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   }
 
   void _initData() async {
-    List<JoinRequestDB> allRequestJoinList = [];
-    if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
-      await Future.forEach(tempGroups, (element) async {
-        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
-        allRequestJoinList.addAll(requestJoinList);
-      });
+    List<JoinRequestDBISAR> allRequestJoinList = [];
+    String? tempGroupId = widget.groupId;
+    if (tempGroupId != null) {
+      allRequestJoinList = await RelayGroup.sharedInstance.getRequestList(tempGroupId);
+    } else {
+      if(RelayGroup.sharedInstance.myGroups.length>0) {
+        List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+        await Future.forEach(tempGroups, (element) async {
+          List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+          allRequestJoinList.addAll(requestJoinList);
+        });
+      }
     }
     if (allRequestJoinList.isNotEmpty) {
       allRequestJoinList.sort((request1, request2) {
@@ -142,8 +148,8 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
                         text: Localized.text('ox_common.confirm'),
                         onTap: () async {
                           OXNavigator.pop(context);
-                          final int count = await RelayGroup.sharedInstance.ignoreJoinRequest(item.joinRequestDB);
-                          if (count > 0) {
+                          final result = await RelayGroup.sharedInstance.ignoreJoinRequest(item.joinRequestDB);
+                          if (result) {
                             _initData();
                           }
                         }),
@@ -256,7 +262,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
   }
 
   Widget _buildAvatar(JoinRequestInfo item) {
-    UserDB? otherDB = Account.sharedInstance.userCache[item.joinRequestDB.author]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[item.joinRequestDB.author]?.value;
     String showPicUrl = otherDB?.picture ?? '';
     return SizedBox(
       width: 60.px,
@@ -275,7 +281,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
           Positioned(
             bottom: 0,
             right: 0,
-            child: FutureBuilder<BadgeDB?>(
+            child: FutureBuilder<BadgeDBISAR?>(
               initialData: _badgeCache[item.joinRequestDB.requestId],
               builder: (context, snapshot) {
                 return (snapshot.data != null)
@@ -295,15 +301,15 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDB? otherDB) async {
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(JoinRequestInfo item, UserDBISAR? otherDB) async {
     if (otherDB == null) return null;
     String badges = otherDB.badges ?? '';
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");
@@ -403,7 +409,7 @@ class _RelayGroupRequestsPageState extends State<RelayGroupRequestsPage> with Co
     );
   }
 
-  void _requestJoinOption(JoinRequestDB joinRequestDB, RequestOption type) async {
+  void _requestJoinOption(JoinRequestDBISAR joinRequestDB, RequestOption type) async {
     if (RequestOption.accept == type) {
       await RelayGroup.sharedInstance..acceptJoinRequest(joinRequestDB);
     }

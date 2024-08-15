@@ -8,7 +8,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 
 class MomentRepostedTips extends StatefulWidget {
-  final NoteDB noteDB;
+  final NoteDBISAR? noteDB;
   const MomentRepostedTips({
     super.key,
     required this.noteDB,
@@ -36,7 +36,8 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
   }
 
   void _getMomentUserInfo()async {
-    String pubKey = widget.noteDB.author;
+    if(widget.noteDB == null) return;
+    String pubKey = widget.noteDB!.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
@@ -45,10 +46,12 @@ class _MomentRepostedTipsState extends State<MomentRepostedTips> {
 
   @override
   Widget build(BuildContext context) {
-    String? repostId = widget.noteDB.repostId;
+    NoteDBISAR? noteDB = widget.noteDB;
+    if(noteDB == null ) return const SizedBox();
+    String? repostId = noteDB.repostId;
     if (repostId == null || repostId.isEmpty) return const SizedBox();
-    String pubKey = widget.noteDB.author;
-    return ValueListenableBuilder<UserDB>(
+    String pubKey = noteDB.author;
+    return ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Row(

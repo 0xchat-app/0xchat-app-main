@@ -9,6 +9,8 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart';
+import '../model/moment_extension_model.dart';
+import '../model/moment_ui_model.dart';
 import 'moment_content_analyze_utils.dart';
 import 'dart:math' as Math;
 import 'moment_widgets_utils.dart';
@@ -56,7 +58,7 @@ class DiscoveryUtils {
   }
 
   static Future<String> getAvatar(String pubkey) async {
-    UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
     return user?.picture ?? '';
   }
 
@@ -70,18 +72,18 @@ class DiscoveryUtils {
   }
 
   // [fullName,dns]
-  static List<String> getUserMomentInfo(UserDB? user, String time) {
-    if (user == null) return [time,''];
+  static List<String> getUserMomentInfo(UserDBISAR? user, String time) {
+    if (user == null) return [time, ''];
     String dns = '';
     String? dnsStr = user.dns;
 
     dns = dnsStr != null && dnsStr.isNotEmpty && dnsStr != 'null'
         ? dnsStr
         : user.encodedPubkey.substring(0, 10);
-    if(dns.length > 20){
+    if (dns.length > 20) {
       dns = dns.substring(0, 7) + '...' + dns.substring(dns.length - 7);
     }
-    return ['$dns · $time',dns];
+    return ['$dns · $time', dns];
   }
 
   static List<String> momentContentSplit(String input) {
@@ -90,7 +92,8 @@ class DiscoveryUtils {
 
     RegExp noteExp = MomentContentAnalyzeUtils.regexMap['noteExp'] as RegExp;
     RegExp naddrExp = MomentContentAnalyzeUtils.regexMap['naddrExp'] as RegExp;
-    RegExp lightningInvoiceExp = MomentContentAnalyzeUtils.regexMap['lightningInvoiceExp'] as RegExp;
+    RegExp lightningInvoiceExp =
+        MomentContentAnalyzeUtils.regexMap['lightningInvoiceExp'] as RegExp;
     RegExp ecashExp = MomentContentAnalyzeUtils.regexMap['ecashExp'] as RegExp;
 
     final RegExp contentExp = RegExp(
@@ -100,8 +103,7 @@ class DiscoveryUtils {
           lightningInvoiceExp.pattern,
           ecashExp.pattern,
         ].join('|'),
-        caseSensitive: false
-    );
+        caseSensitive: false);
 
     Iterable<RegExpMatch> matches = contentExp.allMatches(input);
 
@@ -119,20 +121,22 @@ class DiscoveryUtils {
     return results;
   }
 
-  static List<String>? getMentionReplyUserList(Map<String,UserDB> draftCueUserMap,String text){
+  static List<String>? getMentionReplyUserList(
+      Map<String, UserDBISAR> draftCueUserMap, String text) {
     List<String> replyUserList = [];
 
-    if(draftCueUserMap.isEmpty) return null;
-    draftCueUserMap.values.map((UserDB user) {
+    if (draftCueUserMap.isEmpty) return null;
+    draftCueUserMap.values.map((UserDBISAR user) {
       String name = user.name ?? user.pubKey;
-      if(text.toLowerCase().contains(name.toLowerCase())){
+      if (text.toLowerCase().contains(name.toLowerCase())) {
         replyUserList.add(user.pubKey);
       }
     }).toList();
     return replyUserList.isEmpty ? null : replyUserList;
   }
 
-  static String changeAtUserToNpub(Map<String,UserDB> draftCueUserMap, String text) {
+  static String changeAtUserToNpub(
+      Map<String, UserDBISAR> draftCueUserMap, String text) {
     String content = text;
     draftCueUserMap.forEach((tag, replacement) {
       content = content.replaceAll(tag, 'nostr:${replacement.encodedPubkey}');
@@ -140,22 +144,25 @@ class DiscoveryUtils {
     return content;
   }
 
-  static String truncateTextAndProcessUsers(String text,{int limit = 300}) {
-    if (!text.contains('nostr:')) {
-      '${text.substring(0, Math.min(limit,text.length))} show more';
+  static String truncateTextAndProcessUsers(String text, {int limit = 300}) {
+    String draft = text;
+    if (!draft.contains('nostr:')) {
+      draft = '${draft.substring(0, Math.min(limit, draft.length))} show more';
     }
     int charactersNum = 0;
     String showContent = '';
-    List<String> splitText = text.split(' ');
+    List<String> splitText = draft.split(' ');
 
     for (String content in splitText) {
-      if(charactersNum >= limit){
+      if (charactersNum >= limit) {
         break;
       }
 
       if (content.contains('nostr:')) {
         Map<String, dynamic>? userMap = Account.decodeProfile(content);
-        if (userMap != null && userMap['pubkey'] != null && userMap['pubkey'].isNotEmpty) {
+        if (userMap != null &&
+            userMap['pubkey'] != null &&
+            userMap['pubkey'].isNotEmpty) {
           showContent = '$showContent $content';
           continue;
         }
@@ -164,14 +171,47 @@ class DiscoveryUtils {
       charactersNum += content.length;
       showContent = '$showContent $content';
     }
+
     return showContent;
   }
 
-
-
-  static Future<Map<String,dynamic>?> tryDecodeNostrScheme(String content) async {
+  static Future<Map<String, dynamic>?> tryDecodeNostrScheme(
+      String content) async {
     String? result = await OXChatInterface.tryDecodeNostrScheme(content);
-    if(result == null) return null;
+    if (result == null) return null;
     return jsonDecode(result);
+  }
+
+  static Future<ValueNotifier<NotedUIModel?>> getValueNotifierNoted(
+    String noteId,
+   {
+     bool isUpdateCache = false,
+     String? rootRelay,
+     String? replyRelay,
+     List<String>? setRelay,
+     NotedUIModel? notedUIModel,
+  }) async {
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    ValueNotifier<NotedUIModel?>? noteNotifier = notedUIModelCache[noteId];
+
+    if(!isUpdateCache && noteNotifier != null && noteNotifier.value != null){
+      return noteNotifier;
+    }
+
+    if(noteNotifier == null){
+      notedUIModelCache[noteId] = ValueNotifier(null);
+    }
+
+    List<String>? relaysList = setRelay;
+    if(relaysList == null){
+     String? relayStr = (notedUIModel?.noteDB.replyRelay ?? replyRelay) ?? (notedUIModel?.noteDB.rootRelay ?? rootRelay);
+     relaysList = relayStr != null ? [relayStr] : null;
+    }
+
+    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId, relays: relaysList);
+    if(note == null) return notedUIModelCache[noteId]!;
+    notedUIModelCache[noteId]!.value = NotedUIModel(noteDB: note);
+
+    return notedUIModelCache[noteId]!;
   }
 }

@@ -5,11 +5,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/model/user_config_db.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -37,7 +37,7 @@ class MessageNotificationPage extends StatefulWidget {
 }
 
 class _MessageNotificationPageState extends State<MessageNotificationPage> {
-  Map<int, NoticeModel> _allNoticeModel = {};
+  Map<String, NoticeModel> _allNoticeModel = {};
   final List<NoticeModel> _noticeModelList = [];
   NoticeModel? _messageNoticeModel;
   final List<NoticeModel> _feedbackList = [];
@@ -57,43 +57,64 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     _allNoticeModel = await getObjectList();
     bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
     if (!containsNotification) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS,
         isSelected: true,
       );
     }
     bool containsPrivMessages = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PRIVATE_MESSAGES);
     if (!containsPrivMessages) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
         isSelected: true,
       );
     }
     bool containsChannels = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_CHANNELS);
     if (!containsChannels) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_CHANNELS,
         isSelected: true,
       );
     }
     bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS);
     if (!containsZaps) {
-      _allNoticeModel[CommonConstant.NOTIFICATION_ZAPS] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_ZAPS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_ZAPS,
         isSelected: true,
       );
     }
     bool containsSound = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_SOUND);
     if(!containsSound){
-      _allNoticeModel[CommonConstant.NOTIFICATION_SOUND] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_SOUND.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_SOUND,
         isSelected: true,
       );
     }
     bool containsVibrate = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_VIBRATE);
     if(!containsVibrate){
-      _allNoticeModel[CommonConstant.NOTIFICATION_VIBRATE] = NoticeModel(
+      _allNoticeModel[CommonConstant.NOTIFICATION_VIBRATE.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_VIBRATE,
+        isSelected: true,
+      );
+    }
+    bool containsLike = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REACTIONS);
+    if (!containsLike) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_REACTIONS.toString()] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_REACTIONS,
+        isSelected: true,
+      );
+    }
+    bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES);
+    if (!containsReply) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_REPLIES.toString()] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_REPLIES,
+        isSelected: true,
+      );
+    }
+    bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS);
+    if (!containsGroups) {
+      _allNoticeModel[CommonConstant.NOTIFICATION_GROUPS.toString()] = NoticeModel(
+        id: CommonConstant.NOTIFICATION_GROUPS,
         isSelected: true,
       );
     }
@@ -144,6 +165,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
           _buildCardItem(_feedbackList),
           SizedBox(height: Adapt.px(12)),
           _buildCardItem(_noticeModelList),
+          SizedBox(height: Adapt.px(44)),
         ],
       ),
     );
@@ -307,7 +329,7 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
               element.isSelected = value;
             }
           }
-          await saveObjectList(_allNoticeModel.values.toList());
+          await saveObjectList(_allNoticeModel);
           OXUserInfoManager.sharedInstance.setNotification();
           if(model.id == CommonConstant.NOTIFICATION_VIBRATE){
             OXUserInfoManager.sharedInstance.canVibrate = value;
@@ -323,25 +345,19 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
     );
   }
 
-  Future<void> saveObjectList(List<NoticeModel> objectList) async {
-    List<String> jsonStringList = objectList.map((obj) => json.encode(obj.noticeModelToMap(obj))).toList();
-    final bool result = await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, jsonStringList);
-    UserConfigDB? userConfigDB = await UserConfigTool.getUserConfigFromDB();
-    if (userConfigDB != null) {
-      userConfigDB.notificationSettings = json.encode(jsonStringList);
-      UserConfigTool.updateUserConfigDB(userConfigDB);
-    }
+  Future<void> saveObjectList(Map<String, NoticeModel> objectMap) async {
+    String jsonString = json.encode(
+      objectMap.map((key, value) => MapEntry(key, value.noticeModelToJson())),
+    );
+    await UserConfigTool.saveSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, jsonString);
   }
 
-  Future<Map<int, NoticeModel>> getObjectList() async {
-    List<dynamic> dynamicList = await await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
-    Map<int, NoticeModel> resultMap = {};
-    if (dynamicList.isNotEmpty) {
-      List<String> jsonStringList = dynamicList.cast<String>();
-      for (var jsonString in jsonStringList) {
-        Map<String, dynamic> jsonMap = json.decode(jsonString);
-        resultMap[jsonMap['id'] ?? 0] = NoticeModel(id: jsonMap['id'] ?? 0, isSelected: jsonMap['isSelected'] ?? false);
-      }
+  Future<Map<String, NoticeModel>> getObjectList() async {
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
+    Map<String, NoticeModel> resultMap = {};
+    if (jsonString.isNotEmpty){
+      final Map<String, dynamic> jsonMap = json.decode(jsonString);
+      resultMap = jsonMap.map((key, value) => MapEntry(key, NoticeModel.noticeModelFromJson(value)));
     }
     return resultMap;
   }
@@ -370,6 +386,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.sound_feedback');
     } else if (id == CommonConstant.NOTIFICATION_VIBRATE) {
       return Localized.text('ox_usercenter.vibrate_feedback');
+    } else if (id == CommonConstant.NOTIFICATION_REACTIONS) {
+      return Localized.text('ox_usercenter.str_notification_reactions');
+    } else if (id == CommonConstant.NOTIFICATION_REPLIES) {
+      return Localized.text('ox_usercenter.str_notification_replies');
+    } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
+      return Localized.text('ox_usercenter.str_notification_groups');
     }
     return '';
   }
@@ -383,6 +405,12 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       return Localized.text('ox_usercenter.channels_notifications_tips');
     } else if (id == CommonConstant.NOTIFICATION_ZAPS) {
       return Localized.text('ox_usercenter.zaps_notifications_tips');
+    } else if (id == CommonConstant.NOTIFICATION_REACTIONS) {
+      return Localized.text('ox_usercenter.str_notification_reactions_tips');
+    } else if (id == CommonConstant.NOTIFICATION_REPLIES) {
+      return Localized.text('ox_usercenter.str_notification_reply_tips');
+    } else if (id == CommonConstant.NOTIFICATION_GROUPS) {
+      return Localized.text('ox_usercenter.str_notification_groups_tips');
     }
     return '';
   }

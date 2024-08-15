@@ -23,7 +23,7 @@ import 'package:nostr_core_dart/nostr.dart';
 ///@author Michael
 ///CreateTime: 2023/5/6 16:21
 class UsercenterBadgeWallPage extends StatefulWidget {
-  final UserDB? userDB;
+  final UserDBISAR? userDB;
 
   const UsercenterBadgeWallPage({Key? key, required this.userDB}) : super(key: key);
 
@@ -37,7 +37,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   List<BadgeModel> _defaultBadgeModelList = [];
   final List<BadgeModel> _currentUserBadgeModelList = [];
   final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 32 + 48)) / 3;
-  UserDB? _mUserInfo;
+  UserDBISAR? _mUserInfo;
   BadgeModel? _selectedBadgeModel;
 
   @override
@@ -64,7 +64,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   
   Future<void> _getUserBadges(String userPubkey) async {
     try{
-      List<BadgeAwardDB?> badgeAwardFromDB = await BadgesHelper.getUserBadgesFromDB(userPubkey) ?? [];
+      List<BadgeAwardDBISAR?> badgeAwardFromDB = await BadgesHelper.getUserBadgesFromDB(userPubkey) ?? [];
       LogUtil.d("current user badge award form DB: $badgeAwardFromDB");
       //user have badge
       if (badgeAwardFromDB.isNotEmpty) {
@@ -83,7 +83,7 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
     }
   }
 
-  _getCurrentUserBadgeModelList(List<BadgeAwardDB?> badgeAwardDBList){
+  _getCurrentUserBadgeModelList(List<BadgeAwardDBISAR?> badgeAwardDBList){
     _currentUserBadgeModelList.clear();
     if (badgeAwardDBList.isNotEmpty) {
       for (var badgeAwardDB in badgeAwardDBList) {
@@ -109,14 +109,14 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
       if(badges.isNotEmpty){
         List<dynamic> badgeListDynamic = jsonDecode(badges);
         List<String> badgeList = badgeListDynamic.cast();
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if(badgeDBList.isNotEmpty){
           _selectedBadgeModel = BadgeModel.fromBadgeDB(badgeDBList.first!);
         }else{
           _selectedBadgeModel = null;
         }
       }else{
-        List<BadgeDB?>? badgeDBList = await BadgesHelper.getAllProfileBadgesFromRelay(userPubkey);
+        List<BadgeDBISAR?>? badgeDBList = await BadgesHelper.getAllProfileBadgesFromRelay(userPubkey);
         if (badgeDBList != null && badgeDBList.isNotEmpty) {
           _selectedBadgeModel = BadgeModel.fromBadgeDB(badgeDBList.first!);
         } else {
@@ -141,12 +141,6 @@ class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
         setState(() {
           _selectedBadgeModel = badgeModel;
         });
-        String badges = '["${badgeModel.badgeId}"]';
-        _mUserInfo?.badges = badges;
-        UserDB? tempUserDB = await Account.sharedInstance.updateProfile(_mUserInfo!);
-        if(tempUserDB == null){
-          CommonToast.instance.show(context, 'Fail to update profile badge ');
-        }
       }
     }catch(error){
       LogUtil.e('User set profile badge failed: $error');

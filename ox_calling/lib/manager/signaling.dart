@@ -240,7 +240,7 @@ class SignalingManager {
               peerId: peerId,
               sessionId: sessionId,
               media: media,
-              screenSharing: false);
+              screenSharing: (media == CallMessageType.audio.text ? false : true));
           newSession.offerId = offerId ?? '';
           print('newSession.offerId: ${newSession.offerId}');
           _sessions[sessionId] = newSession;
@@ -333,8 +333,11 @@ class SignalingManager {
           // {'url': 'stun:rtc.0xchat.com:5349'},
           // {'urls': 'turn:rtc.0xchat.com:5349', 'username': '0xchat', 'credential': 'Prettyvs511'},
         // ];
+        bool openP2p = OXServerManager.sharedInstance.openP2PAndRelay;
+        String iceTransportPolicyStr = openP2p ? 'all' : 'relay';
         _iceServers = {
           'iceServers': serverList,
+          'iceTransportPolicy': iceTransportPolicyStr,
         };
       } catch (e) {}
     }
@@ -343,40 +346,25 @@ class SignalingManager {
   Future<MediaStream> createStream(String media, bool userScreen,
       {BuildContext? context}) async {
     final Map<String, dynamic> mediaConstraints = {
-      'audio': userScreen ? false : true,
+      'audio': true,
       'video': userScreen
-          ? true
-          : {
-              'mandatory': {
-                'minWidth':
-                    '640', // Provide your own width, height and frame rate here
-                'minHeight': '480',
-                'minFrameRate': '30',
-              },
-              'facingMode': 'user',
-              'optional': [],
-            }
     };
     late MediaStream stream;
-    if (userScreen) {
-      if (WebRTC.platformIsDesktop) {
-        _context ??= OXNavigator.navigatorKey.currentContext;
-        if (_context != null) {
-          final source = await showDialog<DesktopCapturerSource>(
-            context: context!,
-            builder: (context) => ScreenSelectDialog(),
-          );
-          stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-            'video': source == null
-                ? true
-                : {
-              'deviceId': {'exact': source.id},
-              'mandatory': {'frameRate': 30.0}
-            }
-          });
-        }
-      } else {
-        stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+    if (userScreen && WebRTC.platformIsDesktop) {
+      _context ??= OXNavigator.navigatorKey.currentContext;
+      if (_context != null) {
+        final source = await showDialog<DesktopCapturerSource>(
+          context: context!,
+          builder: (context) => ScreenSelectDialog(),
+        );
+        stream = await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
+          'video': source == null
+              ? true
+              : {
+            'deviceId': {'exact': source.id},
+            'mandatory': {'frameRate': 30.0}
+          }
+        });
       }
     } else {
       stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -416,6 +404,8 @@ class SignalingManager {
                 // Unified-Plan
                 pc.onTrack = (event) {
                   if (event.track.kind == 'video') {
+                    onAddRemoteStream?.call(newSession, event.streams[0]);
+                  } else if (event.track.kind == 'audio') {
                     onAddRemoteStream?.call(newSession, event.streams[0]);
                   }
                 };

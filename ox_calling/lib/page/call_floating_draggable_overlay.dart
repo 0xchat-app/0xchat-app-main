@@ -17,7 +17,7 @@ import 'package:ox_calling/utils/widget_util.dart';
 ///@author Michael
 ///CreateTime: 2023/9/14 14:35
 class CallFloatingDraggableOverlay extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   const CallFloatingDraggableOverlay({Key? key, required this.userDB}) : super(key: key);
 

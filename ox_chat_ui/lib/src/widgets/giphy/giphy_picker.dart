@@ -3,6 +3,7 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
@@ -64,7 +65,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
   }
 
   void _getGiphyUseState() async {
-    _isAgreeUseGiphy = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, defaultValue: false);
+    _isAgreeUseGiphy = UserConfigTool.getSetting(StorageSettingKey.KEY_IS_AGREE_USE_GIPHY.name, defaultValue: false);
   }
 
   @override
@@ -162,7 +163,7 @@ class _GiphyPickerState extends State<GiphyPicker> with SingleTickerProviderStat
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_AGREE_USE_GIPHY, true);
+            UserConfigTool.saveSetting(StorageSettingKey.KEY_IS_AGREE_USE_GIPHY.name, true);
             setState(() {
               _isAgreeUseGiphy = true;
             });

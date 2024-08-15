@@ -22,8 +22,8 @@ class MomentContentAnalyzeUtils {
     ),
   };
 
-  Future<Map<String,UserDB?>> get getUserInfoMap async{
-    Map<String,UserDB?> userDBList = {};
+  Future<Map<String,UserDBISAR?>> get getUserInfoMap async{
+    Map<String,UserDBISAR?> userDBList = {};
     final RegExp nostrExp = regexMap['nostrExp'] as RegExp;
     final Iterable<RegExpMatch> matches = nostrExp.allMatches(content);
 
@@ -32,7 +32,7 @@ class MomentContentAnalyzeUtils {
       Map<String, dynamic>? userMap = Account.decodeProfile(key);
       if(userMap == null) break;
       final pubkey = userMap['pubkey'] as String? ?? '';
-      UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
       if(user != null){
         userDBList[key] = user;
       }

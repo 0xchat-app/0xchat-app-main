@@ -43,7 +43,7 @@ class Reaction {
 }
 
 class ZapsInfo {
-  UserDB author;
+  UserDBISAR author;
   String amount;
   String unit;
   ZapsInfo({required this.author, required this.amount, required this.unit});
@@ -61,6 +61,7 @@ abstract class Message extends Equatable {
     this.metadata,
     this.remoteId,
     this.repliedMessage,
+    this.repliedMessageId,
     this.roomId,
     this.showStatus,
     this.status,
@@ -118,6 +119,7 @@ abstract class Message extends Equatable {
 
   /// Message that is being replied to with the current message.
   final Message? repliedMessage;
+  final String? repliedMessageId;
 
   /// ID of the room where this message is sent.
   final String? roomId;
@@ -162,6 +164,7 @@ abstract class Message extends Equatable {
     Map<String, dynamic>? metadata,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     Status? status,
@@ -184,6 +187,7 @@ abstract class Message extends Equatable {
       'metadata: $metadata, '
       'remoteId: $remoteId, '
       'repliedMessage: $repliedMessage, '
+      'repliedMessageId: $repliedMessageId, '
       'roomId: $roomId, '
       'showStatus: $showStatus, '
       'status: $status, '

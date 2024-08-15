@@ -10,22 +10,21 @@ import 'package:ox_discovery/page/widgets/moment_widget.dart';
 import 'package:ox_discovery/utils/moment_widgets_utils.dart';
 
 import '../../model/moment_ui_model.dart';
+import '../../utils/discovery_utils.dart';
 import '../moments/moments_page.dart';
 
 class MomentReplyAbbreviateWidget extends StatefulWidget {
   final bool isShowReplyWidget;
-  final ValueNotifier<NotedUIModel> notedUIModel;
-  const MomentReplyAbbreviateWidget(
-      {super.key, required this.notedUIModel, this.isShowReplyWidget = false});
+  final ValueNotifier<NotedUIModel?> notedUIModel;
+
+  const MomentReplyAbbreviateWidget({super.key, required this.notedUIModel, this.isShowReplyWidget = false});
 
   @override
-  _MomentReplyAbbreviateWidgetState createState() =>
-      _MomentReplyAbbreviateWidgetState();
+  _MomentReplyAbbreviateWidgetState createState() => _MomentReplyAbbreviateWidgetState();
 }
 
 class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidget> {
-  ValueNotifier<NotedUIModel>? notedUIModel;
-
+  ValueNotifier<NotedUIModel?>? notedUIModel;
   bool hasReplyWidget = false;
 
   @override
@@ -37,7 +36,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel != oldWidget.notedUIModel) {
+    if (widget.notedUIModel.value != oldWidget.notedUIModel.value) {
       _getNotedUIModel();
     }
     if(hasReplyWidget && notedUIModel == null){
@@ -46,8 +45,8 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   }
 
   void _getNotedUIModel() async {
-    ValueNotifier<NotedUIModel> notedUIModelDraft = widget.notedUIModel;
-    if (!notedUIModelDraft.value.noteDB.isReply || !widget.isShowReplyWidget) {
+    ValueNotifier<NotedUIModel?> notedUIModelDraft = widget.notedUIModel;
+    if (notedUIModelDraft.value == null || !notedUIModelDraft.value!.noteDB.isReply || !widget.isShowReplyWidget) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;
       hasReplyWidget = false;
@@ -57,36 +56,37 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
 
     hasReplyWidget = true;
 
-    String? replyId = notedUIModelDraft.value.noteDB.getReplyId;
+    String? replyId = notedUIModelDraft.value!.noteDB.getReplyId;
     if (replyId == null) {
       setState(() {});
       return;
     }
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
-    if(notedUIModelCache[replyId] == null){
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(replyId);
-      if(note == null) {
-        if(mounted){
-          setState(() {});
-        }
-        return;
+
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      replyId,
+      isUpdateCache: true,
+      notedUIModel: notedUIModelDraft.value,
+    );
+
+    if(noteNotifier.value == null){
+      if(mounted){
+        setState(() {});
       }
-      notedUIModelCache[replyId] = NotedUIModel(noteDB: note);
+      return;
     }
 
-    notedUIModel = ValueNotifier(notedUIModelCache[replyId]!);
+    notedUIModel = noteNotifier;
     if(mounted){
       setState(() {});
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<NotedUIModel>? model = notedUIModel;
+    ValueNotifier<NotedUIModel?>? model = notedUIModel;
     if(!widget.isShowReplyWidget) return const SizedBox();
     if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
-    if(model == null) return const SizedBox();
+    if(model == null || model.value == null) return const SizedBox();
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
@@ -106,7 +106,7 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
       child: MomentWidget(
         notedUIModel: model,
         isShowMomentOptionWidget: false,
-        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+        clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
           await OXNavigator.pushPage(
               context, (context) => MomentsPage(notedUIModel: notedUIModel));
         },

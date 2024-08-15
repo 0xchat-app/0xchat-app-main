@@ -31,11 +31,11 @@ class RelaysPage extends StatefulWidget {
 
 class _RelaysPageState extends State<RelaysPage> {
   final TextEditingController _relayTextFieldControll = TextEditingController();
-  final Map<RelayType,List<RelayDB>> _relayListMap = {
+  final Map<RelayType,List<RelayDBISAR>> _relayListMap = {
     RelayType.general: [],
     RelayType.dm: []
   };
-  final Map<RelayType,List<RelayDB>> _recommendRelayListMap = {
+  final Map<RelayType,List<RelayDBISAR>> _recommendRelayListMap = {
     RelayType.general: [],
     RelayType.dm: []
   };
@@ -77,8 +77,8 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   void _initRelayList(RelayType relayType) {
-    List<RelayDB> relayList = _getRelayList(relayType);
-    List<RelayDB> recommendRelayList = _getRecommendRelayList(relayType);
+    List<RelayDBISAR> relayList = _getRelayList(relayType);
+    List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
 
     //Filters elements in the relay LIst
     recommendRelayList.removeWhere((element) => relayList.contains(element));
@@ -86,7 +86,7 @@ class _RelaysPageState extends State<RelaysPage> {
     _recommendRelayListMap[relayType] = recommendRelayList;
   }
 
-  List<RelayDB> _getRelayList(RelayType relayType) {
+  List<RelayDBISAR> _getRelayList(RelayType relayType) {
     switch (relayType) {
       case RelayType.general:
         return Account.sharedInstance.getMyGeneralRelayList();
@@ -97,7 +97,7 @@ class _RelaysPageState extends State<RelaysPage> {
     }
   }
 
-  List<RelayDB> _getRecommendRelayList(RelayType relayType) {
+  List<RelayDBISAR> _getRecommendRelayList(RelayType relayType) {
     switch (relayType) {
       case RelayType.general:
         return Account.sharedInstance.getMyRecommendGeneralRelaysList();
@@ -155,8 +155,8 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   Widget _body() {
-    List<RelayDB> relayList = _relayListMap[_relayType]!;
-    List<RelayDB> recommendRelayList = _recommendRelayListMap[_relayType]!;
+    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
+    List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -280,7 +280,7 @@ class _RelaysPageState extends State<RelaysPage> {
                 ),
               ),
             ],
-            RelayCommendWidget(recommendRelayList, (RelayDB relayDB) {
+            RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
               _addOnTap(upcomingRelay: relayDB.url);
             }),
           ],
@@ -290,8 +290,8 @@ class _RelaysPageState extends State<RelaysPage> {
   }
 
   Widget _itemBuild(BuildContext context, int index) {
-    List<RelayDB> relayList = _relayListMap[_relayType]!;
-    RelayDB _model = relayList[index];
+    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
+    RelayDBISAR _model = relayList[index];
     return Column(
       children: [
         SizedBox(
@@ -333,7 +333,7 @@ class _RelaysPageState extends State<RelaysPage> {
     );
   }
 
-  Widget _relayStateImage(RelayDB relayDB) {
+  Widget _relayStateImage(RelayDBISAR relayDB) {
     if (_isEditing) {
       return GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -443,8 +443,8 @@ class _RelaysPageState extends State<RelaysPage> {
 
   void _addOnTap({String? upcomingRelay, bool isUserInput = false}) async {
     upcomingRelay ??= _relayTextFieldControll.text;
-    List<RelayDB> relayList = _relayListMap[_relayType]!;
-    List<RelayDB> recommendRelayList = _recommendRelayListMap[_relayType]!;
+    List<RelayDBISAR> relayList = _relayListMap[_relayType]!;
+    List<RelayDBISAR> recommendRelayList = _recommendRelayListMap[_relayType]!;
     final upcomingRelays = relayList.map((e) => e.url).toList();
     if (!isWssWithValidURL(upcomingRelay)) {
       CommonToast.instance.show(context, 'Please input the right wss');
@@ -463,7 +463,7 @@ class _RelaysPageState extends State<RelaysPage> {
       }
       recommendRelayList.removeWhere((element) => element.url == upcomingRelay);
       setState(() {
-        relayList.add(RelayDB(url: upcomingRelay!));
+        relayList.add(RelayDBISAR(url: upcomingRelay!));
         if (isUserInput) {
           _relayTextFieldControll.text = '';
           _isShowDelete = false;
@@ -472,7 +472,7 @@ class _RelaysPageState extends State<RelaysPage> {
     }
   }
 
-  void _deleteOnTap(RelayDB relayModel) async {
+  void _deleteOnTap(RelayDBISAR relayModel) async {
     OXCommonHintDialog.show(context,
         title: Localized.text('ox_common.tips'),
         content: Localized.text('ox_usercenter.delete_relay_hint'),

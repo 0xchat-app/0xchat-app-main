@@ -6,7 +6,6 @@
   "latest_item": "Τελευταίο",
   "channel_search_hint_text": "Αναζήτηση καναλιού",
   "moment": "Στιγμή",
-  "channel": "Κανάλι",
   "private": "ιδιωτικός",
   "all": "Όλα",
   "public": "Δημόσιο",
@@ -76,5 +75,11 @@
   "loading_note": "Φόρτωση σημείωσης...",
   "hour_age_tips": "πριν από ώρες",
   "minute_age_tips": "πριν από λεπτά",
-  "just_now": "μόλις τώρα"
+  "just_now": "μόλις τώρα",
+  "group": "Ομάδες",
+  "channel": "Κανάλια",
+  "group_search_text": "Αναζήτηση Ανοιχτών & Κλειστών Ομάδων",
+  "channel_search_text": "Αναζήτηση Δημόσιων Καναλιών",
+  "member": "Μέλος",
+  "members": "Μέλη"
 }

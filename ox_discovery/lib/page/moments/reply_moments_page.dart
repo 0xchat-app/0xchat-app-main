@@ -29,7 +29,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class ReplyMomentsPage extends StatefulWidget {
-  final ValueNotifier<NotedUIModel> notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   const ReplyMomentsPage({Key? key, required this.notedUIModel})
       : super(key: key);
 
@@ -38,13 +38,13 @@ class ReplyMomentsPage extends StatefulWidget {
 }
 
 class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
-  Map<String, UserDB> draftCueUserMap = {};
+  Map<String, UserDBISAR> draftCueUserMap = {};
 
   final TextEditingController _textController = TextEditingController();
   final List<String> _showImageList = [];
 
 
-  List<String> get getImagePicList => widget.notedUIModel.value.getImageList;
+  List<String> get getImagePicList => widget.notedUIModel.value?.getImageList ?? [];
 
   @override
   void initState() {
@@ -59,7 +59,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   void _getMomentUserInfo()async {
-    String pubKey = widget.notedUIModel.value.noteDB.author;
+    NoteDBISAR? noteDB = widget.notedUIModel.value?.noteDB;
+    if(noteDB == null) return;
+    String pubKey = noteDB.author;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
@@ -122,9 +124,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                   imageUrlList: _showImageList,
                   textController: _textController,
                   hintText: Localized.text('ox_discovery.post_reply'),
-                  cueUserCallback: (List<UserDB> userList){
+                  cueUserCallback: (List<UserDBISAR> userList){
                     if(userList.isEmpty) return;
-                    for(UserDB db in userList){
+                    for(UserDBISAR db in userList){
                       String? getName = db.name;
                       if(getName != null){
                         draftCueUserMap['@${getName}'] = db;
@@ -143,9 +145,10 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
   }
 
   Widget _momentReplyWidget() {
-    String pubKey = widget.notedUIModel.value.noteDB.author;
+    String? pubKey = widget.notedUIModel.value?.noteDB.author;
+    if(pubKey == null) return const SizedBox();
     return IntrinsicHeight(
-      child: ValueListenableBuilder<UserDB>(
+      child: ValueListenableBuilder<UserDBISAR>(
         valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
         builder: (context, value, child) {
           return Row(
@@ -195,7 +198,9 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     );
   }
 
-  Widget _momentUserInfoWidget(UserDB userDB) {
+  Widget _momentUserInfoWidget(UserDBISAR userDB) {
+    NotedUIModel? notedUIModel = widget.notedUIModel.value;
+    if(notedUIModel == null) return const SizedBox();
     double width = MediaQuery.of(context).size.width - 106;
     width = width - (getImagePicList.isEmpty ? 0 : 60);
     return Row(
@@ -222,7 +227,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                     TextSpan(
                       text: ' ' +
                           DiscoveryUtils.getUserMomentInfo(
-                              userDB, widget.notedUIModel.value.createAtStr)[0],
+                              userDB, notedUIModel.createAtStr)[0],
                       style: TextStyle(
                         color: ThemeColor.color120,
                         fontSize: 12.px,
@@ -233,7 +238,7 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
                 ),
               ),
               MomentRichTextWidget(
-                text: widget.notedUIModel.value.noteDB.content,
+                text: notedUIModel.noteDB.content,
                 maxLines: null,
                 textSize: 12.px,
               ),
@@ -344,27 +349,29 @@ class _ReplyMomentsPageState extends State<ReplyMomentsPage> {
     String content = '${DiscoveryUtils.changeAtUserToNpub(draftCueUserMap, inputText)} $getMediaStr';
     List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
 
-    OKEvent event = await _sendNoteReply(content:content,hashTags:hashTags,getReplyUser:getReplyUser);
+    OKEvent? event = await _sendNoteReply(content:content,hashTags:hashTags,getReplyUser:getReplyUser);
 
     await OXLoading.dismiss();
 
-    if(event.status){
+    if(event != null && event.status){
       OXNavigator.pop(context);
     }
   }
 
-  Future<OKEvent> _sendNoteReply({
+  Future<OKEvent?> _sendNoteReply({
     required String content,
     required List<String> hashTags,
     List<String>? getReplyUser,
   })async{
-    String groupId = widget.notedUIModel.value.noteDB.groupId;
+    NoteDBISAR? noteDB = widget.notedUIModel.value?.noteDB;
+    if(noteDB == null) return null;
+    String groupId = noteDB.groupId;
     if(groupId.isEmpty){
-      return await Moment.sharedInstance.sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
+      return await Moment.sharedInstance.sendReply(noteDB.noteId, content,hashTags:hashTags, mentions:getReplyUser);
 
     }else{
       List<String> previous = Nip29.getPrevious([[groupId]]);
-      return await RelayGroup.sharedInstance.sendGroupNoteReply(widget.notedUIModel.value.noteDB.noteId, content,previous,hashTags:hashTags, mentions:getReplyUser);
+      return await RelayGroup.sharedInstance.sendGroupNoteReply(noteDB.noteId, content,previous,hashTags:hashTags, mentions:getReplyUser);
 
     }
   }

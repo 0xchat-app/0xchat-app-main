@@ -22,6 +22,7 @@ abstract class TextMessage extends Message {
     this.previewData,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     super.status,
@@ -42,6 +43,7 @@ abstract class TextMessage extends Message {
     PreviewData? previewData,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     Status? status,
@@ -128,6 +130,7 @@ abstract class TextMessage extends Message {
     PreviewData? previewData,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     Status? status,
@@ -156,6 +159,7 @@ class _TextMessage extends TextMessage {
     super.previewData,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     super.status,
@@ -177,6 +181,7 @@ class _TextMessage extends TextMessage {
     dynamic previewData = _Unset,
     dynamic remoteId = _Unset,
     dynamic repliedMessage = _Unset,
+    String? repliedMessageId,
     dynamic roomId,
     dynamic showStatus = _Unset,
     dynamic status = _Unset,
@@ -203,6 +208,7 @@ class _TextMessage extends TextMessage {
         repliedMessage: repliedMessage == _Unset
             ? this.repliedMessage
             : repliedMessage as Message?,
+        repliedMessageId: repliedMessageId ?? this.repliedMessageId,
         roomId: roomId == _Unset ? this.roomId : roomId as String?,
         showStatus:
             showStatus == _Unset ? this.showStatus : showStatus as bool?,

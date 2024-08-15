@@ -22,6 +22,7 @@ abstract class ImageMessage extends Message {
     required this.name,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
     required this.size,
@@ -50,9 +51,10 @@ abstract class ImageMessage extends Message {
     required String name,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
-    required num size,
+    num? size,
     Status? status,
     MessageType? type,
     int? updatedAt,
@@ -113,7 +115,7 @@ abstract class ImageMessage extends Message {
   final String name;
 
   /// Size of the image in bytes.
-  final num size;
+  final num? size;
 
   /// The image source (either a remote URL or a local resource).
   final String uri;
@@ -157,6 +159,7 @@ abstract class ImageMessage extends Message {
     String? name,
     String? remoteId,
     Message? repliedMessage,
+    String? repliedMessageId,
     String? roomId,
     bool? showStatus,
     num? size,
@@ -191,9 +194,10 @@ class _ImageMessage extends ImageMessage {
     required super.name,
     super.remoteId,
     super.repliedMessage,
+    super.repliedMessageId,
     super.roomId,
     super.showStatus,
-    required super.size,
+    super.size,
     super.status,
     super.type,
     super.updatedAt,
@@ -217,6 +221,7 @@ class _ImageMessage extends ImageMessage {
     String? name,
     dynamic remoteId = _Unset,
     dynamic repliedMessage = _Unset,
+    String? repliedMessageId,
     String? roomId,
     dynamic showStatus = _Unset,
     num? size,
@@ -244,6 +249,7 @@ class _ImageMessage extends ImageMessage {
         repliedMessage: repliedMessage == _Unset
             ? this.repliedMessage
             : repliedMessage as Message?,
+        repliedMessageId: repliedMessageId ?? this.repliedMessageId,
         roomId: roomId ?? this.roomId,
         showStatus:
             showStatus == _Unset ? this.showStatus : showStatus as bool?,

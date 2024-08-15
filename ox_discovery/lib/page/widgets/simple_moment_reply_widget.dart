@@ -22,7 +22,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 
 class SimpleMomentReplyWidget extends StatefulWidget {
-  final ValueNotifier<NotedUIModel> notedUIModel;
+  final ValueNotifier<NotedUIModel?> notedUIModel;
   final Function? postNotedCallback;
   final Function(bool isFocused)? isFocusedCallback;
   const SimpleMomentReplyWidget(
@@ -58,7 +58,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   void _getMomentUserInfo()async {
-    String pubKey = widget.notedUIModel.value.noteDB.author;
+    String? pubKey = widget.notedUIModel.value?.noteDB.author;
+    if(pubKey == null) return;
     await Account.sharedInstance.getUserInfo(pubKey);
     if(mounted){
       setState(() {});
@@ -89,8 +90,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   Widget _postYourReplyHeadWidget() {
-    if (!_isFocused) return const SizedBox();
-    String pubKey = widget.notedUIModel.value.noteDB.author;
+    String? pubKey = widget.notedUIModel.value?.noteDB.author;
+    if (!_isFocused || pubKey == null) return const SizedBox();
     return Container(
       padding: EdgeInsets.only(
         bottom: 8.px,
@@ -99,7 +100,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ValueListenableBuilder<UserDB>(
+          ValueListenableBuilder<UserDBISAR>(
             valueListenable: Account.sharedInstance.getUserNotifier(pubKey),
             builder: (context, value, child) {
               return RichText(
@@ -279,6 +280,7 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
   }
 
   void _postMoment() async {
+    if(widget.notedUIModel.value == null) return;
     if (_replyController.text.isEmpty && imageUrl == null) {
       CommonToast.instance.show(context, Localized.text('ox_discovery.content_empty_tips'));
       return;
@@ -286,10 +288,8 @@ class _SimpleMomentReplyWidgetState extends State<SimpleMomentReplyWidget> {
     await OXLoading.show();
     String getMediaStr = await _getUploadMediaContent();
     String content = '${_replyController.text} $getMediaStr';
-    List<String> hashTags =
-        MomentContentAnalyzeUtils(content).getMomentHashTagList;
-    OKEvent event = await Moment.sharedInstance
-        .sendReply(widget.notedUIModel.value.noteDB.noteId, content,hashTags:hashTags);
+    List<String> hashTags = MomentContentAnalyzeUtils(content).getMomentHashTagList;
+    OKEvent event = await Moment.sharedInstance.sendReply(widget.notedUIModel.value!.noteDB.noteId, content,hashTags:hashTags);
     await OXLoading.dismiss();
 
     if (event.status) {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ox_common/log_util.dart';
 // common
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -132,7 +134,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   void _checkAccountKey() {
     String textContent = _accountKeyEditingController.text;
     if (textContent.length == 63) {
-      final String? decodeResult = UserDB.decodePrivkey(textContent);
+      final String? decodeResult = UserDBISAR.decodePrivkey(textContent);
       if (decodeResult == null || decodeResult.isEmpty) return;
       setState(() {
         _accountKeyInput = decodeResult;
@@ -150,13 +152,19 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
   void _login() async {
     await OXLoading.show();
     String pubkey = Account.getPublicKey(_accountKeyInput);
+    String currentUserPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
     await OXUserInfoManager.sharedInstance.initDB(pubkey);
-    UserDB? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    UserDBISAR? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
+    userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
       CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
       return;
     }
-    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey);
+    Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {
+      LogUtil.e('Michael:---reloadProfileFromRelay--name = ${value.name}; pic =${value.picture}}');
+      UserConfigTool.saveUser(value);
+      UserConfigTool.updateSettingFromDB(value.settings);
+    });
     OXUserInfoManager.sharedInstance.loginSuccess(userDB);
     await OXLoading.dismiss();
     OXNavigator.popToRoot(context);

@@ -8,6 +8,7 @@ import 'package:ox_discovery/page/moments/group_moments_page.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
 import 'package:ox_discovery/page/moments/personal_moments_page.dart';
 import 'package:ox_discovery/page/widgets/moment_rich_text_widget.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
@@ -48,7 +49,8 @@ class OXDiscovery extends OXFlutterModule {
     return null;
   }
 
-  Widget discoveryPageWidget(BuildContext context, {required GlobalKey discoveryGlobalKey}) {
+  Widget discoveryPageWidget(BuildContext context,
+      {required GlobalKey discoveryGlobalKey}) {
     return DiscoveryPage(key: discoveryGlobalKey);
   }
 
@@ -71,20 +73,33 @@ class OXDiscovery extends OXFlutterModule {
   }
 
   void jumpMomentPage(BuildContext? context, {required String noteId}) async {
-    final notedUIModelCache =
-        OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
 
-    NotedUIModel? notedUIModel = notedUIModelCache[noteId];
-    if (notedUIModel == null) {
-      NoteDB? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId);
-      if (note == null)
-        return CommonToast.instance.show(context, 'Note not found !');
-      notedUIModelCache[noteId] = NotedUIModel(noteDB: note);
-      notedUIModel = notedUIModelCache[noteId];
-    }
-    OXNavigator.pushPage(
+    ValueNotifier<NotedUIModel?>? notedUIModelNotifier = notedUIModelCache[noteId];
+    if (notedUIModelNotifier != null && notedUIModelNotifier.value != null) {
+      OXNavigator.pushPage(
         context!,
         (context) => MomentsPage(
-            isShowReply: false, notedUIModel: ValueNotifier(notedUIModel!)));
+          isShowReply: false,
+          notedUIModel: notedUIModelNotifier,
+        ),
+      );
+      return;
+    }
+
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(noteId);
+
+    if(noteNotifier.value == null) {
+      return CommonToast.instance.show(context, 'Note not found !');
+    }
+
+    OXNavigator.pushPage(
+      context!,
+          (context) => MomentsPage(
+        isShowReply: false,
+        notedUIModel: noteNotifier,
+      ),
+    );
+
   }
 }

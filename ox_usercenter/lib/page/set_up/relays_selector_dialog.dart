@@ -22,7 +22,7 @@ class RelaysSelectorPage extends StatefulWidget {
 }
 
 class RelaySelectorModule{
-  RelayDB relayDB;
+  RelayDBISAR relayDB;
   bool isSelected;
   RelaySelectorModule(this.relayDB, this.isSelected);
 }

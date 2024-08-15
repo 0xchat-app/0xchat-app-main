@@ -164,7 +164,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
           width: 1.px,
           color: ThemeColor.color180,
         ))),
-        child: FutureBuilder<UserDB?>(
+        child: FutureBuilder<UserDBISAR?>(
           future: _getUser(notification.author),
           builder: (context,snapshot) {
             final placeholder = MomentWidgetsUtils.badgePlaceholderImage(size: 40);
@@ -265,7 +265,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Future<UserDB?> _getUser(String pubkey) async {
+  Future<UserDBISAR?> _getUser(String pubkey) async {
     return await Account.sharedInstance.getUserInfo(pubkey);
   }
 
@@ -339,8 +339,14 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     );
   }
 
-  Future<NoteDB?> _getNote(AggregatedNotification notificationDB) async {
-    return await Moment.sharedInstance.loadNoteWithNoteId(notificationDB.associatedNoteId);
+  Future<NoteDBISAR?> _getNote(AggregatedNotification notificationDB) async {
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      notificationDB.associatedNoteId,
+      isUpdateCache: true,
+    );
+    if(noteNotifier.value == null) return null;
+
+    return noteNotifier.value!.noteDB;
   }
 
   void _clearNotifications(){
@@ -369,7 +375,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   _loadNotificationData() async {
-    List<NotificationDB> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
+    List<NotificationDBISAR> notificationList = await Moment.sharedInstance.loadNotificationsFromDB(_lastTimestamp ?? 0,limit: _limit) ?? [];
 
     List<AggregatedNotification> aggregatedNotifications = _getAggregatedNotifications(notificationList);
     _aggregatedNotifications.addAll(aggregatedNotifications);
@@ -396,9 +402,9 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
     }
   }
 
-  List<AggregatedNotification> _getAggregatedNotifications(List<NotificationDB> notifications) {
-    List<NotificationDB> likeTypeNotification = [];
-    List<NotificationDB> otherTypeNotification = [];
+  List<AggregatedNotification> _getAggregatedNotifications(List<NotificationDBISAR> notifications) {
+    List<NotificationDBISAR> likeTypeNotification = [];
+    List<NotificationDBISAR> otherTypeNotification = [];
     Set<String> groupedItems = {};
 
     for (var notification in notifications) {
@@ -410,7 +416,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       }
     }
 
-    Map<String, List<NotificationDB>> grouped = {};
+    Map<String, List<NotificationDBISAR>> grouped = {};
     for (var groupedItem in groupedItems) {
       grouped[groupedItem] = likeTypeNotification.where((notification) => notification.associatedNoteId == groupedItem).toList();
     }
@@ -430,14 +436,20 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   void _jumpMomentsPage(ENotificationsMomentType type,AggregatedNotification notification)async {
-    NoteDB? note;
+    String noteId;
     if(type == ENotificationsMomentType.reply || type == ENotificationsMomentType.quote) {
-      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.notificationId);
+      noteId = notification.notificationId;
     } else {
-      note = await Moment.sharedInstance.loadNoteWithNoteId(notification.associatedNoteId);
+      noteId = notification.associatedNoteId;
     }
-    if(note != null){
-      OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: ValueNotifier(NotedUIModel(noteDB: note!))));
+
+    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      noteId,
+      isUpdateCache: true,
+    );
+
+    if(noteNotifier.value != null){
+      OXNavigator.pushPage(context, (context) => MomentsPage(isShowReply: true, notedUIModel: noteNotifier));
     }
   }
 }

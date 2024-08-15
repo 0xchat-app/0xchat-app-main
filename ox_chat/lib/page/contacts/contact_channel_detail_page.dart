@@ -3,8 +3,9 @@ import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
+import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/const/common_constant.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -31,7 +32,7 @@ import '../session/chat_channel_message_page.dart';
 ///CreateTime: 2023/5/12 16:48
 
 class ContactChanneDetailsPage extends StatefulWidget {
-  ChannelDB channelDB;
+  ChannelDBISAR channelDB;
 
   ContactChanneDetailsPage({
     Key? key,
@@ -66,7 +67,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
 }
 
 class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
-  late List<BadgeDB> _badgeDBList;
+  late List<BadgeDBISAR> _badgeDBList;
   final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 18)) / 3;
   bool _isMute = false;
   String? _showCreator;
@@ -87,7 +88,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   void _syncChannelInfo() async {
-    ChannelDB? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
+    ChannelDBISAR? channelDB = await Channels.sharedInstance.updateChannelMetadataFromRelay(widget.channelDB.creator, widget.channelDB.channelId);
     if (channelDB != null){
       _initData();
     }
@@ -98,7 +99,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     _badgeRequirementsHint = Localized.text('ox_chat.badge_no_requirement_tips');
     _isMute = widget.channelDB.mute ?? false;
     if (widget.channelDB.creator.isNotEmpty) {
-      final UserDB? userFromDB =
+      final UserDBISAR? userFromDB =
           await Account.sharedInstance.getUserInfo(widget.channelDB.creator);
       _showCreator = userFromDB != null ? userFromDB.name! : widget.channelDB.creator;
       if (mounted) setState(() {});
@@ -110,7 +111,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
       List<dynamic> badgeIds = jsonDecode(widget.channelDB.badges!) ?? [];
       List<String> badgeList = badgeIds.cast();
       if (badgeList.isNotEmpty) {
-        List<BadgeDB?> dbGetList =
+        List<BadgeDBISAR?> dbGetList =
             await BadgesHelper.getBadgeInfosFromDB(badgeList);
         if (dbGetList.length > 0) {
           dbGetList.forEach((element) {
@@ -121,7 +122,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
           _badgeRequirementsHint = badgeRequirementsHint;
           if (mounted) setState(() {});
         } else {
-          List<BadgeDB> badgeDB =
+          List<BadgeDBISAR> badgeDB =
               await BadgesHelper.getBadgesInfoFromRelay(badgeList);
           if (badgeDB.length > 0) {
             _badgeDBList = badgeDB;
@@ -584,7 +585,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   }
 
   Widget _benefitsBuilder(context, index) {
-    BadgeDB badgeModel = _badgeDBList[index];
+    BadgeDBISAR badgeModel = _badgeDBList[index];
     return Container(
       height: _imageWH,
       decoration: BoxDecoration(
@@ -659,21 +660,21 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
           widget.channelDB.mute = value;
         });
     } else {
-      CommonToast.instance
-          .show(context, 'Mute(Unmute) failed, please try again later.');
+      CommonToast.instance.show(context, 'mute_fail_toast'.localized());
     }
   }
 
   void _joinChannel() async {
     await OXLoading.show();
     final OKEvent okEvent = await Channels.sharedInstance.joinChannel(widget.channelDB.channelId);
+    OXUserInfoManager.sharedInstance.setNotification();
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
       OXNavigator.pushPage(
         context,
             (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: widget.channelDB.channelId,
             groupId: widget.channelDB.channelId,
             chatType: ChatType.chatChannel,
@@ -702,6 +703,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                 await OXLoading.show();
                 final OKEvent okEvent = await Channels.sharedInstance
                     .leaveChannel(widget.channelDB.channelId);
+                OXUserInfoManager.sharedInstance.setNotification();
                 await OXLoading.dismiss();
                 if (okEvent.status) {
                   OXChatBinding.sharedInstance.channelsUpdatedCallBack();

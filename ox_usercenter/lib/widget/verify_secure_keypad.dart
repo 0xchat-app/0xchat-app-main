@@ -5,6 +5,7 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
@@ -41,8 +42,8 @@ class VerifySecureKeypadState extends State<VerifySecureKeypad> {
   }
 
   void loadData() async {
-    faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
-    fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FINGERPRINT, defaultValue: false);
+    faceIDSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
+    fingerprintSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
     if (Platform.isAndroid && fingerprintSwitchValue) {
       _clickFingerprint();
     } else if (Platform.isIOS){

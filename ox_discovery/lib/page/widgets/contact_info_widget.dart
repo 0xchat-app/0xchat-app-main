@@ -10,13 +10,13 @@ import 'package:ox_common/widgets/common_toast.dart';
 
 class ContactInfoWidget extends StatelessWidget {
 
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   const ContactInfoWidget({super.key, required this.userDB});
 
   @override
   Widget build(BuildContext context) {
-    String _getUserName(UserDB userDB){
+    String _getUserName(UserDBISAR userDB){
       return userDB.name ?? userDB.nickName ?? '';
     }
 
@@ -56,7 +56,7 @@ class ContactInfoWidget extends StatelessWidget {
 
 
 class DNSAuthenticationWidget extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
 
   const DNSAuthenticationWidget({super.key, required this.userDB});
 

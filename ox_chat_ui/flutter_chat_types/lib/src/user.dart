@@ -51,7 +51,7 @@ class User extends Equatable {
   /// Updated user timestamp, in ms.
   int? updatedAt;
 
-  UserDB? sourceObject;
+  UserDBISAR? sourceObject;
 
   /// Equatable props.
   @override

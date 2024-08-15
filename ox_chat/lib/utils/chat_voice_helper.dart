@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class ChatVoiceMessageHelper {
 
@@ -17,7 +17,7 @@ class ChatVoiceMessageHelper {
   }
 
   static void populateMessageWithAudioDetails({
-    required ChatSessionModel session,
+    required ChatSessionModelISAR session,
     required types.AudioMessage message,
   }) async {
     var sourceFile = File(message.uri);

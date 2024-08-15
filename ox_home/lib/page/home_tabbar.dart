@@ -147,7 +147,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
@@ -163,7 +163,7 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 
@@ -176,6 +176,13 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   void _tabClick(int value,int currentSelect) {
     if(value == 2 && currentSelect == 2){
       discoveryGlobalKey.currentState?.updateClickNum(1);
+
+    }
+
+    if(value == 2){
+      Moment.sharedInstance.updateSubscriptions();
+    } else{
+      Moment.sharedInstance.closeSubscriptions();
     }
 
     _pageController.animateToPage(
@@ -186,9 +193,9 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void signerCheck() async {
-    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
+    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey??''}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
     if (localIsLoginAmber != null && localIsLoginAmber) {
-      bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
+      bool isInstalled = await CoreMethodChannel.isInstalledAmber();
       if (mounted && (!isInstalled || OXUserInfoManager.sharedInstance.signatureVerifyFailed)){
         String showTitle = '';
         String showContent = '';

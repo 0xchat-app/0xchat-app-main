@@ -474,10 +474,10 @@ class _ChannelPageState extends State<ChannelPage>
     }
   }
 
-  Future<List<UserDB>> _getChannelMembers(List<String> pubKeys) async {
-    List<UserDB> users = [];
+  Future<List<UserDBISAR>> _getChannelMembers(List<String> pubKeys) async {
+    List<UserDBISAR> users = [];
     for (var element in pubKeys) {
-      UserDB? user = await Account.sharedInstance.getUserInfo(element);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(element);
       if (user != null) {
         users.add(user);
       }
@@ -487,22 +487,22 @@ class _ChannelPageState extends State<ChannelPage>
 
   Future<List<String>> _getChannelMembersAvatars(List<String> pubKeys) async {
     List<String?> avatars = [];
-    List<UserDB> users = await _getChannelMembers(pubKeys);
+    List<UserDBISAR> users = await _getChannelMembers(pubKeys);
     avatars.addAll(users.map((e) => e.picture).toList());
     return avatars.where((e) => e != null).toList().cast<String>();
   }
 
   Future<String> _getCreator(String pubKey) async {
     List<String> pubKeys = [pubKey];
-    List<UserDB> users = await _getChannelMembers(pubKeys);
+    List<UserDBISAR> users = await _getChannelMembers(pubKeys);
     return users.first.name ?? '';
   }
 
   Future<void> _getLatestChannelList() async {
     try {
       OXLoading.show(status: Localized.text('ox_common.loading'));
-      List<ChannelDB> channelDBList =
-      await Channels.sharedInstance.getChannelsFromRelay();
+      List<ChannelDBISAR> channelDBList =
+      await Channels.sharedInstance.searchChannelsFromRelay();
       OXLoading.dismiss();
       List<ChannelModel> channels = channelDBList
           .map((channelDB) => ChannelModel.fromChannelDB(channelDB))
@@ -524,7 +524,7 @@ class _ChannelPageState extends State<ChannelPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {});
   }
@@ -537,7 +537,7 @@ class _ChannelPageState extends State<ChannelPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

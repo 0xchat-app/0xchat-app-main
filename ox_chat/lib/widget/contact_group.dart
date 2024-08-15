@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
@@ -352,7 +354,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
         context,
             (context) =>
             ChatGroupMessagePage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: widget.item.groupId,
                 groupId: widget.item.groupId,
                 chatType: widget.item.chatType,
@@ -362,12 +364,12 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
               ),
             ),
       );
-    } else {
+    } else if (widget.item.chatType == ChatType.chatRelayGroup) {
       OXNavigator.pushPage(
         context,
             (context) =>
             ChatRelayGroupMsgPage(
-              communityItem: ChatSessionModel(
+              communityItem: ChatSessionModelISAR(
                 chatId: widget.item.groupId,
                 groupId: widget.item.groupId,
                 chatType: widget.item.chatType,
@@ -376,6 +378,20 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
                 avatar: widget.item.picture ?? '',
               ),
             ),
+      );
+    } else if (widget.item.chatType == ChatType.chatChannel) {
+      OXNavigator.pushPage(
+        context,
+            (context) => ChatChannelMessagePage(
+          communityItem: ChatSessionModelISAR(
+            chatId: widget.item.groupId,
+            groupId: widget.item.groupId,
+            chatType: ChatType.chatChannel,
+            chatName: widget.item.name,
+            createTime: widget.item.updateTime,
+            avatar: widget.item.picture ?? '',
+          ),
+        ),
       );
     }
   }
@@ -384,16 +400,25 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
   Widget build(BuildContext context) {
     Widget iconAvatar = SizedBox();
     String showName = '';
-    if (widget.item.chatType == ChatType.chatGroup) {
-      GroupDB? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
-      iconAvatar = OXGroupAvatar(group: tempGroupDB);
-      showName = tempGroupDB?.name ?? '';
-      if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
-    } else {
-      RelayGroupDB? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
-      iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
-      showName = tempRelayGroupDB?.name ?? '';
-      if (showName.isEmpty) showName = RelayGroup.sharedInstance.encodeGroup(widget.item.groupId) ?? '';
+    switch (widget.item.chatType) {
+      case ChatType.chatGroup:
+        GroupDBISAR? tempGroupDB = Groups.sharedInstance.myGroups[widget.item.groupId];
+        iconAvatar = OXGroupAvatar(group: tempGroupDB);
+        showName = tempGroupDB?.name ?? '';
+        if (showName.isEmpty) showName = Groups.encodeGroup(widget.item.groupId, null, null);
+        break;
+      case ChatType.chatRelayGroup:
+        RelayGroupDBISAR? tempRelayGroupDB = RelayGroup.sharedInstance.myGroups[widget.item.groupId];
+        iconAvatar = OXRelayGroupAvatar(relayGroup: tempRelayGroupDB);
+        showName = tempRelayGroupDB?.name ?? '';
+        if (showName.isEmpty) showName = tempRelayGroupDB?.shortGroupId ?? '';
+        break;
+      case ChatType.chatChannel:
+        ChannelDBISAR? tempChannelDB = Channels.sharedInstance.channels[widget.item.groupId];
+        iconAvatar = OXChannelAvatar(channel: tempChannelDB);
+        showName = tempChannelDB?.name ?? '';
+        if (showName.isEmpty) showName = tempChannelDB?.shortChannelId ?? '';
+        break;
     }
     Widget? groupTypeWidget = ChatSessionUtils.getTypeSessionView(widget.item.chatType, widget.item.groupId);
     return GestureDetector(

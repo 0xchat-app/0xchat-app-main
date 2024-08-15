@@ -13,8 +13,8 @@ import 'package:ox_localizable/ox_localizable.dart';
 
 class VisibilitySelectionPage extends StatefulWidget {
   final VisibleType? visibleType;
-  final List<UserDB>? selectedContacts;
-  final Function(VisibleType type, List<UserDB>)? onSubmitted;
+  final List<UserDBISAR>? selectedContacts;
+  final Function(VisibleType type, List<UserDBISAR>)? onSubmitted;
 
   const VisibilitySelectionPage({super.key, this.onSubmitted, this.visibleType, required this.selectedContacts});
 
@@ -28,7 +28,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
   late VisibleType _currentVisibleType;
 
   // List<UserDB> _includeContacts = [];
-  List<UserDB> _excludeContacts = [];
+  List<UserDBISAR> _excludeContacts = [];
 
   @override
   void initState() {
@@ -167,7 +167,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
           if (isSpecial) {
             OXNavigator.presentPage(
               context,
-              (context) => ContactChoosePage<UserDB>(
+              (context) => ContactChoosePage<UserDBISAR>(
                 title: Localized.text('ox_discovery.selected_friends_title'),
                 contactType: ContactType.contact,
                 onSubmitted: _selectedOnChanged,
@@ -180,7 +180,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
     );
   }
 
-  void _selectedOnChanged(List<UserDB> userList) {
+  void _selectedOnChanged(List<UserDBISAR> userList) {
     if (userList.isEmpty) {
       CommonToast.instance.show(context, Localized.text('ox_discovery.selected_empty_tips'));
       return;
@@ -200,7 +200,7 @@ class _VisibilitySelectionPageState extends State<VisibilitySelectionPage> {
     // List<UserDB> userList = type == VisibleType.includeContact
     //     ? _includeContacts
     //     : _excludeContacts;
-    List<UserDB> userList = _excludeContacts;
+    List<UserDBISAR> userList = _excludeContacts;
     return userList
         .where((user) => user.name != null)
         .map((user) => user.name)

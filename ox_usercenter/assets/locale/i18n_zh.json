@@ -166,7 +166,7 @@
   "str_delete_login_dialog_title": "聊天数据库已删除",
   "str_delete_login_dialog_hint": "重新登录以创建新的聊天资料。",
   "str_update_pw_success": "数据库密码更新成功。",
-  "str_change_default_pw_hint": "请先更改原始数据库密码。",
+  "str_change_default_pw_hint": "请先设置数据库密码。",
   "str_authentication_failed_title": "认证失败",
   "str_authentication_failed_hint": "0xchat 已加密。输入的密码无效。",
   "str_mismatch_title": "验证失败",
@@ -206,5 +206,18 @@
   "str_enter": "输入",
   "str_url_tips_text": "请输入有效的 URL",
   "str_bucket__name_tips_text": "Bucket 名称不存在！",
-  "str_nip96_tips_text": "文件服务器不支持 NIP-96"
+  "str_nip96_tips_text": "文件服务器不支持 NIP-96",
+  "str_switch_account": "切换账号",
+  "str_account_manage": "管理",
+  "str_add_account": "添加账号",
+  "str_account_manage_hint": "点击个人资料以切换账户",
+  "str_clear_account": "清除",
+  "str_clear_account_dialog_hint": "删除${name}的登录信息吗？",
+  "str_clear_account_dialog_remove": "移除",
+  "str_notification_reactions": "点赞",
+  "str_notification_replies": "回复",
+  "str_notification_groups": "群聊",
+  "str_notification_reactions_tips": "like description",
+  "str_notification_reply_tips": "reply description",
+  "str_notification_groups_tips": "groups description"
 }

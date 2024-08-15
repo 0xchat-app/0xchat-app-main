@@ -332,7 +332,7 @@ class _CommunityQrcodeAddFriendState extends BasePageState<CommunityQrcodeAddFri
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              "Add Friend",
+                              "Add Contact",
                               style: TextStyle(fontSize: Adapt.px(14), fontWeight: FontWeight.w400, color: ThemeColor.color0),
                             ),
                           ),

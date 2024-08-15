@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -21,7 +22,7 @@ mixin ShareItemInfoMixin {
     _groupMembersCache = groupMembersCache;
   }
 
-  Widget buildItemName(ChatSessionModel item) {
+  Widget buildItemName(ChatSessionModelISAR item) {
     String showName = '';
     switch (item.chatType) {
       case ChatType.chatChannel:
@@ -79,7 +80,7 @@ mixin ShareItemInfoMixin {
     );
   }
 
-  Widget buildItemIcon(ChatSessionModel item) {
+  Widget buildItemIcon(ChatSessionModelISAR item) {
     if (item.chatType == '1000') {
       return assetIcon('icon_notice_avatar.png', 60, 60);
     } else {
@@ -125,19 +126,19 @@ mixin ShareItemInfoMixin {
   }
 
   //Queries the list of Friends to see if each Friend name contains a search character
-  List<UserDB>? loadChatFriendsWithSymbol(String symbol) {
-    List<UserDB>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
+  List<UserDBISAR>? loadChatFriendsWithSymbol(String symbol) {
+    List<UserDBISAR>? friendList = Contacts.sharedInstance.fuzzySearch(symbol);
     return friendList;
   }
 
   //Queries the list of Channels to see if each Channel name contains a search character
-  List<ChannelDB>? loadChatChannelsWithSymbol(String symbol) {
-    final List<ChannelDB>? channelList = Channels.sharedInstance.fuzzySearch(symbol);
+  List<ChannelDBISAR>? loadChatChannelsWithSymbol(String symbol) {
+    final List<ChannelDBISAR>? channelList = Channels.sharedInstance.fuzzySearch(symbol);
     return channelList;
   }
 
-  List<GroupDB>? loadChatGroupWithSymbol(String symbol) {
-    final List<GroupDB>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
+  List<GroupDBISAR>? loadChatGroupWithSymbol(String symbol) {
+    final List<GroupDBISAR>? groupDBlist = Groups.sharedInstance.fuzzySearch(symbol);
     return groupDBlist;
   }
 }
@@ -152,7 +153,7 @@ enum ShareSearchType {
 class ShareSearchGroup {
   final String title;
   final ShareSearchType type;
-  final List<ChatSessionModel> items;
+  final List<ChatSessionModelISAR> items;
 
   ShareSearchGroup({required this.title, required this.type, required this.items});
 

@@ -4,6 +4,9 @@ import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/utils/widget_tool.dart';
+import 'package:ox_discovery/enum/group_type.dart';
+import 'package:ox_discovery/page/moments/groups_page.dart';
+import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -47,6 +50,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   int _channelCurrentIndex = 0;
 
+  GroupType _groupType = GroupType.openGroup;
+
 
   EDiscoveryPageType pageType = EDiscoveryPageType.moment;
 
@@ -60,6 +65,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void initState() {
     super.initState();
+    OXUserInfoManager.sharedInstance.addObserver(this);
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
   }
 
@@ -103,7 +109,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
                 color: ThemeColor.titleColor))
         .width;
     double discoveryMm = boundingTextSize(
-        Localized.text('ox_discovery.channel'),
+        Localized.text('ox_discovery.group'),
         TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Adapt.px(20),
@@ -151,7 +157,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
               },
               child: Container(
                 constraints: BoxConstraints(maxWidth: discoveryMm),
-                child: GradientText(Localized.text('ox_discovery.channel'),
+                child: GradientText(Localized.text('ox_discovery.group'),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: Adapt.px(20),
@@ -173,6 +179,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   }
 
   List<Widget> _actionWidget(){
+    if(!_isLogin) return [];
+
     if(pageType == EDiscoveryPageType.moment) {
       return [
         GestureDetector(
@@ -240,11 +248,21 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           height: Adapt.px(24),
           color: ThemeColor.color100,
         ),
-        onTap: () {
-          showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
+        onTap: () async {
+          // showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildChannelBottomDialog());
+          await showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext context) {
+              return GroupSelectorDialog(
+                title: Localized.text('ox_discovery.group'),
+                onChanged: (type) => _updateGroupType(type),
+              );
+            },
+          );
         },
       ),
-      _isLogin ? SizedBox(
+      SizedBox(
         height: Adapt.px(24),
         child: GestureDetector(
           onTap: () {
@@ -272,7 +290,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
             ],
           ),
         ),
-      ).setPaddingOnly(left: 20.px) : const SizedBox(),
+      ).setPaddingOnly(left: 20.px),
       SizedBox(
         width: Adapt.px(24),
       ),
@@ -281,7 +299,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   Widget _body(){
     if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
-    return ChannelPage(currentIndex: _channelCurrentIndex);
+    return GroupsPage(
+      groupType: _groupType,
+    );
   }
 
   static Size boundingTextSize(String text, TextStyle style,
@@ -517,10 +537,16 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     OXNavigator.pop(context);
   }
 
+  void _updateGroupType(GroupType groupType) {
+    setState(() {
+      _groupType = groupType;
+    });
+  }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
+    _isLogin = true;
     setState(() {});
   }
 
@@ -528,11 +554,12 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   void didLogout() {
     // TODO: implement didLogout
     LogUtil.e("find.didLogout()");
+    _isLogin = false;
     setState(() {});
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 

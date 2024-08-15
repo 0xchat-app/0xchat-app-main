@@ -28,7 +28,7 @@ class ContactViewChannels extends StatefulWidget {
 
 class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTickerProviderStateMixin,
     AutomaticKeepAliveClientMixin, WidgetsBindingObserver, CommonStateViewMixin, OXChatObserver, OXUserInfoObserver {
-  List<ChannelDB> channels = [];
+  List<ChannelDBISAR> channels = [];
   RefreshController _refreshController = RefreshController();
   GlobalKey<ChannelContactState> channelsWidgetKey = new GlobalKey<ChannelContactState>();
   num imageV = 0;
@@ -70,7 +70,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   void _loadData() async {
-    Map<String, ChannelDB> channelsMap = Channels.sharedInstance.myChannels;
+    Map<String, ChannelDBISAR> channelsMap = Channels.sharedInstance.myChannels;
     channels = channelsMap.values.toList();
     if(Channels.sharedInstance.myChannels.length>0) {
       channels = Channels.sharedInstance.myChannels.values.toList();
@@ -117,7 +117,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     LogUtil.e('Topic List didLoginStateChanged : $userInfo');
     setState(() {
       channels.clear();
@@ -134,12 +134,12 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     _onRefresh();
   }
 
   @override
-  void didCreateChannel(ChannelDB? channelDB) {
+  void didCreateChannel(ChannelDBISAR? channelDB) {
     _loadData();
   }
 
@@ -151,7 +151,7 @@ class _ContactViewChannelsState extends State<ContactViewChannels> with SingleTi
 
 
   @override
-  void didDeleteChannel(ChannelDB? channelDB) {
+  void didDeleteChannel(ChannelDBISAR? channelDB) {
     _loadData();
   }
 }

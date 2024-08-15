@@ -6,7 +6,7 @@ import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -20,7 +20,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 
 class ContactGroupChatCreatePage extends StatefulWidget {
-  final List<UserDB> userList;
+  final List<UserDBISAR> userList;
   final GroupType groupType;
 
   const ContactGroupChatCreatePage({
@@ -37,7 +37,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
 
   TextEditingController _controller = TextEditingController();
 
-  List<UserDB> userList = [];
+  List<UserDBISAR> userList = [];
 
   String _chatRelay = 'wss://relay.0xchat.com';
 
@@ -300,7 +300,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
   }
 
   void _initUserList(){
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     userList = widget.userList;
     if(userDB != null && !userList.contains(userDB)) userList.add(userDB);
     setState(() {});
@@ -315,7 +315,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     };
     await OXLoading.show();
     List<String> members = userList.map((user) => user.pubKey).toList();
-    GroupDB? groupDB = await Groups.sharedInstance
+    GroupDBISAR? groupDB = await Groups.sharedInstance
         .createPrivateGroup(OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey, '', name, members);
     await OXLoading.dismiss();
     if (groupDB != null) {
@@ -323,7 +323,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       OXNavigator.pushReplacement(
         context,
         ChatGroupMessagePage(
-          communityItem: ChatSessionModel(
+          communityItem: ChatSessionModelISAR(
             chatId: groupDB.groupId,
             groupId: groupDB.groupId,
             chatType: ChatType.chatGroup,

@@ -35,14 +35,10 @@ import 'state/inherited_user.dart';
 import 'typing_indicator.dart';
 import 'unread_header.dart';
 
-enum ChatStatus {
-  Unknown,
-  NotJoined,
-  NotJoinedGroup,
-  RequestGroup,
-  NotContact,
-  InsufficientBadge,
-  Normal,
+class ChatHintParam {
+  ChatHintParam(this.text, this.onTap);
+  final String text;
+  final VoidCallback? onTap;
 }
 
 /// Entry widget, represents the complete chat. If you wrap it in [SafeArea] and
@@ -120,10 +116,6 @@ class Chat extends StatefulWidget {
     this.videoMessageBuilder,
     this.repliedMessageBuilder,
     this.onVoiceSend,
-    this.chatStatus,
-    this.onJoinChannelTap,
-    this.onJoinGroupTap,
-    this.onRequestGroupTap,
     this.longPressWidgetBuilder,
     this.reactionViewBuilder,
     this.onGifSend,
@@ -131,12 +123,10 @@ class Chat extends StatefulWidget {
     this.mentionUserListWidget,
     this.onFocusNodeInitialized,
     this.onInsertedContent,
+    this.bottomHintParam,
   });
 
-  final ChatStatus? chatStatus;
-  final void Function()? onJoinChannelTap;
-  final void Function()? onJoinGroupTap;
-  final void Function()? onRequestGroupTap;
+  final ChatHintParam? bottomHintParam;
 
   /// See [Message.audioMessageBuilder].
   final Widget Function(types.AudioMessage, {required int messageWidth})?
@@ -414,7 +404,6 @@ class ChatState extends State<Chat> {
   List<PreviewImage> _gallery = [];
   PageController? _galleryPageController;
   bool _hadScrolledToUnreadOnOpen = false;
-  final bool _isImageViewVisible = false;
 
   /// Keep track of all the auto scroll indices by their respective message's id to allow animating to them.
   final Map<String, int> _autoScrollIndexById = {};
@@ -501,14 +490,13 @@ class ChatState extends State<Chat> {
                 color: ThemeColor.color200,
                 child: Column(
                   children: [
-                    widget.chatStatus == ChatStatus.NotContact
-                        ? Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Adapt.px(12),
-                            ),
-                            child: widget.customTopWidget ?? SizedBox(),
-                          )
-                        : SizedBox(),
+                    if (widget.customTopWidget != null)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Adapt.px(12),
+                        ),
+                        child: widget.customTopWidget,
+                      ),
                     Flexible(
                       child: widget.messages.isEmpty
                           ? SizedBox.expand(
@@ -591,79 +579,27 @@ class ChatState extends State<Chat> {
   }
 
     Widget _buildBottomInputArea() {
-      final chatStatus = widget.chatStatus;
-      Widget container({required Widget child}) => SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            color: ThemeColor.color190,
-            borderRadius: BorderRadius.circular(Adapt.px(12)),
-          ),
-          margin: EdgeInsets.only(bottom: Adapt.px(10)),
-          height: Adapt.px(58),
-          child: child,
-        ),
-      );
-      if (chatStatus == ChatStatus.NotJoined) {
-        return GestureDetector(
-          child: container(
+      final bottomHintParam = widget.bottomHintParam;
+      if (bottomHintParam != null) {
+        return SafeArea(
+          child: GestureDetector(
+            onTap: bottomHintParam.onTap,
             child: Container(
+              decoration: BoxDecoration(
+                color: ThemeColor.color190,
+                borderRadius: BorderRadius.circular(Adapt.px(12)),
+              ),
+              margin: EdgeInsets.only(bottom: Adapt.px(10)),
+              height: Adapt.px(58),
               alignment:Alignment.center,
               child: Text(
-                Localized.text('ox_chat_ui.channel_join'),
-                style: TextStyle(color: ThemeColor.gradientMainStart),
+                bottomHintParam.text,
+                style: TextStyle(
+                  color: ThemeColor.gradientMainStart,
+                ),
+                maxLines: 2,
+                textAlign: TextAlign.center,
               ),
-            ),
-          ),
-          onTap: (){
-            widget.onJoinChannelTap?.call();
-          },
-        );
-      }
-      else if (chatStatus == ChatStatus.NotJoinedGroup) {
-        return GestureDetector(
-          child: container(
-            child: Container(
-              alignment:Alignment.center,
-              child: Text(
-                Localized.text('ox_chat_ui.group_join'),
-                style: TextStyle(color: ThemeColor.gradientMainStart),
-              ),
-            ),
-          ),
-          onTap: (){
-            widget.onJoinGroupTap?.call();
-          },
-        );
-      }
-      else if (chatStatus == ChatStatus.RequestGroup) {
-        return GestureDetector(
-          child: container(
-            child: Container(
-              alignment:Alignment.center,
-              child: Text(
-                Localized.text('ox_chat_ui.group_request'),
-                style: TextStyle(color: ThemeColor.gradientMainStart),
-              ),
-            ),
-          ),
-          onTap: (){
-            widget.onRequestGroupTap?.call();
-          },
-        );
-      }
-      else if (chatStatus == ChatStatus.InsufficientBadge) {
-        final text = chatStatus == ChatStatus.InsufficientBadge ?
-        Localized.text('ox_chat_ui.channel_badge_requirements') :
-        Localized.text('ox_chat_ui.friend_requirements');
-        return container(
-          child: Container(
-            alignment:Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: Adapt.px(56)),
-            child: Text(
-              text,
-              style: TextStyle(color: ThemeColor.color100, fontSize: Adapt.px(12)),
-              maxLines: 2,
-              textAlign: TextAlign.center,
             ),
           ),
         );

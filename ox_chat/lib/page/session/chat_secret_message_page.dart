@@ -4,9 +4,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:ox_chat/manager/chat_message_builder.dart';
-import 'package:ox_chat/utils/chat_voice_helper.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
+import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/widget/secret_hint_widget.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
@@ -15,30 +14,25 @@ import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/string_utils.dart';
-import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
-import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
-import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:screen_protector/screen_protector.dart';
 
 class ChatSecretMessagePage extends StatefulWidget {
-  final ChatSessionModel communityItem;
+  final ChatSessionModelISAR communityItem;
   final String? anchorMsgId;
 
   const ChatSecretMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
@@ -47,29 +41,25 @@ class ChatSecretMessagePage extends StatefulWidget {
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
 }
 
-class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin, ChatGeneralHandlerMixin {
-  List<types.Message> _messages = [];
-  late types.User _user;
-  bool isMore = false;
-  bool isShowContactMenu = true;
-  late double keyboardHeight = 0;
-  late ChatStatus chatStatus;
-  SecretSessionDB? _secretSessionDB;
-  UserDB? otherUser;
-
-  String get receiverPubkey => otherUser?.pubKey ?? widget.communityItem.getOtherPubkey;
-
-  @override
-  ChatSessionModel get session => widget.communityItem;
-
-  String get sessionId => widget.communityItem.chatId ?? '';
+class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXChatObserver, MessagePromptToneMixin {
 
   late ChatGeneralHandler chatGeneralHandler;
-  final pageConfig = ChatPageConfig();
+  List<types.Message> _messages = [];
+
+  bool isShowContactMenu = true;
+
+  SecretSessionDBISAR? _secretSessionDB;
+  UserDBISAR? get otherUser => chatGeneralHandler.otherUser;
+
+  ChatHintParam? bottomHintParam;
+
+  @override
+  ChatSessionModelISAR get session => widget.communityItem;
+
+  String get sessionId => widget.communityItem.chatId;
 
   @override
   void initState() {
-    setupUser();
     setupChatGeneralHandler();
     super.initState();
 
@@ -77,7 +67,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     protectScreen();
     initSecretData();
     prepareData();
-    addListener();
   }
 
   @override
@@ -130,7 +119,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
 
   void setupChatGeneralHandler() {
     chatGeneralHandler = ChatGeneralHandler(
-      author: _user,
       session: widget.communityItem,
       refreshMessageUI: (messages) {
         setState(() {
@@ -139,24 +127,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       },
       fileEncryptionType: types.EncryptionType.encrypted,
     );
-    chatGeneralHandler.messageDeleteHandler = _removeMessage;
-  }
-
-  void setupUser() {
-    // Mine
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
-    _user = types.User(
-      id: userDB!.pubKey,
-      sourceObject: userDB,
-    );
-    otherUser = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
-    if (otherUser == null) {
-      () async {
-        // Other
-        otherUser = await Account.sharedInstance.getUserInfo(widget.communityItem.getOtherPubkey);
-        setState(() { });
-      };
-    }
   }
 
   void prepareData() {
@@ -165,15 +135,8 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }
 
-  void addListener() {
-    ChatDataCache.shared.addObserver(widget.communityItem, (value) {
-      chatGeneralHandler.refreshMessage(_messages, value);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    bool showUserNames = widget.communityItem.chatType == 0 ? false : true;
     return Scaffold(
       backgroundColor: ThemeColor.color200,
       resizeToAvoidBottomInset: false,
@@ -229,69 +192,29 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
           ).setPadding(EdgeInsets.only(right: Adapt.px(24))),
         ],
       ),
-      body: Chat(
-        chatId: widget.communityItem.chatId,
-        theme: pageConfig.pageTheme,
-        anchorMsgId: widget.anchorMsgId,
+      body: CommonChatWidget(
+        handler: chatGeneralHandler,
         messages: _messages,
-        isLastPage: !chatGeneralHandler.hasMoreMessage,
-        onEndReached: () async {
-          await _loadMoreMessages();
-        },
-        onMessageTap: chatGeneralHandler.messagePressHandler,
-        onPreviewDataFetched: _handlePreviewDataFetched,
-        onSendPressed: (msg) async => await chatGeneralHandler.sendTextMessage(context, msg.text),
-        avatarBuilder: (message) => OXUserAvatar(
-          user: message.author.sourceObject,
-          size: Adapt.px(40),
-          isCircular: false,
-          isClickable: true,
-          onReturnFromNextPage: () {
-            setState(() {});
-          },
-        ),
-        showUserNames: showUserNames,
-        //Group chat display nickname
-        user: _user,
-        useTopSafeAreaInset: true,
-        chatStatus: chatStatus,
-        inputMoreItems: pageConfig.inputMoreItemsWithHandler(chatGeneralHandler),
-        onVoiceSend: (String path, Duration duration) => chatGeneralHandler.sendVoiceMessage(context, path, duration),
-        onGifSend: (GiphyImage image) => chatGeneralHandler.sendGifImageMessage(context, image),
-        onAttachmentPressed: () {},
-        longPressWidgetBuilder: (context, message, controller) => pageConfig.longPressWidgetBuilder(
-          context: context,
-          message: message,
-          controller: controller,
-          handler: chatGeneralHandler,
-        ),
-        onMessageStatusTap: chatGeneralHandler.messageStatusPressHandler,
-        textMessageOptions: chatGeneralHandler.textMessageOptions(context),
-        imageGalleryOptions: pageConfig.imageGalleryOptions(decryptionKey: receiverPubkey),
-        customTopWidget: isShowContactMenu ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu) : null,
-        customMessageBuilder: ChatMessageBuilder.buildCustomMessage,
+        anchorMsgId: widget.anchorMsgId,
+        customTopWidget: isShowContactMenu
+            ? NotContactTopWidget(chatSessionModel: widget.communityItem, onTap: _hideContactMenu)
+            : null,
         customCenterWidget: _messages.length > 0 ? null : SecretHintWidget(chatSessionModel: widget.communityItem),
         customBottomWidget: (_secretSessionDB == null || _secretSessionDB!.currentStatus == 2) ? null : customBottomWidget(),
-        inputOptions: chatGeneralHandler.inputOptions,
-        inputBottomView: chatGeneralHandler.replyHandler.buildReplyMessageWidget(),
-        onFocusNodeInitialized: chatGeneralHandler.replyHandler.focusNodeSetter,
-        repliedMessageBuilder: ChatMessageBuilder.buildRepliedMessageView,
-        reactionViewBuilder: ChatMessageBuilder.buildReactionsView,
-        onAudioDataFetched: (message) => ChatVoiceMessageHelper.populateMessageWithAudioDetails(session: session, message: message),
-        onInsertedContent: (KeyboardInsertedContent insertedContent) => chatGeneralHandler.sendInsertedContentMessage(context, insertedContent),
+        bottomHintParam: bottomHintParam,
       ),
     );
   }
 
   @override
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {
+  void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) {
     setState(() {
       _secretSessionDB = ssDB;
     });
   }
 
   @override
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {
+  void didSecretChatRejectCallBack(SecretSessionDBISAR ssDB) {
     setState(() {
       _secretSessionDB = ssDB;
     });
@@ -309,22 +232,15 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
   }
 
   void _updateChatStatus() {
-    final userId = receiverPubkey;
-    final user = Contacts.sharedInstance.allContacts[userId];
-    if (user == null) {
-      chatStatus = ChatStatus.NotContact;
-    } else {
-      chatStatus = ChatStatus.Normal;
-    }
-    ChatLogUtils.info(className: 'ChatSecretMessagePage', funcName: '_updateChatStatus', message: 'chatStatus: $chatStatus, user: $user');
-  }
+    final userId = otherUser?.pubKey ?? '';
+    if (userId.isEmpty) return ;
 
-  void _removeMessage(types.Message message) {
-    ChatDataCache.shared.deleteMessage(widget.communityItem, message);
+    final isContact = Contacts.sharedInstance.allContacts.containsKey(userId);
+    isShowContactMenu = !isContact;
   }
 
   Widget customBottomWidget() {
-    UserDB? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
+    UserDBISAR? otherDB = Account.sharedInstance.userCache[widget.communityItem.getOtherPubkey]?.value;
     String showUsername = otherDB?.getUserShowName() ?? '';
     String _hintText = '';
     String _leftBtnTxt = '';
@@ -432,17 +348,6 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
     );
   }
 
-  void _handlePreviewDataFetched(
-    types.TextMessage message,
-    PreviewData previewData,
-  ) {
-    final index = _messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
-      previewData: previewData,
-    );
-    ChatDataCache.shared.updateMessage(session: widget.communityItem, message: updatedMessage);
-  }
-
   Future<void> _loadMoreMessages() async {
     await chatGeneralHandler.loadMoreMessage(_messages);
   }
@@ -462,7 +367,7 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
                 final OKEvent okEvent = await Contacts.sharedInstance.reject(_secretSessionDB!.sessionId);
                 await OXLoading.dismiss();
                 if (okEvent.status) {
-                  UserDB? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
+                  UserDBISAR? toPubkeyUserDB = Contacts.sharedInstance.allContacts[_secretSessionDB!.toPubkey];
                   await OXChatBinding.sharedInstance.deleteSession(
                     [widget.communityItem.chatId],
                     isStranger: toPubkeyUserDB == null,

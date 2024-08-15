@@ -25,10 +25,10 @@ class OXValue<T> {
   T value;
 }
 
-class ChatMessageDBToUIHelper {
+class ChatMessageHelper {
 
-  static String? sessionMessageTextBuilder(MessageDB message) {
-    final type = MessageDB.stringtoMessageType(message.type);
+  static String? sessionMessageTextBuilder(MessageDBISAR message) {
+    final type = MessageDBISAR.stringtoMessageType(message.type);
     final decryptContent = message.decryptContent;
     return getMessagePreviewText(decryptContent, type, message.sender);
   }
@@ -81,7 +81,7 @@ class ChatMessageDBToUIHelper {
             var senderName = '';
             final isMe = OXUserInfoManager.sharedInstance.isCurrentUser(sender);
             final userDB = Account.sharedInstance.getUserInfo(sender);
-            if (userDB is UserDB) {
+            if (userDB is UserDBISAR) {
               senderName = userDB.name ?? '';
             }
             final name = isMe
@@ -116,6 +116,8 @@ class ChatMessageDBToUIHelper {
                     memo = EcashMessageEx.getDescriptionWithMetadata(json.decode(contentText));
                   } catch (_) { }
                   return '[Cashu Ecash] $memo';
+                case CustomMessageType.imageSending:
+                  return Localized.text('ox_common.message_type_image');
                 default:
                   break ;
               }
@@ -134,7 +136,7 @@ class ChatMessageDBToUIHelper {
   }
 }
 
-extension MessageDBToUIEx on MessageDB {
+extension MessageDBToUIEx on MessageDBISAR {
 
   String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
 
@@ -177,7 +179,7 @@ extension MessageDBToUIEx on MessageDB {
     logger?.print('step4 - contentType: ${contentModel.contentType}');
 
     // Message UI Model Creator
-    MessageFactory messageFactory = await getMessageFactory(
+    MessageFactory messageFactory = getMessageFactory(
       contentModel,
       isMentionMessageCallback,
       logger,
@@ -210,6 +212,7 @@ extension MessageDBToUIEx on MessageDB {
       status: msgStatus,
       fileEncryptionType: fileEncryptionType,
       repliedMessage: repliedMessage,
+      repliedMessageId: this.replyId,
       previewData: this.previewData,
       decryptKey: this.decryptSecret,
       expiration: this.expiration,
@@ -225,7 +228,7 @@ extension MessageDBToUIEx on MessageDB {
   MessageContentModel getContentModel() {
     final contentModel = MessageContentModel();
     contentModel.mid = messageId;
-    contentModel.contentType = MessageDB.stringtoMessageType(this.type);
+    contentModel.contentType = MessageDBISAR.stringtoMessageType(this.type);
     try {
       final decryptedContent = json.decode(decryptContent);
       if (decryptedContent is Map) {
@@ -244,7 +247,7 @@ extension MessageDBToUIEx on MessageDB {
   }
 
   Future<types.User?> getAuthor() async {
-    final author = await ChatMessageDBToUIHelper.getUser(sender);
+    final author = await ChatMessageHelper.getUser(sender);
     if (author == null) {
       ChatLogUtils.error(
         className: 'MessageDBToUIEx',
@@ -351,10 +354,10 @@ extension MessageDBToUIEx on MessageDB {
 
       final zapDB = zapReceipt.first;
 
-      UserDB? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
       if(user == null) continue;
 
-      int amount = ZapRecordsDB.getZapAmount(zapDB.bolt11);
+      int amount = ZapRecordsDBISAR.getZapAmount(zapDB.bolt11);
       types.ZapsInfo info = types.ZapsInfo(author: user, amount: amount.toString(), unit: 'sats');
       zaps.add(info);
     }
@@ -363,23 +366,21 @@ extension MessageDBToUIEx on MessageDB {
 
   Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
     if (replyId.isNotEmpty && loadRepliedMessage) {
-      final result = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [replyId]);
-      final messageList = result['messages'];
-      if (messageList is List<MessageDB> && messageList.isNotEmpty) {
-        final repliedMessageDB = messageList.first;
+      final repliedMessageDB = await Messages.sharedInstance.loadMessageDBFromDB(replyId);
+      if (repliedMessageDB != null) {
         return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
       }
     }
     return null;
   }
 
-  Future<MessageFactory> getMessageFactory(
+  MessageFactory getMessageFactory(
     MessageContentModel contentModel,
     [
       VoidCallback? isMentionMessageCallback = null,
       MessageCheckLogger? logger,
     ]
-  ) async {
+  ) {
     final messageType = contentModel.contentType;
     switch (messageType) {
       case MessageType.text:
@@ -402,7 +403,7 @@ extension MessageDBToUIEx on MessageDB {
             logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
             if(nostrSchemeContent != null) {
               parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
-              await DB.sharedInstance.update(this);
+              await Messages.saveMessageToDB(this);
               final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
               final uiMessage = await this.toChatUIMessage();
               if(uiMessage != null){
@@ -424,7 +425,7 @@ extension MessageDBToUIEx on MessageDB {
             parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
             contentModel.content = this.decryptContent;
             logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-            await DB.sharedInstance.update(this);
+            Messages.saveMessageToDB(this);
             return CustomMessageFactory();
           }
         } else if (Cashu.isCashuToken(initialText)) {
@@ -432,13 +433,21 @@ extension MessageDBToUIEx on MessageDB {
           parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
           contentModel.content = this.decryptContent;
           logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-          await DB.sharedInstance.update(this);
+          Messages.saveMessageToDB(this);
           return CustomMessageFactory();
         }
 
         return TextMessageFactory();
       case MessageType.image:
       case MessageType.encryptedImage:
+        final meta = CustomMessageEx.imageSendingMetaData(
+          url: contentModel.content ?? '',
+          encryptedKey: decryptSecret,
+        );
+        try {
+          contentModel.content = jsonEncode(meta);
+          return CustomMessageFactory();
+        } catch (_) { }
         return ImageMessageFactory();
       case MessageType.video:
       case MessageType.encryptedVideo:
@@ -472,8 +481,13 @@ extension MessageDBToUIEx on MessageDB {
     required MessageType type,
     required String decryptContent
   }) {
-    this.type = MessageDB.messageTypeToString(type);
+    this.type = MessageDBISAR.messageTypeToString(type);
     this.decryptContent = decryptContent;
+  }
+
+  String get messagePreviewText {
+    final type = MessageDBISAR.stringtoMessageType(this.type);
+    return ChatMessageHelper.getMessagePreviewText(decryptContent, type, sender);
   }
 }
 
@@ -491,6 +505,10 @@ extension MessageUIToDBEx on types.Message {
       case types.MessageType.file:
         return MessageType.file;
       case types.MessageType.custom:
+        final msg = this;
+        if (msg.isImageMessage) {
+          return encrypt ? MessageType.encryptedImage : MessageType.image;
+        }
         return MessageType.template;
       case types.MessageType.system:
         return MessageType.system;
@@ -513,13 +531,16 @@ extension MessageUIToDBEx on types.Message {
     ) {
       return content;
     } else if (msg is types.CustomMessage) {
+      if (msg.isImageMessage) {
+        return ImageSendingMessageEx(msg).url;
+      }
       return msg.customContentString;
     }
     return jsonEncode(map);
   }
 }
 
-extension UserDBToUIEx on UserDB {
+extension UserDBToUIEx on UserDBISAR {
   types.User toMessageModel() {
     types.User _user = types.User(
       id: pubKey,
@@ -538,11 +559,49 @@ extension UIMessageEx on types.Message {
       return '';
     }
     final authorName = author.getUserShowName();
-    final previewText = ChatMessageDBToUIHelper.getMessagePreviewText(
+    return '$authorName: $messagePreviewText';
+  }
+
+  String get messagePreviewText {
+    return ChatMessageHelper.getMessagePreviewText(
       this.content,
       this.dbMessageType(),
       this.author.id,
     );
-    return '$authorName: $previewText';
+  }
+
+  bool get isImageSendingMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.imageSending
+        && ImageSendingMessageEx(msg).url.isEmpty;
+  }
+
+  bool get isImageMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.imageSending
+        && ImageSendingMessageEx(msg).url.isNotEmpty;
+  }
+}
+
+extension UIImageMessageEx on types.ImageMessage {
+  types.Message asCustomImageMessage() {
+    return CustomMessageFactory().createImageSendingMessage(
+      author: author,
+      timestamp: this.createdAt,
+      roomId: roomId ?? '',
+      id: id,
+      path: '',
+      url: uri,
+      width: width?.toInt(),
+      height: height?.toInt(),
+      encryptedKey: decryptKey,
+      remoteId: remoteId,
+      sourceKey: sourceKey,
+      expiration: expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
+    );
   }
 }

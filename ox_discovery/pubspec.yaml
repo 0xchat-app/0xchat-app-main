@@ -18,10 +18,8 @@ dependencies:
   path: ^1.8.0
   video_compress: ^3.1.2
   path_provider: ^2.0.11
-  video_thumbnail: ^0.5.3
   youtube_player_flutter: ^8.1.1
   visibility_detector: ^0.3.3
-  chewie: ^1.4.0  #Player
   flutter_cache_manager: 3.3.1
 
   ox_module_service:

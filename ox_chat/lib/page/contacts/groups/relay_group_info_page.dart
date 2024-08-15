@@ -7,6 +7,7 @@ import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/model/search_chat_model.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_base_info_page.dart';
 import 'package:ox_chat/page/contacts/groups/relay_group_manage_admins_page.dart';
+import 'package:ox_chat/page/contacts/groups/relay_group_request.dart';
 import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/group_share_utils.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -24,6 +25,7 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/custom_avatar_stack.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import '../contact_group_list_page.dart';
@@ -41,14 +43,14 @@ class RelayGroupInfoPage extends StatefulWidget {
 
 class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   bool _isMute = false;
-  List<UserDB> groupMember = [];
-  RelayGroupDB? groupDBInfo = null;
+  List<UserDBISAR> groupMember = [];
+  RelayGroupDBISAR? groupDBInfo = null;
   bool _isGroupMember = false;
   bool _hasAddUserPermission = false;
   bool _hasRemoveUserPermission = false;
   bool _hasAddPermission = false;
   bool _hasEditGroupStatusPermission = false;
-  UserDB? userDB;
+  UserDBISAR? userDB;
 
   @override
   void initState() {
@@ -198,37 +200,20 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     int groupMemberNum = groupMember.length;
     if (groupMemberNum == 0) return Container();
     int renderCount = groupMemberNum > 8 ? 8 : groupMemberNum;
-    return Container(
-      margin: EdgeInsets.only(
-        right: Adapt.px(0),
-      ),
-      constraints: BoxConstraints(
-          maxWidth: Adapt.px(24 * renderCount + 24), minWidth: Adapt.px(48)),
-      child: AvatarStack(
-        settings: RestrictedPositions(
-            align: StackAlign.left,
-            laying: StackLaying.first),
-        borderColor: ThemeColor.color180,
-        height: Adapt.px(48),
-        avatars: _showMemberAvatarWidget(renderCount),
-      ),
+    return CustomAvatarStack(
+      maxAvatars: groupMemberNum,
+      imageUrls: _getMemberAvatars(renderCount),
+      avatarSize: 48.px,
+      spacing: 24.px,
+      borderColor: ThemeColor.color180,
     );
   }
 
-  List<ImageProvider<Object>> _showMemberAvatarWidget(int renderCount) {
-    List<ImageProvider<Object>> avatarList = [];
+  List<String> _getMemberAvatars(int renderCount) {
+    List<String> avatarList = [];
     for (var n = 0; n < renderCount; n++) {
-      String? groupPic = groupMember[n].picture;
-      if (groupPic != null && groupPic.isNotEmpty) {
-        avatarList.add(OXCachedNetworkImageProviderEx.create(
-          context,
-          groupPic,
-        ));
-      } else {
-        avatarList.add(
-            AssetImage('assets/images/user_image.png', package: 'ox_common'));
-      }
-      // CachedNetworkImageProvider()
+      String groupPic = groupMember[n].picture ?? '';
+      avatarList.add(groupPic);
     }
     return avatarList;
   }
@@ -307,6 +292,13 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
             onTap: null,
             isShowMoreIcon: false,
             isShowDivider: _hasAddPermission,
+          ),
+          if (_hasAddPermission)
+            GroupItemBuild(
+            title: Localized.text('ox_chat.join_request'),
+            onTap: _groupRequestFn,
+            isShowMoreIcon: true,
+            isShowDivider: true,
           ),
           if (_hasAddPermission)
             GroupItemBuild(
@@ -584,7 +576,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -607,7 +599,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await OXLoading.dismiss();
       if (!event.status) return CommonToast.instance.show(context, event.message);
       setState(() {
-        RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+        RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[widget.groupId];
         if (groupDB != null) {
           groupDBInfo = groupDB;
         }
@@ -617,6 +609,12 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _updateGroupNoticeFn() async {
 
+  }
+
+  void _groupRequestFn() async {
+    OXNavigator.pushPage(context, (context) => RelayGroupRequestsPage(groupId: widget.groupId)).then((value) {
+      _loadMembers();
+    });
   }
 
   void _manageGroupFn() async {
@@ -700,6 +698,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_no_member_toast'));
       return;
     }
+    await OXLoading.show();
     if (value) {
       await RelayGroup.sharedInstance.muteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
@@ -707,9 +706,16 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
       await RelayGroup.sharedInstance.unMuteGroup(widget.groupId);
       CommonToast.instance.show(context, Localized.text('ox_chat.group_mute_operate_success_toast'));
     }
-    setState(() {
-      _isMute = value;
-    });
+    final bool result = await OXUserInfoManager.sharedInstance.setNotification();
+    await OXLoading.dismiss();
+    if (result) {
+      if (mounted)
+        setState(() {
+          _isMute = value;
+        });
+    } else {
+      CommonToast.instance.show(context, 'mute_fail_toast'.localized());
+    }
   }
 
   void _groupMemberOptionFn(GroupListAction action) async {
@@ -727,6 +733,7 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
   void _leaveGroupFn() async {
     OXLoading.show();
     OKEvent event = await RelayGroup.sharedInstance.leaveGroup(widget.groupId);
+    OXUserInfoManager.sharedInstance.setNotification();
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
       OXLoading.dismiss();
@@ -740,18 +747,18 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
 
   void _groupInfoInit() {
     String groupId = widget.groupId;
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
     if (groupDB != null) {
       groupDBInfo = groupDB;
       _isMute = groupDB.mute;
       _getPermissionValue();
       setState(() {});
-      _loadMembers(groupDB);
+      _loadMembers();
     }
   }
 
-  void _getIsGroupMemberValue(List<UserDB> memberUserDBs) {
-    UserDB? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+  void _getIsGroupMemberValue(List<UserDBISAR> memberUserDBs) {
+    UserDBISAR? userInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (userInfo == null) {
       _isGroupMember = false;
     } else {
@@ -759,8 +766,8 @@ class _RelayGroupInfoPageState extends State<RelayGroupInfoPage> {
     }
   }
 
-  void _loadMembers(RelayGroupDB groupDB) async {
-    List<UserDB> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
+  void _loadMembers() async {
+    List<UserDBISAR> localMembers = await RelayGroup.sharedInstance.getGroupMembersFromLocal(widget.groupId);
     if (localMembers.isNotEmpty) {
       groupMember = localMembers;
       _getIsGroupMemberValue(localMembers);

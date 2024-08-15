@@ -6,7 +6,6 @@
   "latest_item": "Senaste",
   "channel_search_hint_text": "Sök kanal",
   "moment": "Ögonblick",
-  "channel": "Kanal",
   "private": "privat",
   "all": "Alla",
   "public": "Offentlig",
@@ -76,5 +75,11 @@
   "loading_note": "Laddar anteckning...",
   "hour_age_tips": "timmar sedan",
   "minute_age_tips": "minuter sedan",
-  "just_now": "precis nu"
+  "just_now": "precis nu",
+  "group": "Grupper",
+  "channel": "Kanaler",
+  "group_search_text": "Sök Öppna & Stängda Grupper",
+  "channel_search_text": "Sök Offentliga Kanaler",
+  "member": "Medlem",
+  "members": "Medlemmar"
 }

@@ -6,6 +6,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -35,7 +36,7 @@ class _KeysPageState extends State<KeysPage>{
   bool _privateKeyCopyied = false;
   bool _isShowPrivkey = false;
   String _localPasscode = '';
-  late UserDB userDB;
+  late UserDBISAR userDB;
   final TextEditingController _pubTextEditingController = TextEditingController();
   final TextEditingController _privTextEditingController = TextEditingController();
 
@@ -49,7 +50,7 @@ class _KeysPageState extends State<KeysPage>{
   }
 
   void initData() async {
-    _localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    _localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '') as String;
   }
 
   @override

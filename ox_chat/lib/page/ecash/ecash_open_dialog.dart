@@ -6,7 +6,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:easy_loading_button/easy_loading_button.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
-import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
@@ -15,6 +14,7 @@ import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/future_extension.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -55,7 +55,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
 
   static const themeColor = Color(0xFF7F38CA);
 
-  String ownerName = '';
+  String? ownerName;
   bool isRedeemed = false;
   bool isForOtherUser = false;
 
@@ -75,22 +75,26 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     isForOtherUser = widget.package.isForOtherUser;
 
     isNeedSignature = widget.package.signees.isNotEmpty;
-    if (isNeedSignature) {
+    final messageId = widget.package.messageId;
+    if (isNeedSignature && messageId != null && messageId.isNotEmpty) {
       isFinishSignature = widget.package.isFinishSignature;
       isTurnToSign = widget.package.nextSignatureIsMe;
 
-      EcashHelper.isMessageSigned(widget.package.messageId).then((value) {
+      EcashHelper.isMessageSigned(messageId).then((value) {
         setState(() {
           isMessageSigned = value;
         });
       });
     }
 
-    Account.sharedInstance.getUserInfo(widget.package.senderPubKey).handle((user) {
-      setState(() {
-        ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
+    final senderPubKey = widget.package.senderPubKey;
+    if (senderPubKey != null && senderPubKey.isNotEmpty) {
+      Account.sharedInstance.getUserInfo(senderPubKey).handle((user) {
+        setState(() {
+          ownerName = user?.getUserShowName() ?? 'ecash_anonymity'.localized();
+        });
       });
-    });
+    }
     animationController.forward(from: 0);
   }
 
@@ -163,22 +167,25 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   }
 
   Widget buildSubtitle() {
-    var text = 'ecash_owner_title'.localized({
-      r'${ownerName}': ownerName,
-    });
-    if (isNeedSignature && !isFinishSignature) {
-      if (isMessageSigned) {
-        text = 'ecash_my_signature_complete_title'.localized({
-          r'${ownerName}': ownerName,
-        });
-      } else if (isTurnToSign) {
-        text = 'ecash_wait_my_signature_title'.localized({
-          r'${ownerName}': ownerName,
-        });
-      } else {
-        text = 'ecash_wait_other_signature_title'.localized({
-          r'${ownerName}': ownerName,
-        });
+    var text = '';
+    if (ownerName != null) {
+      text = 'ecash_owner_title'.localized({
+        r'${ownerName}': ownerName!,
+      });
+      if (isNeedSignature && !isFinishSignature) {
+        if (isMessageSigned) {
+          text = 'ecash_my_signature_complete_title'.localized({
+            r'${ownerName}': ownerName!,
+          });
+        } else if (isTurnToSign) {
+          text = 'ecash_wait_my_signature_title'.localized({
+            r'${ownerName}': ownerName!,
+          });
+        } else {
+          text = 'ecash_wait_other_signature_title'.localized({
+            r'${ownerName}': ownerName!,
+          });
+        }
       }
     }
     return Text(
@@ -426,9 +433,10 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
     updateMessageToRedeemedState(widget.package.messageId);
   }
 
-  Future updateMessageToRedeemedState(String messageId) async {
-    final messages = await Messages.loadMessagesFromDB(where: 'messageId = ?', whereArgs: [messageId]);
-    final messageDB = (messages['messages'] as List<MessageDB>).firstOrNull;
+  Future updateMessageToRedeemedState(String? messageId) async {
+    if (messageId == null || messageId.isEmpty) return ;
+
+    final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(messageId);
     if (messageDB != null) {
       final chatKey = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(messageDB);
       final uiMessage = await ChatDataCache.shared.getMessage(
@@ -439,7 +447,7 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
       if (uiMessage is types.CustomMessage) {
         EcashMessageEx(uiMessage).isOpened = true;
         messageDB.decryptContent = jsonEncode(uiMessage.metadata);
-        await DB.sharedInstance.update(messageDB);
+        await Messages.saveMessageToDB(messageDB);
         await ChatDataCache.shared.updateMessage(chatKey: chatKey, message: uiMessage);
       }
     }

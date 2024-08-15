@@ -9,5 +9,6 @@
   "str_invite_you_to_a_voice_call": "邀请您通话...",
   "str_invite_you_to_a_video_call": "邀请您视频通话...",
   "str_call_connecting": "正在连接...",
-  "str_call_busy": "忙线未接听"
+  "str_call_busy": "忙线未接听",
+  "str_voice_call_in_use": "语音通话中"
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/widget/rich_text_color.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -19,7 +20,7 @@ import 'package:ox_module_service/ox_module_service.dart';
 ///@author Michael
 ///CreateTime: 2023/8/24 10:37
 class SecretHintWidget extends StatefulWidget {
-  final ChatSessionModel chatSessionModel;
+  final ChatSessionModelISAR chatSessionModel;
 
   const SecretHintWidget({Key? key, required this.chatSessionModel}) : super(key: key);
 
@@ -28,7 +29,7 @@ class SecretHintWidget extends StatefulWidget {
 }
 
 class _SecretHintWidgetState extends State<SecretHintWidget> {
-  SecretSessionDB? _ssDB;
+  SecretSessionDBISAR? _ssDB;
   late String _relayName;
 
   @override

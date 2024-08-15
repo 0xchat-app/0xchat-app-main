@@ -374,14 +374,14 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
 
   void _groupInfoInit() async {
     if (widget.groupType == GroupType.privateGroup) {
-      GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+      GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
       if (groupDB != null) {
         groupName = groupDB.name;
         _getGroupQrcode(groupDB);
         setState(() {});
       }
     } else {
-      RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
+      RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.myGroups[widget.groupId];
       if (relayGroupDB != null) {
         groupName = relayGroupDB.name;
         _groupNevent = RelayGroup.sharedInstance.encodeGroup(relayGroupDB.groupId);
@@ -392,7 +392,7 @@ class _GroupSettingQrcodePageState extends State<GroupSettingQrcodePage> {
     }
   }
 
-  void _getGroupQrcode(GroupDB groupDB){
+  void _getGroupQrcode(GroupDBISAR groupDB){
     String relay = groupDB.relay ?? '';
     String groupOwner = groupDB.owner;
     String groupId = groupDB.groupId;

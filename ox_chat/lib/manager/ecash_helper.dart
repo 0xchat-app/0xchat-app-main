@@ -4,13 +4,15 @@ import 'dart:math';
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_message_helper.dart';
+import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
 import 'package:ox_chat/page/ecash/ecash_info.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
+import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
-import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/encrypt_utils.dart';
+import 'package:isar/isar.dart';
 
 class EcashHelper {
 
@@ -20,7 +22,7 @@ class EcashHelper {
     int totalAmount = 0;
     String memo = '';
     List<String> tokenList = [];
-    List<UserDB> receiver = [];
+    List<UserDBISAR> receiver = [];
     List<EcashPackageSignee> signees = [];
     String validityDate = '';
 
@@ -36,12 +38,12 @@ class EcashHelper {
         tokenList = EcashV2MessageEx(message).tokenList;
         receiver = EcashV2MessageEx(message).receiverPubkeys
             .map((pubkey) => Account.sharedInstance.getUserInfo(pubkey))
-            .where((user) => user is UserDB)
+            .where((user) => user is UserDBISAR)
             .toList()
-            .cast<UserDB>();
+            .cast<UserDBISAR>();
         signees = EcashV2MessageEx(message).signees
             .map((signee) => (Account.sharedInstance.getUserInfo(signee.$1), signee.$2))
-            .where((e) => e.$1 is UserDB)
+            .where((e) => e.$1 is UserDBISAR)
             .toList()
             .cast<EcashPackageSignee>();
         validityDate = EcashV2MessageEx(message).validityDate;
@@ -75,15 +77,41 @@ class EcashHelper {
     );
   }
 
-  static Future<Map<String, EcashReceiptHistory>> getHistoryForTokenList(List<String> tokenList) async {
+
+  static Future<EcashPackage> createPackageFromCashuToken(String cashuToken) async {
+    final info = Cashu.infoOfToken(cashuToken);
+    if (info == null) throw Exception('invalid cashuToken');
+
+    List<String> tokenList = [cashuToken];
+    List<UserDBISAR> receiver = (await Account.sharedInstance.getUserInfos(info.p2pkInfo?.receivePubKeys ?? []))
+        .values.toList();
+
+    final historyMap = await getHistoryForTokenList(tokenList);
+    final tokenMD5 = EncryptUtils.generateMd5(cashuToken);
+    final tokenInfo = EcashTokenInfo(
+      token: cashuToken,
+      amount: info.amount,
+      redeemHistory: historyMap[tokenMD5],
+    );
+
+    return EcashPackage(
+      totalAmount: tokenInfo.amount,
+      tokenInfoList: [tokenInfo],
+      memo: info.memo,
+      receiver: receiver,
+    );
+  }
+
+  static Future<Map<String, EcashReceiptHistoryISAR>> getHistoryForTokenList(List<String> tokenList) async {
     final tokenMD5List = tokenList.map((token) => EncryptUtils.generateMd5(token));
-    final historyByOther = (await DB.sharedInstance.objects<EcashReceiptHistory>(
-      where: 'tokenMD5 in (${tokenMD5List.map((e) => '"$e"').join(',')})',
-    ));
+    final isar = DBISAR.sharedInstance.isar;
+    final historyByOther = await isar.ecashReceiptHistoryISARs.filter()
+        .anyOf(tokenMD5List, (q, tokenMD5) => q.tokenMD5EqualTo(tokenMD5))
+        .findAll();
 
     final historyByMe = await Cashu.getHistory(value: tokenList);
 
-    final Map<String, EcashReceiptHistory> result = {};
+    final Map<String, EcashReceiptHistoryISAR> result = {};
     historyByOther.forEach((entry) {
       result[entry.tokenMD5] = entry;
     });
@@ -97,12 +125,14 @@ class EcashHelper {
     return result;
   }
 
-  static Future<EcashReceiptHistory> addReceiptHistoryForToken(String token) async {
-    final history = EcashReceiptHistory(
+  static Future<EcashReceiptHistoryISAR> addReceiptHistoryForToken(String token) async {
+    final history = EcashReceiptHistoryISAR(
       tokenMD5: EncryptUtils.generateMd5(token),
       isMe: false,
     );
-    await DB.sharedInstance.insertBatch<EcashReceiptHistory>(history);
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.ecashReceiptHistoryISARs.put(history);
+    });
     return history;
   }
 
@@ -167,22 +197,23 @@ class EcashHelper {
   }
 
   static Future<bool> isMessageSigned(String messageId) async {
-    return (await DB.sharedInstance.objects<EcashSignatureRecord>(
-      where: 'messageId = ?',
-      whereArgs: [messageId],
-    )).isNotEmpty;
+    final isar = DBISAR.sharedInstance.isar;
+    final signRecord = await isar.ecashSignatureRecordISARs.filter().messageIdEqualTo(messageId).findFirst();
+    return signRecord != null;
   }
 
   static Future<bool> setMessageSigned(String messageId) async {
-    return (await DB.sharedInstance.insert<EcashSignatureRecord>(
-      EcashSignatureRecord(messageId: messageId),
-    )) == 1;
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.ecashSignatureRecordISARs
+          .put(EcashSignatureRecordISAR(messageId: messageId));
+    });
+    return true;
   }
 }
 
 extension IHistoryEntryEcashEx on IHistoryEntry {
-  EcashReceiptHistory toReceiptHistory() =>
-    EcashReceiptHistory(
+  EcashReceiptHistoryISAR toReceiptHistory() =>
+    EcashReceiptHistoryISAR(
       tokenMD5: EncryptUtils.generateMd5(value),
       isMe: true,
       timestamp: timestamp.toInt(),

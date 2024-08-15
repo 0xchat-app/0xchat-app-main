@@ -56,7 +56,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
 
   bool _isShowDelete = false;
 
-  GroupDB? groupDBInfo = null;
+  GroupDBISAR? groupDBInfo = null;
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class _GroupEditPageState extends State<GroupEditPage> {
   }
 
   void _groupInfoInit() async {
-    GroupDB? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
+    GroupDBISAR? groupDB = await Groups.sharedInstance.myGroups[widget.groupId];
 
     if (groupDB != null) {
       groupDBInfo = groupDB;

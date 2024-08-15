@@ -8,9 +8,11 @@ import 'package:glassmorphism/glassmorphism.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
-import 'package:rive/rive.dart';
+import 'package:rive/rive.dart' as river;
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'translucent_navigation_bar_item.dart';
@@ -89,8 +91,8 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   final riveFileNames = ['Home','Contact', 'Discover', 'Me'];
   final stateMachineNames = ['state_machine_home', 'state_machine_contact', 'state_machine_discover', 'state_machine_me'];
   final riveInputs = ['Press', 'Press', 'Press', 'Press'];
-  late List<StateMachineController?> riveControllers = List<StateMachineController?>.filled(4, null);
-  late List<Artboard?> riveArtboards = List<Artboard?>.filled(4, null);
+  late List<river.StateMachineController?> riveControllers = List<river.StateMachineController?>.filled(4, null);
+  late List<river.Artboard?> riveArtboards = List<river.Artboard?>.filled(4, null);
 
   isHasVibrator() async {
     hasVibrator = (await Vibrate.canVibrate);
@@ -308,7 +310,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       return  SizedBox(
         width: Adapt.px(24),
         height: Adapt.px(24),
-        child: Rive(artboard: item.artboard!),
+        child: river.Rive(artboard: item.artboard!),
       );
     }
     return Container();
@@ -329,10 +331,10 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
     String animPath = "packages/ox_home/assets/${ThemeManager.images(riveFileNames[index])}.riv";
 
     final data = await rootBundle.load(animPath);
-    final file = RiveFile.import(data);
+    final file = river.RiveFile.import(data);
     final artboard = file.mainArtboard;
 
-    StateMachineController? controller = StateMachineController.fromArtboard(artboard, stateMachineNames[index]);
+    river.StateMachineController? controller = river.StateMachineController.fromArtboard(artboard, stateMachineNames[index]);
 
     if (controller != null) {
       artboard.addController(controller);
@@ -342,7 +344,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didPromptToneCallBack(MessageDB message, int type) {
+  void didPromptToneCallBack(MessageDBISAR message, int type) {
     if (tabBarList.isEmpty) return;
     if(type == ChatType.chatSecretStranger || type == ChatType.chatStranger){
       tabBarList[1].unreadMsgCount += 1;
@@ -353,7 +355,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     // TODO: implement didLoginSuccess
     setState(() {
       isLogin = true;
@@ -375,12 +377,12 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 
   @override
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     super.didZapRecordsCallBack(zapRecordsDB);
     if (tabBarList.isEmpty || !mounted) return;
     setState(() {
@@ -419,7 +421,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
             title: () => Localized.text('ox_home.${riveFileNames[3]}'),
             artboard: riveArtboards[3],
             animationController: riveControllers[3],
-            unreadMsgCount: OXChatBinding.sharedInstance.isZapBadge ? 1 : 0),
+            unreadMsgCount: UserConfigTool.getSetting(StorageSettingKey.KEY_ZAP_BADGE.name, defaultValue: false) ? 1 : 0),
       ];
       if (OXUserInfoManager.sharedInstance.isLogin) {
         fetchUnreadCount();

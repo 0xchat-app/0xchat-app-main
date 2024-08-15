@@ -29,7 +29,7 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 
 class PersonMomentsPage extends StatefulWidget {
-  final UserDB userDB;
+  final UserDBISAR userDB;
   const PersonMomentsPage({super.key, required this.userDB});
 
   @override
@@ -41,8 +41,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
 
   bool get isCurrentUser => OXUserInfoManager.sharedInstance.isCurrentUser(widget.userDB.pubKey);
   final RefreshController _refreshController = RefreshController();
-  final List<NoteDB> _notes = [];
-  final Map<DateTime, List<NoteDB>> _groupedNotes = {};
+  final List<NoteDBISAR> _notes = [];
+  final Map<DateTime, List<NoteDBISAR>> _groupedNotes = {};
 
   final int _limit = 50;
   int? _lastTimestamp;
@@ -101,7 +101,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
                           itemBuilder: (BuildContext context, int index) {
                             List<DateTime> keys = _groupedNotes.keys.toList();
                             DateTime dateTime = keys[index];
-                            List<NoteDB> notes = _groupedNotes[dateTime] ?? [];
+                            List<NoteDBISAR> notes = _groupedNotes[dateTime] ?? [];
                             return _buildGroupedMomentItem(notes);
                           },
                           itemCount: _groupedNotes.keys.length,
@@ -223,7 +223,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildMomentItem(NoteDB note) {
+  Widget _buildMomentItem(NoteDBISAR note) {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 12.px,
@@ -231,7 +231,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       child: MomentWidget(
         isShowReplyWidget: true,
         notedUIModel: ValueNotifier(NotedUIModel(noteDB: note)),
-        clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+        clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
           await OXNavigator.pushPage(
               context, (context) => MomentsPage(notedUIModel: notedUIModel));
         },
@@ -239,7 +239,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     );
   }
 
-  Widget _buildGroupedMomentItem(List<NoteDB> notes) {
+  Widget _buildGroupedMomentItem(List<NoteDBISAR> notes) {
     return Column(
       children: [
         _buildTitle(notes.first.createAt),
@@ -317,7 +317,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _changeCover(List<String> filePathList) async {
-    UserDB? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? currentUserInfo = OXUserInfoManager.sharedInstance.currentUserInfo;
     final pubkey = currentUserInfo?.pubKey ?? '';
     final currentTime = DateTime.now().microsecondsSinceEpoch.toString();
     final fileName = 'banner_${pubkey}_$currentTime.png';
@@ -343,8 +343,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
   }
 
-  void _refreshData(List<NoteDB> noteList){
-    List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+  void _refreshData(List<NoteDBISAR> noteList){
+    List<NoteDBISAR> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
     if (filteredNoteList.isEmpty) {
       updateStateView(CommonStateView.CommonStateView_NoData);
       _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
@@ -362,20 +362,20 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
   }
 
   Future<void> _loadNotesFromDB() async {
-    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
+    List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit,until: _lastTimestamp) ?? [];
     Future.delayed(const Duration(milliseconds: 400),() => _refreshData(noteList));
   }
 
   Future<void> _loadnewNotesFromRelay() async {
     await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], limit: _limit) ?? [];
-    List<NoteDB> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
-    List<NoteDB> newNoteList = noteList.where((element) => element.noteId != element.noteId).toList();
+    List<NoteDBISAR> noteList = await Moment.sharedInstance.loadUserNotesFromDB([widget.userDB.pubKey],limit: _limit) ?? [];
+    List<NoteDBISAR> newNoteList = noteList.where((element) => element.noteId != element.noteId).toList();
     _refreshData(newNoteList);
   }
 
   Future<void> _loadNotesFromRelay() async {
     try {
-      List<NoteDB> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
+      List<NoteDBISAR> noteList = await Moment.sharedInstance.loadNewNotesFromRelay(authors: [widget.userDB.pubKey], until: _lastTimestamp, limit: _limit) ?? [];
       if (noteList.isEmpty) {
         updateStateView(CommonStateView.CommonStateView_NoData);
         _refreshController.footerStatus == LoadStatus.idle ? _refreshController.loadComplete() : _refreshController.loadNoData();
@@ -383,7 +383,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
         return;
       }
 
-      List<NoteDB> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
+      List<NoteDBISAR> filteredNoteList = noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
       _notes.addAll(filteredNoteList);
       _groupedNotes.addAll(_groupedNotesFromDateTime(_notes));
       _lastTimestamp = noteList.last.createAt;
@@ -395,12 +395,12 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     }
   }
 
-  List<NoteDB> _filterNotes(List<NoteDB> noteList) {
+  List<NoteDBISAR> _filterNotes(List<NoteDBISAR> noteList) {
     return noteList.where((element) => element.getNoteKind() != ENotificationsMomentType.like.kind).toList();
   }
 
-  Map<DateTime, List<NoteDB>> _groupedNotesFromDateTime(List<NoteDB> notes) {
-    Map<DateTime, List<NoteDB>> groupedNotes = {};
+  Map<DateTime, List<NoteDBISAR>> _groupedNotesFromDateTime(List<NoteDBISAR> notes) {
+    Map<DateTime, List<NoteDBISAR>> groupedNotes = {};
 
     for (var note in notes) {
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(note.createAt * 1000);

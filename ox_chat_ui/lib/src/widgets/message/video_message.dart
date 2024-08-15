@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/video_utils.dart';
 
 import '../../conditional/conditional.dart';
 import '../../util.dart';
@@ -42,10 +43,14 @@ class _VideoMessageState extends State<VideoMessage> {
   @override
   void initState() {
     super.initState();
-    _image = Conditional().getProvider(
-      widget.message.uri,
-      headers: widget.imageHeaders,
-    );
+    OXVideoUtils.getVideoThumbnailImage(videoURL: widget.message.videoURL).then((snapshotImageFile) {
+      if (!mounted) return ;
+      if (snapshotImageFile != null) {
+        _image = Image.file(snapshotImageFile).image;
+        addImageSizeListener();
+      }
+    });
+
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
   }
 
@@ -53,7 +58,7 @@ class _VideoMessageState extends State<VideoMessage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_size.isEmpty) {
-      _getImage();
+      addImageSizeListener();
     }
   }
 
@@ -106,12 +111,13 @@ class _VideoMessageState extends State<VideoMessage> {
                 borderRadius: BorderRadius.circular(15),
                 child: Stack(
                   children: [
-                    Positioned.fill(
-                      child: Image(
-                        fit: BoxFit.cover,
-                        image: _image!,
+                    if (_image != null)
+                      Positioned.fill(
+                        child: Image(
+                          fit: BoxFit.cover,
+                          image: _image!,
+                        ),
                       ),
-                    ),
                     Align(
                       alignment:Alignment(0, 0),
                       child: Container(
@@ -152,7 +158,7 @@ class _VideoMessageState extends State<VideoMessage> {
                         top: 4,
                       ),
                       child: Text(
-                        formatBytes(widget.message.size.truncate()),
+                        '', // formatBytes(widget.message.size.truncate()),
                         style: user.id == widget.message.author.id
                             ? InheritedChatTheme.of(context)
                             .theme
@@ -180,12 +186,13 @@ class _VideoMessageState extends State<VideoMessage> {
           child:
           Stack(
             children: [
-              Positioned.fill(
-                child: Image(
-                  fit: BoxFit.cover,
-                  image: _image!,
+              if (_image != null)
+                Positioned.fill(
+                  child: Image(
+                    fit: BoxFit.cover,
+                    image: _image!,
+                  ),
                 ),
-              ),
               Align(
                 alignment:Alignment(0, 0),
                 child: Container(
@@ -202,7 +209,7 @@ class _VideoMessageState extends State<VideoMessage> {
     }
   }
 
-  void _getImage() {
+  void addImageSizeListener() {
     final oldImageStream = _stream;
     _stream = _image?.resolve(createLocalImageConfiguration(context));
     if (_stream?.key == oldImageStream?.key) {

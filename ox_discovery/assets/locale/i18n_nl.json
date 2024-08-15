@@ -6,7 +6,6 @@
   "latest_item": "Laatste",
   "channel_search_hint_text": "Zoek kanaal",
   "moment": "Moment",
-  "channel": "Kanaal",
   "private": "privé",
   "all": "Alle",
   "public": "Openbaar",
@@ -76,5 +75,11 @@
   "loading_note": "Notitie laden...",
   "hour_age_tips": "uren geleden",
   "minute_age_tips": "minuten geleden",
-  "just_now": "net nu"
+  "just_now": "net nu",
+  "group": "Groepen",
+  "channel": "Kanalen",
+  "group_search_text": "Zoek Open & Gesloten Groepen",
+  "channel_search_text": "Zoek Openbare Kanalen",
+  "member": "Lid",
+  "members": "Leden"
 }

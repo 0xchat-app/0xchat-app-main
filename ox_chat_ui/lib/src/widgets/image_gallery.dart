@@ -3,19 +3,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/scan_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_decrypted_image_provider.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -27,8 +25,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:screenshot/screenshot.dart';
 
 import '../models/preview_image.dart';
-
-
 
 
 class ImageGallery extends StatefulWidget {
@@ -92,16 +88,13 @@ class _ImageGalleryState extends State<ImageGallery> {
                 child: PhotoViewGallery.builder(
                   builder: (BuildContext context, int index) {
                     final uri = widget.images[index].uri;
-                    final encrypted = widget.images[index].encrypted;
                     final decryptKey = widget.images[index].decryptSecret;
                     return PhotoViewGalleryPageOptions(
                       imageProvider: OXCachedNetworkImageProviderEx.create(
                         context,
                         uri,
                         headers: widget.imageHeaders,
-                        cacheManager: encrypted
-                            ? DecryptedCacheManager(decryptKey ?? widget.options.decryptionKey)
-                            : null,
+                        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),
                       ),
                       minScale: widget.options.minScale,
                       maxScale: widget.options.maxScale,
@@ -134,40 +127,8 @@ class _ImageGalleryState extends State<ImageGallery> {
               onPressed: () async {
                 if (widget.images.isEmpty) return ;
                 final pageIndex = widget.pageController.page?.round() ?? 0;
-                final imageUri = widget.images[pageIndex].uri;
 
-                final isNetworkImage = imageUri.startsWith('http');
-                var result;
-                if (isNetworkImage) {
-                  try {
-                    String fileName = imageUri.split('/').last.split('?').first;
-                    if (fileName.contains('.gif')) {
-                      final appDocDir = await getTemporaryDirectory();
-                      final savePath = appDocDir.path + "/image_${DateTime.now().millisecondsSinceEpoch}.gif";
-                      final response = await Dio().download(
-                          imageUri,
-                          savePath,
-                          options: Options(responseType: ResponseType.bytes));
-                      result = await ImageGallerySaver.saveFile(savePath);
-                    } else {
-                      var response = await Dio().get(
-                          imageUri,
-                          options: Options(responseType: ResponseType.bytes));
-                      result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
-                    }
-                  } catch (e) {
-                    unawaited(CommonToast.instance.show(context, e.toString()));
-                  }
-                } else {
-                  final imageData = await File(imageUri).readAsBytes();
-                  result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
-                }
-
-                if (result != null) {
-                  unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
-                } else {
-                  unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
-                }
+                await saveImageToLocal(widget.images[pageIndex]);
               },
             ),
           ),
@@ -358,14 +319,62 @@ class _ImageGalleryState extends State<ImageGallery> {
     }
   }
 
+  Future saveImageToLocal(PreviewImage image) async {
+    final imageUri = image.uri;
+    final encrypted = image.encrypted;
+    final decryptKey = image.decryptSecret;
+    final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
+    final isGIF = fileName.contains('.gif');
 
+    unawaited(OXLoading.show());
+
+    var result;
+    if (imageUri.isRemoteURL) {
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
+      try {
+        final imageFile = await imageManager.getSingleFile(imageUri)
+            .timeout(const Duration(seconds: 30), onTimeout: () {
+          throw Exception('time out');
+        });
+
+        if (isGIF) {
+          result = await ImageGallerySaver.saveFile(imageFile.path, isReturnPathOfIOS: true);
+        } else {
+          final imageData = await imageFile.readAsBytes();
+          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+        }
+      } catch (e) {
+        unawaited(CommonToast.instance.show(context, e.toString()));
+      }
+    } else {
+      final imageFile = File(imageUri);
+      if (encrypted) {
+        final completer = Completer();
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey ?? '', bytesCallback: (imageData) async {
+          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+          completer.complete();
+        });
+        await completer.future;
+      } else {
+        final imageData = await imageFile.readAsBytes();
+        result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+      }
+    }
+
+    unawaited(OXLoading.dismiss());
+
+    if (result != null) {
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
+    } else {
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
+    }
+  }
 }
 
 class ImageGalleryOptions {
   const ImageGalleryOptions({
     this.maxScale,
     this.minScale,
-    this.decryptionKey = '',
   });
 
   /// See [PhotoViewGalleryPageOptions.maxScale].
@@ -373,7 +382,4 @@ class ImageGalleryOptions {
 
   /// See [PhotoViewGalleryPageOptions.minScale].
   final dynamic minScale;
-
-  /// See [PhotoViewGalleryPageOptions.minScale].
-  final String decryptionKey;
 }

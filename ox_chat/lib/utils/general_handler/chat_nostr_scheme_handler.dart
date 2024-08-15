@@ -47,7 +47,7 @@ class ChatNostrSchemeHandle {
   static Future<String?> pubkeyToMessageContent(
       String? pubkey, String nostrScheme) async {
     if (pubkey != null) {
-      UserDB? userDB = await Account.sharedInstance.getUserInfo(pubkey);
+      UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(pubkey);
       if (userDB?.lastUpdatedTime == 0) {
         userDB = await Account.sharedInstance.reloadProfileFromRelay(pubkey);
       }
@@ -56,10 +56,10 @@ class ChatNostrSchemeHandle {
     return null;
   }
 
-  static Future<ChannelDB> _loadChannelOnline(Channel channel) async {
-    ChannelDB? channelDB = await Channels.sharedInstance
+  static Future<ChannelDBISAR> _loadChannelOnline(Channel channel) async {
+    ChannelDBISAR? channelDB = await Channels.sharedInstance
         .updateChannelMetadataFromRelay(channel.owner, channel.channelId);
-    return channelDB ?? ChannelDB(channelId: channel.channelId);
+    return channelDB ?? ChannelDBISAR(channelId: channel.channelId);
   }
 
   static Future<String?> addressToMessageContent(
@@ -101,13 +101,13 @@ class ChatNostrSchemeHandle {
               Channels.sharedInstance.channels[eventId]);
         } else if (event != null) {
           Channel channel = Nip28.getChannelCreation(event);
-          ChannelDB channelDB =
+          ChannelDBISAR channelDB =
               Channels.sharedInstance.getChannelDBFromChannel(channel);
           return channelToMessageContent(channelDB);
         }
         break;
       case 1:
-        NoteDB? noteDB = await Moment.sharedInstance
+        NoteDBISAR? noteDB = await Moment.sharedInstance
             .loadNoteWithNoteId(eventId, relays: relays);
         if (noteDB != null) return await noteToMessageContent(noteDB);
         break;
@@ -120,11 +120,11 @@ class ChatNostrSchemeHandle {
         break;
       case 39000:
         if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
-          RelayGroupDB? relayGroupDB =
+          RelayGroupDBISAR? relayGroupDB =
               RelayGroup.sharedInstance.groups[eventId];
           return relayGroupDBToMessageContent(relayGroupDB);
         } else if (relays != null && relays.isNotEmpty) {
-          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance
               .getGroupMetadataFromRelay(eventId, relay: relays.first);
           if (relayGroupDB != null)
             return relayGroupDBToMessageContent(relayGroupDB);
@@ -146,7 +146,7 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String? userToMessageContent(UserDB? userDB, String nostrScheme) {
+  static String? userToMessageContent(UserDBISAR? userDB, String nostrScheme) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactUserInfoPage',
@@ -162,40 +162,43 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static String channelToMessageContent(ChannelDB? channelDB) {
+  static String channelToMessageContent(ChannelDBISAR? channelDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'contactChanneDetailsPage',
         params: {'channelId': channelDB?.channelId ?? ''});
     Map<String, dynamic> map = {};
+    String? name = channelDB?.name?.isEmpty == true ? channelDB?.shortChannelId : channelDB?.name;
+    String? about = channelDB?.about?.isEmpty == true ? channelDB?.shortChannelId : channelDB?.about;
     map['type'] = '3';
     map['content'] = {
-      'title': '${channelDB?.name}',
-      'content': '${channelDB?.about}',
+      'title': '${name ?? channelDB?.shortChannelId}',
+      'content': '${about ?? channelDB?.shortChannelId}',
       'icon': '${channelDB?.picture}',
       'link': link
     };
     return jsonEncode(map);
   }
 
-  static String? groupDBToMessageContent(GroupDB? groupDB) {
+  static String? groupDBToMessageContent(GroupDBISAR? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
         module: 'ox_chat',
         action: 'groupInfoPage',
         params: {'groupId': groupDB?.groupId ?? ''});
-
+    String? name = groupDB?.name.isEmpty == true ? groupDB?.shortGroupId : groupDB?.name;
+    String? about = groupDB?.about?.isEmpty == true ? groupDB?.shortGroupId : groupDB?.about;
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${groupDB?.name}',
-      'content': '${groupDB?.about}',
+      'title': '${name ?? groupDB?.shortGroupId}',
+      'content': '${about ?? groupDB?.shortGroupId}',
       'icon': '${groupDB?.picture}',
       'link': link
     };
     return jsonEncode(map);
   }
 
-  static String? relayGroupDBToMessageContent(RelayGroupDB? groupDB) {
+  static String? relayGroupDBToMessageContent(RelayGroupDBISAR? groupDB) {
     String link = CustomURIHelper.createModuleActionURI(
       module: 'ox_chat',
       action: 'groupSharePage',
@@ -221,9 +224,9 @@ class ChatNostrSchemeHandle {
     return jsonEncode(map);
   }
 
-  static Future<String?> noteToMessageContent(NoteDB? noteDB) async {
+  static Future<String?> noteToMessageContent(NoteDBISAR? noteDB) async {
     if (noteDB == null) return null;
-    UserDB? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
+    UserDBISAR? userDB = await Account.sharedInstance.getUserInfo(noteDB.author);
     if (userDB?.lastUpdatedTime == 0) {
       userDB =
           await Account.sharedInstance.reloadProfileFromRelay(noteDB.author);
@@ -251,7 +254,7 @@ class ChatNostrSchemeHandle {
   static Future<String?> longFormContentToMessageContent(
       LongFormContent? longFormContent, String nostrScheme) async {
     if (longFormContent == null) return null;
-    UserDB? userDB =
+    UserDBISAR? userDB =
         await Account.sharedInstance.getUserInfo(longFormContent.pubkey);
     if (userDB?.lastUpdatedTime == 0) {
       userDB = await Account.sharedInstance

@@ -66,7 +66,7 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   bool _isShowDelete = false;
   bool _hasEditMetadataPermission = false;
 
-  RelayGroupDB? _groupDBInfo = null;
+  RelayGroupDBISAR? _groupDBInfo = null;
 
   @override
   void initState() {
@@ -80,13 +80,13 @@ class _RelayGroupEditPageState extends State<RelayGroupEditPage> {
   }
 
   void _groupInfoInit() {
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
 
     if (groupDB != null) {
       _groupDBInfo = groupDB;
       _groupNameController.text = _groupDBInfo?.name ?? '';
       _groupAboutController.text = _groupDBInfo?.about ?? '';
-      UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+      UserDBISAR? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
       if (myUserDB != null) {
         _hasEditMetadataPermission = RelayGroup.sharedInstance.hasPermissions(
             groupDB.admins ?? [], myUserDB.pubKey, [GroupActionKind.editMetadata]);

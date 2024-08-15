@@ -51,7 +51,7 @@ class RelayGroupBaseInfoPage extends StatefulWidget {
 }
 
 class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
-  late RelayGroupDB? _groupDBInfo;
+  late RelayGroupDBISAR? _groupDBInfo;
   bool _hasEditMetadataPermission = false;
   String _avatarAliyunUrl = '';
 
@@ -62,13 +62,13 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
   }
 
   void _loadData(){
-    _groupDBInfo = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    _groupDBInfo = RelayGroup.sharedInstance.groups[widget.groupId];
     _avatarAliyunUrl = _groupDBInfo?.picture ?? '';
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
-    if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins != null && _groupDBInfo!.admins!.length > 0) {
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    if (userDB != null && _groupDBInfo != null && _groupDBInfo!.admins.length > 0) {
       List<GroupActionKind>? userPermissions;
       try {
-        userPermissions = _groupDBInfo!.admins!.firstWhere((admin) => admin.pubkey == userDB.pubKey).permissions;
+        userPermissions = _groupDBInfo!.admins.firstWhere((admin) => admin.pubkey == userDB.pubKey).permissions;
         LogUtil.e('Michael:--- pubkey: ${userPermissions.toString()}');
       } catch (e) {
         userPermissions = [];
@@ -129,11 +129,11 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
                 ),
                 GroupItemBuild(
                   title: 'str_group_ID'.localized(),
-                  subTitle: _groupDBInfo?.groupId ?? '',
+                  subTitle: _groupDBInfo?.identifier ?? '',
                   isShowMoreIcon: false,
                   subTitleMaxLines: 5,
                   onTap: () {
-                    String tempGroupId = _groupDBInfo?.groupId ?? '';
+                    String tempGroupId = _groupDBInfo?.identifier ?? '';
                     if (tempGroupId.isNotEmpty) TookKit.copyKey(context, tempGroupId);
                   },
                 ),
@@ -295,7 +295,7 @@ class RelayGroupBaseInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    RelayGroupDB? relayGroup = RelayGroup.sharedInstance.myGroups[groupId];
+    RelayGroupDBISAR? relayGroup = RelayGroup.sharedInstance.groups[groupId];
     return Container(
       width: double.infinity,
       height: 80.px,
@@ -317,10 +317,10 @@ class RelayGroupBaseInfoView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MyText(relayGroup?.name ?? '', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty) SizedBox(height: 2.px),
-                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty)
-                  MyText(relayGroup.relayPubkey ?? '', 14.sp, ThemeColor.color100,
-                      fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
+                if (relayGroup != null && relayGroup.about.isNotEmpty) SizedBox(height: 2.px),
+                if (relayGroup != null && relayGroup.about.isNotEmpty)
+                  MyText(relayGroup.about ?? '', 12.sp, ThemeColor.color100,
+                      fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis, maxLines: 2),
               ],
             ),
           ),

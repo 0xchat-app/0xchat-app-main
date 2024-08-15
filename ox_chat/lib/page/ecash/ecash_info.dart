@@ -1,27 +1,28 @@
 
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_chat/page/ecash/ecash_info_isar.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
-typedef EcashPackageSignee = (UserDB user, String flag);
+typedef EcashPackageSignee = (UserDBISAR user, String flag);
 class EcashPackage {
   EcashPackage({
-    required this.messageId,
     required this.totalAmount,
     required this.tokenInfoList,
     required this.memo,
-    required this.senderPubKey,
+    this.senderPubKey,
     this.receiver = const [],
     this.signees = const [],
     this.validityDate = '',
+    this.messageId,
   });
-  final String messageId;
   final int totalAmount;
   final List<EcashTokenInfo> tokenInfoList;
   final String memo;
-  final String senderPubKey;
-  final List<UserDB> receiver;
+  final String? senderPubKey;
+  final List<UserDBISAR> receiver;
   final List<EcashPackageSignee> signees;
   final String validityDate;
+  final String? messageId;
 
   // bool get isRedeemed => false;
   bool get isRedeemed => tokenInfoList.every((e) => e.redeemHistory != null)
@@ -56,7 +57,7 @@ class EcashTokenInfo {
   final String token;
   final int amount;
   final String unit;
-  EcashReceiptHistory? redeemHistory;
+  EcashReceiptHistoryISAR? redeemHistory;
 
   @override
   String toString() {
@@ -98,5 +99,15 @@ class EcashReceiptHistory extends DBObject {
       isMe: map['isMe'] == 1,
       timestamp: map['timestamp'] as int?,
     );
+  }
+
+  static Future<void> migrateToISAR() async {
+    List<EcashReceiptHistory> ecashReceiptHistorys = await DB.sharedInstance.objects<EcashReceiptHistory>();
+    await Future.forEach(ecashReceiptHistorys, (ecashReceiptHistory) async {
+      await DBISAR.sharedInstance.isar.writeTxn(() async {
+        await DBISAR.sharedInstance.isar.ecashReceiptHistoryISARs
+            .put(EcashReceiptHistoryISAR.fromMap(ecashReceiptHistory.toMap()));
+      });
+    });
   }
 }

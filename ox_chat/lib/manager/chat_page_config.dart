@@ -33,14 +33,13 @@ class ChatPageConfig {
     );
   }
 
-  ImageGalleryOptions imageGalleryOptions({String decryptionKey = ''}) =>
+  ImageGalleryOptions get imageGalleryOptions =>
       ImageGalleryOptions(
         maxScale: PhotoViewComputedScale.covered,
         minScale: PhotoViewComputedScale.contained,
-        decryptionKey: decryptionKey,
       );
 
-  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler, [UserDB? otherUser]) {
+  List<InputMoreItem> inputMoreItemsWithHandler(ChatGeneralHandler handler) {
     final items = [
       InputMoreItemEx.album(handler),
       InputMoreItemEx.camera(handler),
@@ -48,7 +47,8 @@ class ChatPageConfig {
       InputMoreItemEx.ecash(handler),
     ];
 
-    if (handler.session.chatType == ChatType.chatSingle) {
+    final otherUser = handler.otherUser;
+    if (handler.session.chatType == ChatType.chatSingle && otherUser != null) {
       items.add(InputMoreItemEx.zaps(handler, otherUser));
       items.add(InputMoreItemEx.call(handler, otherUser));
     }
@@ -106,7 +106,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static InputMoreItem call(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem call(ChatGeneralHandler handler, UserDBISAR? otherUser) =>
       InputMoreItem(
         id: 'call',
         title: () => Localized.text('ox_chat_ui.input_more_call'),
@@ -122,7 +122,7 @@ extension InputMoreItemEx on InputMoreItem {
         },
       );
 
-  static InputMoreItem zaps(ChatGeneralHandler handler, UserDB? otherUser) =>
+  static InputMoreItem zaps(ChatGeneralHandler handler, UserDBISAR? otherUser) =>
       InputMoreItem(
         id: 'zaps',
         title: () => Localized.text('ox_chat_ui.input_more_zaps'),

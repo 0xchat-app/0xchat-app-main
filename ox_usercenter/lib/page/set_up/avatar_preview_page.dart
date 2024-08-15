@@ -16,7 +16,7 @@ import 'package:ox_usercenter/widget/select_asset_dialog.dart';
 
 class AvatarPreviewPage extends StatefulWidget {
   final File? imageFile;
-  final UserDB? userDB;
+  final UserDBISAR? userDB;
 
   const AvatarPreviewPage({this.imageFile, this.userDB, Key? key}) : super(key: key);
 
@@ -25,7 +25,7 @@ class AvatarPreviewPage extends StatefulWidget {
 }
 
 class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindingObserver {
-  UserDB? mUserDB;
+  UserDBISAR? mUserDB;
   File? imageFile;
   bool _isShowMenu = false;
 

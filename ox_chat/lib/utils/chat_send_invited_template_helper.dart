@@ -7,14 +7,14 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class ChatSendInvitedTemplateHelper {
-  static sendGroupInvitedTemplate(List<UserDB> selectedUserList,String groupId, GroupType groupType){
+  static sendGroupInvitedTemplate(List<UserDBISAR> selectedUserList,String groupId, GroupType groupType){
     final inviterName = OXUserInfoManager.sharedInstance.currentUserInfo?.name ?? OXUserInfoManager.sharedInstance.currentUserInfo?.nickName ?? '';
     final inviterPubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     String groupName = '';
     String groupOwner = '';
     String groupPic = '';
     if (groupType == GroupType.privateGroup) {
-      GroupDB? groupDB = Groups.sharedInstance.groups[groupId];
+      GroupDBISAR? groupDB = Groups.sharedInstance.groups[groupId];
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.owner ?? '';
       groupPic = groupDB?.picture ?? '';
@@ -36,7 +36,7 @@ class ChatSendInvitedTemplateHelper {
         );
       });
     } else if (groupType == GroupType.openGroup || groupType == GroupType.closeGroup) {
-      RelayGroupDB? groupDB = RelayGroup.sharedInstance.groups[groupId];
+      RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.groups[groupId];
       groupName = groupDB?.name ?? '';
       groupOwner = groupDB?.author ?? '';
       groupPic = groupDB?.picture ?? '';

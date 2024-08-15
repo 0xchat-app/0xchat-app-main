@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
 
 ///Title: security_model
@@ -33,7 +34,7 @@ class SecureModel {
       showArrow: true,
       settingItemType: SecureItemType.block,
     ));
-    String passcode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    String passcode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     bool passcodeSwitchValue = false;
     if (passcode.isNotEmpty) {
       passcodeSwitchValue = true;
@@ -48,7 +49,7 @@ class SecureModel {
       return settingModelList;
     }
     List<BiometricType> availableBiometrics = await SecurityAuthUtils.getAvailableBiometrics();
-    bool faceIDSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
+    bool faceIDSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
     if (availableBiometrics.contains(BiometricType.face)) {
       if (Platform.isIOS) {
         settingModelList.add(SecureModel(
@@ -59,7 +60,7 @@ class SecureModel {
         ));
       }
     }
-    bool fingerprintSwitchValue = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_FACEID, defaultValue: false);
+    bool fingerprintSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
     if (Platform.isAndroid || availableBiometrics.contains(BiometricType.fingerprint)) {
       settingModelList.add(SecureModel(
         iconName: 'icon_secure_fingerprint.png',

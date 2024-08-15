@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ox_chat/manager/chat_message_helper.dart';
 import 'package:ox_chat/manager/ecash_helper.dart';
 import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/page/ecash/ecash_open_dialog.dart';
@@ -28,7 +29,9 @@ import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
+import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_long_content_page.dart';
+import 'package:ox_common/widgets/common_video_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -46,7 +49,7 @@ import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_calling/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
-import 'package:ox_common/model/chat_session_model.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -60,7 +63,6 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
@@ -76,15 +78,14 @@ class ChatGeneralHandler {
     types.User? author,
     this.refreshMessageUI,
     this.fileEncryptionType = types.EncryptionType.none,
-  }) : author = author ?? _defaultAuthor(),
-        otherUser = _defaultOtherUser(session) {
+  }) : author = author ?? _defaultAuthor() {
     setupOtherUserIfNeeded();
     setupMentionHandlerIfNeeded();
   }
 
   final types.User author;
-  UserDB? otherUser;
-  final ChatSessionModel session;
+  UserDBISAR? otherUser;
+  final ChatSessionModelISAR session;
   final types.EncryptionType fileEncryptionType;
 
   bool hasMoreMessage = false;
@@ -96,29 +97,33 @@ class ChatGeneralHandler {
 
   Function(List<types.Message>?)? refreshMessageUI;
 
-  ValueChanged<types.Message>? messageDeleteHandler;
-
   Set<String> reactionsListenMsgId = {};
 
   final tempMessageSet = <types.Message>{};
 
+  List<PreviewImage> gallery = [];
+
   static types.User _defaultAuthor() {
-    UserDB? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     return types.User(
       id: userDB!.pubKey,
       sourceObject: userDB,
     );
   }
 
-  static UserDB? _defaultOtherUser(ChatSessionModel session) {
+  static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
     return Account.sharedInstance.userCache[session.chatId]?.value
         ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
 
   void setupOtherUserIfNeeded() {
+    if (session.hasMultipleUsers) return ;
+
+    otherUser = _defaultOtherUser(session);
+
     if (otherUser == null) {
       final userFuture = Account.sharedInstance.getUserInfo(session.getOtherPubkey);
-      if (userFuture is Future<UserDB?>) {
+      if (userFuture is Future<UserDBISAR?>) {
         userFuture.then((value){
           otherUser = value;
         });
@@ -132,9 +137,12 @@ class ChatGeneralHandler {
     final userListGetter = session.userListGetter;
     if (userListGetter == null) return ;
 
-    final mentionHandler = ChatMentionHandler();
+    final mentionHandler = ChatMentionHandler(
+      allUserGetter: userListGetter,
+      isUseAllUserCache: session.chatType == ChatType.chatChannel,
+    );
     userListGetter().then((userList) {
-      mentionHandler.allUser = userList;
+      mentionHandler.allUserCache = userList;
     });
     mentionHandler.inputController = inputController;
 
@@ -251,7 +259,12 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
 
   Future messagePressHandler(BuildContext context, types.Message message) async {
     if (message is types.VideoMessage) {
-      OXNavigator.pushPage(context, (context) => ChatVideoPlayPage(videoUrl: message.metadata!["videoUrl"] ?? ''));
+      CommonVideoPage.show(message.videoURL);
+    } else if (message is types.ImageMessage) {
+      imageMessagePressHandler(
+        messageId: message.id,
+        imageUri: message.uri,
+      );
     } else if (message is types.CustomMessage) {
       switch(message.customType) {
         case CustomMessageType.zaps:
@@ -270,6 +283,11 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
         case CustomMessageType.ecashV2:
           ecashMessagePressHandler(context, message);
           break;
+        case CustomMessageType.imageSending:
+          imageMessagePressHandler(
+            messageId: message.id,
+            imageUri: ImageSendingMessageEx(message).url,
+          );
         default:
           break;
       }
@@ -282,6 +300,32 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
             timeStamp: message.createdAt,
           ));
     }
+  }
+
+  Future imageMessagePressHandler({
+    required String messageId,
+    required String imageUri,
+  }) async {
+    final initialPage = gallery.indexWhere(
+      (element) => element.id == messageId || element.uri == imageUri,
+    );
+    if (initialPage < 0) {
+      ChatLogUtils.error(
+        className: 'ChatGeneralHandler',
+        funcName: 'imageMessagePressHandler',
+        message: 'image not found',
+      );
+      return ;
+    }
+
+    CommonImageGallery.show(
+      imageList: gallery.map((e) => ImageEntry(
+        id: e.id,
+        url: e.uri,
+        decryptedKey: e.decryptSecret,
+      )).toList(),
+      initialPage: initialPage,
+    );
   }
 
   Future zapsMessagePressHandler(BuildContext context, types.CustomMessage message) async {
@@ -437,42 +481,131 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
   }
 
   /// Handles the press event for the "Copy" button in a menu item.
-  _copyMenuItemPressHandler(types.Message message) {
+  void _copyMenuItemPressHandler(types.Message message) {
     if (message is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: message.text));
     }
   }
 
   /// Handles the press event for the "Delete" button in a menu item.
-  _deleteMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _deleteMenuItemPressHandler(BuildContext context, types.Message message) async {
+    final messageId = message.remoteId;
+    if (messageId == null || messageId.isEmpty) {
+      messageDeleteHandler(message);
+      return;
+    }
+
+    // Relay group && has delete permission
+    if (session.chatType == ChatType.chatRelayGroup) {
+      if (shouldShowDeleteMode()) {
+        _showDeleteMode(context, message);
+      } else {
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromLocal(messageId);
+          },
+        );
+      }
+      return ;
+    }
+
+    // General
+    _performDeleteAction(
+      context: context,
+      message: message,
+      deleteAction: () => Messages.deleteMessageFromRelay(messageId, ''),
+    );
+  }
+
+  bool shouldShowDeleteMode() {
+    final groupId = session.groupId;
+    return session.chatType == ChatType.chatRelayGroup
+        && groupId != null
+        && groupId.isNotEmpty
+        && RelayGroup.sharedInstance.hasDeletePermission(groupId);
+  }
+
+  void _showDeleteMode(BuildContext context, types.Message message) async {
+    final messageId = message.remoteId;
+    final groupId = session.groupId;
+    if (groupId == null || groupId.isEmpty) return ;
+    if (messageId == null || messageId.isEmpty) {
+      messageDeleteHandler(message);
+      return;
+    }
+
+    const forMeActionType = 0;
+    const forAllActionType = 1;
+    final result = await OXActionDialog.show(
+      context,
+      data: [
+        OXActionModel(
+          identify: forMeActionType,
+          text: 'delete_message_me_action_mode'.localized(),
+        ),
+        OXActionModel(
+          identify: forAllActionType,
+          text: 'delete_message_everyone_action_mode'.localized(),
+        ),
+      ],
+    );
+
+    if (result == null) return ;
+
+    final identify = result.identify;
+    switch (identify) {
+      case forMeActionType:
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromLocal(messageId);
+          },
+        );
+        break;
+      case forAllActionType:
+        _performDeleteAction(
+          context: context,
+          message: message,
+          deleteAction: () async {
+            return RelayGroup.sharedInstance.deleteMessageFromRelay(
+              groupId,
+              messageId,
+              '',
+            );
+          },
+        );
+        break;
+    }
+  }
+
+  void _performDeleteAction({
+    required BuildContext context,
+    required types.Message message,
+    required Future<OKEvent> Function() deleteAction,
+  }) async {
     final result = await OXCommonHintDialog.showConfirmDialog(
       context,
       content: Localized.text('ox_chat.message_delete_hint'),
     );
 
     if (result) {
-      final messageId = message.remoteId;
-      if (messageId != null) {
-        OXLoading.show();
-        OKEvent event = await Messages.deleteMessageFromRelay(messageId, '');
-        OXLoading.dismiss();
-        if (event.status) {
-          OXNavigator.pop(context);
-          final messageDeleteHandler = this.messageDeleteHandler;
-          if (messageDeleteHandler != null) {
-            messageDeleteHandler(message);
-          }
-        } else {
-          CommonToast.instance.show(context, event.message);
-        }
+      OXLoading.show();
+      OKEvent event = await deleteAction(); //await Messages.deleteMessageFromRelay(messageId, '');
+      OXLoading.dismiss();
+      if (event.status) {
+        OXNavigator.pop(null);
+        messageDeleteHandler(message);
       } else {
-        ChatLogUtils.error(className: 'ChatGeneralHandler', funcName: '_deleteMenuItemPressHandler', message: 'messageId: $messageId');
+        CommonToast.instance.show(context, event.message);
       }
     }
   }
 
   /// Handles the press event for the "Report" button in a menu item.
-  _reportMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _reportMenuItemPressHandler(BuildContext context, types.Message message) async {
 
     ChatLogUtils.info(
       className: 'ChatMessagePage',
@@ -482,12 +615,12 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
 
     final reportSuccess = await ReportDialog.show(context, target: MessageReportTarget(message));
     final messageDeleteHandler = this.messageDeleteHandler;
-    if (reportSuccess == true && messageDeleteHandler != null) {
+    if (reportSuccess == true) {
       messageDeleteHandler(message);
     }
   }
 
-  _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
+  void _zapMenuItemPressHandler(BuildContext context, types.Message message) async {
     final user = await Account.sharedInstance.getUserInfo(message.author.id);
     final eventId = message.remoteId;
     if (user == null || eventId == null || eventId.isEmpty) {
@@ -506,6 +639,10 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     await handler.handleZap(context: context, eventId: eventId);
   }
 
+  void messageDeleteHandler(types.Message message) {
+    ChatDataCache.shared.deleteMessage(session, message);
+  }
+
   /// Handles the press event for the "Reaction emoji" in a menu item.
   Future<bool> reactionPressHandler(
     BuildContext context,
@@ -517,6 +654,8 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       funcName: 'reactionPressHandler',
       message: 'id: ${message.id}, content: ${message.content}',
     );
+
+    final completer = Completer<bool>();
     final messageId = message.remoteId;
     if (messageId == null || messageId.isEmpty) {
       ChatLogUtils.error(
@@ -527,31 +666,44 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       return false;
     }
 
-    final event = await Messages.sharedInstance.sendMessageReaction(
+    // Check if already sent it
+    final reactions = [...message.reactions];
+    for (var reaction in reactions) {
+      if (reaction.content != content) continue ;
+      final authors = [...reaction.authors];
+      final haveSent = authors.any((authorPubkey) =>
+          OXUserInfoManager.sharedInstance.isCurrentUser(authorPubkey));
+      if (haveSent) {
+        return false;
+      }
+    }
+
+    Messages.sharedInstance.sendMessageReaction(
       messageId,
       content,
       groupId: session.groupId
-    );
-    if (event.status) {
-      final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-      if (author != null && author.isNotEmpty) {
-        final reactions = [...message.reactions];
-        var isAdded = false;
-        for (final reaction in reactions) {
-          if (reaction.content != content) continue;
-          if (reaction.authors.any((e) => e == author)) continue;
-
-          reaction.authors.add(author);
-          isAdded = true;
-          break;
-        }
-        if (!isAdded) {
-          message.reactions.add(types.Reaction(content: content, authors: [author]));
-        }
-        refreshMessageUI?.call(null);
+    ).then((event) {
+      if (!completer.isCompleted) {
+        completer.complete(event.status);
       }
+    });
+
+    final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (author != null && author.isNotEmpty) {
+      final reactions = [...message.reactions];
+      for (var reaction in reactions) {
+        if (reaction.content != content) continue ;
+        reaction.authors.add(author);
+      }
+      ChatDataCache.shared.updateMessage(
+        session: session,
+        message: message.copyWith(
+          reactions: reactions,
+        ),
+      );
     }
-    return event.status;
+
+    return completer.future;
   }
 }
 
@@ -593,7 +745,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     _goToCamera(context);
   }
 
-  Future callPressHandler(BuildContext context, UserDB user) async {
+  Future callPressHandler(BuildContext context, UserDBISAR user) async {
     OXActionModel? oxActionModel = await OXActionDialog.show(
       context,
       data: [
@@ -612,7 +764,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
     }
   }
 
-  Future zapsPressHandler(BuildContext context, UserDB user) async {
+  Future zapsPressHandler(BuildContext context, UserDBISAR user) async {
     ZapsActionHandler handler = await ZapsActionHandler.create(
       userDB: user,
       isAssistedProcess: true,
@@ -749,33 +901,7 @@ extension StringChatEx on String {
   }
 }
 
-mixin ChatGeneralHandlerMixin<T extends StatefulWidget> on State<T> {
-
-  @protected
-  ChatSessionModel get session;
-
-  @protected
-  ChatGeneralHandler get chatGeneralHandler;
-
-  @override
-  void initState() {
-    final draft = session.draft ?? '';
-    if (draft.isNotEmpty) {
-      chatGeneralHandler.inputController.text = draft;
-      ChatDraftManager.shared.updateTempDraft(session.chatId, draft);
-    }
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    ChatDraftManager.shared.updateSession();
-    chatGeneralHandler.dispose();
-    super.dispose();
-  }
-}
-
-extension ChatZapsEx on ChatSessionModel {
+extension ChatZapsEx on ChatSessionModelISAR {
   ZapType? get asZapType {
     switch (chatType) {
       case ChatType.chatSingle:

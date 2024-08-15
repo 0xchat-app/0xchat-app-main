@@ -6,7 +6,6 @@
   "latest_item": "Viimane",
   "channel_search_hint_text": "Otsi kanalit",
   "moment": "Hetk",
-  "channel": "Kanal",
   "private": "privaatne",
   "all": "Kõik",
   "public": "Avalik",
@@ -76,5 +75,11 @@
   "loading_note": "Märkus laaditakse...",
   "hour_age_tips": "tundi tagasi",
   "minute_age_tips": "minutit tagasi",
-  "just_now": "just nüüd"
+  "just_now": "just nüüd",
+  "group": "Grupid",
+  "channel": "Kanalid",
+  "group_search_text": "Otsi Avatud ja Suletud Gruppe",
+  "channel_search_text": "Otsi Avalikke Kanaleid",
+  "member": "Liige",
+  "members": "Liikmed"
 }

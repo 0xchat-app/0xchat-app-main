@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:chewie/chewie.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -12,21 +11,29 @@ import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 
-class MomentVideoPage extends StatefulWidget {
+class CommonVideoPage extends StatefulWidget {
   final String videoUrl;
-  const MomentVideoPage({Key? key, required this.videoUrl})
-      : super(key: key);
+  const CommonVideoPage({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
-  State<MomentVideoPage> createState() => _MomentVideoPageState();
+  State<CommonVideoPage> createState() => _CommonVideoPageState();
+
+  static show(String videoUrl,{BuildContext? context}) {
+    return OXNavigator.presentPage(
+      context,
+      (context) => CommonVideoPage(videoUrl: videoUrl),
+      fullscreenDialog: true,
+    );
+  }
 }
 
-class _MomentVideoPageState extends State<MomentVideoPage> {
+class _CommonVideoPageState extends State<CommonVideoPage> {
   final GlobalKey<_CustomControlsState> _customControlsKey =
       GlobalKey<_CustomControlsState>();
   ChewieController? _chewieController;
@@ -62,7 +69,7 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
   Widget build(BuildContext context) {
     bool isShowVideoWidget = _chewieController != null &&
         _chewieController!.videoPlayerController.value.isInitialized;
-    if(!isShowVideoWidget) {
+    if (!isShowVideoWidget) {
       return Container(
         color: ThemeColor.color180,
         width: double.infinity,
@@ -118,22 +125,22 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
   Future<void> initializePlayer() async {
     try {
       if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
-
-        final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+        final fileInfo =
+            await OXFileCacheManager.get().getFileFromCache(widget.videoUrl);
         if (fileInfo != null) {
           _videoPlayerController = VideoPlayerController.file(fileInfo.file);
         } else {
-          _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+          _videoPlayerController =
+              VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
           cacheVideo();
         }
-
       } else {
         File videoFile = File(widget.videoUrl);
         _videoPlayerController = VideoPlayerController.file(videoFile);
       }
       await Future.wait([_videoPlayerController.initialize()]);
       _createChewieController();
-      if(mounted){
+      if (mounted) {
         setState(() {});
       }
     } catch (e) {
@@ -141,11 +148,10 @@ class _MomentVideoPageState extends State<MomentVideoPage> {
     }
   }
 
-
   Future<void> cacheVideo() async {
     try {
       print('Starting cache process...');
-      await DefaultCacheManager().downloadFile(widget.videoUrl);
+      await OXFileCacheManager.get().downloadFile(widget.videoUrl);
       print('Video cached successfully');
     } catch (e) {
       print('Error caching video: $e');
@@ -187,10 +193,10 @@ class CustomControls extends StatefulWidget {
 
 class _CustomControlsState extends State<CustomControls> {
   ValueNotifier<CustomControlsOption> customControlsStatus =
-    ValueNotifier(CustomControlsOption(
-      isVisible: true,
-      isDragging: false,
-    ));
+      ValueNotifier(CustomControlsOption(
+    isVisible: true,
+    isDragging: false,
+  ));
 
   Timer? _hideTimer;
   List<double> videoSpeedList = [0.5, 1.0, 1.5, 2.0];
@@ -200,15 +206,16 @@ class _CustomControlsState extends State<CustomControls> {
   void initState() {
     super.initState();
     widget.videoPlayerController.addListener(() {
-      if(!widget.videoPlayerController.value.isPlaying && !customControlsStatus.value.isDragging){
+      if (!widget.videoPlayerController.value.isPlaying &&
+          !customControlsStatus.value.isDragging) {
         customControlsStatus.value = CustomControlsOption(
           isVisible: true,
           isDragging: false,
         );
       }
-     if(mounted){
-       setState(() {});
-     }
+      if (mounted) {
+        setState(() {});
+      }
     });
     hideControlsAfterDelay();
   }
@@ -277,78 +284,86 @@ class _CustomControlsState extends State<CustomControls> {
 
   Widget _buildBottomOption() {
     return ValueListenableBuilder<CustomControlsOption>(
-        valueListenable: customControlsStatus,
-        builder: (context, value, child) {
-          if (!value.isVisible) return Container();
-          return Positioned(
-            bottom: 10.0,
-            left: 20.0,
-            right: 20.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                    onTap: () => OXNavigator.pop(context),
-                    child: Container(
-                      width: 35.px,
-                      height: 35.px,
-                      decoration: BoxDecoration(
-                        color: ThemeColor.color180,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(35.px),
-                        ),
-                      ),
-                      child: Center(
-                        child: CommonImage(
-                          iconName: 'circle_close_icon.png',
-                          size: 24.px,
-                          color: Colors.white,
-                        ),
-                      ),
+      valueListenable: customControlsStatus,
+      builder: (context, value, child) {
+        if (!value.isVisible) return Container();
+        return Positioned(
+          bottom: 10.0,
+          left: 20.0,
+          right: 20.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () => OXNavigator.pop(context),
+                child: Container(
+                  width: 35.px,
+                  height: 35.px,
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color180,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(35.px),
                     ),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    await OXLoading.show();
-                    if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
-                      var appDocDir = await getTemporaryDirectory();
-                      String savePath = appDocDir.path + "/temp.mp4";
-                      await Dio().download(widget.videoUrl, savePath);
-                      final result = await ImageGallerySaver.saveFile(savePath);
-                      if (result['isSuccess'] == true) {
-                        await OXLoading.dismiss();
-                        CommonToast.instance.show(context, 'Save successful');
-                      }
-                    } else {
-                      final result =
-                          await ImageGallerySaver.saveFile(widget.videoUrl);
-                      if (result['isSuccess'] == true) {
-                        await OXLoading.dismiss();
-                        CommonToast.instance.show(context, 'Save successful');
-                      }
-                    }
-                  },
-                  child: Container(
-                    width: 35.px,
-                    height: 35.px,
-                    decoration: BoxDecoration(
-                      color: ThemeColor.color180,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(35.px),
-                      ),
-                    ),
-                    child: Center(
-                      child: CommonImage(
-                        iconName: 'icon_download.png',
-                        size: 24,
-                      ),
+                  ),
+                  child: Center(
+                    child: CommonImage(
+                      iconName: 'circle_close_icon.png',
+                      size: 24.px,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        },
+              ),
+              GestureDetector(
+                onTap: () async {
+                  await OXLoading.show();
+                  if (RegExp(r'https?:\/\/').hasMatch(widget.videoUrl)) {
+                    var result;
+                    final fileInfo = await OXFileCacheManager.get().getFileFromCache(widget.videoUrl);
+                    if (fileInfo != null) {
+                      result =
+                          await ImageGallerySaver.saveFile(fileInfo.file.path);
+                    } else {
+                      var appDocDir = await getTemporaryDirectory();
+                      String savePath = appDocDir.path + "/temp.mp4";
+                      await Dio().download(widget.videoUrl, savePath);
+                      result = await ImageGallerySaver.saveFile(savePath);
+                    }
+
+                    if (result['isSuccess'] == true) {
+                      await OXLoading.dismiss();
+                      CommonToast.instance.show(context, 'Save successful');
+                    }
+                  } else {
+                    final result =
+                        await ImageGallerySaver.saveFile(widget.videoUrl);
+                    if (result['isSuccess'] == true) {
+                      await OXLoading.dismiss();
+                      CommonToast.instance.show(context, 'Save successful');
+                    }
+                  }
+                },
+                child: Container(
+                  width: 35.px,
+                  height: 35.px,
+                  decoration: BoxDecoration(
+                    color: ThemeColor.color180,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(35.px),
+                    ),
+                  ),
+                  child: Center(
+                    child: CommonImage(
+                      iconName: 'icon_download.png',
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -356,7 +371,9 @@ class _CustomControlsState extends State<CustomControls> {
     return ValueListenableBuilder<CustomControlsOption>(
       valueListenable: customControlsStatus,
       builder: (context, value, child) {
-        if (widget.videoPlayerController.value.isPlaying || value.isDragging || !value.isVisible) {
+        if (widget.videoPlayerController.value.isPlaying ||
+            value.isDragging ||
+            !value.isVisible) {
           return Container();
         }
         Size size = MediaQuery.of(context).size;
@@ -389,80 +406,80 @@ class _CustomControlsState extends State<CustomControls> {
 
   Widget _buildProgressBar() {
     return ValueListenableBuilder<CustomControlsOption>(
-        valueListenable: customControlsStatus,
-        builder: (context, value, child) {
-          if (!value.isVisible) return Container();
-          return Positioned(
-            bottom: 40.0,
-            left: 20.0,
-            right: 20.0,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      child: Row(
-                        children: [
-                          Text(
-                            _formatDuration(
-                                widget.videoPlayerController.value.position),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+      valueListenable: customControlsStatus,
+      builder: (context, value, child) {
+        if (!value.isVisible) return Container();
+        return Positioned(
+          bottom: 40.0,
+          left: 20.0,
+          right: 20.0,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    child: Row(
+                      children: [
+                        Text(
+                          _formatDuration(
+                              widget.videoPlayerController.value.position),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const Text(
-                            ' / ',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                        ),
+                        const Text(
+                          ' / ',
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
-                          Text(
-                            _formatDuration(
-                                widget.videoPlayerController.value.duration),
-                            style: TextStyle(
-                              color: ThemeColor.color100,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        Text(
+                          _formatDuration(
+                              widget.videoPlayerController.value.duration),
+                          style: TextStyle(
+                            color: ThemeColor.color100,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    ValueListenableBuilder<double>(
-                      valueListenable: videoSpeedNotifier,
-                      builder: (context, value, child) {
-                        return GestureDetector(
-                            onTap: () {
-                              int findIndex = videoSpeedList.indexOf(value);
-                              double lastValue;
-                              if (findIndex == videoSpeedList.length - 1) {
-                                lastValue = videoSpeedList[0];
-                              } else {
-                                lastValue = videoSpeedList[findIndex + 1];
-                              }
-                              videoSpeedNotifier.value = lastValue;
-                              widget.videoPlayerController
-                                  .setPlaybackSpeed(lastValue);
-                            },
-                            child: Text(
-                              value.toString(),
-                              style: TextStyle(
-                                  color: ThemeColor.white,
-                                  fontWeight: FontWeight.w600),
-                            ));
-                      },
-                    ),
-                  ],
-                ).setPaddingOnly(bottom: 10.px),
-                CustomVideoProgressIndicator(
-                  controller: widget.videoPlayerController,
-                  callback: _progressCallback,
-                ),
-              ],
-            ),
-          );
-        },
+                  ),
+                  ValueListenableBuilder<double>(
+                    valueListenable: videoSpeedNotifier,
+                    builder: (context, value, child) {
+                      return GestureDetector(
+                          onTap: () {
+                            int findIndex = videoSpeedList.indexOf(value);
+                            double lastValue;
+                            if (findIndex == videoSpeedList.length - 1) {
+                              lastValue = videoSpeedList[0];
+                            } else {
+                              lastValue = videoSpeedList[findIndex + 1];
+                            }
+                            videoSpeedNotifier.value = lastValue;
+                            widget.videoPlayerController
+                                .setPlaybackSpeed(lastValue);
+                          },
+                          child: Text(
+                            value.toString(),
+                            style: TextStyle(
+                                color: ThemeColor.white,
+                                fontWeight: FontWeight.w600),
+                          ));
+                    },
+                  ),
+                ],
+              ).setPaddingOnly(bottom: 10.px),
+              CustomVideoProgressIndicator(
+                controller: widget.videoPlayerController,
+                callback: _progressCallback,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -523,7 +540,8 @@ class CustomVideoProgressIndicator extends StatelessWidget {
               onHorizontalDragEnd: (details) {
                 callback(false);
               },
-              onHorizontalDragUpdate: (details) => _dragUpdate(context, constraints, details),
+              onHorizontalDragUpdate: (details) =>
+                  _dragUpdate(context, constraints, details),
               child: SizedBox(
                 height: 40,
                 child: Stack(
@@ -550,7 +568,8 @@ class CustomVideoProgressIndicator extends StatelessWidget {
                       left: constraints.maxWidth * progress -
                           10, // Adjust for circle size
                       child: GestureDetector(
-                        onPanUpdate: (details) => _dragUpdate(context, constraints, details),
+                        onPanUpdate: (details) =>
+                            _dragUpdate(context, constraints, details),
                         child: Container(
                           width: 15,
                           height: 15,
@@ -571,7 +590,7 @@ class CustomVideoProgressIndicator extends StatelessWidget {
     );
   }
 
-  void _dragUpdate(context, constraints, details){
+  void _dragUpdate(context, constraints, details) {
     final RenderBox box = context.findRenderObject() as RenderBox;
     final Offset offset = box.globalToLocal(details.globalPosition);
     double newProgress = offset.dx / constraints.maxWidth;

@@ -5,8 +5,8 @@ import '../utils/discovery_utils.dart';
 import '../utils/moment_content_analyze_utils.dart';
 
 class NotedUIModel {
-  NoteDB noteDB;
-  late Map<String, UserDB?> getUserInfoMap;
+  NoteDBISAR noteDB;
+  late Map<String, UserDBISAR?> getUserInfoMap;
   late List<String> getQuoteUrlList;
   late List<String> getNddrlList;
   late List<String> getImageList;
@@ -23,7 +23,7 @@ class NotedUIModel {
     loadInitialData(noteDB);
   }
 
-  Future<void> loadInitialData(NoteDB noteDB) async {
+  Future<void> loadInitialData(NoteDBISAR noteDB) async {
     MomentContentAnalyzeUtils analyzer = MomentContentAnalyzeUtils(noteDB.content);
     // getUserInfoMap = await mediaAnalyzer.getUserInfoMap;
     getQuoteUrlList = analyzer.getQuoteUrlList;

@@ -6,7 +6,6 @@
   "latest_item": "ล่าสุด",
   "channel_search_hint_text": "ค้นหาช่อง",
   "moment": "ช่วงเวลา",
-  "channel": "ช่อง",
   "private": "ส่วนตัว",
   "all": "ทั้งหมด",
   "public": "สาธารณะ",
@@ -76,5 +75,11 @@
   "loading_note": "กำลังโหลดโน้ต...",
   "hour_age_tips": "ชั่วโมงที่แล้ว",
   "minute_age_tips": "นาทีที่แล้ว",
-  "just_now": "เมื่อสักครู่"
+  "just_now": "เมื่อสักครู่",
+  "group": "กลุ่ม",
+  "channel": "ช่อง",
+  "group_search_text": "ค้นหากลุ่มเปิดและปิด",
+  "channel_search_text": "ค้นหาช่องสาธารณะ",
+  "member": "สมาชิก",
+  "members": "สมาชิก"
 }

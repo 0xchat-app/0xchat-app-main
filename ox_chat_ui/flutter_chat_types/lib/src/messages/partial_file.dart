@@ -19,6 +19,7 @@ class PartialFile {
     this.mimeType,
     required this.name,
     this.repliedMessage,
+    this.repliedMessageId,
     required this.size,
     required this.uri,
   });
@@ -38,6 +39,7 @@ class PartialFile {
 
   /// Message that is being replied to with the current message.
   final Message? repliedMessage;
+  final String? repliedMessageId;
 
   /// Size of the file in bytes.
   final num size;

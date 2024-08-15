@@ -55,7 +55,7 @@ class _ContractsPageState extends State<ContractsPage>
     tabItems = [
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_contacts')),
       CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_groups')),
-      CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
+      // CommonCategoryTitleItem(title: Localized.text('ox_chat.str_title_channels')),
     ];
   }
 
@@ -147,11 +147,11 @@ class _ContractsPageState extends State<ContractsPage>
             shrinkWrap: false,
             topWidget: _topSearch(),
           ),
-          ContactViewChannels(
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: false,
-            topWidget: _topSearch(),
-          ),
+          // ContactViewChannels(
+          //   physics: BouncingScrollPhysics(),
+          //   shrinkWrap: false,
+          //   topWidget: _topSearch(),
+          // ),
         ],
       ),
     );
@@ -294,7 +294,7 @@ class _ContractsPageState extends State<ContractsPage>
         if (_isShowTools)
           Container(
             alignment: Alignment.centerLeft,
-            height: _selectedType != ContactsItemType.channel ? 68.px : 24.px,
+            height: 68.px,
             color: ThemeColor.color200,
             child: ListView.builder(
                 padding: EdgeInsets.only(left: Adapt.px(24)),
@@ -337,9 +337,9 @@ class _ContractsPageState extends State<ContractsPage>
 
   void _getRequestAddGroupLength() async {
     if(RelayGroup.sharedInstance.myGroups.length>0) {
-      List<RelayGroupDB> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
+      List<RelayGroupDBISAR> tempGroups = RelayGroup.sharedInstance.myGroups.values.toList();
       await Future.forEach(tempGroups, (element) async {
-        List<JoinRequestDB> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
+        List<JoinRequestDBISAR> requestJoinList = await RelayGroup.sharedInstance.getRequestList(element.groupId);
         _addGroupRequestCount += requestJoinList.length;
       });
     }
@@ -355,7 +355,7 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
     setState(() {
       _isShowTools = true;
     });
@@ -369,12 +369,12 @@ class _ContractsPageState extends State<ContractsPage>
   }
 
   @override
-  void didSwitchUser(UserDB? userInfo) {
+  void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
   }
 
   @override
-  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {
+  void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {
     _getRequestAddGroupLength();
   }
 }
@@ -392,7 +392,7 @@ class _Style {
 enum ContactsItemType{
   contact,
   group,
-  channel,
+  // channel,
 }
 
 class GroupCreateModel{

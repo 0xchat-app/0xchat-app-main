@@ -24,8 +24,8 @@ import 'package:ox_common/widgets/common_toast.dart';
 ///@author Michael
 ///CreateTime: 2024/7/4 07:38
 class RelayGroupSetAdminRightsPage extends StatefulWidget {
-  final RelayGroupDB relayGroupDB;
-  final UserDB userDB;
+  final RelayGroupDBISAR relayGroupDB;
+  final UserDBISAR userDB;
   final GroupAdmin? groupAdmin;
 
   RelayGroupSetAdminRightsPage({super.key, required this.relayGroupDB, required this.userDB, this.groupAdmin});
@@ -49,7 +49,7 @@ class _RelayGroupSetAdminRightsPageState extends State<RelayGroupSetAdminRightsP
 
   void _loadData() {
     _showPermissions = GroupActionKind.values;
-    UserDB? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
+    UserDBISAR? myUserDB = OXUserInfoManager.sharedInstance.currentUserInfo;
     if (widget.relayGroupDB.admins != null && widget.relayGroupDB.admins!.length > 0) {
       try {
         if (myUserDB != null) {

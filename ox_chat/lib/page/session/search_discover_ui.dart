@@ -32,6 +32,7 @@ extension SearchDiscoverUI on SearchPageState{
   void loadOnlineChannelsData() async {
     final requestId = ++lastRequestId;
     if (searchQuery.startsWith('nevent') ||
+        searchQuery.startsWith('naddr') ||
         searchQuery.startsWith('nostr:') ||
         searchQuery.startsWith('note')) {
       Map<String, dynamic>? map = Channels.decodeChannel(searchQuery);
@@ -40,9 +41,9 @@ extension SearchDiscoverUI on SearchPageState{
         if (kind == 40 || kind == 41) {
           String decodeNote = map['channelId'].toString();
           List<String> relays = List<String>.from(map['relays']);
-          ChannelDB? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
+          ChannelDBISAR? c = await Channels.sharedInstance.searchChannel(decodeNote, relays);
           if (c != null) {
-            List<ChannelDB> result = [c];
+            List<ChannelDBISAR> result = [c];
             dataGroups.add(
               Group(title: 'Online Channels', type: SearchItemType.channel, items: result),
             );
@@ -50,7 +51,7 @@ extension SearchDiscoverUI on SearchPageState{
         } else if (kind == 39000) {
           final groupId = map['channelId'];
           final relays = map['relays'];
-          RelayGroupDB? relayGroupDB = await RelayGroup.sharedInstance.getGroupMetadataFromRelay(groupId, relay: relays[0]);
+          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance.searchGroupsMetadataWithGroupID(groupId, relays[0]);
           if (relayGroupDB != null) {
             List<GroupUIModel> result = [GroupUIModel.relayGroupdbToUIModel(relayGroupDB)];
             dataGroups.add(
@@ -65,7 +66,7 @@ extension SearchDiscoverUI on SearchPageState{
       LogUtil.d('Search Result: ${channelModels.length} ${channelModels}');
       if (requestId == lastRequestId) {
         if (channelModels.length > 0) {
-          List<ChannelDB>? tempChannelList =
+          List<ChannelDBISAR>? tempChannelList =
           channelModels.map((element) => element!.toChannelDB()).toList();
           dataGroups.add(
             Group(
@@ -121,7 +122,7 @@ extension SearchDiscoverUI on SearchPageState{
       padding: EdgeInsets.zero,
       itemBuilder: (context, element) {
         final items = element.items;
-        if (element.type == SearchItemType.channel && items is List<ChannelDB>) {
+        if (element.type == SearchItemType.channel && items is List<ChannelDBISAR>) {
           return Column(
             children: items.map((item) {
               return ListTile(

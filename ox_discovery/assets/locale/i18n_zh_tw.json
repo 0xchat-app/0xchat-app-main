@@ -6,7 +6,6 @@
   "latest_item": "最新頻道",
   "channel_search_hint_text": "搜尋頻道",
   "moment": "瞬間",
-  "channel": "頻道",
   "private": "私人",
   "all": "全部",
   "public": "公開",
@@ -76,5 +75,11 @@
   "loading_note": "加載筆記...",
   "hour_age_tips": "小時前",
   "minute_age_tips": "分鐘前",
-  "just_now": "剛剛"
+  "just_now": "剛剛",
+  "group": "群組",
+  "channel": "頻道",
+  "group_search_text": "搜索開放和封閉群組",
+  "channel_search_text": "搜索公共頻道",
+  "member": "個成員",
+  "members": "個成員"
 }

@@ -30,7 +30,7 @@ class ProfileSetUpPage extends StatefulWidget {
 }
 
 class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
-  UserDB? mCurrentUserInfo;
+  UserDBISAR? mCurrentUserInfo;
   final TextEditingController _userNameTextEditingController =
       TextEditingController();
   final TextEditingController _dnsTextEditingController =
@@ -133,6 +133,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   void _editProfile() async {
+    LogUtil.e('Michael: --_editProfile ----');
     await OXLoading.show();
     if (mCurrentUserInfo == null) {
       CommonToast.instance
@@ -145,6 +146,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       String dns = _dnsTextEditingController.text;
       String lnurl = _bltTextEditingController.text;
       bool result;
+      LogUtil.e('Michael: --dns =${dns}');
       if (dns.isEmpty || dns == mCurrentUserInfo!.dns) {
         result = true;
       } else if (dns != mCurrentUserInfo!.dns) {
@@ -159,6 +161,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       } else {
         result = true;
       }
+      LogUtil.e('Michael: --dns set result =${result}');
       if (result) {
         mCurrentUserInfo!.dns = dns;
       } else {
@@ -175,7 +178,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           return;
         }
       }
-
+      LogUtil.e('Michael: --imageFile =${imageFile?.path}');
       if (imageFile != null) {
         final String url = await UplodAliyun.uploadFileToAliyun(
           fileType: UplodAliyunType.imageType,
@@ -185,19 +188,20 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
               DateTime.now().millisecondsSinceEpoch.toString() +
               '.png',
         );
+        LogUtil.e('Michael: --url =${url}');
         if (url.isNotEmpty) {
           mCurrentUserInfo!.picture = url;
         }
       }
 
-      UserDB? tempUserDB;
+      UserDBISAR? tempUserDB;
       try {
         tempUserDB =
             await Account.sharedInstance.updateProfile(mCurrentUserInfo!);
       } catch (e) {
         await OXLoading.dismiss();
       }
-
+      LogUtil.e('Michael: --updateProfile--tempUserDB.picture =${tempUserDB?.picture ?? ''}');
       if (tempUserDB != null) {
         OXNavigator.pop(context);
       } else {
@@ -545,7 +549,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
     }
     try {
-      ZapsDB? zapsDB = await Zaps.getZapsInfoFromLnurl(lnurl);
+      ZapsDBISAR? zapsDB = await Zaps.getZapsInfoFromLnurl(lnurl);
       if (zapsDB != null) {
         bool allowsNostr = zapsDB.allowsNostr ?? false;
         if (allowsNostr) {

@@ -23,7 +23,7 @@ double itemHeight = Adapt.px(68.0);
 typedef void CursorContactsChanged(Widget cursor, int noteLength);
 
 class ContactWidget extends StatefulWidget {
-  final List<UserDB> data;
+  final List<UserDBISAR> data;
   final bool editable;
   final onSelectChanged;
   String hostName = ''; //The current domain
@@ -50,16 +50,15 @@ class ContactWidget extends StatefulWidget {
 
 class Note {
   String tag;
-  List<UserDB> childList;
+  List<UserDBISAR> childList;
 
   Note(this.tag, this.childList);
 }
 
 class ContactWidgetState<T extends ContactWidget> extends State<T> {
-  late List<UserDB> _data;
   ScrollController _scrollController = ScrollController();
   List<String> indexTagList = [];
-  List<UserDB>? userList;
+  List<UserDBISAR> userList = [];
   int defaultIndex = 0;
 
   List<Note> noteList = [];
@@ -67,14 +66,14 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   String _tagName = '';
   bool _isTouchTagBar = false;
 
-  List<UserDB> selectedList = [];
-  Map<String, List<UserDB>> mapData = Map();
+  List<UserDBISAR> selectedList = [];
+  Map<String, List<UserDBISAR>> mapData = Map();
   String mHostName = '';
 
   @override
   void initState() {
     super.initState();
-    _data = widget.data;
+    userList = widget.data;
     _initIndexBarData();
     initFromCache();
     _scrollController.addListener(() {
@@ -91,38 +90,36 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     super.didUpdateWidget(oldWidget);
   }
 
-  void updateContactData(List<UserDB> data) {
-    _data = data;
+  void updateContactData(List<UserDBISAR> data) {
+    userList = data;
     _initIndexBarData();
   }
 
   void _initIndexBarData() {
-    userList = _data;
     indexTagList.clear();
     mapData.clear();
     noteList.clear();
-    if (null == userList || userList?.length == 0) return;
 
     ALPHAS_INDEX.forEach((v) {
       mapData[v] = [];
     });
-    Map<UserDB, String> pinyinMap = Map<UserDB, String>();
-    for (var user in userList!) {
+    Map<String, String> pinyinMap = Map<String, String>();
+    for (var user in userList) {
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
-      pinyinMap[user] = pinyin;
+      pinyinMap[user.pubKey] = pinyin;
     }
-    userList!.sort((v1, v2) {
-      return pinyinMap[v1]!.compareTo(pinyinMap[v2]!);
+    userList.sort((v1, v2) {
+      return pinyinMap[v1.pubKey]!.compareTo(pinyinMap[v2.pubKey]!);
     });
-    userList!.forEach((item) {
-      if (item.pubKey == '') return;
-      if (item.name!.isEmpty) item.name = 'unknown';
+    userList.forEach((item) {
       // if (item.userType == systemUserType) {
       //   mapData["☆"]?.insert(0, item);
       //   return;
       // }
-      var cTag = pinyinMap[item]![0].toUpperCase();
+      String? pingyin = pinyinMap[item.pubKey] ;
+      pingyin = pingyin == null || pingyin.isEmpty ? '' : pingyin[0];
+      var cTag = pingyin.toUpperCase();
       // if (EnumTypeUtils.checkShiftOperation(item.userType!, 0)) {
       //   cTag = "☆";
       // } else if (!ALPHAS_INDEX.contains(cTag)){ cTag = '#';}
@@ -256,7 +253,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     );
   }
 
-  void _onCheckChangedListener(bool checked, UserDB item) {
+  void _onCheckChangedListener(bool checked, UserDBISAR item) {
     if (checked)
       selectedList.add(item);
     else
@@ -366,7 +363,7 @@ class HeaderWidget extends StatelessWidget {
 }
 
 class ContractListItem extends StatefulWidget {
-  late UserDB item;
+  late UserDBISAR item;
 
   final onCheckChanged;
   final bool editable;
@@ -398,7 +395,7 @@ class _ContractListItemState extends State<ContractListItem> {
 
   void _onItemClick() async {
     if (widget.item.pubKey.isNotEmpty) {
-      UserDB? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDB;
+      UserDBISAR? userDB = Contacts.sharedInstance.allContacts[widget.item.pubKey] as UserDBISAR;
       OXNavigator.pushPage(context, (context) => ContactUserInfoPage(pubkey: userDB.pubKey));
     }
   }
@@ -449,7 +446,7 @@ class _ContractListItemState extends State<ContractListItem> {
                 Positioned(
                   bottom: 0,
                   right: 0,
-                  child: FutureBuilder<BadgeDB?>(
+                  child: FutureBuilder<BadgeDBISAR?>(
                     builder: (context, snapshot) {
                       return (snapshot.data !=null) ? OXCachedNetworkImage(
                         imageUrl: snapshot.data?.thumb ?? '',
@@ -481,8 +478,8 @@ class _ContractListItemState extends State<ContractListItem> {
     );
   }
 
-  Future<BadgeDB?> _getUserSelectedBadgeInfo(UserDB friendDB) async {
-    UserDB? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
+  Future<BadgeDBISAR?> _getUserSelectedBadgeInfo(UserDBISAR friendDB) async {
+    UserDBISAR? friendUserDB = Contacts.sharedInstance.allContacts[friendDB.pubKey];
     if (friendUserDB == null) {
       return null;
     }
@@ -490,9 +487,9 @@ class _ContractListItemState extends State<ContractListItem> {
     if (badges.isNotEmpty) {
       List<dynamic> badgeListDynamic = jsonDecode(badges);
       List<String> badgeList = badgeListDynamic.cast();
-      BadgeDB? badgeDB;
+      BadgeDBISAR? badgeDB;
       try {
-        List<BadgeDB?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
+        List<BadgeDBISAR?> badgeDBList = await BadgesHelper.getBadgeInfosFromDB(badgeList);
         badgeDB = badgeDBList.first;
       } catch (error) {
         LogUtil.e("user selected badge info fetch failed: $error");

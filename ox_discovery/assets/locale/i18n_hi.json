@@ -6,7 +6,6 @@
   "latest_item": "नवीनतम",
   "channel_search_hint_text": "चैनल खोजें",
   "moment": "क्षण",
-  "channel": "चैनल",
   "private": "निजी",
   "all": "सभी",
   "public": "सार्वजनिक",
@@ -76,5 +75,11 @@
   "loading_note": "नोट लोड हो रहा है...",
   "hour_age_tips": "घंटे पहले",
   "minute_age_tips": "मिनट पहले",
-  "just_now": "अभी"
+  "just_now": "अभी",
+  "group": "समूह",
+  "channel": "चैनल",
+  "group_search_text": "खुले और बंद समूह खोजें",
+  "channel_search_text": "सार्वजनिक चैनल खोजें",
+  "member": "सदस्य",
+  "members": "सदस्य"
 }

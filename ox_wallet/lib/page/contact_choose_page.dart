@@ -54,7 +54,7 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
       _contactList = Contacts.sharedInstance.allContacts.values.toList() as List<T>;
     }
     if(widget.contactType == ContactType.group){
-      _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDB).owner.isNotEmpty).toList();
+      _contactList = (Groups.sharedInstance.myGroups.values.toList() as List<T>).where((element) => (element as GroupDBISAR).owner.isNotEmpty).toList();
     }
     _groupedContact();
   }
@@ -67,10 +67,10 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
 
     for (var contact in _contactList) {
       String nameToConvert = '';
-      if(contact is UserDB){
+      if(contact is UserDBISAR){
         nameToConvert = contact.nickName != null && contact.nickName!.isNotEmpty ? contact.nickName! : (contact.name ?? '');
       }
-      if(contact is GroupDB){
+      if(contact is GroupDBISAR){
         nameToConvert = contact.name;
       }
 

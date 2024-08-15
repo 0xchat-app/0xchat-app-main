@@ -125,11 +125,12 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
           updateNotesList(true);
           return;
         }
-        OXNavigator.presentPage(context, (context) => CreateMomentsPage(
+       await OXNavigator.presentPage(context, (context) => CreateMomentsPage(
           type: null,
           groupId: widget.groupId,
           sendMomentsType: EOptionMomentsType.group,
         ));
+        updateNotesList(true);
       },
     );
   }
@@ -147,7 +148,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         return MomentWidget(
           isShowReplyWidget: true,
           notedUIModel: notedUIModel,
-          clickMomentCallback: (ValueNotifier<NotedUIModel> notedUIModel) async {
+          clickMomentCallback: (ValueNotifier<NotedUIModel?> notedUIModel) async {
             await OXNavigator.pushPage(
                 context, (context) => MomentsPage(
                 notedUIModel: notedUIModel,
@@ -274,7 +275,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
 
   Future<void> updateNotesList(bool isInit) async {
     try {
-      List<NoteDB> list = await RelayGroup.sharedInstance.loadGroupNotesFromDB(
+      List<NoteDBISAR> list = await RelayGroup.sharedInstance.loadGroupNotesFromDB(
               widget.groupId,
               until: isInit ? null : _allNotesFromDBLastTimestamp,
               limit: _limit) ??
@@ -286,7 +287,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         return;
       }
 
-      List<NoteDB> showList = _filterNotes(list);
+      List<NoteDBISAR> showList = _filterNotes(list);
       _updateUI(showList, isInit, list.length);
 
       if (list.length < _limit) {
@@ -328,7 +329,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   void _getGroupInfo() {
-    RelayGroupDB? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
+    RelayGroupDBISAR? groupDB = RelayGroup.sharedInstance.myGroups[widget.groupId];
     if(groupDB == null) return;
     _groupName = groupDB.name;
     if(mounted){
@@ -336,14 +337,14 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
     }
   }
 
-  List<NoteDB> _filterNotes(List<NoteDB> list) {
+  List<NoteDBISAR> _filterNotes(List<NoteDBISAR> list) {
     return list
         .where(
-            (NoteDB note) => !note.isReaction && note.getReplyLevel(null) < 2)
+            (NoteDBISAR note) => !note.isReaction && note.getReplyLevel(null) < 2)
         .toList();
   }
 
-  void _updateUI(List<NoteDB> showList, bool isInit, int fetchedCount) {
+  void _updateUI(List<NoteDBISAR> showList, bool isInit, int fetchedCount) {
     List<ValueNotifier<NotedUIModel>> list = showList
         .map((note) => ValueNotifier(NotedUIModel(noteDB: note)))
         .toList();
@@ -366,13 +367,13 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   @override
-  didNewNotesCallBackCallBack(List<NoteDB> notes) {}
+  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {}
 
   @override
-  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
   @override
-  didGroupsNoteCallBack(NoteDB notes) {
+  didGroupsNoteCallBack(NoteDBISAR notes) {
     if(notes.groupId == widget.groupId){
       notesList = [...[ValueNotifier(NotedUIModel(noteDB: notes))],...notesList];
       setState(() {});
@@ -380,11 +381,11 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {}
+  void didLoginSuccess(UserDBISAR? userInfo) {}
 
   @override
   void didLogout() {}
 
   @override
-  void didSwitchUser(UserDB? userInfo) {}
+  void didSwitchUser(UserDBISAR? userInfo) {}
 }
