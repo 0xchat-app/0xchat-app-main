@@ -68,9 +68,17 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
   }
 
   void _getSelectIndex ()async{
-    final cacheStyle = UserConfigTool.getSetting(StorageSettingKey.KEY_THEME_INDEX.name, defaultValue: ThemeSettingType.dark.index);
-    LogUtil.e('Michael:---settings---cacheStyle =${cacheStyle}');
-    _selectedIndex = cacheStyle;
+    var getStyle = await OXCacheManager.defaultOXCacheManager.getForeverData('themeSetting',defaultValue: ThemeSettingType.dark.saveText);
+    if(getStyle == '') {
+      _selectedIndex = 0;
+    }
+    if(getStyle == 'dark'){
+      _selectedIndex = 1;
+    }
+    if(getStyle == 'light'){
+      _selectedIndex = 2;
+    }
+
     setState(() {});
 
   }
@@ -140,7 +148,6 @@ class _ThemeSettingsPage extends State<ThemeSettingsPage> {
       onTap: () async {
         final selectedIndex = index ?? 0;
         ThemeManager.changeTheme(ThemeSettingType.values[selectedIndex].themeStyle);
-        UserConfigTool.saveSetting(StorageSettingKey.KEY_THEME_INDEX.name, selectedIndex);
         _selectedIndex = selectedIndex;
         if (mounted) setState(() { });
       },
