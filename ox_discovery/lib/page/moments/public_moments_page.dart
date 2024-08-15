@@ -564,11 +564,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    updateNotesList(true);
+
 
     setState(() {
       isLogin = true;
     });
+    _refreshController.requestRefresh();
 
   }
 }
