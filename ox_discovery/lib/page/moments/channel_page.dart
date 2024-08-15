@@ -349,8 +349,7 @@ class _ChannelPageState extends State<ChannelPage>
             return const AssetImage('assets/images/user_image.png',
                 package: 'ox_common');
           } else {
-            return OXCachedNetworkImageProviderEx.create(
-              context,
+            return OXCachedImageProviderEx.create(
               url,
               height: Adapt.px(26),
             );

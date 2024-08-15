@@ -116,7 +116,7 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                     return placeholderImage;
                   })
               : PhotoView(
-                  imageProvider: OXCachedNetworkImageProviderEx.create(context, '${mUserDB?.picture}', width: imageWidth),
+                  imageProvider: OXCachedImageProviderEx.create('${mUserDB?.picture}', width: imageWidth),
                   errorBuilder: (_, __, ___) {
                     return placeholderImage;
                   })),

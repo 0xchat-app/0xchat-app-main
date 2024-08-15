@@ -374,7 +374,7 @@ class InputState extends State<Input>{
         ),
         textCapitalization: TextCapitalization.sentences,
         contentInsertionConfiguration:  ContentInsertionConfiguration(
-          allowedMimeTypes: const <String>['image/png', 'image/gif'],
+          allowedMimeTypes: const <String>['image/png', 'image/gif', 'image/webp'],
           onContentInserted: (KeyboardInsertedContent data) async {
             if (data.data != null) {
               widget.onInsertedContent?.call(data);

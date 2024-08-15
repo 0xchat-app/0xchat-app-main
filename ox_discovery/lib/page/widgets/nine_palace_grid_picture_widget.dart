@@ -110,8 +110,7 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         child: MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           child: ExtendedImage(
-            image:OXCachedNetworkImageProviderEx.create(
-              context,
+            image:OXCachedImageProviderEx.create(
               imgPath,
             ),
             fit: BoxFit.cover,

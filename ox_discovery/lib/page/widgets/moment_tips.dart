@@ -194,8 +194,7 @@ class MomentTips extends StatelessWidget {
         String pic = avatars[n];
         if (pic.isNotEmpty) {
           avatarList.add(
-            OXCachedNetworkImageProviderEx.create(
-              context,
+            OXCachedImageProviderEx.create(
               pic,
             ),
           );
