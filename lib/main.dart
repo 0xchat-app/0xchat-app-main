@@ -6,10 +6,11 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ox_calling/manager/call_manager.dart';
 import 'package:ox_common/scheme/scheme_helper.dart';
 import 'package:ox_common/utils/error_utils.dart';
-import 'package:ox_common/utils/ox_server_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_home/ox_home.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +24,6 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/boot_config.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/ox_common.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_discovery/ox_discovery.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_login/ox_login.dart';
@@ -58,21 +58,23 @@ void main() async {
     await ThemeManager.init();
     await Localized.init();
     await setupModules();
-    OXServerManager.sharedInstance.loadConnectICEServer();
     await OXUserInfoManager.sharedInstance.initLocalData();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setSystemUIOverlayStyle(ThemeManager.getCurrentThemeStyle().toOverlayStyle());
     FlutterError.onError = (FlutterErrorDetails details) async {
-      bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+      bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
       if (openDevLog) {
         FlutterError.presentError(details);
         ErrorUtils.logErrorToFile(details.toString());
       }
       print(details.toString());
     };
+    getApplicationDocumentsDirectory().then((value) {
+      LogUtil.d('[App start] Application Documents Path: $value');
+    });
     runApp(MainApp(window.defaultRouteName));
   }, (error, stackTrace) async {
-    bool openDevLog = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, defaultValue: false);
+    bool openDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     if (openDevLog) {
       ErrorUtils.logErrorToFile(error.toString());
     }
@@ -209,14 +211,14 @@ class MainState extends State<MainApp>
   }
 
   @override
-  void didLoginSuccess(UserDB? userInfo) {
+  void didLoginSuccess(UserDBISAR? userInfo) {
   }
 
   @override
   void didLogout() {}
 
   @override
-  void didSwitchUser(UserDB? userInfo) {}
+  void didSwitchUser(UserDBISAR? userInfo) {}
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -233,9 +235,11 @@ class MainState extends State<MainApp>
         }
         break;
       case AppLifecycleState.paused:
-        DB.sharedInstance.batchApply();
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
+        if (CallManager.instance.getInCallIng && CallManager.instance.isAudioVoice){
+          OXCommon.channelPreferences.invokeMethod('startVoiceCallService', {'notice_voice_title': CallManager.instance.otherName, 'notice_voice_content': Localized.text('ox_calling.str_voice_call_in_use')});
+        }
         break;
       default:
         break;
@@ -243,7 +247,7 @@ class MainState extends State<MainApp>
   }
 
   void showPasswordDialog() async {
-    String localPasscode = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PASSCODE, defaultValue: '');
+    String localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     if (localPasscode.isNotEmpty && OXNavigator.navigatorKey.currentContext != null)
       OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
   }
