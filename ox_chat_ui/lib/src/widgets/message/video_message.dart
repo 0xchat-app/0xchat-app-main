@@ -111,12 +111,13 @@ class _VideoMessageState extends State<VideoMessage> {
                 borderRadius: BorderRadius.circular(15),
                 child: Stack(
                   children: [
-                    Positioned.fill(
-                      child: Image(
-                        fit: BoxFit.cover,
-                        image: _image!,
+                    if (_image != null)
+                      Positioned.fill(
+                        child: Image(
+                          fit: BoxFit.cover,
+                          image: _image!,
+                        ),
                       ),
-                    ),
                     Align(
                       alignment:Alignment(0, 0),
                       child: Container(
@@ -157,7 +158,7 @@ class _VideoMessageState extends State<VideoMessage> {
                         top: 4,
                       ),
                       child: Text(
-                        formatBytes(widget.message.size.truncate()),
+                        '', // formatBytes(widget.message.size.truncate()),
                         style: user.id == widget.message.author.id
                             ? InheritedChatTheme.of(context)
                             .theme
@@ -185,12 +186,13 @@ class _VideoMessageState extends State<VideoMessage> {
           child:
           Stack(
             children: [
-              Positioned.fill(
-                child: Image(
-                  fit: BoxFit.cover,
-                  image: _image!,
+              if (_image != null)
+                Positioned.fill(
+                  child: Image(
+                    fit: BoxFit.cover,
+                    image: _image!,
+                  ),
                 ),
-              ),
               Align(
                 alignment:Alignment(0, 0),
                 child: Container(
