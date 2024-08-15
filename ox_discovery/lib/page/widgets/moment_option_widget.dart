@@ -164,7 +164,8 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
             _reactionTag = true;
             _updateNoteDB();
             CommonToast.instance.show(context, Localized.text('ox_discovery.like_success_tips'));
-
+          }else{
+            CommonToast.instance.show(context, Localized.text('ox_discovery.like_fail_tips'));
           }
         };
       case EMomentOptionType.zaps:
