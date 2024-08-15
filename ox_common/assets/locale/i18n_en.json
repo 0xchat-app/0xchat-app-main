@@ -85,7 +85,7 @@
   "pull_down_to_bottom": "It's all down to the bottom",
   "str_my_idcard": "My Card",
   "str_scan": "Scan",
-  "str_add_friend" : "Add Friend",
+  "str_add_friend" : "Add Contact",
   "str_new_channel": "New Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
   "scan_find_nwc_hint": "Connect to this wallet?",
