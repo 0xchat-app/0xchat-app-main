@@ -780,7 +780,11 @@ class _UserCenterPageState extends State<UserCenterPage>
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
     if (mounted) {
-      if (OXUserInfoManager.sharedInstance.isLogin) updateStateView(CommonStateView.CommonStateView_None);
+      if (OXUserInfoManager.sharedInstance.isLogin){
+        setState(() {
+          updateStateView(CommonStateView.CommonStateView_None);
+        });
+      }
       _verifiedDNS();
     }
   }
