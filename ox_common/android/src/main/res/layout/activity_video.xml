@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.leeson.image_pickers.views.FullScreenVideoView
+            <com.ox.ox_common.views.FullScreenVideoView
                 android:id="@+id/videoView"
                 android:layout_width="1dp"
                 android:layout_height="1dp"
