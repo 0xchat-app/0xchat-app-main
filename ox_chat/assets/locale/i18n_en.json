@@ -318,7 +318,7 @@
   "str_group_share_menu_copy": "Copy GroupID",
   "str_group_share_menu_send_to_friend": "Share to Contacts",
   "search_discovery": "Search groups & channels",
-  "search_tips_discovery": "Try searching keywords nevent or relay URL",
+  "search_tips_discovery": "Try searching keywords naddr or relay URL",
   "request_group_chat_button": "Request to Join Group",
   "create_channel": "Public Channel",
   "day": "day",
