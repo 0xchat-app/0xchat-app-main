@@ -7,8 +7,9 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
+import 'package:ox_common/widgets/common_video_page.dart';
 import '../../utils/moment_widgets_utils.dart';
-import '../moments/common_video_page.dart';
 
 class VideoMomentWidget extends StatefulWidget {
   final String videoUrl;

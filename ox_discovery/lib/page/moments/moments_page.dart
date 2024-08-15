@@ -30,7 +30,7 @@ class MomentsPage extends StatefulWidget {
   State<MomentsPage> createState() => _MomentsPageState();
 }
 
-class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
+class _MomentsPageState extends State<MomentsPage> {
   final GlobalKey _replyListContainerKey = GlobalKey();
   final GlobalKey _containerKey = GlobalKey();
 
@@ -58,10 +58,6 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
     );
   }
 
-  @override
-  Future<void> didPopNext() async {
-    _updateNoted();
-  }
 
   void _updateNoted() async {
     if(widget.notedUIModel.value == null) return;
@@ -440,9 +436,9 @@ class MomentReplyWrapWidget extends StatefulWidget {
 }
 
 class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
-  ValueNotifier<NotedUIModel>? firstReplyNoted;
-  ValueNotifier<NotedUIModel>? secondReplyNoted;
-  ValueNotifier<NotedUIModel>? thirdReplyNoted;
+  ValueNotifier<NotedUIModel?>? firstReplyNoted;
+  ValueNotifier<NotedUIModel?>? secondReplyNoted;
+  ValueNotifier<NotedUIModel?>? thirdReplyNoted;
 
   bool isShowRepliesWidget = false;
 
@@ -481,40 +477,36 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
 
   void _getReplyFromDB(ValueNotifier<NotedUIModel?> notedUIModelDraft, int index) async {
     List<String>? replyEventIds = notedUIModelDraft.value?.noteDB.replyEventIds;
-    if (replyEventIds == null) return;
+    if (replyEventIds == null || replyEventIds.isEmpty) return;
 
-    List<ValueNotifier<NotedUIModel>> result = [];
-    for (String noteId in replyEventIds) {
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
 
-      ValueNotifier<NotedUIModel?> replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
-        noteId,
+    String noteId = replyEventIds[0];
+    ValueNotifier<NotedUIModel?>? replyNotifier = notedUIModelCache[noteId];
+
+    if(replyNotifier?.value == null){
+       replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
+         noteId,
         isUpdateCache: true,
       );
-
-      if (replyNotifier.value != null) result.add(replyNotifier as ValueNotifier<NotedUIModel>);
     }
 
+    if(replyNotifier?.value == null) return;
+
     if (index == 0) {
-      firstReplyNoted = result.isNotEmpty ? result[0] : null;
-      if (firstReplyNoted != null) {
-        _getReplyList(firstReplyNoted!, 1);
-      }
+      firstReplyNoted = replyNotifier;
+      _getReplyList(firstReplyNoted!, 1);
     }
 
     if (index == 1) {
-      secondReplyNoted = result.isNotEmpty ? result[0] : null;
-      if (secondReplyNoted != null) {
-        isShowRepliesWidget = true;
-        setState(() {});
-        _getReplyList(secondReplyNoted!, 2);
-      }
+      secondReplyNoted = replyNotifier;
+      isShowRepliesWidget = true;
+      _getReplyList(secondReplyNoted!, 2);
     }
 
     if (index == 2) {
-      thirdReplyNoted = result.isNotEmpty ? result[0] : null;
-      if (thirdReplyNoted != null) {
-        _getReplyList(thirdReplyNoted!, 3);
-      }
+      thirdReplyNoted = replyNotifier;
+      _getReplyList(thirdReplyNoted!, 3);
     }
 
     if (mounted) {
@@ -550,8 +542,10 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
   }
 
   Widget _secondReplyWidget() {
-    if (secondReplyNoted == null || isShowRepliesWidget)
+    if (secondReplyNoted == null || isShowRepliesWidget){
       return const SizedBox();
+    }
+
     return MomentReplyWidget(
       notedUIModel: secondReplyNoted!,
       isShowLink: thirdReplyNoted != null,

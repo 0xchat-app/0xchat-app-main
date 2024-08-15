@@ -62,6 +62,14 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
       return;
     }
 
+    ValueNotifier<NotedUIModel?>? notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache[replyId];
+    if(notedUIModelCache?.value != null){
+      notedUIModel = notedUIModelCache;
+      setState(() {});
+      return;
+    }
+
+
     ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
       replyId,
       isUpdateCache: true,
@@ -84,9 +92,8 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
   @override
   Widget build(BuildContext context) {
     ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    if(!widget.isShowReplyWidget) return const SizedBox();
-    if (hasReplyWidget && model == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
-    if(model == null || model.value == null) return const SizedBox();
+    if(!widget.isShowReplyWidget || model == null) return const SizedBox();
+    if (hasReplyWidget && model.value == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null,100);
     return Container(
       margin: EdgeInsets.only(
         bottom: 10.px,
