@@ -180,30 +180,26 @@ class _GroupsPageState extends State<GroupsPage>
         Stack(
           children: [
             ClipRect(
-              child: Transform.scale(
-                alignment: Alignment.center,
-                scale: 1.2,
-                child: picture.isNotEmpty
-                    ? OXCachedNetworkImage(
-                        height: 100.px,
-                        imageUrl: picture,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorWidget: (context, url, error) => _placeholderImage(),
-                      )
-                    : _placeholderImage(height: 100.px, width: double.infinity),
-              ),
+              child: picture.isNotEmpty
+                  ? OXCachedNetworkImage(
+                height: 100.px,
+                imageUrl: picture,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorWidget: (context, url, error) => _placeholderImage(),
+              )
+                  : _placeholderImage(height: 100.px, width: double.infinity),
             ),
-            Positioned.fill(
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              ),
-            ),
+            // Positioned.fill(
+            //   child: ClipRect(
+            //     child: BackdropFilter(
+            //       filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            //       child: Container(
+            //         color: Colors.transparent,
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         Container(
