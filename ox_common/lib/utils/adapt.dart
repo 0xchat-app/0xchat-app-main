@@ -12,6 +12,7 @@ class Adapt {
   static double? _topbarH;
   static double? _botbarH;
   static double? _pixelRatio;
+  static double get devicePixelRatio => _pixelRatio ?? 1;
   static num statusBarHeight = 0.0;
   static double? _ratioW;
   static var _ratioH;

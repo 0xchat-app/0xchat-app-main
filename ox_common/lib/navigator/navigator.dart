@@ -28,9 +28,13 @@ class OXNavigator extends Navigator {
   }
 
   @optionalTypeArgs
-  static void pop<T extends Object?>(BuildContext context, [T? result]) {
+  static void pop<T extends Object?>(BuildContext? context, [T? result]) {
+    context ??= navigatorKey.currentContext;
+    if (context == null) return ;
+
     // Remove the current focus
     FocusScope.of(context).requestFocus(FocusNode());
+
     if (canPop(context)) {
       Navigator.pop(context, result);
     } else {

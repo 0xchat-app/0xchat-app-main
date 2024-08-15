@@ -10,8 +10,11 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/theme_color.dart';
 import 'common_loading.dart';
 import 'common_toast.dart';
@@ -80,15 +83,44 @@ class SmoothPageScrollPhysics extends ScrollPhysics {
   double get dragStartDistanceMotionThreshold => 0.1;
 }
 
+class ImageEntry {
+  ImageEntry({
+    required this.id,
+    required this.url,
+    this.decryptedKey,
+  });
+  final String id;
+  final String url;
+  final String? decryptedKey;
+}
+
 class CommonImageGallery extends StatefulWidget {
-  final List<String> imageList;
-  final String tag;
+  final List<ImageEntry> imageList;
   final int initialPage;
-  const CommonImageGallery(
-      {required this.imageList, required this.tag, required this.initialPage});
+  const CommonImageGallery({
+    required this.imageList, required this.initialPage});
 
   @override
   _CommonImageGalleryState createState() => _CommonImageGalleryState();
+
+  static show({
+    BuildContext? context,
+    required List<ImageEntry> imageList,
+    int initialPage = 0,
+  }) {
+    context ??= OXNavigator.navigatorKey.currentContext;
+    if (context == null) return ;
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false, // Background transparency
+        pageBuilder: (context, animation, secondaryAnimation) => CommonImageGallery(
+          imageList: imageList,
+          initialPage: initialPage,
+        ),
+      ),
+    );
+  }
 }
 
 class _CommonImageGalleryState extends State<CommonImageGallery>
@@ -195,9 +227,14 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                   return true;
                 },
                 itemBuilder: (BuildContext context, int index) {
+                  final entry = widget.imageList[index];
                   return HeroWidget(
-                    child: ExtendedImage.network(
-                      widget.imageList[index],
+                    child: ExtendedImage(
+                      image: OXCachedNetworkImageProviderEx.create(
+                        context,
+                        entry.url,
+                        decryptedKey: entry.decryptedKey,
+                      ),
                       loadStateChanged: (ExtendedImageState state) {
                         switch (state.extendedImageLoadState) {
                           case LoadState.loading:
@@ -230,7 +267,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                         );
                       },
                     ),
-                    tag: widget.imageList[index] + widget.tag,
+                    tag: widget.imageList[index].id,
                     slideType: SlideType.onlyImage,
                     slidePagekey: slidePagekey,
                   );
@@ -447,45 +484,58 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
 
   Future _widgetShotAndSave() async {
     if (widget.imageList.isEmpty) return;
+
     OXLoading.show();
     final pageIndex = _pageController.page?.round() ?? 0;
-    final imageUri = widget.imageList[pageIndex];
+    final imageUri = widget.imageList[pageIndex].url;
+    final decryptKey = widget.imageList[pageIndex].decryptedKey;
+    final fileName = imageUri.split('/').lastOrNull?.split('?').firstOrNull ?? '';
+    final isGIF = fileName.contains('.gif');
 
-    final isNetworkImage = imageUri.startsWith('http');
+    unawaited(OXLoading.show());
+
     var result;
-    if (isNetworkImage) {
+    if (imageUri.isRemoteURL) {
+      // Remote image
+      final imageManager = OXFileCacheManager.get(encryptKey: decryptKey);
       try {
-        String fileName = imageUri.split('/').last.split('?').first;
-        if (fileName.contains('.gif')) {
-          final appDocDir = await getTemporaryDirectory();
-          final savePath = appDocDir.path +
-              "/image_${DateTime.now().millisecondsSinceEpoch}.gif";
-          final response = await Dio().download(imageUri, savePath,
-              options: Options(responseType: ResponseType.bytes));
-          result = await ImageGallerySaver.saveFile(savePath);
+        final imageFile = await imageManager.getSingleFile(imageUri)
+            .timeout(const Duration(seconds: 30), onTimeout: () {
+          throw Exception('time out');
+        });
+
+        if (isGIF) {
+          result = await ImageGallerySaver.saveFile(imageFile.path, isReturnPathOfIOS: true);
         } else {
-          var response = await Dio().get(imageUri,
-              options: Options(responseType: ResponseType.bytes));
-          result = await ImageGallerySaver.saveImage(
-              Uint8List.fromList(response.data));
+          final imageData = await imageFile.readAsBytes();
+          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
         }
       } catch (e) {
         unawaited(CommonToast.instance.show(context, e.toString()));
       }
     } else {
-      final imageData = await File(imageUri).readAsBytes();
-
-      result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+      // Local image
+      final imageFile = File(imageUri);
+      if (decryptKey != null) {
+        final completer = Completer();
+        await DecryptedCacheManager.decryptFile(imageFile, decryptKey, bytesCallback: (imageData) async {
+          result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+          completer.complete();
+        });
+        await completer.future;
+      } else {
+        final imageData = await imageFile.readAsBytes();
+        result = await ImageGallerySaver.saveImage(Uint8List.fromList(imageData));
+      }
     }
+
+    unawaited(OXLoading.dismiss());
 
     if (result != null) {
-      unawaited(CommonToast.instance
-          .show(context, Localized.text('ox_chat.str_saved_to_album')));
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_saved_to_album')));
     } else {
-      unawaited(CommonToast.instance
-          .show(context, Localized.text('ox_chat.str_save_failed')));
+      unawaited(CommonToast.instance.show(context, Localized.text('ox_chat.str_save_failed')));
     }
-    OXLoading.dismiss();
   }
 }
 

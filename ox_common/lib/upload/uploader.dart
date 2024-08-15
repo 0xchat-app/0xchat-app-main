@@ -29,31 +29,36 @@ class Uploader {
     return fileType!;
   }
 
-  static Future<String?> upload(String localPath, String imageService,
-      {String? imageServiceAddr, String? fileName}) async {
+  static Future<String?> upload(
+    String localPath,
+    String imageService, {
+    String? imageServiceAddr,
+    String? fileName,
+    Function(double progress)? onProgress,
+  }) async {
     try{
       switch (imageService) {
         case ImageServices.POMF2_LAIN_LA:
-          return await Pomf2LainLa.upload(localPath, fileName: fileName);
+          return await Pomf2LainLa.upload(localPath, fileName: fileName, onProgress: onProgress);
         case ImageServices.NOSTR_BUILD:
-          return await NostrBuildUploader.upload(localPath, fileName: fileName);
+          return await NostrBuildUploader.upload(localPath, fileName: fileName, onProgress: onProgress);
         case ImageServices.NOSTO_RE:
           return await BolssomUploader.upload("https://nosto.re/", localPath,
-              fileName: fileName);
+              fileName: fileName, onProgress: onProgress);
         case ImageServices.BLOSSOM:
           if (StringUtil.isNotBlank(imageServiceAddr)) {
             return await BolssomUploader.upload(imageServiceAddr!, localPath,
-                fileName: fileName);
+                fileName: fileName, onProgress: onProgress);
           }
         case ImageServices.VOID_CAT:
-          return await VoidCatUploader.upload(localPath);
+          return await VoidCatUploader.upload(localPath, onProgress: onProgress);
         case ImageServices.NIP_96:
           if (StringUtil.isNotBlank(imageServiceAddr)) {
             return await NIP96Uploader.upload(imageServiceAddr!, localPath,
-                fileName: fileName);
+                fileName: fileName, onProgress: onProgress);
           }
         default:
-          return await NIP96Uploader.upload(imageServiceAddr!, localPath, fileName: fileName);
+          return await NIP96Uploader.upload(imageServiceAddr!, localPath, fileName: fileName, onProgress: onProgress);
       }
     } catch (e) {
       rethrow;

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -89,9 +90,9 @@ class BadgeModel {
     );
   }
 
-  factory BadgeModel.fromBadgeDB(BadgeDB badgeDB) {
+  factory BadgeModel.fromBadgeDB(BadgeDBISAR badgeDB) {
     return BadgeModel(
-        badgeId: badgeDB.id,
+        badgeId: badgeDB.badgeID,
         badgeName: badgeDB.name,
         badgeImageUrl: badgeDB.image,
         identifies: badgeDB.d,
@@ -108,39 +109,11 @@ class BadgeModel {
 
   static Future<List<BadgeModel>> getDefaultBadge({BuildContext? context, bool? showLoading}) async {
     List<BadgeModel> defaultBadgeModelList = [];
-    Completer<List<BadgeModel>> completer = Completer();
 
-    void parseAndConvertResult(List<dynamic> badgeMapList) {
+    Map<String, dynamic> result = json.decode(BadgesHelper.sharedInstance.defaultBadgesString);
+    if (result['code'] == "000000") {
+      List<dynamic> badgeMapList = result['data'];
       defaultBadgeModelList = badgeMapList.map((value) => BadgeModel.fromJson(value)).toList();
-    }
-
-    try {
-      OXResponse response = await OXNetwork.instance.doRequest(context,
-          url: "${CommonConstant.baseUrl}/nostrchat/badges/getBadges",
-          type: RequestType.GET,
-          showLoading: showLoading ?? false,
-          needRSA: false,
-          needCommonParams: false,
-          useCache: true, useCacheCallback: (NetworkResponse cacheResponse) {
-        Map<String, dynamic> result = cacheResponse.data;
-        if (result['code'] == "000000") {
-          List<dynamic> badgeMapList = result['data'];
-          parseAndConvertResult(badgeMapList);
-        }
-
-        if (!completer.isCompleted) {
-          completer.complete(defaultBadgeModelList);
-        }
-      });
-      parseAndConvertResult(response.data);
-      return defaultBadgeModelList;
-    } catch (e, s) {
-      LogUtil.e("get default Badge request failed, used cache data : $e \r\n $s");
-      try {
-        defaultBadgeModelList = await completer.future;
-      } catch (error) {
-        LogUtil.e("retrieving cache data from future failed + $e");
-      }
     }
     return defaultBadgeModelList;
   }

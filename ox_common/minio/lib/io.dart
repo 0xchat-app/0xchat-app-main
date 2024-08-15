@@ -13,6 +13,7 @@ extension MinioX on Minio {
     String object,
     String filePath, [
     Map<String, String>? metadata,
+    void Function(double)? onProgress,
   ]) async {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
@@ -35,6 +36,7 @@ extension MinioX on Minio {
       file.openRead().cast<Uint8List>(),
       size: stat.size,
       metadata: metadata,
+      onProgress: (uploadedBytes) => onProgress?.call(uploadedBytes / stat.size),
     );
   }
 

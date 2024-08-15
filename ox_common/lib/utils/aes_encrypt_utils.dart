@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
 
 class AesEncryptUtils{
   static String _getUploadFileKey(){
@@ -42,6 +45,29 @@ class AesEncryptUtils{
     return decrypted;
   }
 
+  static Uint8List _generateKey(String key) {
+    final keyBytes = utf8.encode(key);
+    final digest = sha256.convert(keyBytes);
+    return Uint8List.fromList(digest.bytes);
+  }
+
+  static void encryptFileGeneral(File sourceFile, File encryptedFile, String key) {
+    final sourceBytes = sourceFile.readAsBytesSync();
+    final encrypter = Encrypter(AES(Key(_generateKey(key))));
+    final iv = IV.fromLength(16);
+    final encryptedBytes = encrypter.encryptBytes(sourceBytes, iv: iv);
+    encryptedFile.writeAsBytesSync(encryptedBytes.bytes);
+  }
+
+  static void decryptFileGeneral(File encryptedFile, File decryptedFile, String key, {Function(List<int>)? bytesCallback}) {
+    final encryptedBytes = encryptedFile.readAsBytesSync();
+    final decrypter = Encrypter(AES(Key(_generateKey(key))));
+    final encrypted = Encrypted(encryptedBytes);
+    final iv = IV.fromLength(16);
+    final decryptedBytes = decrypter.decryptBytes(encrypted, iv: iv);
+    bytesCallback?.call(decryptedBytes);
+    decryptedFile.writeAsBytesSync(decryptedBytes);
+  }
 }
 
 

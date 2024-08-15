@@ -115,12 +115,12 @@ class FileUtils {
     return null;
   }
 
-  static FutureOr<bool?> exportFile(String filePath, [String? fileName]) {
+  static FutureOr<bool?> exportFile(String filePath, [String? fileName]) async {
     if (Platform.isIOS) {
       _exportFileIOS(filePath);
       return null;
     } else if (Platform.isAndroid) {
-      return _exportFileAndroid(filePath, fileName);
+      return await _exportFileAndroid(filePath, fileName);
     }
     return false;
   }

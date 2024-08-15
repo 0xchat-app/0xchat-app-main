@@ -66,17 +66,17 @@ class OXChatInterface {
     return result;
   }
 
-  static Future<List<UserDB>?> pushUserSelectionPage({
+  static Future<List<UserDBISAR>?> pushUserSelectionPage({
     required BuildContext context,
-    List<UserDB>? userList,
+    List<UserDBISAR>? userList,
     String? title,
-    List<UserDB>? defaultSelected,
-    List<UserDB>? additionalUserList,
+    List<UserDBISAR>? defaultSelected,
+    List<UserDBISAR>? additionalUserList,
     bool isMultiSelect = false,
     bool allowFetchUserFromRelay = false,
-    bool Function(List<UserDB> userList)? shouldPop,
+    bool Function(List<UserDBISAR> userList)? shouldPop,
   }) async {
-    return OXModuleService.pushPage<List<UserDB>?>(
+    return OXModuleService.pushPage<List<UserDBISAR>?>(
       context,
       moduleName,
       'UserSelectionPage',
@@ -89,6 +89,14 @@ class OXChatInterface {
         'allowFetchUserFromRelay': allowFetchUserFromRelay,
         'shouldPop': shouldPop,
       },
+    );
+  }
+
+  static Future<bool?> showCashuOpenDialog(String cashuToken) async {
+    return OXModuleService.invoke<Future<bool?>>(
+      moduleName,
+      'showCashuOpenDialog',
+      [cashuToken],
     );
   }
 }

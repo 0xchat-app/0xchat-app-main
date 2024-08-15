@@ -83,7 +83,7 @@ class OXUserAvatar extends StatefulWidget {
   }) : this.size = size ?? Adapt.px(48);
 
   final bool isSecretChat;
-  final UserDB? user;
+  final UserDBISAR? user;
   final String? imageUrl;
   final String? chatId;
   final double size;
@@ -140,7 +140,7 @@ class OXChannelAvatar extends StatefulWidget {
     this.onReturnFromNextPage,
   }) : this.size = size ?? Adapt.px(48);
 
-  final ChannelDB? channel;
+  final ChannelDBISAR? channel;
   final String? imageUrl;
   final double size;
   final bool isCircular;
@@ -193,7 +193,7 @@ class OXRelayGroupAvatar extends StatefulWidget {
     this.onReturnFromNextPage,
   }) : this.size = size ?? Adapt.px(48);
 
-  final RelayGroupDB? relayGroup;
+  final RelayGroupDBISAR? relayGroup;
   final String? imageUrl;
   final double size;
   final bool isCircular;
@@ -247,7 +247,7 @@ class OXGroupAvatar extends StatefulWidget {
   }) : this.size = size ?? Adapt.px(48);
 
   final String? groupId;
-  final GroupDB? group;
+  final GroupDBISAR? group;
   final String? imageUrl;
   final double size;
   final bool isCircular;
@@ -285,7 +285,7 @@ class OXGroupAvatarState extends State<OXGroupAvatar> {
   }
 
   void _getMembers() async {
-    List<UserDB> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
+    List<UserDBISAR> groupList = await Groups.sharedInstance.getAllGroupMembers(groupId);
     _avatars = groupList.map((element) => element.picture ?? '').toList();
     _avatars.removeWhere((element) => element.isEmpty);
   }

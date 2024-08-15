@@ -8,7 +8,7 @@ class OXCallingInterface {
 
   static const moduleName = 'ox_calling';
 
-  static void pushCallingPage(BuildContext context, UserDB user, CallMessageType type) {
+  static void pushCallingPage(BuildContext context, UserDBISAR user, CallMessageType type) {
     OXModuleService.pushPage(
       context,
       moduleName,

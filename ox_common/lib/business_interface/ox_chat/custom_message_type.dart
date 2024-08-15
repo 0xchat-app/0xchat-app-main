@@ -6,6 +6,7 @@ enum CustomMessageType {
   note,
   ecash,    // normal token
   ecashV2,  // support specifying recipient & signature
+  imageSending,
 }
 
 extension CustomMessageTypeEx on CustomMessageType {
@@ -23,6 +24,8 @@ extension CustomMessageTypeEx on CustomMessageType {
         return '5';
       case CustomMessageType.ecashV2:
         return '6';
+      case CustomMessageType.imageSending:
+        return '7';
       default:
         return '-1';
     }

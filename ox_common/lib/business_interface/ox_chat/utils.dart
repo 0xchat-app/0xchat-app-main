@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:chatcore/chat-core.dart';
 
-extension UserDBChatEx on UserDB {
+extension UserDBChatEx on UserDBISAR {
   String getUserShowName() {
     final nickName = (this.nickName ?? '').trim();
     final name = (this.name ?? '').trim();
@@ -12,7 +12,7 @@ extension UserDBChatEx on UserDB {
     return 'unknown';
   }
 
-  updateWith(UserDB user) {
+  updateWith(UserDBISAR user) {
     name = user.name;
     picture = user.picture;
     about = user.about;
@@ -23,12 +23,12 @@ extension UserDBChatEx on UserDB {
   }
 }
 
-extension UserListChatEx on List<UserDB> {
+extension UserListChatEx on List<UserDBISAR> {
   String abbrDesc({
     String noneText = '',
     int showUserCount = 2,
     int maxNameLength = 15,
-    String Function(UserDB user)? userNameBuilder,
+    String Function(UserDBISAR user)? userNameBuilder,
   }) {
     if (this.isEmpty) return noneText;
 

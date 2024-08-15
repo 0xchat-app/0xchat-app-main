@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:minio/minio.dart';
@@ -10,11 +11,14 @@ import 'package:ox_common/upload/uploader.dart';
 import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/file_utils.dart';
 import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
 import 'package:dio/dio.dart';
+import 'package:path/path.dart' as Path;
 
 class UploadUtils {
 
@@ -26,9 +30,11 @@ class UploadUtils {
     required String filename,
     required FileType fileType,
     bool showLoading = true,
+    Function(double progress)? onProgress,
   }) async {
+    File uploadFile = file;
     File? encryptedFile;
-    if(encryptedKey != null) {
+    if(encryptedKey != null && encryptedKey.isNotEmpty) {
       String directoryPath = '';
       if (Platform.isAndroid) {
         Directory? externalStorageDirectory = await getExternalStorageDirectory();
@@ -42,45 +48,65 @@ class UploadUtils {
       }
       encryptedFile = FileUtils.createFolderAndFile(directoryPath + "/encrytedfile", filename);
       AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
-      file = encryptedFile;
+      uploadFile = encryptedFile;
     }
     final _showLoading = showLoading && (context != null);
     FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
     String url = '';
     if(_showLoading) OXLoading.show();
     try {
-      if (fileStorageServer.protocol == FileStorageProtocol.nip96 || fileStorageServer.protocol == FileStorageProtocol.blossom) {
-        final imageServices = fileStorageServer.name;
-        url = await Uploader.upload(file.path, imageServices, fileName: filename,imageServiceAddr: fileStorageServer.url) ?? '';
-      }
-
-      if(fileStorageServer.protocol == FileStorageProtocol.minio) {
-        MinioServer minioServer = fileStorageServer as MinioServer;
-        MinioUploader.init(
-          url: minioServer.url,
-          accessKey: minioServer.accessKey,
-          secretKey: minioServer.secretKey,
-          bucketName: minioServer.bucketName,
-          useSSL: minioServer.useSSL,
-          port: minioServer.port,
-        );
-        url = await MinioUploader.instance.uploadFile(file: file, filename: filename, fileType: fileType);
-      }
-
-      if (fileStorageServer.protocol == FileStorageProtocol.oss) {
-        url = await UplodAliyun.uploadFileToAliyun(
-          context: context,
-          file: file,
-          filename: filename,
-          fileType: convertFileTypeToUploadAliyunType(fileType),
-          showLoading: showLoading,
-        );
+      final protocol = fileStorageServer.protocol;
+      switch (protocol) {
+        case  FileStorageProtocol.nip96:
+        case  FileStorageProtocol.blossom:
+          final imageServices = fileStorageServer.name;
+          url = await Uploader.upload(
+            uploadFile.path,
+              imageServices,
+              fileName: filename,
+              imageServiceAddr: fileStorageServer.url,
+              onProgress: onProgress,
+          ) ?? '';
+          break;
+        case FileStorageProtocol.minio:
+          MinioServer minioServer = fileStorageServer as MinioServer;
+          MinioUploader.init(
+            url: minioServer.url,
+            accessKey: minioServer.accessKey,
+            secretKey: minioServer.secretKey,
+            bucketName: minioServer.bucketName,
+            useSSL: minioServer.useSSL,
+            port: minioServer.port,
+          );
+          url = await MinioUploader.instance.uploadFile(
+            file: uploadFile,
+            filename: filename,
+            fileType: fileType,
+            onProgress: onProgress,
+          );
+          break;
+        case FileStorageProtocol.oss:
+          url = await UplodAliyun.uploadFileToAliyun(
+            context: context,
+            file: uploadFile,
+            filename: filename,
+            fileType: convertFileTypeToUploadAliyunType(fileType),
+            showLoading: showLoading,
+            onProgress: onProgress,
+          );
+          break;
       }
       if(_showLoading) OXLoading.dismiss();
     } catch (e,s) {
       if (_showLoading) OXLoading.dismiss();
       return UploadExceptionHandler.handleException(e,s);
     }
+
+    await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+      url,
+      file.readAsBytesSync(),
+    );
+
     return UploadResult.success(url);
   }
 
@@ -112,6 +138,11 @@ class UploadResult {
   factory UploadResult.error(String errorMsg) {
     return UploadResult(isSuccess: false, url: '', errorMsg: errorMsg);
   }
+
+  @override
+  String toString() {
+    return '${super.toString()}, url: $url, isSuccess: $isSuccess, errorMsg: $errorMsg';
+  }
 }
 
 class UploadExceptionHandler {
@@ -124,6 +155,19 @@ class UploadExceptionHandler {
     } else if (e is MinioError) {
       return UploadResult.error(e.message ?? errorMessage);
     } else if (e is DioException) {
+      if(e.type == DioExceptionType.badResponse) {
+        String errorMsg = '';
+        dynamic data = e.response?.data;
+        if(data != null){
+          if(data is Map) {
+            errorMsg = data['message'];
+          }
+          if(data is String) {
+            errorMsg = data;
+          }
+        }
+        return UploadResult.error(errorMsg);
+      }
       return UploadResult.error(parseError(e));
     } else if (e is UploadException) {
       return UploadResult.error(e.message);
@@ -144,4 +188,52 @@ class UploadExceptionHandler {
     }
     return errorMsg;
   }
+}
+
+class UploadManager {
+  static final UploadManager shared = UploadManager._internal();
+  UploadManager._internal() { }
+
+  Map<String, StreamController<double>> uploadStreamMap = {};
+  Map<String, UploadResult> uploadResultMap = {};
+
+  Future<void> uploadImage({
+    required FileType fileType,
+    required String filePath,
+    required uploadId,
+    String? encryptedKey,
+    Function(UploadResult)? completeCallback,
+  }) async {
+    final streamController = StreamController<double>.broadcast();
+    uploadStreamMap[uploadId] = streamController;
+    uploadResultMap.remove(uploadId);
+
+    final file = File(filePath);
+    final fileName = filePath.getFileName() ?? '${DateTime.now().millisecondsSinceEpoch}.${Path.extension(filePath)}';
+
+    UploadUtils.uploadFile(
+      file: file,
+      filename: fileName,
+      fileType: FileType.image,
+      encryptedKey: encryptedKey,
+      onProgress: (progress) {
+        streamController.add(progress);
+      },
+    ).then((result) {
+      uploadResultMap[uploadId] = result;
+      completeCallback?.call(result);
+      streamController.close();
+    });
+  }
+
+  Stream<double>? getUploadProgress(String uploadId) {
+    final controller = uploadStreamMap[uploadId];
+    if (controller == null) {
+      return null;
+    }
+    return controller.stream;
+  }
+
+  bool? getUploadResult(String uploadId) =>
+      uploadResultMap[uploadId]?.isSuccess;
 }

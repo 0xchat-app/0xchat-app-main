@@ -19,7 +19,19 @@ enum UplodAliyunType {
 }
 
 class UplodAliyun {
-  static Future<String> uploadFileToAliyun({BuildContext? context, params, required UplodAliyunType fileType, required File file, required String filename, bool showLoading = true}) async {
+
+  static bool isAliOSSUrl(String url) =>
+      url.startsWith('https://${CommonConstant.ossBucketName}.${CommonConstant.ossEndPoint}');
+
+  static Future<String> uploadFileToAliyun({
+    BuildContext? context,
+    params,
+    required UplodAliyunType fileType,
+    required File file,
+    required String filename,
+    bool showLoading = true,
+    Function(double progress)? onProgress,
+  }) async {
     final _showLoading = showLoading && (context != null);
     return OXNetwork.instance
         .doRequest(
@@ -29,8 +41,7 @@ class UplodAliyun {
       needCommonParams: false,
       needRSA: false,
       type: RequestType.GET,
-    )
-        .then((OXResponse response) async {
+    ).then((OXResponse response) async {
       if(_showLoading) OXLoading.show();
       Map<String, dynamic> dataMap = Map<String, dynamic>.from(response.data);
       // LogUtil.e("upload : ${response}");
@@ -40,7 +51,12 @@ class UplodAliyun {
         bucketName: CommonConstant.ossBucketName,
         authGetter: () => _authGetter(authMap: dataMap),
       );
-      String uri = await uploadFile(file.path, fileType, filename);
+      String uri = await uploadFile(
+        filepath: file.path,
+        fileType: fileType,
+        filename: filename,
+        onProgress: onProgress,
+      );
       if(_showLoading) OXLoading.dismiss();
       return uri;
       // return false;
@@ -61,16 +77,21 @@ class UplodAliyun {
     );
   }
 
-  static Future<String> uploadFile(String filepath, UplodAliyunType fileType, String filename) async {
+  static Future<String> uploadFile({
+    required String filepath,
+    required UplodAliyunType fileType,
+    required String filename,
+    Function(double progress)? onProgress,
+  }) async {
     String fileFolder = getFileFolders(fileType);
     Response<dynamic> resp = await Client().putObjectFile(
       filepath,
       option: PutRequestOption(
         onSendProgress: (count, total) {
-          print("send: count = $count, and total = $total");
+          onProgress?.call(count / total);
         },
         onReceiveProgress: (count, total) {
-          print("receive: count = $count, and total = $total");
+          // print("receive: count = $count, and total = $total");
         },
         override: true,
         aclModel: AclMode.publicRead,

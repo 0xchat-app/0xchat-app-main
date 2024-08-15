@@ -9,6 +9,23 @@ import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:path/path.dart' as path;
 
+class OXFileCacheManager {
+
+  static CacheManager get({
+    String? encryptKey,
+  }) {
+    if (encryptKey != null && encryptKey.isNotEmpty) {
+      return DecryptedCacheManager(encryptKey);
+    }
+    return DefaultCacheManager();
+  }
+
+  static Future emptyCache() async {
+    await DefaultCacheManager().emptyCache();
+    await DecryptedCacheManager('').emptyCache();
+  }
+}
+
 class DecryptedCacheManager extends CacheManager {
   static const key = "decryptCache";
   final String decryptKey;

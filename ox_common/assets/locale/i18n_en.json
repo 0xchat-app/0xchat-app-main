@@ -85,7 +85,7 @@
   "pull_down_to_bottom": "It's all down to the bottom",
   "str_my_idcard": "My Card",
   "str_scan": "Scan",
-  "str_add_friend" : "Add Friend",
+  "str_add_friend" : "Add Contact",
   "str_new_channel": "New Channel",
   "scan_find_not_same_hint": "You need to add a relay: ${relay} to fetch this data.",
   "scan_find_nwc_hint": "Connect to this wallet?",
@@ -115,6 +115,7 @@
   "str_uses_app": "Uses app ${appname}",
   "str_disables_push_notification": "Disables Push Notifications",
   "str_select_push_app_title": "Please select push application",
+  "str_permission_audio_call_hint": "Please manually go to 'Settings', open microphone permissions",
   "str_permission_call_hint": "Please manually go to 'Settings', open microphone/camera permissions",
   "str_singer_app_verify_failed_hint": "Signature verification failed，please login again"
 }

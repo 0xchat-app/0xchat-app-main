@@ -1,17 +1,17 @@
 import 'package:chatcore/chat-core.dart';
-import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:isar/isar.dart';
 
-///Title: chat_session_model
-///Description: TODO(Fill in by oneself)
-///Copyright: Copyright (c) 2021
-///@author Michael
-///CreateTime: 2023/5/18 10:01
+part 'chat_session_model_isar.g.dart';
 
-@reflector
-class ChatSessionModel extends DBObject {
+@collection
+class ChatSessionModelISAR {
+  Id id = Isar.autoIncrement;
+
+  @Index(unique: true, replace: true)
   String chatId;
+
   String? chatName;
 
   // pubkey
@@ -48,7 +48,7 @@ class ChatSessionModel extends DBObject {
   int? expiration;
 
 
-  ChatSessionModel({
+  ChatSessionModelISAR({
     this.chatId = '',
     this.chatName,
     this.sender = '',
@@ -67,32 +67,12 @@ class ChatSessionModel extends DBObject {
     this.expiration
   });
 
+  @ignore
   String get getOtherPubkey {
     return this.sender != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey ? this.sender : this.receiver;
   }
 
-  static List<String?> primaryKey() {
-    return ['chatId'];
-  }
-
-  // static List<String?> ignoreKey() {
-  //   return ['messageKind'];
-  // }
-
-  static Map<String, String?> updateTable() {
-    return {
-      '2': '''alter table ChatSessionModel add draft TEXT;''',
-      '3': '''alter table ChatSessionModel add isMentioned INT DEFAULT 0;''',
-      "5": '''alter table ChatSessionModel add expiration INT; alter table ChatSessionModel add messageKind INT;''',
-    };
-  }
-
-  @override
-  Map<String, Object?> toMap() {
-    return _chatSessionModelToMap(this);
-  }
-
-  static ChatSessionModel fromMap(Map<String, Object?> map) {
+  static ChatSessionModelISAR fromMap(Map<String, Object?> map) {
     return _chatSessionModelFromMap(map);
   }
 
@@ -101,9 +81,10 @@ class ChatSessionModel extends DBObject {
     return 'ChatSessionModel{chatId: $chatId, chatName: $chatName, sender: $sender, receiver: $receiver, groupId: $groupId, content: $content, unreadCount: $unreadCount, createTime: $createTime, chatType: $chatType, messageType: $messageType, avatar: $avatar, alwaysTop: $alwaysTop, draft: $draft, messageKind: $messageKind, expiration: $expiration}';
   }
 
+  @ignore
   bool get hasMultipleUsers => {ChatType.chatGroup, ChatType.chatChannel, ChatType.chatRelayGroup}.contains(chatType);
 
-  static ChatSessionModel getDefaultSession(int type, String receiverPubkey, String sender, {String secretSessionId = ''}) {
+  static ChatSessionModelISAR getDefaultSession(int type, String receiverPubkey, String sender, {String secretSessionId = ''}) {
     String chatId = '';
     String receiver = '';
     switch (type) {
@@ -123,7 +104,7 @@ class ChatSessionModel extends DBObject {
         receiver = receiverPubkey;
         break;
     }
-    return ChatSessionModel(
+    return ChatSessionModelISAR(
       chatId: chatId,
       receiver: receiver,
       chatType: type,
@@ -131,19 +112,16 @@ class ChatSessionModel extends DBObject {
     );
   }
 
-  static Future<void> migrateToISAR() async {
-    List<ChatSessionModel> chatSessionModels = await DB.sharedInstance.objects<ChatSessionModel>();
-    await Future.forEach(chatSessionModels, (chatSessionModel) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.chatSessionModelISARs
-            .put(ChatSessionModelISAR.fromMap(chatSessionModel.toMap()));
-      });
+  static Future<void> saveChatSessionModelToDB(ChatSessionModelISAR chatSessionModel) async {
+    final isar = DBISAR.sharedInstance.isar;
+    await isar.writeTxn(() async {
+      await isar.chatSessionModelISARs.put(chatSessionModel);
     });
   }
 }
 
-ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
-  return ChatSessionModel(
+ChatSessionModelISAR _chatSessionModelFromMap(Map<String, dynamic> map) {
+  return ChatSessionModelISAR(
     chatId: map['chatId'],
     chatName: map['chatName'],
     sender: map['sender'],
@@ -162,22 +140,3 @@ ChatSessionModel _chatSessionModelFromMap(Map<String, dynamic> map) {
     expiration: map['expiration'],
   );
 }
-
-Map<String, dynamic> _chatSessionModelToMap(ChatSessionModel instance) => <String, dynamic>{
-      'chatId': instance.chatId,
-      'chatName': instance.chatName,
-      'sender': instance.sender,
-      'receiver': instance.receiver,
-      'groupId': instance.groupId,
-      'content': instance.content,
-      'unreadCount': instance.unreadCount,
-      'createTime': instance.createTime,
-      'chatType': instance.chatType,
-      'messageType': instance.messageType,
-      'avatar': instance.avatar,
-      'alwaysTop': instance.alwaysTop == true ? 1 : 0,
-      'draft': instance.draft,
-      'isMentioned': instance.isMentioned == true ? 1 : 0,
-      'messageKind': instance.messageKind,
-      'expiration': instance.expiration
-    };

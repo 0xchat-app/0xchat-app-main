@@ -43,6 +43,12 @@ abstract class ConstantInterface {
   int get NOTIFICATION_SOUND => 4;
   /// Vibrate
   int get NOTIFICATION_VIBRATE => 5;
+  ///like
+  int get NOTIFICATION_REACTIONS => 6;
+  ///reply&repos
+  int get NOTIFICATION_REPLIES => 7;
+  ///groups
+  int get NOTIFICATION_GROUPS => 8;
 
   String get NOTICE_CHAT_ID => '1000000001';
 

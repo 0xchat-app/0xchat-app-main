@@ -8,7 +8,10 @@ import 'uploader.dart';
 class Pomf2LainLa {
   static final String UPLOAD_ACTION = "https://pomf2.lain.la/upload.php";
 
-  static Future<String?> upload(String filePath, {String? fileName}) async {
+  static Future<String?> upload(String filePath, {
+    String? fileName,
+    Function(double progress)? onProgress,
+  }) async {
     // final dio = Dio();
     // dio.interceptors.add(PrettyDioLogger(requestBody: true));
     var fileType = Uploader.getFileType(filePath);
@@ -31,7 +34,13 @@ class Pomf2LainLa {
     var formData = FormData.fromMap({"files[]": multipartFile});
     try{
       var response =
-      await NostrBuildUploader.dio.post(UPLOAD_ACTION, data: formData);
+      await NostrBuildUploader.dio.post(
+        UPLOAD_ACTION,
+        data: formData,
+        onSendProgress: (count, total) {
+          onProgress?.call(count / total);
+        },
+      );
       var body = response.data;
       if (body is Map<String, dynamic>) {
         return body["files"][0]["url"];

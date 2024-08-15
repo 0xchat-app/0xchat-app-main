@@ -6,7 +6,7 @@ import 'package:chatcore/chat-core.dart';
 
 class PromptToneManager {
 
-  bool Function(MessageDB msg)? isCurrencyChatPage;
+  bool Function(MessageDBISAR msg)? isCurrencyChatPage;
 
   static final PromptToneManager sharedInstance = PromptToneManager._internal();
 

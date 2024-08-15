@@ -92,7 +92,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
               text: Localized.text('ox_common.confirm'),
               onTap: () async {
                 OXNavigator.pop(context);
-                await Account.sharedInstance.addGeneralRelay(newRelay);
+                await Connect.sharedInstance.connectRelays([newRelay], relayKind: RelayKind.temp);
                 completer.complete(true);
               }),
         ]);
@@ -117,7 +117,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       if (!await _tryHandleRelaysFromMap(data, context)) return true;
 
       final pubkey = data['pubkey'] as String? ?? '';
-      UserDB? user = await Account.sharedInstance.getUserInfo(pubkey);
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(pubkey);
       if (user == null) return failedHandle();
 
       OXModuleService.pushPage(context, 'ox_chat', 'ContactUserInfoPage', {
@@ -142,7 +142,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
       if (kind == 40 || kind == 41) {
         // Go to Channel
         await OXLoading.show();
-        ChannelDB? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
+        ChannelDBISAR? channelDB = await Channels.sharedInstance.searchChannel(groupId, relays);
         await OXLoading.dismiss();
         if (channelDB != null) {
           if (context.mounted) {

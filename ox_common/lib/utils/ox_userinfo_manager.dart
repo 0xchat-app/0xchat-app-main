@@ -1,26 +1,26 @@
 import 'dart:convert';
 
+import 'package:cashu_dart/business/wallet/cashu_manager.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/log_util.dart';
-import 'package:ox_common/model/user_config_db.dart';
+import 'package:ox_common/utils/ox_server_manager.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_common/utils/app_initialization_manager.dart';
 import 'package:ox_common/utils/cashu_helper.dart';
+import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_moment_manager.dart';
 import 'package:ox_common/utils/storage_key_tool.dart';
-import 'package:ox_common/utils/ox_chat_binding.dart';
-import 'package:ox_common/widgets/common_toast.dart';
-import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
-import 'package:cashu_dart/business/wallet/cashu_manager.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 abstract mixin class OXUserInfoObserver {
-  void didLoginSuccess(UserDB? userInfo);
+  void didLoginSuccess(UserDBISAR? userInfo);
 
-  void didSwitchUser(UserDB? userInfo);
+  void didSwitchUser(UserDBISAR? userInfo);
 
   void didLogout();
 
@@ -30,7 +30,7 @@ abstract mixin class OXUserInfoObserver {
 enum _ContactType {
   contacts,
   channels,
-  groups,
+  // groups
   relayGroups,
 }
 
@@ -50,12 +50,13 @@ class OXUserInfoManager {
 
   bool get isLogin => (currentUserInfo != null);
 
-  UserDB? currentUserInfo;
+  UserDBISAR? currentUserInfo;
+
+  Map<String, dynamic> settingsMap = {};
 
   var _contactFinishFlags = {
     _ContactType.contacts: false,
     _ContactType.channels: false,
-    _ContactType.groups: false,
     _ContactType.relayGroups: false,
   };
 
@@ -63,25 +64,26 @@ class OXUserInfoManager {
 
   bool canVibrate = true;
   bool canSound = true;
-  int defaultZapAmount = 0;
   bool signatureVerifyFailed = false;
 
   Future initDB(String pubkey) async {
+    if(pubkey.isEmpty) return;
+    await logout();
     await ThreadPoolManager.sharedInstance.initialize();
     AppInitializationManager.shared.shouldShowInitializationLoading = true;
-    DB.sharedInstance.deleteDBIfNeedMirgration = false;
-    String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
-    if(dbpw == null || dbpw.isEmpty){
-      dbpw = generateStrongPassword(16);
-      await DB.sharedInstance.open(pubkey + ".db", version: CommonConstant.dbVersion);
-      await DB.sharedInstance.cipherMigrate(pubkey + ".db2", CommonConstant.dbVersion, dbpw);
-      await OXCacheManager.defaultOXCacheManager.saveForeverData('dbpw+$pubkey', dbpw);
+    String dbpath = pubkey + ".db2";
+    bool exists = await databaseExists(dbpath);
+    if (exists) {
+      String? dbpw = await OXCacheManager.defaultOXCacheManager.getForeverData('dbpw+$pubkey');
+      await DB.sharedInstance.open(dbpath, version: CommonConstant.dbVersion, password: dbpw);
+      await DBISAR.sharedInstance.open(pubkey);
+      await DB.sharedInstance.migrateToISAR();
+      debugPrint("delete Table");
+      await deleteDatabase(dbpath);
     }
     else{
-      LogUtil.d('[DB init] dbpw: $dbpw');
-      await DB.sharedInstance.open(pubkey + ".db2", version: CommonConstant.dbVersion, password: dbpw);
+      await DBISAR.sharedInstance.open(pubkey);
     }
-
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
       await CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
@@ -90,69 +92,59 @@ class OXUserInfoManager {
 
   Future initLocalData() async {
     ///account auto-login
-    final String? localPriv = await OXCacheManager.defaultOXCacheManager.getForeverData('PrivKey');
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
-    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
-    if (localPriv != null && localPriv.isNotEmpty) {
-      OXCacheManager.defaultOXCacheManager.saveForeverData('PrivKey', null);
-      OXCacheManager.defaultOXCacheManager.removeData('PrivKey');
-      String? privKey = UserDB.decodePrivkey(localPriv);
-      if (privKey == null || privKey.isEmpty) {
-        LogUtil.e('Oxchat : Auto-login failed, please log in again.');
-        return;
-      }
-      String pubkey = Account.getPublicKey(privKey);
-      await initDB(pubkey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPriKey(privKey);
-      if (tempUserDB != null) {
-        currentUserInfo = Account.sharedInstance.me;
-        _initDatas();
-        await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, tempUserDB.pubKey);
-      }
-    } else if (localPubKey != null && localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
-      bool isInstalled = await CoreMethodChannel.isAppInstalled('com.greenart7c3.nostrsigner');
-      if (isInstalled) {
-        String? signature = await ExternalSignerTool.getPubKey();
-        if (signature == null) {
-          signatureVerifyFailed = true;
+    if (localPubKey != null) {
+      final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
+      if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
+        bool isInstalled = await CoreMethodChannel.isInstalledAmber();
+        if (isInstalled) {
+          String? signature = await ExternalSignerTool.getPubKey();
+          if (signature == null) {
+            signatureVerifyFailed = true;
+            return;
+          }
+          String decodeSignature = UserDB.decodePubkey(signature) ?? '';
+          if (decodeSignature.isNotEmpty) {
+            await initDB(localPubKey);
+            UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
+            if (tempUserDB != null) {
+              UserConfigTool.compatibleOld(tempUserDB);
+              currentUserInfo = tempUserDB;
+              _initDatas();
+              _initFeedback();
+              return;
+            }
+          } else {
+            signatureVerifyFailed = true;
+            return;
+          }
+        }
+      } else if (localPubKey.isNotEmpty) {
+        await initDB(localPubKey);
+        final UserDBISAR? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
+        LogUtil.e('initLocalData: userDB =${tempUserDB?.pubKey ?? 'userDB is null'}');
+        if (tempUserDB != null) {
+          UserConfigTool.compatibleOld(tempUserDB);
+          currentUserInfo = tempUserDB;
+          _initDatas();
+          _initFeedback();
           return;
         }
-        String decodeSignature = UserDB.decodePubkey(signature) ?? '';
-        if (decodeSignature == localPubKey) {
-          await initDB(localPubKey);
-          UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKey(localPubKey);
-          if (tempUserDB != null) {
-            currentUserInfo = tempUserDB;
-            _initDatas();
-            _initFeedback();
-          }
-        } else {
-          signatureVerifyFailed = true;
-        }
       }
-    } else if (localPubKey != null && localPubKey.isNotEmpty) {
-      await initDB(localPubKey);
-      final UserDB? tempUserDB = await Account.sharedInstance.loginWithPubKeyAndPassword(localPubKey);
-      LogUtil.e('Michael: initLocalData tempUserDB =${tempUserDB?.pubKey ?? 'tempUserDB == null'}');
-      if (tempUserDB != null) {
-        currentUserInfo = tempUserDB;
-        _initDatas();
-        _initFeedback();
-      }
-    } else {
-      AppInitializationManager.shared.shouldShowInitializationLoading = false;
-      return;
     }
+    AppInitializationManager.shared.shouldShowInitializationLoading = false;
   }
 
   void addObserver(OXUserInfoObserver observer) => _observers.add(observer);
 
   bool removeObserver(OXUserInfoObserver observer) => _observers.remove(observer);
 
-  Future<void> loginSuccess(UserDB userDB) async {
+  Future<void> loginSuccess(UserDBISAR userDB, {bool isAmber = false}) async {
     currentUserInfo = Account.sharedInstance.me;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
-    UserConfigTool.updateUserConfigDB(UserConfigDB(pubKey: userDB.pubKey));
+    OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
+    UserConfigTool.saveUser(userDB);
+    UserConfigTool.defaultNotificationValue();
     _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
@@ -160,49 +152,60 @@ class OXUserInfoManager {
   }
 
   void addChatCallBack() async {
-    Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDB ssDB) async {
+    Contacts.sharedInstance.secretChatRequestCallBack = (SecretSessionDBISAR ssDB) async {
       LogUtil.d("Michael: init secretChatRequestCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRequestCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatAcceptCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatAcceptCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatAcceptCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatRejectCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatRejectCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatRejectCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatUpdateCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatUpdateCallBack ssDB.sessionId =${ssDB.sessionId}");
       OXChatBinding.sharedInstance.secretChatUpdateCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDB ssDB) {
+    Contacts.sharedInstance.secretChatCloseCallBack = (SecretSessionDBISAR ssDB) {
       LogUtil.d("Michael: init secretChatCloseCallBack");
       OXChatBinding.sharedInstance.secretChatCloseCallBack(ssDB);
     };
-    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.secretChatMessageCallBack = (MessageDBISAR message) {
       LogUtil.d("Michael: init secretChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.secretChatMessageCallBack(message);
     };
-    Contacts.sharedInstance.privateChatMessageCallBack = (MessageDB message) {
+    Contacts.sharedInstance.privateChatMessageCallBack = (MessageDBISAR message) {
       LogUtil.d("Michael: init privateChatMessageCallBack message.id =${message.messageId}");
       OXChatBinding.sharedInstance.privateChatMessageCallBack(message);
     };
-    Channels.sharedInstance.channelMessageCallBack = (MessageDB messageDB) async {
+    Contacts.sharedInstance.privateChatMessageUpdateCallBack = (MessageDBISAR message, String replacedMessageId) {
+      LogUtil.d("Michael: init privateChatMessageUpdateCallBack message.id =${message.messageId}");
+      OXChatBinding.sharedInstance.privateChatMessageUpdateCallBack(message, replacedMessageId);
+    };
+    Channels.sharedInstance.channelMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  channelMessageCallBack');
       OXChatBinding.sharedInstance.channalMessageCallBack(messageDB);
     };
-    Groups.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+    Groups.sharedInstance.groupMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  groupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-    RelayGroup.sharedInstance.groupMessageCallBack = (MessageDB messageDB) async {
+    Messages.sharedInstance.deleteCallBack = (List<MessageDBISAR> delMessages) {
+      OXChatBinding.sharedInstance.messageDeleteCallback(delMessages);
+    };
+    RelayGroup.sharedInstance.groupMessageCallBack = (MessageDBISAR messageDB) async {
       LogUtil.d('Michael: init  relayGroupMessageCallBack');
       OXChatBinding.sharedInstance.groupMessageCallBack(messageDB);
     };
-    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDB joinRequestDB) async {
+    RelayGroup.sharedInstance.joinRequestCallBack = (JoinRequestDBISAR joinRequestDB) async {
       LogUtil.d('Michael: init  relayGroupJoinReqCallBack');
       OXChatBinding.sharedInstance.relayGroupJoinReqCallBack(joinRequestDB);
+    };
+    RelayGroup.sharedInstance.offlineGroupMessageFinishCallBack = () async {
+      LogUtil.d('Michael: init  offlineGroupMessageFinishCallBack');
+      OXChatBinding.sharedInstance.offlineGroupMessageFinishCallBack();
     };
     Contacts.sharedInstance.contactUpdatedCallBack = () {
       LogUtil.d("Michael: init contactUpdatedCallBack");
@@ -217,7 +220,6 @@ class OXUserInfoManager {
     };
     Groups.sharedInstance.myGroupsUpdatedCallBack = () async {
       LogUtil.d('Michael: init  myGroupsUpdatedCallBack');
-      _fetchFinishHandler(_ContactType.groups);
       OXChatBinding.sharedInstance.groupsUpdatedCallBack();
     };
     RelayGroup.sharedInstance.myGroupsUpdatedCallBack = () async {
@@ -225,7 +227,7 @@ class OXUserInfoManager {
       _fetchFinishHandler(_ContactType.relayGroups);
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
-    RelayGroup.sharedInstance.moderationCallBack = (ModerationDB moderationDB) async {
+    RelayGroup.sharedInstance.moderationCallBack = (ModerationDBISAR moderationDB) async {
       OXChatBinding.sharedInstance.relayGroupsUpdatedCallBack();
     };
     Contacts.sharedInstance.offlinePrivateMessageFinishCallBack = () {
@@ -241,31 +243,31 @@ class OXUserInfoManager {
       OXChatBinding.sharedInstance.offlineChannelMessageFinishCallBack();
     };
 
-    Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDB zapRecordsDB) {
+    Zaps.sharedInstance.zapRecordsCallBack = (ZapRecordsDBISAR zapRecordsDB) {
       OXChatBinding.sharedInstance.zapRecordsCallBack(zapRecordsDB);
     };
-    Moment.sharedInstance.newNotesCallBack = (List<NoteDB> notes) {
+    Moment.sharedInstance.newNotesCallBack = (List<NoteDBISAR> notes) {
       OXMomentManager.sharedInstance.newNotesCallBackCallBack(notes);
     };
 
-    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDB> notifications) {
+    Moment.sharedInstance.newNotificationCallBack = (List<NotificationDBISAR> notifications) {
       OXMomentManager.sharedInstance.newNotificationCallBack(notifications);
     };
 
-    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDB> notifications) {
+    Moment.sharedInstance.myZapNotificationCallBack = (List<NotificationDBISAR> notifications) {
       OXMomentManager.sharedInstance.myZapNotificationCallBack(notifications);
     };
 
-    RelayGroup.sharedInstance.noteCallBack = (NoteDB notes) {
+    RelayGroup.sharedInstance.noteCallBack = (NoteDBISAR notes) {
       OXMomentManager.sharedInstance.groupsNoteCallBack(notes);
     };
 
-    Messages.sharedInstance.actionsCallBack = (MessageDB message) {
+    Messages.sharedInstance.actionsCallBack = (MessageDBISAR message) {
       OXChatBinding.sharedInstance.messageActionsCallBack(message);
     };
   }
 
-  void updateUserInfo(UserDB userDB) {}
+  void updateUserInfo(UserDBISAR userDB) {}
 
   void updateSuccess() {
     for (OXUserInfoObserver observer in _observers) {
@@ -273,26 +275,40 @@ class OXUserInfoManager {
     }
   }
 
+  Future<void> switchAccount(String selectedPubKey) async {
+    await logout();
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, selectedPubKey);
+    await OXUserInfoManager.sharedInstance.initLocalData();
+    for (OXUserInfoObserver observer in _observers) {
+      observer.didSwitchUser(currentUserInfo);
+    }
+  }
+
+  Future<UserDBISAR?> handleSwitchFailures(UserDBISAR? userDB, String currentUserPubKey) async {
+    if (userDB == null && currentUserPubKey.isNotEmpty) {
+      //In the case of failing to add a new account while already logged in, implement the logic to re-login to the current account.
+      await OXUserInfoManager.sharedInstance.initDB(currentUserPubKey);
+      userDB = await Account.sharedInstance.loginWithPubKeyAndPassword(currentUserPubKey);
+    }
+    return userDB;
+  }
+
   Future logout() async {
     if (OXUserInfoManager.sharedInstance.currentUserInfo == null) {
       return;
     }
-    Account.sharedInstance.logout();
-    UserConfigTool.clearUserConfigFromDB();
+    await Account.sharedInstance.logout();
     resetData();
   }
 
-  void resetData() async {
+  Future<void> resetData() async {
     signatureVerifyFailed = false;
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, null);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PASSCODE, '');
-    OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_OPEN_DEV_LOG, false);
     currentUserInfo = null;
     _contactFinishFlags = {
       _ContactType.contacts: false,
       _ContactType.channels: false,
-      _ContactType.groups: false,
+      // _ContactType.groups: false,
       _ContactType.relayGroups: false,
     };
     OXChatBinding.sharedInstance.clearSession();
@@ -309,28 +325,40 @@ class OXUserInfoManager {
   Future<bool> setNotification() async {
     bool updateNotificatin = false;
     if (!isLogin) return updateNotificatin;
-    String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUSH_TOKEN, defaultValue: '');
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
-    List<String> jsonStringList = dynamicList.cast<String>();
-
-    ///4, 44 private chat,  1059 secret chat & audio video call, 42  channel message, 9735
-    List<int> kinds = [4, 44, 1059, 42, 9735];
-    for (String jsonString in jsonStringList) {
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      if (jsonMap['id'] == 0 && !jsonMap['isSelected']) {
-        kinds = [];
-        break;
-      }
-      if (jsonMap['id'] == 1 && !jsonMap['isSelected']) {
-        kinds.remove(4);
-        kinds.remove(44);
-        kinds.remove(1059);
-      }
-      if (jsonMap['id'] == 2 && !jsonMap['isSelected']) {
-        kinds.remove(42);
-      }
-      if (jsonMap['id'] == 3 && !jsonMap['isSelected']) {
-        kinds.remove(9735);
+    String deviceId = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, defaultValue: '');
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '{}');
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    ///4、 44 private chat;  1059 secret chat & audio video call; 42  channel message; 9735 zap; 9、10 relay group; 1、6 reply&repost; 7 like
+    List<int> kinds = [4, 44, 1059, 42, 9735, 9, 10, 1, 6, 7];
+    for (var entry in jsonMap.entries) {
+      var value = entry.value;
+      if (value is Map<String, dynamic>) {
+        if (value['id'] == CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS && !value['isSelected']){
+          kinds = [];
+          break;
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_PRIVATE_MESSAGES && !value['isSelected']) {
+          kinds.remove(4);
+          kinds.remove(44);
+          kinds.remove(1059);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_CHANNELS && !value['isSelected']) {
+          kinds.remove(42);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_ZAPS && !value['isSelected']) {
+          kinds.remove(9735);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_REACTIONS && !value['isSelected']) {
+          kinds.remove(7);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_REPLIES && !value['isSelected']) {
+          kinds.remove(1);
+          kinds.remove(6);
+        }
+        if (value['id'] == CommonConstant.NOTIFICATION_GROUPS && !value['isSelected']) {
+          kinds.remove(9);
+          kinds.remove(10);
+        }
       }
     }
     List<String> relayAddressList = await Account.sharedInstance.getMyGeneralRelayList().map((e) => e.url).toList();
@@ -340,7 +368,7 @@ class OXUserInfoManager {
     return updateNotificatin;
   }
 
-  Future<bool> checkDNS({required UserDB userDB}) async {
+  Future<bool> checkDNS({required UserDBISAR userDB}) async {
     String pubKey = userDB.pubKey;
     String dnsStr = userDB.dns ?? '';
     if(dnsStr.isEmpty || dnsStr == 'null') {
@@ -360,11 +388,14 @@ class OXUserInfoManager {
   }
 
   void _initDatas() async {
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_CHAT_RUN_STATUS, true);
+    UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
+    OXServerManager.sharedInstance.loadConnectICEServer();
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
     });
+    await EventCache.sharedInstance.loadAllEventsFromDB();
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
       Channels.sharedInstance.init(callBack: Channels.sharedInstance.myChannelsUpdatedCallBack);
@@ -377,8 +408,6 @@ class OXUserInfoManager {
     });
 
     LogUtil.e('Michael: data await Friends Channels init friends =${Contacts.sharedInstance.allContacts.values.toList().toString()}');
-    OXChatBinding.sharedInstance.isZapBadge = await OXCacheManager.defaultOXCacheManager.getData('${currentUserInfo!.pubKey}.zap_badge',defaultValue: false);
-    defaultZapAmount = await OXCacheManager.defaultOXCacheManager.getForeverData('${currentUserInfo!.pubKey}_${StorageKeyTool.KEY_DEFAULT_ZAP_AMOUNT}',defaultValue: 21);
   }
 
   void _initMessage() {
@@ -392,8 +421,9 @@ class OXUserInfoManager {
   }
 
   void _fetchFinishHandler(_ContactType type) {
+    if (_contactFinishFlags[type] ?? false) return;
     _contactFinishFlags[type] = true;
-    setNotification();
+    if (isFetchContactFinish) setNotification();
   }
 
   Future<void> _initFeedback() async {
@@ -402,11 +432,12 @@ class OXUserInfoManager {
   }
 
   Future<bool> _fetchFeedback(int feedback) async {
-    List<dynamic> dynamicList = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_NOTIFICATION_SWITCH, defaultValue: []);
-    if (dynamicList.isNotEmpty) {
-      List<String> jsonStringList = dynamicList.cast<String>();
-      for (var jsonString in jsonStringList) {
-        Map<String, dynamic> jsonMap = json.decode(jsonString);
+    String jsonString = UserConfigTool.getSetting(StorageSettingKey.KEY_NOTIFICATION_LIST.name, defaultValue: '');
+    if (jsonString.isEmpty) return true;
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    for (var entry in jsonMap.entries) {
+      var value = entry.value;
+      if (value is Map<String, dynamic>) {
         if(jsonMap['id'] == feedback){
           return jsonMap['isSelected'];
         }
@@ -417,7 +448,6 @@ class OXUserInfoManager {
 
   void resetHeartBeat(){//eg: backForeground
     if (isLogin) {
-      DB.sharedInstance.startHeartBeat();
       Connect.sharedInstance.startHeartBeat();
       Account.sharedInstance.startHeartBeat();
       NotificationHelper.sharedInstance.startHeartBeat();

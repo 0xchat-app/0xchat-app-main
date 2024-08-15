@@ -1,13 +1,13 @@
 import 'package:chatcore/chat-core.dart';
 
 abstract mixin class OXMomentObserver {
-  didNewNotesCallBackCallBack(List<NoteDB> notes) {}
+  didNewNotesCallBackCallBack(List<NoteDBISAR> notes) {}
 
-  didGroupsNoteCallBack(NoteDB notes) {}
+  didGroupsNoteCallBack(NoteDBISAR notes) {}
 
-  didMyZapNotificationCallBack(List<NotificationDB> notifications) {}
+  didMyZapNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
-  didNewNotificationCallBack(List<NotificationDB> notifications) {}
+  didNewNotificationCallBack(List<NotificationDBISAR> notifications) {}
 
 }
 
@@ -20,13 +20,13 @@ class OXMomentManager {
     return sharedInstance;
   }
 
-  List<NoteDB> _notes = [];
-  List<NoteDB> _relayGroupNotes = [];
-  List<NotificationDB> _notifications = [];
+  List<NoteDBISAR> _notes = [];
+  List<NoteDBISAR> _relayGroupNotes = [];
+  List<NotificationDBISAR> _notifications = [];
 
-  List<NoteDB> get notes => _notes;
-  List<NoteDB> get relayGroupNotes => _relayGroupNotes;
-  List<NotificationDB> get notifications => _notifications;
+  List<NoteDBISAR> get notes => _notes;
+  List<NoteDBISAR> get relayGroupNotes => _relayGroupNotes;
+  List<NotificationDBISAR> get notifications => _notifications;
 
   final List<OXMomentObserver> _observers = <OXMomentObserver>[];
 
@@ -57,7 +57,7 @@ class OXMomentManager {
     newNotificationCallBack(_notifications);
   }
 
-  void newNotesCallBackCallBack(List<NoteDB> notes) {
+  void newNotesCallBackCallBack(List<NoteDBISAR> notes) {
     notes.removeWhere((element) => element.getNoteKind() == _reactionKind);
     _notes = notes;
     for (OXMomentObserver observer in _observers) {
@@ -65,20 +65,20 @@ class OXMomentManager {
     }
   }
 
-  void newNotificationCallBack(List<NotificationDB> notifications) {
+  void newNotificationCallBack(List<NotificationDBISAR> notifications) {
     _notifications = notifications;
     for (OXMomentObserver observer in _observers) {
       observer.didNewNotificationCallBack(notifications);
     }
   }
 
-  void myZapNotificationCallBack(List<NotificationDB> notifications) {
+  void myZapNotificationCallBack(List<NotificationDBISAR> notifications) {
     for (OXMomentObserver observer in _observers) {
       observer.didMyZapNotificationCallBack(notifications);
     }
   }
 
-  void groupsNoteCallBack(NoteDB notes) {
+  void groupsNoteCallBack(NoteDBISAR notes) {
     for (OXMomentObserver observer in _observers) {
       observer.didGroupsNoteCallBack(notes);
     }

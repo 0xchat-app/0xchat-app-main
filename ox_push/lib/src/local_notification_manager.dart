@@ -70,7 +70,7 @@ class LocalNotificationManager {
   }
 
   Future<void> onNewEndpoint(String endpoint, String instance) async {
-    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUSH_TOKEN, endpoint);
+    await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_PUSH_TOKEN.name, endpoint);
     OXUserInfoManager.sharedInstance.setNotification();
   }
 

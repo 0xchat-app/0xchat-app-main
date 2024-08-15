@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class OXCachedNetworkImage extends StatelessWidget {
 
@@ -66,6 +67,7 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
     double? height,
     Map<String, String>? headers,
     BaseCacheManager? cacheManager,
+    String? decryptedKey,
   }) {
     final ratio = MediaQuery.of(context).devicePixelRatio;
 
@@ -89,7 +91,7 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
       CachedNetworkImageProvider(
         url,
         headers: headers,
-        cacheManager: cacheManager,
+        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey),
       ),
     );
   }

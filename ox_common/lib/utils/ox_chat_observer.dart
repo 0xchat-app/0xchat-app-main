@@ -2,6 +2,8 @@ import 'package:chatcore/chat-core.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 
 ///Title: ox_chat_observer
 ///Description: TODO(Fill in by oneself)
@@ -11,31 +13,35 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 abstract mixin class OXChatObserver {
   void didSecretChatRequestCallBack() {}
 
-  void didPrivateMessageCallBack(MessageDB message) {}
+  void didPrivateMessageCallBack(MessageDBISAR message) {}
 
-  void didSecretChatAcceptCallBack(SecretSessionDB ssDB) {}
+  void didPrivateChatMessageUpdateCallBack(MessageDBISAR message, String replacedMessageId) {}
 
-  void didSecretChatRejectCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatAcceptCallBack(SecretSessionDBISAR ssDB) {}
 
-  void didSecretChatCloseCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatRejectCallBack(SecretSessionDBISAR ssDB) {}
 
-  void didSecretChatUpdateCallBack(SecretSessionDB ssDB) {}
+  void didSecretChatCloseCallBack(SecretSessionDBISAR ssDB) {}
+
+  void didSecretChatUpdateCallBack(SecretSessionDBISAR ssDB) {}
 
   void didContactUpdatedCallBack() {}
 
-  void didCreateChannel(ChannelDB? channelDB) {}
+  void didCreateChannel(ChannelDBISAR? channelDB) {}
 
-  void didDeleteChannel(ChannelDB? channelDB) {}
+  void didDeleteChannel(ChannelDBISAR? channelDB) {}
 
-  void didChannalMessageCallBack(MessageDB message) {}
+  void didChannalMessageCallBack(MessageDBISAR message) {}
 
-  void didGroupMessageCallBack(MessageDB message) {}
+  void didGroupMessageCallBack(MessageDBISAR message) {}
 
-  void didRelayGroupJoinReqCallBack(JoinRequestDB joinRequestDB) {}
+  void didMessageDeleteCallBack(List<MessageDBISAR> delMessages) {}
 
-  void didRelayGroupModerationCallBack(ModerationDB moderationDB) {}
+  void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {}
 
-  void didMessageActionsCallBack(MessageDB message) {}
+  void didRelayGroupModerationCallBack(ModerationDBISAR moderationDB) {}
+
+  void didMessageActionsCallBack(MessageDBISAR message) {}
 
   void didChannelsUpdatedCallBack() {}
 
@@ -45,17 +51,17 @@ abstract mixin class OXChatObserver {
 
   void didSessionUpdate() {}
 
-  void didSecretChatMessageCallBack(MessageDB message) {}
+  void didSecretChatMessageCallBack(MessageDBISAR message) {}
 
-  void didPromptToneCallBack(MessageDB message, int type) {}
+  void didPromptToneCallBack(MessageDBISAR message, int type) {}
 
-  void didZapRecordsCallBack(ZapRecordsDB zapRecordsDB) {
+  void didZapRecordsCallBack(ZapRecordsDBISAR zapRecordsDB) {
     final pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey ?? '';
-    OXCacheManager.defaultOXCacheManager.saveData('$pubKey.zap_badge', true);
-    OXChatBinding.sharedInstance.isZapBadge = true;
+    UserConfigTool.saveSetting(StorageSettingKey.KEY_ZAP_BADGE.name, true);
   }
 
   void didOfflinePrivateMessageFinishCallBack() {}
   void didOfflineSecretMessageFinishCallBack() {}
   void didOfflineChannelMessageFinishCallBack() {}
+  void didOfflineGroupMessageFinishCallBack() {}
 }
