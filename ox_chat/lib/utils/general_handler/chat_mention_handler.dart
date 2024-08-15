@@ -152,7 +152,7 @@ extension ChatMentionMessageEx on ChatMentionHandler {
     mentionsCallback?.call(mentions);
     mentions.reversed.forEach((mention) {
       final user = Account.sharedInstance.getUserInfo(mention.pubkey);
-      var userName = '';
+      var userName = mention.pubkey;
       if (user is UserDBISAR) {
         userName = user.name ?? userName;
       }
