@@ -317,9 +317,9 @@ class RelayGroupBaseInfoView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MyText(relayGroup?.name ?? '', 16.sp, ThemeColor.color0, fontWeight: FontWeight.w400),
-                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty) SizedBox(height: 2.px),
-                if (relayGroup != null && relayGroup.relayPubkey.isNotEmpty)
-                  MyText(relayGroup.relayPubkey ?? '', 14.sp, ThemeColor.color100,
+                if (relayGroup != null && relayGroup.about.isNotEmpty) SizedBox(height: 2.px),
+                if (relayGroup != null && relayGroup.about.isNotEmpty)
+                  MyText(relayGroup.about ?? '', 13.sp, ThemeColor.color100,
                       fontWeight: FontWeight.w400, overflow: TextOverflow.ellipsis),
               ],
             ),
