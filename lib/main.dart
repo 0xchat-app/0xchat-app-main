@@ -235,7 +235,6 @@ class MainState extends State<MainApp>
         }
         break;
       case AppLifecycleState.paused:
-        DB.sharedInstance.batchApply();
         if (OXUserInfoManager.sharedInstance.isLogin) NotificationHelper.sharedInstance.setOffline();
         lastUserInteractionTime = DateTime.now().millisecondsSinceEpoch;
         if (CallManager.instance.getInCallIng && CallManager.instance.isAudioVoice){
