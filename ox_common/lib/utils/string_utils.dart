@@ -200,5 +200,18 @@ extension StringUtil on String {
 
   bool get isRemoteURL => RegExp(r'https?:\/\/').hasMatch(this);
   bool get isFileURL => RegExp(r'file:\/\/').hasMatch(this.toLowerCase());
+  bool get isImageBase64 {
+    final base64Pattern = r'^data:image\/[a-zA-Z0-9\+\-\.]+;base64,';
+    if (RegExp(base64Pattern).hasMatch(this)) {
+      final base64Data = this.split(',').last;
+      return _isValidBase64(base64Data);
+    }
+    return false;
+  }
+
+  bool _isValidBase64(String str) {
+    final base64RegExp = RegExp(r'^[A-Za-z0-9+/]+={0,2}$');
+    return base64RegExp.hasMatch(str);
+  }
 }
 

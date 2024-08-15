@@ -111,15 +111,10 @@ class CommonImageGallery extends StatefulWidget {
     context ??= OXNavigator.navigatorKey.currentContext;
     if (context == null) return ;
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: false, // Background transparency
-        pageBuilder: (context, animation, secondaryAnimation) => CommonImageGallery(
-          imageList: imageList,
-          initialPage: initialPage,
-        ),
-      ),
-    );
+    OXNavigator.pushPage(context, (context) => CommonImageGallery(
+      imageList: imageList,
+      initialPage: initialPage,
+    ), type: OXPushPageType.opacity);
   }
 }
 
@@ -230,8 +225,7 @@ class _CommonImageGalleryState extends State<CommonImageGallery>
                   final entry = widget.imageList[index];
                   return HeroWidget(
                     child: ExtendedImage(
-                      image: OXCachedNetworkImageProviderEx.create(
-                        context,
+                      image: OXCachedImageProviderEx.create(
                         entry.url,
                         decryptedKey: entry.decryptedKey,
                       ),

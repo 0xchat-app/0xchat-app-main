@@ -46,6 +46,30 @@ class TransparentPageRoute<T> extends PageRouteBuilder<T> {
   );
 }
 
+class OpacityAnimationPageRoute<T> extends PageRouteBuilder<T> {
+
+  final RouteSettings settings;
+
+  OpacityAnimationPageRoute({
+    required WidgetBuilder builder,
+    required this.settings,
+  }) : super(
+    opaque: false,
+    pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Curves.fastOutSlowIn,
+          ),
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
 class NoAnimationPageRoute<T> extends PageRouteBuilder<T> {
   final RouteSettings settings;
 

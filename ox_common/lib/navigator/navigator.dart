@@ -5,6 +5,7 @@ import 'package:ox_common/navigator/page_router.dart';
 enum OXPushPageType {
   slideToLeft,
   noAnimation,
+  opacity,
   transparent,
 }
 
@@ -151,6 +152,11 @@ class OXNavigator extends Navigator {
         );
       case OXPushPageType.noAnimation:
         route = NoAnimationPageRoute<T>(
+          builder: builder,
+          settings: routeSettings,
+        );
+      case OXPushPageType.opacity:
+        route = OpacityAnimationPageRoute<T>(
           builder: builder,
           settings: routeSettings,
         );
