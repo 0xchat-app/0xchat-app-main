@@ -9,6 +9,7 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
+import 'package:ox_common/widgets/common_network_image.dart';
 
 class ImagePreviewWidget extends StatefulWidget {
   ImagePreviewWidget({
@@ -53,24 +54,17 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
 
     if (uri.isEmpty) return ;
 
-    if (decryptKey == null && uri.startsWith('data:image/')) {
-      // Image data
-      imageProvider = Image.memory(
-        dataUriToBytes(uri),
-      ).image;
-    } else if (uri.isRemoteURL) {
-      // Network url
-      imageProvider = CachedNetworkImageProvider(
-        uri,
-        cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),
-      );
-    } else {
-      // File path
-      imageProvider = Image.file(File(uri)).image;
-    }
+    imageProvider = OXCachedImageProviderEx.create(
+      uri,
+      width: widget.imageWidth?.toDouble(),
+      height: widget.imageHeight?.toDouble(),
+      decryptedKey: decryptKey,
+    );
 
     if (widget.imageWidth != null && widget.imageHeight != null) {
       imageSize = Size(widget.imageWidth!.toDouble(), widget.imageHeight!.toDouble());
+    } else if (uri.isImageBase64) {
+      imageSize = OXCachedImageProviderEx.getImageSizeWithBase64(uri) ?? imageSize;
     }
   }
 
