@@ -102,10 +102,13 @@ class UploadUtils {
       return UploadExceptionHandler.handleException(e,s);
     }
 
-    await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
-      url,
-      file.readAsBytesSync(),
-    );
+    if (fileType == FileType.image) {
+      await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+        url,
+        file.readAsBytesSync(),
+        fileExtension: Path.extension(file.path),
+      );
+    }
 
     return UploadResult.success(url);
   }
