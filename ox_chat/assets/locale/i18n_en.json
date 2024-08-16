@@ -302,7 +302,7 @@
   "str_group_admin_manage_hint": "You can add admins to help you manage your group. Press and hold to remove them.",
   "str_group_add_admin": "Add Admin",
   "str_group_edit_admin_right": "Edit admin rights",
-  "str_group_dismiss_admin": "Dismiss admin",
+  "str_group_dismiss_admin": "Remove admin",
   "str_add_admin_search_hint": "Who would you like to add？",
   "str_group_admin_right_title": "Admin rights",
   "str_group_about": "Group Description",
