@@ -516,12 +516,16 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    content,
-                    style: TextStyle(
-                      fontSize: 16.px,
-                      color: ThemeColor.color0,
-                      fontWeight: FontWeight.w400,
+                  Container(
+                    width: 300.px,
+                    child: Text(
+                      content,
+                      style: TextStyle(
+                        fontSize: 16.px,
+                        color: ThemeColor.color0,
+                        fontWeight: FontWeight.w400,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                   if(!isGroup)

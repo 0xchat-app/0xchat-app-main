@@ -90,7 +90,7 @@ class GroupMomentsPageState extends State<GroupMomentsPage>
         iconName: "moment_add_icon.png",
         width: Adapt.px(24),
         height: Adapt.px(24),
-        color: ThemeColor.white,
+        color: ThemeColor.color100,
         package: 'ox_discovery',
       ),
       onLongPress: ()async {

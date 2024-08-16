@@ -340,7 +340,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
   }
 
   Future<NoteDBISAR?> _getNote(AggregatedNotification notificationDB) async {
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       notificationDB.associatedNoteId,
       isUpdateCache: true,
     );
@@ -443,7 +443,7 @@ class _NotificationsMomentsPageState extends State<NotificationsMomentsPage> {
       noteId = notification.associatedNoteId;
     }
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       noteId,
       isUpdateCache: true,
     );

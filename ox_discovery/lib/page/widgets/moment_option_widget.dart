@@ -14,6 +14,7 @@ import 'package:ox_discovery/page/widgets/zap_done_animation.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import '../../enum/moment_enum.dart';
+import '../../model/moment_extension_model.dart';
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
 import '../moments/create_moments_page.dart';
@@ -350,13 +351,17 @@ class _MomentOptionWidgetState extends State<MomentOptionWidget>
 
   void _init(){
     notedUIModel = widget.notedUIModel;
-    setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
 
   void _updateNoteDB() async {
     if(notedUIModel.value == null)  return;
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       notedUIModel.value!.noteDB.noteId,
       isUpdateCache: true,
       notedUIModel: notedUIModel.value!,

@@ -64,7 +64,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   List<ValueNotifier<NotedUIModel?>> notesList = [];
 
   final ScrollController momentScrollController = ScrollController();
-  final RefreshController _refreshController = RefreshController();
+  final RefreshController refreshController = RefreshController();
 
   ValueNotifier<double> tipContainerHeight = ValueNotifier(0);
 
@@ -75,6 +75,17 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   List<String> _avatarList = [];
 
   List<NoteDBISAR> _notificationGroupNotes = [];
+
+  Map<String, List<NoteDBISAR>> get getNotificationGroupNotesToMap {
+    Map<String, List<NoteDBISAR>> map = {};
+    _notificationGroupNotes.map((NoteDBISAR note) {
+      if (map[note.groupId] == null) {
+        map[note.groupId] = [];
+      }
+      map[note.groupId]!.add(note);
+    }).toList();
+    return map;
+  }
 
   @override
   void initState() {
@@ -92,7 +103,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.publicMomentsPageType != oldWidget.publicMomentsPageType) {
-      _refreshController.resetNoData();
+      refreshController.resetNoData();
       _clearData();
       updateNotesList(true);
     }
@@ -100,7 +111,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   @override
   void dispose() {
-    _refreshController.dispose();
+    refreshController.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXMomentManager.sharedInstance.removeObserver(this);
     super.dispose();
@@ -117,7 +128,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       children: [
         OXSmartRefresher(
           scrollController: momentScrollController,
-          controller: _refreshController,
+          controller: refreshController,
           enablePullDown: true,
           enablePullUp: true,
           onRefresh: () => updateNotesList(true),
@@ -220,7 +231,6 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
           SizedBox(
             width: 20.px,
           ),
-
           _notifications.isNotEmpty
               ? Container(
                   height: 52.px,
@@ -254,9 +264,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: _notificationGroupNotes.map((NoteDBISAR item) {
+          children: getNotificationGroupNotesToMap.keys.map((String groupId) {
             RelayGroupDBISAR? groupDB =
-                RelayGroup.sharedInstance.myGroups[item.groupId];
+                RelayGroup.sharedInstance.myGroups[groupId];
+            if(groupDB == null) return const SizedBox();
             return _groupNotificationItem(groupDB);
           }).toList(),
         ),
@@ -264,10 +275,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Widget _groupNotificationItem(RelayGroupDBISAR? groupDB) {
+  Widget _groupNotificationItem(RelayGroupDBISAR groupDB) {
+    int noteNum = getNotificationGroupNotesToMap[groupDB.groupId]!.length;
+
     return GestureDetector(
       onTap: () async {
-        if (groupDB == null) return;
         _notificationGroupNotes
             .removeWhere((NoteDBISAR db) => db.groupId == groupDB.groupId);
         tipContainerHeight.value = _getNotificationHeight;
@@ -303,7 +315,46 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                 ),
               ),
               alignment: Alignment.center,
-              child: Text(groupDB?.name ?? '--'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 80.px),
+                    child: Text(
+                      groupDB.name ?? '--',
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: 14.px,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  if(noteNum > 1)
+                  Container(
+                    margin: EdgeInsets.only(left: 2.px),
+                    width: 16.px,
+                    height: 16.px,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.color0,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(16),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        getNotificationGroupNotesToMap[groupDB.groupId]!
+                            .length
+                            .toString(),
+                        style: TextStyle(
+                          color: ThemeColor.color200,
+                          fontSize: 10.px,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -353,18 +404,18 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     );
   }
 
-  Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
+  Future<void> updateNotesList(bool isInit,
+      {bool isWrapRefresh = false}) async {
     if (isInit) {
-      notesList = [];
-      _allNotesFromDBLastTimestamp = null;
       _clearNotedNotification();
     }
-    bool isPrivateMoment = widget.publicMomentsPageType == EPublicMomentsPageType.private;
+    bool isPrivateMoment =
+        widget.publicMomentsPageType == EPublicMomentsPageType.private;
     if (isWrapRefresh) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _clearNotedNotification();
-          _refreshController.requestRefresh();
+          refreshController.requestRefresh();
         }
       });
     }
@@ -372,8 +423,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       List<NoteDBISAR> list = await _getNoteTypeToDB(isInit);
       if (list.isEmpty) {
         isInit
-            ? _refreshController.refreshCompleted()
-            : _refreshController.loadNoData();
+            ? refreshController.refreshCompleted()
+            : refreshController.loadNoData();
         if (!isPrivateMoment && !isInit) await _getNotesFromRelay();
         return;
       }
@@ -384,11 +435,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       if (list.length < _limit) {
         !isPrivateMoment && !isInit
             ? await _getNotesFromRelay()
-            : _refreshController.loadNoData();
+            : refreshController.loadNoData();
       }
     } catch (e) {
       print('Error loading notes: $e');
-      _refreshController.loadFailed();
+      refreshController.loadFailed();
     }
   }
 
@@ -428,7 +479,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       List<NoteDBISAR> list = await _getNoteTypeToRelay();
 
       if (list.isEmpty) {
-        _refreshController.loadNoData();
+        refreshController.loadNoData();
         return;
       }
 
@@ -436,7 +487,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       _updateUI(showList, false, list.length);
     } catch (e) {
       print('Error loading notes from relay: $e');
-      _refreshController.loadFailed();
+      refreshController.loadFailed();
     }
   }
 
@@ -455,11 +506,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     _allNotesFromDBLastTimestamp = showList.last.createAt;
 
     if (isInit) {
-      _refreshController.refreshCompleted();
+      refreshController.refreshCompleted();
     } else {
       fetchedCount < _limit
-          ? _refreshController.loadNoData()
-          : _refreshController.loadComplete();
+          ? refreshController.loadNoData()
+          : refreshController.loadComplete();
     }
     setState(() {});
   }
@@ -471,12 +522,12 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
     for (NoteDBISAR noteDB in notes) {
       bool isGroupNoted = noteDB.groupId.isNotEmpty;
-      if(isGroupNoted){
+      if (isGroupNoted) {
         int findIndex = groupNoteList.indexWhere((NoteDBISAR noted) => noted.noteId == noteDB.noteId);
         if(findIndex == -1){
           groupNoteList.add(noteDB);
         }
-      }else{
+      } else {
         personalNoteList.add(noteDB);
       }
     }
@@ -484,11 +535,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         personalNoteList.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
-    setState(() {
-      _notificationNotes = personalNoteList;
-      _notificationAvatarList = avatars;
-      _notificationGroupNotes = groupNoteList;
-    });
+
     double height = 0;
     if (groupNoteList.isNotEmpty) {
       height += tipsGroupHeight;
@@ -497,6 +544,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       height += tipsHeight;
     }
     tipContainerHeight.value = height;
+    setState(() {
+      _notificationNotes = personalNoteList;
+      _notificationAvatarList = avatars;
+      _notificationGroupNotes = groupNoteList;
+    });
   }
 
   void _updateNotifications(List<NotificationDBISAR> notifications) async {
@@ -504,7 +556,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
     List<String> avatars = await DiscoveryUtils.getAvatarBatch(
         notifications.map((e) => e.author).toSet().toList());
     if (avatars.length > 3) avatars = avatars.sublist(0, 3);
-    if(mounted){
+    if (mounted) {
       setState(() {
         _notifications = notifications;
         _avatarList = avatars;
@@ -564,11 +616,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    if(mounted){
+    if (mounted) {
       setState(() {
+        notesList = [];
         isLogin = true;
       });
-      // _refreshController.requestRefresh();
     }
   }
 }

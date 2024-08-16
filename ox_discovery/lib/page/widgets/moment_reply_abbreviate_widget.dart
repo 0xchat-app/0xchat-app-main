@@ -62,15 +62,15 @@ class _MomentReplyAbbreviateWidgetState extends State<MomentReplyAbbreviateWidge
       return;
     }
 
-    ValueNotifier<NotedUIModel?>? notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache[replyId];
-    if(notedUIModelCache?.value != null){
+    ValueNotifier<NotedUIModel?> notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(replyId);
+    if(notedUIModelCache.value != null){
       notedUIModel = notedUIModelCache;
       setState(() {});
       return;
     }
 
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       replyId,
       isUpdateCache: true,
       notedUIModel: notedUIModelDraft.value,

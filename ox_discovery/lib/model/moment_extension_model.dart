@@ -95,4 +95,55 @@ class OXMomentCacheManager {
     }).toList();
     return list;
   }
+
+  static Future<ValueNotifier<NotedUIModel?>> getValueNotifierNoted(
+      String noteId,
+      {
+        bool isUpdateCache = false,
+        String? rootRelay,
+        String? replyRelay,
+        List<String>? setRelay,
+        NotedUIModel? notedUIModel,
+      }) async {
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+    ValueNotifier<NotedUIModel?>? noteNotifier = notedUIModelCache[noteId];
+
+    if(!isUpdateCache && noteNotifier != null && noteNotifier.value != null){
+      return noteNotifier;
+    }
+
+    if(noteNotifier == null){
+      notedUIModelCache[noteId] = ValueNotifier(null);
+    }
+
+    List<String>? relaysList = setRelay;
+    if(relaysList == null){
+      String? relayStr = (notedUIModel?.noteDB.replyRelay ?? replyRelay) ?? (notedUIModel?.noteDB.rootRelay ?? rootRelay);
+      relaysList = relayStr != null ? [relayStr] : null;
+    }
+
+    NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNoteId(noteId, relays: relaysList);
+    if(note == null) return notedUIModelCache[noteId]!;
+    notedUIModelCache[noteId]!.value = NotedUIModel(noteDB: note);
+
+    return notedUIModelCache[noteId]!;
+  }
+
+  static ValueNotifier<NotedUIModel?> getValueNotifierNoteToCache(String noteId){
+    Map<String, NoteDBISAR> notesCache = Moment.sharedInstance.notesCache;
+    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
+
+    if(notedUIModelCache[noteId] == null){
+      notedUIModelCache[noteId] = ValueNotifier(null);
+    }
+
+    if(notesCache[noteId] != null){
+      NotedUIModel notedUIModel = NotedUIModel(noteDB: notesCache[noteId]!);
+
+      notedUIModelCache[noteId]!.value = notedUIModel;
+    }
+
+    return notedUIModelCache[noteId]!;
+
+  }
 }

@@ -61,27 +61,22 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     String? notedId = widget.notedId;
     String? neventId = widget.neventId;
 
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
-
     if (neventId != null) {
       Map result = Nip19.decodeShareableEntity(Nip21.decode(neventId)!);
       String notedId = result['special'];
 
-      ValueNotifier<NotedUIModel?>? neventIdNotifier = notedUIModelCache[notedId];
+      ValueNotifier<NotedUIModel?> neventIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
 
-      if (neventIdNotifier != null && neventIdNotifier.value != null) {
+      if (neventIdNotifier.value != null) {
         notedUIModel = neventIdNotifier;
       } else {
-        if(neventIdNotifier == null){
-          notedUIModelCache[notedId] = ValueNotifier(null);
-        }
 
         NoteDBISAR? note = await Moment.sharedInstance.loadNoteWithNevent(neventId);
         if (note == null) return;
 
-        notedUIModelCache[notedId]!.value = NotedUIModel(noteDB: note);
+        neventIdNotifier.value = NotedUIModel(noteDB: note);
 
-        notedUIModel = notedUIModelCache[notedId];
+        notedUIModel = neventIdNotifier;
       }
 
       _getMomentUserInfo(notedUIModel!);
@@ -92,11 +87,11 @@ class MomentQuoteWidgetState extends State<MomentQuoteWidget> {
     }
 
     if (notedId != null) {
-      ValueNotifier<NotedUIModel?>? notedIdNotifier = notedUIModelCache[notedId];
-      if(notedIdNotifier != null && notedIdNotifier.value != null){
-        notedUIModel = notedUIModelCache[notedId];
+      ValueNotifier<NotedUIModel?> notedIdNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(notedId);
+      if(notedIdNotifier.value != null){
+        notedUIModel = notedIdNotifier;
       }else{
-        ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(notedId,setRelay: widget.relays);
+        ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(notedId,setRelay: widget.relays);
         if(noteNotifier.value == null) return;
         notedUIModel = noteNotifier;
       }

@@ -211,7 +211,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   void _initReposted() async {
     ValueNotifier<NotedUIModel?> modelNotifier = widget.notedUIModel;
     if(modelNotifier.value == null) return;
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       modelNotifier.value!.noteDB.repostId!,
       isUpdateCache: true,
       notedUIModel: modelNotifier.value,
@@ -361,7 +361,7 @@ class _MomentUserItemWidgetState extends State<MomentUserItemWidget> {
   }
 
   void _getNoteToMomentPage(String noteId) async {
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       noteId,
     );
 
