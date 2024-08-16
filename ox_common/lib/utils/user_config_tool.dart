@@ -127,46 +127,45 @@ class UserConfigTool{
     }
   }
 
-  static migrateSharedPreferencesData() async {
+  static Future<void> migrateSharedPreferencesData() async {
+    bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData('migration_completed', defaultValue: false);
+    if(migrationCompleted) return;
+
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
     final migrationTargetVersion = "1.3.1";
-    if (compareVersion(currentVersion, migrationTargetVersion) != 0) return;
+    if(currentVersion != migrationTargetVersion) return;
 
-    bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData('migration_completed') ?? false;
+    String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
+    if (pubKey == null) return;
+
+    //check for old values
+    bool? isShowWalletSelector = await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector', defaultValue: null);
+    if(isShowWalletSelector == null) return;
+
     try {
-      if (!migrationCompleted) {
-        String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-        if (pubKey == null) return;
-        final results = await Future.wait([
-          OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.isShowWalletSelector', defaultValue: true),
-          OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet'),
-          OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_defaultZapAmount'),
-          OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}'),
-          OXCacheManager.defaultOXCacheManager.getData(StorageSettingKey.KEY_ICE_SERVER.name, defaultValue: ''),
-          OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, defaultValue: ''),
-          OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, defaultValue: 0),
-        ]);
+      final results = await Future.wait([
+        Future.value(isShowWalletSelector),
+        OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.defaultWallet'),
+        OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_defaultZapAmount'),
+        OXCacheManager.defaultOXCacheManager.getForeverData('${pubKey}_${StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name}'),
+        OXCacheManager.defaultOXCacheManager.getData(StorageSettingKey.KEY_ICE_SERVER.name, defaultValue: ''),
+        OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, defaultValue: ''),
+        OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, defaultValue: 0),
+      ]);
 
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name] = results[0];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_WALLET.name] = results[1];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name] = results[2];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name] = results[3];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_ICE_SERVER.name] = results[4];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER.name] = results[5];
-        OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name] = results[6];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name] = isShowWalletSelector;
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_WALLET.name] = results[1];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name] = results[2];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name] = results[3];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_ICE_SERVER.name] = results[4];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER.name] = results[5];
+      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name] = results[6];
 
-        await OXCacheManager.defaultOXCacheManager.saveForeverData('migration_completed', true);
-      }
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('migration_completed', true);
     } catch (e) {
       LogUtil.e('Migrate Shared Preferences Data Failed');
     }
-  }
-
-  static int compareVersion(String version1, String version2) {
-    int v1 = int.parse(version1.replaceAll('.', ''));
-    int v2 = int.parse(version2.replaceAll('.', ''));
-    return v1.compareTo(v2);
   }
 }
 
