@@ -179,7 +179,7 @@ class ThemeManager {
   static void changeTheme(ThemeStyle themeStyle){
 
     themeManager.themeStyle = themeStyle;
-
+    OXCacheManager.defaultOXCacheManager.saveForeverData(_keyThemeStyle, themeManager.themeStyle.value());
     themeManager.cache = {};
     themeManager.onThemeChangedCallbackList.forEach((fn) {
       fn();

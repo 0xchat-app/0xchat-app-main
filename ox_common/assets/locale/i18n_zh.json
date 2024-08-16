@@ -117,5 +117,6 @@
   "str_select_push_app_title": "请选择推送应用",
   "str_permission_audio_call_hint": "请手动前往“设置”，打开麦克风权限",
   "str_permission_call_hint": "请手动前往“设置”，打开麦克风/照相机权限",
-  "str_singer_app_verify_failed_hint": "签名验证不通过，请重新登录"
+  "str_singer_app_verify_failed_hint": "签名验证不通过，请重新登录",
+  "str_succeed_hint": "成功"
 }

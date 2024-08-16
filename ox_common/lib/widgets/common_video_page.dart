@@ -51,6 +51,7 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
 
   @override
   void dispose() {
+    OXLoading.dismiss();
     _videoPlayerController.dispose();
     _chewieController?.dispose();
     super.dispose();
@@ -70,6 +71,7 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
   Widget build(BuildContext context) {
     bool isShowVideoWidget = _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized;
     if (!isShowVideoWidget) {
+      OXLoading.show();
       return Container(
         color: ThemeColor.color180,
         width: double.infinity,
@@ -104,6 +106,8 @@ class _CommonVideoPageState extends State<CommonVideoPage> {
         ),
       );
     }
+
+    OXLoading.dismiss();
     return Container(
       color: ThemeColor.color180,
       child: Stack(

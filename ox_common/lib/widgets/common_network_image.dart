@@ -1,7 +1,14 @@
 
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/widgets/common_file_cache_manager.dart';
 
 class OXCachedNetworkImage extends StatelessWidget {
@@ -57,19 +64,40 @@ class OXCachedNetworkImage extends StatelessWidget {
       memCacheHeight: memCacheHeight,
       placeholder: placeholder,
       errorWidget: errorWidget,
+      cacheManager: OXFileCacheManager.get(),
     );
   }
 }
 
-extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
-  static ImageProvider create(BuildContext context, String url, {
+extension OXCachedImageProviderEx on CachedNetworkImageProvider {
+
+  static Map<String, Size> sizeCache = {};
+
+  static String _cacheKeyWithBase64(String imageBase64) {
+    return md5.convert(utf8.encode(imageBase64)).toString();
+  }
+
+  static Size? getImageSizeWithBase64(String imageBase64) {
+    final cacheKey = _cacheKeyWithBase64(imageBase64);
+    final size = sizeCache[cacheKey];
+    if (size != null) return size;
+
+    decodeImageFromList(_base64ToBytes(imageBase64)).then((image) {
+      final size = Size(image.width.toDouble(), image.height.toDouble());
+      sizeCache[cacheKey] = size;
+    });
+
+    return null;
+  }
+
+  static ImageProvider create(String uri, {
     double? width,
     double? height,
     Map<String, String>? headers,
     BaseCacheManager? cacheManager,
     String? decryptedKey,
   }) {
-    final ratio = MediaQuery.of(context).devicePixelRatio;
+    final ratio = Adapt.devicePixelRatio;
 
     int? resizeWidth;
     if (width != null && width != double.infinity) {
@@ -82,17 +110,31 @@ extension OXCachedNetworkImageProviderEx on CachedNetworkImageProvider {
     }
 
     if (resizeWidth == null && resizeHeight == null) {
-      resizeWidth = (MediaQuery.of(context).size.width * ratio).round();
+      resizeWidth = (500 * ratio).round();
+    }
+
+    ImageProvider provider;
+    if (uri.isImageBase64) {
+      provider = MemoryImage(_base64ToBytes(uri));
+    } else if (uri.isRemoteURL) {
+      provider = CachedNetworkImageProvider(
+        uri,
+        headers: headers,
+        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey),
+      );
+    } else {
+      provider = FileImage(File(uri));
     }
 
     return ResizeImage.resizeIfNeeded(
       resizeWidth,
       resizeHeight,
-      CachedNetworkImageProvider(
-        url,
-        headers: headers,
-        cacheManager: cacheManager ?? OXFileCacheManager.get(encryptKey: decryptedKey),
-      ),
+      provider,
     );
+  }
+
+  static Uint8List _base64ToBytes(String imageBase64) {
+    final base64String = imageBase64.split(',').last;
+    return base64.decode(base64String);
   }
 }
