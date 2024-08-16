@@ -126,6 +126,13 @@ class UserConfigTool{
       compatibleOldSettings(userDB);
     }
   }
+  static compatibleOldAmberStatus(String localPubKey) async {
+    final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER);
+    if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
+      await OXCacheManager.defaultOXCacheManager.saveForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', localIsLoginAmber);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_IS_LOGIN_AMBER, false);
+    }
+  }
 
   static Future<void> migrateSharedPreferencesData() async {
     bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData('migration_completed', defaultValue: false);

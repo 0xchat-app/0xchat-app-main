@@ -94,6 +94,7 @@ class OXUserInfoManager {
     ///account auto-login
     final String? localPubKey = await OXCacheManager.defaultOXCacheManager.getForeverData(StorageKeyTool.KEY_PUBKEY);
     if (localPubKey != null) {
+      await UserConfigTool.compatibleOldAmberStatus(localPubKey);
       final bool? localIsLoginAmber = await OXCacheManager.defaultOXCacheManager.getForeverData('${localPubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}');
       if (localPubKey.isNotEmpty && localIsLoginAmber != null && localIsLoginAmber) {
         bool isInstalled = await CoreMethodChannel.isInstalledAmber();
