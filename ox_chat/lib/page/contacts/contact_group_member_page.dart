@@ -6,11 +6,16 @@ import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+
+import '../session/chat_group_message_page.dart';
 
 class ContactGroupMemberPage extends ContactGroupListPage {
   final String groupId;
@@ -116,12 +121,14 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
     }
     await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    Map<String, UserDBISAR> users = await Account.sharedInstance.getUserInfos(members);
-    String names = users.values.map((user) => user.name).join(', ');
     OKEvent? okEvent;
     if (widget.groupType == GroupType.privateGroup) {
-      okEvent = await Groups.sharedInstance.addGroupMembers(
-          groupId, '${Localized.text('ox_chat.add_member_title')}: $names', List.from(members));
+      await OXLoading.show();
+      GroupDBISAR? groupDB = await Groups.sharedInstance
+          .addMembersToPrivateGroup(groupId, members);
+      await OXLoading.dismiss();
+      _createGroup(groupDB);
+      return;
     } else {
       okEvent = await RelayGroup.sharedInstance.addUser(groupId, List.from(members), '');
     }
@@ -140,12 +147,14 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   buildRemovePressed() async {
     await OXLoading.show();
     List<String> members = selectedUserList.map((user) => user.pubKey).toList();
-    Map<String, UserDBISAR> users = await Account.sharedInstance.getUserInfos(members);
-    String names = users.values.map((user) => user.name).join(', ');
     OKEvent? okEvent;
     if (widget.groupType == GroupType.privateGroup) {
-      okEvent = await Groups.sharedInstance.removeGroupMembers(
-          groupId, '${Localized.text('ox_chat.remove_member_title')}: $names', List.from(members));
+      await OXLoading.show();
+      GroupDBISAR? groupDB = await Groups.sharedInstance
+          .removeMembersFromPrivateGroup(groupId, members);
+      await OXLoading.dismiss();
+      _createGroup(groupDB);
+      return;
     } else {
       okEvent = await RelayGroup.sharedInstance.removeUser(groupId, List.from(members), '');
     }
@@ -177,5 +186,26 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
               }),
         ],
         isRowAction: true);
+  }
+
+  Future<void> _createGroup(GroupDBISAR? groupDB) async {
+    if (groupDB != null) {
+      OXNavigator.pop(context);
+      OXNavigator.pushReplacement(
+        context,
+        ChatGroupMessagePage(
+          communityItem: ChatSessionModelISAR(
+            chatId: groupDB.groupId,
+            groupId: groupDB.groupId,
+            chatType: ChatType.chatGroup,
+            chatName: groupDB.name,
+            createTime: groupDB.updateTime,
+            avatar: groupDB.picture,
+          ),
+        ),
+      );
+    } else {
+      CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));
+    }
   }
 }

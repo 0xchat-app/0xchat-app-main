@@ -74,7 +74,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       children: [
         _buildAppBar(),
         _buildGroupNameEditText(),
-        _buildGroupRelayEditText(),
+        // _buildGroupRelayEditText(),
         SizedBox(height: 12.px),
         _buildGroupMemberList(),
       ],

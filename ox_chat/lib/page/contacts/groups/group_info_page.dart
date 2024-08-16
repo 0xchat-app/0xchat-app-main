@@ -224,7 +224,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   }
 
   Widget _removeMemberBtnWidget() {
-    if (!_isGroupOwner) return Container();
+    // if (!_isGroupOwner) return Container();
     return GestureDetector(
       onTap: () => _groupMemberOptionFn(GroupListAction.remove),
       child: Container(
@@ -673,7 +673,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   void _groupMemberOptionFn(GroupListAction action) async {
     if (!_isGroupMember) return;
-    if (GroupListAction.add == action && !_isGroupOwner) return _shareGroupFn();
+    // if (GroupListAction.add == action && !_isGroupOwner) return _shareGroupFn();
     bool? result = await OXNavigator.presentPage(
       context,
       (context) => ContactGroupMemberPage(
