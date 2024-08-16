@@ -153,14 +153,13 @@ class UserConfigTool{
         OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, defaultValue: ''),
         OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, defaultValue: 0),
       ]);
-
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name] = isShowWalletSelector;
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_WALLET.name] = results[1];
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name] = results[2];
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name] = results[3];
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_ICE_SERVER.name] = results[4];
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER.name] = results[5];
-      OXUserInfoManager.sharedInstance.settingsMap[StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name] = results[6];
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name, isShowWalletSelector);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_WALLET.name, results[1]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, results[2]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_ZAP_DESCRIPTION.name, results[3]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_ICE_SERVER.name, results[4]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, results[5]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, results[6]);
 
       await OXCacheManager.defaultOXCacheManager.saveForeverData('migration_completed', true);
     } catch (e) {
