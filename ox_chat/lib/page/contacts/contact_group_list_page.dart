@@ -231,12 +231,10 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
             alignment: Alignment.center,
             child: _buildTitleWidget(),
           ),
-          if ((widget.groupType == GroupType.privateGroup && widget.groupListAction == GroupListAction.create)
-          || widget.groupType != GroupType.privateGroup)
-            Align(
-              alignment: Alignment.centerRight,
-              child: buildEditButton(),
-            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: buildEditButton(),
+          ),
         ],
       ),
     );
