@@ -120,7 +120,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _memberAvatarWidget(),
-              // _addOrDelMember(),
+              _addOrDelMember(),
             ],
           ),
           GestureDetector(
