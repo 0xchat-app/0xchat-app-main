@@ -60,10 +60,10 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-    ValueNotifier<NotedUIModel?>? notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache[getReplyId];
-    if(notedUIModelCache?.value != null){
+    ValueNotifier<NotedUIModel?> notedUIModelCache = OXMomentCacheManager.getValueNotifierNoteToCache(getReplyId);
+    if(notedUIModelCache.value != null){
 
-      noteAuthor = (notedUIModelCache!.value as NotedUIModel).noteDB.author;
+      noteAuthor = (notedUIModelCache.value as NotedUIModel).noteDB.author;
 
       _getMomentUserInfo(notedUIModelCache.value as NotedUIModel);
       if (mounted) {
@@ -72,7 +72,7 @@ class _ReplyContactWidgetState extends State<ReplyContactWidget> {
       return;
     }
 
-    ValueNotifier<NotedUIModel?> replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> replyNotifier = await OXMomentCacheManager.getValueNotifierNoted(
       getReplyId,
       isUpdateCache: true,
       notedUIModel: model,

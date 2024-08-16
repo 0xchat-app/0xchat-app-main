@@ -73,10 +73,8 @@ class OXDiscovery extends OXFlutterModule {
   }
 
   void jumpMomentPage(BuildContext? context, {required String noteId}) async {
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
-
-    ValueNotifier<NotedUIModel?>? notedUIModelNotifier = notedUIModelCache[noteId];
-    if (notedUIModelNotifier != null && notedUIModelNotifier.value != null) {
+    ValueNotifier<NotedUIModel?> notedUIModelNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(noteId);
+    if (notedUIModelNotifier.value != null) {
       OXNavigator.pushPage(
         context!,
         (context) => MomentsPage(
@@ -87,7 +85,7 @@ class OXDiscovery extends OXFlutterModule {
       return;
     }
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(noteId);
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(noteId);
 
     if(noteNotifier.value == null) {
       return CommonToast.instance.show(context, 'Note not found !');

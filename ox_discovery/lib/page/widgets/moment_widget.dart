@@ -525,10 +525,11 @@ class _MomentWidgetState extends State<MomentWidget> {
     ValueNotifier<NotedUIModel?> model = widget.notedUIModel;
     if(model.value == null) return;
     String? repostId = model.value!.noteDB.repostId;
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
-    ValueNotifier<NotedUIModel?>?  noteNotifier = notedUIModelCache[repostId];
+
     if (model.value!.noteDB.isRepost && repostId != null) {
-      if (noteNotifier != null && noteNotifier.value != null) {
+      ValueNotifier<NotedUIModel?> noteNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(repostId);
+
+      if (noteNotifier.value != null) {
         notedUIModel = noteNotifier;
         _getMomentUserInfo(notedUIModel!.value!);
         setState(() {});
@@ -588,7 +589,7 @@ class _MomentWidgetState extends State<MomentWidget> {
   }
 
   void _getRepostId(String repostId) async {
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(repostId);
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(repostId);
     if (noteNotifier.value == null) {
       // Preventing a bug where the internal component fails to update in a timely manner when the outer ListView.builder array is updated with a non-reply note.
       notedUIModel = null;

@@ -68,7 +68,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
     NotedUIModel notedUIModel = widget.notedUIModel.value!;
     String noteId = notedUIModel.noteDB.noteId;
 
-    ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         noteId,
         isUpdateCache: true,
         notedUIModel: notedUIModel,
@@ -90,7 +90,7 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
     if(widget.notedUIModel.value == null) return;
     String notedId = widget.notedUIModel.value!.noteDB.noteId;
     await Moment.sharedInstance.loadNoteActions(notedId, actionsCallBack: (result) async {
-      ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
           notedId,
           isUpdateCache: true,
           notedUIModel: widget.notedUIModel.value,
@@ -103,22 +103,23 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   void _getReplyFromDB() async {
     if(widget.notedUIModel.value == null) return;
     String noteId = widget.notedUIModel.value!.noteDB.noteId;
-    final notifier = OXMomentCacheManager.sharedInstance.notedUIModelCache;
-    ValueNotifier<NotedUIModel?>? preNoteNotifier = notifier[noteId];
-    if(notifier[noteId]?.value == null){
-      preNoteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+
+    ValueNotifier<NotedUIModel?> preNoteNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(noteId);
+
+    if(preNoteNotifier.value == null){
+      preNoteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         noteId,
         isUpdateCache: true,
       );
       if(preNoteNotifier.value == null) return;
     }
 
-    List<String>? replyEventIds = preNoteNotifier!.value!.noteDB.replyEventIds;
+    List<String>? replyEventIds = preNoteNotifier.value!.noteDB.replyEventIds;
     if (replyEventIds == null) return;
 
     List<ValueNotifier<NotedUIModel?>> resultList = [];
     for (String noteId in replyEventIds) {
-      ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         noteId,
         isUpdateCache: true,
       );
@@ -315,7 +316,9 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
   void _dealWithNoted() async {
     if (widget.notedUIModel == null || widget.notedUIModel?.value == null) return;
     await Future.delayed(Duration.zero);
-    setState(() { });
+    if(mounted){
+      setState(() {});
+    }
 
     notedReplyList = [];
     await _getReplyNoted(widget.notedUIModel!);
@@ -325,7 +328,7 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
   Future _getReplyNoted(ValueNotifier<NotedUIModel?> model) async {
     String replyId = model.value?.noteDB.getReplyId ?? '';
     if (replyId.isNotEmpty) {
-      ValueNotifier<NotedUIModel?> replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      ValueNotifier<NotedUIModel?> replyNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         replyId,
         isUpdateCache: true,
         notedUIModel: model.value,
@@ -337,7 +340,9 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
         _getReplyNoted(replyNotifier);
     }else{
       _updateReply(notedReplyList ?? []);
-      setState(() {});
+      if(mounted){
+        setState(() {});
+      }
     }
   }
 
@@ -349,7 +354,7 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
       }
       String notedId = noted.value!.noteDB.noteId;
       await Moment.sharedInstance.loadNoteActions(notedId, actionsCallBack: (result) async {});
-      ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         notedId,
         isUpdateCache: true,
         notedUIModel: noted.value,
@@ -393,23 +398,7 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ValueListenableBuilder<NotedUIModel?>(
-                  valueListenable: model,
-                  builder: (context, value, child) {
-                    if(value == null) return MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
-                    return MomentWidget(
-                      isShowAllContent: true,
-                      isShowInteractionData: true,
-                      isShowReply: false,
-                      clickMomentCallback:
-                          (ValueNotifier<NotedUIModel?> notedUIModel) async {
-                        await OXNavigator.pushPage(context,
-                                (context) => MomentsPage(notedUIModel: notedUIModel));
-                      },
-                      notedUIModel: model,
-                    );
-                  },
-                ),
+                _showMomentWidget(model),
                 Container(
                   margin: EdgeInsets.only(left: 20.px),
                   width: 1.px,
@@ -422,6 +411,22 @@ class MomentRootNotedWidgetState extends State<MomentRootNotedWidget> {
         }).toList(),
       ),
     );
+  }
+
+  Widget _showMomentWidget(ValueNotifier<NotedUIModel?> modelNotifier){
+    if(modelNotifier.value == null) return  MomentWidgetsUtils.emptyNoteMomentWidget(null, 100);
+    return MomentWidget(
+      isShowAllContent: true,
+      isShowInteractionData: true,
+      isShowReply: false,
+      clickMomentCallback:
+          (ValueNotifier<NotedUIModel?> notedUIModel) async {
+        await OXNavigator.pushPage(context,
+                (context) => MomentsPage(notedUIModel: notedUIModel));
+      },
+      notedUIModel: modelNotifier,
+    );
+
   }
 }
 
@@ -452,7 +457,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
     super.initState();
     _getReplyList(widget.notedUIModel, 0);
   }
-
+  
   void _getReplyList(ValueNotifier<NotedUIModel?> noteModelDraft, int index) async {
     _getReplyFromDB(noteModelDraft, index);
     _getReplyFromRelay(noteModelDraft, index);
@@ -463,7 +468,7 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
     if(noteId == null) return;
     await Moment.sharedInstance.loadNoteActions(noteId, actionsCallBack: (result) async {
 
-      ValueNotifier<NotedUIModel?> noteNotifier = await DiscoveryUtils.getValueNotifierNoted(
+      ValueNotifier<NotedUIModel?> noteNotifier = await OXMomentCacheManager.getValueNotifierNoted(
         noteId,
         isUpdateCache: true,
         notedUIModel: notedUIModelDraft.value,
@@ -483,19 +488,19 @@ class MomentReplyWrapWidgetState extends State<MomentReplyWrapWidget> {
     List<String>? replyEventIds = notedUIModelDraft.value?.noteDB.replyEventIds;
     if (replyEventIds == null || replyEventIds.isEmpty) return;
 
-    final notedUIModelCache = OXMomentCacheManager.sharedInstance.notedUIModelCache;
 
     String noteId = replyEventIds[0];
-    ValueNotifier<NotedUIModel?>? replyNotifier = notedUIModelCache[noteId];
 
-    if(replyNotifier?.value == null){
-       replyNotifier = await DiscoveryUtils.getValueNotifierNoted(
+    ValueNotifier<NotedUIModel?> replyNotifier = OXMomentCacheManager.getValueNotifierNoteToCache(noteId);
+
+    if(replyNotifier.value == null){
+       replyNotifier = await OXMomentCacheManager.getValueNotifierNoted(
          noteId,
         isUpdateCache: true,
       );
     }
 
-    if(replyNotifier?.value == null) return;
+    if(replyNotifier.value == null) return;
 
     if (index == 0) {
       firstReplyNoted = replyNotifier;
