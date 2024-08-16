@@ -116,6 +116,7 @@ class _SwitchAccountPageState extends State<SwitchAccountPage> {
               24.px,
               ThemeColor.color0,
               fontWeight: FontWeight.w600,
+              textAlign: TextAlign.center,
             ),
           ),
           SizedBox(height: 24.px),
