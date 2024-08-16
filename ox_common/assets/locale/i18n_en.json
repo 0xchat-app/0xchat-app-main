@@ -117,5 +117,6 @@
   "str_select_push_app_title": "Please select push application",
   "str_permission_audio_call_hint": "Please manually go to 'Settings', open microphone permissions",
   "str_permission_call_hint": "Please manually go to 'Settings', open microphone/camera permissions",
-  "str_singer_app_verify_failed_hint": "Signature verification failed，please login again"
+  "str_singer_app_verify_failed_hint": "Signature verification failed，please login again",
+  "str_succeed_hint": "Succeed"
 }
