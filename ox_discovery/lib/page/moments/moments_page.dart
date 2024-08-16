@@ -30,7 +30,7 @@ class MomentsPage extends StatefulWidget {
   State<MomentsPage> createState() => _MomentsPageState();
 }
 
-class _MomentsPageState extends State<MomentsPage> {
+class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   final GlobalKey _replyListContainerKey = GlobalKey();
   final GlobalKey _containerKey = GlobalKey();
 
@@ -58,6 +58,10 @@ class _MomentsPageState extends State<MomentsPage> {
     );
   }
 
+  @override
+  Future<void> didPopNext() async {
+    _updateNoted();
+  }
 
   void _updateNoted() async {
     if(widget.notedUIModel.value == null) return;

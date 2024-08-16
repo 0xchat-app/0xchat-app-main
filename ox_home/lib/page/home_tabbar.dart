@@ -169,17 +169,18 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
 
   void _handleDoubleTap(value,int currentSelect){
     if(value == 2 && currentSelect == 2){
-      discoveryGlobalKey.currentState?.updateClickNum(2);
+      discoveryGlobalKey.currentState?.updateClickNum(2,false);
     }
   }
 
   void _tabClick(int value,int currentSelect) {
     if(value == 2 && currentSelect == 2){
-      discoveryGlobalKey.currentState?.updateClickNum(1);
+      discoveryGlobalKey.currentState?.updateClickNum(1,false);
 
     }
 
     if(value == 2){
+      discoveryGlobalKey.currentState?.updateClickNum(1,true);
       Moment.sharedInstance.updateSubscriptions();
     } else{
       Moment.sharedInstance.closeSubscriptions();

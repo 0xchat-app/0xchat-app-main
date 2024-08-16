@@ -12,6 +12,7 @@ import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_common/widgets/contact_choose_page.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/page/widgets/moment_article_widget.dart';
 import 'package:ox_discovery/page/widgets/reply_contact_widget.dart';
@@ -372,7 +373,7 @@ class _MomentWidgetState extends State<MomentWidget> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.px,
-                  color: ThemeColor.white,
+                  color: ThemeColor.color0,
                 ),
               ),
             ),
@@ -394,14 +395,22 @@ class _MomentWidgetState extends State<MomentWidget> {
           await TookKit.copyKey(context, noteDB.content);
           break;
         case EMomentMoreOptionType.shareNoted:
-         final result =  await OXModuleService.pushPage(
-              context, 'ox_chat', 'chatUserChoosePage',{});
-         if(result is List<UserDBISAR>){
-           for(UserDBISAR user in result)  {
-             OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,noteDB.encodedNoteId]);
-           }
-         }
-         CommonToast.instance.show(context, "Share successfully");
+         OXNavigator.presentPage(
+          context,
+          (context) => ContactChoosePage<UserDBISAR>(
+            title: 'Choose Friends',
+            contactType: ContactType.contact,
+            onSubmitted: (List<UserDBISAR> userList) {
+              if(userList is List<UserDBISAR>){
+                for(UserDBISAR user in userList)  {
+                  OXModuleService.invoke('ox_chat', 'sendTextMsg', [context,user.pubKey,noteDB.encodedNoteId]);
+                }
+                CommonToast.instance.show(context, "Share successfully");
+                OXNavigator.pop(context);
+              }
+
+            },
+          ));
           break;
         case EMomentMoreOptionType.block:
           _blockOptionFn(noteAuthor);

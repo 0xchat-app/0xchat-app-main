@@ -69,12 +69,21 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
     _isLogin = OXUserInfoManager.sharedInstance.isLogin;
   }
 
-  void _momentPublic(){
-    publicMomentPageKey.currentState?.momentScrollController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+  void _momentPublic(bool isChangeToDiscovery){
+    if(publicMomentPageKey.currentState == null) return;
+    bool hasNotesList = publicMomentPageKey.currentState!.notesList.isEmpty;
+    if(isChangeToDiscovery && hasNotesList){
+      publicMomentPageKey.currentState!.refreshController.requestRefresh();
+    }
+
+    if(!isChangeToDiscovery){
+      publicMomentPageKey.currentState?.momentScrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+
   }
 
   @override
@@ -581,9 +590,9 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   }
 
   @override
-  void updateClickNum(int num) {
+  void updateClickNum(int num,bool isChangeToDiscovery) {
     if(pageType == EDiscoveryPageType.channel) return;
-    if(num == 1) return _momentPublic();
+    if(num == 1) return _momentPublic(isChangeToDiscovery);
     publicMomentPageKey.currentState?.updateNotesList(true,isWrapRefresh:true);
   }
 }
