@@ -487,7 +487,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       _updateUI(showList, false, list.length);
     } catch (e) {
       print('Error loading notes from relay: $e');
-      _refreshController.loadFailed();
+      refreshController.loadFailed();
     }
   }
 
