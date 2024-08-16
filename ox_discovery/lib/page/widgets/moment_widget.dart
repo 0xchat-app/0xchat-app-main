@@ -84,21 +84,23 @@ class _MomentWidgetState extends State<MomentWidget> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notedUIModel.value?.noteDB.noteId != oldWidget.notedUIModel.value?.noteDB.noteId) {
+    NotedUIModel? newNote = widget.notedUIModel.value;
+    NotedUIModel? oldNote = oldWidget.notedUIModel.value;
+    if (newNote != oldNote) {
       _dataInit();
     }
 
-    if(widget.notedUIModel.value != null && widget.notedUIModel.value!.noteDB.isRepost && notedUIModel == null){
+    if(newNote != null && newNote.noteDB.isRepost && notedUIModel == null){
       _dataInit();
     }
   }
 
   Widget _momentItemWidget() {
-    ValueNotifier<NotedUIModel?>? model = notedUIModel;
-    if (model == null || model.value == null) return const SizedBox();
+    ValueNotifier<NotedUIModel?>? modelNotifier = notedUIModel;
+    if (modelNotifier == null || modelNotifier.value == null) return const SizedBox();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => widget.clickMomentCallback?.call(model),
+      onTap: () => widget.clickMomentCallback?.call(modelNotifier),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
@@ -116,12 +118,12 @@ class _MomentWidgetState extends State<MomentWidget> {
             _showMomentMediaWidget(),
             _momentQuoteWidget(),
             MomentReplyAbbreviateWidget(
-                notedUIModel: model,
+                notedUIModel: modelNotifier,
                 isShowReplyWidget: widget.isShowReplyWidget,
             ),
             _momentInteractionDataWidget(),
             MomentOptionWidget(
-                notedUIModel: model,
+                notedUIModel: modelNotifier,
                 isShowMomentOptionWidget: widget.isShowMomentOptionWidget,
             ),
           ],
@@ -157,7 +159,6 @@ class _MomentWidgetState extends State<MomentWidget> {
           }else{
             final noteInfo = NoteDBISAR.decodeNote(content);
             noteId = noteInfo?['channelId'];
-
           }
           bool isShowQuote =
           (noteId != null && noteId.toLowerCase() != quoteRepostId?.toLowerCase()) || neventId != null;
@@ -331,12 +332,6 @@ class _MomentWidgetState extends State<MomentWidget> {
               ),
             ),
           ),
-
-          // CommonImage(
-          //   iconName: 'more_moment_icon.png',
-          //   size: 20.px,
-          //   package: 'ox_discovery',
-          // ),
         ],
       ),
     );
@@ -428,8 +423,8 @@ class _MomentWidgetState extends State<MomentWidget> {
 
     Widget _itemWidget(ENotificationsMomentType type, int num) {
       return GestureDetector(
-        onTap: () async {
-          await OXNavigator.pushPage(
+        onTap: () {
+          OXNavigator.pushPage(
               context,
               (context) =>
                   MomentOptionUserPage(notedUIModel: model, type: type));

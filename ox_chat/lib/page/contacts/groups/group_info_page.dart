@@ -187,8 +187,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     for (var n = 0; n < renderCount; n++) {
       String? groupPic = groupMember[n].picture;
       if (groupPic != null && groupPic.isNotEmpty) {
-        avatarList.add(OXCachedNetworkImageProviderEx.create(
-          context,
+        avatarList.add(OXCachedImageProviderEx.create(
           groupPic,
           // height: Adapt.px(26),
         ));

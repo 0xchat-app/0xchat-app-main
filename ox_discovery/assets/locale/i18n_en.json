@@ -52,6 +52,7 @@
   "not_set_lnurl_tips": "The friend has not set LNURL!",
   "repost_success_tips": "Repost successfully!",
   "like_success_tips": "Like Successfully!",
+  "like_fail_tips": "Fail to like!",
   "reply_success_tips": "Reply successfully!",
   "content_empty_tips": "The content cannot be empty !",
   "show_replies_text": "Show replies",

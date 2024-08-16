@@ -52,6 +52,7 @@
   "not_set_lnurl_tips": "好友未设置LNURL",
   "repost_success_tips": "转发成功!",
   "like_success_tips": "点赞成功!",
+  "like_fail_tips": "点赞失败!",
   "reply_success_tips": "回复成功",
   "content_empty_tips": "内容不能为空!",
   "show_replies_text": "显示更多回复",

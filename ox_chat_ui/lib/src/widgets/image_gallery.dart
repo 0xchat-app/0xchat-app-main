@@ -90,8 +90,7 @@ class _ImageGalleryState extends State<ImageGallery> {
                     final uri = widget.images[index].uri;
                     final decryptKey = widget.images[index].decryptSecret;
                     return PhotoViewGalleryPageOptions(
-                      imageProvider: OXCachedNetworkImageProviderEx.create(
-                        context,
+                      imageProvider: OXCachedImageProviderEx.create(
                         uri,
                         headers: widget.imageHeaders,
                         cacheManager: OXFileCacheManager.get(encryptKey: decryptKey),

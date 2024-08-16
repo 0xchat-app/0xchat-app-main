@@ -140,7 +140,9 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
         Localized.text('ox_chat_ui.channel_join'),
         onJoinChannelTap,
       );
-      return ;
+    }
+    else{
+      bottomHintParam = null;
     }
   }
 

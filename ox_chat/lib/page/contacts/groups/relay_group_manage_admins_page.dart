@@ -15,7 +15,10 @@ import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_menu_dialog.dart';
+import 'package:ox_common/widgets/common_toast.dart';
+import 'package:ox_localizable/ox_localizable.dart';
 
 ///Title: relay_group_manage_page
 ///Description: TODO(Fill in by oneself)
@@ -204,8 +207,21 @@ class _RelayGroupManageAdminsPageState extends State<RelayGroupManageAdminsPage>
             }
           });
         });
-      } else if (oxMenuItem.identify == 0) {
-
+      } else if (oxMenuItem.identify == 1) {
+        await OXLoading.show();
+        final okEvent = await RelayGroup.sharedInstance.setPermissions(widget.relayGroupDB.groupId, userDB.pubKey, [], '');
+        await OXLoading.dismiss();
+        if (okEvent.status) {
+          CommonToast.instance.show(context, Localized.text('ox_common.str_succeed_hint'));
+          setState(() {
+            final tempAdmins = RelayGroup.sharedInstance.getGroupAdminsFromLocal(widget.relayGroupDB.groupId) ;
+            if (tempAdmins != null){
+              widget.admins = tempAdmins;
+            }
+          });
+        } else {
+          CommonToast.instance.show(context, okEvent.message);
+        }
       }
     }
   }

@@ -355,6 +355,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   Future<void> updateNotesList(bool isInit, {bool isWrapRefresh = false}) async {
     if (isInit) {
+      notesList = [];
+      _allNotesFromDBLastTimestamp = null;
       _clearNotedNotification();
     }
     bool isPrivateMoment = widget.publicMomentsPageType == EPublicMomentsPageType.private;
@@ -562,9 +564,11 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
 
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
-    setState(() {
-      isLogin = true;
-    });
-    updateNotesList(true);
+    if(mounted){
+      setState(() {
+        isLogin = true;
+      });
+      // _refreshController.requestRefresh();
+    }
   }
 }

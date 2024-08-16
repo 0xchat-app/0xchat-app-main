@@ -496,18 +496,9 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     }
 
     // Relay group && has delete permission
+    final groupId = session.groupId;
     if (session.chatType == ChatType.chatRelayGroup) {
-      if (shouldShowDeleteMode()) {
-        _showDeleteMode(context, message);
-      } else {
-        _performDeleteAction(
-          context: context,
-          message: message,
-          deleteAction: () async {
-            return RelayGroup.sharedInstance.deleteMessageFromLocal(messageId);
-          },
-        );
-      }
+      _showDeleteMode(context, message);
       return ;
     }
 
@@ -517,14 +508,6 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       message: message,
       deleteAction: () => Messages.deleteMessageFromRelay(messageId, ''),
     );
-  }
-
-  bool shouldShowDeleteMode() {
-    final groupId = session.groupId;
-    return session.chatType == ChatType.chatRelayGroup
-        && groupId != null
-        && groupId.isNotEmpty
-        && RelayGroup.sharedInstance.hasDeletePermission(groupId);
   }
 
   void _showDeleteMode(BuildContext context, types.Message message) async {
@@ -545,10 +528,11 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
           identify: forMeActionType,
           text: 'delete_message_me_action_mode'.localized(),
         ),
-        OXActionModel(
-          identify: forAllActionType,
-          text: 'delete_message_everyone_action_mode'.localized(),
-        ),
+        if (RelayGroup.sharedInstance.hasDeletePermission(groupId))
+          OXActionModel(
+            identify: forAllActionType,
+            text: 'delete_message_everyone_action_mode'.localized(),
+          ),
       ],
     );
 
