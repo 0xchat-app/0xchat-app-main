@@ -133,11 +133,13 @@ class ChatSessionModel extends DBObject {
 
   static Future<void> migrateToISAR() async {
     List<ChatSessionModel> chatSessionModels = await DB.sharedInstance.objects<ChatSessionModel>();
-    await Future.forEach(chatSessionModels, (chatSessionModel) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.chatSessionModelISARs
-            .put(ChatSessionModelISAR.fromMap(chatSessionModel.toMap()));
-      });
+    List<ChatSessionModelISAR> chatSessionModelsISAR = [];
+    for(var chatSessionModel in chatSessionModels){
+      chatSessionModelsISAR.add(ChatSessionModelISAR.fromMap(chatSessionModel.toMap()));
+    }
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.chatSessionModelISARs
+          .putAll(chatSessionModelsISAR);
     });
   }
 }
