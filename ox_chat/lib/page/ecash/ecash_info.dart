@@ -103,11 +103,13 @@ class EcashReceiptHistory extends DBObject {
 
   static Future<void> migrateToISAR() async {
     List<EcashReceiptHistory> ecashReceiptHistorys = await DB.sharedInstance.objects<EcashReceiptHistory>();
-    await Future.forEach(ecashReceiptHistorys, (ecashReceiptHistory) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.ecashReceiptHistoryISARs
-            .put(EcashReceiptHistoryISAR.fromMap(ecashReceiptHistory.toMap()));
-      });
+    List<EcashReceiptHistoryISAR> ecashReceiptHistorysISAR = [];
+    for(var ecashReceiptHistory in ecashReceiptHistorys){
+      ecashReceiptHistorysISAR.add(EcashReceiptHistoryISAR.fromMap(ecashReceiptHistory.toMap()));
+    }
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.ecashReceiptHistoryISARs
+          .putAll(ecashReceiptHistorysISAR);
     });
   }
 }

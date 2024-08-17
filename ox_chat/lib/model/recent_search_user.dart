@@ -23,11 +23,13 @@ class RecentSearchUser extends DBObject {
 
   static Future<void> migrateToISAR() async {
     List<RecentSearchUser> recentSearchUsers = await DB.sharedInstance.objects<RecentSearchUser>();
-    await Future.forEach(recentSearchUsers, (recentSearchUser) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.recentSearchUserISARs
-            .put(RecentSearchUserISAR.fromMap(recentSearchUser.toMap()));
-      });
+    List<RecentSearchUserISAR> recentSearchUsersISAR = [];
+    for(var recentSearchUser in recentSearchUsers){
+      recentSearchUsersISAR.add(RecentSearchUserISAR.fromMap(recentSearchUser.toMap()));
+    }
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.recentSearchUserISARs
+          .putAll(recentSearchUsersISAR);
     });
   }
 }
