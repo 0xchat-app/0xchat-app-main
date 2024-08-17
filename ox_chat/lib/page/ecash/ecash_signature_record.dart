@@ -33,11 +33,13 @@ class EcashSignatureRecord extends DBObject {
 
   static Future<void> migrateToISAR() async {
     List<EcashSignatureRecord> ecashSignatureRecords = await DB.sharedInstance.objects<EcashSignatureRecord>();
-    await Future.forEach(ecashSignatureRecords, (ecashSignatureRecord) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.ecashSignatureRecordISARs
-            .put(EcashSignatureRecordISAR.fromMap(ecashSignatureRecord.toMap()));
-      });
+    List<EcashSignatureRecordISAR> ecashSignatureRecordsISAR = [];
+    for(var ecashSignatureRecord in ecashSignatureRecords){
+      ecashSignatureRecordsISAR.add(EcashSignatureRecordISAR.fromMap(ecashSignatureRecord.toMap()));
+    }
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.ecashSignatureRecordISARs
+          .putAll(ecashSignatureRecordsISAR);
     });
   }
 }

@@ -32,11 +32,13 @@ class SearchHistoryModel extends DBObject {
 
   static Future<void> migrateToISAR() async {
     List<SearchHistoryModel> searchHistoryModels = await DB.sharedInstance.objects<SearchHistoryModel>();
-    await Future.forEach(searchHistoryModels, (searchHistoryModel) async {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
-            .put(SearchHistoryModelISAR.fromMap(searchHistoryModel.toMap()));
-      });
+    List<SearchHistoryModelISAR> searchHistoryModelsISAR = [];
+    for(var searchHistoryModel in searchHistoryModels){
+      searchHistoryModelsISAR.add(SearchHistoryModelISAR.fromMap(searchHistoryModel.toMap()));
+    }
+    await DBISAR.sharedInstance.isar.writeTxn(() async {
+      await DBISAR.sharedInstance.isar.searchHistoryModelISARs
+          .putAll(searchHistoryModelsISAR);
     });
   }
 }
