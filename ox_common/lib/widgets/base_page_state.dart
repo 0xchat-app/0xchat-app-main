@@ -20,6 +20,8 @@ abstract class BasePageState<T extends StatefulWidget> extends State<T> {
 //    }
   }
 
+  void updateHomeTabClickAction(int num, bool isChangeToHomePage){}
+
   @override
   void dispose() {
     // TODO: implement dispose
