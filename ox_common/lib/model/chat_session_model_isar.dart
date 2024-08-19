@@ -113,10 +113,7 @@ class ChatSessionModelISAR {
   }
 
   static Future<void> saveChatSessionModelToDB(ChatSessionModelISAR chatSessionModel) async {
-    final isar = DBISAR.sharedInstance.isar;
-    await isar.writeTxn(() async {
-      await isar.chatSessionModelISARs.put(chatSessionModel);
-    });
+    await DBISAR.sharedInstance.saveToDB(chatSessionModel);
   }
 }
 

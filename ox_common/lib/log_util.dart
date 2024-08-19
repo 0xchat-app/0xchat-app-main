@@ -11,7 +11,7 @@ class LogUtil{
 
   static void e(message) => _print('E', message);
 
-  static void _print(String level, message) => debugPrint('[$level] $message');
+  static void _print(String level, message) => debugPrintSynchronously('[$level] $message');
 
   static void log({
     String? key = 'OX Pro',
