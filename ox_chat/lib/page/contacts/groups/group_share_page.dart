@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/manager/chat_data_manager_models.dart';
 import 'package:ox_chat/model/option_model.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -384,16 +385,15 @@ class _GroupSharePageState extends State<GroupSharePage> {
     }
     OXLoading.dismiss();
     if (widget.groupType == GroupType.openGroup) {
-      OXNavigator.pushReplacement(
-        context,
-        ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModelISAR(
-            chatId: widget.groupId,
-            groupId: widget.groupId,
-            chatType: ChatType.chatRelayGroup,
-            chatName: widget.groupName,
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: widget.groupId,
+          groupId: widget.groupId,
+          chatType: ChatType.chatRelayGroup,
+          chatName: widget.groupName,
         ),
+        isPushWithReplace: true,
       );
     } else {
       CommonToast.instance.show(context, Localized.text('ox_chat.request_join_toast_success'));
@@ -417,16 +417,15 @@ class _GroupSharePageState extends State<GroupSharePage> {
       return;
     }
     if (widget.groupType != GroupType.privateGroup) {
-      OXNavigator.pushReplacement(
-        context,
-        ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModelISAR(
-            chatId: widget.groupId,
-            groupId: widget.groupId,
-            chatType: ChatType.chatRelayGroup,
-            chatName: widget.groupName,
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: widget.groupId,
+          groupId: widget.groupId,
+          chatType: ChatType.chatRelayGroup,
+          chatName: widget.groupName,
         ),
+        isPushWithReplace: true,
       );
     } else {
       CommonToast.instance.show(context, Localized.text('ox_chat.join_group_success'));
@@ -447,23 +446,21 @@ class _GroupSharePageState extends State<GroupSharePage> {
       );
     }
     if (widget.groupType == GroupType.privateGroup) {
-      OXNavigator.pushReplacement(
-        context,
-        ChatGroupMessagePage(
-          communityItem: session,
-        ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: session,
+        isPushWithReplace: true,
       );
     } else {
-      OXNavigator.pushReplacement(
-        context,
-        ChatRelayGroupMsgPage(
-          communityItem: ChatSessionModelISAR(
-            chatId: _practicalGroupId,
-            groupId: _practicalGroupId,
-            chatType: ChatType.chatRelayGroup,
-            chatName: widget.groupName,
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: _practicalGroupId,
+          groupId: _practicalGroupId,
+          chatType: ChatType.chatRelayGroup,
+          chatName: widget.groupName,
         ),
+        isPushWithReplace: true,
       );
     }
   }

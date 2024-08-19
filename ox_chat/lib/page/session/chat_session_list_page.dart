@@ -973,22 +973,22 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     _setAllRead(item);
     switch(item.chatType){
       case ChatType.chatRelayGroup:
-        OXNavigator.pushPage(context, (context) => ChatRelayGroupMsgPage(communityItem: item));
-        break;
       case ChatType.chatGroup:
-        OXNavigator.pushPage(context, (context) => ChatGroupMessagePage(communityItem: item));
-        break;
       case ChatType.chatChannel:
-        OXNavigator.pushPage(context, (context) => ChatChannelMessagePage(communityItem: item));
-        break;
       case ChatType.chatSecret:
-        OXNavigator.pushPage(context, (context) => ChatSecretMessagePage(communityItem: item));
+        ChatMessagePage.open(
+          context: context,
+          communityItem: item,
+        );
         break;
       case ChatType.chatNotice:
         OXNavigator.pushPage(context, (context) => ContactRequest());
         break;
       default:
-        OXNavigator.pushPage(context, (context) => ChatMessagePage(communityItem: item)).then((value) {
+        ChatMessagePage.open(
+          context: context,
+          communityItem: item,
+        ).then((value) {
           _merge();
         });
         break;

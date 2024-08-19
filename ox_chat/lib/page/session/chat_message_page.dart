@@ -2,13 +2,20 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:ox_chat/manager/chat_page_config.dart';
 import 'package:ox_chat/model/constant.dart';
+import 'package:ox_chat/page/session/chat_channel_message_page.dart';
+import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
+import 'package:ox_chat/page/session/chat_secret_message_page.dart';
 import 'package:ox_chat/utils/message_prompt_tone_mixin.dart';
 import 'package:ox_chat/widget/common_chat_widget.dart';
 import 'package:ox_chat/widget/not_contact_top_widget.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
+import 'package:ox_common/model/chat_type.dart';
+import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/widget_tool.dart';
@@ -20,12 +27,80 @@ import 'package:ox_localizable/ox_localizable.dart';
 class ChatMessagePage extends StatefulWidget {
 
   final ChatSessionModelISAR communityItem;
+  final List<types.Message> initialMessage;
   final String? anchorMsgId;
+  final bool hasMoreMessage;
 
-  const ChatMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  const ChatMessagePage({
+    super.key,
+    required this.communityItem,
+    required this.initialMessage,
+    this.anchorMsgId,
+    this.hasMoreMessage = false,
+  });
 
   @override
   State<ChatMessagePage> createState() => _ChatMessagePageState();
+
+  static open({
+    required BuildContext context,
+    required ChatSessionModelISAR communityItem,
+    String? anchorMsgId,
+    bool isPushWithReplace = false,
+  }) async {
+    final sessionType = communityItem.chatType;
+    final initialMessage = await ChatDataCache.shared.loadSessionMessage(
+      session: communityItem,
+      loadMsgCount:  ChatPageConfig.messagesPerPage,
+    );
+    final hasMoreMessage = initialMessage.isNotEmpty;
+    Widget? pageWidget;
+    switch (sessionType) {
+      case ChatType.chatSingle:
+      case ChatType.chatStranger:
+        pageWidget = ChatMessagePage(
+          communityItem: communityItem,
+          initialMessage: initialMessage,
+          hasMoreMessage: hasMoreMessage,
+        );
+        break ;
+      case ChatType.chatSecret:
+        pageWidget = ChatSecretMessagePage(
+          communityItem: communityItem,
+          initialMessage: initialMessage,
+          hasMoreMessage: hasMoreMessage,
+        );
+        break ;
+      case ChatType.chatChannel:
+        pageWidget = ChatChannelMessagePage(
+          communityItem: communityItem,
+          initialMessage: initialMessage,
+          hasMoreMessage: hasMoreMessage,
+        );
+        break ;
+      case ChatType.chatGroup:
+        pageWidget = ChatGroupMessagePage(
+          communityItem: communityItem,
+          initialMessage: initialMessage,
+          hasMoreMessage: hasMoreMessage,
+        );
+        break ;
+      case ChatType.chatRelayGroup:
+        pageWidget = ChatRelayGroupMsgPage(
+          communityItem: communityItem,
+          initialMessage: initialMessage,
+          hasMoreMessage: hasMoreMessage,
+        );
+        break ;
+    }
+
+    if (pageWidget == null) return ;
+
+    if (isPushWithReplace) {
+      return OXNavigator.pushReplacement(context, pageWidget);
+    }
+    return OXNavigator.pushPage(context, (context) => pageWidget!);
+  }
 }
 
 class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptToneMixin {
@@ -58,10 +133,12 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
       },
       fileEncryptionType: types.EncryptionType.encrypted,
     );
+    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
   }
 
   void prepareData() {
-    _loadMoreMessages();
+    _messages = [...widget.initialMessage];
+    // _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
     _handleAutoDelete();

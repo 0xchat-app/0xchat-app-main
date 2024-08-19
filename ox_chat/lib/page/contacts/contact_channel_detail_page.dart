@@ -3,6 +3,7 @@ import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_channel_create.dart';
 import 'package:ox_chat/page/contacts/my_idcard_dialog.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/const/common_constant.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -671,17 +672,15 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
     await OXLoading.dismiss();
     if (okEvent.status) {
       OXChatBinding.sharedInstance.channelsUpdatedCallBack();
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModelISAR(
-            chatId: widget.channelDB.channelId,
-            groupId: widget.channelDB.channelId,
-            chatType: ChatType.chatChannel,
-            chatName: widget.channelDB.name ?? '',
-            createTime: widget.channelDB.createTime,
-            avatar: widget.channelDB.picture ?? '',
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: widget.channelDB.channelId,
+          groupId: widget.channelDB.channelId,
+          chatType: ChatType.chatChannel,
+          chatName: widget.channelDB.name ?? '',
+          createTime: widget.channelDB.createTime,
+          avatar: widget.channelDB.picture ?? '',
         ),
       );
     } else {

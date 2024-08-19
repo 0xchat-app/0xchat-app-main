@@ -32,10 +32,19 @@ import 'package:ox_common/widgets/common_toast.dart';
 import 'package:screen_protector/screen_protector.dart';
 
 class ChatSecretMessagePage extends StatefulWidget {
-  final ChatSessionModelISAR communityItem;
-  final String? anchorMsgId;
 
-  const ChatSecretMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  final ChatSessionModelISAR communityItem;
+  final List<types.Message> initialMessage;
+  final String? anchorMsgId;
+  final bool hasMoreMessage;
+
+  const ChatSecretMessagePage({
+    super.key,
+    required this.communityItem,
+    required this.initialMessage,
+    this.anchorMsgId,
+    this.hasMoreMessage = false,
+  });
 
   @override
   State<ChatSecretMessagePage> createState() => _ChatSecretMessagePageState();
@@ -127,10 +136,12 @@ class _ChatSecretMessagePageState extends State<ChatSecretMessagePage> with OXCh
       },
       fileEncryptionType: types.EncryptionType.encrypted,
     );
+    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
   }
 
   void prepareData() {
-    _loadMoreMessages();
+    _messages = [...widget.initialMessage];
+    // _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
   }

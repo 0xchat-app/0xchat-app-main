@@ -4,6 +4,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -344,17 +345,15 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    OXNavigator.pushPage(
-      context,
-          (context) => ChatChannelMessagePage(
-        communityItem: ChatSessionModelISAR(
-          chatId: widget.item.channelId,
-          groupId: widget.item.channelId,
-          chatType: ChatType.chatChannel,
-          chatName: widget.item.name ?? '',
-          createTime: widget.item.createTime,
-          avatar: widget.item.picture ?? '',
-        ),
+    ChatMessagePage.open(
+      context: context,
+      communityItem: ChatSessionModelISAR(
+        chatId: widget.item.channelId,
+        groupId: widget.item.channelId,
+        chatType: ChatType.chatChannel,
+        chatName: widget.item.name ?? '',
+        createTime: widget.item.createTime,
+        avatar: widget.item.picture ?? '',
       ),
     );
   }

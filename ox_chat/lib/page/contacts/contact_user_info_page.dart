@@ -867,17 +867,16 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
       OXNavigator.pop(context);
       return;
     }
-    OXNavigator.pushReplacement(
-      context,
-      ChatMessagePage(
-        communityItem: ChatSessionModelISAR(
-          chatId: userDB.pubKey,
-          chatName: userDB.name,
-          sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-          receiver: userDB.pubKey,
-          chatType: ChatType.chatSingle,
-        ),
+    ChatMessagePage.open(
+      context: context,
+      communityItem: ChatSessionModelISAR(
+        chatId: userDB.pubKey,
+        chatName: userDB.name,
+        sender: OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+        receiver: userDB.pubKey,
+        chatType: ChatType.chatSingle,
       ),
+      isPushWithReplace: true,
     );
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -392,18 +393,17 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
       await OXLoading.dismiss();
       if (channelDB != null) {
         OXChatBinding.sharedInstance.createChannelSuccess(channelDB);
-        OXNavigator.pushReplacement(
-          context,
-          ChatChannelMessagePage(
-            communityItem: ChatSessionModelISAR(
-              chatId: channelDB.channelId,
-              groupId: channelDB.channelId,
-              chatType: ChatType.chatChannel,
-              chatName: channelDB.name!,
-              createTime: channelDB.createTime,
-              avatar: channelDB.picture!,
-            ),
+        ChatMessagePage.open(
+          context: context,
+          communityItem: ChatSessionModelISAR(
+            chatId: channelDB.channelId,
+            groupId: channelDB.channelId,
+            chatType: ChatType.chatChannel,
+            chatName: channelDB.name!,
+            createTime: channelDB.createTime,
+            avatar: channelDB.picture!,
           ),
+          isPushWithReplace: true,
         );
       } else {
         CommonToast.instance
