@@ -760,20 +760,16 @@ class SearchPageState extends State<SearchPage> {
   Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.recentSearchUserISARs
-            .put(RecentSearchUserISAR(pubKey: userPubkey));
-      });
+      await DBISAR.sharedInstance.saveToDB(RecentSearchUserISAR(pubKey: userPubkey));
     } else {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
-            .put(SearchHistoryModelISAR(
-                  searchTxt: searchQuery,
-                  pubKey: userDB?.pubKey ?? null,
-                  name: userDB?.name ?? null,
-                  picture: userDB?.picture ?? null,
-            ));
-      });
+      await DBISAR.sharedInstance.saveToDB(
+          SearchHistoryModelISAR(
+            searchTxt: searchQuery,
+            pubKey: userDB?.pubKey ?? null,
+            name: userDB?.name ?? null,
+            picture: userDB?.picture ?? null,
+          )
+      );
       LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }

@@ -130,9 +130,7 @@ class EcashHelper {
       tokenMD5: EncryptUtils.generateMd5(token),
       isMe: false,
     );
-    await DBISAR.sharedInstance.isar.writeTxn(() async {
-      await DBISAR.sharedInstance.isar.ecashReceiptHistoryISARs.put(history);
-    });
+    await DBISAR.sharedInstance.saveToDB(history);
     return history;
   }
 
@@ -203,10 +201,7 @@ class EcashHelper {
   }
 
   static Future<bool> setMessageSigned(String messageId) async {
-    await DBISAR.sharedInstance.isar.writeTxn(() async {
-      await DBISAR.sharedInstance.isar.ecashSignatureRecordISARs
-          .put(EcashSignatureRecordISAR(messageId: messageId));
-    });
+    await DBISAR.sharedInstance.saveToDB(EcashSignatureRecordISAR(messageId: messageId));
     return true;
   }
 }
