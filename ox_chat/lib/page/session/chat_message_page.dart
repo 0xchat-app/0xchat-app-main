@@ -48,13 +48,15 @@ class ChatMessagePage extends StatefulWidget {
     String? anchorMsgId,
     bool isPushWithReplace = false,
   }) async {
-    final sessionType = communityItem.chatType;
+    ChatDataCache.shared.cleanSessionMessage(communityItem);
     final initialMessage = await ChatDataCache.shared.loadSessionMessage(
       session: communityItem,
       loadMsgCount:  ChatPageConfig.messagesPerPage,
     );
     final hasMoreMessage = initialMessage.isNotEmpty;
+
     Widget? pageWidget;
+    final sessionType = communityItem.chatType;
     switch (sessionType) {
       case ChatType.chatSingle:
       case ChatType.chatStranger:
