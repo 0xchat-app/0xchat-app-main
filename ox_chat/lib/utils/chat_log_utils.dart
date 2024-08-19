@@ -13,7 +13,7 @@ class ChatLogUtils {
 
   static info({String module = 'Chat', required String className, required String funcName, required String message}) {
     if (showInfoLog)
-      LogUtil.i('[Module - $module][$className - $funcName] $message');
+      LogUtil.i('[${DateTime.now()}][Module - $module][$className - $funcName] $message');
   }
 }
 

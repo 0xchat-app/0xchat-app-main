@@ -588,6 +588,13 @@ extension ChatDataCacheEx on ChatDataCache {
     List<MessageDBISAR> allMessage = result;
     int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     int msgDeletePeriod = UserConfigTool.getSetting(StorageSettingKey.KEY_CHAT_MSG_DELETE_TIME.name, defaultValue: 0);
+
+    final distributeBegin = DateTime.now();
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_setupChatMessages',
+      message: 'begin',
+    );
     await Future.forEach(allMessage, (message) async {
       if(msgDeletePeriod > 0 && message.createTime + msgDeletePeriod < currentTime){
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
@@ -600,7 +607,7 @@ extension ChatDataCacheEx on ChatDataCache {
       final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
       if (key == null) return ;
       await _distributeMessageToChatKey(key, message)
-          .timeout(Duration(seconds: 1), onTimeout: () {
+          .timeout(Duration(milliseconds: 300), onTimeout: () {
         ChatLogUtils.error(
           className: 'ChatDataCache',
           funcName: '_distributeMessageToChatKey',
@@ -608,6 +615,13 @@ extension ChatDataCacheEx on ChatDataCache {
         );
       });
     });
+
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: '_setupChatMessages',
+      message: 'use time: ${DateTime.now().difference(distributeBegin)}, '
+          'message length: ${allMessage.length}',
+    );
   }
 
   Future _distributeMessageToChatKey(ChatTypeKey key, MessageDBISAR message) async {
@@ -654,11 +668,13 @@ extension ChatDataCacheEx on ChatDataCache {
   }
 
   Future<void> _addChatMessages(ChatTypeKey key, types.Message message, { bool waitSetup = true }) async {
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: '_addChatMessages',
-      message: 'key: $key, message: $message',
-    );
+    if (waitSetup) {
+      ChatLogUtils.info(
+        className: 'ChatDataCache',
+        funcName: '_addChatMessages',
+        message: 'key: $key, message: $message',
+      );
+    }
 
     final msgList = await _getSessionMessage(key, waitSetup: waitSetup);
 
