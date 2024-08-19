@@ -56,7 +56,7 @@ class Note {
 }
 
 class ContactWidgetState<T extends ContactWidget> extends State<T> {
-  ScrollController _scrollController = ScrollController();
+  ScrollController scrollController = ScrollController();
   List<String> indexTagList = [];
   List<UserDBISAR> userList = [];
   int defaultIndex = 0;
@@ -76,8 +76,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
     userList = widget.data;
     _initIndexBarData();
     initFromCache();
-    _scrollController.addListener(() {
-      double position = _scrollController.offset.toDouble();
+    scrollController.addListener(() {
+      double position = scrollController.offset.toDouble();
       int index = _computerIndex(position);
       defaultIndex = index;
     });
@@ -147,7 +147,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
             slivers: _buildSlivers(context),
             physics: widget.physics ?? BouncingScrollPhysics(),
             shrinkWrap: widget.shrinkWrap,
-            controller: _scrollController,
+            controller: scrollController,
           ),
           userList == null || userList!.isEmpty
               ? SizedBox()
@@ -187,7 +187,7 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -219,8 +219,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
-      _scrollController.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, scrollController.position.maxScrollExtent);
+      scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
 

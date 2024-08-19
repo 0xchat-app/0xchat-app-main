@@ -35,6 +35,7 @@ import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/widget/relay_info_widget.dart';
+import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -48,6 +49,7 @@ import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
@@ -191,12 +193,12 @@ class OXChat extends OXFlutterModule {
         });
   }
 
-  Widget _chatSessionListPageWidget(BuildContext context) {
-    return ChatSessionListPage();
+  Widget _chatSessionListPageWidget(BuildContext context, {GlobalKey<BasePageState>? homeGlobalKey}) {
+    return ChatSessionListPage(key: homeGlobalKey);
   }
 
-  Widget _contractsPageWidget(BuildContext context) {
-    return ContractsPage();
+  Widget _contractsPageWidget(BuildContext context, {GlobalKey<ContactBasePageState>? contactGlobalKey}) {
+    return ContractsPage(key: contactGlobalKey);
   }
 
   void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, String? inviterPubKey, int? groupTypeIndex}){

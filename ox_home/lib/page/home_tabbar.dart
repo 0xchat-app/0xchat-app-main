@@ -21,6 +21,8 @@ import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/business_interface/ox_discovery/ox_discovery_model.dart';
+import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
+import 'package:ox_common/widgets/base_page_state.dart';
 
 class TabViewInfo {
   final String moduleName;
@@ -46,6 +48,8 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   final PageController _pageController = PageController();
 
   GlobalKey<DiscoveryPageBaseState> discoveryGlobalKey = GlobalKey();
+  GlobalKey<BasePageState> homeGlobalKey = GlobalKey();
+  GlobalKey<ContactBasePageState> contactGlobalKey = GlobalKey();
 
   GlobalKey<TranslucentNavigationBarState> tabBarGlobalKey = GlobalKey();
 
@@ -129,20 +133,30 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   Widget _showPage(TabViewInfo tabModel){
+    Map<Symbol, GlobalKey>? params;
     if(tabModel.moduleName == 'ox_discovery'){
-      return OXModuleService.invoke(
-        tabModel.moduleName,
-        tabModel.modulePage,
-        [context],
-        {
-          #discoveryGlobalKey: discoveryGlobalKey,
-        }
-      );
+      params = {
+        #discoveryGlobalKey: discoveryGlobalKey,
+      };
     }
+
+    if (tabModel.moduleName == 'ox_chat') {
+      if (tabModel.modulePage == 'chatSessionListPageWidget') {
+        params = {
+          #homeGlobalKey: homeGlobalKey,
+        };
+      } else if (tabModel.modulePage == 'contractsPageWidget') {
+        params = {
+          #contactGlobalKey: contactGlobalKey,
+        };
+      }
+    }
+
     return OXModuleService.invoke(
       tabModel.moduleName,
       tabModel.modulePage,
       [context],
+      params
     );
   }
 
@@ -174,6 +188,12 @@ class _HomeTabBarPageState extends State<HomeTabBarPage> with OXUserInfoObserver
   }
 
   void _tabClick(int value,int currentSelect) {
+    if(value == 0 && currentSelect == 0) {
+      homeGlobalKey.currentState?.updateHomeTabClickAction(1, false);
+    }
+    if(value == 1 && currentSelect == 1) {
+      contactGlobalKey.currentState?.updateContactTabClickAction(1, false);
+    }
     if(value == 2 && currentSelect == 2){
       discoveryGlobalKey.currentState?.updateClickNum(1,false);
 

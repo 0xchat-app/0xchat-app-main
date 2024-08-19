@@ -1,5 +1,6 @@
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/widget/contact.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -16,7 +17,8 @@ class ContractViewFriends extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
   final Widget? topWidget;
-  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget}): super(key: key);
+  final ScrollToTopStatus? scrollToTopStatus;
+  ContractViewFriends({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus}): super(key: key);
 
   @override
   _ContractViewFriendsState createState() => _ContractViewFriendsState();
@@ -37,6 +39,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXChatBinding.sharedInstance.addObserver(this);
     _getDefaultData();
     _onRefresh();
+    widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
   @override
@@ -44,6 +47,7 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
     OXUserInfoManager.sharedInstance.removeObserver(this);
     OXChatBinding.sharedInstance.removeObserver(this);
     super.dispose();
+    widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
   }
 
   @override
@@ -102,6 +106,18 @@ class _ContractViewFriendsState extends State<ContractViewFriends>
       });
     } else {
       _loadData();
+    }
+  }
+
+  _scrollToTop() async {
+    bool isScrollToTop = widget.scrollToTopStatus?.isScrolledToTop.value ?? false;
+    if (isScrollToTop) {
+      await contractWidgetKey.currentState?.scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+      widget.scrollToTopStatus?.isScrolledToTop.value = false;
     }
   }
 

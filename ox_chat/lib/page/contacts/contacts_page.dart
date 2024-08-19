@@ -19,6 +19,7 @@ import 'package:ox_common/widgets/common_button.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
 
 import 'contact_add_follows.dart';
 
@@ -29,7 +30,7 @@ class ContractsPage extends StatefulWidget {
   State<ContractsPage> createState() => _ContractsPageState();
 }
 
-class _ContractsPageState extends State<ContractsPage>
+class _ContractsPageState extends ContactBasePageState<ContractsPage>
     with
         SingleTickerProviderStateMixin,
         OXUserInfoObserver, OXChatObserver,
@@ -39,6 +40,9 @@ class _ContractsPageState extends State<ContractsPage>
   bool _isShowTools = false;
   late List<CommonCategoryTitleItem> tabItems;
   int _addGroupRequestCount = 0;
+
+  final ScrollToTopStatus _contactScrollStatus = ScrollToTopStatus();
+  final ScrollToTopStatus _groupScrollStatus = ScrollToTopStatus();
 
   @override
   void initState() {
@@ -141,11 +145,13 @@ class _ContractsPageState extends State<ContractsPage>
             physics: BouncingScrollPhysics(),
             shrinkWrap: false,
             topWidget: _topSearch(),
+            scrollToTopStatus: _contactScrollStatus,
           ),
           ContactViewGroups(
             physics: BouncingScrollPhysics(),
             shrinkWrap: false,
             topWidget: _topSearch(),
+            scrollToTopStatus: _groupScrollStatus,
           ),
           // ContactViewChannels(
           //   physics: BouncingScrollPhysics(),
@@ -377,6 +383,15 @@ class _ContractsPageState extends State<ContractsPage>
   void didRelayGroupJoinReqCallBack(JoinRequestDBISAR joinRequestDB) {
     _getRequestAddGroupLength();
   }
+
+  @override
+  void updateContactTabClickAction(int num, bool isChangeToContactPage) {
+    if(_selectedType == ContactsItemType.contact) {
+      _contactScrollStatus.isScrolledToTop.value = true;
+    } else {
+      _groupScrollStatus.isScrolledToTop.value = true;
+    }
+  }
 }
 
 class _Style {
@@ -400,4 +415,8 @@ class GroupCreateModel{
   String groupType;
   String groupDesc;
   GroupCreateModel({this.groupIcon = '', this.groupType = '', this.groupDesc = ''});
+}
+
+class ScrollToTopStatus {
+  ValueNotifier<bool> isScrolledToTop = ValueNotifier(false);
 }

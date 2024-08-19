@@ -51,7 +51,7 @@ final String ServiceListItemCreateTime = 'ServiceListItemCreateTime';
 const tabBarName = "announcement";
 
 class ChatSessionListPage extends StatefulWidget {
-  ChatSessionListPage();
+  ChatSessionListPage({Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _ChatSessionListPageState();
@@ -59,6 +59,8 @@ class ChatSessionListPage extends StatefulWidget {
 
 class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
     with AutomaticKeepAliveClientMixin, CommonStateViewMixin, OXUserInfoObserver, WidgetsBindingObserver, OXChatObserver {
+  final _controller = ScrollController();
+
   _ChatSessionListPageState();
 
   RefreshController _refreshController = new RefreshController();
@@ -223,6 +225,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
           onLoading: null,
           child: CustomScrollView(
             physics: BouncingScrollPhysics(),
+            controller: _controller,
             slivers: [
               SliverToBoxAdapter(
                 child: _topSearch(),
@@ -993,6 +996,15 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
         });
         break;
     }
+  }
+
+  @override
+  void updateHomeTabClickAction(int num, bool isChangeToHomePage) {
+    _controller.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 }
 
