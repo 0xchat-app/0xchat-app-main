@@ -112,8 +112,7 @@ class ChatGeneralHandler {
   }
 
   static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
-    return Account.sharedInstance.userCache[session.chatId]?.value
-        ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
+    return Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
 
   void setupOtherUserIfNeeded() {
