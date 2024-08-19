@@ -815,7 +815,7 @@ extension MessageExtensionInfoEx on ChatDataCache {
   }
 
   Future updateMessageReplyInfo() async {
-    final chatKeys = _chatMessageMap.keys;
+    final chatKeys = [..._chatMessageMap.keys];
     for (var chatKey in chatKeys) {
       final sessionMessage = _chatMessageMap[chatKey] ?? [];
       for (var message in sessionMessage) {
