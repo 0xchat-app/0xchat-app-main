@@ -2,6 +2,7 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
+import 'package:ox_chat/page/contacts/contacts_page.dart';
 import 'package:ox_chat/widget/contact_group.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -19,7 +20,8 @@ class ContactViewGroups extends StatefulWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
   final Widget? topWidget;
-  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.topWidget}): super(key: key);
+  final ScrollToTopStatus? scrollToTopStatus;
+  ContactViewGroups({Key? key, this.shrinkWrap = false, this.physics, this.topWidget, this.scrollToTopStatus}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -41,6 +43,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     OXChatBinding.sharedInstance.addObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _onRefresh();
+    widget.scrollToTopStatus?.isScrolledToTop.addListener(_scrollToTop);
   }
 
   @override
@@ -50,6 +53,7 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
     OXChatBinding.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+    widget.scrollToTopStatus?.isScrolledToTop.removeListener(_scrollToTop);
   }
 
   @override
@@ -135,6 +139,18 @@ class _ContactViewGroupsState extends State<ContactViewGroups> with SingleTicker
       });
     }
     _refreshController.refreshCompleted();
+  }
+
+  _scrollToTop() async {
+    bool isScrollToTop = widget.scrollToTopStatus?.isScrolledToTop.value ?? false;
+    if (isScrollToTop) {
+      await groupsWidgetKey.currentState?.scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+      widget.scrollToTopStatus?.isScrolledToTop.value = false;
+    }
   }
 
   @override

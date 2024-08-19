@@ -112,8 +112,7 @@ class ChatGeneralHandler {
   }
 
   static UserDBISAR? _defaultOtherUser(ChatSessionModelISAR session) {
-    return Account.sharedInstance.userCache[session.chatId]?.value
-        ?? Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
+    return Account.sharedInstance.userCache[session.getOtherPubkey]?.value;
   }
 
   void setupOtherUserIfNeeded() {
@@ -150,9 +149,10 @@ class ChatGeneralHandler {
   }
 
   void dispose() {
-    for (var msg in tempMessageSet) {
-      ChatDataCache.shared.deleteMessage(session, msg);
-    }
+    // for (var msg in tempMessageSet) {
+    //   ChatDataCache.shared.deleteMessage(session, msg);
+    // }
+    ChatDataCache.shared.cleanSessionMessage(session);
     removeMessageReactionsListener();
   }
 }
@@ -164,36 +164,40 @@ extension ChatMessageHandlerEx on ChatGeneralHandler {
         List<types.Message>? allMessage,
         int increasedCount = ChatPageConfig.messagesPerPage,
       }) async {
-    final isRefresh = increasedCount == 0;
-    final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
-    var end = 0;
-    // Find the index of the last message in all the messages.
-    var index = -1;
-    for (int i = originMessage.length - 1; i >= 0; i--) {
-      final msg = originMessage[i];
-      final result = allMsg.indexOf(msg);
-      if (result >= 0) {
-        index = result;
-        break ;
-      }
-    }
-    if (index == -1 && increasedCount == 0) {
-      end = ChatPageConfig.messagesPerPage;
-    } else {
-      end = index + 1 + increasedCount;
-    }
-    hasMoreMessage = end < allMsg.length;
+    // final allMsg = allMessage ?? (await ChatDataCache.shared.getSessionMessage(session));
+    // var end = 0;
+    // // Find the index of the last message in all the messages.
+    // var index = -1;
+    // for (int i = originMessage.length - 1; i >= 0; i--) {
+    //   final msg = originMessage[i];
+    //   final result = allMsg.indexOf(msg);
+    //   if (result >= 0) {
+    //     index = result;
+    //     break ;
+    //   }
+    // }
+    // if (index == -1 && increasedCount == 0) {
+    //   end = ChatPageConfig.messagesPerPage;
+    // } else {
+    //   end = index + 1 + increasedCount;
+    // }
+    // hasMoreMessage = end < allMsg.length;
+    //
+    // final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
+    // refreshMessageUI?.call(newMessageList);
 
-    final newMessageList = allMsg.sublist(0, min(allMsg.length, end));
-    refreshMessageUI?.call(newMessageList);
+    final newMessages = await ChatDataCache.shared.loadSessionMessage(
+      session: session,
+      loadMsgCount: increasedCount,
+    );
+    hasMoreMessage = newMessages.isNotEmpty;
 
-    if (!isRefresh) {
-      updateMessageReactionsListener(newMessageList);
-    }
+    final messages = await ChatDataCache.shared.getSessionMessage(session: session);
+    updateMessageReactionsListener(messages);
   }
 
-  void refreshMessage(List<types.Message> originMessage, List<types.Message> allMessage) {
-    loadMoreMessage(originMessage, allMessage: allMessage, increasedCount: 0);
+  void refreshMessage(List<types.Message> messages) {
+    refreshMessageUI?.call(messages);
   }
 }
 

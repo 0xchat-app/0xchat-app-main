@@ -26,9 +26,17 @@ import 'package:ox_localizable/ox_localizable.dart';
 class ChatRelayGroupMsgPage extends StatefulWidget {
 
   final ChatSessionModelISAR communityItem;
+  final List<types.Message> initialMessage;
   final String? anchorMsgId;
+  final bool hasMoreMessage;
 
-  ChatRelayGroupMsgPage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  const ChatRelayGroupMsgPage({
+    super.key,
+    required this.communityItem,
+    required this.initialMessage,
+    this.anchorMsgId,
+    this.hasMoreMessage = false,
+  });
 
   @override
   State<ChatRelayGroupMsgPage> createState() => _ChatRelayGroupMsgPageState();
@@ -65,6 +73,7 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
         });
       },
     );
+    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
   }
 
   void setupGroup() {
@@ -85,7 +94,8 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
   }
 
   void prepareData() {
-    _loadMoreMessages();
+    _messages = [...widget.initialMessage];
+    // _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
 

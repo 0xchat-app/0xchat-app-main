@@ -26,9 +26,17 @@ import 'package:ox_module_service/ox_module_service.dart';
 class ChatGroupMessagePage extends StatefulWidget {
 
   final ChatSessionModelISAR communityItem;
+  final List<types.Message> initialMessage;
   final String? anchorMsgId;
+  final bool hasMoreMessage;
 
-  ChatGroupMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  const ChatGroupMessagePage({
+    super.key,
+    required this.communityItem,
+    required this.initialMessage,
+    this.anchorMsgId,
+    this.hasMoreMessage = false,
+  });
 
   @override
   State<ChatGroupMessagePage> createState() => _ChatGroupMessagePageState();
@@ -66,6 +74,7 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
       },
       fileEncryptionType: types.EncryptionType.encrypted,
     );
+    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
   }
 
   void setupGroup() {
@@ -75,7 +84,8 @@ class _ChatGroupMessagePageState extends State<ChatGroupMessagePage> with Messag
   }
 
   void prepareData() {
-    _loadMoreMessages();
+    _messages = [...widget.initialMessage];
+    // _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
 

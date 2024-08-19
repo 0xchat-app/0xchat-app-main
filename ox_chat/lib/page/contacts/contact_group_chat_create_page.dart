@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_relay_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_chat/widget/group_member_item.dart';
@@ -320,18 +321,17 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
     await OXLoading.dismiss();
     if (groupDB != null) {
       OXNavigator.pop(context);
-      OXNavigator.pushReplacement(
-        context,
-        ChatGroupMessagePage(
-          communityItem: ChatSessionModelISAR(
-            chatId: groupDB.groupId,
-            groupId: groupDB.groupId,
-            chatType: ChatType.chatGroup,
-            chatName: groupDB.name,
-            createTime: groupDB.updateTime,
-            avatar: groupDB.picture,
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: groupDB.groupId,
+          groupId: groupDB.groupId,
+          chatType: ChatType.chatGroup,
+          chatName: groupDB.name,
+          createTime: groupDB.updateTime,
+          avatar: groupDB.picture,
         ),
+        isPushWithReplace: true,
       );
       // ChatSendInvitedTemplateHelper.sendGroupInvitedTemplate(userList,groupDB.groupId);
     } else {

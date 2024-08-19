@@ -23,9 +23,17 @@ import 'package:ox_localizable/ox_localizable.dart';
 class ChatChannelMessagePage extends StatefulWidget {
 
   final ChatSessionModelISAR communityItem;
+  final List<types.Message> initialMessage;
   final String? anchorMsgId;
+  final bool hasMoreMessage;
 
-  ChatChannelMessagePage({Key? key, required this.communityItem, this.anchorMsgId}) : super(key: key);
+  const ChatChannelMessagePage({
+    super.key,
+    required this.communityItem,
+    required this.initialMessage,
+    this.anchorMsgId,
+    this.hasMoreMessage = false,
+  });
 
   @override
   State<ChatChannelMessagePage> createState() => _ChatChannelMessagePageState();
@@ -57,11 +65,14 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
     chatGeneralHandler = ChatGeneralHandler(
       session: widget.communityItem,
       refreshMessageUI: (messages) {
-        setState(() {
-          if (messages != null) _messages = messages;
-        });
+        if(mounted){
+          setState(() {
+            if (messages != null) _messages = messages;
+          });
+        }
       },
     );
+    chatGeneralHandler.hasMoreMessage = widget.hasMoreMessage;
   }
 
   void setupChannel() {
@@ -81,7 +92,8 @@ class _ChatChannelMessagePageState extends State<ChatChannelMessagePage> with Me
   }
 
   void prepareData() {
-    _loadMoreMessages();
+    _messages = [...widget.initialMessage];
+    // _loadMoreMessages();
     _updateChatStatus();
     ChatDataCache.shared.setSessionAllMessageIsRead(widget.communityItem);
 

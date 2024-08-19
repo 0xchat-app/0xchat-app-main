@@ -276,7 +276,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
     String? source,
   }) async {
     List<String> previous = [];
-    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
+    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session: session);
     for (types.Message message in uiMsgList) {
       final messageId = message.remoteId;
       if (messageId != null && messageId.isNotEmpty) {
@@ -308,7 +308,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
     String? replaceMessageId,
   }) async {
     List<String> previous = [];
-    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session);
+    final List<types.Message> uiMsgList = await ChatDataCache.shared.getSessionMessage(session: session);
     for (types.Message message in uiMsgList) {
       final messageId = message.remoteId;
       if (messageId != null && messageId.isNotEmpty) {

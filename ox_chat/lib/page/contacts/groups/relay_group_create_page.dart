@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_relay_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_common/log_util.dart';
@@ -374,18 +375,17 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       );
       await OXLoading.dismiss();
       if (relayGroupDB != null) {
-        OXNavigator.pushReplacement(
-          context,
-          ChatRelayGroupMsgPage(
-            communityItem: ChatSessionModelISAR(
-              chatId: relayGroupDB.groupId,
-              groupId: relayGroupDB.groupId,
-              chatType: ChatType.chatRelayGroup,
-              chatName: relayGroupDB.name,
-              createTime: relayGroupDB.lastUpdatedTime,
-              avatar: relayGroupDB.picture,
-            ),
+        ChatMessagePage.open(
+          context: context,
+          communityItem: ChatSessionModelISAR(
+            chatId: relayGroupDB.groupId,
+            groupId: relayGroupDB.groupId,
+            chatType: ChatType.chatRelayGroup,
+            chatName: relayGroupDB.name,
+            createTime: relayGroupDB.lastUpdatedTime,
+            avatar: relayGroupDB.picture,
           ),
+          isPushWithReplace: true,
         );
       } else {
         CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));

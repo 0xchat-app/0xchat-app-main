@@ -49,8 +49,14 @@ class ChatSendMessageHelper {
       if (plaintEvent != null && plaintEvent is String) {
         try {
           event = await Event.fromJson(jsonDecode(plaintEvent));
-        } catch (_) {
-          return 'send message error';
+        } catch (e) {
+          final errorMsg = 'send message error: $e';
+          ChatLogUtils.error(
+            className: 'ChatSendMessageHelper',
+            funcName: 'sendMessage',
+            message: 'resend error, plaintEvent: $plaintEvent, errorMsg: $errorMsg',
+          );
+          return errorMsg;
         }
       }
 
@@ -88,8 +94,10 @@ class ChatSendMessageHelper {
       ChatLogUtils.info(
         className: 'ChatSendMessageHelper',
         funcName: 'sendMessage',
-        message:
-            'content: ${sendMsg.content}, type: ${sendMsg.type}, messageKind: ${senderStrategy.session.messageKind}, expiration: ${senderStrategy.session.expiration}',
+        message: 'content: ${sendMsg.content}, '
+            'type: ${sendMsg.type}, '
+            'messageKind: ${senderStrategy.session.messageKind}, '
+            'expiration: ${senderStrategy.session.expiration}',
       );
 
       senderStrategy.doSendMessageAction(

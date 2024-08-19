@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/contacts/contact_relay_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
@@ -320,9 +321,10 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             await OXChatBinding.sharedInstance.localCreateSecretChat(db);
         if (chatModel != null) {
           OXNavigator.pop(context);
-          OXNavigator.pushReplacement(
-            context,
-            ChatSecretMessagePage(communityItem: chatModel),
+          ChatMessagePage.open(
+            context: context,
+            communityItem: chatModel,
+            isPushWithReplace: true,
           );
         }
       }

@@ -7,6 +7,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:ox_chat/model/group_ui_model.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/chat_session_utils.dart';
 import 'package:ox_common/log_util.dart';
@@ -54,7 +55,7 @@ class Note {
 }
 
 class GroupContactState extends State<GroupContact> {
-  ScrollController _scrollController = ScrollController();
+  ScrollController scrollController = ScrollController();
   List<String> indexTagList = [];
   late List<GroupUIModel> groupList;
   int defaultIndex = 0;
@@ -72,8 +73,8 @@ class GroupContactState extends State<GroupContact> {
     super.initState();
     groupList = widget.data;
     _initIndexBarData();
-    _scrollController.addListener(() {
-      double position = _scrollController.offset.toDouble();
+    scrollController.addListener(() {
+      double position = scrollController.offset.toDouble();
       int index = _computerIndex(position);
       defaultIndex = index;
     });
@@ -131,7 +132,7 @@ class GroupContactState extends State<GroupContact> {
                   slivers: _buildSlivers(context),
                   physics: widget.physics ?? BouncingScrollPhysics(),
                   shrinkWrap: widget.shrinkWrap,
-                  controller: _scrollController,
+                  controller: scrollController,
                 ),
           groupList.isEmpty
               ? SizedBox()
@@ -171,7 +172,7 @@ class GroupContactState extends State<GroupContact> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -203,8 +204,8 @@ class GroupContactState extends State<GroupContact> {
         timer!.cancel();
         timer = null;
       }
-      var offset = _computerIndexPosition(index).clamp(.0, _scrollController.position.maxScrollExtent);
-      _scrollController.jumpTo(offset.toDouble());
+      var offset = _computerIndexPosition(index).clamp(.0, scrollController.position.maxScrollExtent);
+      scrollController.jumpTo(offset.toDouble());
       defaultIndex = index;
     }
     timer = Timer(Duration(milliseconds: 300), () {
@@ -349,48 +350,18 @@ class GroupContactListItem extends StatefulWidget {
 
 class _GroupContactListItemState extends State<GroupContactListItem> {
   void _onItemClick() async {
-    if (widget.item.chatType == ChatType.chatGroup) {
-      OXNavigator.pushPage(
-        context,
-            (context) =>
-            ChatGroupMessagePage(
-              communityItem: ChatSessionModelISAR(
-                chatId: widget.item.groupId,
-                groupId: widget.item.groupId,
-                chatType: widget.item.chatType,
-                chatName: widget.item.name,
-                createTime: widget.item.updateTime,
-                avatar: widget.item.picture ?? '',
-              ),
-            ),
-      );
-    } else if (widget.item.chatType == ChatType.chatRelayGroup) {
-      OXNavigator.pushPage(
-        context,
-            (context) =>
-            ChatRelayGroupMsgPage(
-              communityItem: ChatSessionModelISAR(
-                chatId: widget.item.groupId,
-                groupId: widget.item.groupId,
-                chatType: widget.item.chatType,
-                chatName: widget.item.name,
-                createTime: widget.item.updateTime,
-                avatar: widget.item.picture ?? '',
-              ),
-            ),
-      );
-    } else if (widget.item.chatType == ChatType.chatChannel) {
-      OXNavigator.pushPage(
-        context,
-            (context) => ChatChannelMessagePage(
-          communityItem: ChatSessionModelISAR(
-            chatId: widget.item.groupId,
-            groupId: widget.item.groupId,
-            chatType: ChatType.chatChannel,
-            chatName: widget.item.name,
-            createTime: widget.item.updateTime,
-            avatar: widget.item.picture ?? '',
-          ),
+    if (widget.item.chatType == ChatType.chatGroup
+        || widget.item.chatType == ChatType.chatRelayGroup
+        || widget.item.chatType == ChatType.chatChannel) {
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: widget.item.groupId,
+          groupId: widget.item.groupId,
+          chatType: widget.item.chatType,
+          chatName: widget.item.name,
+          createTime: widget.item.updateTime,
+          avatar: widget.item.picture ?? '',
         ),
       );
     }

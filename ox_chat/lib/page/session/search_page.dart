@@ -760,20 +760,16 @@ class SearchPageState extends State<SearchPage> {
   Future<void> _updateSearchHistory(UserDBISAR? userDB) async {
     final userPubkey = userDB?.pubKey;
     if (userPubkey != null) {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.recentSearchUserISARs
-            .put(RecentSearchUserISAR(pubKey: userPubkey));
-      });
+      await DBISAR.sharedInstance.saveToDB(RecentSearchUserISAR(pubKey: userPubkey));
     } else {
-      await DBISAR.sharedInstance.isar.writeTxn(() async {
-        await DBISAR.sharedInstance.isar.searchHistoryModelISARs
-            .put(SearchHistoryModelISAR(
-                  searchTxt: searchQuery,
-                  pubKey: userDB?.pubKey ?? null,
-                  name: userDB?.name ?? null,
-                  picture: userDB?.picture ?? null,
-            ));
-      });
+      await DBISAR.sharedInstance.saveToDB(
+          SearchHistoryModelISAR(
+            searchTxt: searchQuery,
+            pubKey: userDB?.pubKey ?? null,
+            name: userDB?.name ?? null,
+            picture: userDB?.picture ?? null,
+          )
+      );
       LogUtil.e('Michael: _updateSearchHistory count =');
     }
   }
@@ -805,18 +801,17 @@ class SearchPageState extends State<SearchPage> {
 
   void _gotoFriendSession(UserDBISAR userDB) {
     _updateSearchHistory(userDB);
-    OXNavigator.pushPage(
-        context,
-        (context) => ChatMessagePage(
-              communityItem: ChatSessionModelISAR(
-                chatId: userDB.pubKey,
-                chatName: userDB.name,
-                sender:
-                    OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
-                receiver: userDB.pubKey,
-                chatType: ChatType.chatSingle,
-              ),
-            ));
+    ChatMessagePage.open(
+      context: context,
+      communityItem: ChatSessionModelISAR(
+        chatId: userDB.pubKey,
+        chatName: userDB.name,
+        sender:
+        OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey,
+        receiver: userDB.pubKey,
+        chatType: ChatType.chatSingle,
+      ),
+    );
   }
 
   void _gotoSingleRelatedPage(ChatMessage chatMessage) {
@@ -836,48 +831,14 @@ class SearchPageState extends State<SearchPage> {
     if (sessionModel == null) return;
     switch (type) {
       case ChatType.chatSingle:
-        OXNavigator.pushPage(
-          context,
-          (context) => ChatMessagePage(
-            communityItem: sessionModel,
-            anchorMsgId: item.msgId,
-          ),
-        );
-        break;
       case ChatType.chatChannel:
-        OXNavigator.pushPage(
-          context,
-          (context) => ChatChannelMessagePage(
-            communityItem: sessionModel,
-            anchorMsgId: item.msgId,
-          ),
-        );
-        break;
       case ChatType.chatSecret:
-        OXNavigator.pushPage(
-          context,
-          (context) => ChatSecretMessagePage(
-            communityItem: sessionModel,
-            anchorMsgId: item.msgId,
-          ),
-        );
-        break;
       case ChatType.chatGroup:
-        OXNavigator.pushPage(
-          context,
-              (context) => ChatGroupMessagePage(
-            communityItem: sessionModel,
-            anchorMsgId: item.msgId,
-          ),
-        );
-        break;
       case ChatType.chatRelayGroup:
-        OXNavigator.pushPage(
-          context,
-              (context) => ChatRelayGroupMsgPage(
-            communityItem: sessionModel,
-            anchorMsgId: item.msgId,
-          ),
+        ChatMessagePage.open(
+          context: context,
+          communityItem: sessionModel,
+          anchorMsgId: item.msgId,
         );
         break;
     }
@@ -925,46 +886,32 @@ class SearchPageState extends State<SearchPage> {
   }
 
   void gotoChatGroupSession(GroupUIModel groupUIModel) {
-    if (groupUIModel.chatType == ChatType.chatGroup) {
-      OXNavigator.pushPage(
-          context,
-          (context) => ChatGroupMessagePage(
-                communityItem: ChatSessionModelISAR(
-                  chatId: groupUIModel.groupId,
-                  chatName: groupUIModel.name,
-                  chatType: groupUIModel.chatType,
-                  avatar: groupUIModel.picture,
-                  groupId: groupUIModel.groupId,
-                ),
-              ));
-    } else if (groupUIModel.chatType == ChatType.chatRelayGroup) {
-      OXNavigator.pushPage(
-          context,
-          (context) => ChatRelayGroupMsgPage(
-                communityItem: ChatSessionModelISAR(
-                  chatId: groupUIModel.groupId,
-                  chatName: groupUIModel.name,
-                  chatType: groupUIModel.chatType,
-                  avatar: groupUIModel.picture,
-                  groupId: groupUIModel.groupId,
-                ),
-              ));
+    if (groupUIModel.chatType == ChatType.chatGroup || groupUIModel.chatType == ChatType.chatRelayGroup) {
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: groupUIModel.groupId,
+          chatName: groupUIModel.name,
+          chatType: groupUIModel.chatType,
+          avatar: groupUIModel.picture,
+          groupId: groupUIModel.groupId,
+        ),
+      );
     }
   }
 
   void gotoChatChannelSession(ChannelDBISAR channelDB) {
-    OXNavigator.pushPage(
-        context,
-        (context) => ChatChannelMessagePage(
-              communityItem: ChatSessionModelISAR(
-                chatId: channelDB.channelId,
-                chatName: channelDB.name,
-                chatType: ChatType.chatChannel,
-                avatar: channelDB.picture,
-                groupId: channelDB.channelId,
-                createTime: channelDB.createTime,
-              ),
-            ));
+    ChatMessagePage.open(
+      context: context,
+      communityItem: ChatSessionModelISAR(
+        chatId: channelDB.channelId,
+        chatName: channelDB.name,
+        chatType: ChatType.chatChannel,
+        avatar: channelDB.picture,
+        groupId: channelDB.channelId,
+        createTime: channelDB.createTime,
+      ),
+    );
   }
 
   void _clearRecentSearches() async {

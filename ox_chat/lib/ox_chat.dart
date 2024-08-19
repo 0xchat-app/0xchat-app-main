@@ -27,6 +27,7 @@ import 'package:ox_chat/page/ecash/ecash_signature_record.dart';
 import 'package:ox_chat/page/ecash/ecash_signature_record_isar.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
 import 'package:ox_chat/page/session/chat_choose_share_page.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/page/session/chat_session_list_page.dart';
 import 'package:ox_chat/page/session/chat_video_play_page.dart';
@@ -34,6 +35,7 @@ import 'package:ox_chat/page/session/search_page.dart';
 import 'package:ox_chat/utils/general_handler/chat_general_handler.dart';
 import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
 import 'package:ox_chat/widget/relay_info_widget.dart';
+import 'package:ox_common/business_interface/ox_chat/contact_base_page_state.dart';
 import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/interface.dart';
 import 'package:ox_common/business_interface/ox_usercenter/zaps_detail_model.dart';
@@ -47,6 +49,7 @@ import 'package:ox_common/utils/aes_encrypt_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
+import 'package:ox_common/widgets/base_page_state.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_webview.dart';
@@ -104,33 +107,18 @@ class OXChat extends OXFlutterModule {
   Future<T?>? navigateToPage<T>(BuildContext context, String pageName, Map<String, dynamic>? params) {
     switch (pageName) {
       case 'ChatRelayGroupMsgPage':
-        return OXNavigator.pushPage(
-          context,
-              (context) => ChatRelayGroupMsgPage(
-            communityItem: ChatSessionModelISAR(
-              chatId: params?['chatId'] ?? '',
-              chatName: params?['chatName'] ?? '',
-              chatType: params?['chatType'] ?? 0,
-              createTime: params?['time'] ?? '',
-              avatar: params?['avatar'] ?? '',
-              groupId: params?['groupId'] ?? '',
-            ),
-            anchorMsgId: params?['msgId'],
-          ),
-        );
       case 'ChatGroupMessagePage':
-        return OXNavigator.pushPage(
-          context,
-              (context) => ChatChannelMessagePage(
-            communityItem: ChatSessionModelISAR(
-              chatId: params?['chatId'] ?? '',
-              chatName: params?['chatName'] ?? '',
-              chatType: params?['chatType'] ?? 0,
-              createTime: params?['time'] ?? '',
-              avatar: params?['avatar'] ?? '',
-              groupId: params?['groupId'] ?? '',
-            ),
+        return ChatMessagePage.open(
+          context: context,
+          communityItem: ChatSessionModelISAR(
+            chatId: params?['chatId'] ?? '',
+            chatName: params?['chatName'] ?? '',
+            chatType: params?['chatType'] ?? 0,
+            createTime: params?['time'] ?? '',
+            avatar: params?['avatar'] ?? '',
+            groupId: params?['groupId'] ?? '',
           ),
+          anchorMsgId: params?['msgId'],
         );
       case 'SearchPage':
         return SearchPage(searchPageType: SearchPageType.values[params?['searchPageType'] ?? 0]).show(context);
@@ -205,12 +193,12 @@ class OXChat extends OXFlutterModule {
         });
   }
 
-  Widget _chatSessionListPageWidget(BuildContext context) {
-    return ChatSessionListPage();
+  Widget _chatSessionListPageWidget(BuildContext context, {GlobalKey<BasePageState>? homeGlobalKey}) {
+    return ChatSessionListPage(key: homeGlobalKey);
   }
 
-  Widget _contractsPageWidget(BuildContext context) {
-    return ContractsPage();
+  Widget _contractsPageWidget(BuildContext context, {GlobalKey<ContactBasePageState>? contactGlobalKey}) {
+    return ContractsPage(key: contactGlobalKey);
   }
 
   void _jumpGroupSharePage(BuildContext? context,{required String groupPic, required String groupName, required String groupOwner, required String groupId, String? inviterPubKey, int? groupTypeIndex}){

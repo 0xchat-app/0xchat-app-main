@@ -4,6 +4,7 @@ import 'package:ox_chat/model/option_model.dart';
 import 'package:ox_chat/page/contacts/contact_group_list_page.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
+import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/utils/chat_send_invited_template_helper.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
@@ -191,18 +192,17 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
   Future<void> _createGroup(GroupDBISAR? groupDB) async {
     if (groupDB != null) {
       OXNavigator.pop(context);
-      OXNavigator.pushReplacement(
-        context,
-        ChatGroupMessagePage(
-          communityItem: ChatSessionModelISAR(
-            chatId: groupDB.groupId,
-            groupId: groupDB.groupId,
-            chatType: ChatType.chatGroup,
-            chatName: groupDB.name,
-            createTime: groupDB.updateTime,
-            avatar: groupDB.picture,
-          ),
+      ChatMessagePage.open(
+        context: context,
+        communityItem: ChatSessionModelISAR(
+          chatId: groupDB.groupId,
+          groupId: groupDB.groupId,
+          chatType: ChatType.chatGroup,
+          chatName: groupDB.name,
+          createTime: groupDB.updateTime,
+          avatar: groupDB.picture,
         ),
+        isPushWithReplace: true,
       );
     } else {
       CommonToast.instance.show(context, Localized.text('ox_chat.create_group_fail_tips'));

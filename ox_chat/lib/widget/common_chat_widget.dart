@@ -103,8 +103,8 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
   void addListener() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ChatDataCache.shared.addObserver(session, (value) {
-        widget.handler.refreshMessage(widget.messages, value);
+      ChatDataCache.shared.addObserver(session, (messages) {
+        widget.handler.refreshMessage(messages);
       });
     });
   }

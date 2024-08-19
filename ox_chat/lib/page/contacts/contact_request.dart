@@ -187,22 +187,10 @@ class _ContactRequestState extends State<ContactRequest> with CommonStateViewMix
         behavior: HitTestBehavior.translucent,
         onTap: () {
           _setAllRead(item);
-          if (item.chatType == ChatType.chatSecretStranger) {
-            OXNavigator.pushPage(
-              context,
-                  (context) =>
-                  ChatSecretMessagePage(
-                    communityItem: item,
-                  ),
-            );
-          } else {
-            OXNavigator.pushPage(
-                context,
-                    (context) =>
-                    ChatMessagePage(
-                      communityItem: item,
-                    ));
-          }
+          ChatMessagePage.open(
+            context: context,
+            communityItem: item,
+          );
         },
         child: Container(
           height: Adapt.px(106),
