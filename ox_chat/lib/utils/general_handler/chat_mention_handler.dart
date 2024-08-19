@@ -34,7 +34,7 @@ extension ChatSessionModelMentionEx on ChatSessionModelISAR {
   Future<List<UserDBISAR>> _userListGetterByMessageList() async {
     final completer = Completer<List<UserDBISAR>>();
     final myPubkey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
-    ChatDataCache.shared.getSessionMessage(this).then((messageList) {
+    ChatDataCache.shared.getSessionMessage(session: this).then((messageList) {
       final userList = Set<UserDBISAR>();
       messageList.forEach((msg) {
         final userDB = msg.author.sourceObject;

@@ -2,8 +2,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ox_chat/utils/custom_message_utils.dart';
-import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -57,7 +55,7 @@ class ChatDataCache with OXChatObserver {
     messageIdCache.clear();
     _chatMessageMap = Map();
 
-    await _setupChatMessages();
+    // await _setupChatMessages();
     offlineMessageFinishHandler();
 
     ChatLogUtils.info(
@@ -77,7 +75,9 @@ class ChatDataCache with OXChatObserver {
     offlineGroupMessageFlag = Completer();
   }
 
-  Future<List<types.Message>> getSessionMessage(ChatSessionModelISAR session) async {
+  Future<List<types.Message>> getSessionMessage({
+    required ChatSessionModelISAR session,
+  }) async {
     final key = _getChatTypeKey(session);
     if (key == null) {
       ChatLogUtils.error(
@@ -88,6 +88,67 @@ class ChatDataCache with OXChatObserver {
       return [];
     }
     return _getSessionMessage(key);
+  }
+
+  Future<List<types.Message>> loadSessionMessage({
+    required ChatSessionModelISAR session,
+    required int loadMsgCount,
+  }) async {
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'getSessionMessage',
+        message: 'ChatKey is null',
+      );
+      return [];
+    }
+
+    final currentMessageList = [...await getSessionMessage(session: session)];
+    final params = key.messageLoaderParams;
+    var lastMessageDate = currentMessageList.lastOrNull?.createdAt;
+    if (lastMessageDate != null) lastMessageDate ~/= 1000;
+    final newMessages = (await Messages.loadMessagesFromDB(
+      receiver: params.receiver,
+      groupId: params.groupId,
+      sessionId: params.sessionId,
+      until: lastMessageDate,
+      limit: loadMsgCount,
+    ))['messages'];
+
+    if (newMessages is! List<MessageDBISAR>) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'loadSessionMessage',
+        message: 'result is not List<MessageDBISAR>',
+      );
+      return [];
+    }
+
+    final result = <types.Message>[];
+    for (var newMsg in newMessages) {
+      final uiMsg = await _distributeMessageToChatKey(key, newMsg);
+      if (uiMsg != null) {
+        result.add(uiMsg);
+      }
+    }
+    notifyChatObserverValueChanged(key);
+    return result;
+  }
+
+  void cleanSessionMessage(ChatSessionModelISAR session) {
+    final key = _getChatTypeKey(session);
+    if (key == null) {
+      ChatLogUtils.error(
+        className: 'ChatDataCache',
+        funcName: 'cleanSessionMessage',
+        message: 'ChatKey is null',
+      );
+      return ;
+    }
+
+    _chatMessageMap.remove(key);
+    messageIdCache.clear();
   }
 
   @override
@@ -474,6 +535,16 @@ extension ChatDataCacheMessageOptionEx on ChatDataCache {
     }
 
     if (chatKey == null) {
+      final msgId = message.remoteId;
+      if (msgId != null && msgId.isNotEmpty) {
+        final messageDB = await Messages.sharedInstance.loadMessageDBFromDB(msgId);
+        if (messageDB != null) {
+          chatKey = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(messageDB);
+        }
+      }
+    }
+
+    if (chatKey == null) {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'updateMessage', message: 'ChatTypeKey is null');
       return ;
     }
@@ -580,7 +651,7 @@ extension ChatDataCacheEx on ChatDataCache {
       ChatLogUtils.error(
         className: 'ChatDataCache',
         funcName: '_setupChatMessages',
-        message: 'result is not List<MessageDB>',
+        message: 'result is not List<MessageDBISAR>',
       );
       return ;
     }
@@ -595,6 +666,7 @@ extension ChatDataCacheEx on ChatDataCache {
       funcName: '_setupChatMessages',
       message: 'begin',
     );
+
     await Future.forEach(allMessage, (message) async {
       if(msgDeletePeriod > 0 && message.createTime + msgDeletePeriod < currentTime){
         Messages.deleteMessagesFromDB(messageIds: [message.messageId]);
@@ -624,10 +696,13 @@ extension ChatDataCacheEx on ChatDataCache {
     );
   }
 
-  Future _distributeMessageToChatKey(ChatTypeKey key, MessageDBISAR message) async {
+  Future<types.Message?> _distributeMessageToChatKey(
+    ChatTypeKey key,
+    MessageDBISAR message,
+  ) async {
     try {
       var uiMsg = await message.toChatUIMessage();
-      if (uiMsg == null) return ;
+      if (uiMsg == null) return null;
       if (_isErrorStatusMessage(uiMsg)) {
         uiMsg = uiMsg.copyWith(
           status: types.Status.error,
@@ -638,7 +713,8 @@ extension ChatDataCacheEx on ChatDataCache {
         MessageDBToUIEx.logger?.print('distribute - key: $key');
         MessageDBToUIEx.logger?.print('distribute - message: $message');
       }
-      await _addChatMessages(key, uiMsg, waitSetup: false);
+      await _addChatMessages(key, uiMsg, waitSetup: false, notify: false);
+      return uiMsg;
     } catch(e) {
       ChatLogUtils.error(
         className: 'ChatDataCache',
@@ -646,6 +722,7 @@ extension ChatDataCacheEx on ChatDataCache {
         message: 'MessageDB to cache error: $e, messageId: ${message.messageId}, messageType: ${message.type}',
       );
     }
+    return null;
   }
 
   bool _isErrorStatusMessage(types.Message message) {
@@ -667,7 +744,10 @@ extension ChatDataCacheEx on ChatDataCache {
     return msgList;
   }
 
-  Future<void> _addChatMessages(ChatTypeKey key, types.Message message, { bool waitSetup = true }) async {
+  Future<void> _addChatMessages(ChatTypeKey key, types.Message message, {
+    bool waitSetup = true,
+    bool notify = true,
+  }) async {
     if (waitSetup) {
       ChatLogUtils.info(
         className: 'ChatDataCache',
@@ -682,7 +762,9 @@ extension ChatDataCacheEx on ChatDataCache {
 
     _addMessageToList(msgList, message);
     scheduleExpirationTask(key, message);
-    await notifyChatObserverValueChanged(key, waitSetup: waitSetup);
+    if (notify) {
+      await notifyChatObserverValueChanged(key, waitSetup: waitSetup);
+    }
   }
 
   Future _removeChatMessages(

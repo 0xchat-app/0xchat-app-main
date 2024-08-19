@@ -1,10 +1,29 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:chatcore/chat-core.dart';
+
+class ChatTypeMessageLoaderParams {
+  ChatTypeMessageLoaderParams({
+    this.receiver,
+    this.groupId,
+    this.sessionId,
+  });
+  String? receiver;
+  String? groupId;
+  String? sessionId;
+
+  @override
+  String toString() {
+    return '${super.toString()}, receiver: $receiver, groupId: $groupId, sessionId: $sessionId';
+  }
+}
 
 abstract class ChatTypeKey {
   // DB Option
   String getSQLFilter();
   List<String> getSQLFilterArgs();
+
+  ChatTypeMessageLoaderParams get messageLoaderParams;
 
   // Equatable
   bool operator ==(Object other);
@@ -25,6 +44,11 @@ class PrivateChatKey implements ChatTypeKey {
   List<String> getSQLFilterArgs() {
     return [userId1, userId2, userId2, userId1];
   }
+
+  @override
+  ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
+    receiver: userId1 == Account.sharedInstance.currentPubkey ? userId2 : userId1,
+  );
 
   @override
   bool operator ==(Object other) {
@@ -57,6 +81,11 @@ class GroupKey implements ChatTypeKey {
   }
 
   @override
+  ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
+    groupId: groupId,
+  );
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is GroupKey && other.groupId == groupId;
@@ -84,6 +113,11 @@ class ChannelKey implements ChatTypeKey {
   List<String> getSQLFilterArgs() {
     return [channelId];
   }
+
+  @override
+  ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
+    groupId: channelId,
+  );
 
   @override
   bool operator ==(Object other) {
@@ -115,6 +149,11 @@ class SecretChatKey implements ChatTypeKey {
   }
 
   @override
+  ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
+    sessionId: sessionId,
+  );
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is SecretChatKey && other.sessionId == sessionId;
@@ -142,6 +181,11 @@ class RelayGroupKey implements ChatTypeKey {
   List<String> getSQLFilterArgs() {
     return [groupId];
   }
+
+  @override
+  ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
+    groupId: groupId,
+  );
 
   @override
   bool operator ==(Object other) {
