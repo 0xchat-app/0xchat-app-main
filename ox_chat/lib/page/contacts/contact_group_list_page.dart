@@ -68,12 +68,16 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     });
   }
 
-  groupedUser(){
+  groupedUser({String? specialPubkey}){
     ALPHAS_INDEX.forEach((v) {
       _groupedUserList[v] = [];
     });
     Map<UserDBISAR, String> pinyinMap = Map<UserDBISAR, String>();
     for (var user in userList) {
+      if(specialPubkey != null && user.pubKey == specialPubkey){
+        pinyinMap[user] = '☆';
+        continue;
+      }
       String nameToConvert = user.nickName != null && user.nickName!.isNotEmpty ? user.nickName! : (user.name ?? '');
       String pinyin = PinyinHelper.getFirstWordPinyin(nameToConvert);
       pinyinMap[user] = pinyin;

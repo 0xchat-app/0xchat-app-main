@@ -37,6 +37,7 @@ class ContactGroupMemberPage extends ContactGroupListPage {
 class _ContactGroupMemberState extends ContactGroupListPageState {
 
   late final groupId;
+  String buzzBot = '066e91c4339d2c0df14797ffe478069c39663825dd4fb35f753b528d8fd8f92c';
 
   @override
   void initState() {
@@ -47,9 +48,13 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   Future<void> _fetchUserListAsync() async {
     List<UserDBISAR> users = await fetchUserList();
+    if(widget.groupListAction == GroupListAction.add || widget.groupListAction == GroupListAction.remove){
+      UserDBISAR? notifyBot = await Account.sharedInstance.getUserInfo(buzzBot);
+      if(notifyBot != null) users.add(notifyBot);
+    }
     setState(() {
       userList = users;
-      super.groupedUser();
+      super.groupedUser(specialPubkey: buzzBot);
     });
   }
 

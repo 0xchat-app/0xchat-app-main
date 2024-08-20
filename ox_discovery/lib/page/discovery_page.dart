@@ -57,6 +57,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
 
   GlobalKey<PublicMomentsPageState> publicMomentPageKey = GlobalKey<PublicMomentsPageState>();
+  GlobalKey<GroupsPageState> groupsPageState = GlobalKey<GroupsPageState>();
 
   EPublicMomentsPageType publicMomentsPageType = EPublicMomentsPageType.all;
 
@@ -309,6 +310,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   Widget _body(){
     if(pageType == EDiscoveryPageType.moment)  return PublicMomentsPage(key:publicMomentPageKey,publicMomentsPageType: publicMomentsPageType,);
     return GroupsPage(
+      key: groupsPageState,
       groupType: _groupType,
     );
   }
@@ -591,8 +593,20 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
 
   @override
   void updateClickNum(int num,bool isChangeToDiscovery) {
-    if(pageType == EDiscoveryPageType.channel) return;
+    if (pageType == EDiscoveryPageType.channel) return _groupPageClickAction(num, isChangeToDiscovery);
     if(num == 1) return _momentPublic(isChangeToDiscovery);
     publicMomentPageKey.currentState?.updateNotesList(true,isWrapRefresh:true);
+  }
+
+  void _groupPageClickAction(int num, bool isChangeToDiscovery) {
+    if (num == 1 && !isChangeToDiscovery) {
+      groupsPageState.currentState?.scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    } else if (num == 2) {
+      groupsPageState.currentState!.refreshController.requestRefresh();
+    }
   }
 }
