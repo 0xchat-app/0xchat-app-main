@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -23,16 +22,17 @@ class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key,required this.groupType}): super(key: key);
 
   @override
-  State<GroupsPage> createState() => _GroupsPageState();
+  State<GroupsPage> createState() => GroupsPageState();
 }
 
-class _GroupsPageState extends State<GroupsPage>
+class GroupsPageState extends State<GroupsPage>
     with
         AutomaticKeepAliveClientMixin,
         OXUserInfoObserver,
         WidgetsBindingObserver,
         CommonStateViewMixin {
-  final RefreshController _refreshController = RefreshController();
+  final RefreshController refreshController = RefreshController();
+  final ScrollController scrollController = ScrollController();
 
   Map<String, GroupModel> _groupList = {};
 
@@ -91,14 +91,15 @@ class _GroupsPageState extends State<GroupsPage>
 
   void _onRefresh() async {
     _updateGroupList();
-    _refreshController.refreshCompleted();
+    refreshController.refreshCompleted();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return OXSmartRefresher(
-      controller: _refreshController,
+      scrollController: scrollController,
+      controller: refreshController,
       enablePullDown: true,
       enablePullUp: false,
       onRefresh: _onRefresh,
@@ -468,6 +469,8 @@ class _GroupsPageState extends State<GroupsPage>
   void dispose() {
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
+    scrollController.dispose();
+    refreshController.dispose();
     super.dispose();
   }
 
