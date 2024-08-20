@@ -31,6 +31,8 @@ class OXCachedNetworkImage extends StatelessWidget {
   /// See [CachedNetworkImage.errorWidget]
   final LoadingErrorWidgetBuilder? errorWidget;
 
+  final bool isThumb;
+
   OXCachedNetworkImage({
     required this.imageUrl,
     this.fit,
@@ -38,6 +40,7 @@ class OXCachedNetworkImage extends StatelessWidget {
     this.height,
     this.placeholder,
     this.errorWidget,
+    this.isThumb = false,
   });
 
   @override
@@ -55,6 +58,15 @@ class OXCachedNetworkImage extends StatelessWidget {
       memCacheWidth = (height! * ratio).round();
     }
 
+    String? cacheKey;
+    int? maxWidthDiskCache;
+    int? maxHeightDiskCache;
+    if (isThumb) {
+      cacheKey = '$imageUrl\_thumb';
+      maxWidthDiskCache = (80 * ratio).round();
+      maxHeightDiskCache = (80 * ratio).round();
+    }
+
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
@@ -65,6 +77,9 @@ class OXCachedNetworkImage extends StatelessWidget {
       placeholder: placeholder,
       errorWidget: errorWidget,
       cacheManager: OXFileCacheManager.get(),
+      cacheKey: cacheKey,
+      maxWidthDiskCache: maxWidthDiskCache,
+      maxHeightDiskCache: maxHeightDiskCache,
     );
   }
 }
