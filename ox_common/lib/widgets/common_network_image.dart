@@ -54,6 +54,7 @@ class OXCachedNetworkImage extends StatelessWidget {
     if (memCacheWidth == null && height != null && height != double.infinity) {
       memCacheWidth = (height! * ratio).round();
     }
+    return SizedBox();
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
