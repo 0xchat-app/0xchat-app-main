@@ -1,7 +1,8 @@
 import 'package:cashu_dart/cashu_dart.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/storage_key_tool.dart';
+import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_wallet/services/ecash_listener.dart';
 
 class EcashManager extends ChangeNotifier {
@@ -12,9 +13,9 @@ class EcashManager extends ChangeNotifier {
     Cashu.addInvoiceListener(onMintListChangedListener);
   }
 
-  final localKey = 'default_mint_url';
-  final ecashAccessKey = 'wallet_access';
-  final ecashSafeTipsSeenKey = 'wallet_safe_tips_seen';
+  final localKey = StorageSettingKey.KEY_DEFAULT_MINT_URL.name;
+  final ecashAccessKey = StorageSettingKey.KEY_WALLET_ACCESS.name;
+  final ecashSafeTipsSeenKey = StorageSettingKey.KEY_ECASH_SAFE_TIPS_SEEN.name;
 
   late List<IMint> _mintList;
 
@@ -92,16 +93,14 @@ class EcashManager extends ChangeNotifier {
 
   List<String> get mintURLs => mintList.map((element) => element.mintURL).toList();
 
-  Future<bool> setDefaultMint(IMint mint) async {
-    bool result = await _saveMintURLForLocal(mint.mintURL);
-    if (result) _setDefaultMint(mint);
-    return result;
+  Future<void> setDefaultMint(IMint mint) async {
+    await _saveMintURLForLocal(mint.mintURL);
+    _setDefaultMint(mint);
   }
 
-  Future<bool> removeDefaultMint() async {
-    bool result =  await _saveMintURLForLocal('');
-    if(result) _setDefaultMint(null);
-    return result;
+  Future<void> removeDefaultMint() async {
+    await _saveMintURLForLocal('');
+    _setDefaultMint(null);
   }
 
   Future<void> setWalletAvailable() async {
@@ -114,27 +113,27 @@ class EcashManager extends ChangeNotifier {
     _isWalletSafeTipsSeen = true;
   }
 
-  Future<bool> _saveMintURLForLocal(String mintURL) async {
-    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$localKey', mintURL);
-  }
-  
-  Future<String> _getMintURLForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$localKey', defaultValue: '');
+  Future<void> _saveMintURLForLocal(String mintURL) async {
+    await UserConfigTool.saveSetting(localKey, mintURL);
   }
 
-  Future<bool> _saveEcashAccessSignForLocal(bool sign) async {
-    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$ecashAccessKey', sign);
+  Future<String> _getMintURLForLocal() async {
+    return UserConfigTool.getSetting(localKey, defaultValue: '');
+  }
+
+  Future<void> _saveEcashAccessSignForLocal(bool sign) async {
+    await UserConfigTool.saveSetting(ecashAccessKey, sign);
   }
 
   Future<bool> _getEcashAccessSignForLocal() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashAccessKey', defaultValue: false);
+    return UserConfigTool.getSetting(ecashAccessKey, defaultValue:  false);
   }
 
-  Future<bool> _saveEcashSafeTipsSeen(bool seen) async {
-    return await OXCacheManager.defaultOXCacheManager.saveForeverData('$pubKey.$ecashSafeTipsSeenKey', seen);
+  Future<void> _saveEcashSafeTipsSeen(bool seen) async {
+    await UserConfigTool.saveSetting(ecashSafeTipsSeenKey, seen);
   }
 
   Future<bool> _getEcashSafeTipsSeen() async {
-    return await OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.$ecashSafeTipsSeenKey', defaultValue: false);
+    return UserConfigTool.getSetting(ecashSafeTipsSeenKey, defaultValue: false);
   }
 }
