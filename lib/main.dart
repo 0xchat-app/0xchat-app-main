@@ -115,6 +115,7 @@ class MainState extends State<MainApp>
   late StreamSubscription wsSwitchStateListener;
   StreamSubscription? cacheTimeEventListener;
   int lastUserInteractionTime = 0;
+  Timer? timer;
 
   @override
   void initState() {
@@ -128,6 +129,9 @@ class MainState extends State<MainApp>
       notNetworInitWow();
     }
     BootConfig.instance.batchUpdateUserBadges();
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+      printMemoryUsage();
+    });
   }
 
   void notNetworInitWow() async {
@@ -146,6 +150,8 @@ class MainState extends State<MainApp>
 
   @override
   void dispose() {
+    timer?.cancel();
+    timer = null;
     super.dispose();
     OXUserInfoManager.sharedInstance.removeObserver(this);
     WidgetsBinding.instance.removeObserver(this);
@@ -250,6 +256,12 @@ class MainState extends State<MainApp>
     String localPasscode = UserConfigTool.getSetting(StorageSettingKey.KEY_PASSCODE.name, defaultValue: '');
     if (localPasscode.isNotEmpty && OXNavigator.navigatorKey.currentContext != null)
       OXModuleService.pushPage(OXNavigator.navigatorKey.currentContext!, 'ox_usercenter', 'VerifyPasscodePage', {});
+  }
+
+  void printMemoryUsage() {
+    final memoryUsage = ProcessInfo.currentRss;
+    print('Current RSS memory usage: ${memoryUsage / (1024 * 1024)} MB');
+    print('Max RSS memory usage: ${ProcessInfo.maxRss / (1024 * 1024)} MB');
   }
 }
 
