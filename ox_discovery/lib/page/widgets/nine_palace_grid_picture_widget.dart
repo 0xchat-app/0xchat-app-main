@@ -91,6 +91,7 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
   Widget _showImageWidget(
       BuildContext context, int index, List<String> imageList) {
     String imgPath = imageList[index];
+    final widgetWidth = MediaQuery.of(context).size.width / widget.crossAxisCount;
     return GestureDetector(
       onTap: () {
         List<PreviewImage> previewImageList = _getPreviewImageList(imageList);
@@ -110,9 +111,10 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         child: MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           child: ExtendedImage(
+            clearMemoryCacheWhenDispose: true,
             image:OXCachedImageProviderEx.create(
               imgPath,
-              width: 200.px,
+              width: widgetWidth,
             ),
             fit: BoxFit.cover,
             width: double.infinity,
