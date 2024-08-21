@@ -135,12 +135,13 @@ class UserConfigTool{
   }
 
   static Future<void> migrateSharedPreferencesData() async {
-    bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData('migration_completed', defaultValue: false);
+    final migrationTargetVersion = "1.3.1";
+    final migrationFlag = 'migration_${migrationTargetVersion}_completed';
+    bool migrationCompleted = await OXCacheManager.defaultOXCacheManager.getForeverData(migrationFlag, defaultValue: false);
     if(migrationCompleted) return;
 
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
-    final migrationTargetVersion = "1.3.1";
     if(currentVersion != migrationTargetVersion) return;
 
     String? pubKey = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
@@ -159,7 +160,10 @@ class UserConfigTool{
         OXCacheManager.defaultOXCacheManager.getData(StorageSettingKey.KEY_ICE_SERVER.name, defaultValue: ''),
         OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, defaultValue: ''),
         OXCacheManager.defaultOXCacheManager.getForeverData(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, defaultValue: 0),
-      ]);
+        OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.default_mint_url', defaultValue: ''),
+        OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.wallet_access', defaultValue: false),
+        OXCacheManager.defaultOXCacheManager.getForeverData('$pubKey.wallet_safe_tips_seen', defaultValue: false),
+    ]);
       UserConfigTool.saveSetting(StorageSettingKey.KEY_IS_SHOW_WALLET_SELECTOR.name, isShowWalletSelector);
       UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_WALLET.name, results[1]);
       UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_ZAP_AMOUNT.name, results[2]);
@@ -167,8 +171,11 @@ class UserConfigTool{
       UserConfigTool.saveSetting(StorageSettingKey.KEY_ICE_SERVER.name, results[4]);
       UserConfigTool.saveSetting(StorageSettingKey.KEY_FILE_STORAGE_SERVER.name, results[5]);
       UserConfigTool.saveSetting(StorageSettingKey.KEY_FILE_STORAGE_SERVER_INDEX.name, results[6]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_DEFAULT_MINT_URL.name, results[7]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_WALLET_ACCESS.name, results[8]);
+      UserConfigTool.saveSetting(StorageSettingKey.KEY_ECASH_SAFE_TIPS_SEEN.name, results[9]);
 
-      await OXCacheManager.defaultOXCacheManager.saveForeverData('migration_completed', true);
+      await OXCacheManager.defaultOXCacheManager.saveForeverData(migrationFlag, true);
     } catch (e) {
       LogUtil.e('Migrate Shared Preferences Data Failed');
     }
