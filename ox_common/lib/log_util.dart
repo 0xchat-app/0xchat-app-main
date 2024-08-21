@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-class LogUtil{
+class LogUtil {
   static void v(message) => _print('V', message);
 
   static void d(message) => _print('D', message);
@@ -9,15 +9,17 @@ class LogUtil{
 
   static void w(message) => _print('W', message);
 
-  static void e(message) => _print('E', message);
+  static void e(message) => _print('E', message, true);
 
-  static void _print(String level, message) => debugPrintSynchronously('[$level] $message');
+  static void _print(String level, message, [force = false]) =>
+      log(content: '[$level] $message', force: force);
 
   static void log({
     String? key = 'OX Pro',
     required String content,
+    bool force = false,
   }) {
-    if (kDebugMode) {
+    if (kDebugMode || force) {
       try {
         print('$key: $content');
       } catch (e) {

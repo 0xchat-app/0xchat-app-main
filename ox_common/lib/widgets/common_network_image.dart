@@ -55,7 +55,7 @@ class OXCachedNetworkImage extends StatelessWidget {
 
     int? memCacheHeight;
     if (memCacheWidth == null && height != null && height != double.infinity) {
-      memCacheWidth = (height! * ratio).round();
+      memCacheHeight = (height! * ratio).round();
     }
 
     String? cacheKey;
@@ -63,8 +63,8 @@ class OXCachedNetworkImage extends StatelessWidget {
     int? maxHeightDiskCache;
     if (isThumb) {
       cacheKey = '$imageUrl\_thumb';
-      maxWidthDiskCache = (80 * ratio).round();
-      maxHeightDiskCache = (80 * ratio).round();
+      maxWidthDiskCache = (80.px * ratio).round();
+      maxHeightDiskCache = (80.px * ratio).round();
     }
 
     return CachedNetworkImage(
@@ -124,9 +124,7 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
       resizeHeight = (height * ratio).round();
     }
 
-    if (resizeWidth == null && resizeHeight == null) {
-      resizeWidth = (500 * ratio).round();
-    }
+    resizeWidth ??= (500.px * ratio).round();
 
     ImageProvider provider;
     if (uri.isImageBase64) {
