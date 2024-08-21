@@ -170,7 +170,7 @@ class MomentArticleWidgetState extends State<MomentArticleWidget> {
                       ),
                       Expanded(
                         child: Text(
-                          DiscoveryUtils.formatTimeAgo(int.parse(info['content']['createTime'])),
+                          DiscoveryUtils.formatTimeAgo(int.parse(info['content']?['createTime'] ?? '0')),
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12.px,
