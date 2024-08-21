@@ -31,6 +31,8 @@ class OXCachedNetworkImage extends StatelessWidget {
   /// See [CachedNetworkImage.errorWidget]
   final LoadingErrorWidgetBuilder? errorWidget;
 
+  final bool isThumb;
+
   OXCachedNetworkImage({
     required this.imageUrl,
     this.fit,
@@ -38,6 +40,7 @@ class OXCachedNetworkImage extends StatelessWidget {
     this.height,
     this.placeholder,
     this.errorWidget,
+    this.isThumb = false,
   });
 
   @override
@@ -52,7 +55,16 @@ class OXCachedNetworkImage extends StatelessWidget {
 
     int? memCacheHeight;
     if (memCacheWidth == null && height != null && height != double.infinity) {
-      memCacheWidth = (height! * ratio).round();
+      memCacheHeight = (height! * ratio).round();
+    }
+
+    String? cacheKey;
+    int? maxWidthDiskCache;
+    int? maxHeightDiskCache;
+    if (isThumb) {
+      cacheKey = '$imageUrl\_thumb';
+      maxWidthDiskCache = (80.px * ratio).round();
+      maxHeightDiskCache = (80.px * ratio).round();
     }
 
     return CachedNetworkImage(
@@ -65,6 +77,9 @@ class OXCachedNetworkImage extends StatelessWidget {
       placeholder: placeholder,
       errorWidget: errorWidget,
       cacheManager: OXFileCacheManager.get(),
+      cacheKey: cacheKey,
+      maxWidthDiskCache: maxWidthDiskCache,
+      maxHeightDiskCache: maxHeightDiskCache,
     );
   }
 }
@@ -109,9 +124,7 @@ extension OXCachedImageProviderEx on CachedNetworkImageProvider {
       resizeHeight = (height * ratio).round();
     }
 
-    if (resizeWidth == null && resizeHeight == null) {
-      resizeWidth = (500 * ratio).round();
-    }
+    resizeWidth ??= (500.px * ratio).round();
 
     ImageProvider provider;
     if (uri.isImageBase64) {

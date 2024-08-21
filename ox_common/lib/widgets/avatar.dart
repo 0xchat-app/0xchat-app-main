@@ -53,6 +53,7 @@ class BaseAvatarWidget extends StatelessWidget {
         imageUrl: imageUrl,
         width: size,
         height: size,
+        isThumb: true,
       );
     } else {
       return _defaultImage(defaultImageName, size);

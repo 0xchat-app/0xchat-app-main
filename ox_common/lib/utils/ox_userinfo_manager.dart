@@ -392,11 +392,11 @@ class OXUserInfoManager {
     UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     OXServerManager.sharedInstance.loadConnectICEServer();
-    await UserConfigTool.migrateSharedPreferencesData();
     addChatCallBack();
     initDataActions.forEach((fn) {
       fn();
     });
+    await UserConfigTool.migrateSharedPreferencesData();
     await EventCache.sharedInstance.loadAllEventsFromDB();
     Relays.sharedInstance.init().then((value) {
       Contacts.sharedInstance.initContacts(Contacts.sharedInstance.contactUpdatedCallBack);
