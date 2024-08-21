@@ -37,7 +37,7 @@ class MomentArticlePageState extends State<MomentArticlePage> {
     return CommonLongContentPage(
       title: 'Article',
       surfacePic: articleInfo?['content']['image'],
-      timeStamp: int.parse(articleInfo?['content']['createTime']) * 1000,
+      timeStamp: int.parse(articleInfo?['content']?['createTime'] ?? '0') * 1000,
       userName: articleInfo?['content']['authorName'] ?? '--',
       userPic: articleInfo?['content']['authorIcon'] ?? '',
       content: articleInfo?['content']['note'] ?? '',
