@@ -112,6 +112,8 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
           child: ExtendedImage(
             image:OXCachedImageProviderEx.create(
               imgPath,
+              width: 200,
+              height: 200,
             ),
             fit: BoxFit.cover,
             width: double.infinity,
