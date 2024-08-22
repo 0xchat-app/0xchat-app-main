@@ -31,8 +31,8 @@ class CommonScanPageState extends State<CommonScanPage> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    _scanArea = (Adapt.screenW() < 375 ||
-        Adapt.screenH() < 400)
+    _scanArea = (Adapt.screenW < 375 ||
+        Adapt.screenH < 400)
         ? Adapt.px(160)
         : Adapt.px(260);
     _controller = AnimationController(

@@ -70,12 +70,12 @@ class Adapt {
     return 1 / _pixelRatio!;
   }
 
-  static screenW() {
-    return _width;
+  static double get screenW {
+    return _width ?? 0.0;
   }
 
-  static screenH() {
-    return _height;
+  static double get screenH {
+    return _height ?? 0.0;
   }
 
   static padTopH() {

@@ -125,7 +125,7 @@ class UplodAliyun {
   // https://help.aliyun.com/zh/oss/user-guide/video-snapshots
   static String getSnapshot(
       String url,
-      {String t = '7000',
+      {String t = '0',
         String f = 'jpg',
         String w = '0',
         String h = '0',

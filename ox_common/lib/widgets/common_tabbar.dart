@@ -49,7 +49,7 @@ class OXCommonTabBarState extends State<OXCommonTabBar> with SingleTickerProvide
     final unselectedLabelColor = widget.unselectedLabelColor ?? ThemeColor.gray02;
     final isScrollable = widget.itemExpanded ? false : true;
     final indicatorWidth = widget.indicatorWidth ?? Adapt.px(24);
-    final inset = (Adapt.screenW() / widget.data.length - indicatorWidth) / 2;
+    final inset = (Adapt.screenW / widget.data.length - indicatorWidth) / 2;
     return Theme(
       data: ThemeData(
         highlightColor: Colors.transparent,
