@@ -36,7 +36,7 @@ class UsercenterBadgeWallPage extends StatefulWidget {
 class _UsercenterBadgeWallPageState extends State<UsercenterBadgeWallPage> {
   List<BadgeModel> _defaultBadgeModelList = [];
   final List<BadgeModel> _currentUserBadgeModelList = [];
-  final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 32 + 48)) / 3;
+  final double _imageWH = (Adapt.screenW - Adapt.px(48 + 32 + 48)) / 3;
   UserDBISAR? _mUserInfo;
   BadgeModel? _selectedBadgeModel;
 

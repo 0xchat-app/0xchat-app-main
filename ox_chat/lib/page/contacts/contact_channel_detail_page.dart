@@ -69,7 +69,7 @@ extension OtherInfoItemStr on OtherInfoItemType {
 
 class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
   late List<BadgeDBISAR> _badgeDBList;
-  final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 18)) / 3;
+  final double _imageWH = (Adapt.screenW - Adapt.px(48 + 18)) / 3;
   bool _isMute = false;
   String? _showCreator;
   late String _badgeRequirementsHint;
@@ -308,7 +308,7 @@ class _ContactChanneDetailsPageState extends State<ContactChanneDetailsPage> {
                                 ),
                               )
                                   : SizedBox(
-                                width: Adapt.screenW() - Adapt.px(100),
+                                width: Adapt.screenW - Adapt.px(100),
                                 child: Text(
                                   _showCreator!,
                                   style: TextStyle(

@@ -417,7 +417,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
               ),
             ),
             Container(
-              width: Adapt.screenW() - Adapt.px(120),
+              width: Adapt.screenW - Adapt.px(120),
               margin: EdgeInsets.only(left: Adapt.px(16)),
               child: Text(
                 showName,

@@ -45,7 +45,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
   int listlength = 100;
   double maxDragOffset = 100;
   bool showFollowButton = false;
-  final double _imageWH = (Adapt.screenW() - Adapt.px(48 + 18)) / 3;
+  final double _imageWH = (Adapt.screenW - Adapt.px(48 + 18)) / 3;
 
   @override
   void dispose() {
@@ -65,8 +65,8 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
     Widget placeholderImage = CommonImage(
       iconName: 'icon_badge_default.png',
       fit: BoxFit.cover,
-      width: Adapt.screenW() * 0.6,
-      height: Adapt.screenW() * 0.6,
+      width: Adapt.screenW * 0.6,
+      height: Adapt.screenW * 0.6,
       useTheme: true,
     );
 
@@ -151,7 +151,7 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                       alignment: Alignment.topCenter,
                       children: <Widget>[
                         Container(
-                          width: Adapt.screenW() - Adapt.px(90),
+                          width: Adapt.screenW - Adapt.px(90),
                           height: Adapt.px(384),
                           margin: EdgeInsets.only(
                               top: kToolbarHeight +
@@ -170,8 +170,8 @@ class _UserCenterBadgeDetailPageState extends State<UserCenterBadgeDetailPage> {
                                 imageUrl: widget.badgeModel.badgeImageUrl ?? '',
                                 placeholder: (context, url) => placeholderImage,
                                 errorWidget: (context, url, error) => placeholderImage,
-                                width: Adapt.screenW() * 0.6,
-                                height: Adapt.screenW() * 0.6,
+                                width: Adapt.screenW * 0.6,
+                                height: Adapt.screenW * 0.6,
                                 fit: BoxFit.cover,
                               ),
                               SizedBox(

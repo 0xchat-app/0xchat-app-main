@@ -72,8 +72,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
   final GlobalKey<RelayInfoWidgetState> _relayInfoKey = GlobalKey<RelayInfoWidgetState>();
-  double _nameMaxW = Adapt.screenW() - (48 + 60 + 36 + 50).px;
-  double _subTitleMaxW = Adapt.screenW() - (48 + 60 + 36 + 30).px;
+  double _nameMaxW = Adapt.screenW - (48 + 60 + 36 + 50).px;
+  double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
 
   final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
 

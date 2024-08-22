@@ -8,6 +8,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:ox_chat/page/contacts/contact_user_info_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
 import 'package:ox_chat/widget/alpha.dart';
+import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -462,7 +463,7 @@ class _ContractListItemState extends State<ContractListItem> {
               ],
             ),
             Container(
-              width: Adapt.screenW() - Adapt.px(120),
+              width: Adapt.screenW - Adapt.px(120),
               margin: EdgeInsets.only(left: Adapt.px(16.0)),
               child: MyText(
                 (widget.item.nickName != null && widget.item.nickName!.isNotEmpty) ? widget.item.nickName! : widget.item.name ?? '',

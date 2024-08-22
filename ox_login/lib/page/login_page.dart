@@ -167,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       SizedBox(width: Adapt.px(8)),
                       Container(
-                        width: Adapt.screenW() - Adapt.px(20 + 8 * 2 + 30 * 2),
+                        width: Adapt.screenW - Adapt.px(20 + 8 * 2 + 30 * 2),
                         child: RichTextWidget(
                           // default Text
                           Text(

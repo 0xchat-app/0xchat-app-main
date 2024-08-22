@@ -75,7 +75,7 @@ mixin ShareItemInfoMixin {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: Adapt.px(16), fontWeight: FontWeight.w600, color: ThemeColor.color10)),
-      constraints: BoxConstraints(maxWidth: Adapt.screenW() - Adapt.px(48 + 60 + 36 + 50)),
+      constraints: BoxConstraints(maxWidth: Adapt.screenW - Adapt.px(48 + 60 + 36 + 50)),
       // width: Adapt.px(135),
     );
   }

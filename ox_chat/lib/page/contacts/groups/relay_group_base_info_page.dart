@@ -406,7 +406,7 @@ class GroupItemBuild extends StatelessWidget {
                       titleDes == null || titleDes!.isEmpty
                           ? SizedBox()
                           : Container(
-                        width: Adapt.screenW() - 104.px,
+                        width: Adapt.screenW - 104.px,
                         margin: EdgeInsets.only(
                           top: 4.px,
                         ),
@@ -439,7 +439,7 @@ class GroupItemBuild extends StatelessWidget {
                             child: Container(
                               alignment: Alignment.centerRight,
                               constraints: subTitleMaxLines > 1 ? BoxConstraints(
-                                maxWidth: Adapt.screenW() - 180.px,
+                                maxWidth: Adapt.screenW - 180.px,
                                 minWidth: 100.px,
                               ) : null,
                               child: MyText(subTitle ?? '', 14.sp, ThemeColor.color100, maxLines: subTitleMaxLines),

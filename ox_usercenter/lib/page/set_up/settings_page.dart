@@ -68,7 +68,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
   void _loadData() async {
     _settingModelList = SettingModel.getItemData(_settingModelList);
     _isShowZapBadge = _getZapBadge();
-    fillH = Adapt.screenH() - 60.px - 52.px * _settingModelList.length;
+    fillH = Adapt.screenH - 60.px - 52.px * _settingModelList.length;
     _isOpenDevLog = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_DEV_LOG.name, defaultValue: false);
     setState(() {});
   }
@@ -106,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
           ),
         ),
         SliverToBoxAdapter(
-          child: SizedBox(height: fillH < Adapt.screenH() ? fillH.abs() : 50.px),
+          child: SizedBox(height: fillH < Adapt.screenH ? fillH.abs() : 50.px),
         ),
       ],
     );

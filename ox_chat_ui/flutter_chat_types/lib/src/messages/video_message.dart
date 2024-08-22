@@ -54,7 +54,7 @@ abstract class VideoMessage extends Message {
     String? repliedMessageId,
     String? roomId,
     bool? showStatus,
-    required num size,
+    num? size,
     Status? status,
     MessageType? type,
     int? updatedAt,
@@ -117,7 +117,7 @@ abstract class VideoMessage extends Message {
   final String name;
 
   /// Size of the video in bytes.
-  final num size;
+  final num? size;
 
   /// The video source (either a remote URL or a local resource).
   final String uri;
@@ -201,7 +201,7 @@ class _VideoMessage extends VideoMessage {
     super.repliedMessageId,
     super.roomId,
     super.showStatus,
-    required super.size,
+    super.size,
     super.status,
     super.type,
     super.updatedAt,

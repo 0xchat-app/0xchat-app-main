@@ -1,7 +1,10 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -130,10 +133,31 @@ class ChatDataCache with OXChatObserver {
       final uiMsg = await _distributeMessageToChatKey(key, newMsg);
       if (uiMsg != null) {
         result.add(uiMsg);
+        checkUIMessageInfo(uiMsg);
       }
     }
     notifyChatObserverValueChanged(key);
     return result;
+  }
+
+  Future checkUIMessageInfo(types.Message message) async {
+    if (message is types.CustomMessage) {
+      final type = message.customType;
+      switch (type) {
+        case CustomMessageType.video:
+          final snapshotPath = VideoMessageEx(message).snapshotPath;
+          if (snapshotPath.isNotEmpty) {
+            final file = File(snapshotPath);
+            final isExists = file.existsSync();
+            if (!isExists) {
+              message.snapshotPath = '';
+            }
+          }
+          break ;
+        default:
+          break ;
+      }
+    }
   }
 
   void cleanSessionMessage(ChatSessionModelISAR session) {
