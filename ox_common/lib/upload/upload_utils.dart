@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as Path;
+import 'package:uuid/uuid.dart';
 
 class UploadUtils {
 
@@ -106,7 +107,7 @@ class UploadUtils {
       await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
         url,
         file.readAsBytesSync(),
-        fileExtension: Path.extension(file.path),
+        fileExtension: file.path.getFileExtension(),
       );
     }
 
@@ -200,24 +201,33 @@ class UploadManager {
   Map<String, StreamController<double>> uploadStreamMap = {};
   Map<String, UploadResult> uploadResultMap = {};
 
-  Future<void> uploadImage({
+  StreamController prepareUploadStream(String uploadId) {
+    return uploadStreamMap.putIfAbsent(uploadId, () => StreamController<double>.broadcast());
+  }
+
+  Future<void> uploadFile({
     required FileType fileType,
     required String filePath,
     required uploadId,
     String? encryptedKey,
     Function(UploadResult)? completeCallback,
   }) async {
-    final streamController = StreamController<double>.broadcast();
-    uploadStreamMap[uploadId] = streamController;
+
+    final result = uploadResultMap[uploadId];
+    if (result != null && result.isSuccess) {
+      completeCallback?.call(result);
+      return ;
+    }
+
+    final streamController = prepareUploadStream(uploadId);
+    streamController.add(0.0);
     uploadResultMap.remove(uploadId);
 
     final file = File(filePath);
-    final fileName = filePath.getFileName() ?? '${DateTime.now().millisecondsSinceEpoch}.${Path.extension(filePath)}';
-
     UploadUtils.uploadFile(
       file: file,
-      filename: fileName,
-      fileType: FileType.image,
+      filename: '${Uuid().v1()}.${filePath.getFileExtension()}',
+      fileType: fileType,
       encryptedKey: encryptedKey,
       onProgress: (progress) {
         streamController.add(progress);
@@ -225,7 +235,6 @@ class UploadManager {
     ).then((result) {
       uploadResultMap[uploadId] = result;
       completeCallback?.call(result);
-      streamController.close();
     });
   }
 

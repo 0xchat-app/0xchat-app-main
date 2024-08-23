@@ -198,6 +198,10 @@ extension StringUtil on String {
     }
   }
 
+  String getFileExtension() {
+    return this.getFileName()?.split('.').lastOrNull ?? '';
+  }
+
   bool get isRemoteURL => RegExp(r'https?:\/\/').hasMatch(this);
   bool get isFileURL => RegExp(r'file:\/\/').hasMatch(this.toLowerCase());
   bool get isImageBase64 {

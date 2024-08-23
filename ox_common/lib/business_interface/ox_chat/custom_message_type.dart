@@ -7,6 +7,7 @@ enum CustomMessageType {
   ecash,    // normal token
   ecashV2,  // support specifying recipient & signature
   imageSending,
+  video,
 }
 
 extension CustomMessageTypeEx on CustomMessageType {
@@ -26,6 +27,8 @@ extension CustomMessageTypeEx on CustomMessageType {
         return '6';
       case CustomMessageType.imageSending:
         return '7';
+      case CustomMessageType.video:
+        return '8';
       default:
         return '-1';
     }
