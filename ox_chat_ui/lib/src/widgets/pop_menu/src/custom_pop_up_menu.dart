@@ -331,6 +331,9 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     }
 
     // Prepare position
+    final isTopDown = isTop == true && !isUp;
+    final isBottomUp = isTop == false && isUp;
+    final positionExtension = isTopDown || isBottomUp ? 30.px : 0.0;
     var menuPositionX = anchorCenterX - contentSize.width / 2;
     final arrowPositionX = anchorCenterX - arrowSize.width / 2;
     var menuPositionY, arrowPositionY = 0.0;
@@ -345,11 +348,11 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     arrowPositionY = menuPositionY;
     // Up or Down
     if (isUp) {
-      menuPositionY -= menuContentHeight;
-      arrowPositionY -= arrowSize.height + verticalMargin;
+      menuPositionY -= menuContentHeight + positionExtension;
+      arrowPositionY -= arrowSize.height + verticalMargin + positionExtension;
     } else {
-      menuPositionY += arrowSize.height + verticalMargin;
-      arrowPositionY += verticalMargin;
+      menuPositionY += arrowSize.height + verticalMargin + positionExtension;
+      arrowPositionY += verticalMargin + positionExtension;
     }
     // Adjust menuPositionX based on screen edges
     if (menuPositionX < 0 && anchorCenterX <= size.width / 2) {
@@ -357,7 +360,6 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
     } else if (menuPositionX + contentSize.width > size.width && anchorCenterX > size.width / 2) {
       menuPositionX = size.width - contentSize.width; // Align with the right edge of the screen
     }
-
 
     // Layout child widget
     if (hasChild(_MenuLayoutId.content)) {
