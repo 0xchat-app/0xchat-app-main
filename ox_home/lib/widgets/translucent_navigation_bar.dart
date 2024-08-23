@@ -460,7 +460,7 @@ class TranslucentNavigationBarState extends State<TranslucentNavigationBar> with
       tabBarList[3].unreadMsgCount = 0;
       setState(() {});
     }
-    print('Received notification: ${notification.msgNum}');
+    // print('Received notification: ${notification.msgNum}');
     return true; //
   }
 }
