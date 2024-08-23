@@ -82,32 +82,36 @@ class CallManager {
         _signaling?.onParseMessage(friend, state, data, offerId);
       }
     };
-    await initRenderers();
-    _signaling?.onLocalStream = ((stream) {
+    _signaling?.onLocalStream = ((stream) async {
+      if(localRenderer.textureId == null){
+        await localRenderer.initialize();
+      }
       localRenderer.srcObject = stream;
       callStateHandler?.call(null);
     });
 
-    _signaling?.onAddRemoteStream = ((_, stream) {
+    _signaling?.onRemoveLocalStream = (() async {
+      localRenderer.srcObject = null;
+      localRenderer.dispose();
+    });
+
+    _signaling?.onAddRemoteStream = ((_, stream) async {
+      if(remoteRenderer.textureId == null){
+        await remoteRenderer.initialize();
+      }
       remoteRenderer.srcObject = stream;
       callStateHandler?.call(null);
     });
 
     _signaling?.onRemoveRemoteStream = ((_, stream) {
       remoteRenderer.srcObject = null;
+      remoteRenderer.dispose();
     });
     initListener();
   }
 
-  Future<void> initRenderers() async {
-    await localRenderer.initialize();
-    await remoteRenderer.initialize();
-  }
-
   closeRTC() {
     _signaling?.close();
-    localRenderer.dispose();
-    remoteRenderer.dispose();
     _timer?.cancel();
     _timer = null;
   }

@@ -41,29 +41,34 @@ class _WalletMintListPageState extends State<WalletMintListPage> {
         centerTitle: true,
         useLargeTitle: false,
       ),
-      body: Column(
-        children: [
-          ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemBuilder: (context, index) => CommonCard(
-              verticalPadding: 8.px,
-              child: _buildItem(
-                title: _mintTitle(index),
-                subTitle: '${mintItems[index].balance} Sats',
-                showBadge: EcashManager.shared.isDefaultMint(mintItems[index]),
-                onTap: () => _clickItem(index),
+      body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        clipBehavior: Clip.none,
+        child: Column(
+          children: [
+            ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) => CommonCard(
+                verticalPadding: 8.px,
+                child: _buildItem(
+                  title: _mintTitle(index),
+                  subTitle: '${mintItems[index].balance} Sats',
+                  showBadge: EcashManager.shared.isDefaultMint(mintItems[index]),
+                  onTap: () => _clickItem(index),
+                ),
               ),
+              separatorBuilder: (context,index) => SizedBox(height: 12.px,),
+              itemCount: mintItems.length,
             ),
-            separatorBuilder: (context,index) => SizedBox(height: 12.px,),
-            itemCount: mintItems.length,
-          ),
-          mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
-          ThemeButton(text: Localized.text('ox_wallet.add_mint_button'),height: 48.px,onTap: _addMint),
-          ThemeButton(text: Localized.text('ox_wallet.backup_wallet_button'),height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
-        ],
-      ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
+            mintItems.isNotEmpty ? SizedBox(height: 24.px,) : Container(),
+            ThemeButton(text: Localized.text('ox_wallet.add_mint_button'),height: 48.px,onTap: _addMint),
+            ThemeButton(text: Localized.text('ox_wallet.backup_wallet_button'),height: 48.px,onTap: _handleWalletOperation).setPaddingOnly(top: 24.px),
+            const SafeArea(child: SizedBox()),
+          ],
+        ).setPadding(EdgeInsets.symmetric(horizontal: 24.px,vertical: 12.px)),
+      ),
     );
   }
 

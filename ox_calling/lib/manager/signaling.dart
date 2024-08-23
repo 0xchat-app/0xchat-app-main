@@ -59,6 +59,7 @@ class SignalingManager {
   Function(SignalingStatus state)? onSignalingStateChange;
   Function(Session session, CallState state)? onCallStateChange;
   Function(MediaStream stream)? onLocalStream;
+  Function? onRemoveLocalStream;
   Function(Session session, MediaStream stream)? onAddRemoteStream;
   Function(Session session, MediaStream stream)? onRemoveRemoteStream;
   Function(dynamic event)? onPeersUpdate;
@@ -550,6 +551,7 @@ class SignalingManager {
             });
             await _localStream!.dispose();
             _localStream = null;
+            onRemoveLocalStream?.call();
           }
       _sessions.forEach((key, sess) async {
             await sess.pc?.close();
