@@ -202,6 +202,8 @@ class _MessageState extends State<Message> {
 
   final CustomPopupMenuController _popController = CustomPopupMenuController();
 
+  double get horizontalPadding => 12.px;
+
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
@@ -228,13 +230,13 @@ class _MessageState extends State<Message> {
       margin = EdgeInsetsDirectional.only(
         bottom: 16,
         end: isMobile ? query.padding.right : 0,
-        start: 20 + (isMobile ? query.padding.left : 0),
+        start: isMobile ? query.padding.left : 0,
       );
     } else {
       margin = EdgeInsets.only(
         bottom: 16,
-        left: 20 + (isMobile ? query.padding.left : 0),
-        right: isMobile ? query.padding.right : 0,
+        left: (isMobile ? query.padding.left : 0) + horizontalPadding,
+        right: (isMobile ? query.padding.right : 0) + horizontalPadding,
       );
     }
 
@@ -257,7 +259,10 @@ class _MessageState extends State<Message> {
           ? null
           : TextDirection.ltr,
       children: [
-        if (!currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
+        if (!currentUserIsAuthor && avatarBuilder != null)
+          _avatarBuilder(avatarBuilder(widget.message)).setPaddingOnly(
+            right: 8.px,
+          ),
         ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: widget.messageWidth.toDouble(),
@@ -269,11 +274,10 @@ class _MessageState extends State<Message> {
             ],
           ),
         ),
-        if (currentUserIsAuthor)
-          Padding(
-            padding: EdgeInsets.only(right: 10),
+        if (currentUserIsAuthor && avatarBuilder != null)
+          _avatarBuilder(avatarBuilder(widget.message)).setPaddingOnly(
+            left: 8.px,
           ),
-        if (currentUserIsAuthor && avatarBuilder != null) _avatarBuilder(avatarBuilder(widget.message)),
       ],
     );
   }
@@ -319,12 +323,14 @@ class _MessageState extends State<Message> {
       arrowColor: ThemeColor.color180,
       menuBuilder: _buildLongPressMenu,
       pressType: PressType.longPress,
+      horizontalMargin: horizontalPadding,
+      verticalMargin: 0,
       child: _bubbleBuilder(
         context,
         borderRadius.resolve(Directionality.of(context)),
         currentUserIsAuthor,
         enlargeEmojis,
-      )
+      ),
     );
 
     final bubbleWithName = Column(
@@ -364,12 +370,7 @@ class _MessageState extends State<Message> {
   Widget _avatarBuilder(Widget child) {
     final avatarBuilder = widget.avatarBuilder;
     if (avatarBuilder == null) return SizedBox();
-    return Container(
-      margin: widget.bubbleRtlAlignment == BubbleRtlAlignment.left
-          ? const EdgeInsetsDirectional.only(end: 8)
-          : const EdgeInsets.only(right: 8),
-      child: avatarBuilder(widget.message),
-    );
+    return avatarBuilder(widget.message);
   }
 
   Widget _bubbleBuilder(BuildContext context, BorderRadius borderRadius, bool currentUserIsAuthor, bool enlargeEmojis) {

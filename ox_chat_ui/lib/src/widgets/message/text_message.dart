@@ -182,7 +182,7 @@ class TextMessage extends StatelessWidget {
             codeTextStyle: codeTextStyle,
             options: options,
             text: message.text,
-            maxLines: 40,
+            maxLines: 100,
             overflow: TextOverflow.ellipsis,
             maxLimit: maxLimit,
             moreBtnColor: moreBtnColor,
