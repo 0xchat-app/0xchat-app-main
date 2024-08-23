@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -70,10 +71,16 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
   List<UserDBISAR> selectedList = [];
   Map<String, List<UserDBISAR>> mapData = Map();
   String mHostName = '';
+  bool addAutomaticKeepAlives = true;
+  bool addRepaintBoundaries = true;
 
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      addAutomaticKeepAlives = false;
+      addRepaintBoundaries = false;
+    }
     userList = widget.data;
     _initIndexBarData();
     initFromCache();
@@ -294,6 +301,8 @@ class ContactWidgetState<T extends ContactWidget> extends State<T> {
                   );
                 },
                 childCount: item.childList.length,
+                addAutomaticKeepAlives: addAutomaticKeepAlives,
+                addRepaintBoundaries: addRepaintBoundaries,
               ),
             ),
           ),
