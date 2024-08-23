@@ -76,6 +76,8 @@ class LaunchPageViewState extends State<LaunchPageView> {
   }
 
   Future<void> _loadRiveFile() async {
+    await RiveFile.initialize();
+
     String animPath =
         "packages/ox_home/assets/${ThemeManager.images(riveFileNames)}.riv";
 
