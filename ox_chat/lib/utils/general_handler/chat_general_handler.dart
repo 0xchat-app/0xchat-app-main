@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,12 +22,15 @@ import 'package:ox_common/log_util.dart';
 import 'package:ox_common/ox_common.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
+import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/custom_uri_helper.dart';
+import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_action_dialog.dart';
+import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_image_gallery.dart';
 import 'package:ox_common/widgets/common_long_content_page.dart';
 import 'package:ox_common/widgets/common_video_page.dart';
@@ -36,7 +38,6 @@ import 'package:uuid/uuid.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_page_config.dart';
-import 'package:ox_chat/page/session/chat_video_play_page.dart';
 import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -62,8 +63,6 @@ import 'package:ox_localizable/ox_localizable.dart';
 import 'package:chatcore/chat-core.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:flutter_chat_types/src/message.dart';
 import 'package:device_info/device_info.dart';
 import 'package:ox_common/widgets/zaps/zaps_action_handler.dart';
@@ -292,6 +291,10 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
             messageId: message.id,
             imageUri: ImageSendingMessageEx(message).url,
           );
+          break;
+        case CustomMessageType.video:
+          CommonVideoPage.show(VideoMessageEx(message).url);
+          break;
         default:
           break;
       }
@@ -500,7 +503,6 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
     }
 
     // Relay group && has delete permission
-    final groupId = session.groupId;
     if (session.chatType == ChatType.chatRelayGroup) {
       _showDeleteMode(context, message);
       return ;
@@ -716,7 +718,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
         await Future.forEach(filePaths, (element) async {
           fileList.add(File(element));
         });
-        final messageSendHandler = type == 2 ? this.sendVideoMessageSend : this.sendImageMessage;
+        final messageSendHandler = type == 2 ? this.sendVideoMessage : this.sendImageMessage;
         messageSendHandler(context, fileList);
         return;
       }
@@ -817,7 +819,7 @@ extension ChatInputMoreHandlerEx on ChatGeneralHandler {
   Future<void> _goToPhoto(BuildContext context, int type) async {
     // type: 1 - image, 2 - video
     final isVideo = type == 2;
-    final messageSendHandler = isVideo ? this.sendVideoMessageSend : this.sendImageMessage;
+    final messageSendHandler = isVideo ? this.sendVideoMessage : this.sendImageMessage;
 
     final res = await ImagePickerUtils.pickerPaths(
       galleryMode: isVideo ? GalleryMode.video : GalleryMode.image,

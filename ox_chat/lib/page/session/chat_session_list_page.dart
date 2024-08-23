@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -72,14 +73,19 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
   final GlobalKey<RelayInfoWidgetState> _relayInfoKey = GlobalKey<RelayInfoWidgetState>();
-  double _nameMaxW = Adapt.screenW() - (48 + 60 + 36 + 50).px;
-  double _subTitleMaxW = Adapt.screenW() - (48 + 60 + 36 + 30).px;
-
+  double _nameMaxW = Adapt.screenW - (48 + 60 + 36 + 50).px;
+  double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
+  bool addAutomaticKeepAlives = true;
+  bool addRepaintBoundaries = true;
   final _throttle = ThrottleUtils(delay: Duration(milliseconds: 3000));
 
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      addAutomaticKeepAlives = false;
+      addRepaintBoundaries = false;
+    }
     Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
       if(mounted) _relayInfoKey.currentState?.refresh();
     });
@@ -240,6 +246,8 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                           return _buildListViewItem(context, index);
                         },
                         childCount: itemCount(),
+                        addAutomaticKeepAlives: false,
+                        addRepaintBoundaries: false,
                       ),
                     )
                   : SliverToBoxAdapter(

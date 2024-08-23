@@ -1,14 +1,12 @@
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/widgets/common_file_cache_manager.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 
 class ImagePreviewWidget extends StatefulWidget {
@@ -50,21 +48,37 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
 
   void prepareImage() {
     final uri = widget.uri;
-    final decryptKey = widget.decryptKey;
+
+    final ratio = Adapt.devicePixelRatio;
+    double? width = (widget.imageWidth?.toDouble() ?? 0) / ratio;
+    double? height = (widget.imageHeight?.toDouble() ?? 0) / ratio;
+
+    if (width < 1) width = null;
+    if (height < 1) height = null;
+    if (width != null && height != null) {
+      imageSize = Size(width, height);
+    }
 
     if (uri.isEmpty) return ;
-
     imageProvider = OXCachedImageProviderEx.create(
       uri,
-      width: widget.imageWidth?.toDouble(),
-      height: widget.imageHeight?.toDouble(),
-      decryptedKey: decryptKey,
+      width: width,
+      height: height,
+      decryptedKey: widget.decryptKey,
     );
 
-    if (widget.imageWidth != null && widget.imageHeight != null) {
-      imageSize = Size(widget.imageWidth!.toDouble(), widget.imageHeight!.toDouble());
-    } else if (uri.isImageBase64) {
+    if (uri.isImageBase64) {
       imageSize = OXCachedImageProviderEx.getImageSizeWithBase64(uri) ?? imageSize;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ImagePreviewWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.uri != widget.uri
+        || oldWidget.imageWidth != widget.imageWidth
+        || oldWidget.imageHeight != widget.imageHeight) {
+      prepareImage();
     }
   }
 
@@ -93,7 +107,7 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
     return Stack(
       children: [
         buildImageWidget(),
-        if (progressStream != null) Positioned.fill(child: buildProgressMask(progressStream)),
+        if (progressStream != null) Positioned.fill(child: buildStreamProgressMask(progressStream)),
       ],
     );
   }
@@ -106,33 +120,52 @@ class ImagePreviewWidgetState extends State<ImagePreviewWidget> {
         minHeight: minHeight,
         maxHeight: maxHeight,
       ),
+      color: ThemeColor.gray01,
       child: AspectRatio(
         aspectRatio: imageSize.aspectRatio > 0 ? imageSize.aspectRatio : 0.7,
         child: imageProvider != null ? Image(
           fit: BoxFit.cover,
           image: imageProvider!,
-        ) : Container(color: ThemeColor.gray01,),
+          errorBuilder: (context, error, stackTrace,) {
+            ChatLogUtils.error(
+              className: 'ImagePreviewWidget',
+              funcName: 'buildImageWidget',
+              message: error.toString(),
+            );
+            return SizedBox();
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            final expectedTotalBytes = loadingProgress.expectedTotalBytes ?? 0;
+            final progress = expectedTotalBytes > 0
+                ? loadingProgress.cumulativeBytesLoaded / expectedTotalBytes
+                : 0.0;
+            return buildProgressMask(progress.clamp(0.0, 1.0));
+          },
+        ) : null,
       ),
     );
   }
 
-  Widget buildProgressMask(Stream<double> stream) {
+  Widget buildStreamProgressMask(Stream<double> stream) {
     return StreamBuilder(
       stream: stream,
-      builder: (context, snapshot) {
-        final progress = snapshot.data ?? 0.0;
-        return Container(
-          color: Colors.grey.withOpacity(0.7),
-          alignment: Alignment.center,
-          child: CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 5,
-            backgroundColor: Colors.white.withOpacity(0.5),
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            strokeCap: StrokeCap.round,
-          ),
-        );
-      }
+      builder: (context, snapshot) =>
+          buildProgressMask(snapshot.data ?? 0.0),
+    );
+  }
+
+  Widget buildProgressMask(double progress) {
+    return Container(
+      color: Colors.grey.withOpacity(0.7),
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(
+        value: progress,
+        strokeWidth: 5,
+        backgroundColor: Colors.white.withOpacity(0.5),
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        strokeCap: StrokeCap.round,
+      ),
     );
   }
 

@@ -146,6 +146,11 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         message: resendMsg as types.CustomMessage,
       );
       return ;
+    } else if (resendMsg.isVideoSendingMessage) {
+      sendVideoMessageWithMessage(
+        context: context,
+        message: resendMsg as types.CustomMessage,
+      );
     }
 
     _sendMessageHandler(resendMsg, context: context, isResend: true);
@@ -191,8 +196,6 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       final bytes = await imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
       String message_id = const Uuid().v4();
-      String fileName = Path.basename(imageFile.path);
-      fileName = fileName.substring(13);
       int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
       final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
 
@@ -222,28 +225,44 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     final imageWidth = ImageSendingMessageEx(message).width;
     final imageHeight = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
+    final fileId = ImageSendingMessageEx(message).fileId;
 
+    UploadManager.shared.prepareUploadStream(fileId);
     await _sendMessageHandler(
       message,
       context: context,
       sendingType: ChatSendingType.store,
       successCallback: (sendMessage) {
-        UploadManager.shared.uploadImage(
+        UploadManager.shared.uploadFile(
           fileType: FileType.image,
           filePath: filePath,
-          uploadId: ImageSendingMessageEx(message).fileId,
+          uploadId: fileId,
           encryptedKey: encryptedKey,
           completeCallback: (uploadResult) async {
-            final imageURL = uploadResult.url;
-            if (uploadResult.isSuccess && imageURL.isNotEmpty) {
-              sendImageMessageWithURL(
-                imageURL: imageURL,
-                imageWidth: imageWidth,
-                imageHeight: imageHeight,
-                encryptedKey: encryptedKey,
-                replaceMessageId: sendMessage.id,
-              );
-            }
+            var imageURL = uploadResult.url;
+            if (!uploadResult.isSuccess || imageURL.isEmpty) return ;
+
+            imageURL = generateUrlWithInfo(
+              originalUrl: imageURL,
+              width: imageWidth,
+              height: imageHeight,
+            );
+
+            // Store cache image for new URL
+            final imageFile = File(filePath);
+            await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+              imageURL,
+              imageFile.readAsBytesSync(),
+              fileExtension: imageFile.path.getFileExtension(),
+            );
+
+            sendImageMessageWithURL(
+              imageURL: imageURL,
+              imageWidth: imageWidth,
+              imageHeight: imageHeight,
+              encryptedKey: encryptedKey,
+              replaceMessageId: sendMessage.id,
+            );
           },
         );
       },
@@ -341,47 +360,117 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     OXLoading.dismiss();
   }
 
-  Future sendVideoMessageSend(BuildContext context, List<File> images) async {
-    for (final result in images) {
-      OXLoading.show();
-      final bytes = await result.readAsBytes();
-      final uint8list = await VideoCompress.getByteThumbnail(result.path,
-          quality: 50, // default(100)
-          position: -1 // default(-1)
+  Future sendVideoMessage(BuildContext context, List<File> videos) async {
+    for (final videoFile in videos) {
+      final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
+      final thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
+        videoFilePath: videoFile.path,
+        fileId: fileId,
       );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/thumbnail.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
+      if (thumbnailImageFile == null) continue;
 
       String message_id = const Uuid().v4();
-      String fileName = '${message_id}${Path.basename(result.path)}';
       int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-      final message = types.VideoMessage(
+      final bytes = await thumbnailImageFile.readAsBytes();
+      final thumbnailImage = await decodeImageFromList(bytes);
+      final message = CustomMessageFactory().createVideoMessage(
         author: author,
-        createdAt: tempCreateTime,
-        height: image.height.toDouble(),
+        timestamp: tempCreateTime,
         id: message_id,
-        name: fileName,
-        size: bytes.length,
-        metadata: {
-          "videoUrl": result.path.toString(),
-        },
-        uri: thumbnailPath,
-        width: image.width.toDouble(),
-        fileEncryptionType: fileEncryptionType,
+        roomId: session.chatId,
+        fileId: fileId,
+        snapshotPath: thumbnailImageFile.path,
+        videoPath: videoFile.path,
+        width: thumbnailImage.width,
+        height: thumbnailImage.height,
+        url: '',
       );
-
-      _sendMessageHandler(message, context: context);
-
-      OXLoading.dismiss();
+      await sendVideoMessageWithMessage(
+        context: context,
+        message: message,
+      );
     }
+  }
+  
+  Future sendVideoMessageWithMessage({
+    BuildContext? context,
+    required types.CustomMessage message,
+  }) async {
+    final videoPath = VideoMessageEx(message).videoPath;
+    var snapshotPath = VideoMessageEx(message).snapshotPath;
+    final imageWidth = VideoMessageEx(message).width;
+    final imageHeight = VideoMessageEx(message).height;
+    final fileId = VideoMessageEx(message).fileId;
+
+    UploadManager.shared.prepareUploadStream(fileId);
+    await _sendMessageHandler(
+      message,
+      context: context,
+      sendingType: ChatSendingType.store,
+      successCallback: (sendMessage) {
+        UploadManager.shared.uploadFile(
+          fileType: FileType.video,
+          filePath: videoPath,
+          uploadId: fileId,
+          completeCallback: (uploadResult) async {
+            var videoURL = uploadResult.url;
+            if (!uploadResult.isSuccess || videoURL.isEmpty) return ;
+
+            videoURL = generateUrlWithInfo(
+              originalUrl: videoURL,
+              width: imageWidth,
+              height: imageHeight,
+            );
+
+            if (snapshotPath.isNotEmpty) {
+              final snapshotFile = File(snapshotPath);
+              final newSnapshot = await OXVideoUtils.putFileToCacheWithURL(
+                videoURL,
+                snapshotFile,
+              );
+              snapshotFile.deleteSync();
+              snapshotPath = newSnapshot.path;
+            }
+            sendVideoMessageWithURL(
+              videoURL: videoURL,
+              fileId: fileId,
+              videoPath: videoPath,
+              imageWidth: imageWidth,
+              imageHeight: imageHeight,
+              replaceMessageId: sendMessage.id,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void sendVideoMessageWithURL({
+    required String videoURL,
+    String fileId = '',
+    String videoPath = '',
+    int? imageWidth,
+    int? imageHeight,
+    String? encryptedKey,
+    String? replaceMessageId,
+  }) {
+    String message_id = const Uuid().v4();
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    final message = CustomMessageFactory().createVideoMessage(
+      author: author,
+      timestamp: tempCreateTime,
+      id: message_id,
+      roomId: session.chatId,
+      fileId: '',
+      snapshotPath: '',
+      videoPath: '',
+      url: videoURL,
+    );
+
+    _sendMessageHandler(
+      message,
+      replaceMessageId: replaceMessageId,
+    );
   }
 
   void _sendTemplateMessage({
@@ -477,44 +566,11 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
         message: message,
         context: context,
       );
-    } else if (message is types.VideoMessage) {
-      updatedMessage = await prepareSendVideoMessage(
-        message: message,
-        context: context,
-      );
     } else {
       return message;
     }
 
     return updatedMessage;
-  }
-
-  Future<types.Message?> prepareSendImageMessage({
-    BuildContext? context,
-    required types.ImageMessage message,
-  }) async {
-    final filePath = message.uri;
-    final uriIsLocalPath = filePath.isLocalPath;
-
-    if (uriIsLocalPath == null) {
-      ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
-      );
-      return null;
-    }
-
-    if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final result = await uploadFile(fileType: FileType.image, filePath: filePath, messageId: message.id, encryptedKey: pk);
-      if (!result.isSuccess) {
-        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_image_fail')}: ${result.errorMsg}');
-        return null;
-      }
-      return message.copyWith(uri: result.url);
-    }
-    return message;
   }
 
   Future<types.Message?> prepareSendAudioMessage({
@@ -545,35 +601,29 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
     return message;
   }
 
-  Future<types.Message?> prepareSendVideoMessage({
-    BuildContext? context,
-    required types.VideoMessage message,
-  }) async {
-    final filePath = message.metadata?['videoUrl'] as String? ?? '';
-    final uriIsLocalPath = filePath.isLocalPath;
-
-    if (filePath.isEmpty || uriIsLocalPath == null) {
-      ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
-      );
-      return null;
+  String generateUrlWithInfo({
+    required String originalUrl,
+    int? width,
+    int? height,
+  }) {
+    Uri uri;
+    try {
+      uri = Uri.parse(originalUrl);
+    } catch (_) {
+      return originalUrl;
     }
 
-    if (uriIsLocalPath) {
-      final pk = message.fileEncryptionType == types.EncryptionType.encrypted ? message.decryptKey : null;
-      final result = await uploadFile(fileType: FileType.video, filePath: filePath, messageId: message.id, encryptedKey: pk);
-      if (!result.isSuccess) {
-        CommonToast.instance.show(context, '${Localized.text('ox_chat.message_send_video_fail')}: ${result.errorMsg}');
-        return null;
-      }
-      return message.copyWith(
-        metadata: {
-          'videoUrl': result.url,
-        },
-      );
-    }
-    return message;
+    final originalQuery = uri.queryParameters;
+    final updatedUri = uri.replace(
+      queryParameters: {
+        ...uri.queryParameters,
+        if (width != null && !originalQuery.containsKey('width'))
+          'width': width.toString(),
+        if (height != null && !originalQuery.containsKey('height'))
+          'height': height.toString(),
+      },
+    );
+
+    return updatedUri.toString();
   }
 }

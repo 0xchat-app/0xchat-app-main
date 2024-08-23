@@ -1,7 +1,10 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:ox_chat/utils/custom_message_utils.dart';
+import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/utils/ox_chat_observer.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
@@ -130,10 +133,31 @@ class ChatDataCache with OXChatObserver {
       final uiMsg = await _distributeMessageToChatKey(key, newMsg);
       if (uiMsg != null) {
         result.add(uiMsg);
+        checkUIMessageInfo(uiMsg);
       }
     }
     notifyChatObserverValueChanged(key);
     return result;
+  }
+
+  Future checkUIMessageInfo(types.Message message) async {
+    if (message is types.CustomMessage) {
+      final type = message.customType;
+      switch (type) {
+        case CustomMessageType.video:
+          final snapshotPath = VideoMessageEx(message).snapshotPath;
+          if (snapshotPath.isNotEmpty) {
+            final file = File(snapshotPath);
+            final isExists = file.existsSync();
+            if (!isExists) {
+              message.snapshotPath = '';
+            }
+          }
+          break ;
+        default:
+          break ;
+      }
+    }
   }
 
   void cleanSessionMessage(ChatSessionModelISAR session) {
@@ -184,11 +208,16 @@ class ChatDataCache with OXChatObserver {
     final senderId = message.sender;
     final receiverId = message.receiver;
     final key = PrivateChatKey(senderId, receiverId);
+    if (!isContainObserver(key)) return ;
 
     types.Message? msg = await message.toChatUIMessage();
 
     if (msg == null) {
-      ChatLogUtils.info(className: 'ChatDataCache', funcName: 'receivePrivateMessageHandler', message: 'message is null');
+      ChatLogUtils.info(
+        className: 'ChatDataCache',
+        funcName: 'receivePrivateMessageHandler',
+        message: 'message is null',
+      );
       return ;
     }
 
@@ -207,6 +236,7 @@ class ChatDataCache with OXChatObserver {
 
     final sessionId = message.sessionId;
     final key = SecretChatKey(sessionId);
+    if (!isContainObserver(key)) return ;
 
     types.Message? msg = await message.toChatUIMessage();
     if (msg == null) {
@@ -225,6 +255,7 @@ class ChatDataCache with OXChatObserver {
     final key = message.chatType != null && message.chatType == 4
         ? RelayGroupKey(groupId)
         : GroupKey(groupId);
+    if (!isContainObserver(key)) return ;
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
@@ -247,6 +278,7 @@ class ChatDataCache with OXChatObserver {
   void didChannalMessageCallBack(MessageDBISAR message) async {
     final channelId = message.groupId;
     ChannelKey key = ChannelKey(channelId);
+    if (!isContainObserver(key)) return ;
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
@@ -290,8 +322,10 @@ class ChatDataCache with OXChatObserver {
       message: 'begin',
     );
     final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+    if (key == null || !isContainObserver(key)) return ;
+
     final uiMessage = await message.toChatUIMessage();
-    if (key != null && uiMessage != null) {
+    if (uiMessage != null) {
       await updateMessage(chatKey: key, message: uiMessage);
     } else {
       ChatLogUtils.error(
@@ -315,7 +349,10 @@ class ChatDataCache with OXChatObserver {
         continue;
       }
 
-      await _removeChatMessages(chatType, messageId: message.messageId);
+      if (isContainObserver(chatType))  {
+        await _removeChatMessages(chatType, messageId: message.messageId);
+      }
+
       types.Message? lastMessage;
       try {
         lastMessage = (await _getSessionMessage(chatType))
@@ -577,6 +614,9 @@ extension ChatDataCacheObserverEx on ChatDataCache {
     }
   }
 
+  bool isContainObserver(ChatTypeKey key) =>
+      _valueChangedCallback[key] != null;
+
   Future<void> notifyAllObserverValueChanged() async {
     final valueChangedCallback = _valueChangedCallback;
     valueChangedCallback.forEach((key, callback) async {
@@ -817,7 +857,7 @@ extension MessageExtensionInfoEx on ChatDataCache {
   Future updateMessageReplyInfo() async {
     final chatKeys = [..._chatMessageMap.keys];
     for (var chatKey in chatKeys) {
-      final sessionMessage = _chatMessageMap[chatKey] ?? [];
+      final sessionMessage = [...(_chatMessageMap[chatKey] ?? [])];
       for (var message in sessionMessage) {
         final repliedMessageId = message.repliedMessageId;
         if (repliedMessageId == null || message.repliedMessage != null) continue ;

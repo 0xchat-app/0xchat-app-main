@@ -51,7 +51,7 @@ class _LogsFilePageState extends State<LogsFilePage> {
       DateTime bModified = b.lastModifiedSync();
       return bModified.compareTo(aModified);
     });
-    fillH = Adapt.screenH() - 60.px - 30.px - 70.px * _filePaths.length;
+    fillH = Adapt.screenH - 60.px - 30.px - 70.px * _filePaths.length;
     setState(() {});
   }
 
@@ -85,7 +85,7 @@ class _LogsFilePageState extends State<LogsFilePage> {
             ),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(height: fillH < Adapt.screenH() ? fillH.abs() : 50.px),
+            child: SizedBox(height: fillH < Adapt.screenH ? fillH.abs() : 50.px),
           ),
         ],
       ),

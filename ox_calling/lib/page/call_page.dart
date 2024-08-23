@@ -128,8 +128,8 @@ class CallPageState extends State<CallPage> {
                   bottom: 0.0,
                   child: Container(
                     margin: EdgeInsets.zero,
-                    width: Adapt.screenW(),
-                    height: Adapt.screenH(),
+                    width: Adapt.screenW,
+                    height: Adapt.screenH,
                     child: RTCVideoView(CallManager.instance.callState == CallState.CallStateConnected ? CallManager.instance.remoteRenderer : CallManager.instance.localRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
                   ),
                 )

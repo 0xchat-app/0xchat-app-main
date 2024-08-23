@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
@@ -67,10 +68,16 @@ class GroupContactState extends State<GroupContact> {
 
   List<GroupUIModel> selectedList = [];
   Map<String, List<GroupUIModel>> mapData = Map();
+  bool addAutomaticKeepAlives = true;
+  bool addRepaintBoundaries = true;
 
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      addAutomaticKeepAlives = false;
+      addRepaintBoundaries = false;
+    }
     groupList = widget.data;
     _initIndexBarData();
     scrollController.addListener(() {
@@ -264,6 +271,8 @@ class GroupContactState extends State<GroupContact> {
                       item: item.childList[i],
                     ),
                 childCount: item.childList.length,
+                addAutomaticKeepAlives: addAutomaticKeepAlives,
+                addRepaintBoundaries: addRepaintBoundaries,
               ),
             ),
           ),
@@ -417,7 +426,7 @@ class _GroupContactListItemState extends State<GroupContactListItem> {
               ),
             ),
             Container(
-              width: Adapt.screenW() - Adapt.px(120),
+              width: Adapt.screenW - Adapt.px(120),
               margin: EdgeInsets.only(left: Adapt.px(16)),
               child: Text(
                 showName,

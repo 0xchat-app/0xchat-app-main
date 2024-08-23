@@ -42,7 +42,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: Adapt.screenH() / 9),
+      margin: EdgeInsets.only(top: Adapt.screenH / 9),
       alignment: Alignment.topCenter,
       child: Container(
         decoration: BoxDecoration(
@@ -50,7 +50,7 @@ class _SecretHintWidgetState extends State<SecretHintWidget> {
           borderRadius: BorderRadius.circular(Adapt.px(12)),
         ),
         constraints: BoxConstraints(maxHeight: Adapt.px(300)),
-        width: Adapt.screenW() * 0.71,
+        width: Adapt.screenW * 0.71,
         padding: EdgeInsets.only(
           top: Adapt.px(16),
         ),

@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chatcore/chat-core.dart';
@@ -18,6 +17,7 @@ import 'package:ox_common/utils/num_utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -103,6 +103,8 @@ class ChatMessageBuilder {
         return ChatMessageBuilderCustomEx._buildEcashV2Message(message, reactionWidget);
       case CustomMessageType.imageSending:
         return ChatMessageBuilderCustomEx._buildImageSendingMessage(message, messageWidth, reactionWidget);
+      case CustomMessageType.video:
+        return ChatMessageBuilderCustomEx._buildVideoMessage(message, messageWidth, reactionWidget);
       default:
         return SizedBox();
     }

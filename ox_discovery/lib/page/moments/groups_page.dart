@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
@@ -35,10 +37,16 @@ class GroupsPageState extends State<GroupsPage>
   final ScrollController scrollController = ScrollController();
 
   Map<String, GroupModel> _groupList = {};
+  bool addAutomaticKeepAlives = true;
+  bool addRepaintBoundaries = true;
 
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      addAutomaticKeepAlives = false;
+      addRepaintBoundaries = false;
+    }
     OXUserInfoManager.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
     Localized.addLocaleChangedCallback(onLocaleChange);
@@ -126,6 +134,8 @@ class GroupsPageState extends State<GroupsPage>
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: _groupList.values.length,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
         final group = _groupList.values.elementAt(index);
         return _buildHotGroupCard(group);

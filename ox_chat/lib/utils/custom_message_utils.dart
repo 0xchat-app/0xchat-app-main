@@ -122,6 +122,27 @@ extension CustomMessageEx on types.CustomMessage {
     });
   }
 
+  static Map<String, dynamic> videoMetaData({
+    required String fileId,
+    String snapshotPath = '',
+    String videoPath = '',
+    String url = '',
+    int? width,
+    int? height,
+    String? encryptedKey,
+  }) {
+    return _metaData(CustomMessageType.video, {
+      VideoMessageEx.metaFileIdKey: fileId,
+      VideoMessageEx.metaSnapshotPathKey: snapshotPath,
+      VideoMessageEx.metaVideoPathKey: videoPath,
+      VideoMessageEx.metaURLKey: url,
+      if (width != null)
+        VideoMessageEx.metaWidthKey: width,
+      if (height != null)
+        VideoMessageEx.metaHeightKey: height,
+    });
+  }
+
   static Map<String, dynamic> _metaData(
     CustomMessageType type,
     Map<String, dynamic> content,
@@ -403,4 +424,24 @@ extension ImageSendingMessageEx on types.CustomMessage {
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
 
   String get fileId => path.getFileName(withExtension: false) ?? '';
+}
+
+extension VideoMessageEx on types.CustomMessage {
+  static const metaFileIdKey = 'fileId';
+  static const metaSnapshotPathKey = 'snapshotPath';
+  static const metaVideoPathKey = 'videoPath';
+  static const metaURLKey = 'url';
+  static const metaWidthKey = 'width';
+  static const metaHeightKey = 'height';
+
+  String get fileId => metadata?[CustomMessageEx.metaContentKey]?[metaFileIdKey] ?? '';
+  String get snapshotPath => metadata?[CustomMessageEx.metaContentKey]?[metaSnapshotPathKey] ?? '';
+  String get videoPath => metadata?[CustomMessageEx.metaContentKey]?[metaVideoPathKey] ?? '';
+  String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
+  int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
+  int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
+
+  void set snapshotPath(String value) {
+    metadata?[CustomMessageEx.metaContentKey]?[metaSnapshotPathKey] = value;
+  }
 }

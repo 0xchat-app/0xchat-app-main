@@ -545,10 +545,20 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     final path = ImageSendingMessageEx(message).path;
     final url = ImageSendingMessageEx(message).url;
     final fileId = ImageSendingMessageEx(message).fileId;
-    final width = ImageSendingMessageEx(message).width;
-    final height = ImageSendingMessageEx(message).height;
+    var width = ImageSendingMessageEx(message).width;
+    var height = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
     final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
+
+    if (width == null || height == null) {
+      try {
+        final uri = Uri.parse(url);
+        final query = uri.queryParameters;
+        width ??= int.tryParse(query['width'] ?? query['w'] ?? '');
+        height ??= int.tryParse(query['height'] ?? query['h'] ?? '');
+      } catch (_) { }
+    }
+
     return Hero(
       tag: message.id,
       child: ImagePreviewWidget(
@@ -559,6 +569,63 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
         progressStream: stream,
         decryptKey: encryptedKey,
       ),
+    );
+  }
+
+  static Widget _buildVideoMessage(
+    types.CustomMessage message,
+    int messageWidth,
+    Widget reactionWidget,
+  ) {
+    final url = VideoMessageEx(message).url;
+    var snapshotPath = VideoMessageEx(message).snapshotPath;
+    final fileId = VideoMessageEx(message).fileId;
+    var width = VideoMessageEx(message).width;
+    var height = VideoMessageEx(message).height;
+    final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
+
+    if (width == null || height == null) {
+      try {
+        final uri = Uri.parse(url);
+        final query = uri.queryParameters;
+        width ??= int.tryParse(query['width'] ?? query['w'] ?? '');
+        height ??= int.tryParse(query['height'] ?? query['h'] ?? '');
+      } catch (_) { }
+    }
+
+    if (snapshotPath.isEmpty && url.isNotEmpty) {
+      snapshotPath = OXVideoUtils.getVideoThumbnailImageFromMem(url)?.path ?? '';
+    }
+
+    Widget snapshotBuilder(String imagePath) {
+      return ImagePreviewWidget(
+        uri: imagePath,
+        imageWidth: width,
+        imageHeight: height,
+        maxWidth: messageWidth,
+        progressStream: stream,
+      );
+    }
+
+    return Stack(
+      children: [
+        if (snapshotPath.isNotEmpty)
+          snapshotBuilder(snapshotPath)
+        else
+          FutureBuilder(
+            future: OXVideoUtils.getVideoThumbnailImage(videoURL: url),
+            builder: (context, snapshot) {
+              final snapshotPath = snapshot.data?.path ?? '';
+              return snapshotBuilder(snapshotPath);
+            },
+          ),
+        if (stream == null)
+          Positioned.fill(
+            child: Center(
+              child: Icon(Icons.play_circle, size: 60.px,)
+            ),
+          ),
+      ],
     );
   }
 }

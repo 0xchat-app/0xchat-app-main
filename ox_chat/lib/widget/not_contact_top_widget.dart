@@ -28,7 +28,7 @@ class NotContactTopWidget extends StatefulWidget {
 }
 
 class _NotContactTopWidgetState extends State<NotContactTopWidget> {
-  double buttonWidth = (Adapt.screenW() - Adapt.px(16 + 12 + 12 + 16 + 16)) / 2;
+  double buttonWidth = (Adapt.screenW - Adapt.px(16 + 12 + 12 + 16 + 16)) / 2;
 
   @override
   void initState() {

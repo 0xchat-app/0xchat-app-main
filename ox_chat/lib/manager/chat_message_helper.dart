@@ -16,6 +16,7 @@ import 'package:ox_chat/utils/message_factory.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
+import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 
 import 'chat_data_cache.dart';
@@ -118,6 +119,8 @@ class ChatMessageHelper {
                   return '[Cashu Ecash] $memo';
                 case CustomMessageType.imageSending:
                   return Localized.text('ox_common.message_type_image');
+                case CustomMessageType.video:
+                  return Localized.text('ox_common.message_type_video');
                 default:
                   break ;
               }
@@ -179,7 +182,7 @@ extension MessageDBToUIEx on MessageDBISAR {
     logger?.print('step4 - contentType: ${contentModel.contentType}');
 
     // Message UI Model Creator
-    MessageFactory messageFactory = getMessageFactory(
+    MessageFactory messageFactory = await getMessageFactory(
       contentModel,
       isMentionMessageCallback,
       logger,
@@ -374,13 +377,13 @@ extension MessageDBToUIEx on MessageDBISAR {
     return null;
   }
 
-  MessageFactory getMessageFactory(
+  Future<MessageFactory> getMessageFactory(
     MessageContentModel contentModel,
     [
       VoidCallback? isMentionMessageCallback = null,
       MessageCheckLogger? logger,
     ]
-  ) {
+  ) async {
     final messageType = contentModel.contentType;
     switch (messageType) {
       case MessageType.text:
@@ -445,12 +448,29 @@ extension MessageDBToUIEx on MessageDBISAR {
           encryptedKey: decryptSecret,
         );
         try {
-          contentModel.content = jsonEncode(meta);
+          final jsonString = jsonEncode(meta);
+          contentModel.content = jsonString;
+          parseTo(type: MessageType.template, decryptContent: jsonString);
           return CustomMessageFactory();
         } catch (_) { }
         return ImageMessageFactory();
       case MessageType.video:
       case MessageType.encryptedVideo:
+        final url = contentModel.content ?? '';
+        final meta = CustomMessageEx.videoMetaData(
+          fileId: '',
+          url: url,
+          snapshotPath: (await OXVideoUtils.getVideoThumbnailImage(
+            videoURL: url,
+            onlyFromCache: true,
+          ))?.path ?? '',
+        );
+        try {
+          final jsonString = jsonEncode(meta);
+          contentModel.content = jsonString;
+          parseTo(type: MessageType.template, decryptContent: jsonString);
+          return CustomMessageFactory();
+        } catch (_) { }
         return VideoMessageFactory();
       case MessageType.audio:
       case MessageType.encryptedAudio:
@@ -508,6 +528,8 @@ extension MessageUIToDBEx on types.Message {
         final msg = this;
         if (msg.isImageMessage) {
           return encrypt ? MessageType.encryptedImage : MessageType.image;
+        } else if (msg.isVideoMessage) {
+          return encrypt ? MessageType.encryptedVideo : MessageType.video;
         }
         return MessageType.template;
       case types.MessageType.system:
@@ -533,6 +555,8 @@ extension MessageUIToDBEx on types.Message {
     } else if (msg is types.CustomMessage) {
       if (msg.isImageMessage) {
         return ImageSendingMessageEx(msg).url;
+      } else if (msg.isVideoMessage) {
+        return VideoMessageEx(msg).url;
       }
       return msg.customContentString;
     }
@@ -581,6 +605,20 @@ extension UIMessageEx on types.Message {
     final msg = this;
     return msg is types.CustomMessage
         && msg.customType == CustomMessageType.imageSending
+        && ImageSendingMessageEx(msg).url.isNotEmpty;
+  }
+
+  bool get isVideoSendingMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.video
+        && ImageSendingMessageEx(msg).url.isEmpty;
+  }
+
+  bool get isVideoMessage {
+    final msg = this;
+    return msg is types.CustomMessage
+        && msg.customType == CustomMessageType.video
         && ImageSendingMessageEx(msg).url.isNotEmpty;
   }
 }

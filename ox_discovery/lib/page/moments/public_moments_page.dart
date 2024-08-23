@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -75,6 +77,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   List<String> _avatarList = [];
 
   List<NoteDBISAR> _notificationGroupNotes = [];
+  bool addAutomaticKeepAlives = true;
+  bool addRepaintBoundaries = true;
 
   Map<String, List<NoteDBISAR>> get getNotificationGroupNotesToMap {
     Map<String, List<NoteDBISAR>> map = {};
@@ -90,6 +94,10 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      addAutomaticKeepAlives = false;
+      addRepaintBoundaries = false;
+    }
     isLogin = OXUserInfoManager.sharedInstance.isLogin;
     OXUserInfoManager.sharedInstance.addObserver(this);
     OXMomentManager.sharedInstance.addObserver(this);
@@ -157,6 +165,8 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
       controller: null,
       shrinkWrap: false,
       itemCount: notesList.length,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
       itemBuilder: (context, index) {
         ValueNotifier<NotedUIModel?> notedUIModel = notesList[index];
         if (index == 0) {

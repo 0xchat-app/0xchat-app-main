@@ -561,6 +561,30 @@ class CustomMessageFactory implements MessageFactory {
           encryptedKey: encryptedKey,
         );
 
+      case CustomMessageType.video:
+        final fileId = content[VideoMessageEx.metaFileIdKey];
+        final snapshotPath = content[VideoMessageEx.metaSnapshotPathKey];
+        final videoPath = content[VideoMessageEx.metaVideoPathKey];
+        final url = content[VideoMessageEx.metaURLKey];
+        final width = content[VideoMessageEx.metaWidthKey];
+        final height = content[VideoMessageEx.metaHeightKey];
+        return createVideoMessage(
+          author: author,
+          timestamp: timestamp,
+          roomId: roomId,
+          id: remoteId,
+          remoteId: remoteId,
+          sourceKey: sourceKey,
+          expiration: expiration,
+          reactions: reactions,
+          zapsInfoList: zapsInfoList,
+          fileId: fileId,
+          snapshotPath: snapshotPath,
+          videoPath: videoPath,
+          url: url,
+          width: width,
+          height: height,
+        );
       default:
         return null;
     }
@@ -743,6 +767,49 @@ class CustomMessageFactory implements MessageFactory {
       roomId: roomId,
       metadata: CustomMessageEx.imageSendingMetaData(
         path: path,
+        url: url,
+        width: width,
+        height: height,
+        encryptedKey: encryptedKey,
+      ),
+      type: types.MessageType.custom,
+      decryptKey: encryptedKey,
+      expiration: expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
+      viewWithoutBubble: true,
+    );
+  }
+
+  types.CustomMessage createVideoMessage({
+    required types.User author,
+    required int timestamp,
+    required String roomId,
+    required String id,
+    String? remoteId,
+    dynamic sourceKey,
+    int? expiration,
+    List<types.Reaction> reactions = const [],
+    List<types.ZapsInfo> zapsInfoList = const [],
+    required String fileId,
+    required String snapshotPath,
+    required String videoPath,
+    required String url,
+    int? width,
+    int? height,
+    String? encryptedKey,
+  }) {
+    return types.CustomMessage(
+      author: author,
+      createdAt: timestamp,
+      id: id,
+      sourceKey: sourceKey,
+      remoteId: remoteId,
+      roomId: roomId,
+      metadata: CustomMessageEx.videoMetaData(
+        fileId: fileId,
+        snapshotPath: snapshotPath,
+        videoPath: videoPath,
         url: url,
         width: width,
         height: height,
