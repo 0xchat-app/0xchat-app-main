@@ -169,7 +169,7 @@ class DiscoveryUtils {
       }
 
       charactersNum += content.length;
-      showContent = '$showContent $content';
+      showContent = '$showContent $content'.trim();
     }
 
     return showContent;
