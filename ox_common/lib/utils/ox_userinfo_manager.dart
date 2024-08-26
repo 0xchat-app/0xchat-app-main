@@ -86,7 +86,7 @@ class OXUserInfoManager {
     }
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
-      await CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
+      CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
     }
   }
 
