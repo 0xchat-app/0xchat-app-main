@@ -85,6 +85,19 @@ class Adapt {
   static padBotH() {
     return _botbarH;
   }
+
+  static double get topSafeAreaHeight {
+    final window = WidgetsBinding.instance.window;
+    final padding = window.padding;
+    return padding.top / window.devicePixelRatio;
+  }
+
+  static double get bottomSafeAreaHeightByKeyboard {
+    final window = WidgetsBinding.instance.window;
+    final viewInsets = window.viewInsets;
+    final padding = window.padding;
+    return (viewInsets.bottom + padding.bottom) / window.devicePixelRatio;
+  }
 }
 
 extension AdaptEx on num {

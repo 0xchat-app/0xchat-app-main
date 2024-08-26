@@ -9,6 +9,8 @@ import 'package:ox_common/widgets/common_image.dart';
 import 'dart:ui';
 import 'package:ox_theme/ox_theme.dart';
 
+const double CommonBarHeight = 56.0;
+
 const double LargeTitleHeight = 62.0;
 // marked by ccso
 const double MediumTitleHeight = 31.0;
@@ -128,7 +130,7 @@ CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.centerTitle = true,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.leadingWidth
-     }) : preferredSize = Size.fromHeight(56 +
+     }) : preferredSize = Size.fromHeight(CommonBarHeight +
             ((useLargeTitle == true &&
                     (useMediumTitle == false || useMediumTitle != false))
                 ? LargeTitleHeight
