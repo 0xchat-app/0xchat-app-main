@@ -130,6 +130,8 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     matcher: (String str) {
       return str.startsWith('nevent') ||
           str.startsWith('nostr:nevent') ||
+          str.startsWith('naddr') ||
+          str.startsWith('nostr:naddr') ||
           str.startsWith('nostr:note') ||
           str.startsWith('note');
     },
