@@ -159,7 +159,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
           }
         }
       } else if (kind == 39000){
-        if (!await _tryHandleRelaysFromMap(data, context)) return true;
+        // if (!await _tryHandleRelaysFromMap(data, context)) return true;
         // Go to group page
         final author = data['author'];
         OXModuleService.invoke('ox_chat', 'groupSharePage', [
