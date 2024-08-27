@@ -55,63 +55,63 @@ class _MessageNotificationPageState extends State<MessageNotificationPage> {
       _pushName = distributor != null ? getShowTitle(distributor) : _pushName;
     }
     _allNoticeModel = await getObjectList();
-    bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS);
+    bool containsNotification = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString());
     if (!containsNotification) {
       _allNoticeModel[CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_PUSH_NOTIFICATIONS,
         isSelected: true,
       );
     }
-    bool containsPrivMessages = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PRIVATE_MESSAGES);
+    bool containsPrivMessages = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString());
     if (!containsPrivMessages) {
       _allNoticeModel[CommonConstant.NOTIFICATION_PRIVATE_MESSAGES.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_PRIVATE_MESSAGES,
         isSelected: true,
       );
     }
-    bool containsChannels = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_CHANNELS);
+    bool containsChannels = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_CHANNELS.toString());
     if (!containsChannels) {
       _allNoticeModel[CommonConstant.NOTIFICATION_CHANNELS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_CHANNELS,
         isSelected: true,
       );
     }
-    bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS);
+    bool containsZaps = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_ZAPS.toString());
     if (!containsZaps) {
       _allNoticeModel[CommonConstant.NOTIFICATION_ZAPS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_ZAPS,
         isSelected: true,
       );
     }
-    bool containsSound = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_SOUND);
+    bool containsSound = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_SOUND.toString());
     if(!containsSound){
       _allNoticeModel[CommonConstant.NOTIFICATION_SOUND.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_SOUND,
         isSelected: true,
       );
     }
-    bool containsVibrate = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_VIBRATE);
+    bool containsVibrate = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_VIBRATE.toString());
     if(!containsVibrate){
       _allNoticeModel[CommonConstant.NOTIFICATION_VIBRATE.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_VIBRATE,
         isSelected: true,
       );
     }
-    bool containsLike = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REACTIONS);
+    bool containsLike = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REACTIONS.toString());
     if (!containsLike) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REACTIONS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REACTIONS,
         isSelected: true,
       );
     }
-    bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES);
+    bool containsReply = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_REPLIES.toString());
     if (!containsReply) {
       _allNoticeModel[CommonConstant.NOTIFICATION_REPLIES.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_REPLIES,
         isSelected: true,
       );
     }
-    bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS);
+    bool containsGroups = _allNoticeModel.containsKey(CommonConstant.NOTIFICATION_GROUPS.toString());
     if (!containsGroups) {
       _allNoticeModel[CommonConstant.NOTIFICATION_GROUPS.toString()] = NoticeModel(
         id: CommonConstant.NOTIFICATION_GROUPS,
