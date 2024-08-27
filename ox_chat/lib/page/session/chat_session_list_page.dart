@@ -435,14 +435,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
                               } else {
                                 count = await OXChatBinding.sharedInstance.deleteSession([item.chatId]);
                               }
-                              if (item.chatType == ChatType.chatSecret) {
-                                Contacts.sharedInstance.close(item.chatId);
-                              } else if (item.chatType == ChatType.chatSingle) {
-                                Messages.deleteSingleChatMessagesFromDB(item.sender, item.receiver);
-                                Messages.deleteSingleChatMessagesFromDB(item.receiver, item.sender);
-                              } else if (item.chatType == ChatType.chatChannel) {
-                                Messages.deleteGroupMessagesFromDB(item.groupId);
-                              }
                               if (count > 0) {
                                 setState(() {
                                   _merge();
