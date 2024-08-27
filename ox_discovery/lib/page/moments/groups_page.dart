@@ -506,6 +506,11 @@ class GroupsPageState extends State<GroupsPage>
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
+    if (mounted) {
+      setState(() {
+        updateStateView(CommonStateView.CommonStateView_None);
+      });
+    }
   }
 
   @override
