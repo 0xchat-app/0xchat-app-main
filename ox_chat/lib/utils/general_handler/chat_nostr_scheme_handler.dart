@@ -10,10 +10,10 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
     final regexNostr =
-        r'^(?:\s+)?(nostr:)?(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s*$)';
+        r'((nostr:)?(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]+)';
     final urlRegexp = RegExp(regexNostr);
     final match = urlRegexp.firstMatch(content);
-    return match?[0];
+    return match?.group(0);
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
