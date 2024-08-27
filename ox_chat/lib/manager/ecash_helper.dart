@@ -159,10 +159,6 @@ class EcashHelper {
       final token = tokenInfo.token;
       final response = await Cashu.redeemEcash(
         ecashString: token,
-        redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
-        signFunction: (key, message) async {
-          return Account.getSignatureWithSecret(message, key);
-        },
       );
       if (response.code == ResponseCode.tokenAlreadySpentError) {
         final history = await addReceiptHistoryForToken(token);
@@ -188,9 +184,6 @@ class EcashHelper {
     return await Cashu.addSignatureToToken(
       ecashString: token,
       privateKeyList: [Account.sharedInstance.currentPrivkey],
-      signFunction: (key, message) async {
-        return await Account.getSignatureWithSecret(message, key);
-      },
     ) ?? '';
   }
 

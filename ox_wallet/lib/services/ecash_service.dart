@@ -66,10 +66,6 @@ class EcashService {
     try {
       return await Cashu.redeemEcash(
         ecashString: ecashString,
-        redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
-        signFunction: (key, message) async {
-          return Account.getSignatureWithSecret(message, key);
-        },
       );
     } catch(e, s) {
       final msg = 'Create Lightning Invoice Failed: $e\r\n$s';

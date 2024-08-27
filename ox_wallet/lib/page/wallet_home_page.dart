@@ -360,6 +360,7 @@ extension IHistoryTypeEx on IHistoryType {
       case IHistoryType.eCash: return 'Ecash';
       case IHistoryType.lnInvoice: return 'Lightning';
       case IHistoryType.multiMintSwap: return 'Multi Mint Swap';
+      case IHistoryType.swapForP2PK: return 'Swap For P2PK';
     }
   }
 }
