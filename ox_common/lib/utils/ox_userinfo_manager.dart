@@ -87,6 +87,10 @@ class OXUserInfoManager {
     {
       final cashuDBPwd = await CashuHelper.getDBPassword(pubkey);
       CashuManager.shared.setup(pubkey, dbPassword: cashuDBPwd, defaultMint: []);
+      CashuManager.shared.signFn = (key, message) async {
+        return Account.getSignatureWithSecret(message, key);
+      };
+      CashuManager.shared.defaultSignKey = () => Account.sharedInstance.currentPrivkey;
     }
   }
 
