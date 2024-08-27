@@ -23,7 +23,7 @@ class ChatNostrSchemeHandle {
     else if (nostrScheme.startsWith('nostr:nprofile') ||
         nostrScheme.startsWith('nprofile') ||
         nostrScheme.startsWith('npub')) {
-      final tempMap = Account.decodeProfile(content);
+      final tempMap = Account.decodeProfile(nostrScheme);
       return await pubkeyToMessageContent(tempMap?['pubkey'], nostrScheme);
     } else if (nostrScheme.startsWith('nostr:note') ||
         nostrScheme.startsWith('nostr:nevent') ||
@@ -31,7 +31,7 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('nostr:naddr') ||
         nostrScheme.startsWith('naddr') ||
         nostrScheme.startsWith('note')) {
-      final tempMap = Channels.decodeChannel(content);
+      final tempMap = Channels.decodeChannel(nostrScheme);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme,
           tempMap?['relays'].cast<String>(), tempMap?['kind']);
     }
