@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ox_common/utils/adapt.dart';
+import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:uuid/uuid.dart';
@@ -78,11 +79,11 @@ class OXVideoUtils {
 
   static Future<File?> getVideoThumbnailImageWithFilePath({
     required String videoFilePath,
-    required String fileId,
+    String? cacheKey,
     bool onlyFromCache = false,
   }) async {
     final cacheManager = OXFileCacheManager.get();
-    final cacheKey = fileId;
+    cacheKey ??= await EncodeUtils.generatePartialFileMd5(File(videoFilePath));
     final thumbnailCache = await cacheManager.getFileFromCache(cacheKey);
 
     if (onlyFromCache || thumbnailCache != null) return thumbnailCache?.file;
