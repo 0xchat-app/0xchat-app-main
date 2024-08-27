@@ -149,8 +149,8 @@ class OXUserInfoManager {
     OXCacheManager.defaultOXCacheManager.saveForeverData(StorageKeyTool.KEY_PUBKEY, userDB.pubKey);
     OXCacheManager.defaultOXCacheManager.saveForeverData('${userDB.pubKey}${StorageKeyTool.KEY_IS_LOGIN_AMBER}', isAmber);
     UserConfigTool.saveUser(userDB);
+    await _initDatas();
     UserConfigTool.defaultNotificationValue();
-    _initDatas();
     for (OXUserInfoObserver observer in _observers) {
       observer.didLoginSuccess(currentUserInfo);
     }
@@ -392,7 +392,7 @@ class OXUserInfoManager {
     }
   }
 
-  void _initDatas() async {
+  Future<void> _initDatas() async {
     UserConfigTool.updateSettingFromDB(currentUserInfo?.settings);
     await OXCacheManager.defaultOXCacheManager.saveForeverData(StorageSettingKey.KEY_CHAT_RUN_STATUS.name, true);
     OXServerManager.sharedInstance.loadConnectICEServer();

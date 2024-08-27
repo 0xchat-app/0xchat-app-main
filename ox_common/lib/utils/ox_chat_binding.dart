@@ -286,15 +286,35 @@ class OXChatBinding {
   }
 
   Future<int> deleteSession(List<String> chatIds, {bool isStranger = false}) async {
-    chatIds.forEach((chatId) {sessionMap.remove(chatId); });
+    chatIds.forEach((chatId) {
+      ChatSessionModelISAR? sessionModelISAR = sessionMap[chatId];
+      if(sessionModelISAR != null){
+        switch(sessionModelISAR.chatType){
+          case ChatType.chatSecret:
+            Contacts.sharedInstance.close(sessionModelISAR.chatId);
+            Messages.deleteSecretChatMessagesFromDB(sessionModelISAR.chatId);
+            break;
+          case ChatType.chatSingle:
+            Messages.deleteSingleChatMessagesFromDB(sessionModelISAR.sender, sessionModelISAR.receiver);
+            Messages.deleteSingleChatMessagesFromDB(sessionModelISAR.receiver, sessionModelISAR.sender);
+            break;
+          case ChatType.chatChannel:
+          case ChatType.chatGroup:
+          case ChatType.chatRelayGroup:
+            Messages.deleteGroupMessagesFromDB(sessionModelISAR.groupId);
+            break;
+        }
+      }
+      sessionMap.remove(chatId);
+    });
     if(isStranger) {
       _updateUnReadStrangerSessionCount();
     }
     int changeCount = 0;
     final isar = DBISAR.sharedInstance.isar;
     await isar.writeTxn(() async {
-      final bool count = await isar.chatSessionModelISARs.deleteByChatId(chatIds.first);
-      if (count) {
+      final int count = await isar.chatSessionModelISARs.filter().anyOf(chatIds, (q, chatId) => q.chatIdEqualTo(chatId)).deleteAll();
+      if (count > 0) {
         changeCount = 1;
         OXChatBinding.sharedInstance.sessionUpdate();
       }
