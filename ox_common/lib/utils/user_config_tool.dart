@@ -93,14 +93,12 @@ class UserConfigTool{
   }
 
   static Future<void> saveUser(UserDBISAR userDB) async {
+
     Map<String, MultipleUserModel> currentUserMap = await getAllUser();
-    MultipleUserModel? userModel = currentUserMap[userDB.pubKey];
     String tempName = userDB.name ?? '';
-    String saveName = tempName.isEmpty ? (userModel == null || userModel.name.isEmpty ? userDB.shortEncodedPubkey : userModel.name) : tempName;
-    String tempDns = userDB.dns ?? '';
-    String saveDns = tempDns.isEmpty ? (userModel == null || userModel.dns.isEmpty ? '' : userModel.dns) : tempDns;
-    String? tempPic = userDB.picture ?? '';
-    String savePic = tempPic.isEmpty ? (userModel == null || userModel.picture.isEmpty ? '' : userModel.picture) : tempPic;
+    String saveName = tempName.isEmpty ? userDB.shortEncodedPubkey : tempName;
+    String saveDns = userDB.dns ?? '';
+    String savePic = userDB.picture ?? '';
     currentUserMap[userDB.pubKey] = MultipleUserModel(
       pubKey: userDB.pubKey,
       name: saveName,
