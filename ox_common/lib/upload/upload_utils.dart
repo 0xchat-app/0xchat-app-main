@@ -30,7 +30,7 @@ class UploadUtils {
     required File file,
     required String filename,
     required FileType fileType,
-    bool showLoading = true,
+    bool showLoading = false,
     Function(double progress)? onProgress,
   }) async {
     File uploadFile = file;
@@ -51,10 +51,9 @@ class UploadUtils {
       AesEncryptUtils.encryptFile(file, encryptedFile, encryptedKey);
       uploadFile = encryptedFile;
     }
-    final _showLoading = showLoading && (context != null);
     FileStorageServer fileStorageServer = OXServerManager.sharedInstance.selectedFileStorageServer;
     String url = '';
-    if(_showLoading) OXLoading.show();
+    if(showLoading) OXLoading.show();
     try {
       final protocol = fileStorageServer.protocol;
       switch (protocol) {
@@ -97,9 +96,9 @@ class UploadUtils {
           );
           break;
       }
-      if(_showLoading) OXLoading.dismiss();
+      if(showLoading) OXLoading.dismiss();
     } catch (e,s) {
-      if (_showLoading) OXLoading.dismiss();
+      if (showLoading) OXLoading.dismiss();
       return UploadExceptionHandler.handleException(e,s);
     }
 
