@@ -109,16 +109,17 @@ class ChatNostrSchemeHandle {
         }
         break;
       case 39000:
+        RelayGroupDBISAR? relayGroupDB;
         if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
-          RelayGroupDBISAR? relayGroupDB =
+           relayGroupDB =
               RelayGroup.sharedInstance.groups[eventId];
-          return relayGroupDBToMessageContent(relayGroupDB);
-        } else if (relays != null && relays.isNotEmpty) {
-          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance
-              .getGroupMetadataFromRelay(eventId, relay: relays.first);
-          if (relayGroupDB != null)
-            return relayGroupDBToMessageContent(relayGroupDB);
         }
+        if(relays != null && relays.isNotEmpty){
+          relayGroupDB = await RelayGroup.sharedInstance
+              .searchGroupsMetadataWithGroupID(eventId, relays.first);
+        }
+        if (relayGroupDB != null)
+          return relayGroupDBToMessageContent(relayGroupDB);
         break;
       }
     return null;
