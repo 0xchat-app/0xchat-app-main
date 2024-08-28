@@ -121,9 +121,6 @@ class EcashService {
   }
 
   static Future<IMint?> addMint(String mintURL) async {
-    if(!mintURL.startsWith('https://')){
-      mintURL = 'https://$mintURL';
-    }
     return await Cashu.addMint(mintURL);
   }
 
