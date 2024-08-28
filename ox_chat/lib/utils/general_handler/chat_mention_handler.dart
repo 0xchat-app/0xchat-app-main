@@ -177,7 +177,7 @@ extension ChatMentionInputFieldEx on ChatMentionHandler {
     final mentionText = _mentionTextString(userName);
     final originText = inputController.text;
     final selection = inputController.selection;
-    final mentionTextStart = selection.end;
+    final mentionTextStart = selection.isValid ? selection.end : 0;
     final mentionTextEnd = mentionTextStart + mentionText.length;
 
     final newText = originText.replaceRange(mentionTextStart, mentionTextStart, mentionText);
