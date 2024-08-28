@@ -44,7 +44,7 @@ class OXServerManager {
 
   List<Map<String, String>> get iCEServerConfigList => iCESeverModelList.expand((item) => item.serverConfig).toList();
   int get selectedFileStorageIndex  => _selectedFileStorageIndex;
-  bool _openP2PAndRelay = false;
+  bool _openP2PAndRelay = true;
   bool get openP2PAndRelay => _openP2PAndRelay;
 
   void loadConnectICEServer() async {
@@ -116,7 +116,7 @@ class OXServerManager {
   }
 
   Future<bool> getOpenP2PAndRelay() async {
-    bool openP2p = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_P2P_AND_RELAY.name, defaultValue: false);
+    bool openP2p = UserConfigTool.getSetting(StorageSettingKey.KEY_OPEN_P2P_AND_RELAY.name, defaultValue: true);
     return openP2p;
   }
 
