@@ -466,6 +466,7 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
       UploadResult result = await UploadUtils.uploadFile(
+        showLoading: true,
         fileType: FileType.image,
         file: imgFile,
         filename: "${_channelNameController.text}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png"

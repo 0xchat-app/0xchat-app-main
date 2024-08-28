@@ -326,6 +326,7 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     File imageFile = File(filePath);
 
     UploadResult result = await UploadUtils.uploadFile(
+      showLoading: true,
       fileType: FileType.image,
       file: imageFile,
       filename: fileName

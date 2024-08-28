@@ -193,7 +193,10 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           mCurrentUserInfo!.picture = result.url;
           LogUtil.e('Michael: --url =${result.url}');
         } else {
-          CommonToast.instance.show(context, result.errorMsg ?? 'UUpload Failed');
+          await OXLoading.dismiss();
+          String errorMsg = result.errorMsg != null ? ": ${result.errorMsg}" : "";
+          CommonToast.instance.show(context, 'Upload Failed$errorMsg');
+          return;
         }
       }
 
