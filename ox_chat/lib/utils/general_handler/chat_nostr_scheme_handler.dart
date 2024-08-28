@@ -195,7 +195,7 @@ class ChatNostrSchemeHandle {
       action: 'groupSharePage',
       params: {
         'groupId': groupDB?.groupId ?? '',
-        'groupName': groupDB?.name ?? '',
+        'groupName': groupDB?.showName ?? '',
         'groupPic': groupDB?.picture ?? '',
         'groupOwner': groupDB?.author ?? '',
         'groupTypeIndex': groupDB == null || !groupDB.closed
