@@ -10,6 +10,8 @@ import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/num_utils.dart';
@@ -17,7 +19,6 @@ import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/utils/took_kit.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/avatar.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -264,13 +265,13 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
     if (imgFile != null) {
       await OXLoading.show();
       String fileName = "${_groupDBInfo?.name ?? ''}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png";
-      final String url = await UplodAliyun.uploadFileToAliyun(
-        fileType: UplodAliyunType.imageType,
+      UploadResult result = await UploadUtils.uploadFile(
+        fileType: FileType.image,
         file: imgFile,
         filename: fileName,
       );
-      if (url.isNotEmpty) {
-        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', url, '');
+      if (result.isSuccess && result.url.isNotEmpty) {
+        OKEvent event = await RelayGroup.sharedInstance.editMetadata(widget.groupId, _groupDBInfo?.name??'', _groupDBInfo?.about??'', result.url, '');
         if (!event.status) {
           CommonToast.instance.show(context, event.message);
           await OXLoading.dismiss();
@@ -278,9 +279,11 @@ class _RelayGroupBaseInfoPageState extends State<RelayGroupBaseInfoPage> {
         }
         if (mounted) {
           setState(() {
-            _avatarAliyunUrl = url;
+            _avatarAliyunUrl = result.url;
           });
         }
+      } else {
+        CommonToast.instance.show(context, result.errorMsg ?? 'Upload Failed');
       }
       await OXLoading.dismiss();
     }

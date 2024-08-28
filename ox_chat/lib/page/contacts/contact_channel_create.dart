@@ -5,13 +5,14 @@ import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_common/model/badge_model.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_chat/page/session/chat_channel_message_page.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_chat/widget/badge_selector_dialog.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -464,17 +465,19 @@ class _ChatChannelCreateState extends State<ChatChannelCreate> {
 
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
-      final String url = await UplodAliyun.uploadFileToAliyun(
-        fileType: UplodAliyunType.imageType,
+      UploadResult result = await UploadUtils.uploadFile(
+        fileType: FileType.image,
         file: imgFile,
         filename: "${_channelNameController.text}_${DateTime.now().millisecondsSinceEpoch.toString()}_avatar01.png"
       );
-      if (url.isNotEmpty) {
+      if (result.isSuccess && result.url.isNotEmpty) {
         if (mounted) {
           setState(() {
-            _avatarAliyunUrl = url;
+            _avatarAliyunUrl = result.url;
           });
         }
+      } else {
+        CommonToast.instance.show(context, result.errorMsg ?? 'Upload Failed');
       }
     }
   }

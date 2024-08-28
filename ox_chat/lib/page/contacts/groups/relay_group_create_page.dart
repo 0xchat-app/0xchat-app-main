@@ -11,11 +11,12 @@ import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/ox_common.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 import 'package:ox_common/utils/permission_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
@@ -337,20 +338,22 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
   void _uploadAndRefresh(File? imgFile) async {
     if (imgFile != null) {
       await OXLoading.show();
-      final String url = await UplodAliyun.uploadFileToAliyun(
-        fileType: UplodAliyunType.imageType,
+      UploadResult result  = await UploadUtils.uploadFile(
+        fileType: FileType.image,
         file: imgFile,
         filename: _groupNameController.text +
             DateTime.now().millisecondsSinceEpoch.toString() +
             '_avatar01.png',
       );
       await OXLoading.dismiss();
-      if (url.isNotEmpty) {
+      if (result.isSuccess && result.url.isNotEmpty) {
         if (mounted) {
           setState(() {
-            _avatarAliyunUrl = url;
+            _avatarAliyunUrl = result.url;
           });
         }
+      } else {
+        CommonToast.instance.show(context, result.errorMsg ?? 'Upload Failed');
       }
     }
   }
