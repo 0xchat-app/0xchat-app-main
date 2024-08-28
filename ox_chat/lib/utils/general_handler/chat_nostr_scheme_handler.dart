@@ -207,7 +207,7 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${groupDB?.name}',
+      'title': '${groupDB?.showName}',
       'content': '${groupDB?.about}',
       'icon': '${groupDB?.picture}',
       'link': link
