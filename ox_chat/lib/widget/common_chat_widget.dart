@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chatcore/chat-core.dart';
 import 'package:ox_chat/manager/chat_data_cache.dart';
 import 'package:ox_chat/manager/chat_draft_manager.dart';
 import 'package:ox_chat/manager/chat_message_builder.dart';
@@ -12,6 +13,7 @@ import 'package:ox_chat/utils/general_handler/chat_mention_handler.dart';
 import 'package:ox_chat_ui/ox_chat_ui.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
+import 'package:ox_common/model/chat_type.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/web_url_helper.dart';
 import 'package:ox_common/widgets/avatar.dart';
@@ -214,4 +216,23 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
 
 extension CommonChatSessionEx on ChatSessionModelISAR {
   bool get showUserNames => chatType != 0;
+
+  /// Integer value for [MessageDBISAR.chatType].
+  /// Returns `null` if the [chatType] does not match any known chat type.
+  int? get coreChatType {
+    switch(chatType) {
+      case ChatType.chatSingle:
+        return 0;
+      case ChatType.chatGroup:
+        return 1;
+      case ChatType.chatChannel:
+        return 2;
+      case ChatType.chatSecret:
+        return 3;
+      case ChatType.chatRelayGroup:
+        return 4;
+      default:
+        return null;
+    }
+  }
 }

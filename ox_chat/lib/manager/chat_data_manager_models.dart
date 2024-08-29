@@ -1,6 +1,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:chatcore/chat-core.dart';
+import 'package:ox_common/utils/ox_userinfo_manager.dart';
 
 class ChatTypeMessageLoaderParams {
   ChatTypeMessageLoaderParams({
@@ -24,6 +25,7 @@ abstract class ChatTypeKey {
   List<String> getSQLFilterArgs();
 
   ChatTypeMessageLoaderParams get messageLoaderParams;
+  String get sessionId;
 
   // Equatable
   bool operator ==(Object other);
@@ -49,6 +51,10 @@ class PrivateChatKey implements ChatTypeKey {
   ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
     receiver: userId1 == Account.sharedInstance.currentPubkey ? userId2 : userId1,
   );
+
+  @override
+  String get sessionId => userId1 != OXUserInfoManager.sharedInstance.currentUserInfo!.pubKey
+      ? userId1 : userId2;
 
   @override
   bool operator ==(Object other) {
@@ -86,6 +92,9 @@ class GroupKey implements ChatTypeKey {
   );
 
   @override
+  String get sessionId => groupId;
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is GroupKey && other.groupId == groupId;
@@ -118,6 +127,9 @@ class ChannelKey implements ChatTypeKey {
   ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
     groupId: channelId,
   );
+
+  @override
+  String get sessionId => channelId;
 
   @override
   bool operator ==(Object other) {
@@ -186,6 +198,9 @@ class RelayGroupKey implements ChatTypeKey {
   ChatTypeMessageLoaderParams get messageLoaderParams => ChatTypeMessageLoaderParams(
     groupId: groupId,
   );
+
+  @override
+  String get sessionId => groupId;
 
   @override
   bool operator ==(Object other) {
