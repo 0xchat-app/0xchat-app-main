@@ -93,10 +93,10 @@ class ImportDataTools {
       sourceIsar = await Isar.open(
             DBISAR.sharedInstance.schemas,
             directory: sourceDBPath,
-            name: pubKey,
+            name: '${pubKey}temp',
           );
       for(var schema in DBISAR.sharedInstance.schemas){
-        IsarCollection? collection = DBISAR.sharedInstance.isar.getCollectionByNameInternal(schema.name);
+        IsarCollection? collection = sourceIsar.getCollectionByNameInternal(schema.name);
         if(collection != null){
           var datas = await collection.where().findAll();
           for(var data in datas) await DBISAR.sharedInstance.saveToDB(data);
