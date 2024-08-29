@@ -82,30 +82,27 @@ class CallManager {
         _signaling?.onParseMessage(friend, state, data, offerId);
       }
     };
+    await localRenderer.initialize();
+    await remoteRenderer.initialize();
+
     _signaling?.onLocalStream = ((stream) async {
-      if(localRenderer.textureId == null){
-        await localRenderer.initialize();
-      }
       localRenderer.srcObject = stream;
       callStateHandler?.call(null);
     });
 
     _signaling?.onRemoveLocalStream = (() async {
       localRenderer.srcObject = null;
-      localRenderer.dispose();
+      // localRenderer.dispose();
     });
 
     _signaling?.onAddRemoteStream = ((_, stream) async {
-      if(remoteRenderer.textureId == null){
-        await remoteRenderer.initialize();
-      }
       remoteRenderer.srcObject = stream;
       callStateHandler?.call(null);
     });
 
     _signaling?.onRemoveRemoteStream = ((_, stream) {
       remoteRenderer.srcObject = null;
-      remoteRenderer.dispose();
+      // remoteRenderer.dispose();
     });
     initListener();
   }
