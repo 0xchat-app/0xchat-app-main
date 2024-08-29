@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:isar/isar.dart';
@@ -61,6 +62,7 @@ class ImportDataTools {
       final sourceDBPwd = dbInfo[dbFileName];
       final targetDBPwd = await OXCacheManager.defaultOXCacheManager.getForeverData(localKey);
       return await importTableData(
+        pubKey: dbFileName.getFileName(withExtension: false) ?? dbFileName,
         sourceDBPath: dbFile.path,
         sourceDBPwd: sourceDBPwd,
         targetDBPath: newDbFile.path,
