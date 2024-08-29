@@ -89,62 +89,25 @@ class ImportDataTools {
     String? targetDBPwd,
   }) async {
     late Isar sourceIsar;
-    late Isar targetIsar;
     try {
       sourceIsar = await Isar.open(
             DBISAR.sharedInstance.schemas,
             directory: sourceDBPath,
             name: pubKey,
           );
-      targetIsar = await Isar.open(
-        DBISAR.sharedInstance.schemas,
-        directory: targetDBPath,
-        name: pubKey,
-      );
+      for(var schema in DBISAR.sharedInstance.schemas){
+        IsarCollection? collection = DBISAR.sharedInstance.isar.getCollectionByNameInternal(schema.name);
+        if(collection != null){
+          var datas = await collection.where().findAll();
+          for(var data in datas) await DBISAR.sharedInstance.saveToDB(data);
+        }
+      }
 
-      await targetIsar.writeTxn(() async {
-        await targetIsar.messageDBISARs.putAll(sourceIsar.messageDBISARs.getAll(ids));
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.userDBISARs.putAll(sourceIsar.usersISAR);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.badgeAwardDBISARs.putAll(sourceIsar.badgeAwardDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.badgeDBISARs.putAll(sourceIsar.badgeDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.relayDBISARs.putAll(sourceIsar.relayDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.channelDBISARs.putAll(sourceIsar.channelDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.secretSessionDBISARs.putAll(sourceIsar.secretSessionDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.groupDBISARs.putAll(sourceIsar.groupDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.joinRequestDBISARs.putAll(sourceIsar.joinRequestDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.moderationDBISARs.putAll(sourceIsar.moderationDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.relayGroupDBISARs.putAll(sourceIsar.relayGroupDBISARs);
-      });
-      await targetIsar.writeTxn(() async {
-        await targetIsar.configDBISARs.putAll(sourceIsar.configDBISARs);
-      });
-
+      await sourceIsar.close(deleteFromDisk: true);
       return true;
     } catch (e) {
       return false;
     } finally {
-      await sourceIsar.close();
-      await targetIsar.close();
     }
   }
 
