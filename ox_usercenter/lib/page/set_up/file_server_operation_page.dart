@@ -309,6 +309,7 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
     String secretKey = _minioInputOptionControllers[2].text;
     String bucketName = _minioInputOptionControllers[3].text;
     final name = _minioInputOptionControllers[4].text;
+    final description = url;
 
     if(!_urlValidator(url)) {
       CommonToast.instance.show(context, Localized.text('ox_usercenter.str_url_tips_text'));
@@ -330,8 +331,9 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
         url: url,
         accessKey: accessKey,
         secretKey: secretKey,
-        name: name,
+        name: name.isNotEmpty ? name : url,
         bucketName: bucketName,
+        description: description,
       );
       if(!result) {
         CommonToast.instance.show(context, Localized.text('ox_usercenter.str_bucket__name_tips_text'));
@@ -364,7 +366,11 @@ class _FileServerOperationPageState extends State<FileServerOperationPage> {
       CommonToast.instance.show(context, Localized.text('ox_usercenter.str_nip96_tips_text'));
       return;
     }
-    Nip96Server nip96server = Nip96Server(url: url, name: name.isNotEmpty ? name : url);
+    Nip96Server nip96server = Nip96Server(
+      url: url,
+      name: name.isNotEmpty ? name : url,
+      description: url,
+    );
     if(widget.operationType == OperationType.create) {
       await OXServerManager.sharedInstance.addFileStorageServer(nip96server);
     }else {

@@ -33,7 +33,7 @@ class _ICEServerPageState extends State<ICEServerPage> {
   bool _isEditing = false;
   bool _isShowDelete = false;
   bool _isShowAdd = false;
-  bool _isOpenP2PAndRelay = false;
+  bool _isOpenP2PAndRelay = true;
 
   @override
   void initState() {

@@ -1,18 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:extended_sliver/extended_sliver.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
 import 'package:ox_common/widgets/common_pull_refresher.dart';
+import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_discovery/enum/moment_enum.dart';
 import 'package:ox_discovery/model/moment_ui_model.dart';
 import 'package:ox_discovery/page/moments/moments_page.dart';
@@ -324,14 +325,15 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
     final filePath = filePathList.first;
     File imageFile = File(filePath);
 
-    final String url = await UplodAliyun.uploadFileToAliyun(
-      fileType: UplodAliyunType.imageType,
+    UploadResult result = await UploadUtils.uploadFile(
+      showLoading: true,
+      fileType: FileType.image,
       file: imageFile,
       filename: fileName
     );
 
-    if (url.isNotEmpty) {
-      currentUserInfo?.banner = url;
+    if (result.isSuccess && result.url.isNotEmpty) {
+      currentUserInfo?.banner = result.url;
       try {
         await OXLoading.show();
         await Account.sharedInstance.updateProfile(currentUserInfo!);
@@ -340,6 +342,8 @@ class _PersonMomentsPageState extends State<PersonMomentsPage>
       } catch (e) {
         await OXLoading.dismiss();
       }
+    } else {
+      CommonToast.instance.show(context, result.errorMsg ?? 'Upload Failed');
     }
   }
 

@@ -678,13 +678,25 @@ extension ChatMenuHandlerEx on ChatGeneralHandler {
       }
     });
 
+    // Pre-update UI
     final author = OXUserInfoManager.sharedInstance.currentUserInfo?.pubKey;
     if (author != null && author.isNotEmpty) {
       final reactions = [...message.reactions];
+      bool isNewContent = true;
       for (var reaction in reactions) {
         if (reaction.content != content) continue ;
         reaction.authors.add(author);
+        isNewContent = false;
       }
+      if (isNewContent) {
+        reactions.add(
+          Reaction(
+            authors: [author],
+            content: content,
+          )
+        );
+      }
+
       ChatDataCache.shared.updateMessage(
         session: session,
         message: message.copyWith(

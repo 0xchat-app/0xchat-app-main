@@ -9,11 +9,7 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
-    final regexNostr =
-        r'^(?:\s+)?(nostr:)?(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s*$)';
-    final urlRegexp = RegExp(regexNostr);
-    final match = urlRegexp.firstMatch(content);
-    return match?[0];
+    return MessageDBISAR.getNostrScheme(content);
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
@@ -23,7 +19,7 @@ class ChatNostrSchemeHandle {
     else if (nostrScheme.startsWith('nostr:nprofile') ||
         nostrScheme.startsWith('nprofile') ||
         nostrScheme.startsWith('npub')) {
-      final tempMap = Account.decodeProfile(content);
+      final tempMap = Account.decodeProfile(nostrScheme);
       return await pubkeyToMessageContent(tempMap?['pubkey'], nostrScheme);
     } else if (nostrScheme.startsWith('nostr:note') ||
         nostrScheme.startsWith('nostr:nevent') ||
@@ -31,7 +27,7 @@ class ChatNostrSchemeHandle {
         nostrScheme.startsWith('nostr:naddr') ||
         nostrScheme.startsWith('naddr') ||
         nostrScheme.startsWith('note')) {
-      final tempMap = Channels.decodeChannel(content);
+      final tempMap = Channels.decodeChannel(nostrScheme);
       return await eventIdToMessageContent(tempMap?['channelId'], nostrScheme,
           tempMap?['relays'].cast<String>(), tempMap?['kind']);
     }
@@ -113,16 +109,17 @@ class ChatNostrSchemeHandle {
         }
         break;
       case 39000:
+        RelayGroupDBISAR? relayGroupDB;
         if (RelayGroup.sharedInstance.groups.containsKey(eventId)) {
-          RelayGroupDBISAR? relayGroupDB =
+           relayGroupDB =
               RelayGroup.sharedInstance.groups[eventId];
-          return relayGroupDBToMessageContent(relayGroupDB);
-        } else if (relays != null && relays.isNotEmpty) {
-          RelayGroupDBISAR? relayGroupDB = await RelayGroup.sharedInstance
-              .getGroupMetadataFromRelay(eventId, relay: relays.first);
-          if (relayGroupDB != null)
-            return relayGroupDBToMessageContent(relayGroupDB);
         }
+        if(relays != null && relays.isNotEmpty){
+          relayGroupDB = await RelayGroup.sharedInstance
+              .searchGroupsMetadataWithGroupID(eventId, relays.first);
+        }
+        if (relayGroupDB != null)
+          return relayGroupDBToMessageContent(relayGroupDB);
         break;
       }
     return null;
@@ -198,7 +195,7 @@ class ChatNostrSchemeHandle {
       action: 'groupSharePage',
       params: {
         'groupId': groupDB?.groupId ?? '',
-        'groupName': groupDB?.name ?? '',
+        'groupName': groupDB?.showName ?? '',
         'groupPic': groupDB?.picture ?? '',
         'groupOwner': groupDB?.author ?? '',
         'groupTypeIndex': groupDB == null || !groupDB.closed
@@ -210,7 +207,7 @@ class ChatNostrSchemeHandle {
     Map<String, dynamic> map = {};
     map['type'] = '3';
     map['content'] = {
-      'title': '${groupDB?.name}',
+      'title': '${groupDB?.showName}',
       'content': '${groupDB?.about}',
       'icon': '${groupDB?.picture}',
       'link': link

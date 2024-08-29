@@ -267,15 +267,22 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
                       height: 20.px,
                       width: 20.px,
                     )).setPadding(EdgeInsets.only(right: 4.px)),
-                Text(
-                  title,
-                  style: TextStyle(
-                      fontSize: 14.sp,
-                      color: ThemeColor.color0,
-                      height: 1.4
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: 100.px,
                   ),
-                  textAlign: TextAlign.center,
-                ).setPadding(EdgeInsets.only(right: 4.px)),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                        fontSize: 14.sp,
+                        color: ThemeColor.color0,
+                        height: 1.4
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ).setPadding(EdgeInsets.only(right: 4.px)),
+                ),
                 Expanded(
                   child: Text(
                     dns,
@@ -559,7 +566,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
       } catch (_) { }
     }
 
-    return Hero(
+    Widget widget = Hero(
       tag: message.id,
       child: ImagePreviewWidget(
         uri: url.isNotEmpty ? url : path,
@@ -570,6 +577,33 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
         decryptKey: encryptedKey,
       ),
     );
+
+    if (message.reactions.isNotEmpty) {
+      widget = Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              ThemeColor.gradientMainEnd,
+              ThemeColor.gradientMainStart,
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(10.px),
+              child: widget,
+            ),
+            reactionWidget,
+          ],
+        ),
+      );
+    }
+
+    return widget;
   }
 
   static Widget _buildVideoMessage(

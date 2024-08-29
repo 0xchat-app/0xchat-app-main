@@ -127,10 +127,6 @@ class _SettingsPageState extends State<SettingsPage> with OXChatObserver {
               OXLoading.show();
               final response = await Cashu.redeemEcash(
                 ecashString: token,
-                redeemPrivateKey: [Account.sharedInstance.currentPrivkey],
-                signFunction: (key, message) async {
-                  return Account.getSignatureWithSecret(message, key);
-                },
               );
               OXLoading.dismiss();
               CommonToast.instance.show(

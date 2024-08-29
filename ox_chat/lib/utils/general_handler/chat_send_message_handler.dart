@@ -365,7 +365,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
       final thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
         videoFilePath: videoFile.path,
-        fileId: fileId,
+        cacheKey: fileId,
       );
       if (thumbnailImageFile == null) continue;
 

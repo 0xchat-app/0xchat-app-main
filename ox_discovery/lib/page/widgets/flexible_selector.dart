@@ -64,8 +64,7 @@ class _FlexibleSelectorState extends State<FlexibleSelector> {
                 ),
               ),
               SizedBox(width: 8.px,),
-              const Spacer(),
-              _buildOptions(widget.type),
+              Expanded(child: _buildOptions(widget.type)),
             ],
           ).setPaddingOnly(top: 1.px),
           Text(
@@ -86,28 +85,34 @@ class _FlexibleSelectorState extends State<FlexibleSelector> {
   Widget _buildOptions(SelectionType type){
     switch(type) {
       case SelectionType.single:
-        return CommonImage(
-          iconName: _isSelected ? 'icon_selected.png' : 'icon_unSelected.png',
-          package: 'ox_discovery',
-          useTheme: true,
-          size: 24.px,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            CommonImage(
+              iconName: _isSelected ? 'icon_selected.png' : 'icon_unSelected.png',
+              package: 'ox_discovery',
+              useTheme: true,
+              size: 24.px,
+            ),
+          ],
         );
       case SelectionType.multiple:
         return Row(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 150.px,
-              child: Text(
-                widget.content,
-                textAlign: TextAlign.right,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14.px,
-                  fontWeight: FontWeight.w400,
-                  color: ThemeColor.gradientMainStart,
-                  height: 20.px / 14.px
+            Expanded(
+              child: SizedBox(
+                child: Text(
+                  widget.content,
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.px,
+                    fontWeight: FontWeight.w400,
+                    color: ThemeColor.gradientMainStart,
+                    height: 20.px / 14.px
+                  ),
                 ),
               ),
             ),

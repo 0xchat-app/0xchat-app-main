@@ -5,9 +5,10 @@ import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/navigator/navigator.dart';
+import 'package:ox_common/upload/file_type.dart';
+import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
@@ -180,17 +181,22 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       }
       LogUtil.e('Michael: --imageFile =${imageFile?.path}');
       if (imageFile != null) {
-        final String url = await UplodAliyun.uploadFileToAliyun(
-          fileType: UplodAliyunType.imageType,
+        UploadResult result  = await UploadUtils.uploadFile(
+          fileType: FileType.image,
           file: imageFile!,
           filename: 'avatar_' +
               _userNameTextEditingController.text +
               DateTime.now().millisecondsSinceEpoch.toString() +
               '.png',
         );
-        LogUtil.e('Michael: --url =${url}');
-        if (url.isNotEmpty) {
-          mCurrentUserInfo!.picture = url;
+        if (result.isSuccess && result.url.isNotEmpty) {
+          mCurrentUserInfo!.picture = result.url;
+          LogUtil.e('Michael: --url =${result.url}');
+        } else {
+          await OXLoading.dismiss();
+          String errorMsg = result.errorMsg != null ? ": ${result.errorMsg}" : "";
+          CommonToast.instance.show(context, 'Upload Failed$errorMsg');
+          return;
         }
       }
 

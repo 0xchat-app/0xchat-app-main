@@ -572,6 +572,8 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   void didSwitchUser(UserDBISAR? userInfo) {
     // TODO: implement didSwitchUser
+    _isLogin = OXUserInfoManager.sharedInstance.isLogin;
+    setState(() {});
   }
 
   @override

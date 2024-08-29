@@ -157,7 +157,7 @@ class _AccountKeyLoginPageState extends State<AccountKeyLoginPage> {
     UserDBISAR? userDB = await Account.sharedInstance.loginWithPriKey(_accountKeyInput);
     userDB = await OXUserInfoManager.sharedInstance.handleSwitchFailures(userDB, currentUserPubKey);
     if (userDB == null) {
-      CommonToast.instance.show(context, Localized.text('ox_common.private_key_regular_failed'));
+      CommonToast.instance.show(context, Localized.text('ox_login.private_key_regular_failed'));
       return;
     }
     Account.sharedInstance.reloadProfileFromRelay(userDB.pubKey).then((value) {

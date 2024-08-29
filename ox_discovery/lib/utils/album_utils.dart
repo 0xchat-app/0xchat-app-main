@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
-import 'package:ox_common/utils/uplod_aliyun_utils.dart';
+import 'package:ox_common/utils/video_utils.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:path/path.dart' as Path;
-import 'package:path_provider/path_provider.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
 
 class AlbumUtils {
@@ -64,23 +62,11 @@ class AlbumUtils {
   static Future dealWithVideo(BuildContext context, List<File> images,
       Function(List<String>)? callback) async {
     for (final result in images) {
-      // OXLoading.show();
-      final uint8list = await VideoCompress.getByteThumbnail(
-        result.path,
-        quality: 50, // default(100)
-        position: -1, // default(-1)
+      final thumbnailFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
+        videoFilePath: result.path,
       );
-      final image = await decodeImageFromList(uint8list!);
-      Directory directory = await getTemporaryDirectory();
-      String thumbnailDirPath = '${directory.path}/thumbnails';
-      await Directory(thumbnailDirPath).create(recursive: true);
-
-      // Save the thumbnail to a file
-      String thumbnailPath = '$thumbnailDirPath/${Path.basenameWithoutExtension(result.path)}.jpg';
-      File thumbnailFile = File(thumbnailPath);
-      await thumbnailFile.writeAsBytes(uint8list);
-
-      callback?.call([result.path.toString(), thumbnailPath]);
+      
+      callback?.call([result.path.toString(), thumbnailFile?.path ?? '']);
     }
   }
 

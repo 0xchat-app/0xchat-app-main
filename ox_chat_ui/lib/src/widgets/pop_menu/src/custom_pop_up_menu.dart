@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:ox_common/utils/adapt.dart';
 import 'platform/platform.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
@@ -105,7 +106,6 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                   Offset(-widget.horizontalMargin, 0),
                 ),
                 verticalMargin: widget.verticalMargin,
-                position: widget.position,
               ),
               children: <Widget>[
                 if (widget.showArrow)
@@ -253,40 +253,27 @@ enum _MenuLayoutId {
   content,
 }
 
-enum _MenuPosition {
-  bottomLeft,
-  bottomCenter,
-  bottomRight,
-  topLeft,
-  topCenter,
-  topRight,
-}
-
 class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
   _MenuLayoutDelegate({
     required this.anchorSize,
     required this.anchorOffset,
     required this.verticalMargin,
-    this.position,
   });
 
   final Size anchorSize;
   final Offset anchorOffset;
   final double verticalMargin;
-  final PreferredPosition? position;
 
   @override
   void performLayout(Size size) {
+
     var contentSize = Size.zero;
     var arrowSize = Size.zero;
-    var contentOffset = Offset(0, 0);
-    var arrowOffset = Offset(0, 0);
-
     final anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
     final anchorTopY = anchorOffset.dy;
     final anchorBottomY = anchorTopY + anchorSize.height;
-    var menuPosition = _MenuPosition.bottomCenter;
 
+    // Prepare widget size
     if (hasChild(_MenuLayoutId.content)) {
       contentSize = layoutChild(
         _MenuLayoutId.content,
@@ -306,108 +293,97 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       );
     }
 
-    var isTop = false;
-    if (position == null) {
-      // auto calculate position
-      isTop = anchorBottomY > size.height / 2;
+    // Position type priority
+    // 1. Top Up
+    // 2. Top Down(Long message)
+    // 3. Bottom Up(Long message)
+    // 4. Bottom Down
+    // 5. Center Up(Long message)
+    final bottomMaxY = size.height - 50.px - Adapt.bottomSafeAreaHeightByKeyboard;
+    final menuContentHeight = contentSize.height + arrowSize.height + verticalMargin;
+    final isLongMessage = anchorSize.height > menuContentHeight * 2;
+    bool? isTop;
+    bool isUp;
+    if (anchorTopY - menuContentHeight > Adapt.topSafeAreaHeight) {
+      // Top Up
+      isTop = true;
+      isUp = true;
+    } else if (isLongMessage
+        && anchorTopY > Adapt.topSafeAreaHeight) {
+      // Top Down
+      isTop = true;
+      isUp = false;
+    } else if (isLongMessage
+        && anchorBottomY < bottomMaxY
+        && anchorBottomY - menuContentHeight > Adapt.topSafeAreaHeight) {
+      // Bottom Up
+      isTop = false;
+      isUp = true;
+    } else if (!isLongMessage
+        || anchorBottomY + menuContentHeight < bottomMaxY) {
+      // Bottom Down
+      isTop = false;
+      isUp = false;
     } else {
-      isTop = position == PreferredPosition.top;
-    }
-    if (anchorCenterX - contentSize.width / 2 < 0) {
-      menuPosition = isTop ? _MenuPosition.topLeft : _MenuPosition.bottomLeft;
-    } else if (anchorCenterX + contentSize.width / 2 > size.width) {
-      menuPosition = isTop ? _MenuPosition.topRight : _MenuPosition.bottomRight;
-    } else {
-      menuPosition =
-          isTop ? _MenuPosition.topCenter : _MenuPosition.bottomCenter;
+      // Center Up
+      isTop = null;
+      isUp = true;
     }
 
-    switch (menuPosition) {
-      case _MenuPosition.bottomCenter:
-        arrowOffset = Offset(
-          anchorCenterX - arrowSize.width / 2,
-          anchorBottomY + verticalMargin,
-        );
-        contentOffset = Offset(
-          anchorCenterX - contentSize.width / 2,
-          anchorBottomY + verticalMargin + arrowSize.height,
-        );
-        break;
-      case _MenuPosition.bottomLeft:
-        arrowOffset = Offset(anchorCenterX - arrowSize.width / 2,
-            anchorBottomY + verticalMargin);
-        contentOffset = Offset(
-          0,
-          anchorBottomY + verticalMargin + arrowSize.height,
-        );
-        break;
-      case _MenuPosition.bottomRight:
-        arrowOffset = Offset(anchorCenterX - arrowSize.width / 2,
-            anchorBottomY + verticalMargin);
-        contentOffset = Offset(
-          size.width - contentSize.width,
-          anchorBottomY + verticalMargin + arrowSize.height,
-        );
-        break;
-      case _MenuPosition.topCenter:
-        arrowOffset = Offset(
-          anchorCenterX - arrowSize.width / 2,
-          anchorTopY - verticalMargin - arrowSize.height,
-        );
-        contentOffset = Offset(
-          anchorCenterX - contentSize.width / 2,
-          anchorTopY - verticalMargin - arrowSize.height - contentSize.height,
-        );
-        break;
-      case _MenuPosition.topLeft:
-        arrowOffset = Offset(
-          anchorCenterX - arrowSize.width / 2,
-          anchorTopY - verticalMargin - arrowSize.height,
-        );
-        contentOffset = Offset(
-          0,
-          anchorTopY - verticalMargin - arrowSize.height - contentSize.height,
-        );
-        break;
-      case _MenuPosition.topRight:
-        arrowOffset = Offset(
-          anchorCenterX - arrowSize.width / 2,
-          anchorTopY - verticalMargin - arrowSize.height,
-        );
-        contentOffset = Offset(
-          size.width - contentSize.width,
-          anchorTopY - verticalMargin - arrowSize.height - contentSize.height,
-        );
-        break;
+    // Prepare position
+    final isTopDown = isTop == true && !isUp;
+    final isBottomUp = isTop == false && isUp;
+    final positionExtension = isTopDown || isBottomUp ? 30.px : 0.0;
+    var menuPositionX = anchorCenterX - contentSize.width / 2;
+    final arrowPositionX = anchorCenterX - arrowSize.width / 2;
+    var menuPositionY, arrowPositionY = 0.0;
+    // Top or Bottom
+    if (isTop == true) {
+      menuPositionY = anchorTopY;
+    } else if (isTop == false) {
+      menuPositionY = anchorBottomY;
+    } else {
+      menuPositionY = size.height / 2;
     }
+    arrowPositionY = menuPositionY;
+    // Up or Down
+    if (isUp) {
+      menuPositionY -= menuContentHeight + positionExtension;
+      arrowPositionY -= arrowSize.height + verticalMargin + positionExtension;
+    } else {
+      menuPositionY += arrowSize.height + verticalMargin + positionExtension;
+      arrowPositionY += verticalMargin + positionExtension;
+    }
+    // Adjust menuPositionX based on screen edges
+    if (menuPositionX < 0 && anchorCenterX <= size.width / 2) {
+      menuPositionX = 0; // Align with the left edge of the screen
+    } else if (menuPositionX + contentSize.width > size.width && anchorCenterX > size.width / 2) {
+      menuPositionX = size.width - contentSize.width; // Align with the right edge of the screen
+    }
+
+    // Layout child widget
     if (hasChild(_MenuLayoutId.content)) {
-      positionChild(_MenuLayoutId.content, contentOffset);
+      positionChild(_MenuLayoutId.content, Offset(menuPositionX, menuPositionY));
     }
-
     _menuRect = Rect.fromLTWH(
-      contentOffset.dx,
-      contentOffset.dy,
+      menuPositionX,
+      menuPositionY,
       contentSize.width,
       contentSize.height,
     );
-    var isBottom = false;
-    if (_MenuPosition.values.indexOf(menuPosition) < 3) {
-      // bottom
-      isBottom = true;
+    if (hasChild(_MenuLayoutId.downArrow)) {
+      positionChild(
+        _MenuLayoutId.downArrow,
+        isUp
+            ? Offset(arrowPositionX, arrowPositionY - 0.1)
+            : Offset(-100, 0),
+      );
     }
     if (hasChild(_MenuLayoutId.arrow)) {
       positionChild(
         _MenuLayoutId.arrow,
-        isBottom
-            ? Offset(arrowOffset.dx, arrowOffset.dy + 0.1)
-            : Offset(-100, 0),
-      );
-    }
-    if (hasChild(_MenuLayoutId.downArrow)) {
-      positionChild(
-        _MenuLayoutId.downArrow,
-        !isBottom
-            ? Offset(arrowOffset.dx, arrowOffset.dy - 0.1)
+        !isUp
+            ? Offset(arrowPositionX, arrowPositionY + 0.1)
             : Offset(-100, 0),
       );
     }
