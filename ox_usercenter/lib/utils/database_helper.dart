@@ -107,6 +107,7 @@ class DatabaseHelper{
     await DB.sharedInstance.closDatabase();
 
     await ImportDataTools.importTableData(
+      pubKey: pubKey,
       sourceDBPath: dbDecryptedFile.path,
       sourceDBPwd: currentDBPW,
       targetDBPath: dbOldPath,

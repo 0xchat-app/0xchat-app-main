@@ -7,7 +7,8 @@ import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:isar/isar.dart';
+import 'package:chatcore/chat-core.dart';
 
 class ImportDataTools {
 
@@ -81,37 +82,70 @@ class ImportDataTools {
   }
 
   static Future<bool> importTableData({
+    required String pubKey,
     required String sourceDBPath,
     String? sourceDBPwd,
     required String targetDBPath,
     String? targetDBPwd,
   }) async {
-    Database? sourceDB;
-    Database? targetDB;
+    late Isar sourceIsar;
+    late Isar targetIsar;
     try {
-      sourceDB = await openDatabase(sourceDBPath, password: sourceDBPwd, readOnly: true);
-      targetDB = await openDatabase(targetDBPath, password: targetDBPwd);
-
-      List<Map> tables = await sourceDB.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';",
+      sourceIsar = await Isar.open(
+            DBISAR.sharedInstance.schemas,
+            directory: sourceDBPath,
+            name: pubKey,
+          );
+      targetIsar = await Isar.open(
+        DBISAR.sharedInstance.schemas,
+        directory: targetDBPath,
+        name: pubKey,
       );
 
-      await targetDB.transaction((txn) async {
-        for (var table in tables) {
-          final tableName = table['name'];
-          final rows = await sourceDB?.query(tableName) ?? [];
-          for (var row in rows) {
-            await txn.insert(tableName, row, conflictAlgorithm: ConflictAlgorithm.ignore);
-          }
-        }
+      await targetIsar.writeTxn(() async {
+        await targetIsar.messageDBISARs.putAll(sourceIsar.messageDBISARs.getAll(ids));
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.userDBISARs.putAll(sourceIsar.usersISAR);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.badgeAwardDBISARs.putAll(sourceIsar.badgeAwardDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.badgeDBISARs.putAll(sourceIsar.badgeDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.relayDBISARs.putAll(sourceIsar.relayDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.channelDBISARs.putAll(sourceIsar.channelDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.secretSessionDBISARs.putAll(sourceIsar.secretSessionDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.groupDBISARs.putAll(sourceIsar.groupDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.joinRequestDBISARs.putAll(sourceIsar.joinRequestDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.moderationDBISARs.putAll(sourceIsar.moderationDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.relayGroupDBISARs.putAll(sourceIsar.relayGroupDBISARs);
+      });
+      await targetIsar.writeTxn(() async {
+        await targetIsar.configDBISARs.putAll(sourceIsar.configDBISARs);
       });
 
       return true;
     } catch (e) {
       return false;
     } finally {
-      await sourceDB?.close();
-      await targetDB?.close();
+      await sourceIsar.close();
+      await targetIsar.close();
     }
   }
+
 }
