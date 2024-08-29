@@ -329,8 +329,8 @@ class ChatDataCache with OXChatObserver {
 
     if (!isContainObserver(key)) return null;
 
-    final lastMsg = (await _getSessionMessage(key)).lastOrNull;
-    if (lastMsg != null && lastMsg.createdAt > message.createTime * 1000) return null;
+    // final lastMsg = (await _getSessionMessage(key)).lastOrNull;
+    // if (lastMsg != null && lastMsg.createdAt > message.createTime * 1000) return null;
 
     types.Message? msg = await message.toChatUIMessage(
       isMentionMessageCallback: () {
