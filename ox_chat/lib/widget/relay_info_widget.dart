@@ -18,7 +18,13 @@ class RelayInfoWidget extends StatefulWidget {
 }
 
 class RelayInfoWidgetState extends State<RelayInfoWidget> {
-  void refresh() {
+  @override
+  void initState() {
+    super.initState();
+    Connect.sharedInstance.addConnectStatusListener(connectStatusListener);
+  }
+
+  void connectStatusListener(relay, status, relayKinds) {
     setState(() {});
   }
 
@@ -53,5 +59,11 @@ class RelayInfoWidgetState extends State<RelayInfoWidget> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    Connect.sharedInstance.removeConnectStatusListener(connectStatusListener);
+    super.dispose();
   }
 }

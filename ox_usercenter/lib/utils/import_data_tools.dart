@@ -5,9 +5,11 @@ import 'package:archive/archive.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:ox_cache_manager/ox_cache_manager.dart';
 import 'package:ox_common/log_util.dart';
+import 'package:ox_common/utils/string_utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:isar/isar.dart';
+import 'package:chatcore/chat-core.dart';
 
 class ImportDataTools {
 
@@ -60,6 +62,7 @@ class ImportDataTools {
       final sourceDBPwd = dbInfo[dbFileName];
       final targetDBPwd = await OXCacheManager.defaultOXCacheManager.getForeverData(localKey);
       return await importTableData(
+        pubKey: dbFileName.getFileName(withExtension: false) ?? dbFileName,
         sourceDBPath: dbFile.path,
         sourceDBPwd: sourceDBPwd,
         targetDBPath: newDbFile.path,
@@ -81,37 +84,33 @@ class ImportDataTools {
   }
 
   static Future<bool> importTableData({
+    required String pubKey,
     required String sourceDBPath,
     String? sourceDBPwd,
     required String targetDBPath,
     String? targetDBPwd,
   }) async {
-    Database? sourceDB;
-    Database? targetDB;
+    late Isar sourceIsar;
     try {
-      sourceDB = await openDatabase(sourceDBPath, password: sourceDBPwd, readOnly: true);
-      targetDB = await openDatabase(targetDBPath, password: targetDBPwd);
-
-      List<Map> tables = await sourceDB.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';",
-      );
-
-      await targetDB.transaction((txn) async {
-        for (var table in tables) {
-          final tableName = table['name'];
-          final rows = await sourceDB?.query(tableName) ?? [];
-          for (var row in rows) {
-            await txn.insert(tableName, row, conflictAlgorithm: ConflictAlgorithm.ignore);
-          }
+      sourceIsar = await Isar.open(
+            DBISAR.sharedInstance.schemas,
+            directory: sourceDBPath,
+            name: '${pubKey}temp',
+          );
+      for(var schema in DBISAR.sharedInstance.schemas){
+        IsarCollection? collection = sourceIsar.getCollectionByNameInternal(schema.name);
+        if(collection != null){
+          var datas = await collection.where().findAll();
+          for(var data in datas) await DBISAR.sharedInstance.saveToDB(data);
         }
-      });
+      }
 
+      await sourceIsar.close(deleteFromDisk: true);
       return true;
     } catch (e) {
       return false;
     } finally {
-      await sourceDB?.close();
-      await targetDB?.close();
     }
   }
+
 }

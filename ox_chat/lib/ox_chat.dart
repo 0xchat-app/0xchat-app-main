@@ -180,7 +180,7 @@ class OXChat extends OXFlutterModule {
     return null;
   }
 
-  Widget _showRelayInfoWidget(BuildContext context) {
+  Widget _showRelayInfoWidget() {
     return RelayInfoWidget();
   }
 

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:chatcore/chat-core.dart';
 import 'package:flutter/material.dart';
+import 'package:ox_common/business_interface/ox_chat/interface.dart';
 import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
@@ -272,35 +273,7 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
           );
         },
       ),
-      SizedBox(
-        height: Adapt.px(24),
-        child: GestureDetector(
-          onTap: () {
-            OXModuleService.invoke('ox_usercenter', 'showRelayPage', [context]);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              CommonImage(
-                iconName: 'icon_relay_connected_amount.png',
-                width: Adapt.px(24),
-                height: Adapt.px(24),
-                fit: BoxFit.fill,
-              ),
-              SizedBox(
-                width: Adapt.px(4),
-              ),
-              Text(
-                '${Account.sharedInstance.getConnectedRelaysCount()}/${Account.sharedInstance.getAllRelaysCount()}',
-                style: TextStyle(
-                  fontSize: Adapt.px(14),
-                  color: ThemeColor.color100,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ).setPaddingOnly(left: 20.px),
+      OXChatInterface.showRelayInfoWidget().setPaddingOnly(left: 20.px),
       SizedBox(
         width: Adapt.px(24),
       ),

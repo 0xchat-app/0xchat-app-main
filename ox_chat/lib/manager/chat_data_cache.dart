@@ -176,8 +176,11 @@ class ChatDataCache with OXChatObserver {
   }
 
   @override
-  void didPrivateMessageCallBack(MessageDBISAR message) {
-    receivePrivateMessageHandler(message);
+  void didPrivateMessageCallBack(MessageDBISAR message) async {
+    final key = await receiveMessageHandler(message);
+    if (key != null) {
+      updateSessionExpiration(key.sessionId, message);
+    }
   }
 
   @override
@@ -199,102 +202,22 @@ class ChatDataCache with OXChatObserver {
     }
   }
 
-  Future receivePrivateMessageHandler(MessageDBISAR message) async {
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: 'didFriendMessageCallBack',
-      message: 'begin',
-    );
-    final senderId = message.sender;
-    final receiverId = message.receiver;
-    final key = PrivateChatKey(senderId, receiverId);
-    if (!isContainObserver(key)) return ;
-
-    types.Message? msg = await message.toChatUIMessage();
-
-    if (msg == null) {
-      ChatLogUtils.info(
-        className: 'ChatDataCache',
-        funcName: 'receivePrivateMessageHandler',
-        message: 'message is null',
-      );
-      return ;
-    }
-
-    await _addChatMessages(key, msg);
-
-    updateSessionExpiration(senderId, message);
-  }
-
   @override
   void didSecretChatMessageCallBack(MessageDBISAR message) async {
-    ChatLogUtils.info(
-      className: 'ChatDataCache',
-      funcName: 'didFriendMessageCallBack',
-      message: 'begin',
-    );
-
-    final sessionId = message.sessionId;
-    final key = SecretChatKey(sessionId);
-    if (!isContainObserver(key)) return ;
-
-    types.Message? msg = await message.toChatUIMessage();
-    if (msg == null) {
-      ChatLogUtils.error(className: 'ChatDataCache', funcName: 'didSecretChatMessageCallBack', message: 'message is null');
-      return ;
+    final key = await receiveMessageHandler(message);
+    if (key != null) {
+      updateSessionExpiration(key.sessionId, message);
     }
-
-    await _addChatMessages(key, msg);
-
-    updateSessionExpiration(sessionId, message);
   }
 
   @override
   void didGroupMessageCallBack(MessageDBISAR message) async {
-    final groupId = message.groupId;
-    final key = message.chatType != null && message.chatType == 4
-        ? RelayGroupKey(groupId)
-        : GroupKey(groupId);
-    if (!isContainObserver(key)) return ;
-
-    types.Message? msg = await message.toChatUIMessage(
-      isMentionMessageCallback: () {
-        OXChatBinding.sharedInstance.updateChatSession(groupId, isMentioned: true);
-      },
-    );
-    if (msg == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'didGroupMessageCallBack',
-        message: 'message is null',
-      );
-      return ;
-    }
-
-    await _addChatMessages(key, msg);
+    receiveMessageHandler(message);
   }
 
   @override
   void didChannalMessageCallBack(MessageDBISAR message) async {
-    final channelId = message.groupId;
-    ChannelKey key = ChannelKey(channelId);
-    if (!isContainObserver(key)) return ;
-
-    types.Message? msg = await message.toChatUIMessage(
-      isMentionMessageCallback: () {
-        OXChatBinding.sharedInstance.updateChatSession(channelId, isMentioned: true);
-      },
-    );
-    if (msg == null) {
-      ChatLogUtils.error(
-        className: 'ChatDataCache',
-        funcName: 'didChannalMessageCallBack',
-        message: 'message is null',
-      );
-      return ;
-    }
-
-    await _addChatMessages(key, msg);
+    receiveMessageHandler(message);
   }
 
   @override
@@ -392,6 +315,40 @@ class ChatDataCache with OXChatObserver {
 
   didOfflineMessageFinishCallBack() {
     updateMessageReplyInfo();
+  }
+
+  Future<ChatTypeKey?> receiveMessageHandler(MessageDBISAR message) async {
+    ChatLogUtils.info(
+      className: 'ChatDataCache',
+      funcName: 'receiveMessageHandler',
+      message: 'begin',
+    );
+
+    final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
+    if (key == null) return null;
+
+    if (!isContainObserver(key)) return null;
+
+    // final lastMsg = (await _getSessionMessage(key)).lastOrNull;
+    // if (lastMsg != null && lastMsg.createdAt > message.createTime * 1000) return null;
+
+    types.Message? msg = await message.toChatUIMessage(
+      isMentionMessageCallback: () {
+        OXChatBinding.sharedInstance.updateChatSession(key.sessionId, isMentioned: true);
+      },
+    );
+    if (msg == null) {
+      ChatLogUtils.info(
+        className: 'ChatDataCache',
+        funcName: 'receiveMessageHandler',
+        message: 'message is null',
+      );
+      return null;
+    }
+
+    await _addChatMessages(key, msg);
+
+    return key;
   }
 
   Future addSystemMessage(String text, ChatSessionModelISAR session, { bool isSendToRemote = true}) async {

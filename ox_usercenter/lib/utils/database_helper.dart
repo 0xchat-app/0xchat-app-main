@@ -38,7 +38,7 @@ class DatabaseHelper{
           ? await getApplicationDocumentsDirectory()
           : await getLibraryDirectory();
       String dbFilePath = directory.path + '/' + pubkey + '.isar';
-      final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.db';
+      final fileName = '0xchat_db '+OXDateUtils.formatTimestamp(DateTime.now().millisecondsSinceEpoch, pattern: 'MM-dd HH:mm')+'.isar';
 
       File dbEncryptedFile = FileUtils.createFolderAndFile(directory.path, pubkey + '_encrypt.isar');
       String dbEncryptPath = dbEncryptedFile.path;
@@ -104,20 +104,21 @@ class DatabaseHelper{
       confirmDialog(context, 'str_import_db_error_title'.localized(), e.toString(), (){OXNavigator.pop(context);});
       return;
     }
-    await DB.sharedInstance.closDatabase();
 
-    await ImportDataTools.importTableData(
+    bool importResult = await ImportDataTools.importTableData(
+      pubKey: pubKey,
       sourceDBPath: dbDecryptedFile.path,
       sourceDBPwd: currentDBPW,
       targetDBPath: dbOldPath,
       targetDBPwd: currentDBPW,
     );
-
-    OXUserInfoManager.sharedInstance.resetData();
-    await OXUserInfoManager.sharedInstance.initLocalData();
-
+    if (importResult) {
+      confirmDialog(context, '', 'str_import_db_error_title'.localized(), (){OXNavigator.pop(context);});
+      return;
+    }
+    await dbDecryptedFile.delete();
     UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
-    confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){OXNavigator.pop(context);});
+    confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){exit(0);});
   }
 
   static Future<void> replaceDatabase(String oldDbPath, String newDbPath) async {

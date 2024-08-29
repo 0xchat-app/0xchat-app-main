@@ -72,7 +72,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   Map<String, List<String>> _groupMembersCache = {};
   bool _isLogin = false;
   GlobalKey? _latestGlobalKey;
-  final GlobalKey<RelayInfoWidgetState> _relayInfoKey = GlobalKey<RelayInfoWidgetState>();
   double _nameMaxW = Adapt.screenW - (48 + 60 + 36 + 50).px;
   double _subTitleMaxW = Adapt.screenW - (48 + 60 + 36 + 30).px;
   bool addAutomaticKeepAlives = true;
@@ -86,9 +85,6 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
       addAutomaticKeepAlives = false;
       addRepaintBoundaries = false;
     }
-    Connect.sharedInstance.addConnectStatusListener((relay, status, relayKinds) {
-      if(mounted) _relayInfoKey.currentState?.refresh();
-    });
     _menuOptionModelList = CommunityMenuOptionModel.getOptionModelList();
     OXChatBinding.sharedInstance.addObserver(this);
     ThemeManager.addOnThemeChangedCallback(onThemeStyleChange);
@@ -216,7 +212,7 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
               )),
           actions: <Widget>[
             if (_isLogin)
-              RelayInfoWidget(key: _relayInfoKey),
+              RelayInfoWidget(),
             SizedBox(
               width: Adapt.px(24),
             ),
