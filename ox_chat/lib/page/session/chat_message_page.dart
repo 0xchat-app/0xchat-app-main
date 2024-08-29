@@ -55,6 +55,18 @@ class ChatMessagePage extends StatefulWidget {
     );
     final hasMoreMessage = initialMessage.isNotEmpty;
 
+    // Try request newest message
+    final chatType = communityItem.coreChatType;
+    int? since = initialMessage.firstOrNull?.createdAt;
+    if (since != null) since ~/= 1000;
+    if (chatType != null) {
+      Messages.recoverMessagesFromRelay(
+        communityItem.chatId,
+        chatType,
+        since: since,
+      );
+    }
+
     Widget? pageWidget;
     final sessionType = communityItem.chatType;
     switch (sessionType) {
