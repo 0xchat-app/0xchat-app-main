@@ -99,4 +99,8 @@ class OXChatInterface {
       [cashuToken],
     );
   }
+
+  static Widget showRelayInfoWidget() {
+    return OXModuleService.invoke(moduleName, 'showRelayInfoWidget', []);
+  }
 }
