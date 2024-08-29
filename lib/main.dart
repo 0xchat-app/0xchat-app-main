@@ -43,10 +43,15 @@ const MethodChannel navigatorChannel = const MethodChannel('NativeNavigator');
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
+    final client = super.createHttpClient(context)
+      // ..findProxy = (Uri uri) {
+      //   return "PROXY 127.0.0.1:7890";
+      // }
       ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-      true; // add your localhost detection logic here if you want
+          (X509Certificate cert, String host, int port) {
+        return true;
+      }; // add your localhost detection logic here if you want;
+    return client;
   }
 }
 
