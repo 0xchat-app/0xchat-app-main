@@ -111,7 +111,6 @@ class _NinePalaceGridPictureWidgetState extends State<NinePalaceGridPictureWidge
         child: MomentWidgetsUtils.clipImage(
           borderRadius: 8.px,
           child: ExtendedImage(
-            clearMemoryCacheWhenDispose: true,
             image:OXCachedImageProviderEx.create(
               imgPath,
               width: widgetWidth,
