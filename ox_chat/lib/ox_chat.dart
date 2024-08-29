@@ -180,8 +180,8 @@ class OXChat extends OXFlutterModule {
     return null;
   }
 
-  Widget _showRelayInfoWidget(BuildContext context, Key key) {
-    return RelayInfoWidget(key: key);
+  Widget _showRelayInfoWidget() {
+    return RelayInfoWidget();
   }
 
   void _showMyIdCardDialog(BuildContext context) {
