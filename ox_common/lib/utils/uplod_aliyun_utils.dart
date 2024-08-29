@@ -32,7 +32,6 @@ class UplodAliyun {
     bool showLoading = true,
     Function(double progress)? onProgress,
   }) async {
-    final _showLoading = showLoading && (context != null);
     return OXNetwork.instance
         .doRequest(
       context,
@@ -42,7 +41,7 @@ class UplodAliyun {
       needRSA: false,
       type: RequestType.GET,
     ).then((OXResponse response) async {
-      if(_showLoading) OXLoading.show();
+      if(showLoading) OXLoading.show();
       Map<String, dynamic> dataMap = Map<String, dynamic>.from(response.data);
       // LogUtil.e("upload : ${response}");
       // LogUtil.e('upload : ${dataMap}');
@@ -57,7 +56,7 @@ class UplodAliyun {
         filename: filename,
         onProgress: onProgress,
       );
-      if(_showLoading) OXLoading.dismiss();
+      if(showLoading) OXLoading.dismiss();
       return uri;
       // return false;
     }).catchError((e) {

@@ -130,6 +130,8 @@ extension ScanAnalysisHandlerEx on ScanUtils {
     matcher: (String str) {
       return str.startsWith('nevent') ||
           str.startsWith('nostr:nevent') ||
+          str.startsWith('naddr') ||
+          str.startsWith('nostr:naddr') ||
           str.startsWith('nostr:note') ||
           str.startsWith('note');
     },
@@ -157,7 +159,7 @@ extension ScanAnalysisHandlerEx on ScanUtils {
           }
         }
       } else if (kind == 39000){
-        if (!await _tryHandleRelaysFromMap(data, context)) return true;
+        // if (!await _tryHandleRelaysFromMap(data, context)) return true;
         // Go to group page
         final author = data['author'];
         OXModuleService.invoke('ox_chat', 'groupSharePage', [
