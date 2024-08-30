@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:chatcore/chat-core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/upload/file_type.dart';
@@ -516,15 +517,17 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 300.px,
-                    child: Text(
-                      content,
-                      style: TextStyle(
-                        fontSize: 16.px,
-                        color: ThemeColor.color0,
-                        fontWeight: FontWeight.w400,
-                        overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    child: Container(
+                      width: 300.px,
+                      child: Text(
+                        content,
+                        style: TextStyle(
+                          fontSize: 16.px,
+                          color: ThemeColor.color0,
+                          fontWeight: FontWeight.w400,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ),
