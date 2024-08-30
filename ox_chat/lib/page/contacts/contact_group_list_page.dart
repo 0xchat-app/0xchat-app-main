@@ -342,7 +342,17 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     setState(() {
       Map<String, List<UserDBISAR>> searchResult = {};
       _groupedUserList.forEach((key, value) {
-        List<UserDBISAR> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+        List<UserDBISAR> tempList = value.where((item) {
+          if(item.name!.toLowerCase().contains(searchQuery.toLowerCase())){
+            return true;
+          }
+
+          if(item.encodedPubkey.toLowerCase().contains(searchQuery.toLowerCase())){
+            return true;
+          }
+
+          return false;
+        }).toList();
         searchResult[key] = tempList;
       });
       searchResult.removeWhere((key, value) => value.isEmpty);
@@ -351,7 +361,6 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
   }
 
   void _searchUser(String searchQuery) async {
-
     UserDBISAR? user = await Account.sharedInstance.getUserInfo(UserDBISAR.decodePubkey(searchQuery)!);
     if (user == null) return;
     String tag = user.name ?? '';
