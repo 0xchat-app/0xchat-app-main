@@ -128,7 +128,6 @@ class OXChat extends OXFlutterModule {
           (context) => ContactUserInfoPage(
             pubkey: params?['pubkey'],
             chatId: params?['chatId'],
-            isSecretChat: params?['isSecretChat'] ?? false,
           ),
         );
       case 'chatUserChoosePage':

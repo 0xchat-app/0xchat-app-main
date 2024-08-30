@@ -18,6 +18,7 @@ import '../../utils/discovery_utils.dart';
 import '../../utils/moment_widgets_utils.dart';
 import '../widgets/moment_widget.dart';
 import '../widgets/simple_moment_reply_widget.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class MomentsPage extends StatefulWidget {
   final bool isShowReply;
@@ -736,32 +737,80 @@ class _MomentReplyWidgetState extends State<MomentReplyWidget> {
     );
   }
 
-  Widget _momentUserInfoWidget(UserDBISAR userDB) {
-    if(widget.notedUIModel.value == null) return const SizedBox();
-    return RichText(
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        children: <TextSpan>[
-          TextSpan(
-            text: userDB.name ?? '--',
-            style: TextStyle(
-              color: ThemeColor.color0,
-              fontSize: 14.px,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          TextSpan(
-            text: ' ' +
-                DiscoveryUtils.getUserMomentInfo(userDB, widget.notedUIModel.value!.createAtStr)[0],
-            style: TextStyle(
-              color: ThemeColor.color120,
-              fontSize: 12.px,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
+  Widget _checkIsPrivate() {
+    NotedUIModel? model = widget.notedUIModel.value;
+    if (model == null || !model.noteDB.private) return const SizedBox();
+    double momentMm = DiscoveryUtils.boundingTextSize(
+        Localized.text('ox_discovery.private'),
+        TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Adapt.px(20),
+            color: ThemeColor.titleColor))
+        .width;
+
+    return Container(
+      margin: EdgeInsets.only(left: 4.px),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4.px),
+        gradient: LinearGradient(
+          colors: [
+            ThemeColor.gradientMainEnd.withOpacity(0.2),
+            ThemeColor.gradientMainStart.withOpacity(0.2),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: 2.px,
+        horizontal: 4.px,
+      ),
+      child: Container(
+        constraints: BoxConstraints(maxWidth: momentMm),
+        child: GradientText(
+          Localized.text('ox_discovery.private'),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: Adapt.px(12),
+              color: ThemeColor.titleColor),
+          colors: [
+            ThemeColor.gradientMainStart,
+            ThemeColor.gradientMainEnd,
+          ],
+        ),
       ),
     );
   }
+
+  Widget _momentUserInfoWidget(UserDBISAR userDB) {
+    if(widget.notedUIModel.value == null) return const SizedBox();
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              userDB.name ?? '--',
+              style: TextStyle(
+                color: ThemeColor.color0,
+                fontSize: 14.px,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            _checkIsPrivate(),
+          ],
+        ),
+        Text(
+          DiscoveryUtils.getUserMomentInfo(userDB, widget.notedUIModel.value!.createAtStr)[0],
+          style: TextStyle(
+            color: ThemeColor.color120,
+            fontSize: 12.px,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+
 }

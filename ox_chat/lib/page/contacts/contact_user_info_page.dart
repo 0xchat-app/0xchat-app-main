@@ -43,10 +43,9 @@ class TabModel {
 class ContactUserInfoPage extends StatefulWidget {
   final String pubkey;
   final String? chatId;
-  final bool isSecretChat;
 
   ContactUserInfoPage(
-      {Key? key, required this.pubkey, this.chatId, this.isSecretChat = false})
+      {Key? key, required this.pubkey, this.chatId})
       : super(key: key);
 
   @override
@@ -863,10 +862,6 @@ class _ContactUserInfoPageState extends State<ContactUserInfoPage> {
   }
 
   void _sendMsg() {
-    if(widget.chatId != null){
-      OXNavigator.pop(context);
-      return;
-    }
     ChatMessagePage.open(
       context: context,
       communityItem: ChatSessionModelISAR(

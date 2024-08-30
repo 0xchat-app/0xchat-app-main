@@ -334,17 +334,46 @@ class ContactGroupListPageState<T extends ContactGroupListPage> extends State<T>
     );
   }
 
-  void _handlingSearch(String searchQuery){
+  void _handlingSearch(String searchQuery)async {
+    if(widget.groupListAction == GroupListAction.add && Account.sharedInstance.isValidPubKey(UserDBISAR.decodePubkey(searchQuery) ?? '')){
+      _searchUser(searchQuery);
+      return;
+    }
     setState(() {
       Map<String, List<UserDBISAR>> searchResult = {};
       _groupedUserList.forEach((key, value) {
-        List<UserDBISAR> tempList = value.where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+        List<UserDBISAR> tempList = value.where((item) {
+          if(item.name!.toLowerCase().contains(searchQuery.toLowerCase())){
+            return true;
+          }
+
+          if(item.encodedPubkey.toLowerCase().contains(searchQuery.toLowerCase())){
+            return true;
+          }
+
+          return false;
+        }).toList();
         searchResult[key] = tempList;
       });
       searchResult.removeWhere((key, value) => value.isEmpty);
       _filteredUserList = searchResult;
     });
   }
+
+  void _searchUser(String searchQuery) async {
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(UserDBISAR.decodePubkey(searchQuery)!);
+    if (user == null) return;
+    String tag = user.name ?? '';
+    if(tag.isNotEmpty){
+      tag = tag.substring(0,1).toUpperCase();
+    }
+
+    _filteredUserList = {
+      tag :  [user]
+    };
+    setState(() {});
+  }
+
 
   buildViewPressed() {}
 

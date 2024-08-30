@@ -33,12 +33,12 @@ class SettingModel {
       rightContent: '',
       settingItemType: SettingItemType.privacy,
     ));
-    settingModelList.add(SettingModel(
-      iconName: 'icon_settings_database.png',
-      title: 'ox_usercenter.str_database',
-      rightContent: '',
-      settingItemType: SettingItemType.database,
-    ));
+    // settingModelList.add(SettingModel(
+    //   iconName: 'icon_settings_database.png',
+    //   title: 'ox_usercenter.str_database',
+    //   rightContent: '',
+    //   settingItemType: SettingItemType.database,
+    // ));
     settingModelList.add(SettingModel(
       iconName: 'icon_settings_relays.png',
       title: 'ox_usercenter.relays',

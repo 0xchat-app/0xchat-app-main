@@ -81,7 +81,10 @@ class _RelaysPageState extends State<RelaysPage> {
     List<RelayDBISAR> recommendRelayList = _getRecommendRelayList(relayType);
 
     //Filters elements in the relay LIst
-    recommendRelayList.removeWhere((element) => relayList.contains(element));
+    recommendRelayList.removeWhere((recommendRelay) {
+      return relayList.any((relay) => relay.url == recommendRelay.url);
+    });
+
     _relayListMap[relayType] = relayList;
     _recommendRelayListMap[relayType] = recommendRelayList;
   }
@@ -280,9 +283,10 @@ class _RelaysPageState extends State<RelaysPage> {
                 ),
               ),
             ],
-            RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
-              _addOnTap(upcomingRelay: relayDB.url);
-            }),
+            if (recommendRelayList.isNotEmpty)
+              RelayCommendWidget(recommendRelayList, (RelayDBISAR relayDB) {
+                _addOnTap(upcomingRelay: relayDB.url);
+              }),
           ],
         ).setPadding(EdgeInsets.only(left: Adapt.px(24), right: Adapt.px(24), bottom: Adapt.px(24))),
       ),

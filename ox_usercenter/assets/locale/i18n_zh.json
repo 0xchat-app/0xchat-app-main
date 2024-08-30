@@ -152,7 +152,7 @@
   "str_change_database_passphrase_hint": "数据库加密密码将被更新。如果您丢失了密码，您将无法更改它。",
   "str_update_database_pw": "更新",
   "str_import_db_dialog_title": "导入聊天数据库",
-  "str_import_db_dialog_content": "您当前的聊天数据库将被删除并替换为导入的数据库。此操作无法撤销————您的个人资料、联系人、消息和文件将不可撤回地丢失。",
+  "str_import_db_dialog_content": "您当前的聊天数据库将导入备份的聊天数据。",
   "str_import_db_dialog_import": "导入",
   "str_import_db_error_title": "导入聊天数据库错误",
   "str_import_db_error_hint": "无法导入他人账户，请导入自己的数据库",
@@ -217,7 +217,10 @@
   "str_notification_reactions": "点赞",
   "str_notification_replies": "回复",
   "str_notification_groups": "群聊",
-  "str_notification_reactions_tips": "like description",
-  "str_notification_reply_tips": "reply description",
-  "str_notification_groups_tips": "groups description"
+  "str_notification_reactions_tips": "启用对时刻和消息反应的通知。",
+  "str_notification_reply_tips": "启用对时刻和消息回复的通知。",
+  "str_notification_groups_tips": "启用群消息通知。",
+  "str_p2p_title": "语音和视频数据通过TURN服务器中继，以防止您的IP地址暴露给您的联系人。",
+  "str_p2p_tips": "始终使用中继",
+  "str_read_file_failed": "读取文件失败"
 }
