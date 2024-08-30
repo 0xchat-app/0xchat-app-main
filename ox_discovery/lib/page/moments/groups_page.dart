@@ -425,6 +425,7 @@ class GroupsPageState extends State<GroupsPage>
         .searchAllGroupsFromRelays((groups) {
           if(widget.groupType == GroupType.channel) return;
           for(var group in groups){
+            if(group.closed) continue;
             _groupList[group.groupId] = GroupModel.fromRelayGroupDB(group);
           }
           if(mounted){
