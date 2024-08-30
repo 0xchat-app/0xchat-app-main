@@ -92,10 +92,14 @@ class ImportDataTools {
   }) async {
     late Isar sourceIsar;
     try {
+      List<String> pathSegments = sourceDBPath.split('/');
+      String fileName = pathSegments.last;
+      String directoryPath = pathSegments.sublist(0, pathSegments.length - 1).join('/');
+
       sourceIsar = await Isar.open(
             DBISAR.sharedInstance.schemas,
-            directory: sourceDBPath,
-            name: '${pubKey}temp',
+            directory: directoryPath,
+            name: fileName,
           );
       for(var schema in DBISAR.sharedInstance.schemas){
         IsarCollection? collection = sourceIsar.getCollectionByNameInternal(schema.name);
@@ -108,6 +112,7 @@ class ImportDataTools {
       await sourceIsar.close(deleteFromDisk: true);
       return true;
     } catch (e) {
+      print(e);
       return false;
     } finally {
     }
