@@ -449,12 +449,10 @@ class SignalingManager {
                 onCallStateChange?.call(session, CallState.CallStateConnected);
               }
             }
-            if (!_isDisconnected && state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
-              _isDisconnected = true;
+            if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
               var session = _sessions[sessionId];
               if (session != null) {
-                onCallStateChange?.call(session, CallState.CallStateBye);
-                _closeSession(session, sessionId);
+                onCallStateChange?.call(session, CallState.CallStateConnecting);
               }
             }
           };
