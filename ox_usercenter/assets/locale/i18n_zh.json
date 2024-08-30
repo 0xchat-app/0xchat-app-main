@@ -217,7 +217,10 @@
   "str_notification_reactions": "点赞",
   "str_notification_replies": "回复",
   "str_notification_groups": "群聊",
-  "str_notification_reactions_tips": "like description",
-  "str_notification_reply_tips": "reply description",
-  "str_notification_groups_tips": "groups description"
+  "str_notification_reactions_tips": "启用对时刻和消息反应的通知。",
+  "str_notification_reply_tips": "启用对时刻和消息回复的通知。",
+  "str_notification_groups_tips": "启用群消息通知。",
+  "str_p2p_title": "语音和视频数据通过TURN服务器中继，以防止您的IP地址暴露给您的联系人。",
+  "str_p2p_tips": "始终使用中继",
+  "str_read_file_failed": "读取文件失败"
 }

@@ -65,6 +65,11 @@ class DatabaseHelper{
     final TextEditingController _pwdTEController = TextEditingController();
     final FocusNode _pwdFocusNode = FocusNode();
     bool _currentEyeStatus = true;
+    File? file = await FileUtils.importFile();
+    if (file == null) {
+      CommonToast.instance.show(context, 'str_read_file_failed'.localized());
+      return;
+    }
     OXCommonHintDialog.show(
       context,
       title: 'str_import_db_dialog_title'.localized(),
@@ -89,8 +94,12 @@ class DatabaseHelper{
                       fontSize: 16.px,
                       color: ThemeColor.color100,
                     ),
-                    contentPadding: EdgeInsets.only(left: 8.px),
-                    border: InputBorder.none,
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ThemeColor.color120),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ThemeColor.white01),
+                    ),
                   ),
                   obscureText: _currentEyeStatus,
                   leftWidget: GestureDetector(
@@ -101,7 +110,7 @@ class DatabaseHelper{
                       });
                     },
                     child: Container(
-                      margin: EdgeInsets.only(left: 16.px),
+                      margin: EdgeInsets.only(left: 16.px, right: 8.px),
                       child: CommonImage(
                         iconName: _currentEyeStatus ? 'icon_obscure_close.png' : 'icon_obscure.png',
                         width: 24.px,
@@ -127,12 +136,9 @@ class DatabaseHelper{
               String pwdStr = _pwdTEController.text;
               if (pwdStr.isNotEmpty) {
                 OXNavigator.pop(context);
-                File? file = await FileUtils.importFile();
-                if (file != null) {
-                  OXLoading.show();
-                  await importDatabase(context, file.path, pwdStr);
-                  OXLoading.dismiss();
-                }
+                OXLoading.show();
+                await importDatabase(context, file.path, pwdStr);
+                OXLoading.dismiss();
               } else {
                 CommonToast.instance.show(context, 'str_passphrase_current_error'.localized());
               }
