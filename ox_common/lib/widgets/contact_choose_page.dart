@@ -285,15 +285,26 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
     );
   }
 
-  void _handlingSearch(String searchQuery){
+  void _handlingSearch(String searchQuery)async{
+    if(Account.sharedInstance.isValidPubKey(UserDBISAR.decodePubkey(searchQuery) ?? '') && widget.contactType == ContactType.contact){
+      _searchUser(searchQuery);
+      return;
+    }
     setState(() {
       Map<String, List<T>> searchResult = {};
       _groupedContactList.forEach(
         (key, value) {
           if (widget.contactType == ContactType.contact) {
             List<UserDBISAR> tempList = (value as List<UserDBISAR>)
-                .where((item) => item.name!.toLowerCase().contains(searchQuery.toLowerCase()))
-                .toList();
+                .where((item) {
+                if(item.name!.toLowerCase().contains(searchQuery.toLowerCase())){
+                  return true;
+                }
+                if(item.encodedPubkey.toLowerCase().contains(searchQuery.toLowerCase())){
+                  return true;
+                }
+                return false;
+            }).toList();
             searchResult[key] = tempList.cast<T>();
           }
           if (widget.contactType == ContactType.group) {
@@ -307,6 +318,20 @@ class _ContactChoosePageState<T> extends State<ContactChoosePage<T>> {
       searchResult.removeWhere((key, value) => value.isEmpty);
       _filteredContactList = searchResult;
     });
+  }
+
+  void _searchUser(String searchQuery) async {
+    UserDBISAR? user = await Account.sharedInstance.getUserInfo(UserDBISAR.decodePubkey(searchQuery) ?? '');
+    if (user == null) return;
+    String tag = user.name ?? '';
+    if(tag.isNotEmpty){
+      tag = tag.substring(0,1).toUpperCase();
+    }
+
+    _filteredContactList = {
+      tag :  [user].cast<T>()
+    };
+    setState(() {});
   }
 
   @override
