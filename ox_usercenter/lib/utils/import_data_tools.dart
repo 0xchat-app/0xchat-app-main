@@ -95,24 +95,29 @@ class ImportDataTools {
       List<String> pathSegments = sourceDBPath.split('/');
       String fileName = pathSegments.last;
       String directoryPath = pathSegments.sublist(0, pathSegments.length - 1).join('/');
+      String fileNameWithoutExtension = fileName.split('.').first;
 
       sourceIsar = await Isar.open(
             DBISAR.sharedInstance.schemas,
             directory: directoryPath,
-            name: fileName,
+            name: fileNameWithoutExtension,
           );
       for(var schema in DBISAR.sharedInstance.schemas){
         IsarCollection? collection = sourceIsar.getCollectionByNameInternal(schema.name);
         if(collection != null){
           var datas = await collection.where().findAll();
-          for(var data in datas) await DBISAR.sharedInstance.saveToDB(data);
+          IsarCollection? collection2 = DBISAR.sharedInstance.isar.getCollectionByNameInternal(schema.name);
+          if(collection2 != null){
+            await DBISAR.sharedInstance.isar.writeTxn(() async {
+              await collection2.putAll(datas);
+            });
+          }
         }
       }
-
-      await sourceIsar.close(deleteFromDisk: true);
+      await sourceIsar.close();
       return true;
     } catch (e) {
-      print(e);
+      print('e: $e');
       return false;
     } finally {
     }
