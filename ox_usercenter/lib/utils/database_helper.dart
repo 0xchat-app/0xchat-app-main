@@ -162,11 +162,11 @@ class DatabaseHelper{
       targetDBPath: dbOldPath,
       targetDBPwd: currentDBPW,
     );
-    if (importResult) {
+    await dbDecryptedFile.delete();
+    if (!importResult) {
       confirmDialog(context, '', 'str_import_db_error_title'.localized(), (){OXNavigator.pop(context);});
       return;
     }
-    await dbDecryptedFile.delete();
     UserConfigTool.saveSetting(StorageSettingKey.KEY_CHAT_IMPORT_DB.name, true);
     confirmDialog(context, 'str_import_db_success'.localized(), 'str_import_db_success_hint'.localized(), (){exit(0);});
   }
