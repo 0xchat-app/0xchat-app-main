@@ -8,6 +8,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_discovery/enum/group_type.dart';
 import 'package:ox_discovery/page/moments/groups_page.dart';
 import 'package:ox_discovery/page/widgets/group_selector_dialog.dart';
+import 'package:ox_discovery/utils/discovery_utils.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:ox_common/log_util.dart';
 import 'package:ox_common/mixin/common_state_view_mixin.dart';
@@ -112,14 +113,14 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double momentMm = boundingTextSize(
+    double momentMm =  DiscoveryUtils.boundingTextSize(
             Localized.text('ox_discovery.moment'),
             TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Adapt.px(20),
                 color: ThemeColor.titleColor))
         .width;
-    double discoveryMm = boundingTextSize(
+    double discoveryMm = DiscoveryUtils.boundingTextSize(
         Localized.text('ox_discovery.group'),
         TextStyle(
             fontWeight: FontWeight.bold,
@@ -286,19 +287,6 @@ class DiscoveryPageState extends DiscoveryPageBaseState<DiscoveryPage>
       key: groupsPageState,
       groupType: _groupType,
     );
-  }
-
-  static Size boundingTextSize(String text, TextStyle style,
-      {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
-    if (text.isEmpty) {
-      return Size.zero;
-    }
-    final TextPainter textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style),
-        maxLines: maxLines)
-      ..layout(maxWidth: maxWidth);
-    return textPainter.size;
   }
 
   Widget headerViewForIndex(String leftTitle, int index) {
