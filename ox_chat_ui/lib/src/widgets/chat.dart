@@ -417,6 +417,9 @@ class ChatState extends State<Chat> {
     _scrollController = widget.scrollController ?? AutoScrollController();
 
     didUpdateWidget(widget);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() { });
+    });
   }
 
   @override
