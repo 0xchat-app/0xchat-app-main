@@ -48,7 +48,7 @@ class _ContactGroupMemberState extends ContactGroupListPageState {
 
   Future<void> _fetchUserListAsync() async {
     List<UserDBISAR> users = await fetchUserList();
-    if(widget.groupListAction == GroupListAction.add || widget.groupListAction == GroupListAction.remove){
+    if(widget.groupListAction == GroupListAction.add){
       UserDBISAR? notifyBot = await Account.sharedInstance.getUserInfo(buzzBot);
       if(notifyBot != null) users.add(notifyBot);
     }
