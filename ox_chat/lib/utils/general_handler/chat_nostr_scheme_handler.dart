@@ -9,7 +9,11 @@ import 'package:ox_common/utils/custom_uri_helper.dart';
 
 class ChatNostrSchemeHandle {
   static String? getNostrScheme(String content) {
-    return MessageDBISAR.getNostrScheme(content);
+    final regexNostr =
+        r'^(?:\s+)?(nostr:)?(npub|note|nprofile|nevent|nrelay|naddr)[0-9a-zA-Z]{8,}(?=\s*$)';
+    final urlRegexp = RegExp(regexNostr);
+    final match = urlRegexp.firstMatch(content);
+    return match?.group(0);
   }
 
   static Future<String?> tryDecodeNostrScheme(String content) async {
