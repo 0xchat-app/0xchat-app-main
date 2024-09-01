@@ -519,6 +519,7 @@ class _DonatePageState extends State<DonatePage> {
       sats: sats.toInt(),
       recipient: CommonConstant.serverPubkey,
       otherLnurl: '0xchat@getalby.com',
+      zapType: ZapType.donate,
     );
     final invoice = result['invoice'] ?? '';
     final message = result['message'] ?? '';
