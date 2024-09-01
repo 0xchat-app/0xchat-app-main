@@ -194,7 +194,7 @@ class ChatNostrSchemeHandle {
       module: 'ox_chat',
       action: 'groupSharePage',
       params: {
-        'groupId': groupDB?.groupId ?? '',
+        'groupId': groupDB?.identifier ?? '',
         'groupName': groupDB?.showName ?? '',
         'groupPic': groupDB?.picture ?? '',
         'groupOwner': groupDB?.author ?? '',
