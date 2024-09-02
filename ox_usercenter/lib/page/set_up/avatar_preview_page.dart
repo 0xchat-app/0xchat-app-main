@@ -83,6 +83,13 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                         // 07/04 requirement change
                         OXNavigator.pop(context, imgFile);
                       }
+                      else{
+                        setState(() {
+                          mUserDB?.picture = '';
+                          imageFile = null;
+                        });
+                        OXNavigator.pop(context, null);
+                      }
                     },
                   ),
                 ),
