@@ -17,7 +17,7 @@ class PromptToneManager {
   static AudioContext get _defaultAudioContext => AudioContextConfig(
     respectSilence: Platform.isIOS ? true : false,
     stayAwake: false,
-    focus: AudioContextConfigFocus.duckOthers
+    focus: Platform.isIOS ? AudioContextConfigFocus.gain : AudioContextConfigFocus.duckOthers,
   ).build();
 
   Future setup() async {
