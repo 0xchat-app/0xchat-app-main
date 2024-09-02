@@ -41,6 +41,8 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
 
   List<ValueNotifier<NotedUIModel?>> replyList = [];
 
+  bool scrollTag = false;
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +56,12 @@ class _MomentsPageState extends State<MomentsPage> with NavigatorObserverMixin {
   }
 
   void _scrollToPosition(double offset) {
-    _scrollController.jumpTo(
-      offset,
-    );
+    if(!scrollTag){
+      scrollTag = true;
+      _scrollController.jumpTo(
+        offset,
+      );
+    }
   }
 
   @override
