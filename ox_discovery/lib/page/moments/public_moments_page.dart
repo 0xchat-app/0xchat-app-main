@@ -16,6 +16,7 @@ import 'package:ox_discovery/page/widgets/moment_tips.dart';
 import 'package:ox_localizable/ox_localizable.dart';
 import 'package:ox_module_service/ox_module_service.dart';
 import 'package:ox_theme/ox_theme.dart';
+import 'package:ox_common/model/msg_notification_model.dart';
 
 import '../../model/moment_ui_model.dart';
 import '../../utils/discovery_utils.dart';
@@ -251,6 +252,7 @@ class PublicMomentsPageState extends State<PublicMomentsPage>
                     avatars: _avatarList,
                     onTap: () async {
                       OXMomentManager.sharedInstance.clearNewNotifications();
+                      MsgNotification(noticeNum: 0).dispatch(context);
                       setState(() {
                         _notifications.clear();
                         tipContainerHeight.value = _getNotificationHeight;
