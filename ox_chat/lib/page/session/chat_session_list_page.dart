@@ -567,6 +567,18 @@ class _ChatSessionListPageState extends BasePageState<ChatSessionListPage>
   }
 
   Widget _buildItemName(ChatSessionModelISAR item) {
+    if (item.chatType == ChatType.chatSingle || item.chatType == ChatType.chatSecret){
+      return Container(
+        margin: EdgeInsets.only(right: Adapt.px(4)),
+        child:  ValueListenableBuilder<UserDBISAR>(
+          valueListenable: Account.sharedInstance.getUserNotifier(item.getOtherPubkey),
+          builder: (context, value, child) {
+            return MyText(value.name ?? '', 16.px, ThemeColor.color10, textAlign: TextAlign.left, maxLines: 1, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w600);
+          },
+        ),
+        constraints: BoxConstraints(maxWidth: _nameMaxW),
+      );
+    }
     String showName = ChatSessionUtils.getChatName(item);
     return Container(
       margin: EdgeInsets.only(right: Adapt.px(4)),

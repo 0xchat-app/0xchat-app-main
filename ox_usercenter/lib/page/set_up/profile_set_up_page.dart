@@ -199,6 +199,9 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
           return;
         }
       }
+      else{
+        mCurrentUserInfo!.picture = '';
+      }
 
       UserDBISAR? tempUserDB;
       try {
@@ -414,6 +417,11 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       if (value is File) {
         setState(() {
           imageFile = value;
+        });
+      }
+      else if(value == null){
+        setState(() {
+          imageFile = null;
         });
       }
     });

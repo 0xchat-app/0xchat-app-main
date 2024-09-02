@@ -222,5 +222,6 @@
   "str_notification_groups_tips": "Enable notifications for group messages.",
   "str_p2p_title": "Voice and video data are relayed through a TURN server to prevent your IP address from being exposed to your contacts.",
   "str_p2p_tips": "Always use relay",
-  "str_read_file_failed": "Failed to read file"
+  "str_read_file_failed": "Failed to read file",
+  "removePhoto": "Remove Photo"
 }

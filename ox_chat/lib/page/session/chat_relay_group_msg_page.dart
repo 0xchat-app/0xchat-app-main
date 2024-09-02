@@ -201,6 +201,9 @@ class _ChatRelayGroupMsgPageState extends State<ChatRelayGroupMsgPage> with Mess
     if (!okEvent.status) {
       CommonToast.instance.show(context, okEvent.message);
     }
+    else{
+      CommonToast.instance.show(context, 'Request send successfully');
+    }
     setState(() {
       _updateChatStatus();
     });

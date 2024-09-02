@@ -53,6 +53,13 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
             File? imgFile = await openCamera();
             OXNavigator.pop(context, imgFile);
           }),
+          Divider(
+            color: ThemeColor.color160,
+            height: Adapt.px(0.5),
+          ),
+          _buildItem(Localized.text('ox_usercenter.removePhoto'), onTap: () async {
+            OXNavigator.pop(context, null);
+          }),
           Container(
             height: Adapt.px(8),
             color: ThemeColor.color190,
