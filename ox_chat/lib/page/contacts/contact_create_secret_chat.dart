@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ox_chat/page/contacts/contact_relay_page.dart';
+import 'package:ox_common/widgets/common_select_relay_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
 import 'package:ox_common/navigator/navigator.dart';
@@ -161,7 +161,7 @@ class _ContactCreateSecret extends State<ContactCreateSecret> {
             onTap: () async {
               var result = await OXNavigator.presentPage(
                 context,
-                (context) => ContactRelayPage(),
+                (context) => CommonSelectRelayPage(),
               );
               if (result != null) {
                 _chatRelay = result as String;

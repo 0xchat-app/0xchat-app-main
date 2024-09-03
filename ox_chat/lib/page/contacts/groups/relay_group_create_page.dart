@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
-import 'package:ox_chat/page/contacts/contact_relay_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
 import 'package:ox_chat/utils/widget_tool.dart';
@@ -21,6 +20,7 @@ import 'package:ox_common/utils/widget_tool.dart';
 import 'package:ox_common/widgets/common_appbar.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_network_image.dart';
+import 'package:ox_common/widgets/common_select_relay_page.dart';
 import 'package:ox_common/widgets/common_toast.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_localizable/ox_localizable.dart';
@@ -212,7 +212,7 @@ class _RelayGroupCreatePageState extends State<RelayGroupCreatePage> {
       title: Localized.text('ox_chat.relay'),
       content: _chatRelay,
       onTap: () async {
-        var result = await OXNavigator.presentPage(context, (context) => ContactRelayPage(defaultRelayList: Relays.sharedInstance.recommendGroupRelays));
+        var result = await OXNavigator.presentPage(context, (context) => CommonSelectRelayPage(defaultRelayList: Relays.sharedInstance.recommendGroupRelays));
         if (result != null) {
           _chatRelay = result as String;
           setState(() {});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ox_chat/model/option_model.dart';
-import 'package:ox_chat/page/contacts/contact_relay_page.dart';
+import 'package:ox_common/widgets/common_select_relay_page.dart';
 import 'package:ox_chat/page/session/chat_group_message_page.dart';
 import 'package:ox_chat/page/session/chat_message_page.dart';
 import 'package:ox_chat/page/session/chat_relay_group_msg_page.dart';
@@ -205,7 +205,7 @@ class _ContactGroupChatCreatePageState extends State<ContactGroupChatCreatePage>
       onTap: () async {
         var result = await OXNavigator.presentPage(
           context,
-              (context) => ContactRelayPage(),
+              (context) => CommonSelectRelayPage(),
         );
         if (result != null && _isWssWithValidURL(result as String)) {
           _chatRelay = result;
