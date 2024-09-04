@@ -66,18 +66,36 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     );
   }
 
-  Future _sendMessageHandler(types.Message message, {
+  Future _sendMessageHandler({
     BuildContext? context,
-    bool isResend = false,
+    required String? content,
+    required MessageType? messageType,
+    types.Message? resendMessage,
     ChatSendingType sendingType = ChatSendingType.remote,
     String? replaceMessageId,
     Function(types.Message)? successCallback,
   }) async {
-    if (!isResend) {
-      final sendMsg = await tryPrepareSendFileMessage(context, message);
-      if (sendMsg == null) return ;
-      message = sendMsg;
+
+    types.Message? message;
+    if (content != null && messageType != null) {
+      final mid = Uuid().v4();
+      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+      message = await ChatMessageHelper.createUIMessage(
+        messageId: mid,
+        authorPubkey: author.id,
+        contentString: content,
+        type: messageType,
+        createTime: tempCreateTime,
+        chatId: session.chatId,
+        replyId: messageType == MessageType.text ? replyHandler.replyMessage?.remoteId : null,
+      );
     }
+    if (message == null) return ;
+
+    if (resendMessage == null) {
+      message = await tryPrepareSendFileMessage(context, message);
+    }
+    if (message == null) return ;
 
     if (sendingType == ChatSendingType.memory) {
       tempMessageSet.add(message);
@@ -141,101 +159,138 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     ChatDataCache.shared.deleteMessage(session, resendMsg);
 
     if (resendMsg.isImageSendingMessage) {
-      sendImageMessageWithMessage(
+      sendImageMessage(
         context: context,
-        message: resendMsg as types.CustomMessage,
+        resendMessage: resendMsg as types.CustomMessage,
       );
       return ;
     } else if (resendMsg.isVideoSendingMessage) {
-      sendVideoMessageWithMessage(
+      sendVideoMessage(
         context: context,
-        message: resendMsg as types.CustomMessage,
+        resendMessage: resendMsg as types.CustomMessage,
       );
     }
 
-    _sendMessageHandler(resendMsg, context: context, isResend: true);
+    _sendMessageHandler(
+      context: context,
+      content: null,
+      messageType: null,
+      resendMessage: message,
+    );
   }
 
   Future sendTextMessage(BuildContext? context, String text) async {
-    
-    final mid = Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    var message = types.TextMessage(
-      author: author,
-      createdAt: tempCreateTime,
-      id: mid,
-      text: text,
-      repliedMessage: replyHandler.replyMessage,
+    await _sendMessageHandler(
+      content: text,
+      messageType: MessageType.text,
+      context: context,
     );
-
     replyHandler.updateReplyMessage(null);
-
-    await _sendMessageHandler(message, context: context);
   }
 
-  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = CustomMessageFactory().createZapsMessage(
-      author: author,
-      timestamp: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      zapper: zapper,
-      invoice: invoice,
-      amount: amount,
-      description: description,
-    );
-
-    _sendMessageHandler(message, context: context);
+  void sendZapsMessage(BuildContext context, String zapper, String invoice, String amount, String description) async {
+    try {
+      final content = jsonEncode(CustomMessageEx.zapsMetaData(
+        zapper: zapper,
+        invoice: invoice,
+        amount: amount,
+        description: description,
+      ));
+      _sendMessageHandler(
+        context: context,
+        content: content,
+        messageType: MessageType.template,
+      );
+    } catch (_) { }
   }
 
-  Future sendImageMessage(BuildContext context, List<File> images) async {
+  Future sendImageMessageWithFile(BuildContext context, List<File> images) async {
     for (final imageFile in images) {
       final bytes = await imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
-      String message_id = const Uuid().v4();
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-      final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted ? createEncryptKey() : null;
+      final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
+          ? createEncryptKey() : null;
 
-      final message = CustomMessageFactory().createImageSendingMessage(
-        author: author,
-        timestamp: tempCreateTime,
-        id: message_id,
-        roomId: session.chatId,
-        path: imageFile.path,
-        url: '',
-        width: image.width,
-        height: image.height,
-        encryptedKey: encryptedKey,
-      );
-      await sendImageMessageWithMessage(
+      await sendImageMessage(
         context: context,
-        message: message,
+        filePath: imageFile.path,
+        imageWidth: image.width,
+        imageHeight: image.height,
+        fileId: ImageSendingMessageEx.fileIdWithPath(imageFile.path),
+        encryptedKey: encryptedKey,
       );
     }
   }
 
-  Future sendImageMessageWithMessage({
+  Future sendImageMessage({
     BuildContext? context,
-    required types.CustomMessage message,
+    String? filePath,
+    String? url,
+    int? imageWidth,
+    int? imageHeight,
+    String? encryptedKey,
+    String? fileId,
+    types.CustomMessage? resendMessage,
   }) async {
-    final filePath = ImageSendingMessageEx(message).path;
-    final imageWidth = ImageSendingMessageEx(message).width;
-    final imageHeight = ImageSendingMessageEx(message).height;
-    final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
-    final fileId = ImageSendingMessageEx(message).fileId;
+    if (resendMessage != null) {
+      filePath ??= ImageSendingMessageEx(resendMessage).path;
+      imageWidth ??= ImageSendingMessageEx(resendMessage).width;
+      imageHeight ??= ImageSendingMessageEx(resendMessage).height;
+      encryptedKey ??= ImageSendingMessageEx(resendMessage).encryptedKey;
+      fileId ??= ImageSendingMessageEx(resendMessage).fileId;
+      url ??= ImageSendingMessageEx(resendMessage).url;
+    }
+
+    if (url != null && url.isRemoteURL) {
+      sendImageMessageWithURL(
+        imageURL: url,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        encryptedKey: encryptedKey,
+        replaceMessageId: resendMessage?.id,
+      );
+      return ;
+    }
+
+    if (filePath == null || fileId == null) {
+      ChatLogUtils.error(
+        className: 'ChatMessageSendEx',
+        funcName: 'sendImageMessage',
+        message: 'filePath: $filePath, fileId: $fileId',
+      );
+      return;
+    }
+
+    String content = '';
+    try {
+      content = jsonEncode(CustomMessageEx.imageSendingMetaData(
+        path: filePath,
+        url: url ?? '',
+        width: imageWidth,
+        height: imageHeight,
+        encryptedKey: encryptedKey,
+      ));
+    } catch (_) { }
+    if (content.isEmpty) {
+      ChatLogUtils.error(
+        className: 'ChatMessageSendEx',
+        funcName: 'sendImageMessage',
+        message: 'content is empty',
+      );
+      return;
+    }
 
     UploadManager.shared.prepareUploadStream(fileId);
     await _sendMessageHandler(
-      message,
       context: context,
+      content: content,
+      messageType: MessageType.template,
+      resendMessage: resendMessage,
       sendingType: ChatSendingType.store,
       successCallback: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.image,
-          filePath: filePath,
+          filePath: filePath!,
           uploadId: fileId,
           encryptedKey: encryptedKey,
           completeCallback: (uploadResult) async {
@@ -249,7 +304,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             );
 
             // Store cache image for new URL
-            final imageFile = File(filePath);
+            final imageFile = File(filePath!);
             await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
               imageURL,
               imageFile.readAsBytesSync(),
@@ -276,91 +331,62 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String? encryptedKey,
     String? replaceMessageId,
   }) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = types.ImageMessage(
-      author: author,
-      createdAt: tempCreateTime,
-      width: imageWidth?.toDouble(),
-      height: imageHeight?.toDouble(),
-      id: message_id,
-      roomId: session.chatId,
-      name: imageURL.getFileName() ?? '',
-      uri: imageURL,
-      fileEncryptionType: fileEncryptionType,
-      decryptKey: encryptedKey,
-    );
+    try {
+      final content = jsonEncode(CustomMessageEx.imageSendingMetaData(
+        url: imageURL,
+        width: imageWidth,
+        height: imageHeight,
+        encryptedKey: encryptedKey,
+      ));
 
-    _sendMessageHandler(
-      message,
-      replaceMessageId: replaceMessageId,
-    );
+      _sendMessageHandler(
+        content: content,
+        messageType: MessageType.template,
+        replaceMessageId: replaceMessageId,
+      );
+    } catch(_) { return ; }
   }
 
-  void sendGifImageMessage(BuildContext context, GiphyImage image) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+  Future sendGifImageMessage(BuildContext context, GiphyImage image) async {
+    String? filePath, url;
+    if (image.url.isRemoteURL) {
+      url = image.url;
+    } else {
+      filePath = image.url;
+    }
 
-    final message = types.ImageMessage(
-      uri: image.url,
-      author: author,
-      createdAt: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      name: image.name,
-      size: double.parse(image.size!),
+    await sendImageMessage(
+      context: context,
+      filePath: filePath,
+      url: url,
     );
-
-    _sendMessageHandler(message, context: context);
   }
 
   void sendInsertedContentMessage(BuildContext context, KeyboardInsertedContent insertedContent) {
-    String base64String = base64.encode(insertedContent.data!);
-    String sendMessage = 'data:${insertedContent.mimeType};base64,$base64String';
-
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.ImageMessage(
-      uri: sendMessage,
-      author: author,
-      createdAt: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      name: insertedContent.uri,
-      size: sendMessage.length,
-      fileEncryptionType: EncryptionType.none,
+    String base64String = 'data:${insertedContent.mimeType};base64,${base64.encode(insertedContent.data!)}';
+    _sendMessageHandler(
+      context: context,
+      content: base64String,
+      messageType: MessageType.text,
     );
-
-    _sendMessageHandler(message, context: context);
   }
 
   Future sendVoiceMessage(BuildContext context, String path, Duration duration) async {
     OXLoading.show();
-    File audioFile = File(path);
-    final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
-    final bytes = await audioFile.readAsBytes();
-    String message_id = const Uuid().v4();
-    final fileName = '${message_id}.mp3';
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    // File audioFile = File(path);
+    // final duration = await ChatVoiceMessageHelper.getAudioDuration(audioFile.path);
+    // final bytes = await audioFile.readAsBytes();
 
-    final message = types.AudioMessage(
-      uri: path,
-      id: message_id,
-      createdAt: tempCreateTime,
-      author: author,
-      name: fileName,
-      audioFile: audioFile,
-      duration: duration,
-      size: bytes.length,
+    await _sendMessageHandler(
+      context: context,
+      content: path,
+      messageType: MessageType.audio,
     );
-
-    _sendMessageHandler(message, context: context);
 
     OXLoading.dismiss();
   }
 
-  Future sendVideoMessage(BuildContext context, List<File> videos) async {
+  Future sendVideoMessageWithFile(BuildContext context, List<File> videos) async {
     for (final videoFile in videos) {
       final fileId = await EncodeUtils.generatePartialFileMd5(videoFile);
       final thumbnailImageFile = await OXVideoUtils.getVideoThumbnailImageWithFilePath(
@@ -369,48 +395,73 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       );
       if (thumbnailImageFile == null) continue;
 
-      String message_id = const Uuid().v4();
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
       final bytes = await thumbnailImageFile.readAsBytes();
       final thumbnailImage = await decodeImageFromList(bytes);
-      final message = CustomMessageFactory().createVideoMessage(
-        author: author,
-        timestamp: tempCreateTime,
-        id: message_id,
-        roomId: session.chatId,
-        fileId: fileId,
-        snapshotPath: thumbnailImageFile.path,
-        videoPath: videoFile.path,
-        width: thumbnailImage.width,
-        height: thumbnailImage.height,
-        url: '',
-      );
-      await sendVideoMessageWithMessage(
+      await sendVideoMessage(
         context: context,
-        message: message,
+        videoPath: videoFile.path,
+        videoURL: '',
+        snapshotPath: thumbnailImageFile.path,
+        imageWidth: thumbnailImage.width,
+        imageHeight: thumbnailImage.height,
+        fileId: fileId,
       );
     }
   }
   
-  Future sendVideoMessageWithMessage({
+  Future sendVideoMessage({
     BuildContext? context,
-    required types.CustomMessage message,
+    String? videoPath,
+    String? videoURL,
+    String? snapshotPath,
+    int? imageWidth,
+    int? imageHeight,
+    String? fileId,
+    types.CustomMessage? resendMessage,
   }) async {
-    final videoPath = VideoMessageEx(message).videoPath;
-    var snapshotPath = VideoMessageEx(message).snapshotPath;
-    final imageWidth = VideoMessageEx(message).width;
-    final imageHeight = VideoMessageEx(message).height;
-    final fileId = VideoMessageEx(message).fileId;
+    if (resendMessage != null) {
+      videoPath = VideoMessageEx(resendMessage).videoPath;
+      videoURL = VideoMessageEx(resendMessage).url;
+      snapshotPath = VideoMessageEx(resendMessage).snapshotPath;
+      imageWidth = VideoMessageEx(resendMessage).width;
+      imageHeight = VideoMessageEx(resendMessage).height;
+      fileId = VideoMessageEx(resendMessage).fileId;
+    }
+
+    if (videoURL != null && videoURL.isRemoteURL) {
+      sendVideoMessageWithURL(
+        videoURL: videoURL,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        replaceMessageId: resendMessage?.id,
+      );
+      return ;
+    }
+
+    if (videoPath == null || fileId == null) return ;
+    String content = '';
+    try {
+      content = jsonEncode(CustomMessageEx.videoMetaData(
+        fileId: fileId,
+        snapshotPath: '',
+        videoPath: videoPath,
+        url: videoURL ?? '',
+        width: imageWidth,
+        height: imageHeight,
+      ));
+    } catch (_) { }
+    if (content.isEmpty) return ;
 
     UploadManager.shared.prepareUploadStream(fileId);
     await _sendMessageHandler(
-      message,
       context: context,
+      content: content,
+      messageType: MessageType.template,
       sendingType: ChatSendingType.store,
       successCallback: (sendMessage) {
         UploadManager.shared.uploadFile(
           fileType: FileType.video,
-          filePath: videoPath,
+          filePath: videoPath!,
           uploadId: fileId,
           completeCallback: (uploadResult) async {
             var videoURL = uploadResult.url;
@@ -422,8 +473,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
               height: imageHeight,
             );
 
-            if (snapshotPath.isNotEmpty) {
-              final snapshotFile = File(snapshotPath);
+            if (snapshotPath != null && snapshotPath!.isNotEmpty) {
+              final snapshotFile = File(snapshotPath!);
               final newSnapshot = await OXVideoUtils.putFileToCacheWithURL(
                 videoURL,
                 snapshotFile,
@@ -433,8 +484,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
             }
             sendVideoMessageWithURL(
               videoURL: videoURL,
-              fileId: fileId,
-              videoPath: videoPath,
+              fileId: fileId ?? '',
+              videoPath: videoPath!,
               imageWidth: imageWidth,
               imageHeight: imageHeight,
               replaceMessageId: sendMessage.id,
@@ -451,26 +502,23 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String videoPath = '',
     int? imageWidth,
     int? imageHeight,
-    String? encryptedKey,
     String? replaceMessageId,
   }) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = CustomMessageFactory().createVideoMessage(
-      author: author,
-      timestamp: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      fileId: '',
-      snapshotPath: '',
-      videoPath: '',
-      url: videoURL,
-    );
-
-    _sendMessageHandler(
-      message,
-      replaceMessageId: replaceMessageId,
-    );
+    try {
+      final contentJson = jsonEncode(CustomMessageEx.videoMetaData(
+        fileId: fileId,
+        snapshotPath: '',
+        videoPath: '',
+        url: videoURL,
+        width: imageWidth,
+        height: imageHeight,
+      ),);
+      _sendMessageHandler(
+        content: contentJson,
+        messageType: MessageType.template,
+        replaceMessageId: replaceMessageId,
+      );
+    } catch (_) { }
   }
 
   void _sendTemplateMessage({
@@ -480,43 +528,30 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String icon = '',
     String link = '',
   }) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-    final message = CustomMessageFactory().createTemplateMessage(
-      author: author,
-      timestamp: tempCreateTime,
-      roomId: session.chatId,
-      id: message_id,
-      title: title,
-      content: content,
-      icon: icon,
-      link: link,
-    );
-
-    _sendMessageHandler(message, context: context);
+    try {
+      final contentJson = jsonEncode(CustomMessageEx.templateMetaData(
+        title: title,
+        content: content,
+        icon: icon,
+        link: link,
+      ),);
+      _sendMessageHandler(
+        context: context,
+        content: contentJson,
+        messageType: MessageType.template,
+      );
+    } catch (_) { }
   }
 
-  void sendSystemMessage(
-      BuildContext context,
-      String text, {
-        String? localTextKey,
-        ChatSendingType sendingType = ChatSendingType.remote,
-      }) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = types.SystemMessage(
-      author: author,
-      createdAt: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      text: text,
-      metadata: {
-        'localTextKey': localTextKey,
-      },
+  void sendSystemMessage(BuildContext context, String text, {
+    String? localTextKey,
+    ChatSendingType sendingType = ChatSendingType.remote,
+  }) {
+    _sendMessageHandler(
+      context: context,
+      content: localTextKey ?? text,
+      messageType: MessageType.system,
     );
-
-    _sendMessageHandler(message, context: context, sendingType: sendingType);
   }
 
   void sendEcashMessage(BuildContext context, {
@@ -525,21 +560,19 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     List<EcashSignee> signees = const [],
     String validityDate = '',
   }) {
-    String message_id = const Uuid().v4();
-    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
-
-    final message = CustomMessageFactory().createEcashMessage(
-      author: author,
-      timestamp: tempCreateTime,
-      id: message_id,
-      roomId: session.chatId,
-      tokenList: tokenList,
-      receiverPubkeys: receiverPubkeys,
-      signees: signees,
-      validityDate: validityDate,
-    );
-
-    _sendMessageHandler(message, context: context);
+    try {
+      final content = jsonEncode(CustomMessageEx.ecashV2MetaData(
+        tokenList: tokenList,
+        receiverPubkeys: receiverPubkeys,
+        signees: signees,
+        validityDate: validityDate,
+      ));
+      _sendMessageHandler(
+        context: context,
+        content: content,
+        messageType: MessageType.template,
+      );
+    } catch (_) { }
   }
 }
 
@@ -582,9 +615,9 @@ extension ChatMessageSendUtileEx on ChatGeneralHandler {
 
     if (uriIsLocalPath == null) {
       ChatLogUtils.error(
-        className: 'ChatGroupMessagePage',
-        funcName: '_resendMessage',
-        message: 'message: ${message.toJson()}',
+        className: 'ChatMessageSendEx',
+        funcName: 'prepareSendAudioMessage',
+        message: 'uriIsLocalPath is null, message: ${message.toJson()}',
       );
       return null;
     }

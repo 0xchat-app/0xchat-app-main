@@ -7,7 +7,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_types/src/message.dart' as UIMessage;
 import 'package:ox_common/business_interface/ox_chat/call_message_type.dart';
 import 'package:ox_common/business_interface/ox_chat/custom_message_type.dart';
-import 'package:ox_chat/model/message_content_model.dart';
 import 'package:ox_chat/utils/custom_message_utils.dart';
 import 'package:ox_common/business_interface/ox_chat/utils.dart';
 import 'package:ox_common/utils/ox_userinfo_manager.dart';
@@ -19,10 +18,11 @@ abstract class MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -39,10 +39,11 @@ class TextMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -52,12 +53,11 @@ class TextMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final text = contentModel.content ?? '';
-
+    final text = content;
     return types.TextMessage(
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
@@ -80,10 +80,11 @@ class ImageMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -93,8 +94,8 @@ class ImageMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final uri = contentModel.content;
-    if (uri == null) {
+    final uri = content;
+    if (uri.isEmpty) {
       return null;
     }
     return types.ImageMessage(
@@ -103,7 +104,7 @@ class ImageMessageFactory implements MessageFactory {
       uri: uri,
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
@@ -124,10 +125,11 @@ class AudioMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -137,18 +139,18 @@ class AudioMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final uri = contentModel.content;
-    if (uri == null) {
+    final uri = content;
+    if (uri.isEmpty) {
       return null;
     }
     return types.AudioMessage(
       duration: null,
-      name: '${contentModel.mid}.mp3',
+      name: '$remoteId.mp3',
       size: 60,
       uri: uri,
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
@@ -169,10 +171,11 @@ class VideoMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -182,14 +185,14 @@ class VideoMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final uri = contentModel.content;
+    final uri = content;
     final snapshotUrl =
         '${uri}?spm=qipa250&x-oss-process=video/snapshot,t_7000,f_jpg,w_0,h_0,m_fast';
-    if (uri == null) {
+    if (uri.isEmpty) {
       return null;
     }
     return types.VideoMessage(
-      name: '${contentModel.mid}.mp4',
+      name: '$remoteId.mp4',
       size: 60,
       uri: snapshotUrl,
       metadata: {
@@ -197,7 +200,7 @@ class VideoMessageFactory implements MessageFactory {
       },
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       sourceKey: sourceKey,
       roomId: roomId,
       remoteId: remoteId,
@@ -218,10 +221,11 @@ class CallMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -231,12 +235,11 @@ class CallMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final contentString = contentModel.content;
-    if (contentString == null) return null;
+    if (content.isEmpty) return null;
 
     var contentMap;
     try {
-      contentMap = json.decode(contentString);
+      contentMap = json.decode(content);
       if (contentMap is! Map) return null;
     } catch (_) {}
 
@@ -257,7 +260,7 @@ class CallMessageFactory implements MessageFactory {
     return types.CustomMessage(
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       sourceKey: sourceKey,
       remoteId: remoteId,
       roomId: roomId,
@@ -320,10 +323,11 @@ class SystemMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -333,7 +337,7 @@ class SystemMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    var text = contentModel.content ?? '';
+    var text = content;
     final key = text;
     if (key.isNotEmpty) {
       text = Localized.text(key, useOrigin: true);
@@ -349,7 +353,7 @@ class SystemMessageFactory implements MessageFactory {
     return types.SystemMessage(
       author: author,
       createdAt: timestamp,
-      id: remoteId,
+      id: remoteId ?? messageId ?? '',
       roomId: roomId,
       repliedMessage: repliedMessage,
       repliedMessageId: repliedMessageId,
@@ -383,10 +387,11 @@ class CustomMessageFactory implements MessageFactory {
     required types.User author,
     required int timestamp,
     required String roomId,
-    required String remoteId,
+    required String? messageId,
+    required String? remoteId,
     required dynamic sourceKey,
-    required MessageContentModel contentModel,
-    required UIMessage.Status status,
+    required String content,
+    UIMessage.Status? status,
     UIMessage.EncryptionType fileEncryptionType = UIMessage.EncryptionType.none,
     types.Message? repliedMessage,
     String? repliedMessageId,
@@ -396,26 +401,26 @@ class CustomMessageFactory implements MessageFactory {
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
   }) {
-    final contentString = contentModel.content;
-    if (contentString == null) return null;
+    final contentString = content;
+    if (contentString.isEmpty) return null;
 
     final info = CustomMessageFactory.parseFromContentString(contentString);
     if (info == null) return null;
 
     final type = info.type;
-    final content = info.content;
+    final contentMap = info.content;
 
     switch (type) {
       case CustomMessageType.zaps:
-        final zapper = content['zapper'];
-        final invoice = content['invoice'];
-        final amount = content['amount'];
-        final description = content['description'];
+        final zapper = contentMap['zapper'];
+        final invoice = contentMap['invoice'];
+        final amount = contentMap['amount'];
+        final description = contentMap['description'];
         return createZapsMessage(
           author: author,
           timestamp: timestamp,
           roomId: roomId,
-          id: remoteId,
+          id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
           zapper: zapper,
@@ -428,15 +433,15 @@ class CustomMessageFactory implements MessageFactory {
         );
 
       case CustomMessageType.template:
-        final title = content['title'];
-        final contentStr = content['content'];
-        final icon = content['icon'];
-        final link = content['link'];
+        final title = contentMap['title'];
+        final contentStr = contentMap['content'];
+        final icon = contentMap['icon'];
+        final link = contentMap['link'];
         return createTemplateMessage(
           author: author,
           timestamp: timestamp,
           roomId: roomId,
-          id: remoteId,
+          id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
           title: title,
@@ -449,18 +454,18 @@ class CustomMessageFactory implements MessageFactory {
         );
 
       case CustomMessageType.note:
-        final authorIcon = content['authorIcon'];
-        final authorName = content['authorName'];
-        final authorDNS = content['authorDNS'];
-        final createTime = content['createTime'];
-        final note = content['note'];
-        final image = content['image'];
-        final link = content['link'];
+        final authorIcon = contentMap['authorIcon'];
+        final authorName = contentMap['authorName'];
+        final authorDNS = contentMap['authorDNS'];
+        final createTime = contentMap['createTime'];
+        final note = contentMap['note'];
+        final image = contentMap['image'];
+        final link = contentMap['link'];
         return createNoteMessage(
           author: author,
           timestamp: timestamp,
           roomId: roomId,
-          id: remoteId,
+          id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
           authorIcon: authorIcon,
@@ -477,15 +482,15 @@ class CustomMessageFactory implements MessageFactory {
 
       case CustomMessageType.ecash:
         try {
-          final tokenList = (content[EcashMessageEx.metaTokenListKey] as List)
+          final tokenList = (contentMap[EcashMessageEx.metaTokenListKey] as List)
               .map((e) => e.toString())
               .toList();
-          final isOpened = content[EcashMessageEx.metaIsOpenedKey] ?? '';
+          final isOpened = contentMap[EcashMessageEx.metaIsOpenedKey] ?? '';
           return createEcashMessage(
             author: author,
             timestamp: timestamp,
             roomId: roomId,
-            id: remoteId,
+            id: remoteId ?? messageId ?? '',
             remoteId: remoteId,
             sourceKey: sourceKey,
             tokenList: tokenList,
@@ -501,7 +506,7 @@ class CustomMessageFactory implements MessageFactory {
 
       case CustomMessageType.ecashV2:
         try {
-          final tokenListRaw = content[EcashV2MessageEx.metaTokenListKey];
+          final tokenListRaw = contentMap[EcashV2MessageEx.metaTokenListKey];
           List<String> tokenList = [];
           if (tokenListRaw is List) {
             tokenList = tokenListRaw
@@ -509,7 +514,7 @@ class CustomMessageFactory implements MessageFactory {
                 .toList();
           }
 
-          final receiverPubkeysRaw = content[EcashV2MessageEx.metaReceiverPubkeysKey];
+          final receiverPubkeysRaw = contentMap[EcashV2MessageEx.metaReceiverPubkeysKey];
           List<String> receiverPubkeys = [];
           if (receiverPubkeysRaw is List) {
             receiverPubkeys = receiverPubkeysRaw
@@ -520,14 +525,14 @@ class CustomMessageFactory implements MessageFactory {
             author: author,
             timestamp: timestamp,
             roomId: roomId,
-            id: remoteId,
+            id: remoteId ?? messageId ?? '',
             remoteId: remoteId,
             sourceKey: sourceKey,
             tokenList: tokenList,
             receiverPubkeys: receiverPubkeys,
-            signees: EcashV2MessageEx.getSigneesWithContentMap(content),
-            validityDate: content[EcashV2MessageEx.metaValidityDateKey] ?? '',
-            isOpened: content[EcashV2MessageEx.metaIsOpenedKey] ?? '',
+            signees: EcashV2MessageEx.getSigneesWithContentMap(contentMap),
+            validityDate: contentMap[EcashV2MessageEx.metaValidityDateKey] ?? '',
+            isOpened: contentMap[EcashV2MessageEx.metaIsOpenedKey] ?? '',
             expiration: expiration,
             reactions: reactions,
             zapsInfoList: zapsInfoList,
@@ -539,16 +544,16 @@ class CustomMessageFactory implements MessageFactory {
         }
 
       case CustomMessageType.imageSending:
-        final path = content[ImageSendingMessageEx.metaPathKey];
-        final url = content[ImageSendingMessageEx.metaURLKey];
-        final width = content[ImageSendingMessageEx.metaWidthKey];
-        final height = content[ImageSendingMessageEx.metaHeightKey];
-        final encryptedKey = content[ImageSendingMessageEx.metaEncryptedKey];
+        final path = contentMap[ImageSendingMessageEx.metaPathKey];
+        final url = contentMap[ImageSendingMessageEx.metaURLKey];
+        final width = contentMap[ImageSendingMessageEx.metaWidthKey];
+        final height = contentMap[ImageSendingMessageEx.metaHeightKey];
+        final encryptedKey = contentMap[ImageSendingMessageEx.metaEncryptedKey];
         return createImageSendingMessage(
           author: author,
           timestamp: timestamp,
           roomId: roomId,
-          id: remoteId,
+          id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
           expiration: expiration,
@@ -562,17 +567,17 @@ class CustomMessageFactory implements MessageFactory {
         );
 
       case CustomMessageType.video:
-        final fileId = content[VideoMessageEx.metaFileIdKey];
-        final snapshotPath = content[VideoMessageEx.metaSnapshotPathKey];
-        final videoPath = content[VideoMessageEx.metaVideoPathKey];
-        final url = content[VideoMessageEx.metaURLKey];
-        final width = content[VideoMessageEx.metaWidthKey];
-        final height = content[VideoMessageEx.metaHeightKey];
+        final fileId = contentMap[VideoMessageEx.metaFileIdKey];
+        final snapshotPath = contentMap[VideoMessageEx.metaSnapshotPathKey];
+        final videoPath = contentMap[VideoMessageEx.metaVideoPathKey];
+        final url = contentMap[VideoMessageEx.metaURLKey];
+        final width = contentMap[VideoMessageEx.metaWidthKey];
+        final height = contentMap[VideoMessageEx.metaHeightKey];
         return createVideoMessage(
           author: author,
           timestamp: timestamp,
           roomId: roomId,
-          id: remoteId,
+          id: remoteId ?? messageId ?? '',
           remoteId: remoteId,
           sourceKey: sourceKey,
           expiration: expiration,

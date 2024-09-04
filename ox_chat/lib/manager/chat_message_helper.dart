@@ -28,6 +28,11 @@ class OXValue<T> {
 
 class ChatMessageHelper {
 
+  static String get unknownMessageText =>
+      '[This message is not supported by the current client version, please update to view]';
+
+  static MessageCheckLogger? logger; // = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
+
   static String? sessionMessageTextBuilder(MessageDBISAR message) {
     final type = MessageDBISAR.stringtoMessageType(message.type);
     final decryptContent = message.decryptContent;
@@ -133,99 +138,362 @@ class ChatMessageHelper {
     }
   }
 
-  static Future<types.User?> getUser(String messageSenderPubKey) async {
-    final user = await Account.sharedInstance.getUserInfo(messageSenderPubKey);
+  static Future<types.User?> _getUser(String userPubkey) async {
+    final user = await Account.sharedInstance.getUserInfo(userPubkey);
+    if (user == null) {
+      ChatLogUtils.error(
+        className: 'ChatMessageHelper',
+        funcName: '_getUser',
+        message: 'user is null',
+      );
+    }
     return user?.toMessageModel();
+  }
+
+  static String _getContentString(decryptContent) {
+    try {
+      final decryptedContent = json.decode(decryptContent);
+      if (decryptedContent is Map) {
+        return decryptedContent['duration'];
+      } else if (decryptedContent is String) {
+        return decryptedContent;
+      }
+    } catch (e) {}
+    return decryptContent;
+  }
+
+  static Future<(String content, MessageType messageType)> _parseWithContent({
+    required String content,
+    required MessageType messageType,
+    required String? decryptSecret,
+    Function(String content, MessageType messageType)? asyncParseCallback,
+    VoidCallback? isMentionMessageCallback = null,
+    MessageCheckLogger? logger,
+  }) async {
+    switch (messageType) {
+      case MessageType.text:
+        final initialText = content;
+        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
+          if (mentions.isEmpty) return ;
+          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
+          if (hasCurrentUser) {
+            isMentionMessageCallback?.call();
+          }
+        });
+
+        if (mentionDecodeText != null) {
+          // Mention Msg
+          return (mentionDecodeText, MessageType.text);
+        } else if (ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
+          // Template Msg
+          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
+            logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
+            if(nostrSchemeContent != null) {
+              asyncParseCallback?.call(nostrSchemeContent, MessageType.template);
+            }
+          });
+        } else if(Zaps.isLightningInvoice(initialText)) {
+          // Zaps Msg
+          Map<String, String> req = Zaps.decodeInvoice(initialText);
+          final amount = req['amount'] ?? '';
+          if (amount.isNotEmpty) {
+            Map<String, dynamic> map = CustomMessageEx.zapsMetaData(
+                zapper: '',
+                invoice: initialText,
+                amount: amount,
+                description: 'Best wishes'
+            );
+            return (jsonEncode(map), MessageType.template);
+          }
+        } else if (Cashu.isCashuToken(initialText)) {
+          // Ecash Msg
+          final newContent = jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText]));
+          return (newContent, MessageType.template);
+        }
+
+        return (content, messageType);
+      case MessageType.image:
+      case MessageType.encryptedImage:
+        final meta = CustomMessageEx.imageSendingMetaData(
+          url: content,
+          encryptedKey: decryptSecret,
+        );
+        try {
+          final jsonString = jsonEncode(meta);
+          return (jsonString, MessageType.template);
+        } catch (_) { }
+        return (content, messageType);
+      case MessageType.video:
+      case MessageType.encryptedVideo:
+        final url = content;
+        final meta = CustomMessageEx.videoMetaData(
+          fileId: '',
+          url: url,
+          snapshotPath: (await OXVideoUtils.getVideoThumbnailImage(
+            videoURL: url,
+            onlyFromCache: true,
+          ))?.path ?? '',
+        );
+        try {
+          final jsonString = jsonEncode(meta);
+          return (jsonString, MessageType.template);
+        } catch (_) { }
+        return (content, messageType);
+      case MessageType.audio:
+      case MessageType.encryptedAudio:
+        return (content, messageType);
+      case MessageType.call:
+        return (content, messageType);
+      case MessageType.system:
+        return (content, messageType);
+      case MessageType.template:
+        final customInfo = CustomMessageFactory.parseFromContentString(content);
+        if (customInfo != null) {
+          return (content, messageType);
+        }
+      default:
+        ChatLogUtils.error(
+          className: 'MessageDBToUIEx',
+          funcName: 'convertMessageDBToUIModel',
+          message: 'unknown message type',
+        );
+    }
+
+    return (unknownMessageText, MessageType.text);
+  }
+
+  static MessageFactory _getMessageFactory(MessageType messageType) {
+    switch (messageType) {
+      case MessageType.text:
+        return TextMessageFactory();
+      case MessageType.image:
+      case MessageType.encryptedImage:
+        return ImageMessageFactory();
+      case MessageType.video:
+      case MessageType.encryptedVideo:
+        return VideoMessageFactory();
+      case MessageType.audio:
+      case MessageType.encryptedAudio:
+        return AudioMessageFactory();
+      case MessageType.call:
+        return CallMessageFactory();
+      case MessageType.system:
+        return SystemMessageFactory();
+      case MessageType.template:
+        return CustomMessageFactory();
+      default:
+        return TextMessageFactory();
+    }
+  }
+
+  static types.EncryptionType _getEncryptionType(MessageType messageType) {
+    switch (messageType) {
+      case MessageType.encryptedImage:
+      case MessageType.encryptedVideo:
+      case MessageType.encryptedAudio:
+        return UIMessage.EncryptionType.encrypted;
+      default:
+        return UIMessage.EncryptionType.none;
+    }
+  }
+
+  static Future<types.Message?> _getRepliedMessage({
+    String? replyId,
+  }) async {
+    if (replyId != null && replyId.isNotEmpty) {
+      final repliedMessageDB = await Messages.sharedInstance.loadMessageDBFromDB(replyId);
+      if (repliedMessageDB != null) {
+        return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
+      }
+    }
+    return null;
+  }
+
+  static Future<List<types.Reaction>> _getReactionInfo(List<String> reactionIds) async {
+    final reactions = <types.Reaction>[];
+
+    // key: content, value: Reaction model
+    final reactionModelMap = <String, types.Reaction>{};
+    // key: content, value: authorPubkeys
+    final reactionAuthorMap = <String, Set<String>>{};
+
+    for (final reactionId in reactionIds) {
+      final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
+      if (note == null || note.content.isEmpty) continue ;
+
+      final content = note.content;
+      final reaction = reactionModelMap.putIfAbsent(
+          content, () => types.Reaction(content: content));
+      final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
+          content, () => Set());
+
+      if (reactionAuthorSet.add(note.author)) {
+        reaction.authors.add(note.author);
+        if (!reactions.contains(reaction)) {
+          reactions.add(reaction);
+        }
+      }
+    }
+
+    return reactions;
+  }
+
+  static Future<List<types.ZapsInfo>> _getZapsInfo(List<String> zapEventIds) async {
+    if (zapEventIds.isEmpty) return [];
+
+    final zaps = <types.ZapsInfo>[];
+    for (final zapId in zapEventIds) {
+      final zapReceipt = await Zaps.getZapReceiptFromLocal(zapId);
+      if (zapReceipt.isEmpty) continue ;
+
+      final zapDB = zapReceipt.first;
+
+      UserDBISAR? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
+      if(user == null) continue;
+
+      int amount = ZapRecordsDBISAR.getZapAmount(zapDB.bolt11);
+      types.ZapsInfo info = types.ZapsInfo(author: user, amount: amount.toString(), unit: 'sats');
+      zaps.add(info);
+    }
+    return zaps;
+  }
+
+  static Future<types.Message?> createUIMessage({
+    String? messageId,
+    String? remoteId,
+    required String authorPubkey,
+    required String contentString,
+    required MessageType type,
+    required int createTime, // timestamp(ms)
+    required String chatId,
+    UIMessage.Status? msgStatus,
+    String? replyId,
+    String? previewData,
+    dynamic sourceKey,
+    String? decryptSecret,
+    int? expiration,
+    List<String> reactionIds = const [],
+    List<String> zapsInfoIds = const [],
+    Function(String content, MessageType messageType)? asyncParseCallback,
+    VoidCallback? isMentionMessageCallback,
+  }) async {
+    // Logger
+    MessageCheckLogger? logger;
+    if ((remoteId ?? messageId) == ChatMessageHelper.logger?.messageId) {
+      logger = ChatMessageHelper.logger;
+    }
+
+    if (messageId == null && remoteId == null) return null;
+
+    final author = await _getUser(authorPubkey);
+    if (author == null) return null;
+
+    final contentRaw = _getContentString(contentString);
+    final (content, messageType) = await _parseWithContent(
+      content: contentRaw,
+      messageType: type,
+      decryptSecret: decryptSecret,
+      asyncParseCallback: asyncParseCallback,
+      isMentionMessageCallback: isMentionMessageCallback,
+      logger: logger,
+    );
+
+    final fileEncryptionType = _getEncryptionType(messageType);
+
+    final repliedMessage = await _getRepliedMessage(
+      replyId: replyId,
+    );
+
+    final reactions = await _getReactionInfo(reactionIds);
+    final zapsInfoList = await _getZapsInfo(zapsInfoIds);
+
+    final messageFactory = await _getMessageFactory(messageType);
+    final uiMessage = messageFactory.createMessage(
+      author: author,
+      timestamp: createTime,
+      roomId: chatId,
+      messageId: messageId,
+      remoteId: remoteId,
+      sourceKey: sourceKey,
+      content: content,
+      status: msgStatus,
+      fileEncryptionType: fileEncryptionType,
+      repliedMessage: repliedMessage,
+      repliedMessageId: replyId,
+      previewData: previewData,
+      decryptKey: decryptSecret,
+      expiration: expiration,
+      reactions: reactions,
+      zapsInfoList: zapsInfoList,
+    );
+
+    logger?.print(
+      'ChatMessageHelper - createUIMessage'
+      'messageId: $messageId'
+      'remoteId $remoteId'
+      'authorPubkey: $authorPubkey'
+      'decryptContent: $contentString'
+      'type: $type'
+      'createTime: $createTime'
+      'chatId: $chatId'
+      'msgStatus: $msgStatus'
+      'replyId: $replyId'
+      'previewData: $previewData'
+      'sourceKey: $sourceKey'
+      'decryptSecret: $decryptSecret'
+      'expiration: $expiration'
+      'reactionIds: $reactionIds'
+      'zapsInfoIds: $zapsInfoIds'
+    );
+    logger?.print('ChatMessageHelper - createUIMessage: $uiMessage');
+
+    return uiMessage;
   }
 }
 
 extension MessageDBToUIEx on MessageDBISAR {
 
-  String get unknownMessageText => '[This message is not supported by the current client version, please update to view]';
-
-  static MessageCheckLogger? logger; // = MessageCheckLogger('9c2d9fb78c95079c33f4d6e67556cd6edfd86b206930f97e0578987214864db2');
-
-  Future<types.Message?> toChatUIMessage({bool loadRepliedMessage = true, VoidCallback? isMentionMessageCallback}) async {
-
-    MessageCheckLogger? logger;
-
-    if (this.messageId == MessageDBToUIEx.logger?.messageId) {
-      logger = MessageDBToUIEx.logger;
-    }
-
-    // Msg id
-    final messageId = this.messageId;
-
-    logger?.print('step1 - messageId: $messageId');
-
-    // ContentModel
-    final contentModel = getContentModel();
-
-    // Author
-    final author = await getAuthor();
-    if (author == null) return null;
-
-    logger?.print('step2 - author: $author');
-
+  Future<types.Message?> toChatUIMessage({
+    bool loadRepliedMessage = true,
+    VoidCallback? isMentionMessageCallback,
+  }) async {
     // Status
     final msgStatus = getStatus();
-
-    // MessageTime
-    final messageTimestamp = this.createTime * 1000;
 
     // ChatId
     final chatId = getRoomId();
     if (chatId == null) return null;
 
-    logger?.print('step3 - chatId: $chatId');
+    // Async callback
+    final asyncParseCallback = (String content, MessageType messageType) async {
+      parseTo(type: messageType, decryptContent: content);
+      await Messages.saveMessageToDB(this);
+      final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
+      final uiMessage = await this.toChatUIMessage();
+      if(uiMessage != null){
+        ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
+      }
+    };
 
-    logger?.print('step4 - contentType: ${contentModel.contentType}');
-
-    // Message UI Model Creator
-    MessageFactory messageFactory = await getMessageFactory(
-      contentModel,
-      isMentionMessageCallback,
-      logger,
-    );
-
-    logger?.print('step5 - messageFactory: $messageFactory');
-
-    // Encryption type
-    final fileEncryptionType = getEncryptionType(contentModel);
-
-
-    // Reaction
-    final reactions = await getReactionInfo();
-
-    // Zaps
-    final zapsInfoList = await getZapsInfo();
-
-    // RepliedMessage
-    final repliedMessage = await getRepliedMessage(loadRepliedMessage);
-    logger?.print('step6 - replied message: $repliedMessage');
-
-    // Execute create
-    final result = messageFactory.createMessage(
-      author: author,
-      timestamp: messageTimestamp,
-      roomId: chatId,
+    return ChatMessageHelper.createUIMessage(
+      messageId: messageId,
       remoteId: messageId,
+      authorPubkey: sender,
+      contentString: decryptContent,
+      type: MessageDBISAR.stringtoMessageType(this.type),
+      createTime: createTime * 1000,
+      chatId: chatId,
+      msgStatus: msgStatus,
+      replyId: replyId,
+      previewData: previewData,
       sourceKey: plaintEvent,
-      contentModel: contentModel,
-      status: msgStatus,
-      fileEncryptionType: fileEncryptionType,
-      repliedMessage: repliedMessage,
-      repliedMessageId: this.replyId,
-      previewData: this.previewData,
-      decryptKey: this.decryptSecret,
-      expiration: this.expiration,
-      reactions: reactions,
-      zapsInfoList: zapsInfoList,
+      decryptSecret: decryptSecret,
+      expiration: expiration,
+      reactionIds: reactionEventIds ?? [],
+      zapsInfoIds: zapEventIds ?? [],
+      asyncParseCallback: asyncParseCallback,
+      isMentionMessageCallback: isMentionMessageCallback,
     );
-
-    logger?.print('step7 - message UIModel: $result');
-
-    return result;
   }
 
   MessageContentModel getContentModel() {
@@ -247,18 +515,6 @@ extension MessageDBToUIEx on MessageDBISAR {
     }
 
     return contentModel;
-  }
-
-  Future<types.User?> getAuthor() async {
-    final author = await ChatMessageHelper.getUser(sender);
-    if (author == null) {
-      ChatLogUtils.error(
-        className: 'MessageDBToUIEx',
-        funcName: 'getAuthor',
-        message: 'author is null',
-      );
-    }
-    return author;
   }
 
   UIMessage.Status getStatus() {
@@ -303,198 +559,6 @@ extension MessageDBToUIEx on MessageDBISAR {
       );
     }
     return chatId;
-  }
-
-  types.EncryptionType getEncryptionType(MessageContentModel contentModel) {
-    switch (contentModel.contentType) {
-      case MessageType.encryptedImage:
-      case MessageType.encryptedVideo:
-      case MessageType.encryptedAudio:
-        return UIMessage.EncryptionType.encrypted;
-      default:
-        return UIMessage.EncryptionType.none;
-    }
-  }
-
-  Future<List<types.Reaction>> getReactionInfo() async {
-    final reactionIds = [...(this.reactionEventIds ?? [])];
-    final reactions = <types.Reaction>[];
-
-    // key: content, value: Reaction model
-    final reactionModelMap = <String, types.Reaction>{};
-    // key: content, value: authorPubkeys
-    final reactionAuthorMap = <String, Set<String>>{};
-
-    for (final reactionId in reactionIds) {
-      final note = await Moment.sharedInstance.loadNoteWithNoteId(reactionId, reload: false);
-      if (note == null || note.content.isEmpty) continue ;
-
-      final content = note.content;
-      final reaction = reactionModelMap.putIfAbsent(
-          content, () => types.Reaction(content: content));
-      final reactionAuthorSet = reactionAuthorMap.putIfAbsent(
-          content, () => Set());
-
-      if (reactionAuthorSet.add(note.author)) {
-        reaction.authors.add(note.author);
-        if (!reactions.contains(reaction)) {
-          reactions.add(reaction);
-        }
-      }
-    }
-
-    return reactions;
-  }
-
-  Future<List<types.ZapsInfo>> getZapsInfo() async {
-    final zapEventIds = [...(this.zapEventIds ?? [])];
-    if (zapEventIds.isEmpty) return [];
-
-    final zaps = <types.ZapsInfo>[];
-    for (final zapId in zapEventIds) {
-      final zapReceipt = await Zaps.getZapReceiptFromLocal(zapId);
-      if (zapReceipt.isEmpty) continue ;
-
-      final zapDB = zapReceipt.first;
-
-      UserDBISAR? user = await Account.sharedInstance.getUserInfo(zapDB.sender);
-      if(user == null) continue;
-
-      int amount = ZapRecordsDBISAR.getZapAmount(zapDB.bolt11);
-      types.ZapsInfo info = types.ZapsInfo(author: user, amount: amount.toString(), unit: 'sats');
-      zaps.add(info);
-    }
-    return zaps;
-  }
-
-  Future<types.Message?> getRepliedMessage(bool loadRepliedMessage) async {
-    if (replyId.isNotEmpty && loadRepliedMessage) {
-      final repliedMessageDB = await Messages.sharedInstance.loadMessageDBFromDB(replyId);
-      if (repliedMessageDB != null) {
-        return await repliedMessageDB.toChatUIMessage(loadRepliedMessage: false);
-      }
-    }
-    return null;
-  }
-
-  Future<MessageFactory> getMessageFactory(
-    MessageContentModel contentModel,
-    [
-      VoidCallback? isMentionMessageCallback = null,
-      MessageCheckLogger? logger,
-    ]
-  ) async {
-    final messageType = contentModel.contentType;
-    switch (messageType) {
-      case MessageType.text:
-        final initialText = contentModel.content ?? '';
-
-        final mentionDecodeText = ChatMentionMessageEx.tryDecoder(initialText, mentionsCallback: (mentions) {
-          if (mentions.isEmpty) return ;
-          final hasCurrentUser = mentions.any((mention) => OXUserInfoManager.sharedInstance.isCurrentUser(mention.pubkey));
-          if (hasCurrentUser) {
-            isMentionMessageCallback?.call();
-          }
-        });
-
-        if (mentionDecodeText != null) {
-          // Mention Msg
-          contentModel.content = mentionDecodeText;
-        } else if (ChatNostrSchemeHandle.getNostrScheme(initialText) != null) {
-          // Template Msg
-          ChatNostrSchemeHandle.tryDecodeNostrScheme(initialText).then((nostrSchemeContent) async {
-            logger?.print('step async - initialText: $initialText, nostrSchemeContent: ${nostrSchemeContent}');
-            if(nostrSchemeContent != null) {
-              parseTo(type: MessageType.template, decryptContent: nostrSchemeContent);
-              await Messages.saveMessageToDB(this);
-              final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(this);
-              final uiMessage = await this.toChatUIMessage();
-              if(uiMessage != null){
-                ChatDataCache.shared.updateMessage(chatKey: key, message: uiMessage);
-              }
-            }
-          });
-        } else if(Zaps.isLightningInvoice(initialText)) {
-          // Zaps Msg
-          Map<String, String> req = Zaps.decodeInvoice(initialText);
-          final amount = req['amount'] ?? '';
-          if (amount.isNotEmpty) {
-            Map<String, dynamic> map = CustomMessageEx.zapsMetaData(
-                zapper: '',
-                invoice: initialText,
-                amount: amount,
-                description: 'Best wishes'
-            );
-            parseTo(type: MessageType.template, decryptContent: jsonEncode(map));
-            contentModel.content = this.decryptContent;
-            logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-            Messages.saveMessageToDB(this);
-            return CustomMessageFactory();
-          }
-        } else if (Cashu.isCashuToken(initialText)) {
-          // Ecash Msg
-          parseTo(type: MessageType.template, decryptContent: jsonEncode(CustomMessageEx.ecashV2MetaData(tokenList: [initialText])));
-          contentModel.content = this.decryptContent;
-          logger?.print('step async - initialText: $initialText, decryptContent: ${decryptContent}');
-          Messages.saveMessageToDB(this);
-          return CustomMessageFactory();
-        }
-
-        return TextMessageFactory();
-      case MessageType.image:
-      case MessageType.encryptedImage:
-        final meta = CustomMessageEx.imageSendingMetaData(
-          url: contentModel.content ?? '',
-          encryptedKey: decryptSecret,
-        );
-        try {
-          final jsonString = jsonEncode(meta);
-          contentModel.content = jsonString;
-          parseTo(type: MessageType.template, decryptContent: jsonString);
-          return CustomMessageFactory();
-        } catch (_) { }
-        return ImageMessageFactory();
-      case MessageType.video:
-      case MessageType.encryptedVideo:
-        final url = contentModel.content ?? '';
-        final meta = CustomMessageEx.videoMetaData(
-          fileId: '',
-          url: url,
-          snapshotPath: (await OXVideoUtils.getVideoThumbnailImage(
-            videoURL: url,
-            onlyFromCache: true,
-          ))?.path ?? '',
-        );
-        try {
-          final jsonString = jsonEncode(meta);
-          contentModel.content = jsonString;
-          parseTo(type: MessageType.template, decryptContent: jsonString);
-          return CustomMessageFactory();
-        } catch (_) { }
-        return VideoMessageFactory();
-      case MessageType.audio:
-      case MessageType.encryptedAudio:
-        return AudioMessageFactory();
-      case MessageType.call:
-        return CallMessageFactory();
-      case MessageType.system:
-        return SystemMessageFactory();
-      case MessageType.template:
-        final customInfo = CustomMessageFactory.parseFromContentString(contentModel.content ?? '');
-        if (customInfo != null) {
-          return CustomMessageFactory();
-        }
-      default:
-        ChatLogUtils.error(
-          className: 'MessageDBToUIEx',
-          funcName: 'convertMessageDBToUIModel',
-          message: 'unknown message type',
-        );
-    }
-
-    parseTo(type: MessageType.text, decryptContent: unknownMessageText);
-    contentModel.content = unknownMessageText;
-    return TextMessageFactory();
   }
 
   void parseTo({

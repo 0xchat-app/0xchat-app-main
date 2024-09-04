@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cashu_dart/cashu_dart.dart';
 import 'package:nostr_core_dart/nostr.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ox_chat/manager/chat_data_cache.dart';
@@ -10,10 +9,6 @@ import 'package:ox_chat/model/constant.dart';
 import 'package:ox_chat/utils/chat_log_utils.dart';
 import 'package:ox_chat/utils/send_message/chat_strategy_factory.dart';
 import 'package:ox_common/model/chat_session_model_isar.dart';
-import 'package:ox_chat/model/message_content_model.dart';
-import 'package:ox_chat/utils/general_handler/chat_nostr_scheme_handler.dart';
-import 'package:ox_chat/utils/message_factory.dart';
-import 'package:chatcore/chat-core.dart';
 
 typedef MessageContentCreator = FutureOr<String?> Function(
     types.Message message);
@@ -31,7 +26,8 @@ class ChatSendMessageHelper {
     // prepare data
     var sendFinish = OXValue(false);
     final type = message.dbMessageType(
-        encrypt: message.fileEncryptionType != types.EncryptionType.none);
+      encrypt: message.decryptKey != null,
+    );
     final contentString = (await contentEncoder?.call(message)) ??
         message.contentString(message.content);
     final replayId = message.repliedMessage?.id ?? '';
@@ -84,13 +80,6 @@ class ChatSendMessageHelper {
                 currentUnixTimestampSeconds(),
       );
 
-      if (sendMsg.type == types.MessageType.text) {
-        final newMsg = tryTransferMessageFromText(session, sendMsg, sourceKey);
-        if (newMsg != null) {
-          sendMsg = newMsg;
-        }
-      }
-
       ChatLogUtils.info(
         className: 'ChatSendMessageHelper',
         funcName: 'sendMessage',
@@ -142,72 +131,6 @@ class ChatSendMessageHelper {
     if (sendingType == ChatSendingType.remote) {
       // If the message is not sent within a short period of time, change the status to the sending state
       _setMessageSendingStatusIfNeeded(session, sendFinish, sendMsg);
-    }
-
-    return null;
-  }
-
-  static types.Message? tryTransferMessageFromText(
-    ChatSessionModelISAR session,
-    types.Message sendMsg,
-    String sourceKey,
-  ) {
-    final text = sendMsg.content;
-    // Nostr Scheme
-    if (ChatNostrSchemeHandle.getNostrScheme(text) != null) {
-      ChatNostrSchemeHandle.tryDecodeNostrScheme(text)
-          .then((nostrSchemeContent) async {
-        if (nostrSchemeContent != null) {
-          MessageContentModel contentModel = MessageContentModel();
-          contentModel.content = nostrSchemeContent;
-          var chatMessage =
-          await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
-          if (chatMessage != null) {
-            chatMessage = CustomMessageFactory().createMessage(
-                author: chatMessage.author,
-                timestamp: chatMessage.createdAt,
-                roomId: chatMessage.roomId ?? '',
-                remoteId: chatMessage.remoteId ?? '',
-                sourceKey: chatMessage.sourceKey,
-                contentModel: contentModel,
-                status: chatMessage.status ?? types.Status.sending)!;
-            ChatDataCache.shared.updateMessage(
-                message: chatMessage, session: session, originMessage: sendMsg);
-          }
-        }
-      });
-    }
-
-    // Zaps
-    if (Zaps.isLightningInvoice(text)) {
-      Map<String, String> req = Zaps.decodeInvoice(text);
-      return CustomMessageFactory().createZapsMessage(
-        author: sendMsg.author,
-        timestamp: sendMsg.createdAt,
-        roomId: session.chatId,
-        id: sendMsg.id,
-        remoteId: sendMsg.remoteId,
-        sourceKey: sourceKey,
-        zapper: '',
-        invoice: text,
-        amount: req['amount'] ?? '0',
-        description: 'Best wishes',
-        expiration: sendMsg.expiration,
-      );
-    }
-
-    // Ecash
-    if (Cashu.isCashuToken(text)) {
-      return CustomMessageFactory().createEcashMessage(
-        author: sendMsg.author,
-        timestamp: sendMsg.createdAt,
-        roomId: session.chatId,
-        id: sendMsg.id,
-        remoteId: sendMsg.remoteId,
-        sourceKey: sourceKey,
-        tokenList: [text],
-        expiration: sendMsg.expiration,
-      );
     }
 
     return null;

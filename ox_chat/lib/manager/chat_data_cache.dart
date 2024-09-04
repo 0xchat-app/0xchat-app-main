@@ -676,13 +676,13 @@ extension ChatDataCacheEx on ChatDataCache {
       final key = ChatDataCacheGeneralMethodEx.getChatTypeKeyWithMessage(message);
       if (key == null) return ;
       await _distributeMessageToChatKey(key, message)
-          .timeout(Duration(milliseconds: 300), onTimeout: () {
+          .timeout(Duration(milliseconds: 300), onTimeout: () =>
         ChatLogUtils.error(
           className: 'ChatDataCache',
           funcName: '_distributeMessageToChatKey',
           message: 'method time out',
-        );
-      });
+        )
+      );
     });
 
     ChatLogUtils.info(
@@ -706,9 +706,9 @@ extension ChatDataCacheEx on ChatDataCache {
         );
       }
 
-      if (message.messageId == MessageDBToUIEx.logger?.messageId) {
-        MessageDBToUIEx.logger?.print('distribute - key: $key');
-        MessageDBToUIEx.logger?.print('distribute - message: $message');
+      if (message.messageId == ChatMessageHelper.logger?.messageId) {
+        ChatMessageHelper.logger?.print('distribute - key: $key');
+        ChatMessageHelper.logger?.print('distribute - message: $message');
       }
       await _addChatMessages(key, uiMsg, waitSetup: false, notify: false);
       return uiMsg;

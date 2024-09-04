@@ -418,12 +418,15 @@ extension ImageSendingMessageEx on types.CustomMessage {
   static const metaEncryptedKey = 'encrypted';
 
   String get path => metadata?[CustomMessageEx.metaContentKey]?[metaPathKey] ?? '';
+  // This property could be a remote URL or an image encoded in Base64 format.
   String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
 
-  String get fileId => path.getFileName(withExtension: false) ?? '';
+  String get fileId => ImageSendingMessageEx.fileIdWithPath(path);
+
+  static String fileIdWithPath(String path) => path.getFileName(withExtension: false) ?? '';
 }
 
 extension VideoMessageEx on types.CustomMessage {

@@ -51,7 +51,7 @@ abstract class ChatStrategy {
     String? source,
   });
 
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
@@ -89,7 +89,7 @@ class ChannelChatStrategy extends ChatStrategy {
   }
 
   @override
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
@@ -138,7 +138,7 @@ class GroupChatStrategy extends ChatStrategy {
   }
 
   @override
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
@@ -186,7 +186,7 @@ class PrivateChatStrategy extends ChatStrategy {
   }
 
   @override
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
@@ -236,7 +236,7 @@ class SecretChatStrategy extends ChatStrategy {
   }
 
   @override
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
@@ -298,7 +298,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
   }
 
   @override
-  Future doSendMessageAction({
+  Future<OKEvent> doSendMessageAction({
     required MessageType messageType,
     required String contentString,
     required String replayId,
