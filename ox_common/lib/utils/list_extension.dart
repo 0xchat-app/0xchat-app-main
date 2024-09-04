@@ -1,4 +1,10 @@
 
+extension IterableExtensions<T> on Iterable<T?> {
+  Iterable<T> whereNotNull() {
+    return this.where((element) => element != null).cast<T>();
+  }
+}
+
 extension ListEx on List {
   /// Inserts an element into the list at every N-th position.
   ///
