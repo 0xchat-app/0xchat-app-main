@@ -281,7 +281,6 @@ List<Object> calculateChatMessages(
           gallery.add(PreviewImage(
             id: message.id,
             uri: message.uri,
-            encrypted: encrypted,
             decryptSecret: message.decryptKey,
           ));
         }
@@ -289,7 +288,6 @@ List<Object> calculateChatMessages(
         gallery.add(PreviewImage(
           id: message.id,
           uri: message.uri,
-          encrypted: encrypted,
           decryptSecret: message.decryptKey,
         ));
       }

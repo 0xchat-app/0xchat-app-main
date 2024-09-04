@@ -24,6 +24,7 @@ import 'package:ox_common/upload/file_type.dart';
 import 'package:ox_common/upload/upload_utils.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/image_picker_utils.dart';
+import 'package:ox_common/utils/list_extension.dart';
 import 'package:ox_common/utils/ox_chat_binding.dart';
 import 'package:ox_common/utils/string_utils.dart';
 import 'package:ox_common/utils/theme_color.dart';
@@ -99,8 +100,6 @@ class ChatGeneralHandler {
   Set<String> reactionsListenMsgId = {};
 
   final tempMessageSet = <types.Message>{};
-
-  List<PreviewImage> gallery = [];
 
   static types.User _defaultAuthor() {
     UserDBISAR? userDB = OXUserInfoManager.sharedInstance.currentUserInfo;
@@ -313,6 +312,30 @@ extension ChatGestureHandlerEx on ChatGeneralHandler {
     required String messageId,
     required String imageUri,
   }) async {
+    final messages = await ChatDataCache.shared.getSessionMessage(session: session);
+    final gallery = messages.map((message) {
+      if (message is types.ImageMessage) {
+        return PreviewImage(
+          id: message.id,
+          uri: message.uri,
+          decryptSecret: message.decryptKey,
+        );
+      } else if (message is types.CustomMessage
+          && message.customType == CustomMessageType.imageSending) {
+        String uri = ImageSendingMessageEx(message).url;
+        if (uri.isEmpty) {
+          uri = ImageSendingMessageEx(message).path;
+        }
+        if (uri.isEmpty) return null;
+
+        return PreviewImage(
+          id: message.id,
+          uri: uri,
+          decryptSecret: message.decryptKey,
+        );
+      }
+    }).whereNotNull().toList();
+
     final initialPage = gallery.indexWhere(
       (element) => element.id == messageId || element.uri == imageUri,
     );

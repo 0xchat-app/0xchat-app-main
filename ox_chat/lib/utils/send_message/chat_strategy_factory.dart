@@ -325,6 +325,7 @@ class RelayGroupChatStrategy extends ChatStrategy {
       previous,
       event: event,
       local: isLocal,
+      rootEvent: replayId,
       decryptSecret: decryptSecret,
       replaceMessageId: replaceMessageId,
     );
