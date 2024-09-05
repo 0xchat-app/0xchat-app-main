@@ -5,6 +5,7 @@ import 'package:ox_common/utils/storage_key_tool.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:ox_common/utils/user_config_tool.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
+import 'package:chatcore/chat-core.dart';
 
 ///Title: security_model
 ///Description: TODO(Fill in by oneself)
@@ -16,6 +17,7 @@ class SecureModel {
   final String title;
   final bool showArrow;
   bool switchValue;
+  final bool isShowSwitch;
   final SecureItemType settingItemType;
 
   SecureModel({
@@ -23,6 +25,7 @@ class SecureModel {
     this.title = '',
     this.showArrow = true,
     this.switchValue = false,
+    this.isShowSwitch = false,
     this.settingItemType = SecureItemType.secureWithPasscode,
   });
 
@@ -45,28 +48,54 @@ class SecureModel {
       switchValue: passcodeSwitchValue,
       settingItemType: SecureItemType.secureWithPasscode,
     ));
-    if (!passcodeSwitchValue){
-      return settingModelList;
-    }
-    List<BiometricType> availableBiometrics = await SecurityAuthUtils.getAvailableBiometrics();
-    bool faceIDSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
-    if (availableBiometrics.contains(BiometricType.face)) {
-      if (Platform.isIOS) {
+
+    if (passcodeSwitchValue){
+      List<BiometricType> availableBiometrics = await SecurityAuthUtils.getAvailableBiometrics();
+      bool faceIDSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FACEID.name, defaultValue: false);
+      if (availableBiometrics.contains(BiometricType.face)) {
+        if (Platform.isIOS) {
+          settingModelList.add(SecureModel(
+            iconName: 'icon_secure_face_id.png',
+            title: 'ox_usercenter.str_secure_with_face_id',
+            switchValue: faceIDSwitchValue,
+            settingItemType: SecureItemType.secureWithFaceID,
+          ));
+        }
+      }
+      bool fingerprintSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
+      if (Platform.isAndroid || availableBiometrics.contains(BiometricType.fingerprint)) {
         settingModelList.add(SecureModel(
-          iconName: 'icon_secure_face_id.png',
-          title: 'ox_usercenter.str_secure_with_face_id',
-          switchValue: faceIDSwitchValue,
-          settingItemType: SecureItemType.secureWithFaceID,
+          iconName: 'icon_secure_fingerprint.png',
+          title: 'ox_usercenter.str_secure_with_fingerprint',
+          switchValue: fingerprintSwitchValue,
+          settingItemType: SecureItemType.secureWithFingerprint,
         ));
       }
     }
-    bool fingerprintSwitchValue = UserConfigTool.getSetting(StorageSettingKey.KEY_FINGERPRINT.name, defaultValue: false);
-    if (Platform.isAndroid || availableBiometrics.contains(BiometricType.fingerprint)) {
+
+    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+    settingModelList.add(SecureModel(
+      iconName: 'icon_privacy_socks.png',
+      title: 'ox_usercenter.use_socks_proxy',
+      isShowSwitch: true,
+      switchValue: proxyInfo.turnOnProxy,
+      showArrow: false,
+      settingItemType: SecureItemType.useSocksProxy,
+    ));
+
+
+    if(proxyInfo.turnOnProxy){
       settingModelList.add(SecureModel(
-        iconName: 'icon_secure_fingerprint.png',
-        title: 'ox_usercenter.str_secure_with_fingerprint',
-        switchValue: fingerprintSwitchValue,
-        settingItemType: SecureItemType.secureWithFingerprint,
+        iconName: 'icon_privacy_port.png',
+        title:  'ox_usercenter.use_socks_proxy_port',
+        showArrow: false,
+        settingItemType: SecureItemType.useSocksProxyPort,
+      ));
+      settingModelList.add(SecureModel(
+        iconName: 'icon_privacy_host.png',
+        title:  'ox_usercenter.use_socks_proxy_host',
+        showArrow: false,
+        settingItemType: SecureItemType.useSocksProxyHost,
       ));
     }
 
@@ -76,7 +105,23 @@ class SecureModel {
 
 enum SecureItemType {
   block,
+  useSocksProxy,
+  useSocksProxyPort,
+  useSocksProxyHost,
   secureWithPasscode,
   secureWithFaceID,
   secureWithFingerprint,
+}
+
+extension EOnionHostOptionEx on EOnionHostOption{
+  String get text {
+    switch (this) {
+      case EOnionHostOption.required:
+        return 'Required';
+      case EOnionHostOption.no:
+        return 'No';
+      case EOnionHostOption.whenAvailable:
+        return 'When available';
+    }
+  }
 }
