@@ -14,7 +14,6 @@ import 'package:ox_common/widgets/common_file_cache_manager.dart';
 class OXVideoUtils {
 
   static Map<String, File> _thumbnailFileCache = <String, File>{};
-  static Map<String, File> get thumbnailFileCache => _thumbnailFileCache;
 
   static File? getVideoThumbnailImageFromMem({
     String? videoURL,
