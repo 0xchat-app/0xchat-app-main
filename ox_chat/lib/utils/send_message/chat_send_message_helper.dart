@@ -70,9 +70,10 @@ class ChatSendMessageHelper {
       }
 
       final sourceKey = jsonEncode(event);
+      final remoteId = event.innerEvent?.id ?? event.id;
       sendMsg = message.copyWith(
-        id: event.innerEvent?.id ?? event.id,
-        remoteId: event.id,
+        id: replaceMessageId ?? remoteId,
+        remoteId: remoteId,
         sourceKey: sourceKey,
         expiration: senderStrategy.session.expiration == null
             ? null
@@ -89,17 +90,8 @@ class ChatSendMessageHelper {
             'expiration: ${senderStrategy.session.expiration}',
       );
 
-      senderStrategy.doSendMessageAction(
-        messageType: type,
-        contentString: contentString,
-        replayId: replayId,
-        decryptSecret: message.decryptKey,
-        event: event,
-        isLocal: sendingType != ChatSendingType.remote,
-        replaceMessageId: replaceMessageId,
-      ).then((event) async {
+      Future sendEventHandler(OKEvent event) async {
         sendFinish.value = true;
-
         final message =
             await ChatDataCache.shared.getMessage(null, session, sendMsg.id);
         if (message == null) return;
@@ -110,7 +102,25 @@ class ChatSendMessageHelper {
         );
         ChatDataCache.shared
             .updateMessage(session: session, message: updatedMessage);
-      });
+      }
+
+      final sendResultEvent = senderStrategy.doSendMessageAction(
+        messageType: type,
+        contentString: contentString,
+        replayId: replayId,
+        decryptSecret: message.decryptKey,
+        event: event,
+        isLocal: sendingType != ChatSendingType.remote,
+        replaceMessageId: replaceMessageId,
+      );
+
+      final isWaitForSend = sendingType != ChatSendingType.remote;
+      sendResultEvent.then((event) => sendEventHandler(event));
+      if (isWaitForSend) {
+        sendEventHandler(await sendResultEvent);
+      } else {
+        sendResultEvent.then((event) => sendEventHandler(event));
+      }
     }
 
     if (replaceMessageId != null && replaceMessageId.isNotEmpty) {

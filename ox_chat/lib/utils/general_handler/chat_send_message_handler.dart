@@ -75,11 +75,12 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String? replaceMessageId,
     Function(types.Message)? successCallback,
   }) async {
-
     types.Message? message;
-    if (content != null && messageType != null) {
+    int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
+    if (resendMessage != null) {
+      message = resendMessage.copyWith(createdAt: tempCreateTime);
+    } else if (content != null && messageType != null) {
       final mid = Uuid().v4();
-      int tempCreateTime = DateTime.now().millisecondsSinceEpoch;
       message = await ChatMessageHelper.createUIMessage(
         messageId: mid,
         authorPubkey: author.id,
@@ -91,6 +92,14 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       );
     }
     if (message == null) return ;
+
+    if (replaceMessageId != null) {
+      final replaceMessage = await ChatDataCache.shared.getMessage(null, session, replaceMessageId);
+      message = message.copyWith(
+        id: replaceMessageId,
+        createdAt: replaceMessage?.createdAt ?? message.createdAt,
+      );
+    }
 
     if (resendMessage == null) {
       message = await tryPrepareSendFileMessage(context, message);
@@ -244,6 +253,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     if (url != null && url.isRemoteURL) {
       sendImageMessageWithURL(
         imageURL: url,
+        imagePath: filePath,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
         encryptedKey: encryptedKey,
@@ -293,7 +303,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           filePath: filePath!,
           uploadId: fileId,
           encryptedKey: encryptedKey,
-          completeCallback: (uploadResult) async {
+          autoStoreImage: false,
+          completeCallback: (uploadResult, isFromCache) async {
             var imageURL = uploadResult.url;
             if (!uploadResult.isSuccess || imageURL.isEmpty) return ;
 
@@ -305,7 +316,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
             // Store cache image for new URL
             final imageFile = File(filePath!);
-            await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
+            OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
               imageURL,
               imageFile.readAsBytesSync(),
               fileExtension: imageFile.path.getFileExtension(),
@@ -313,6 +324,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
             sendImageMessageWithURL(
               imageURL: imageURL,
+              imagePath: filePath,
               imageWidth: imageWidth,
               imageHeight: imageHeight,
               encryptedKey: encryptedKey,
@@ -326,6 +338,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   void sendImageMessageWithURL({
     required String imageURL,
+    String? imagePath,
     int? imageWidth,
     int? imageHeight,
     String? encryptedKey,
@@ -334,6 +347,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     try {
       final content = jsonEncode(CustomMessageEx.imageSendingMetaData(
         url: imageURL,
+        path: imagePath ?? '',
         width: imageWidth,
         height: imageHeight,
         encryptedKey: encryptedKey,
@@ -431,6 +445,9 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     if (videoURL != null && videoURL.isRemoteURL) {
       sendVideoMessageWithURL(
         videoURL: videoURL,
+        fileId: fileId ?? '',
+        videoPath: videoPath,
+        snapshotPath: snapshotPath,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
         replaceMessageId: resendMessage?.id,
@@ -443,7 +460,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     try {
       content = jsonEncode(CustomMessageEx.videoMetaData(
         fileId: fileId,
-        snapshotPath: '',
+        snapshotPath: snapshotPath ?? '',
         videoPath: videoPath,
         url: videoURL ?? '',
         width: imageWidth,
@@ -463,7 +480,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
           fileType: FileType.video,
           filePath: videoPath!,
           uploadId: fileId,
-          completeCallback: (uploadResult) async {
+          completeCallback: (uploadResult, isFromCache) async {
             var videoURL = uploadResult.url;
             if (!uploadResult.isSuccess || videoURL.isEmpty) return ;
 
@@ -473,19 +490,18 @@ extension ChatMessageSendEx on ChatGeneralHandler {
               height: imageHeight,
             );
 
-            if (snapshotPath != null && snapshotPath!.isNotEmpty) {
-              final snapshotFile = File(snapshotPath!);
-              final newSnapshot = await OXVideoUtils.putFileToCacheWithURL(
+            if (snapshotPath != null && snapshotPath.isNotEmpty && !isFromCache) {
+              final snapshotFile = File(snapshotPath);
+              OXVideoUtils.putFileToCacheWithURL(
                 videoURL,
                 snapshotFile,
               );
-              snapshotFile.deleteSync();
-              snapshotPath = newSnapshot.path;
             }
             sendVideoMessageWithURL(
               videoURL: videoURL,
               fileId: fileId ?? '',
-              videoPath: videoPath!,
+              videoPath: videoPath,
+              snapshotPath: snapshotPath,
               imageWidth: imageWidth,
               imageHeight: imageHeight,
               replaceMessageId: sendMessage.id,
@@ -499,7 +515,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
   void sendVideoMessageWithURL({
     required String videoURL,
     String fileId = '',
-    String videoPath = '',
+    String? videoPath,
+    String? snapshotPath,
     int? imageWidth,
     int? imageHeight,
     String? replaceMessageId,
@@ -507,8 +524,8 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     try {
       final contentJson = jsonEncode(CustomMessageEx.videoMetaData(
         fileId: fileId,
-        snapshotPath: '',
-        videoPath: '',
+        snapshotPath: snapshotPath ?? '',
+        videoPath: videoPath ?? '',
         url: videoURL,
         width: imageWidth,
         height: imageHeight,

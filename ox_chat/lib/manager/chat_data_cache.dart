@@ -935,6 +935,14 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     });
     if (index >= 0) {
       messageList.replaceRange(index, index + 1, [newMessage]);
+      // In certain cases (such as image or video message replacements),
+      // message.id and message.remoteId are not the same value.
+      // To prevent duplicate message addition caused by remote message callbacks,
+      // both of these values need to be added to the cache.
+      messageIdCache.add(newMessage.id);
+      if (newMessage.remoteId != null && newMessage.remoteId!.isNotEmpty) {
+        messageIdCache.add(newMessage.remoteId!);
+      }
       return true;
     }
     return false;
