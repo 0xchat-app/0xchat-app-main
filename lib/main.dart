@@ -47,27 +47,27 @@ class MyHttpOverrides extends HttpOverrides {
       ..findProxy = (Uri uri) {
         ProxySettings? settings = Config.sharedInstance.proxySettings;
         if (settings == null) {
-          return '';
+          return 'DIRECT';
         }
         if (settings.turnOnProxy) {
           switch (settings.onionHostOption) {
             case OnionHostOption.no:
               if (uri.host.contains(".onion")) {
-                return '';
+                return 'DIRECT';
               }
               break;
             case OnionHostOption.whenAvailable:
               return 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
             case OnionHostOption.required:
               if (!uri.host.contains(".onion")) {
-                return '';
+                return 'DIRECT';
               }
               break;
             default:
               break;
           }
         }
-        return "";
+        return "DIRECT";
       }
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) {
