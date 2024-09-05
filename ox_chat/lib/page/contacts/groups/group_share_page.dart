@@ -377,6 +377,7 @@ class _GroupSharePageState extends State<GroupSharePage> {
     } else {
       event = await RelayGroup.sharedInstance.sendJoinRequest(
           widget.groupId, _groupJoinInfoText.text);
+      OXUserInfoManager.sharedInstance.setNotification();
     }
     if (!event.status) {
       CommonToast.instance.show(context, event.message);
