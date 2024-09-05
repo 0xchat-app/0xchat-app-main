@@ -31,6 +31,7 @@ class UploadUtils {
     required String filename,
     required FileType fileType,
     bool showLoading = false,
+    bool autoStoreImage = true,
     Function(double progress)? onProgress,
   }) async {
     File uploadFile = file;
@@ -102,7 +103,7 @@ class UploadUtils {
       return UploadExceptionHandler.handleException(e,s);
     }
 
-    if (fileType == FileType.image) {
+    if (fileType == FileType.image && autoStoreImage) {
       await OXFileCacheManager.get(encryptKey: encryptedKey).putFile(
         url,
         file.readAsBytesSync(),
@@ -209,12 +210,13 @@ class UploadManager {
     required String filePath,
     required uploadId,
     String? encryptedKey,
-    Function(UploadResult)? completeCallback,
+    bool autoStoreImage = true,
+    Function(UploadResult, bool isFromCache)? completeCallback,
   }) async {
 
     final result = uploadResultMap[uploadId];
     if (result != null && result.isSuccess) {
-      completeCallback?.call(result);
+      completeCallback?.call(result, true);
       return ;
     }
 
@@ -228,12 +230,13 @@ class UploadManager {
       filename: '${Uuid().v1()}.${filePath.getFileExtension()}',
       fileType: fileType,
       encryptedKey: encryptedKey,
+      autoStoreImage: autoStoreImage,
       onProgress: (progress) {
         streamController.add(progress);
       },
     ).then((result) {
       uploadResultMap[uploadId] = result;
-      completeCallback?.call(result);
+      completeCallback?.call(result, false);
     });
   }
 
