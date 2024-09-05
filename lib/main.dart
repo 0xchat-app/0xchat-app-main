@@ -44,9 +44,31 @@ class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context)
-      // ..findProxy = (Uri uri) {
-      //   return "PROXY 127.0.0.1:7890";
-      // }
+      ..findProxy = (Uri uri) {
+        ProxySettings? settings = Config.sharedInstance.proxySettings;
+        if (settings == null) {
+          return 'DIRECT';
+        }
+        if (settings.turnOnProxy) {
+          switch (settings.onionHostOption) {
+            case EOnionHostOption.no:
+              if (uri.host.contains(".onion")) {
+                return 'DIRECT';
+              }
+              break;
+            case EOnionHostOption.whenAvailable:
+              return 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
+            case EOnionHostOption.required:
+              if (!uri.host.contains(".onion")) {
+                return 'DIRECT';
+              }
+              break;
+            default:
+              break;
+          }
+        }
+        return "DIRECT";
+      }
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) {
         return true;
