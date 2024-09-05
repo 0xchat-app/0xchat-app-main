@@ -56,7 +56,7 @@ abstract class Message extends Equatable {
   const Message({
     required this.author,
     required this.createdAt,
-    required this.id,
+    required String id,
     required this.sourceKey,
     this.metadata,
     this.remoteId,
@@ -72,7 +72,7 @@ abstract class Message extends Equatable {
     this.expiration,
     this.reactions = const [],
     this.zapsInfoList = const [],
-  });
+  }) : _id = id;
 
   /// Creates a particular message from a map (decoded JSON).
   /// Type is determined by the `type` field.
@@ -109,7 +109,8 @@ abstract class Message extends Equatable {
   final int createdAt;
 
   /// Unique ID of the message.
-  final String id;
+  final String _id;
+  String get id => _id;
 
   /// Additional custom metadata or attributes related to the message.
   final Map<String, dynamic>? metadata;

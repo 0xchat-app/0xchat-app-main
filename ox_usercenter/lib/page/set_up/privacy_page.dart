@@ -17,6 +17,7 @@ import 'package:ox_usercenter/model/secure_model.dart';
 import 'package:ox_usercenter/page/set_up/passcode_page.dart';
 import 'package:ox_usercenter/page/set_up/privacy_blocked_page.dart';
 import 'package:ox_usercenter/utils/security_auth_utils.dart';
+import 'package:chatcore/chat-core.dart';
 
 class PrivacyPage extends StatefulWidget {
   const PrivacyPage({super.key});
@@ -61,6 +62,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
         itemBuilder: _itemBuild,
         itemCount: _secureModelList.length,
       ).setPadding(EdgeInsets.symmetric(horizontal: Adapt.px(24), vertical: Adapt.px(12))),
+
     );
   }
 
@@ -72,6 +74,10 @@ class _PrivacyPageState extends State<PrivacyPage> {
     double bottomLeft = 0;
     double bottomRight = 0;
     rightContent = model.switchValue ? 'on' : 'off';
+    double intervalHeight = 0;
+    bool isShowUnderline = false;
+    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+
     switch (model.settingItemType) {
       case SecureItemType.block:
         rightContent = _blockList.length.toString();
@@ -79,20 +85,42 @@ class _PrivacyPageState extends State<PrivacyPage> {
         topRight = 16.px;
         bottomLeft = 16.px;
         bottomRight = 16.px;
+        intervalHeight = 24.px;
         break;
       case SecureItemType.secureWithPasscode:
         topLeft = 16.px;
         topRight = 16.px;
-        bottomLeft = 0;
-        bottomRight = 0;
+        bottomLeft = model.switchValue ? 0 : 16.px;
+        bottomRight = model.switchValue ? 0 : 16.px;
+        isShowUnderline = model.switchValue;
+        intervalHeight = model.switchValue ? 0 : 24.px;
         break;
       case SecureItemType.secureWithFaceID:
+        isShowUnderline = true;
         break;
       case SecureItemType.secureWithFingerprint:
         topLeft = 0;
         topRight = 0;
         bottomLeft = 16.px;
         bottomRight = 16.px;
+        isShowUnderline = true;
+        break;
+      case SecureItemType.useSocksProxy:
+        topLeft = 16.px;
+        topRight = 16.px;
+        bottomLeft = model.switchValue ? 0 : 16.px;
+        bottomRight = model.switchValue ? 0 : 16.px;
+        intervalHeight = model.switchValue ? 0 : 24.px;
+        isShowUnderline = model.switchValue;
+        break;
+      case SecureItemType.useSocksProxyHost:
+        bottomLeft = 16.px;
+        bottomRight = 16.px;
+        rightContent = proxyInfo.onionHostOption.text;
+        break;
+      case SecureItemType.useSocksProxyPort:
+        rightContent = proxyInfo.socksProxyPort.toString();
+        isShowUnderline = true;
         break;
     }
     if (index == _secureModelList.length-1){
@@ -124,7 +152,23 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 package: 'ox_usercenter',
               ),
               content: Localized.text(model.title),
-              actions: Row(
+              actions: model.isShowSwitch ? Container(
+                height: 20.px,
+                child: Switch(
+                  value: model.switchValue,
+                  activeColor: Colors.white,
+                  activeTrackColor: ThemeColor.gradientMainStart,
+                  inactiveThumbColor: Colors.white,
+                  inactiveTrackColor: ThemeColor.color160,
+                  onChanged: (bool value) async {
+                      ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+                      proxyInfo.turnOnProxy = !model.switchValue;
+                      await Config.sharedInstance.setProxy(proxyInfo);
+                      _initData();
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                ),
+              ) : Row(
                 children: [
                   Text(
                     rightContent,
@@ -139,15 +183,16 @@ class _PrivacyPageState extends State<PrivacyPage> {
               ),
             ),
           ),
-          SizedBox(height: model.settingItemType == SecureItemType.block ? 24.px : 0),
+          SizedBox(height:intervalHeight),
           Visibility(
-            visible: model.settingItemType != SecureItemType.block && index != _secureModelList.length-1,
+            visible: isShowUnderline && index != _secureModelList.length-1,
             child: Container(
               width: double.infinity,
               height: 0.5.px,
               color: ThemeColor.color160,
             ),
           ),
+          _proxyTurnOnTipsWidget(model.settingItemType),
         ],
       ),
     );
@@ -174,6 +219,22 @@ class _PrivacyPageState extends State<PrivacyPage> {
       ),
       actions ?? Container()
     ]);
+  }
+
+  Widget _proxyTurnOnTipsWidget(SecureItemType type){
+    if(type != SecureItemType.useSocksProxyHost) return const SizedBox();
+    return SizedBox(
+      width: double.infinity,
+      child: Text(
+        'Using .onion hosts requires compatible VPN provider.',
+        textAlign: TextAlign.start,
+        style: TextStyle(
+          color: ThemeColor.color100,
+          fontSize: 12.px,
+
+        ),
+      ),
+    ).setPaddingOnly(top: 8.px);
   }
 
   void _getBlockedUserPubkeys() {
@@ -286,6 +347,110 @@ class _PrivacyPageState extends State<PrivacyPage> {
           }
         }
         break;
+      case SecureItemType.useSocksProxyPort:
+        ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+        final text = await OXCommonHintDialog.showInputDialog(
+          context,
+          title: 'Set port',
+          maxLength: 6,
+          keyboardType: TextInputType.number,
+          defaultText: proxyInfo.socksProxyPort.toString(),
+        );
+        if(text != null && text.isNotEmpty){
+          proxyInfo.socksProxyPort = int.parse(text);
+          await Config.sharedInstance.setProxy(proxyInfo);
+          _initData();
+        }
+        break;
+      case SecureItemType.useSocksProxyHost:
+        showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildSetProxyBottomDialog());
+
+        break;
     }
+  }
+  Widget _buildSetProxyBottomDialog() {
+    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Adapt.px(12)),
+        color: ThemeColor.color180,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              vertical: 8.px,
+            ),
+            child: Text(
+              'use .onion hosts',
+              style: TextStyle(
+                color: ThemeColor.color100,
+                fontSize: 14.px,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          Divider(
+            color: ThemeColor.color170,
+            height: Adapt.px(0.5),
+          ),
+          ...EOnionHostOption.values.map((EOnionHostOption type){
+            return Column(
+              children: [
+                _buildProxyItem(
+                  isSelect: type == proxyInfo.onionHostOption,
+                  type.text,
+                  onTap: () => _setProxyHost(type),
+                ),
+                Divider(
+                  color: ThemeColor.color170,
+                  height: Adapt.px(0.5),
+                ),
+              ],
+            );
+          }),
+          Container(
+            height: Adapt.px(8),
+            color: ThemeColor.color190,
+          ),
+          _buildProxyItem(Localized.text('ox_common.cancel'), onTap: () {
+            OXNavigator.pop(context);
+          }),
+          SizedBox(
+            height: Adapt.px(21),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProxyItem(String title,
+      {GestureTapCallback? onTap,bool isSelect = false}) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: Adapt.px(56),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelect ? ThemeColor.purple1 : ThemeColor.color0,
+            fontSize: Adapt.px(16),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  void _setProxyHost(EOnionHostOption type) async {
+    ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+    proxyInfo.onionHostOption = type;
+    await Config.sharedInstance.setProxy(proxyInfo);
+    _initData();
+    OXNavigator.pop(context);
   }
 }

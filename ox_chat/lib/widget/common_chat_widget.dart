@@ -57,7 +57,6 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   void initState() {
     tryInitDraft();
     super.initState();
-    updateImageGallery();
     addListener();
   }
 
@@ -69,54 +68,12 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
     }
   }
 
-  void updateImageGallery() {
-    final gallery = <PreviewImage>[];
-    for (var message in widget.messages) {
-      final encrypted = message.fileEncryptionType != types.EncryptionType.none;
-      if (message is types.ImageMessage) {
-        gallery.add(
-          PreviewImage(
-            id: message.id,
-            uri: message.uri,
-            encrypted: encrypted,
-            decryptSecret: message.decryptKey,
-          ),
-        );
-      } else if (message is types.CustomMessage
-          && message.customType == CustomMessageType.imageSending) {
-        String uri = ImageSendingMessageEx(message).url;
-        if (uri.isEmpty) {
-          uri = ImageSendingMessageEx(message).path;
-        }
-        if (uri.isEmpty) continue ;
-
-        gallery.add(
-          PreviewImage(
-            id: message.id,
-            uri: uri,
-            encrypted: encrypted,
-            decryptSecret: message.decryptKey,
-          ),
-        );
-      }
-    }
-    widget.handler.gallery = gallery;
-  }
-
   void addListener() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ChatDataCache.shared.addObserver(session, (messages) {
         widget.handler.refreshMessage(messages);
       });
     });
-  }
-
-  @override
-  void didUpdateWidget(covariant CommonChatWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.messages != widget.messages) {
-      updateImageGallery();
-    }
   }
 
   @override

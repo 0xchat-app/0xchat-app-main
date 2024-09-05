@@ -555,7 +555,9 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     var width = ImageSendingMessageEx(message).width;
     var height = ImageSendingMessageEx(message).height;
     final encryptedKey = ImageSendingMessageEx(message).encryptedKey;
-    final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
+    final stream = fileId.isEmpty || url.isNotEmpty
+        ? null
+        : UploadManager.shared.getUploadProgress(fileId);
 
     if (width == null || height == null) {
       try {
@@ -569,7 +571,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     Widget widget = Hero(
       tag: message.id,
       child: ImagePreviewWidget(
-        uri: url.isNotEmpty ? url : path,
+        uri: path.isNotEmpty ? path : url,
         imageWidth: width,
         imageHeight: height,
         maxWidth: messageWidth,
@@ -616,7 +618,9 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
     final fileId = VideoMessageEx(message).fileId;
     var width = VideoMessageEx(message).width;
     var height = VideoMessageEx(message).height;
-    final stream = fileId.isEmpty ? null : UploadManager.shared.getUploadProgress(fileId);
+    final stream = fileId.isEmpty || url.isNotEmpty
+        ? null
+        : UploadManager.shared.getUploadProgress(fileId);
 
     if (width == null || height == null) {
       try {
@@ -627,8 +631,12 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
       } catch (_) { }
     }
 
-    if (snapshotPath.isEmpty && url.isNotEmpty) {
-      snapshotPath = OXVideoUtils.getVideoThumbnailImageFromMem(url)?.path ?? '';
+    if (snapshotPath.isEmpty) {
+      if (url.isNotEmpty) {
+        snapshotPath = OXVideoUtils.getVideoThumbnailImageFromMem(videoURL: url)?.path ?? '';
+      } else if (fileId.isNotEmpty) {
+        snapshotPath = OXVideoUtils.getVideoThumbnailImageFromMem(cacheKey: fileId)?.path ?? '';
+      }
     }
 
     Widget snapshotBuilder(String imagePath) {
@@ -653,7 +661,7 @@ extension ChatMessageBuilderCustomEx on ChatMessageBuilder {
               return snapshotBuilder(snapshotPath);
             },
           ),
-        if (stream == null)
+        if (url.isNotEmpty)
           Positioned.fill(
             child: Center(
               child: Icon(Icons.play_circle, size: 60.px,)

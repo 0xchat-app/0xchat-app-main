@@ -492,8 +492,8 @@ class _UserCenterPageState extends State<UserCenterPage>
     Image placeholderImage = Image.asset(
       localAvatarPath,
       fit: BoxFit.cover,
-      width: Adapt.px(76),
-      height: Adapt.px(76),
+      width: Adapt.px(120),
+      height: Adapt.px(120),
       package: 'ox_common',
     );
     return SizedBox(
@@ -505,14 +505,14 @@ class _UserCenterPageState extends State<UserCenterPage>
             alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Adapt.px(120)),
-              child: OXCachedNetworkImage(
+              child: headImgUrl.isNotEmpty ? OXCachedNetworkImage(
                 imageUrl: headImgUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => placeholderImage,
                 errorWidget: (context, url, error) => placeholderImage,
                 width: Adapt.px(120),
                 height: Adapt.px(120),
-              ),
+              ): placeholderImage,
             ),
           ),
           SizedBox(

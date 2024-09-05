@@ -8,7 +8,6 @@ class PreviewImage extends Equatable {
   const PreviewImage({
     required this.id,
     required this.uri,
-    this.encrypted = false,
     this.decryptSecret,
   });
 
@@ -17,8 +16,6 @@ class PreviewImage extends Equatable {
 
   /// Image's URI.
   final String uri;
-
-  final bool encrypted;
 
   final String? decryptSecret;
 

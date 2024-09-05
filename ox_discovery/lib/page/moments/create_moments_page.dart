@@ -10,6 +10,9 @@ import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
 import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
+import 'package:ox_common/widgets/common_select_relay_page.dart';
+
+
 import 'package:flutter/services.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -56,7 +59,7 @@ class CreateMomentsPage extends StatefulWidget {
 }
 
 class _CreateMomentsPageState extends State<CreateMomentsPage> {
-
+  String _chatRelay = 'wss://relay.0xchat.com';
   Map<String,UserDBISAR> draftCueUserMap = {};
 
   List<String> addImageList = [];
@@ -181,6 +184,7 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
                         _quoteWidget(),
                         _captionWidget(),
                         _visibleContactsWidget(),
+                        // _selectRelayWidget(),
                       ],
                     ),
                   ),
@@ -197,6 +201,69 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
         ),
       ),
     );
+  }
+
+  Widget _labelWidget({
+    required String title,
+    required String content,
+    required GestureTapCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: Adapt.px(52),
+        decoration: BoxDecoration(
+          color: ThemeColor.color180,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: Adapt.px(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: Adapt.px(16),
+                fontWeight: FontWeight.w400,
+                color: ThemeColor.color0,
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    _ellipsisText(content),
+                    style: TextStyle(
+                      fontSize: Adapt.px(16),
+                      fontWeight: FontWeight.w400,
+                      color: ThemeColor.color100,
+                    ),
+                  ),
+                  CommonImage(
+                    iconName: 'icon_arrow_more.png',
+                    width: Adapt.px(24),
+                    height: Adapt.px(24),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _ellipsisText(String text) {
+    if (text.length > 30) {
+      return text.substring(0, 10) +
+          '...' +
+          text.substring(text.length - 10, text.length);
+    }
+    return text;
   }
 
   Widget _showEditImageWidget() {
@@ -562,6 +629,48 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     );
   }
 
+  Widget _selectRelayWidget(){
+    return Container(
+      width: double.infinity,
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              vertical: Adapt.px(12),
+            ),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Select relay',
+              style: TextStyle(
+                  fontSize: 14.px,
+                  fontWeight: FontWeight.w600,
+                  color: ThemeColor.color0,
+              ),
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            child: _labelWidget(
+              title:  Localized.text('ox_chat.relay'),
+              content: _chatRelay,
+              onTap: () async {
+                var result = await OXNavigator.presentPage(
+                  context,
+                      (context) => CommonSelectRelayPage(),
+                );
+                if (result != null) {
+                  _chatRelay = result as String;
+                  setState(() {});
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _checkSaveDraft() async {
     if(_textController.text.isEmpty && _getImageList().isEmpty && videoPath == null){
       OXNavigator.pop(context);
@@ -768,3 +877,4 @@ class _CreateMomentsPageState extends State<CreateMomentsPage> {
     }
   }
 }
+
