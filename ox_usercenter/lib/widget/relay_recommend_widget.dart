@@ -70,28 +70,38 @@ class RelayCommendWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(
-          onTap: (){
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap:() {
             OXNavigator.pushPage(context, (context) => RelayDetailPage(relayURL: _model.relayDB.url,));
           },
-          contentPadding: EdgeInsets.symmetric(horizontal: Adapt.px(16)),
-          leading: CommonImage(
-            iconName: 'icon_settings_relays.png',
-            width: Adapt.px(32),
-            height: Adapt.px(32),
-            package: 'ox_usercenter',
-          ),
-          title: Container(
-            margin: EdgeInsets.only(left: Adapt.px(12)),
-            child: Text(
-              _model.relayDB.url,
-              style: TextStyle(
-                color: ThemeColor.color0,
-                fontSize: Adapt.px(16),
-              ),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.px, vertical: 10.px),
+            child: Row(
+              children: [
+                CommonImage(
+                  iconName: 'icon_settings_relays.png',
+                  width: Adapt.px(32),
+                  height: Adapt.px(32),
+                  package: 'ox_usercenter',
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 12.px),
+                    child: Text(
+                      _model.relayDB.url,
+                      style: TextStyle(
+                        color: ThemeColor.color0,
+                        fontSize: Adapt.px(16),
+                      ),
+                    ),
+                  ),
+                ),
+                _relayStateImage(_model),
+              ],
             ),
           ),
-          trailing: _relayStateImage(_model),
         ),
         commendRelayList.length > 1 && commendRelayList.length - 1 != index
             ? Divider(
