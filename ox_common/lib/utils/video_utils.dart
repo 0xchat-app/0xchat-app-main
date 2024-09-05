@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ox_common/log_util.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/encode_utils.dart';
 import 'package:ox_common/utils/string_utils.dart';
@@ -14,17 +15,41 @@ class OXVideoUtils {
 
   static Map<String, File> _thumbnailFileCache = <String, File>{};
 
-  static File? getVideoThumbnailImageFromMem(String videoURL) {
-    final thumbnailURL = _thumbnailSnapshotURL(videoURL);
-    return _thumbnailFileCache[thumbnailURL];
-  }
-  static void putVideoThumbnailImageToMem(String videoURL, File? file) {
-    final thumbnailURL = _thumbnailSnapshotURL(videoURL);
+  static File? getVideoThumbnailImageFromMem({
+    String? videoURL,
+    String? cacheKey,
+  }) {
+    if (videoURL != null) {
+      cacheKey ??= _thumbnailSnapshotURL(videoURL);
+    }
+    if (cacheKey == null) {
+      LogUtil.e('Both videoURL and cacheKey are null');
+      return null;
+    }
 
-    if (file != null) {
-      _thumbnailFileCache[thumbnailURL] = file;
+    final file = _thumbnailFileCache[cacheKey];
+    if (file != null && !file.existsSync()) return null;
+
+    return file;
+  }
+
+  static void putVideoThumbnailImageToMem({
+    String? videoURL,
+    String? cacheKey,
+    File? file,
+  }) {
+    if (videoURL != null) {
+      cacheKey ??= _thumbnailSnapshotURL(videoURL);
+    }
+    if (cacheKey == null) {
+      LogUtil.e('Both videoURL and cacheKey are null');
+      return null;
+    }
+
+    if (file != null && file.existsSync()) {
+      _thumbnailFileCache[cacheKey] = file;
     } else {
-      _thumbnailFileCache.remove(thumbnailURL);
+      _thumbnailFileCache.remove(cacheKey);
     }
   }
 
@@ -32,11 +57,15 @@ class OXVideoUtils {
     required String videoURL,
     bool onlyFromCache = false,
   }) async {
-
-    final cacheManager = OXFileCacheManager.get();
-    final thumbnailURL = _thumbnailSnapshotURL(videoURL);
     File? thumbnailImageFile;
 
+    // Memory
+    thumbnailImageFile = getVideoThumbnailImageFromMem(videoURL: videoURL);
+    if (thumbnailImageFile != null) return thumbnailImageFile;
+
+    // Store
+    final cacheManager = OXFileCacheManager.get();
+    final thumbnailURL = _thumbnailSnapshotURL(videoURL);
     if (UplodAliyun.isAliOSSUrl(videoURL)) {
       try {
         if (onlyFromCache) {
@@ -49,13 +78,12 @@ class OXVideoUtils {
       thumbnailImageFile = (await cacheManager.getFileFromCache(thumbnailURL))?.file;
     }
 
-    if (onlyFromCache) return thumbnailImageFile;
-
-    if (thumbnailImageFile != null) {
-      putVideoThumbnailImageToMem(videoURL, thumbnailImageFile);
+    if (onlyFromCache || thumbnailImageFile != null && thumbnailImageFile.existsSync()) {
+      putVideoThumbnailImageToMem(videoURL: videoURL, file: thumbnailImageFile);
       return thumbnailImageFile;
     }
 
+    // New Create
     final file = await cacheManager.store.fileSystem.createFile(
       '${const Uuid().v1()}.jpg',
     );
@@ -73,7 +101,6 @@ class OXVideoUtils {
 
     thumbnailImageFile = File(filePath);
     final cacheFile = await _putFileToCache(thumbnailURL, thumbnailImageFile);
-    putVideoThumbnailImageToMem(videoURL, cacheFile);
     return cacheFile;
   }
 
@@ -82,12 +109,25 @@ class OXVideoUtils {
     String? cacheKey,
     bool onlyFromCache = false,
   }) async {
+    File? thumbnailImageFile;
+
+    // Memory
+    if (cacheKey != null) {
+      thumbnailImageFile = getVideoThumbnailImageFromMem(cacheKey: cacheKey);
+      if (thumbnailImageFile != null) return thumbnailImageFile;
+    }
+
+    // Store
     final cacheManager = OXFileCacheManager.get();
     cacheKey ??= await EncodeUtils.generatePartialFileMd5(File(videoFilePath));
-    final thumbnailCache = await cacheManager.getFileFromCache(cacheKey);
+    thumbnailImageFile = (await cacheManager.getFileFromCache(cacheKey))?.file;
 
-    if (onlyFromCache || thumbnailCache != null) return thumbnailCache?.file;
+    if (thumbnailImageFile != null && thumbnailImageFile.existsSync()) {
+      putVideoThumbnailImageToMem(cacheKey: cacheKey, file: thumbnailImageFile);
+    }
+    if (onlyFromCache || thumbnailImageFile != null) return thumbnailImageFile;
 
+    // New Create
     final file = await cacheManager.store.fileSystem.createFile(
       '${const Uuid().v1()}.jpg',
     );
@@ -103,22 +143,15 @@ class OXVideoUtils {
 
     if (filePath == null) return null;
 
-    final thumbnailImageFile = File(filePath);
-    final cacheFile = _putFileToCache(cacheKey, thumbnailImageFile);
+    final tempFile = File(filePath);
+    final cacheFile = _putFileToCache(cacheKey, tempFile);
     return cacheFile;
   }
 
   static Future<File> putFileToCacheWithURL(String url, File file) async {
     if (!url.isRemoteURL) throw Exception('url must be remote url');
     final cacheKey = _thumbnailSnapshotURL(url);
-    final bytes = file.readAsBytesSync();
-    final cacheFile = await OXFileCacheManager.get().putFile(
-      cacheKey,
-      bytes,
-      fileExtension: file.path.getFileExtension(),
-    );
-    putVideoThumbnailImageToMem(url, cacheFile);
-    return cacheFile;
+    return _putFileToCache(cacheKey, file);
   }
 
   static Future<File> putFileToCacheWithFileId(String fileId, File file) async {
@@ -132,13 +165,28 @@ class OXVideoUtils {
   }
 
   static Future<File> _putFileToCache(String cacheKey, File file) async {
+    if (!file.existsSync()) throw Exception('file is not exists');
+    // Put on store
     final bytes = file.readAsBytesSync();
     final cacheFile = await OXFileCacheManager.get().putFile(
       cacheKey,
       bytes,
       fileExtension: file.path.getFileExtension(),
     );
-    file.deleteSync();
+
+    // Replace memory info & Delete origin file
+    // final originCacheKey = _thumbnailFileCache.keys.where((key) {
+    //   return _thumbnailFileCache[key]?.path == file.path;
+    // });
+    final updateCacheKey = [
+      // ...originCacheKey,
+      cacheKey,
+    ];
+    updateCacheKey.forEach((key) {
+      putVideoThumbnailImageToMem(cacheKey: key, file: cacheFile);
+    });
+    // file.delete();
+
     return cacheFile;
   }
 

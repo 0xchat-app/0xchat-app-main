@@ -130,5 +130,26 @@ class UplodAliyun {
         String h = '0',
         String m = 'fast',
         String ar = 'auto',
-      }) => '$url?spm=qipa250&x-oss-process=video/snapshot,t_$t,f_$f,w_$w,h_$h,m_$m,ar_$ar';
+      }) {
+
+    final aliyunSnapshotParams = {
+      'spm': 'qipa250',
+      'x-oss-process': 'video/snapshot,t_$t,f_$f,w_$w,h_$h,m_$m,ar_$ar',
+    };
+
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      final queryString = aliyunSnapshotParams.entries
+          .map((entry) => '${entry.key}=${entry.value}')
+          .join('&');
+      return '$url?$queryString';
+    }
+
+    return uri.replace(
+      queryParameters: {
+        ...uri.queryParameters,
+        ...aliyunSnapshotParams,
+      },
+    ).toString();
+  }
 }
