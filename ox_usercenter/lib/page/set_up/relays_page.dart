@@ -298,9 +298,9 @@ class _RelaysPageState extends State<RelaysPage> {
     RelayDBISAR _model = relayList[index];
     return Column(
       children: [
-        SizedBox(
+        Container(
           width: double.infinity,
-          height: Adapt.px(52),
+          padding: EdgeInsets.symmetric(vertical: 10.px),
           child: ListTile(
             onTap: (){
               if(!_isEditing){
@@ -373,69 +373,70 @@ class _RelaysPageState extends State<RelaysPage> {
   Widget _inputRelay() {
     return Container(
       width: double.infinity,
-      height: Adapt.px(48),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: ThemeColor.color180,
       ),
       alignment: Alignment.center,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: EdgeInsets.only(left: Adapt.px(16)),
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-            child: CommonImage(
-              iconName: 'icon_relay_paste.png',
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: Adapt.px(16)),
               width: Adapt.px(24),
               height: Adapt.px(24),
-              package: 'ox_usercenter',
-              useTheme: true,
-            ),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _relayTextFieldControll,
-              decoration: InputDecoration(
-                hintText: 'wss://some.relay.com',
-                hintStyle: TextStyle(
-                  color: ThemeColor.color100,
-                  fontSize: Adapt.px(15),
-                ),
-                suffixIcon: _isShowDelete
-                    ? IconButton(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        onPressed: () {
-                          setState(() {
-                            _relayTextFieldControll.text = '';
-                            _isShowDelete = false;
-                          });
-                        },
-                        icon: CommonImage(
-                          iconName: 'icon_textfield_close.png',
-                          width: Adapt.px(16),
-                          height: Adapt.px(16),
-                        ),
-                      )
-                    : null,
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
+              child: CommonImage(
+                iconName: 'icon_relay_paste.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                package: 'ox_usercenter',
+                useTheme: true,
               ),
-              onChanged: (str) {
-                setState(() {
-                  if (str.isNotEmpty) {
-                    _isShowDelete = true;
-                  } else {
-                    _isShowDelete = false;
-                  }
-                });
-              },
             ),
-          ),
-        ],
+            Expanded(
+              child: TextField(
+                controller: _relayTextFieldControll,
+                decoration: InputDecoration(
+                  hintText: 'wss://some.relay.com',
+                  hintStyle: TextStyle(
+                    color: ThemeColor.color100,
+                    fontSize: Adapt.px(15),
+                  ),
+                  suffixIcon: _isShowDelete
+                      ? IconButton(
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onPressed: () {
+                      setState(() {
+                        _relayTextFieldControll.text = '';
+                        _isShowDelete = false;
+                      });
+                    },
+                    icon: CommonImage(
+                      iconName: 'icon_textfield_close.png',
+                      width: Adapt.px(16),
+                      height: Adapt.px(16),
+                    ),
+                  )
+                      : null,
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onChanged: (str) {
+                  setState(() {
+                    if (str.isNotEmpty) {
+                      _isShowDelete = true;
+                    } else {
+                      _isShowDelete = false;
+                    }
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
