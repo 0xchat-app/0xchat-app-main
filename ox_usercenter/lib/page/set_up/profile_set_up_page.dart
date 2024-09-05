@@ -43,6 +43,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   final ValueNotifier<bool> _is0xchatAddress = ValueNotifier<bool>(true);
   List<String> _relayNameList = [];
   File? imageFile;
+  late String headerUrl;
 
   @override
   void initState() {
@@ -51,6 +52,8 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
     _userNameTextEditingController.text = mCurrentUserInfo?.name ?? '';
     _aboutTextEditingController.text = mCurrentUserInfo?.about ?? '';
     _bltTextEditingController.text = mCurrentUserInfo?.lnurl ?? '';
+    headerUrl =
+        OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
     _initData();
     _initDNSItem();
   }
@@ -284,8 +287,6 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
   }
 
   Widget _buildHeadImgView() {
-    String headerUrl =
-        OXUserInfoManager.sharedInstance.currentUserInfo?.picture ?? '';
     String localAvatarPath = 'assets/images/user_image.png';
     Image placeholderImage = Image.asset(
       localAvatarPath,
@@ -422,6 +423,7 @@ class _ProfileSetUpPageState extends State<ProfileSetUpPage> {
       else if(value == null){
         setState(() {
           imageFile = null;
+          headerUrl = '';
         });
       }
     });

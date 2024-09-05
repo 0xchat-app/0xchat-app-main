@@ -20,6 +20,8 @@ class SelectAssetDialog extends StatefulWidget {
   State<SelectAssetDialog> createState() => _SelectAssetDialogState();
 }
 
+enum SelectAssetAction {Gallery, Camera, Remove, Cancel}
+
 class _SelectAssetDialogState extends State<SelectAssetDialog> {
 
   @override
@@ -43,7 +45,7 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
         children: [
           _buildItem(Localized.text('ox_usercenter.gallery'), onTap: () async {
             File? imgFile = await openGallery();
-            OXNavigator.pop(context, imgFile);
+            OXNavigator.pop(context, {'action': SelectAssetAction.Gallery, 'result': imgFile});
           }),
           Divider(
             color: ThemeColor.color160,
@@ -51,20 +53,20 @@ class _SelectAssetDialogState extends State<SelectAssetDialog> {
           ),
           _buildItem(Localized.text('ox_usercenter.camera'), onTap: () async {
             File? imgFile = await openCamera();
-            OXNavigator.pop(context, imgFile);
+            OXNavigator.pop(context, {'action': SelectAssetAction.Camera, 'result': imgFile});
           }),
           Divider(
             color: ThemeColor.color160,
             height: Adapt.px(0.5),
           ),
           _buildItem(Localized.text('ox_usercenter.removePhoto'), onTap: () async {
-            OXNavigator.pop(context, null);
+            OXNavigator.pop(context, {'action': SelectAssetAction.Remove, 'result': null});
           }),
           Container(
             height: Adapt.px(8),
             color: ThemeColor.color190,
           ),
-          _buildItem(Localized.text('ox_usercenter.cancel'), onTap: () => OXNavigator.pop(context)),
+          _buildItem(Localized.text('ox_usercenter.cancel'), onTap: () => OXNavigator.pop(context, {'action': SelectAssetAction.Cancel, 'result': null})),
         ],
       ),
     );

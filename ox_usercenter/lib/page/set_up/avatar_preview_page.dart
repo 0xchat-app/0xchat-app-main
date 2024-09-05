@@ -70,25 +70,26 @@ class _AvatarPreviewPageState extends State<AvatarPreviewPage> with WidgetsBindi
                       height: Adapt.px(24),
                     ),
                     onPressed: () async {
-                      File? imgFile = await showModalBottomSheet(
+                      Map? selectAssetDialog = await showModalBottomSheet(
                         backgroundColor: Colors.transparent,
                         context: context,
                         builder: (context) => const SelectAssetDialog(),
                       );
-
-                      if (imgFile != null) {
+                      if(selectAssetDialog == null) return;
+                      SelectAssetAction action = selectAssetDialog['action'];
+                      File? imgFile = selectAssetDialog['result'];
+                      if(action == SelectAssetAction.Remove){
+                        setState(() {
+                          imageFile = null;
+                        });
+                        OXNavigator.pop(context, null);
+                      }
+                      else if (imgFile != null) {
                         setState(() {
                           imageFile = imgFile;
                         });
                         // 07/04 requirement change
                         OXNavigator.pop(context, imgFile);
-                      }
-                      else{
-                        setState(() {
-                          mUserDB?.picture = '';
-                          imageFile = null;
-                        });
-                        OXNavigator.pop(context, null);
                       }
                     },
                   ),
