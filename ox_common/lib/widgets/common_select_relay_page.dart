@@ -178,49 +178,51 @@ class CommonSelectRelayPageState extends State<CommonSelectRelayPage> {
         color: ThemeColor.color180,
       ),
       alignment: Alignment.center,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: EdgeInsets.only(left: Adapt.px(16)),
-            width: Adapt.px(24),
-            height: Adapt.px(24),
-            child: CommonImage(
-              iconName: 'icon_relay_paste.png',
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: Adapt.px(16)),
               width: Adapt.px(24),
               height: Adapt.px(24),
-              package: 'ox_usercenter',
-              useTheme: true,
-            ),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _relayTextFieldController,
-              decoration: InputDecoration(
-                hintText: 'wss://some.relay.com',
-                hintStyle: TextStyle(
-                  color: ThemeColor.color100,
-                  fontSize: Adapt.px(15),
-                ),
-                suffixIcon: _delTextIconWidget(),
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
+              child: CommonImage(
+                iconName: 'icon_relay_paste.png',
+                width: Adapt.px(24),
+                height: Adapt.px(24),
+                package: 'ox_usercenter',
+                useTheme: true,
               ),
-              onChanged: (str) {
-                setState(() {
-                  if (str.isNotEmpty) {
-                    _isShowDelete = true;
-                    _selectRelayIndex = null;
-                  } else {
-                    _isShowDelete = false;
-                    _selectRelayIndex = 0;
-                  }
-                });
-              },
             ),
-          ),
-        ],
+            Expanded(
+              child: TextField(
+                controller: _relayTextFieldController,
+                decoration: InputDecoration(
+                  hintText: 'wss://some.relay.com',
+                  hintStyle: TextStyle(
+                    color: ThemeColor.color100,
+                    fontSize: Adapt.px(15),
+                  ),
+                  suffixIcon: _delTextIconWidget(),
+                  border: const OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onChanged: (str) {
+                  setState(() {
+                    if (str.isNotEmpty) {
+                      _isShowDelete = true;
+                      _selectRelayIndex = null;
+                    } else {
+                      _isShowDelete = false;
+                      _selectRelayIndex = 0;
+                    }
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
