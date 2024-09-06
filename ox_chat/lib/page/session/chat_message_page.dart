@@ -65,6 +65,15 @@ class ChatMessagePage extends StatefulWidget {
         chatType,
         since: since,
       );
+      if (initialMessage.isNotEmpty && initialMessage.length < ChatPageConfig.messagesPerPage) {
+        int until = initialMessage.last.createdAt ~/ 1000;
+        Messages.recoverMessagesFromRelay(
+          communityItem.chatId,
+          chatType,
+          until: until,
+          limit: ChatPageConfig.messagesPerPage * 3,
+        );
+      }
     }
 
     Widget? pageWidget;
