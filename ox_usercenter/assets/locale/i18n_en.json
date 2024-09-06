@@ -223,5 +223,10 @@
   "str_p2p_title": "Voice and video data are relayed through a TURN server to prevent your IP address from being exposed to your contacts.",
   "str_p2p_tips": "Always use relay",
   "str_read_file_failed": "Failed to read file",
-  "removePhoto": "Remove Photo"
+  "removePhoto": "Remove Photo",
+  "nuts_zaps": "Nuts Zaps",
+  "use_socks_proxy":"Use socks proxy",
+  "use_socks_proxy_port":"Port",
+  "use_socks_proxy_host": "Use .onion hosts"
+
 }
