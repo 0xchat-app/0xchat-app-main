@@ -227,6 +227,6 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy":"Use SOCKS proxy",
   "use_socks_proxy_port":"Port",
-  "use_socks_proxy_host": "Use .onion hosts"
-
+  "use_socks_proxy_onion_host": "Use .onion hosts",
+  "use_socks_proxy_host": "Host"
 }

@@ -226,5 +226,6 @@
   "nuts_zaps": "Nuts Zaps",
   "use_socks_proxy":"使用SOCKS代理",
   "use_socks_proxy_port":"端口",
-  "use_socks_proxy_host": "使用.onion地址"
+  "use_socks_proxy_onion_host": "使用.onion地址",
+  "use_socks_proxy_host": "主机"
 }

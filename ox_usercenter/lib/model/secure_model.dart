@@ -97,6 +97,12 @@ class SecureModel {
         showArrow: false,
         settingItemType: SecureItemType.useSocksProxyHost,
       ));
+      settingModelList.add(SecureModel(
+        iconName: 'icon_privacy_onion_host.png',
+        title:  'ox_usercenter.use_socks_proxy_onion_host',
+        showArrow: false,
+        settingItemType: SecureItemType.useSocksProxyOnionHost,
+      ));
     }
 
     return settingModelList;
@@ -108,6 +114,7 @@ enum SecureItemType {
   useSocksProxy,
   useSocksProxyPort,
   useSocksProxyHost,
+  useSocksProxyOnionHost,
   secureWithPasscode,
   secureWithFaceID,
   secureWithFingerprint,

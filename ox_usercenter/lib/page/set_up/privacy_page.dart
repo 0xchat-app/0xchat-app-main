@@ -114,13 +114,16 @@ class _PrivacyPageState extends State<PrivacyPage> {
         isShowUnderline = model.switchValue;
         break;
       case SecureItemType.useSocksProxyHost:
-        bottomLeft = 16.px;
-        bottomRight = 16.px;
+        isShowUnderline = true;
+        rightContent = proxyInfo.socksProxyHost;
+        break;
+      case SecureItemType.useSocksProxyOnionHost:
         rightContent = proxyInfo.onionHostOption.text;
+        isShowUnderline = true;
         break;
       case SecureItemType.useSocksProxyPort:
-        rightContent = proxyInfo.socksProxyPort.toString();
         isShowUnderline = true;
+        rightContent = proxyInfo.socksProxyPort.toString();
         break;
     }
     if (index == _secureModelList.length-1){
@@ -222,7 +225,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
   }
 
   Widget _proxyTurnOnTipsWidget(SecureItemType type){
-    if(type != SecureItemType.useSocksProxyHost) return const SizedBox();
+    if(type != SecureItemType.useSocksProxyOnionHost) return const SizedBox();
     return SizedBox(
       width: double.infinity,
       child: RichText(
@@ -232,7 +235,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             color: ThemeColor.color100,
             fontSize: 12.px,
           ),
-          children: [
+          children: const [
             TextSpan(
               text: 'No: ',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -387,6 +390,20 @@ class _PrivacyPageState extends State<PrivacyPage> {
         }
         break;
       case SecureItemType.useSocksProxyHost:
+        ProxySettings proxyInfo = Config.sharedInstance.getProxy();
+        final text = await OXCommonHintDialog.showInputDialog(
+          context,
+          title: 'Set host',
+          keyboardType: TextInputType.text,
+          defaultText: proxyInfo.socksProxyHost.toString(),
+        );
+        if(text != null && text.isNotEmpty){
+          proxyInfo.socksProxyHost = text;
+          await Config.sharedInstance.setProxy(proxyInfo);
+          _initData();
+        }
+        break;
+      case SecureItemType.useSocksProxyOnionHost:
         showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (context) => _buildSetProxyBottomDialog());
 
         break;
@@ -425,7 +442,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 _buildProxyItem(
                   isSelect: type == proxyInfo.onionHostOption,
                   type.text,
-                  onTap: () => _setProxyHost(type),
+                  onTap: () => _setProxyOnionHost(type),
                 ),
                 Divider(
                   color: ThemeColor.color170,
@@ -470,7 +487,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
     );
   }
 
-  void _setProxyHost(EOnionHostOption type) async {
+  void _setProxyOnionHost(EOnionHostOption type) async {
     ProxySettings proxyInfo = Config.sharedInstance.getProxy();
     proxyInfo.onionHostOption = type;
     await Config.sharedInstance.setProxy(proxyInfo);
