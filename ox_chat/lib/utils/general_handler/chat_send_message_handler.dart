@@ -576,6 +576,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
       context: context,
       content: localTextKey ?? text,
       messageType: MessageType.system,
+      sendingType: sendingType,
     );
   }
 
