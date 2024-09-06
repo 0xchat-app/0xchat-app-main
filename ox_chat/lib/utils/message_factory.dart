@@ -544,6 +544,7 @@ class CustomMessageFactory implements MessageFactory {
         }
 
       case CustomMessageType.imageSending:
+        final fileId = contentMap[ImageSendingMessageEx.metaFileIdKey];
         final path = contentMap[ImageSendingMessageEx.metaPathKey];
         final url = contentMap[ImageSendingMessageEx.metaURLKey];
         final width = contentMap[ImageSendingMessageEx.metaWidthKey];
@@ -559,6 +560,7 @@ class CustomMessageFactory implements MessageFactory {
           expiration: expiration,
           reactions: reactions,
           zapsInfoList: zapsInfoList,
+          fileId: fileId,
           path: path,
           url: url,
           width: width,
@@ -757,6 +759,7 @@ class CustomMessageFactory implements MessageFactory {
     int? expiration,
     List<types.Reaction> reactions = const [],
     List<types.ZapsInfo> zapsInfoList = const [],
+    required String fileId,
     required String path,
     required String url,
     required int? width,
@@ -771,6 +774,7 @@ class CustomMessageFactory implements MessageFactory {
       remoteId: remoteId,
       roomId: roomId,
       metadata: CustomMessageEx.imageSendingMetaData(
+        fileId: fileId,
         path: path,
         url: url,
         width: width,

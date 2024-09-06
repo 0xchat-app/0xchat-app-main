@@ -686,24 +686,3 @@ extension UIMessageEx on types.Message {
         && ImageSendingMessageEx(msg).url.isNotEmpty;
   }
 }
-
-extension UIImageMessageEx on types.ImageMessage {
-  types.Message asCustomImageMessage() {
-    return CustomMessageFactory().createImageSendingMessage(
-      author: author,
-      timestamp: this.createdAt,
-      roomId: roomId ?? '',
-      id: id,
-      path: '',
-      url: uri,
-      width: width?.toInt(),
-      height: height?.toInt(),
-      encryptedKey: decryptKey,
-      remoteId: remoteId,
-      sourceKey: sourceKey,
-      expiration: expiration,
-      reactions: reactions,
-      zapsInfoList: zapsInfoList,
-    );
-  }
-}

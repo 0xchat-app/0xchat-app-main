@@ -105,6 +105,7 @@ extension CustomMessageEx on types.CustomMessage {
   }
 
   static Map<String, dynamic> imageSendingMetaData({
+    String fileId = '',
     String path = '',
     String url = '',
     int? width,
@@ -112,6 +113,7 @@ extension CustomMessageEx on types.CustomMessage {
     String? encryptedKey,
   }) {
     return _metaData(CustomMessageType.imageSending, {
+      ImageSendingMessageEx.metaFileIdKey: fileId,
       ImageSendingMessageEx.metaPathKey: path,
       ImageSendingMessageEx.metaURLKey: url,
       if (width != null)
@@ -411,22 +413,20 @@ extension EcashV2MessageEx on types.CustomMessage {
 
 
 extension ImageSendingMessageEx on types.CustomMessage {
+  static const metaFileIdKey = 'fileId';
   static const metaPathKey = 'path';
   static const metaURLKey = 'url';
   static const metaWidthKey = 'width';
   static const metaHeightKey = 'height';
   static const metaEncryptedKey = 'encrypted';
 
+  String get fileId => metadata?[CustomMessageEx.metaContentKey]?[metaFileIdKey] ?? '';
   String get path => metadata?[CustomMessageEx.metaContentKey]?[metaPathKey] ?? '';
   // This property could be a remote URL or an image encoded in Base64 format.
   String get url => metadata?[CustomMessageEx.metaContentKey]?[metaURLKey] ?? '';
   int? get width => metadata?[CustomMessageEx.metaContentKey]?[metaWidthKey];
   int? get height => metadata?[CustomMessageEx.metaContentKey]?[metaHeightKey];
   String? get encryptedKey => metadata?[CustomMessageEx.metaContentKey]?[metaEncryptedKey];
-
-  String get fileId => ImageSendingMessageEx.fileIdWithPath(path);
-
-  static String fileIdWithPath(String path) => path.getFileName(withExtension: false) ?? '';
 }
 
 extension VideoMessageEx on types.CustomMessage {
