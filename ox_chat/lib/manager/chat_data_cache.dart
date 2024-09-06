@@ -137,6 +137,18 @@ class ChatDataCache with OXChatObserver {
       }
     }
     notifyChatObserverValueChanged(key);
+
+    // If no new messages are retrieved from the DB, attempt to fetch them from the relay.
+    final coreChatType = session.coreChatType;
+    if (result.isEmpty && coreChatType != null) {
+      Messages.recoverMessagesFromRelay(
+        session.chatId,
+        coreChatType,
+        until: lastMessageDate,
+        limit: loadMsgCount * 3,
+      );
+    }
+
     return result;
   }
 
@@ -970,6 +982,29 @@ extension ChatDataCacheGeneralMethodEx on ChatDataCache {
     } else {
       ChatLogUtils.error(className: 'ChatDataCache', funcName: 'isContainMessage', message: 'unknown message type');
       return false;
+    }
+  }
+}
+
+extension CommonChatSessionEx on ChatSessionModelISAR {
+  bool get showUserNames => chatType != 0;
+
+  /// Integer value for [MessageDBISAR.chatType].
+  /// Returns `null` if the [chatType] does not match any known chat type.
+  int? get coreChatType {
+    switch(chatType) {
+      case ChatType.chatSingle:
+        return 0;
+      case ChatType.chatGroup:
+        return 1;
+      case ChatType.chatChannel:
+        return 2;
+      case ChatType.chatSecret:
+        return 3;
+      case ChatType.chatRelayGroup:
+        return 4;
+      default:
+        return null;
     }
   }
 }

@@ -222,5 +222,10 @@
   "str_notification_groups_tips": "启用群消息通知。",
   "str_p2p_title": "语音和视频数据通过TURN服务器中继，以防止您的IP地址暴露给您的联系人。",
   "str_p2p_tips": "始终使用中继",
-  "str_read_file_failed": "读取文件失败"
+  "str_read_file_failed": "读取文件失败",
+  "nuts_zaps": "Nuts Zaps",
+  "use_socks_proxy":"使用SOCKS代理",
+  "use_socks_proxy_port":"端口",
+  "use_socks_proxy_onion_host": "使用.onion地址",
+  "use_socks_proxy_host": "主机"
 }

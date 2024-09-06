@@ -85,7 +85,16 @@ class ChatGeneralHandler {
   final ChatSessionModelISAR session;
   final types.EncryptionType fileEncryptionType;
 
-  bool hasMoreMessage = false;
+  bool _hasMoreMessage = false;
+  bool get hasMoreMessage => _hasMoreMessage;
+  set hasMoreMessage(bool value) {
+    final coreChatType = session.coreChatType;
+     if (coreChatType == 2 || coreChatType == 4) {
+       _hasMoreMessage = true;
+       return ;
+     }
+    _hasMoreMessage = value;
+  }
 
   ChatReplyHandler replyHandler = ChatReplyHandler();
   ChatMentionHandler? mentionHandler;
