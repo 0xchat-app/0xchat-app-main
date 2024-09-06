@@ -225,7 +225,7 @@
   "str_read_file_failed": "Failed to read file",
   "removePhoto": "Remove Photo",
   "nuts_zaps": "Nuts Zaps",
-  "use_socks_proxy":"Use socks proxy",
+  "use_socks_proxy":"Use SOCKS proxy",
   "use_socks_proxy_port":"Port",
   "use_socks_proxy_host": "Use .onion hosts"
 

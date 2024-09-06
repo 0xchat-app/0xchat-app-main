@@ -224,7 +224,7 @@
   "str_p2p_tips": "始终使用中继",
   "str_read_file_failed": "读取文件失败",
   "nuts_zaps": "Nuts Zaps",
-  "use_socks_proxy":"Use socks proxy",
-  "use_socks_proxy_port":"Port",
-  "use_socks_proxy_host": "Use .onion hosts"
+  "use_socks_proxy":"使用SOCKS代理",
+  "use_socks_proxy_port":"端口",
+  "use_socks_proxy_host": "使用.onion地址"
 }
