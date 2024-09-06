@@ -215,6 +215,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendImageMessageWithFile(BuildContext context, List<File> images) async {
     for (final imageFile in images) {
+      final fileId = await EncodeUtils.generatePartialFileMd5(imageFile);
       final bytes = await imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
       final encryptedKey = fileEncryptionType == types.EncryptionType.encrypted
@@ -222,10 +223,10 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
       await sendImageMessage(
         context: context,
+        fileId: fileId,
         filePath: imageFile.path,
         imageWidth: image.width,
         imageHeight: image.height,
-        fileId: ImageSendingMessageEx.fileIdWithPath(imageFile.path),
         encryptedKey: encryptedKey,
       );
     }
@@ -233,20 +234,20 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   Future sendImageMessage({
     BuildContext? context,
+    String? fileId,
     String? filePath,
     String? url,
     int? imageWidth,
     int? imageHeight,
     String? encryptedKey,
-    String? fileId,
     types.CustomMessage? resendMessage,
   }) async {
     if (resendMessage != null) {
+      fileId ??= ImageSendingMessageEx(resendMessage).fileId;
       filePath ??= ImageSendingMessageEx(resendMessage).path;
       imageWidth ??= ImageSendingMessageEx(resendMessage).width;
       imageHeight ??= ImageSendingMessageEx(resendMessage).height;
       encryptedKey ??= ImageSendingMessageEx(resendMessage).encryptedKey;
-      fileId ??= ImageSendingMessageEx(resendMessage).fileId;
       url ??= ImageSendingMessageEx(resendMessage).url;
     }
 
@@ -257,7 +258,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         imageWidth: imageWidth,
         imageHeight: imageHeight,
         encryptedKey: encryptedKey,
-        replaceMessageId: resendMessage?.id,
+        resendMessage: resendMessage,
       );
       return ;
     }
@@ -274,6 +275,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     String content = '';
     try {
       content = jsonEncode(CustomMessageEx.imageSendingMetaData(
+        fileId: fileId,
         path: filePath,
         url: url ?? '',
         width: imageWidth,
@@ -338,14 +340,17 @@ extension ChatMessageSendEx on ChatGeneralHandler {
 
   void sendImageMessageWithURL({
     required String imageURL,
+    String? fileId,
     String? imagePath,
     int? imageWidth,
     int? imageHeight,
     String? encryptedKey,
     String? replaceMessageId,
+    types.Message? resendMessage,
   }) {
     try {
       final content = jsonEncode(CustomMessageEx.imageSendingMetaData(
+        fileId: fileId ?? '',
         url: imageURL,
         path: imagePath ?? '',
         width: imageWidth,
@@ -357,6 +362,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         content: content,
         messageType: MessageType.template,
         replaceMessageId: replaceMessageId,
+        resendMessage: resendMessage,
       );
     } catch(_) { return ; }
   }
@@ -450,7 +456,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         snapshotPath: snapshotPath,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
-        replaceMessageId: resendMessage?.id,
+        resendMessage: resendMessage,
       );
       return ;
     }
@@ -520,6 +526,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
     int? imageWidth,
     int? imageHeight,
     String? replaceMessageId,
+    types.Message? resendMessage,
   }) {
     try {
       final contentJson = jsonEncode(CustomMessageEx.videoMetaData(
@@ -534,6 +541,7 @@ extension ChatMessageSendEx on ChatGeneralHandler {
         content: contentJson,
         messageType: MessageType.template,
         replaceMessageId: replaceMessageId,
+        resendMessage: resendMessage,
       );
     } catch (_) { }
   }
