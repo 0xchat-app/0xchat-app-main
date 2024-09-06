@@ -172,7 +172,6 @@ class CommonSelectRelayPageState extends State<CommonSelectRelayPage> {
         horizontal: Adapt.px(24),
       ),
       width: double.infinity,
-      height: Adapt.px(48),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: ThemeColor.color180,
