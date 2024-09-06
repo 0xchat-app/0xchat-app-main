@@ -252,6 +252,7 @@ class _ChatMessagePageState extends State<ChatMessagePage> with MessagePromptTon
   }
 
   Future<void> _handelDMRelay() async {
+    Contacts.sharedInstance.connectUserDMRelays(widget.communityItem.chatId);
     await Account.sharedInstance.reloadProfileFromRelay(otherUser?.pubKey ?? '');
     if(otherUser?.dmRelayList?.isNotEmpty == false){
       chatGeneralHandler.sendSystemMessage(
