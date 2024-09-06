@@ -225,15 +225,39 @@ class _PrivacyPageState extends State<PrivacyPage> {
     if(type != SecureItemType.useSocksProxyHost) return const SizedBox();
     return SizedBox(
       width: double.infinity,
-      child: Text(
-        'Using .onion hosts requires compatible VPN provider.',
+      child: RichText(
         textAlign: TextAlign.start,
-        style: TextStyle(
-          color: ThemeColor.color100,
-          fontSize: 12.px,
-
+        text: TextSpan(
+          style: TextStyle(
+            color: ThemeColor.color100,
+            fontSize: 12.px,
+          ),
+          children: [
+            TextSpan(
+              text: 'No: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
+              text: 'Never use .onion hosts\n\n',
+            ),
+            TextSpan(
+              text: 'When available(default): ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
+              text: 'Uses .onion hosts when available\n\n',
+            ),
+            TextSpan(
+              text: 'Required: ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
+              text: 'Always use .onion hosts',
+            ),
+          ],
         ),
       ),
+
     ).setPaddingOnly(top: 8.px);
   }
 
