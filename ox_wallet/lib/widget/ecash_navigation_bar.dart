@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ox_common/navigator/navigator.dart';
 import 'package:ox_common/utils/adapt.dart';
 import 'package:ox_common/utils/theme_color.dart';
+import 'package:ox_common/widgets/common_hint_dialog.dart';
 import 'package:ox_common/widgets/common_image.dart';
 import 'package:ox_common/widgets/common_loading.dart';
 import 'package:ox_common/widgets/common_toast.dart';
@@ -17,6 +18,7 @@ import 'package:ox_wallet/services/ecash_service.dart';
 import 'package:ox_wallet/utils/wallet_utils.dart';
 import 'package:ox_wallet/widget/common_modal_bottom_sheet_widget.dart';
 import 'package:ox_localizable/ox_localizable.dart';
+import 'package:cashu_dart/cashu_dart.dart';
 
 enum ItemType{
   redeemEcash,
@@ -127,30 +129,69 @@ class _EcashNavigationBarState extends State<EcashNavigationBar> {
     );
   }
 
-  Future<void> _redeemCashuToken() async {
-    String? content = await WalletUtils.getClipboardData();
-    if(content!=null && content.isNotEmpty){
-      if(EcashService.isCashuToken(content)){
-        OXLoading.show();
-        final result = await EcashService.redeemEcash(content);
-        OXLoading.dismiss();
-        if(!result.isSuccess) {
-          _showToast(result.errorMsg);
-          return;
-        }
-        final (memo, amount) = result.data;
-        if(context.mounted) await OXNavigator.pushPage(context, (context) => WalletSuccessfulPage.redeemClaimed(amount: amount.toString(),content: memo,onTap: () => OXNavigator.pop(context!),));
-      }else{
-        _showToast(Localized.text('ox_wallet.valid_cashu_token_tips'));
-      }
-    }else {
+  Future<void> _redeemCashuToken({String? content}) async {
+    content ??= await WalletUtils.getClipboardData();
+
+    if (content == null || content.isEmpty) {
       _showToast(Localized.text('ox_wallet.clipboard_no_content_tips'));
+      _safePop();
+      return ;
     }
-    if(context.mounted) OXNavigator.pop(context);
+
+    if (!EcashService.isCashuToken(content)) {
+      _showToast(Localized.text('ox_wallet.valid_cashu_token_tips'));
+      _safePop();
+      return ;
+    }
+
+    OXLoading.show();
+    final result = await EcashService.redeemEcash(content);
+    if (!result.isSuccess) {
+      if (result.code == ResponseCode.tokenAlreadySpentError) {
+        final spendableToken = await EcashService.tryCreateSpendableEcashToken(content);
+        OXLoading.dismiss();
+        if (spendableToken != null) {
+          OXCommonHintDialog.show(
+            context,
+            content: Localized.text('ox_wallet.some_proofs_spendable_hint'),
+            showCancelButton: true,
+            isRowAction: true,
+            actionList: [
+              OXCommonHintAction.sure(
+                text: 'Redeem',
+                onTap: () {
+                  _redeemCashuToken(content: spendableToken);
+                },)
+            ],
+          );
+          return ;
+        }
+      }
+      OXLoading.dismiss();
+      _showToast(result.errorMsg);
+      _safePop();
+      return;
+    }
+
+    OXLoading.dismiss();
+    final (memo, amount) = result.data;
+    if (context.mounted) {
+      _jumpToPage(pageBuilder: (context) => WalletSuccessfulPage.redeemClaimed(
+        amount: amount.toString(),
+        content: memo,
+        onTap: () => OXNavigator.pop(context!),
+      ));
+    }
   }
 
   void _showToast(String message) {
     if (context.mounted) CommonToast.instance.show(context, message);
+  }
+
+  void _safePop() {
+    if (context.mounted) {
+      OXNavigator.pop(context);
+    }
   }
 
   void _jumpToPage({required Widget Function(BuildContext? context) pageBuilder}) {

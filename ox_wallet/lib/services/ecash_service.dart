@@ -153,6 +153,10 @@ class EcashService {
     return result;
   }
 
+  static Future<String?> tryCreateSpendableEcashToken(String token) {
+    return Cashu.tryCreateSpendableEcashToken(token);
+  }
+
   static Future<void> editMintName(IMint mint, String name) async {
     return await Cashu.editMintName(mint, name);
   }
