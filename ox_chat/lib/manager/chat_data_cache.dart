@@ -712,11 +712,6 @@ extension ChatDataCacheEx on ChatDataCache {
     try {
       var uiMsg = await message.toChatUIMessage();
       if (uiMsg == null) return null;
-      if (_isErrorStatusMessage(uiMsg)) {
-        uiMsg = uiMsg.copyWith(
-          status: types.Status.error,
-        );
-      }
 
       if (message.messageId == ChatMessageHelper.logger?.messageId) {
         ChatMessageHelper.logger?.print('distribute - key: $key');
