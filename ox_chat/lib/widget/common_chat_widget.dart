@@ -53,6 +53,7 @@ class CommonChatWidgetState extends State<CommonChatWidget> {
   void initState() {
     tryInitDraft();
     super.initState();
+    widget.handler.updateMessageReactionsListener(widget.messages);
     addListener();
   }
 
