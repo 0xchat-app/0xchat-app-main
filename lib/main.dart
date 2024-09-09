@@ -50,19 +50,14 @@ class MyHttpOverrides extends HttpOverrides {
           return 'DIRECT';
         }
         if (settings.turnOnProxy) {
+          bool onionURI = uri.host.contains(".onion");
           switch (settings.onionHostOption) {
             case EOnionHostOption.no:
-              if (uri.host.contains(".onion")) {
-                return 'DIRECT';
-              }
-              break;
+              return onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
             case EOnionHostOption.whenAvailable:
-              return 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
+              return !onionURI ? 'DIRECT' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
             case EOnionHostOption.required:
-              if (!uri.host.contains(".onion")) {
-                return 'DIRECT';
-              }
-              break;
+              return !onionURI ? '' : 'PROXY ${settings.socksProxyHost}:${settings.socksProxyPort}';
             default:
               break;
           }
