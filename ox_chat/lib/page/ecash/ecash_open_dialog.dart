@@ -412,19 +412,12 @@ class EcashOpenDialogState extends State<EcashOpenDialog> with SingleTickerProvi
   void redeemPackage() async {
     if (isRedeemed) return ;
 
-    final success = await EcashHelper.tryRedeemTokenList(widget.package);
+    final errorMsg = await EcashHelper.tryRedeemTokenList(widget.package);
 
-    if (success == null) {
-      CommonToast.instance.show(context, 'ecash_redeem_failed_hint'.localized());
-      setState(() {
-        isRedeemed = widget.package.isRedeemed;
-      });
-      return ;
-    }
-    if (success) {
+    if (errorMsg == null) {
       jumpToDetailPage(false);
     } else {
-      CommonToast.instance.show(context, 'ecash_tokens_already_spent'.localized());
+      CommonToast.instance.show(context, errorMsg);
       setState(() {
         isRedeemed = widget.package.isRedeemed;
       });
